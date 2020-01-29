@@ -9,6 +9,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
+import eu.domibus.common.dao.UserMessageDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.RetryStrategy;
@@ -55,6 +56,9 @@ public class UpdateRetryLoggingService {
 
     @Autowired
     private MessagingDao messagingDao;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -139,7 +143,7 @@ public class UpdateRetryLoggingService {
         userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            messagingDao.clearPayloadData(userMessage);
+            userMessageDao.clearPayloadData(userMessage);
         }
     }
 

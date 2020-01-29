@@ -7,6 +7,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.RawEnvelopeLogDao;
+import eu.domibus.common.dao.UserMessageDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -81,6 +82,9 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected MpcService mpcService;
 
+    @Autowired
+    private UserMessageDao userMessageDao;
+
     private Integer extraNumberOfAttemptTimeForExpirationDate;
 
     /**
@@ -153,7 +157,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                messagingDao.clearPayloadData(userMessage);
+                userMessageDao.clearPayloadData(userMessage);
                 userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:

@@ -9,10 +9,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.exception.MessagingExceptionFactory;
@@ -143,6 +140,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
+    private UserMessageDao userMessageDao;
+
+    @Autowired
     private MetricRegistry metricRegistry;
 
     @Override
@@ -175,7 +175,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             if (shouldDeleteDownloadedMessage) {
                 com.codahale.metrics.Timer.Context clearPayloadTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "clearPayload.timer")).time();
-                messagingDao.clearPayloadData(userMessage);
+                userMessageDao.clearPayloadData(userMessage);
                 clearPayloadTimer.stop();
 
                 com.codahale.metrics.Timer.Context setAsDeletedTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "setAsDeleted.timer")).time();

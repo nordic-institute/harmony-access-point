@@ -13,10 +13,7 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
@@ -144,6 +141,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -557,7 +557,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
-        messagingDao.clearPayloadData(userMessage);
+        userMessageDao.clearPayloadData(userMessage);
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);

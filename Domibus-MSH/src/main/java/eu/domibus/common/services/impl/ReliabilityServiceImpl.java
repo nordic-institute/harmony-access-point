@@ -4,6 +4,7 @@ import com.codahale.metrics.Timer;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.UserMessageDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.api.metrics.MetricsHelper;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -65,6 +66,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     protected ResponseHandler responseHandler;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
 
     /**
      * {@inheritDoc}
@@ -142,7 +146,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.clearPayloadData").time();
-                    messagingDao.clearPayloadData(userMessage);
+                    userMessageDao.clearPayloadData(userMessage);
                 } finally {
                     if (timerContext != null) {
                         timerContext.stop();
