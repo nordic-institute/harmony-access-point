@@ -295,7 +295,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @param groupName scheduler group name
      * @throws SchedulerException scheduler exception
      */
-    private void checkSchedulerJobsFromGroup(Scheduler scheduler, final String groupName) throws SchedulerException {
+    protected void checkSchedulerJobsFromGroup(Scheduler scheduler, final String groupName) throws SchedulerException {
 
         //go through jobs to see which one throws ClassNotFoundException
         for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {

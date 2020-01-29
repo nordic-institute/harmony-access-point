@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
@@ -599,5 +600,35 @@ public class MessageUtilTest {
         }};
         Assert.assertNotNull(messageUtil.getMessageFragment(soapMessage));
 
+    }
+
+    @Test(expected = MessagingException.class)
+    public void getMessageTest(@Injectable SOAPMessage request,
+                               @Injectable Messaging messaging) throws SOAPException, JAXBException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getMessaging(request);
+            result = new JAXBException("Error marshalling the message", "DOM_001");
+        }};
+        messageUtil.getMessage(request);
+        new Verifications() {{
+            messageUtil.getMessaging(request);
+            times = 1;
+        }};
+        Assert.fail();
+    }
+
+    @Test
+    public void getFirstChildValueTest(@Injectable Node parent) {
+        String childName = "child1";
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(parent, childName);
+            result = null;
+        }};
+        messageUtil.getFirstChildValue(parent, childName);
+        new Verifications() {{
+            messageUtil.getTextContent(withCapture());
+            times = 0;
+        }};
     }
 }
