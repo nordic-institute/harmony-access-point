@@ -21,8 +21,8 @@
 		<junit_version>1.1.0</junit_version>
 		<slf4j_version>1.7.25</slf4j_version>
 		<commons-csv_version>1.5</commons-csv_version>
-		<selenium-chrome-driver_version>3.14.0</selenium-chrome-driver_version>
-		<selenium-java_version>3.9.1</selenium-java_version>
+		<selenium-chrome-driver_version>3.141.59</selenium-chrome-driver_version>
+		<selenium-java_version>3.141.59</selenium-java_version>
 		<testng_version>7.0.0</testng_version>
 		<poi-ooxml_version>3.17</poi-ooxml_version>
 		<reflections_version>0.9.11</reflections_version>
