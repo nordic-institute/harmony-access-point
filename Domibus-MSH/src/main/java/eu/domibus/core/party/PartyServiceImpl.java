@@ -10,7 +10,7 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.*;
 import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -24,6 +24,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -440,10 +441,10 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public void updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) {
+    public List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) {
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
         if (pModeArchiveInfo == null) {
-            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
+            throw new PModeException("Could not update PMode parties: PMode not found!");
         }
 
         ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
@@ -453,27 +454,38 @@ public class PartyServiceImpl implements PartyService {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
         } catch (XmlProcessingException e) {
             LOG.error("Error reading current PMode", e);
-            throw new IllegalStateException(e);
+            throw createModeValidationException(e, "Error reading current PMode due to: ");
         }
 
         ReplacementResult replacementResult = replaceParties(partyList, configuration);
 
-        updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
+        List<PModeIssue> result = updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
 
         updatePartyCertificate(partyToCertificateMap, replacementResult);
+
+        return result;
     }
 
-    private void updateConfiguration(Date configurationDate, Configuration updatedConfiguration) {
+    private PModeValidationException createModeValidationException(XmlProcessingException e, String message) {
+        if (CollectionUtils.isEmpty(e.getErrors())) {
+            message += ExceptionUtils.getRootCauseMessage(e);
+        }
+        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
+        return new PModeValidationException(message, errors);
+    }
+
+    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) {
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
 
         try {
             byte[] updatedPMode = pModeProvider.serializePModeConfiguration(updatedConfiguration);
-            pModeProvider.updatePModes(updatedPMode, updatedDescription);
+            List<PModeIssue> result = pModeProvider.updatePModes(updatedPMode, updatedDescription);
+            return result;
         } catch (XmlProcessingException e) {
             LOG.error("Error writing current PMode", e);
-            throw new IllegalStateException(e);
+            throw  createModeValidationException(e, "Error writing current PMode due to: ");
         }
     }
 

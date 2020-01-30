@@ -93,7 +93,7 @@ public class PModeFileResource {
             LOG.error("Validation exception uploading the PMode", ve);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(ve.getMessage(),
-                    ve.getIssues().stream().map(i -> getpModeIssueDTO(i)).collect(Collectors.toList())));
+                    ve.getIssues().stream().map(i -> createIssue(i)).collect(Collectors.toList())));
         } catch (PModeException e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(e.getMessage()));
@@ -104,8 +104,15 @@ public class PModeFileResource {
         }
     }
 
-    private PModeIssueDTO getpModeIssueDTO(PModeIssue i) {
-        return new PModeIssueDTO(i.getMessage(), IssueLevelExt.valueOf(i.getLevel().toString()));
+    private PModeIssueDTO createIssue(PModeIssue i) {
+        IssueLevelExt level;
+        try {
+            level = IssueLevelExt.valueOf(i.getLevel().toString());
+        } catch (IllegalArgumentException ex) {
+            level = IssueLevelExt.WARNING;
+            LOG.warn("Coud not create IssueLevelExt from value [{}]. Put WARNING as default.", i.getLevel());
+        }
+        return new PModeIssueDTO(i.getMessage(), level);
     }
 
 }

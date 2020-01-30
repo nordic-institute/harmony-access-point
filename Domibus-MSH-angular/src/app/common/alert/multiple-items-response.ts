@@ -18,6 +18,7 @@ export interface ResponseItemDetail {
 }
 
 export function instanceOfMultipleItemsResponse(object: any): object is MultipleItemsResponse {
+  if (typeof object == "string") return false;
   return 'message' in object && 'issues' in object && Array.isArray(object.issues);
 }
 
