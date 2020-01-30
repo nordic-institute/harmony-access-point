@@ -20,6 +20,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
+import org.apache.tika.mime.MimeTypeException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -498,7 +499,7 @@ public class BackendFSImplTest {
             fsFilesManager.getEnsureChildFolder(rootDirectory, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
 
-            backendFS.findMessageFile((FileObject)any, messageId);
+            backendFS.findMessageFile((FileObject) any, messageId);
             result = contentFile;
 
             fsPluginProperties.isSentActionDelete(null);
@@ -649,5 +650,15 @@ public class BackendFSImplTest {
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
         }};
+    }
+
+    @Test
+    public void getFileNameExtensionTest() throws MimeTypeException {
+        String mimeType = "text/xml";
+        new Expectations() {{
+            fsMimeTypeHelper.getExtension(mimeType);
+            result = new MimeTypeException("Invalid Type");
+        }};
+        Assert.assertNotNull(backendFS.getFileNameExtension(mimeType));
     }
 }
