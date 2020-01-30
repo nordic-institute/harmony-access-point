@@ -34,10 +34,7 @@ import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.SubmissionValidationException;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -1243,5 +1240,62 @@ public class UserMessageHandlerServiceImplTest {
         } catch (EbMS3Exception e) {
             Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0048);
         }
+    }
+
+    @Test
+    public void handleNewSourceUserMessageTest(@Injectable LegConfiguration legConfiguration,
+                                               @Injectable SOAPMessage request,
+                                               @Injectable Messaging messaging) throws IOException, EbMS3Exception, SOAPException, JAXBException, TransformerException {
+
+        String pmodeKey = "pmodeKey";
+        boolean testMessage = true;
+        boolean selfSendingFlag = true;
+        boolean messageExists = true;
+        new Expectations(userMessageHandlerService) {{
+            userMessageHandlerService.checkSelfSending(pmodeKey);
+            result = selfSendingFlag;
+            legConfiguration.getReceptionAwareness().getDuplicateDetection();
+            result = true;
+            userMessageHandlerService.checkDuplicate(messaging);
+            result = messageExists;
+
+        }};
+
+        userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+        new Verifications() {{
+            userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void checkTestMessageTest(@Injectable LegConfiguration legConfiguration) {
+        new Expectations(userMessageHandlerService) {{
+            legConfiguration.getService().getValue();
+            result = any;
+            legConfiguration.getAction().getValue();
+            result = any;
+        }};
+        //when
+        userMessageHandlerService.checkTestMessage(legConfiguration);
+        //then
+        new Verifications() {{
+            userMessageHandlerService.checkTestMessage(withCapture(), withCapture());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void createErrorResultTest(@Injectable EbMS3Exception ebm3Exception,
+                                      @Mocked ErrorResultImpl result,
+                                      @Injectable ErrorCode errorCode) {
+        new Expectations(userMessageHandlerService) {{
+            ebm3Exception.getRefToMessageId();
+            result = anyString;
+            ebm3Exception.getErrorCodeObject();
+            result = errorCode;
+        }};
+        //when
+        Assert.assertNotNull(userMessageHandlerService.createErrorResult(ebm3Exception));
     }
 }
