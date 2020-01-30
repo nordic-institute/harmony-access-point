@@ -11,6 +11,8 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.process.Process;
 import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -921,8 +923,8 @@ public class PartyServiceImplTest {
     @Test
     public void throwsExceptionIfItCannotRetrieveThePModeRawConfigurationsArchiveWhenUpdatingParties() {
         // Given
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("Could not update PMode parties: PMode not found!");
+        thrown.expect(PModeException.class);
+        thrown.expectMessage("[DOM_003]:Could not update PMode parties: PMode not found!");
 
         new Expectations() {{
             pModeProvider.getRawConfigurationList();
@@ -937,7 +939,7 @@ public class PartyServiceImplTest {
     public void throwsExceptionIfItCannotRetrieveThePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                           @Injectable ConfigurationRaw rawConfiguration) throws Exception {
         // Given
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(PModeValidationException.class);
 
         new Expectations() {{
             pModeArchiveInfo.getId();
@@ -961,7 +963,7 @@ public class PartyServiceImplTest {
     public void throwsExceptionIfItCannotUpdatePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                      @Injectable ConfigurationRaw rawConfiguration) throws Exception {
         // Given
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(PModeValidationException.class);
 
         new Expectations() {{
             pModeArchiveInfo.getId();

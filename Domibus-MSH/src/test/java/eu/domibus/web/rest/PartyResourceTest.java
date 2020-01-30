@@ -282,6 +282,6 @@ public class PartyResourceTest {
         final ResponseEntity response = partyResource.updateParties(partiesRo);
 
         // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }
