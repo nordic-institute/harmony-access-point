@@ -52,6 +52,8 @@ public interface DomibusExtMapper {
 
     PartyDTO partyToPartyDTO(Party party);
 
+    Party partyDTOToParty(PartyDTO partyDTO);
+
     ProcessDTO processToProcessDTO(Process process);
 
     PartyIdentifierDTO partyIdentifierToPartyIdentifierDto(Identifier partyIdentifier);

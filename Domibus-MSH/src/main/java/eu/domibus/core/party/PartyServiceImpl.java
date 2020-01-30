@@ -361,6 +361,18 @@ public class PartyServiceImpl implements PartyService {
         return removedParties;
     }
 
+    /**
+     *
+     * @param newParties
+     * @param configuration
+     */
+    private void addConfigurationParties(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        Parties parties = businessProcesses.getPartiesXml();
+
+        parties.getParty().addAll(newParties);
+    }
+
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
         String partyMe = pModeProvider.getGatewayParty().getName();
         if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe))) {
@@ -477,12 +489,28 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
+    /**
+     * Updates certificates for parties
+     * @param partyToCertificateMap
+     * @param replacementResult
+     */
     protected void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         List<String> aliases = getRemovedParties(replacementResult);
         if (CollectionUtils.isNotEmpty(aliases)) {
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
         }
+        addPartyCertificate(partyToCertificateMap);
+    }
+
+    /**
+     * Add new certificates to parties
+     *
+     * @param partyToCertificateMap pair of partyName and certificate content
+     */
+    protected void addPartyCertificate(Map<String, String> partyToCertificateMap) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
         List<CertificateEntry> certificates = new ArrayList<>();
         for (Map.Entry<String, String> pair : partyToCertificateMap.entrySet()) {
             if (pair.getValue() == null) {
@@ -519,6 +547,50 @@ public class PartyServiceImpl implements PartyService {
         }
         List<eu.domibus.api.process.Process> processes = domainCoreConverter.convert(allProcesses, eu.domibus.api.process.Process.class);
         return processes;
+    }
+
+    @Override
+    public Party createParty(final Party party, final String certificateContent) {
+
+        //read current configuration
+        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
+        if (pModeArchiveInfo == null) {
+            throw new IllegalStateException("Could not create a Party: PMode not found!");
+        }
+        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
+
+
+        Configuration configuration;
+        try {
+            configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
+        } catch (XmlProcessingException e) {
+            LOG.error("Error reading current PMode", e);
+            throw new IllegalStateException(e);
+        }
+
+        eu.domibus.common.model.configuration.Party newParty = domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
+        List<eu.domibus.common.model.configuration.Party> newParties = Collections.singletonList(newParty);
+
+        //add new party to configuration
+        addConfigurationParties(newParties, configuration);
+
+        //update party id types
+        updatePartyIdTypes(newParties, configuration);
+
+        //update processes
+        updateProcessConfiguration(Collections.singletonList(party), configuration);
+
+        //TODO change the date?
+        updateConfiguration(rawConfiguration.getConfigurationDate(), configuration);
+
+        //add certificate as well
+        if (StringUtils.isNotBlank(certificateContent)) {
+            Map<String, String> map = new HashMap<>();
+            map.put(party.getName(), certificateContent);
+            addPartyCertificate(map);
+        }
+
+        return null;
     }
 
 }

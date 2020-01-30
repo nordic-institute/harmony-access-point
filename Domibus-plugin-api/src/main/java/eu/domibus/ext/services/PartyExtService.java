@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.PartyDTO;
+import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 
 import java.security.KeyStoreException;
@@ -12,6 +13,8 @@ import java.util.List;
  */
 public interface PartyExtService {
 
+    String createParty(final PartyDTO partyDTO);
+
     List<PartyDTO> getParties(String name,
                               String endPoint,
                               String partyId,
@@ -20,4 +23,6 @@ public interface PartyExtService {
                               int pageSize);
 
     TrustStoreDTO getPartyCertificateFromTruststore(final String partyName) throws KeyStoreException;
+
+    List<ProcessDTO> getAllProcesses();
 }

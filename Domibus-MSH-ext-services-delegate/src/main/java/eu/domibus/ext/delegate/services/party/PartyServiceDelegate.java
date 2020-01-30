@@ -3,9 +3,11 @@ package eu.domibus.ext.delegate.services.party;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.process.Process;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PartyDTO;
+import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -35,6 +37,15 @@ public class PartyServiceDelegate implements PartyExtService {
     DomainExtConverter domainConverter;
 
     @Override
+    public String createParty(PartyDTO partyDTO) {
+
+        Party newParty = domainConverter.convert(partyDTO, Party.class);
+        partyService.createParty(newParty, partyDTO.getCertificateContent());
+
+        return null;
+    }
+
+    @Override
     public List<PartyDTO> getParties(String name,
                                      String endPoint,
                                      String partyId,
@@ -51,5 +62,12 @@ public class PartyServiceDelegate implements PartyExtService {
         TrustStoreEntry trustStoreEntry = certificateService.getPartyCertificateFromTruststore(partyName);
         LOG.debug("Returned trustStoreEntry=[{}] for party name=[{}]", trustStoreEntry.getName(), partyName);
         return domainConverter.convert(trustStoreEntry, TrustStoreDTO.class);
+    }
+
+    @Override
+    public List<ProcessDTO> getAllProcesses() {
+        List<Process> processList = partyService.getAllProcesses();
+        LOG.debug("Returned [{}] processes", processList.size());
+        return domainConverter.convert(processList, ProcessDTO.class);
     }
 }

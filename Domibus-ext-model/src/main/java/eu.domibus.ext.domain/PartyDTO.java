@@ -2,6 +2,7 @@ package eu.domibus.ext.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,19 +15,24 @@ import java.util.Set;
  */
 public class PartyDTO {
 
-    protected Integer entityId;
+    private Integer entityId;
 
-    protected Set<PartyIdentifierDTO> identifiers;
+    @NotNull
+    private String name;
 
-    protected List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();
+    private String userName;
 
-    protected List<ProcessDTO> processesWithPartyAsResponder = new ArrayList<>();
+    @NotNull
+    private String endpoint;
 
-    protected String name;
+    @NotNull
+    private Set<PartyIdentifierDTO> identifiers;
 
-    protected String userName;
+    private List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();
 
-    protected String endpoint;
+    private List<ProcessDTO> processesWithPartyAsResponder = new ArrayList<>();
+
+    private String certificateContent;
 
     public Integer getEntityId() {
         return entityId;
@@ -34,30 +40,6 @@ public class PartyDTO {
 
     public void setEntityId(Integer entityId) {
         this.entityId = entityId;
-    }
-
-    public Set<PartyIdentifierDTO> getIdentifiers() {
-        return identifiers;
-    }
-
-    public void setIdentifiers(Set<PartyIdentifierDTO> identifiers) {
-        this.identifiers = identifiers;
-    }
-
-    public List<ProcessDTO> getProcessesWithPartyAsInitiator() {
-        return processesWithPartyAsInitiator;
-    }
-
-    public void setProcessesWithPartyAsInitiator(List<ProcessDTO> processesWithPartyAsInitiator) {
-        this.processesWithPartyAsInitiator = processesWithPartyAsInitiator;
-    }
-
-    public List<ProcessDTO> getProcessesWithPartyAsResponder() {
-        return processesWithPartyAsResponder;
-    }
-
-    public void setProcessesWithPartyAsResponder(List<ProcessDTO> processesWithPartyAsResponder) {
-        this.processesWithPartyAsResponder = processesWithPartyAsResponder;
     }
 
     public String getName() {
@@ -84,16 +66,49 @@ public class PartyDTO {
         this.endpoint = endpoint;
     }
 
+    public Set<PartyIdentifierDTO> getIdentifiers() {
+        return identifiers;
+    }
+
+    public void setIdentifiers(Set<PartyIdentifierDTO> identifiers) {
+        this.identifiers = identifiers;
+    }
+
+    public List<ProcessDTO> getProcessesWithPartyAsInitiator() {
+        return processesWithPartyAsInitiator;
+    }
+
+    public void setProcessesWithPartyAsInitiator(List<ProcessDTO> processesWithPartyAsInitiator) {
+        this.processesWithPartyAsInitiator = processesWithPartyAsInitiator;
+    }
+
+    public List<ProcessDTO> getProcessesWithPartyAsResponder() {
+        return processesWithPartyAsResponder;
+    }
+
+    public void setProcessesWithPartyAsResponder(List<ProcessDTO> processesWithPartyAsResponder) {
+        this.processesWithPartyAsResponder = processesWithPartyAsResponder;
+    }
+
+    public String getCertificateContent() {
+        return certificateContent;
+    }
+
+    public void setCertificateContent(String certificateContent) {
+        this.certificateContent = certificateContent;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("entityId", entityId)
-                .append("identifiers", identifiers)
-                .append("processesWithPartyAsInitiator", processesWithPartyAsInitiator)
-                .append("processesWithPartyAsResponder", processesWithPartyAsResponder)
                 .append("name", name)
                 .append("userName", userName)
                 .append("endpoint", endpoint)
+                .append("identifiers", identifiers)
+                .append("processesWithPartyAsInitiator", processesWithPartyAsInitiator)
+                .append("processesWithPartyAsResponder", processesWithPartyAsResponder)
+                .append("certificateContent", certificateContent)
                 .toString();
     }
 }

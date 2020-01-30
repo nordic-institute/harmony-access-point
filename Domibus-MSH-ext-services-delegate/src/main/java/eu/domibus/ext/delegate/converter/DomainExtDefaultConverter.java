@@ -117,6 +117,11 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             return (T) domibusExtMapper.partyToPartyDTO((Party) source);
         }
 
+        if (typeOfT == Party.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.partyDTOToParty((PartyDTO) source);
+        }
+
         if (typeOfT == TrustStoreDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.trustStoreEntryToTrustStoreDTO((TrustStoreEntry) source);

@@ -69,4 +69,6 @@ public interface PartyService {
      * @return a lit of processes.
      */
     List<Process> getAllProcesses();
+
+    Party createParty(Party party, String certificateContent);
 }
