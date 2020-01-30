@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
@@ -26,6 +27,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.messaging.DelayedDispatchMessageCreator;
 import eu.domibus.messaging.DispatchMessageCreator;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
@@ -49,7 +51,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Soumya
  * @since 3.3
  */
 @RunWith(JMockit.class)
@@ -728,5 +730,202 @@ public class UserMessageDefaultServiceTest {
         public static long currentTimeMillis() {
             return SYSTEM_DATE;
         }
+    }
+
+    @Test
+    public void deleteFailedMessageTest() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            times = 1;
+            userMessageDefaultService.deleteMessage(messageId);
+            times = 1;
+        }};
+        userMessageDefaultService.deleteFailedMessage(messageId);
+        new FullVerificationsInOrder(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId);
+        }};
+    }
+
+    @Test
+    public void scheduleSendingWithDelayTest(@Injectable final JmsMessage jmsMessage,
+                                             @Mocked DelayedDispatchMessageCreator delayedDispatchMessageCreator,
+                                             @Injectable UserMessageLog userMessageLog) {
+        final String messageId = UUID.randomUUID().toString();
+        ;
+        Long delay = 1L;
+        boolean isSplitAndJoin = false;
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            new DelayedDispatchMessageCreator(messageId, delay);
+            result = delayedDispatchMessageCreator;
+
+            delayedDispatchMessageCreator.createMessage();
+            result = jmsMessage;
+
+        }};
+
+        userMessageDefaultService.scheduleSending(messageId, delay, isSplitAndJoin);
+
+        new Verifications() {{
+            userMessageDefaultService.scheduleSending(userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
+                                                  @Mocked DispatchMessageCreator dispatchMessageCreator) {
+        final String messageId = UUID.randomUUID().toString();
+        ;
+        int retryCount = 3;
+        boolean isSplitAndJoin = false;
+
+        new Expectations(userMessageDefaultService) {{
+            new DispatchMessageCreator(messageId);
+            result = dispatchMessageCreator;
+
+            dispatchMessageCreator.createMessage(retryCount);
+            result = jmsMessage;
+
+        }};
+
+        userMessageDefaultService.scheduleSending(messageId, retryCount, isSplitAndJoin);
+
+        new Verifications() {{
+            userMessageDefaultService.scheduleSending(messageId, null, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void scheduleSendingPullReceiptWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
+                                                             @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pModeKey = "pModeKey";
+        final int retryCount = 3;
+
+        userMessageDefaultService.scheduleSendingPullReceipt(messageId, pModeKey, retryCount);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSplitAndJoinReceiveFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                      @Injectable UserMessageService userMessageService) {
+        final String sourceMessageId = UUID.randomUUID().toString();
+        final String groupId = "groupId";
+        final String errorCode = "ebms3ErrorCode";
+        final String errorDetail = "ebms3ErrorDetail";
+
+        userMessageDefaultService.scheduleSplitAndJoinReceiveFailed(groupId, sourceMessageId, errorCode, errorDetail);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+
+    }
+
+    @Test
+    public void scheduleSendingSignalErrorTest(@Injectable final JmsMessage jmsMessage,
+                                               @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pmodeKey = "pmodeKey";
+        final String ebMS3ErrorCode = "ebms3ErrorCode";
+        final String errorDetail = "ebms3ErrorDetail";
+        userMessageDefaultService.scheduleSendingSignalError(messageId, ebMS3ErrorCode, errorDetail, pmodeKey);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageReceiptTest(@Injectable final JmsMessage jmsMessage,
+                                                 @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pmodeKey = "pmodeKey";
+
+        userMessageDefaultService.scheduleSourceMessageReceipt(messageId, pmodeKey);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageRejoinTest(@Injectable final JmsMessage jmsMessage,
+                                                @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String file = "SourceMessageFile";
+        final String backendName = "backendName";
+
+        userMessageDefaultService.scheduleSourceMessageRejoin(groupId, file, backendName);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageRejoinFileTest(@Injectable final JmsMessage jmsMessage,
+                                                    @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String backendName = "backendName";
+
+        userMessageDefaultService.scheduleSourceMessageRejoinFile(groupId, backendName);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSetUserMessageFragmentAsFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                           @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+
+        userMessageDefaultService.scheduleSetUserMessageFragmentAsFailed(messageId);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSplitAndJoinSendFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                   @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String errorDetail = "ebms3ErrorDetail";
+        userMessageDefaultService.scheduleSplitAndJoinSendFailed(groupId, errorDetail);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
+                                                 @Mocked DispatchMessageCreator dispatchMessageCreator) {
+        final String messageId = UUID.randomUUID().toString();
+        new Expectations() {{
+            new DispatchMessageCreator(messageId);
+            result = dispatchMessageCreator;
+
+            dispatchMessageCreator.createMessage();
+            result = jmsMessage;
+        }};
+        userMessageDefaultService.scheduleSourceMessageSending(messageId);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);
+        }};
     }
 }
