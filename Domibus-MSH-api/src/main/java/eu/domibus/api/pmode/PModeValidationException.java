@@ -15,6 +15,12 @@ public class PModeValidationException extends PModeException {
         this.issues = issues;
     }
 
+    public PModeValidationException(String message, List<PModeIssue> issues) {
+        super(DomibusCoreErrorCode.DOM_003, message);
+
+        this.issues = issues;
+    }
+
     public List<PModeIssue> getIssues() {
         return issues;
     }

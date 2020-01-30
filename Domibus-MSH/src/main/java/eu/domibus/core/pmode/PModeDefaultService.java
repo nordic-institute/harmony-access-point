@@ -1,10 +1,7 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.pmode.PModeIssue;
-import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.pmode.*;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.pmode.domain.ReceptionAwareness;
 import eu.domibus.common.MSHRole;
@@ -13,6 +10,8 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.IssueLevelExt;
+import eu.domibus.ext.domain.PModeIssueDTO;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -64,15 +64,16 @@ public class PModeDefaultService implements PModeService {
     }
 
     @Override
-    public List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeException {
+    public List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
-            String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
-            if (CollectionUtils.isNotEmpty(e.getErrors())) {
-                message += ";" + StringUtils.join(e.getErrors(), ";");
+            String message = "Failed to upload the PMode file due to: ";
+            if (org.springframework.util.CollectionUtils.isEmpty(e.getErrors())) {
+                message += ExceptionUtils.getRootCauseMessage(e);
             }
-            throw new PModeException(DomibusCoreErrorCode.DOM_001, message);
+            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
+            throw new PModeValidationException(message, errors);
         }
     }
 

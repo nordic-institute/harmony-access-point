@@ -2,24 +2,30 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.ext.domain.IssueLevelExt;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.domain.PModeIssueDTO;
+import eu.domibus.ext.domain.SavePModeResponseDTO;
 import eu.domibus.ext.services.PModeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Catalin Enache
@@ -62,32 +68,44 @@ public class PModeFileResource {
         LOG.debug("getCurrentPMode -> start");
         return pModeExtService.getCurrentPmode();
     }
-    
+
     @ApiOperation(value = "Upload a PMode file", notes = "Upload the PMode file",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
-    @PostMapping(consumes = {"multipart/form-data","application/x-www-form-urlencoded"})
-    public ResponseEntity<String> uploadPMode(
+    @PostMapping(consumes = {"multipart/form-data", "application/x-www-form-urlencoded"})
+    public ResponseEntity<SavePModeResponseDTO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {
         if (pmode.isEmpty()) {
-            return ResponseEntity.badRequest().body("Failed to upload the PMode file since it was empty.");
+            return ResponseEntity.badRequest().body(new SavePModeResponseDTO("Failed to upload the PMode file since it was empty."));
         }
         try {
             byte[] bytes = pmode.getBytes();
 
-            List<String> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
+            List<PModeIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
+
             String message = "PMode file has been successfully uploaded";
-            if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
-                message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");
+            if (!CollectionUtils.isEmpty(pmodeUpdateMessage)) {
+                message += " but some issues were detected:";
             }
-            return ResponseEntity.ok(message);
+
+            return ResponseEntity.ok(new SavePModeResponseDTO(message, pmodeUpdateMessage));
+        } catch (PModeValidationException ve) {
+            LOG.error("Validation exception uploading the PMode", ve);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(ve.getMessage(),
+                    ve.getIssues().stream().map(i -> getpModeIssueDTO(i)).collect(Collectors.toList())));
         } catch (PModeException e) {
             LOG.error("Error uploading the PMode", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(e.getMessage()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new SavePModeResponseDTO("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e)));
         }
+    }
+
+    private PModeIssueDTO getpModeIssueDTO(PModeIssue i) {
+        return new PModeIssueDTO(i.getMessage(), IssueLevelExt.valueOf(i.getLevel().toString()));
     }
 
 }
