@@ -4,7 +4,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
@@ -49,7 +48,6 @@ import org.junit.runner.RunWith;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.*;
 
@@ -1195,9 +1193,9 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void downloadMessageShouldDeleteDownloadedMessageTest(@Injectable UserMessage userMessage,
-                                      @Injectable UserMessageLog userMessageLog,
-                                      @Injectable Submission submission,
-                                      @Injectable Messaging messaging) throws Exception {
+                                                                 @Injectable UserMessageLog userMessageLog,
+                                                                 @Injectable Submission submission,
+                                                                 @Injectable Messaging messaging) throws Exception {
 
         new Expectations(databaseMessageHandler) {{
             messagingDao.findMessageByMessageId(MESS_ID);
@@ -1214,13 +1212,13 @@ public class DatabaseMessageHandlerTest {
 
         }};
 
-       databaseMessageHandler.downloadMessage(MESS_ID);
+        databaseMessageHandler.downloadMessage(MESS_ID);
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            times=1;
+            times = 1;
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            times=1;
+            times = 1;
 
         }};
 
