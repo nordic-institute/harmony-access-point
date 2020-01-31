@@ -401,28 +401,21 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void buildErrorMessageWithErrorDetailsTest(@Injectable System system) {
-        final String errorCode = null;
+    public void buildErrorMessageWithErrorDetailsTest() {
+
         final String errorDetail = null;
-        final String messageId = null;
-        final String mshRole = null;
-        final String notified = null;
-        final String timestamp = null;
+
         new Expectations(instance) {{
-            instance.buildErrorMessage(null, errorDetail, null, null, null, null);
+            instance.buildErrorMessage(null, null, null, null, null, null);
             result = any;
         }};
 
-        instance.buildErrorMessage(errorDetail);
+        Assert.assertNull(instance.buildErrorMessage(errorDetail));
 
-        new Verifications() {{
-            instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp);
-            times = 1;
-        }};
     }
 
     @Test
-    public void testbuildErrorMessage(@Injectable System system) {
+    public void testbuildErrorMessage() {
         final String errorCode = "DOM_001";
         final String errorDetail = "Error";
         final String messageId = "messageId";
