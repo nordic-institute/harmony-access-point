@@ -1,6 +1,3 @@
-import {RowLimiterBase} from '../row-limiter/row-limiter-base';
-import {ISortableList} from '../mixins/isortable-list';
-
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -18,7 +15,7 @@ export interface ResponseItemDetail {
 }
 
 export function instanceOfMultipleItemsResponse(object: any): object is MultipleItemsResponse {
-  if (typeof object == "string") return false;
+  if (typeof object == 'string') return false;
   return 'message' in object && 'issues' in object && Array.isArray(object.issues);
 }
 
