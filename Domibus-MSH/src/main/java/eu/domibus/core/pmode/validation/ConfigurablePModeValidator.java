@@ -29,7 +29,7 @@ public class ConfigurablePModeValidator extends CompositePModeValidator {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @PostConstruct
-    public void Init() {
+    public void init() {
         readConfigurationAndCreateValidators();
     }
 
