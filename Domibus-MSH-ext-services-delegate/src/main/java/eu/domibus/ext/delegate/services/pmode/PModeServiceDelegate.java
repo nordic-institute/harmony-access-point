@@ -45,6 +45,6 @@ public class PModeServiceDelegate implements PModeExtService {
     @Override
     public List<PModeIssueDTO> updatePModeFile(byte[] bytes, String description) {
         List<PModeIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return issues.stream().map(domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList());
+        return issues.stream().map(i->domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList());
     }
 }

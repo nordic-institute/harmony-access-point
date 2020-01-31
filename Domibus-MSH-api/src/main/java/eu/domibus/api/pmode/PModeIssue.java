@@ -9,7 +9,6 @@ public class PModeIssue {
     private IssueLevel level;
     private String code;
     private String message;
-    private String reference; // TODO: better name
 
     public PModeIssue() {}
 
@@ -45,14 +44,6 @@ public class PModeIssue {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
     }
 
     @Override
