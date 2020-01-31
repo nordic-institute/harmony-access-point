@@ -136,13 +136,16 @@ public class DomibusPropertyMetadataManagerImplTest {
                                            @Injectable Optional<DomibusPropertyMetadata> propMeta,
                                            @Mocked DomibusPropertyManager propertyManager) {
         final String MSH_PROPERTY_MANAGER = "mshPropertyManager";
+
         new Expectations(domibusPropertyMetadataManager) {{
             domibusPropertyMetadataManager.loadProperties(domibusPropertyMetadataManager, MSH_PROPERTY_MANAGER);
             times = 1;
             applicationContext.getBeanNamesForType(DomibusPropertyManager.class);
             times = 1;
         }};
+
         domibusPropertyMetadataManager.loadInternalProperties();
+
         new Verifications() {{
             domibusPropertyMetadataManager.loadExternalProperties();
             times = 0;

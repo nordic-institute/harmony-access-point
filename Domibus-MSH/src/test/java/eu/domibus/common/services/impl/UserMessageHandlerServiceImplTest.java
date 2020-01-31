@@ -1221,6 +1221,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                        @Injectable LegConfiguration legConfiguration) {
 
         long totalFragmentCount = 5;
+
         new Expectations() {{
             storageProvider.isPayloadsPersistenceInDatabaseConfigured();
             result = false;
@@ -1251,6 +1252,7 @@ public class UserMessageHandlerServiceImplTest {
         boolean testMessage = true;
         boolean selfSendingFlag = true;
         boolean messageExists = true;
+
         new Expectations(userMessageHandlerService) {{
             userMessageHandlerService.checkSelfSending(pmodeKey);
             result = selfSendingFlag;
@@ -1262,6 +1264,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+
         new Verifications() {{
             userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
             times = 1;
@@ -1270,6 +1273,7 @@ public class UserMessageHandlerServiceImplTest {
 
     @Test
     public void checkTestMessageTest(@Injectable LegConfiguration legConfiguration) {
+
         new Expectations(userMessageHandlerService) {{
             legConfiguration.getService().getValue();
             result = any;
@@ -1289,6 +1293,7 @@ public class UserMessageHandlerServiceImplTest {
     public void createErrorResultTest(@Injectable EbMS3Exception ebm3Exception,
                                       @Mocked ErrorResultImpl result,
                                       @Injectable ErrorCode errorCode) {
+
         new Expectations(userMessageHandlerService) {{
             ebm3Exception.getRefToMessageId();
             result = anyString;

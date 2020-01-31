@@ -1164,6 +1164,7 @@ public class DatabaseMessageHandlerTest {
         String backendName = "backendName";
         String messageId = UUID.randomUUID().toString();
         String pModeKey = "pmodeKey";
+
         new Expectations(databaseMessageHandler) {{
             userMessage.getMessageInfo();
             result = messageInfo;
@@ -1182,7 +1183,9 @@ public class DatabaseMessageHandlerTest {
             messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             result = messageStatus;
         }};
+
         databaseMessageHandler.submitMessageFragment(userMessage, backendName);
+
         new Verifications() {{
             messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             times = 1;

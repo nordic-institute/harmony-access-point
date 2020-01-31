@@ -1257,6 +1257,7 @@ public class PartyServiceImplTest {
     public void printPartyProcessesTest(@Injectable Party party,
                                         @Mocked Process process) {
         List<Process> processes = new ArrayList<>();
+
         new Expectations() {{
             processes.add(process);
             party.getProcessesWithPartyAsInitiator();
@@ -1264,7 +1265,9 @@ public class PartyServiceImplTest {
             party.getProcessesWithPartyAsResponder();
             result = processes;
         }};
+
         partyService.printPartyProcesses(party);
+
         new Verifications() {{
             party.getProcessesWithPartyAsInitiator();
             times = 2;

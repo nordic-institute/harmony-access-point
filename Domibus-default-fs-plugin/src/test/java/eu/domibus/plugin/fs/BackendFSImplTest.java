@@ -655,10 +655,12 @@ public class BackendFSImplTest {
     @Test
     public void getFileNameExtensionTest() throws MimeTypeException {
         String mimeType = "text/xml";
+
         new Expectations() {{
             fsMimeTypeHelper.getExtension(mimeType);
             result = new MimeTypeException("Invalid Type");
         }};
+
         Assert.assertNotNull(backendFS.getFileNameExtension(mimeType));
     }
 }

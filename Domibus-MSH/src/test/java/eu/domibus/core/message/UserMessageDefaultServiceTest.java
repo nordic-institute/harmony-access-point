@@ -742,7 +742,9 @@ public class UserMessageDefaultServiceTest {
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
         }};
+
         userMessageDefaultService.deleteFailedMessage(messageId);
+
         new FullVerificationsInOrder(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
             userMessageDefaultService.deleteMessage(messageId);
@@ -754,7 +756,6 @@ public class UserMessageDefaultServiceTest {
                                              @Mocked DelayedDispatchMessageCreator delayedDispatchMessageCreator,
                                              @Injectable UserMessageLog userMessageLog) {
         final String messageId = UUID.randomUUID().toString();
-        ;
         Long delay = 1L;
         boolean isSplitAndJoin = false;
 
@@ -840,6 +841,7 @@ public class UserMessageDefaultServiceTest {
         final String pmodeKey = "pmodeKey";
         final String ebMS3ErrorCode = "ebms3ErrorCode";
         final String errorDetail = "ebms3ErrorDetail";
+
         userMessageDefaultService.scheduleSendingSignalError(messageId, ebMS3ErrorCode, errorDetail, pmodeKey);
 
         new Verifications() {{
@@ -904,6 +906,7 @@ public class UserMessageDefaultServiceTest {
                                                    @Injectable UserMessageService userMessageService) {
         final String groupId = "groupId";
         final String errorDetail = "ebms3ErrorDetail";
+
         userMessageDefaultService.scheduleSplitAndJoinSendFailed(groupId, errorDetail);
 
         new Verifications() {{
@@ -915,6 +918,7 @@ public class UserMessageDefaultServiceTest {
     public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
                                                  @Mocked DispatchMessageCreator dispatchMessageCreator) {
         final String messageId = UUID.randomUUID().toString();
+
         new Expectations() {{
             new DispatchMessageCreator(messageId);
             result = dispatchMessageCreator;
@@ -922,6 +926,7 @@ public class UserMessageDefaultServiceTest {
             dispatchMessageCreator.createMessage();
             result = jmsMessage;
         }};
+
         userMessageDefaultService.scheduleSourceMessageSending(messageId);
 
         new Verifications() {{

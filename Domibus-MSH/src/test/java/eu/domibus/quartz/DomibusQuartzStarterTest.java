@@ -331,6 +331,7 @@ public class DomibusQuartzStarterTest {
         final String groupName = "default";
         final String jobName = "retryWorker";
         final String jobGroup = "jobGroup";
+
         new Expectations() {{
             scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName));
             result = jobKey;
@@ -343,7 +344,9 @@ public class DomibusQuartzStarterTest {
             jobDetail.getJobClass();
             result = new SchedulerException();
         }};
+
         domibusQuartzStarter.checkSchedulerJobsFromGroup(scheduler, groupName);
+
         new Verifications() {{
             scheduler.deleteJob(jobKey);
             times = 0;
