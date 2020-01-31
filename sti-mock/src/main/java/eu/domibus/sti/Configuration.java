@@ -14,14 +14,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.QueueConnectionFactory;
+import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @org.springframework.context.annotation.Configuration
@@ -38,6 +37,9 @@ import java.util.concurrent.TimeUnit;
 public class Configuration {
 
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
+
+    private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
+
     // Url to access to the queue o topic
     @Value("${jms.providerUrl}")
     private String providerUrl;
@@ -64,7 +66,7 @@ public class Configuration {
     public DefaultJmsListenerContainerFactory myFactory() {
         LOG.info("Initiating jms listener factory");
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        factory.setConnectionFactory((ConnectionFactory) connectionFactory());
+        factory.setConnectionFactory(connectionFactory());
         factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
         return factory;
@@ -80,12 +82,18 @@ public class Configuration {
     }
 
     @Bean
-    public JndiObjectFactoryBean connectionFactory() {
-        JndiObjectFactoryBean factory = new JndiObjectFactoryBean();
+    public QueueConnectionFactory connectionFactory() {
+        try {
+            return (QueueConnectionFactory) provider().lookup(CONNECTION_FACTORY_JNDI);
+        } catch (NamingException e) {
+            LOG.error("Impossible to get connection factory:[{}]",CONNECTION_FACTORY_JNDI,e);
+            throw new IllegalStateException("Impossible to get connection factory");
+        }
+        /*JndiObjectFactoryBean factory = new JndiObjectFactoryBean();
         factory.setJndiTemplate(provider());
         factory.setJndiName(connectionType);
         factory.setProxyInterface(ConnectionFactory.class);
-        return factory;
+        return factory;*/
     }
 
     @Bean
@@ -111,7 +119,8 @@ public class Configuration {
     @Bean
     public JmsTemplate inQueueJmsTemplate() {
         JmsTemplate jmsTemplate =
-                new JmsTemplate((ConnectionFactory) connectionFactory());
+                new JmsTemplate(connectionFactory());
+        LOG.info("Configuring jms template for");
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
         jmsTemplate.setDestinationResolver(jmsDestinationResolver());
         jmsTemplate.setReceiveTimeout(5000);

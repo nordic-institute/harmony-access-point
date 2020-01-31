@@ -56,32 +56,24 @@ public class SenderService {
                          BackendInterface backendInterface,
                          MetricRegistry metricRegistry) {
         this.jmsTemplate = jmsTemplate;
-        this.backendInterface=backendInterface;
-        this.metricRegistry=metricRegistry;
+        this.backendInterface = backendInterface;
+        this.metricRegistry = metricRegistry;
     }
 
     //@Async("threadPoolTaskExecutor")
-    public void reverseAndSend(MapMessage mapMessage){
-        Timer.Context send_message=null;
-        try {
-             send_message = metricRegistry.timer(MetricRegistry.name(SenderService.class,"send message")).time();
-            if (sendWithJms) {
-                LOG.debug("Reverse and send message through jms in queue");
-                jmsTemplate.send(session -> prepareResponse(mapMessage, session));
-            } else {
-                try {
-                    LOG.debug("Reverse and send message through webservice in queue");
-                    Submission submission = prepareSubmission(mapMessage);
-                    backendInterface.submitMessage(submission.getSubmitRequest(), submission.getMessaging());
-                } catch (JMSException e) {
-                    LOG.error("Error preparing response message", e);
-                } catch (SubmitMessageFault submitMessageFault) {
-                    LOG.error("Error submitting message", submitMessageFault);
-                }
-            }
-        }finally {
-            if(send_message!=null) {
-                send_message.stop();
+    public void reverseAndSend(MapMessage mapMessage) {
+        if (sendWithJms) {
+            LOG.debug("Reverse and send message through jms in queue");
+            jmsTemplate.send(session -> prepareResponse(mapMessage, session));
+        } else {
+            try {
+                LOG.debug("Reverse and send message through webservice in queue");
+                Submission submission = prepareSubmission(mapMessage);
+                backendInterface.submitMessage(submission.getSubmitRequest(), submission.getMessaging());
+            } catch (JMSException e) {
+                LOG.error("Error preparing response message", e);
+            } catch (SubmitMessageFault submitMessageFault) {
+                LOG.error("Error submitting message", submitMessageFault);
             }
         }
     }
@@ -101,7 +93,7 @@ public class SenderService {
         messageMap.setStringProperty("refToMessageId", messageId);
 
         messageMap.setStringProperty("service", "eu_ics2_c2t");
-        messageMap.setStringProperty("agreementRef","EU-ICS2-TI-V1.0");
+        messageMap.setStringProperty("agreementRef", "EU-ICS2-TI-V1.0");
 
 
         messageMap.setStringProperty("action", "IE3R01");
@@ -169,7 +161,6 @@ public class SenderService {
         userMessage.setMessageInfo(responseMessageInfo);
         PartyInfo partyInfo = new PartyInfo();
         userMessage.setPartyInfo(partyInfo);
-
 
 
         From responseFrom = new From();
