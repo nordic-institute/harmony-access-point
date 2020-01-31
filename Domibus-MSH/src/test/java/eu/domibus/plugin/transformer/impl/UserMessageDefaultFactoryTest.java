@@ -30,6 +30,7 @@ public class UserMessageDefaultFactoryTest {
         Long fragmentNumber = 1L;
         String fragmentFile = "fragmentFile";
         String messageId = UUID.randomUUID().toString();
+
         new Expectations(userMessageDefaultFactory) {{
             sourceMessage.setSplitAndJoin(true);
             sourceMessage.getMessageInfo();
@@ -38,7 +39,9 @@ public class UserMessageDefaultFactoryTest {
             result = messageId;
 
         }};
+
         userMessageDefaultFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, fragmentNumber, fragmentFile);
+
         new Verifications() {{
             userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
             times = 1;
@@ -52,6 +55,7 @@ public class UserMessageDefaultFactoryTest {
                                              @Injectable PartyInfo partyInfo,
                                              @Injectable MessageProperties messageProperties) {
         String messageId = UUID.randomUUID().toString();
+
         new Expectations(userMessageDefaultFactory) {{
             userMessageFragment.getCollaborationInfo();
             result = collaborationInfo;
@@ -63,9 +67,10 @@ public class UserMessageDefaultFactoryTest {
             result = partyInfo;
             userMessageFragment.getMessageProperties();
             result = messageProperties;
-
         }};
+
         userMessageDefaultFactory.cloneUserMessageFragment(userMessageFragment);
+
         new FullVerificationsInOrder(userMessageDefaultFactory) {{
             userMessageDefaultFactory.createCollaborationInfo(withCapture());
             times = 1;
@@ -83,10 +88,12 @@ public class UserMessageDefaultFactoryTest {
     public void createMessageFragmentEntityTest(@Injectable MessageGroupEntity messageGroupEntity) {
         Long fragmentNumber = 1L;
         String groupId = "groupId";
+
         new Expectations(userMessageDefaultFactory) {{
             messageGroupEntity.getGroupId();
             result = groupId;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber));
     }
 
@@ -100,10 +107,12 @@ public class UserMessageDefaultFactoryTest {
                                       @Injectable Property property) {
         Long fragmentNumber = 1L;
         String fragmentFile = "fragmentFile";
+
         new Expectations(userMessageDefaultFactory) {{
             new File(fragmentFile).length();
             result = 2L;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createPayloadInfo(fragmentFile, fragmentNumber));
     }
 
@@ -114,6 +123,7 @@ public class UserMessageDefaultFactoryTest {
                                             @Injectable eu.domibus.ebms3.common.model.Service service) {
         String action = "action";
         String conversationId = "conversationId";
+
         new Expectations(userMessageDefaultFactory) {{
             source.getConversationId();
             result = conversationId;
@@ -132,18 +142,21 @@ public class UserMessageDefaultFactoryTest {
             service.getType();
             result = anyString;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createCollaborationInfo(source));
     }
 
     @Test
     public void createMessageInfoTest(@Injectable MessageInfo source) {
         String messageId = UUID.randomUUID().toString();
+
         new Expectations(userMessageDefaultFactory) {{
             source.getTimestamp();
             result = any;
             source.getRefToMessageId();
             result = anyString;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createMessageInfo(source, messageId));
     }
 
@@ -152,9 +165,9 @@ public class UserMessageDefaultFactoryTest {
                                     @Injectable From from,
                                     @Injectable PartyId party,
                                     @Injectable To to) {
-
         Set<PartyId> partyIds = new HashSet<>();
         partyIds.add(party);
+
         new Expectations(userMessageDefaultFactory) {{
             source.getFrom();
             result = from;
@@ -165,6 +178,7 @@ public class UserMessageDefaultFactoryTest {
             to.getRole();
             result = anyString;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createPartyInfo(source));
     }
 
@@ -172,12 +186,14 @@ public class UserMessageDefaultFactoryTest {
     public void createMessagePropertiesTest(@Injectable MessageProperties source,
                                             @Injectable Property sourceProperty) {
         String allowed_properties = "originalSender";
+
         new Expectations(userMessageDefaultFactory) {{
             source.getProperty();
             result = sourceProperty;
             sourceProperty.getName();
             result = allowed_properties;
         }};
+
         Assert.assertNotNull(userMessageDefaultFactory.createMessageProperties(source));
     }
 }
