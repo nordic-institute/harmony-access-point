@@ -15,9 +15,9 @@ public interface PModeValidationService {
     /**
      * Validates pMode as serialized xml byte array or/and Configuration object;
      *
-     * @param   {array|byte} xml - array or bytes representing the raw pmode
-     * @param   {Configuration} configuration - Configuration class instance representing the deserialized pmode
-     * @returns {list|PModeIssue} - the list of issues found( errors or warnings, if any)
+     * @param   rawConfiguration - array or bytes representing the raw pmode
+     * @param   configuration - Configuration class instance representing the deserialized pmode
+     * @returns the list of issues found( errors or warnings, if any)
      */
     List<PModeIssue> validate(byte[] rawConfiguration, Configuration configuration);
 }
