@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.jms.JMSException;
@@ -211,7 +210,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 }
                 LOG.info("Sending message to queue [{}]", queueValue);
                 Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
-                mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+                MessageCreator messageCreator = new DownloadMessageCreator(messageId);
+                mshToBackendTemplate.send(queueValue, messageCreator);
                 mshToBackendTemplateTimer.stop();
             }
         } finally {

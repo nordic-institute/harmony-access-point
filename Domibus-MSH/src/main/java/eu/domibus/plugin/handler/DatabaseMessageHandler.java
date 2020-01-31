@@ -149,6 +149,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class,"downloadMessage.counter"));
+        com.codahale.metrics.Timer.Context downloadMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "downloadMessage.timer")).time();
         try {
             downloadMessageCounter.inc();
             LOG.info("Downloading message with id [{}]", messageId);
@@ -203,6 +204,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             return submission;
         }finally {
             downloadMessageCounter.dec();
+            downloadMessageTimer.stop();
         }
     }
 

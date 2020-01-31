@@ -126,6 +126,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
         }
 
         com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "listener.on_message"));
+        com.codahale.metrics.Counter c = null;
         try {
             methodCounter.inc();
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
@@ -139,42 +140,48 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             LOG.info("Received message with messageId [" + messageId + "] and notification type [" + notificationType + "]");
 
+
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
                     com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.RECEIVED.deliverMessage")).time();
-                    com.codahale.metrics.Counter c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED"));
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED"));
                     c.inc();
                     backendConnector.deliverMessage(messageId);
-                    c.dec();
                     deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
+                    com.codahale.metrics.Timer.Context messageSendFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE")).time();
                     c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE"));
                     c.inc();
                     backendConnector.messageSendFailed(messageId);
-                    c.dec();
+                    messageSendFailed.stop();
                     break;
                 case MESSAGE_SEND_SUCCESS:
+                    com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS")).time();
                     c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS"));
                     c.inc();
                     backendConnector.messageSendSuccess(messageId);
-                    c.dec();
+                    messageSendSuccess.stop();
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
+                    com.codahale.metrics.Timer.Context messageRecvFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE")).time();
                     c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE"));
                     c.inc();
                     doMessageReceiveFailure(message);
-                    c.dec();
+                    messageRecvFailed.stop();
                     break;
-               /* case MESSAGE_STATUS_CHANGE:
+               case MESSAGE_STATUS_CHANGE:
+                    com.codahale.metrics.Timer.Context messageStatusChanged = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGE")).time();
                     doMessageStatusChange(message);
-                    break;*/
+                    messageStatusChanged.stop();
+                    break;
             }
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
         } finally {
             methodCounter.dec();
+            c.dec();
         }
     }
 
