@@ -8,6 +8,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
@@ -110,7 +111,10 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) monitoringMapper.monitoringInfoToMonitoringInfoDTO((MonitoringInfo) source);
         }
-
+        if (typeOfT == PModeIssueDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.PModeIssueToPModeIssueDTO((PModeIssue) source);
+        }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);

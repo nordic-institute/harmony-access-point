@@ -45,17 +45,6 @@ public class PModeServiceDelegate implements PModeExtService {
     @Override
     public List<PModeIssueDTO> updatePModeFile(byte[] bytes, String description) {
         List<PModeIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return issues.stream().map(this::convertToExt).collect(Collectors.toList());
-    }
-
-    private PModeIssueDTO convertToExt(PModeIssue i) {
-        IssueLevelExt level;
-        try {
-            level = IssueLevelExt.valueOf(i.getLevel().toString());
-        } catch (Exception ex) {
-            level = IssueLevelExt.WARNING;
-            LOG.warn("Coud not create IssueLevelExt from value [{}]. Put WARNING as default.", i.getLevel());
-        }
-        return new PModeIssueDTO(i.getMessage(), level);
+        return issues.stream().map(domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList());
     }
 }

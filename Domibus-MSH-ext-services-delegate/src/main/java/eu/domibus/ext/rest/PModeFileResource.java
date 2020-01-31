@@ -4,7 +4,7 @@ package eu.domibus.ext.rest;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
-import eu.domibus.ext.domain.IssueLevelExt;
+import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.PModeIssueDTO;
 import eu.domibus.ext.domain.SavePModeResponseDTO;
@@ -39,6 +39,9 @@ public class PModeFileResource {
 
     @Autowired
     PModeExtService pModeExtService;
+
+    @Autowired
+    DomainExtConverter domainConverter;
 
     @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
@@ -93,7 +96,7 @@ public class PModeFileResource {
             LOG.error("Validation exception uploading the PMode", ve);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(ve.getMessage(),
-                    ve.getIssues().stream().map(i -> createIssue(i)).collect(Collectors.toList())));
+                    ve.getIssues().stream().map(i -> domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList())));
         } catch (PModeException e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(e.getMessage()));
@@ -102,17 +105,6 @@ public class PModeFileResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new SavePModeResponseDTO("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e)));
         }
-    }
-
-    private PModeIssueDTO createIssue(PModeIssue i) {
-        IssueLevelExt level;
-        try {
-            level = IssueLevelExt.valueOf(i.getLevel().toString());
-        } catch (IllegalArgumentException ex) {
-            level = IssueLevelExt.WARNING;
-            LOG.warn("Coud not create IssueLevelExt from value [{}]. Put WARNING as default.", i.getLevel());
-        }
-        return new PModeIssueDTO(i.getMessage(), level);
     }
 
 }
