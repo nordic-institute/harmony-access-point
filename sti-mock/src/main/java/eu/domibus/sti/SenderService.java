@@ -60,7 +60,7 @@ public class SenderService {
         this.metricRegistry=metricRegistry;
     }
 
-    @Async("threadPoolTaskExecutor")
+    //@Async("threadPoolTaskExecutor")
     public void reverseAndSend(MapMessage mapMessage){
         Timer.Context send_message=null;
         try {

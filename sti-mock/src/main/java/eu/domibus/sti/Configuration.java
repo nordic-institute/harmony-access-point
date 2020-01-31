@@ -60,17 +60,12 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
-    @Value("${sending.thread.pool.size:100}")
-    private Integer sendingThreadPoolSize;
-
-
-    //@Autowired
     @Bean
-    public DefaultJmsListenerContainerFactory myFactory(ConnectionFactory connectionFactory, DestinationResolver destination) {
+    public DefaultJmsListenerContainerFactory myFactory() {
         LOG.info("Initiating jms listener factory");
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
-        factory.setDestinationResolver(destination);
+        factory.setConnectionFactory((ConnectionFactory) connectionFactory());
+        factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
         return factory;
     }
@@ -85,42 +80,40 @@ public class Configuration {
     }
 
     @Bean
-    public JndiObjectFactoryBean connectionFactory(JndiTemplate provider) {
+    public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean factory = new JndiObjectFactoryBean();
-        factory.setJndiTemplate(provider);
+        factory.setJndiTemplate(provider());
         factory.setJndiName(connectionType);
         factory.setProxyInterface(ConnectionFactory.class);
         return factory;
     }
 
-    //@Autowired
     @Bean
-    public JndiDestinationResolver jmsDestinationResolver(JndiTemplate provider) {
+    public JndiDestinationResolver jmsDestinationResolver() {
         JndiDestinationResolver destResolver = new JndiDestinationResolver();
-        destResolver.setJndiTemplate(provider);
+        destResolver.setJndiTemplate(provider());
         return destResolver;
     }
 
-    //@Autowired
     @Bean
-    public JndiObjectFactoryBean inQueueDestination(JndiTemplate provider) {
+    public JndiObjectFactoryBean inQueueDestination() {
         JndiObjectFactoryBean dest = new JndiObjectFactoryBean();
-        dest.setJndiTemplate(provider);
+        dest.setJndiTemplate(provider());
         dest.setJndiName(jmsInDestination);
         return dest;
     }
 
     @Bean
-    public JmsListener jmsListener(SenderService senderService) {
-        return new JmsListener(senderService, metricRegistry());
+    public JmsListener jmsListener() {
+        return new JmsListener(senderService(), metricRegistry());
     }
 
     @Bean
-    public JmsTemplate inQueueJmsTemplate(ConnectionFactory connectionFactory, DestinationResolver destination) {
+    public JmsTemplate inQueueJmsTemplate() {
         JmsTemplate jmsTemplate =
-                new JmsTemplate(connectionFactory);
+                new JmsTemplate((ConnectionFactory) connectionFactory());
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
-        jmsTemplate.setDestinationResolver(destination);
+        jmsTemplate.setDestinationResolver(jmsDestinationResolver());
         jmsTemplate.setReceiveTimeout(5000);
         return jmsTemplate;
     }
@@ -146,7 +139,7 @@ public class Configuration {
 
     }
 
-    @Bean(name = "threadPoolTaskExecutor")
+  /*  @Bean(name = "threadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
         LOG.info("ThreadPool executor used for sending messages configured with size:[{}]",sendingThreadPoolSize);
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
@@ -154,12 +147,12 @@ public class Configuration {
         threadPoolTaskExecutor.setCorePoolSize(sendingThreadPoolSize);
         //threadPoolTaskExecutor.setQueueCapacity(sendingThreadPoolSize);
         return threadPoolTaskExecutor;
-    }
+    }*/
 
     @Bean
-    public SenderService senderService(JmsTemplate inQueueJmsTemplate) {
+    public SenderService senderService() {
 
-        return new SenderService(inQueueJmsTemplate, backendInterface(), metricRegistry());
+        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry());
     }
 
     @Bean

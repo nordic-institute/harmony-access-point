@@ -1,5 +1,6 @@
 package eu.domibus.sti;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
@@ -25,14 +26,19 @@ public class JmsListener {
     @org.springframework.jms.annotation.JmsListener(containerFactory = "myFactory", destination = "${jms.destinationName}")
     public void receiveMessage(MapMessage msj) {
         Timer.Context timer = null;
+        Counter counter=null;
         try {
-            timer = metricRegistry.timer(MetricRegistry.name(SenderService.class, "receive message")).time();
+            timer = metricRegistry.timer(MetricRegistry.name(SenderService.class, "receive.message.timer")).time();
+            counter = metricRegistry.counter(MetricRegistry.name(SenderService.class, "receive.message.counter"));
+            counter.inc();
             LOG.debug("message receipt:[{}]", msj);
             senderService.reverseAndSend(msj);
-
         } finally {
             if (timer != null) {
                 timer.stop();
+            }
+            if(counter!=null){
+                counter.dec();
             }
         }
     }
