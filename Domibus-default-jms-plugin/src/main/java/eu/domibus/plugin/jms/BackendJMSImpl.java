@@ -121,40 +121,57 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void receiveMessage(final MapMessage map) {
+        Counter inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
+        Timer.Context inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
         try {
-            String messageID = map.getStringProperty(MESSAGE_ID);
-            if (StringUtils.isNotBlank(messageID)) {
-                //trim the empty space
-                messageID = messageExtService.cleanMessageIdentifier(messageID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
-            }
-            final String jmsCorrelationID = map.getJMSCorrelationID();
-            final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
-
-            LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
-
-            if (!MESSAGE_TYPE_SUBMIT.equals(messageType)) {
-                String wrongMessageTypeMessage = getWrongMessageTypeErrorMessage(messageID, jmsCorrelationID, messageType);
-                LOG.error(wrongMessageTypeMessage);
-                sendReplyMessage(messageID, wrongMessageTypeMessage, jmsCorrelationID);
-                return;
-            }
-
-            String errorMessage = null;
+            inMessageCounter.inc();
             try {
-                //in case the messageID is not sent by the user it will be generated
-                messageID = submit(map);
-            } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
-                errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
+                String messageID = map.getStringProperty(MESSAGE_ID);
+                if (StringUtils.isNotBlank(messageID)) {
+                    //trim the empty space
+                    messageID = messageExtService.cleanMessageIdentifier(messageID);
+                    LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
+                }
+                final String jmsCorrelationID = map.getJMSCorrelationID();
+                final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
+
+                LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
+
+                if (!MESSAGE_TYPE_SUBMIT.equals(messageType)) {
+                    Timer.Context wrongInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.wrong.timer")).time();
+                    String wrongMessageTypeMessage = getWrongMessageTypeErrorMessage(messageID, jmsCorrelationID, messageType);
+                    LOG.error(wrongMessageTypeMessage);
+                    sendReplyMessage(messageID, wrongMessageTypeMessage, jmsCorrelationID);
+                    wrongInMessageTimer.stop();
+                    return;
+                }
+
+                Timer.Context submitInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.submit.timer")).time();
+                String errorMessage = null;
+                try {
+                    //in case the messageID is not sent by the user it will be generated
+                    messageID = submit(map);
+                } catch (final MessagingProcessingException e) {
+                    LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
+                    errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
+                }
+                submitInMessageTimer.stop();
+                Timer.Context replyInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.repry.timer")).time();
+                sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
+                replyInMessageTimer.stop();
+
+                LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
+            } catch (Exception e) {
+                LOG.error("Exception occurred while receiving message [" + map + "]", e);
+                throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
             }
-
-            sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
-
-            LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
-        } catch (Exception e) {
-            LOG.error("Exception occurred while receiving message [" + map + "]", e);
-            throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
+        } finally {
+            if (inMessageTimer != null) {
+                inMessageTimer.stop();
+            }
+            if (inMessageCounter != null) {
+                inMessageCounter.dec();
+            }
         }
     }
 
@@ -172,7 +189,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     @Override
     public void deliverMessage(final String messageId) {
         Timer.Context deliverMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer")).time();
-        Counter deliverMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class,"deliverMessage_counter"));
+        Counter deliverMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_counter"));
         try {
             deliverMessageCounter.inc();
             boolean sendResponseFromC3Plugin = true;
