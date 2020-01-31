@@ -10,11 +10,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ext.domain.IssueLevelExt;
-import eu.domibus.ext.domain.PModeIssueDTO;
 import eu.domibus.messaging.XmlProcessingException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,7 +65,7 @@ public class PModeDefaultService implements PModeService {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
             String message = "Failed to upload the PMode file due to: ";
-            if (org.springframework.util.CollectionUtils.isEmpty(e.getErrors())) {
+            if (e.getErrors().isEmpty()) {
                 message += ExceptionUtils.getRootCauseMessage(e);
             }
             List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());

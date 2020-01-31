@@ -43,6 +43,4 @@ public interface PModeExtService {
      */
     List<PModeIssueDTO> updatePModeFile(byte[] bytes, String description);
 
-    // TODO: should we modify the ext interface too ??
-
 }

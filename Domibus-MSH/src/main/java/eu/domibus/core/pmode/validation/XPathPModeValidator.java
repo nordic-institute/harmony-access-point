@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -63,14 +64,10 @@ public class XPathPModeValidator extends AbstractPModeValidator {
         List<String> valuesToValidate = extractValues(targetExpression);
         List<String> acceptedValues = extractValues(acceptedValuesExpression);
 
-        List<PModeIssue> issues = new ArrayList<>();
-        for (String value : valuesToValidate) {
-            if (!acceptedValues.contains(value)) {
-                issues.add(new PModeIssue(String.format(this.errorMessage, value), level));
-            }
-        }
-
-        return issues;
+        return valuesToValidate.stream()
+                .filter(value -> !acceptedValues.contains(value))
+                .map(value -> new PModeIssue(String.format(this.errorMessage, value), level))
+                .collect(Collectors.toList());
     }
 
     protected List<String> extractValues(String expression) {
