@@ -111,10 +111,10 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) monitoringMapper.monitoringInfoToMonitoringInfoDTO((MonitoringInfo) source);
         }
-        if (typeOfT == PModeIssueDTO.class) {
-            LOG.debug(debugMessage, typeOfT, source.getClass());
-            return (T) domibusExtMapper.PModeIssueToPModeIssueDTO((PModeIssue) source);
-        }
+//        if (typeOfT == PModeIssueDTO.class) {
+//            LOG.debug(debugMessage, typeOfT, source.getClass());
+//            return (T) domibusExtMapper.PModeIssueToPModeIssueDTO((PModeIssue) source);
+//        }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
