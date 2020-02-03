@@ -2,7 +2,7 @@ package eu.domibus.ebms3.common.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.pmode.validation.ValueTypeValidator;
+import eu.domibus.core.pmode.validation.validators.ValueTypeValidator;
 import org.junit.Test;
 
 import java.util.List;

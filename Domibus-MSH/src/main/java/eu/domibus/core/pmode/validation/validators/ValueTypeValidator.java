@@ -1,7 +1,8 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 @Component
 @Order(2)
-public class ValueTypeValidator extends AbstractPModeValidator {
+public class ValueTypeValidator  implements PModeValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValueTypeValidator.class);
 

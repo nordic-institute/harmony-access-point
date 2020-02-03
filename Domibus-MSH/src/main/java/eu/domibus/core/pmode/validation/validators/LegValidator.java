@@ -1,9 +1,10 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @Component
 @Order(3)
-public class LegValidator extends AbstractPModeValidator {
+public class LegValidator implements PModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LegValidator.class);
 
     final String[] attributesToCheck = {"service", "action", "security", "defaultMpc", "receptionAwareness", "reliability",

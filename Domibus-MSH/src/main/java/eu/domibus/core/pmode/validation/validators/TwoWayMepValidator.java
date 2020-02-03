@@ -1,8 +1,9 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,7 +26,7 @@ import java.util.List;
  */
 @Component
 @Order(2)
-public class TwoWayMepValidator extends AbstractPModeValidator {
+public class TwoWayMepValidator  implements PModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TwoWayMepValidator.class);
 
     private static final String TWOWAY_MEP_VALUE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay";

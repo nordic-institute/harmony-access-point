@@ -1,10 +1,11 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Role;
+import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Component
 @Order(1)
-public class RolesValidator extends AbstractPModeValidator {
+public class RolesValidator  implements PModeValidator {
 
     @Override
     public List<PModeIssue> validate(Configuration configuration) {

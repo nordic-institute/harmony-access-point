@@ -14,6 +14,7 @@ import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;

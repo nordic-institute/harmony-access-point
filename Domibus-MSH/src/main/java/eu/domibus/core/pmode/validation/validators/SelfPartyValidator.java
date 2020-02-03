@@ -1,7 +1,8 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.pmode.validation.PModeValidator;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
