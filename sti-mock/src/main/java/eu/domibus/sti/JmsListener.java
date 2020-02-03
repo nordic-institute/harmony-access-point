@@ -23,7 +23,7 @@ public class JmsListener {
         this.metricRegistry = metricRegistry;
     }
 
-    @org.springframework.jms.annotation.JmsListener(containerFactory = "myFactory", destination = "${jms.destinationName}")
+    @org.springframework.jms.annotation.JmsListener(containerFactory = "myFactory", destination = "${jms.destinationName}",concurrency ="${jms.listener.concurrency}" )
     public void receiveMessage(MapMessage msj) {
         Timer.Context timer = null;
         Counter counter=null;
