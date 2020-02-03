@@ -28,12 +28,12 @@ public class PModeValidationServiceImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    CompositePModeValidator compositePModeValidator;
+//    @Injectable
+//    CompositePModeValidator compositePModeValidator;
 
     @Before
     public void init() {
-        pModeValidatorList.add(compositePModeValidator);
+//        pModeValidatorList.add(compositePModeValidator);
     }
 
     @Test
@@ -52,8 +52,8 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validate(configuration);
-            times = 0;
+//            compositePModeValidator.validate(configuration);
+//            times = 0;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            times = 0;
         }};
@@ -84,8 +84,8 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validate(configuration);
-            times = 1;
+//            compositePModeValidator.validate(configuration);
+//            times = 1;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            times = 1;
         }};
@@ -117,10 +117,10 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validate(configuration);
-            times = 1;
+//            compositePModeValidator.validate(configuration);
+//            times = 1;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
-            times = 1;
+//            times = 1;
         }};
 
         Assert.assertTrue(issues.size() == 1);

@@ -48,7 +48,6 @@ public class PModeValidationServiceImpl implements PModeValidationService {
             }
 
             List<PModeIssue> issues1 = validator.validate(configuration);
-//            List<PModeIssue> issues2 = validator.validateAsXml(rawConfiguration);
 
             if (level != null) {
                 try {
@@ -56,14 +55,12 @@ public class PModeValidationServiceImpl implements PModeValidationService {
 
                     LOG.debug("Setting level=[{}] to all issues of [{}] validator.", validatorName);
                     issues1.forEach(issue -> issue.setLevel(issueLevel));
-//                    issues2.forEach(issue -> issue.setLevel(issueLevel));
                 } catch (IllegalArgumentException ex) {
                     LOG.warn("Wrong pMode issue level value [{}] red from configuraton for [{}] validator.", level, validatorName);
                 }
             }
 
             allIssues.addAll(issues1);
-//            allIssues.addAll(issues2);
         }
 
         if (warningsAsErrors) {
