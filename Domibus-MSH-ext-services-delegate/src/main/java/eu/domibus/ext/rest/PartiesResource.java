@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.security.KeyStoreException;
 import java.util.List;
@@ -36,7 +35,7 @@ public class PartiesResource {
             "Use pageStart and pageSize for pagination purposes",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/list"})
-    public List<PartyDTO> listParties(@Valid PartyRequestDTO request) {
+    public List<PartyDTO> listParties(PartyRequestDTO request) {
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
         }
@@ -52,8 +51,8 @@ public class PartiesResource {
                 request.getProcess(), request.getPageStart(), request.getPageSize());
     }
 
-    @PostMapping()
-    public ResponseEntity<Object> createParty(@Valid PartyDTO request) {
+    @PostMapping(value = "/save")
+    public ResponseEntity<Object> createParty(@RequestBody PartyDTO request) {
 
         partyExtService.createParty(request);
 
