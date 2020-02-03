@@ -73,6 +73,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         } catch (MessagingProcessingException mpEx) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
             throw mpEx;
+        } catch (Throwable e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
         }
     }
 

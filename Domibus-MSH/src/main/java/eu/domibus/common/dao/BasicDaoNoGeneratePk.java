@@ -2,6 +2,7 @@ package eu.domibus.common.dao;
 
 import eu.domibus.common.model.common.BasicAudit;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntityNoGeneratedPk;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import java.util.Collection;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-public abstract class BasicDao<T extends AbstractBaseEntity> {
+public abstract class BasicDaoNoGeneratePk<T extends AbstractBaseEntityNoGeneratedPk> {
 
     protected final Class<T> typeOfT;
 
@@ -25,15 +26,11 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
     /**
      * @param typeOfT The entity class this DAO provides access to
      */
-    public BasicDao(final Class<T> typeOfT) {
+    public BasicDaoNoGeneratePk(final Class<T> typeOfT) {
         this.typeOfT = typeOfT;
     }
 
     public <T> T findById(Class<T> typeOfT, String id) {
-        return em.find(typeOfT, id);
-    }
-
-    public <T> T findById(Class<T> typeOfT, Long id) {
         return em.find(typeOfT, id);
     }
 

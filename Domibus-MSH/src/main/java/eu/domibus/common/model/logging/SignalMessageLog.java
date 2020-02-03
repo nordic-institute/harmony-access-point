@@ -11,8 +11,8 @@ import java.util.Date;
  * @since 3.2
  */
 @Entity
-@Table(name = "TB_MESSAGE_LOG")
-@DiscriminatorValue("SIGNAL_MESSAGE")
+@Table(name = "TB_SIGNAL_MESSAGE_LOG")
+//@DiscriminatorValue("SIGNAL_MESSAGE")
 @NamedQueries({
         @NamedQuery(name = "SignalMessageLog.findByMessageId", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "SignalMessageLog.getMessageStatus", query = "select signalMessageLog.messageStatus from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID"),

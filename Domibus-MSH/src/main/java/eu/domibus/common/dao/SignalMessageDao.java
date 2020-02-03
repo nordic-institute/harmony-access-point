@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @Repository
-public class SignalMessageDao extends BasicDao<SignalMessage> {
+public class SignalMessageDao extends BasicDaoNoGeneratePk<SignalMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageDao.class);
 

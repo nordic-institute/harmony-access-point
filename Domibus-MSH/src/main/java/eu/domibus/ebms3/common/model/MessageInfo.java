@@ -43,10 +43,12 @@ public class MessageInfo extends AbstractBaseEntity {
     @XmlJavaTypeAdapter(XMLGregorianCalendarAdapter.class)
     @Column(name = "TIME_STAMP")
     protected Date timestamp;
+
     @XmlElement(name = "MessageId", required = true)
     @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)
     @NotNull
     protected String messageId;
+
     @XmlElement(name = "RefToMessageId")
     @Column(name = "REF_TO_MESSAGE_ID")
     protected String refToMessageId;

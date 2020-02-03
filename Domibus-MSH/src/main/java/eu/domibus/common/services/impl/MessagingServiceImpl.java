@@ -161,7 +161,13 @@ public class MessagingServiceImpl implements MessagingService {
                 userMessage.getCollaborationInfo().getService().getValue(),
                 userMessage.getCollaborationInfo().getAction(), userMessage.isSourceMessage(), userMessage.isUserMessageFragment(), false);
 
-        SignalMessage signalMessage = as4ReceiptService.saveResponse(userMessage, responseMessaging.getSignalMessage());
+        //one to one mapping
+        SignalMessage signalMessage = responseMessaging.getSignalMessage();
+        signalMessage.getReceipt().setSignalMessage(signalMessage);
+        signalMessage.setMessaging(messaging);
+        userMessage.setMessaging(messaging);
+
+        as4ReceiptService.saveResponse(userMessage, signalMessage);
 
         Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
         messaging.setSignalMessage(signalMessage);
@@ -187,6 +193,10 @@ public class MessagingServiceImpl implements MessagingService {
     public void persistSubmittedMessage(Submission messageData, String backendName, UserMessage userMessage, String messageId, Messaging message, MessageExchangeConfiguration userMessageExchangeConfiguration, Party to, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) {
         LOG.debug("Saving Messaging");
         com.codahale.metrics.Timer.Context timeContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "messagingDao.create")).time();
+
+        //one to one mapping
+        userMessage.setMessaging(message);
+
         messagingDao.create(message);
         timeContext.stop();
 

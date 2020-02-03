@@ -15,7 +15,7 @@ import java.util.Date;
  * @since 3.2
  */
 @MappedSuperclass
-@DiscriminatorColumn(name = "MESSAGE_TYPE")
+//@DiscriminatorColumn(name = "MESSAGE_TYPE")
 public abstract class MessageLog extends AbstractBaseAuditEntity {
 
     @Column(name = "MESSAGE_STATUS")

@@ -55,13 +55,12 @@ public class Messaging extends AbstractBaseEntity {
     protected String id;
 
     @XmlElement(name = "SignalMessage")
-    @JoinColumn(name = "SIGNAL_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "messaging", cascade = CascadeType.ALL, optional = true, fetch = FetchType.EAGER)
     protected SignalMessage signalMessage;
 
     @XmlElement(name = "UserMessage")
-    @JoinColumn(name = "USER_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "USER_MESSAGE_ID")
+    @OneToOne(mappedBy = "messaging", cascade = CascadeType.ALL, optional = true, fetch = FetchType.EAGER)
     protected UserMessage userMessage;
 
     /*    @XmlAttribute(name = "mustUnderstand", namespace = "http://schemas.xmlsoap.org/soap/envelope/")

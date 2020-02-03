@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 
 @Repository
-public class UserMessageDao extends BasicDao<UserMessage> {
+public class UserMessageDao extends BasicDaoNoGeneratePk<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 

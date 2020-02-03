@@ -215,20 +215,11 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
      * @param signalMessage SOAP response message
      */
     @Transactional
-    public SignalMessage saveResponse(UserMessage userMessage, SignalMessage signalMessage) {
+    public void saveResponse(UserMessage userMessage, SignalMessage signalMessage) {
 
-        LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
         // Stores the signal message
 
         Timer.Context as4receiptContext = null;
-        try {
-            as4receiptContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(AS4ReceiptService.class, "saveResponse.2.createSignalMessage")).time();
-            signalMessageDao.create(signalMessage);
-        } finally {
-            if (as4receiptContext != null) {
-                as4receiptContext.stop();
-            }
-        }
 
         MessageSubtype messageSubtype = null;
         /*Messaging sentMessage = null;
@@ -285,8 +276,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 as4receiptContext.stop();
             }
         }
-        return signalMessage;
-
     }
 
 

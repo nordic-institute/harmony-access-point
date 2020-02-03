@@ -32,25 +32,35 @@ import java.util.Set;
         @NamedQuery(name = "SignalMessage.findSignalMessageByRefMessageId",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
 })
-public class SignalMessage extends AbstractBaseEntity {
+public class SignalMessage extends AbstractBaseEntityNoGeneratedPk {
 
     @XmlElement(name = "MessageInfo", required = true)
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageInfo messageInfo;
+
     @XmlElement(name = "PullRequest")
     @Embedded
     protected PullRequest pullRequest; //NOSONAR
+
     @XmlElement(name = "Receipt")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, optional = true, fetch = FetchType.EAGER)
     protected Receipt receipt;
+
     @XmlElement(name = "Error")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "SIGNALMESSAGE_ID")
     protected Set<Error> error; //NOSONAR
+
     @XmlAnyElement(lax = true)
     @Transient
     //According to how we read the spec those attributes serve no purpose in the AS4 profile, therefore they are discarded
     protected List<Object> any; //NOSONAR
+
+    @XmlTransient
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "ID_PK")
+    private Messaging messaging;
 
     /**
      * Gets the value of the messageInfo property.
@@ -171,5 +181,9 @@ public class SignalMessage extends AbstractBaseEntity {
             this.any = new ArrayList<>();
         }
         return this.any;
+    }
+
+    public void setMessaging(Messaging messaging) {
+        this.messaging = messaging;
     }
 }

@@ -3,10 +3,7 @@ package eu.domibus.ebms3.common.model;
 import org.w3c.dom.Element;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +22,7 @@ import java.util.List;
 @XmlType(name = "Receipt", propOrder = "any")
 @Entity
 @Table(name = "TB_RECEIPT")
-public class Receipt extends AbstractBaseEntity {
+public class Receipt extends AbstractBaseEntityNoGeneratedPk {
     @SuppressWarnings("JpaAttributeTypeInspection")
     @XmlAnyElement(lax = false)
     @XmlJavaTypeAdapter(ToStringAdapter.class)
@@ -34,6 +31,12 @@ public class Receipt extends AbstractBaseEntity {
     @CollectionTable(name = "TB_RECEIPT_DATA", joinColumns = @JoinColumn(name = "RECEIPT_ID"))
     @Column(name = "RAW_XML")
     protected List<String> any; //NOSONAR
+
+    @XmlTransient
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "ID_PK")
+    private SignalMessage signalMessage;
 
     /**
      * Gets the value of the any property.
@@ -66,5 +69,9 @@ public class Receipt extends AbstractBaseEntity {
 
     public void setAny(List<String> any) {
         this.any = any;
+    }
+
+    public void setSignalMessage(SignalMessage signalMessage) {
+        this.signalMessage = signalMessage;
     }
 }

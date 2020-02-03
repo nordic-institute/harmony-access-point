@@ -517,10 +517,35 @@
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
         </createTable>
-
-        <createTable tableName="TB_MESSAGE_LOG">
+        <createTable tableName="TB_USER_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_LOG"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="MESSAGE_TYPE" type="VARCHAR(255)"/>
+            <column name="MPC" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE" type="VARCHAR(255)"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="NOTIFICATION_STATUS" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="ENDPOINT" type="VARCHAR(255)"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
+            <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
+            <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
+        </createTable>
+        <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
             </column>
             <column name="DELETED" type="TIMESTAMP"/>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
@@ -610,8 +635,8 @@
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING"/>
             </column>
             <column name="ID" type="VARCHAR(255)"/>
-            <column name="SIGNAL_MESSAGE_ID" type="BIGINT"/>
-            <column name="USER_MESSAGE_ID" type="BIGINT"/>
+<!--            <column name="SIGNAL_MESSAGE_ID" type="BIGINT"/>-->
+<!--            <column name="USER_MESSAGE_ID" type="BIGINT"/>-->
         </createTable>
 
         <createTable tableName="TB_MESSAGING_LOCK">
@@ -1163,13 +1188,13 @@
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_433RGM5A446T59Q6JKB885L3X" tableName="TB_MESSAGING">
-            <column name="USER_MESSAGE_ID"/>
-        </createIndex>
+<!--        <createIndex indexName="FK_433RGM5A446T59Q6JKB885L3X" tableName="TB_MESSAGING">-->
+<!--            <column name="USER_MESSAGE_ID"/>-->
+<!--        </createIndex>-->
 
-        <createIndex indexName="FK_53GP9SMTEMQCUIO8O9T10NARM" tableName="TB_MESSAGING">
+      <!--  <createIndex indexName="FK_53GP9SMTEMQCUIO8O9T10NARM" tableName="TB_MESSAGING">
             <column name="SIGNAL_MESSAGE_ID"/>
-        </createIndex>
+        </createIndex>-->
 
         <createIndex indexName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" tableName="TB_CONFIGURATION">
             <column name="FK_BUSINESSPROCESSES"/>
@@ -1395,12 +1420,12 @@
             <column name="FK_INITIATOR_ROLE"/>
         </createIndex>
 
-        <createIndex indexName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" tableName="TB_CONFIGURATION">
-            <column name="FK_PARTY"/>
-        </createIndex>
-
         <createIndex indexName="FK_R2SWPQOF7636VVEQT0DXL89DP" tableName="TB_LEG">
             <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createIndex indexName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" tableName="TB_CONFIGURATION">
+            <column name="FK_PARTY"/>
         </createIndex>
 
         <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
@@ -1628,15 +1653,15 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
+        <!--<addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
                                  constraintName="FK_433RGM5A446T59Q6JKB885L3X" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>-->
 
-        <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
+   <!--     <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
                                  constraintName="FK_53GP9SMTEMQCUIO8O9T10NARM" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>-->
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_CONFIGURATION"
                                  constraintName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" deferrable="false"
@@ -1712,15 +1737,15 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
+        <!--<addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
                                  constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>-->
 
-        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
-                                 constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+<!--        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"-->
+<!--                                 constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"-->
+<!--                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"-->
+<!--                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>-->
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY"
                                  constraintName="FK_CLOYY9K391VHSUP85IWR8IXIV" deferrable="false"

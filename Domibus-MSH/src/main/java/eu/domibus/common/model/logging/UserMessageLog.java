@@ -12,8 +12,8 @@ import java.util.Date;
  * @since 3.2
  */
 @Entity
-@Table(name = "TB_MESSAGE_LOG")
-@DiscriminatorValue("USER_MESSAGE")
+@Table(name = "TB_USER_MESSAGE_LOG")
+//@DiscriminatorValue("USER_MESSAGE")
 @NamedQueries({
         @NamedQuery(name = "UserMessageLog.findRetryMessages",
                 query = "select userMessageLog.messageId " +

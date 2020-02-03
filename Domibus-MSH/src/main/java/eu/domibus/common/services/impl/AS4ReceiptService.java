@@ -45,5 +45,5 @@ public interface AS4ReceiptService {
      */
     SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception;
 
-    SignalMessage saveResponse(UserMessage userMessage, SignalMessage signalMessage);
+    void saveResponse(UserMessage userMessage, SignalMessage signalMessage);
 }

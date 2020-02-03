@@ -97,12 +97,19 @@ public class ResponseHandler {
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "signalMessageDao.create")).time();
             // Stores the signal message
+
+            Messaging messaging = messagingDao.findById(Messaging.class, sentMessage.getEntityId());
+            signalMessage.setMessaging(messaging);
+            //one to one
+            signalMessage.getReceipt().setSignalMessage(signalMessage);
+
             signalMessageDao.create(signalMessage);
+
             responseHandlerContext.stop();
 
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
-            sentMessage.setSignalMessage(signalMessage);
-            messagingDao.update(sentMessage);
+            messaging.setSignalMessage(signalMessage);
+            messagingDao.update(messaging);
             responseHandlerContext.stop();
         } finally {
             if (responseHandlerContext != null) {

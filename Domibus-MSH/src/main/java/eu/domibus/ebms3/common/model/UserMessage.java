@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
-public class UserMessage extends AbstractBaseEntity {
+public class UserMessage extends AbstractBaseEntityNoGeneratedPk {
 
     @XmlElement(name = "MessageInfo", required = true)
     @OneToOne(cascade = CascadeType.ALL)
@@ -77,8 +77,14 @@ public class UserMessage extends AbstractBaseEntity {
 
     @XmlTransient
     @JoinColumn(name = "FK_MESSAGE_FRAGMENT_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     protected MessageFragmentEntity messageFragment;
+
+    @XmlTransient
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "ID_PK")
+    private Messaging messaging;
 
     public MessageFragmentEntity getMessageFragment() {
         return messageFragment;
@@ -314,5 +320,9 @@ public class UserMessage extends AbstractBaseEntity {
             return getPartyInfo().getTo().getFirstPartyId();
         }
         return null;
+    }
+
+    public void setMessaging(Messaging messaging) {
+        this.messaging = messaging;
     }
 }
