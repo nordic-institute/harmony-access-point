@@ -30,7 +30,7 @@ public class LegValidator extends AbstractPModeValidator {
             "errorHandling", "compressPayloads"};
 
     @Override
-    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
+    public List<PModeIssue> validate(Configuration configuration) {
 
         List<PModeIssue> issues = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class LegValidator extends AbstractPModeValidator {
             message = validateAttributeAgainstNull(legConfiguration, attribute);
             if (StringUtils.isNotEmpty(message)) {
                 message += "for leg configuration [" + legConfiguration.getName() + "]";
-                issues.add(new PModeIssue(message, PModeIssue.IssueLevel.WARNING));
+                issues.add(new PModeIssue(message, PModeIssue.Level.WARNING));
                 LOG.debug(message);
             }
         }

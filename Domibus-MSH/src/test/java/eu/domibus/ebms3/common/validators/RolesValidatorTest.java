@@ -21,7 +21,7 @@ public class RolesValidatorTest extends AbstractValidatorTest {
     @Test
     public void validate() throws Exception {
         Configuration configuration = newConfiguration("RolesConfiguration.json");
-        final List<PModeIssue> results = validator.validateAsConfiguration(configuration);
+        final List<PModeIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 2);
         assertEquals("For the business process [TestProcess], the initiator role name and the responder role name are identical [eCODEXRole]", results.get(0).getMessage());
         assertEquals("For the business process [TestProcess], the initiator role value and the responder role value are identical [GW]", results.get(1).getMessage());

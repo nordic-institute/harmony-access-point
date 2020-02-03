@@ -470,7 +470,7 @@ public class PartyServiceImpl implements PartyService {
         if (CollectionUtils.isEmpty(e.getErrors())) {
             message += ExceptionUtils.getRootCauseMessage(e);
         }
-        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.IssueLevel.ERROR)).collect(Collectors.toList());
+        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
         return new PModeValidationException(message, errors);
     }
 

@@ -73,29 +73,29 @@ public class CompositePModeValidatorTest {
         compositePModeValidator.setValidators(list);
 
         PModeIssue issue1 = new PModeIssue();
-        issue1.setLevel(PModeIssue.IssueLevel.ERROR);
+        issue1.setLevel(PModeIssue.Level.ERROR);
         issue1.setMessage("Leg configuration is wrong");
 
         PModeIssue issue2 = new PModeIssue();
-        issue2.setLevel(PModeIssue.IssueLevel.WARNING);
+        issue2.setLevel(PModeIssue.Level.WARNING);
         issue2.setMessage("Process configuration is wrong");
 
         List<PModeIssue> issues1 = Arrays.asList(issue1);
         List<PModeIssue> issues2 = Arrays.asList(issue2);
 
         new Expectations() {{
-            innerValidator1.validateAsConfiguration(configuration);
+            innerValidator1.validate(configuration);
             result = issues1;
-            innerValidator2.validateAsConfiguration(configuration);
+            innerValidator2.validate(configuration);
             result = issues2;
         }};
 
-        List<PModeIssue> res = compositePModeValidator.validateAsConfiguration(configuration);
+        List<PModeIssue> res = compositePModeValidator.validate(configuration);
 
         new Verifications() {{
-            innerValidator1.validateAsConfiguration(configuration);
+            innerValidator1.validate(configuration);
             times = 1;
-            innerValidator2.validateAsConfiguration(configuration);
+            innerValidator2.validate(configuration);
             times = 1;
 //            innerValidator1.validateAsXml(rawConfiguration);
 //            times = 0;

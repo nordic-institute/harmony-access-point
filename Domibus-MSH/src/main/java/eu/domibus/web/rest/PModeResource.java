@@ -134,7 +134,7 @@ public class PModeResource extends BaseResource {
                 message += ExceptionUtils.getRootCauseMessage(e);
             }
 
-            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.IssueLevel.ERROR)).collect(Collectors.toList());
+            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
         } catch (PModeValidationException ve) {

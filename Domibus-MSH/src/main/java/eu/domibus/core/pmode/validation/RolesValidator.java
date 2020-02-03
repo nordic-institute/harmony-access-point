@@ -22,7 +22,7 @@ import java.util.List;
 public class RolesValidator extends AbstractPModeValidator {
 
     @Override
-    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
+    public List<PModeIssue> validate(Configuration configuration) {
         List<PModeIssue> issues = new ArrayList<>();
 
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
@@ -31,12 +31,12 @@ public class RolesValidator extends AbstractPModeValidator {
             final Role responderRole = process.getResponderRole();
             if (initiatorRole != null && initiatorRole.equals(responderRole)) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role name and the responder role name are identical [" + initiatorRole.getName() + "]";
-                issues.add(new PModeIssue(errorMessage, PModeIssue.IssueLevel.WARNING));
+                issues.add(new PModeIssue(errorMessage, PModeIssue.Level.WARNING));
             }
             if (initiatorRole != null && responderRole != null
                     && StringUtils.equalsIgnoreCase(initiatorRole.getValue(), responderRole.getValue())) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role value and the responder role value are identical [" + initiatorRole.getValue() + "]";
-                issues.add(new PModeIssue(errorMessage, PModeIssue.IssueLevel.WARNING));
+                issues.add(new PModeIssue(errorMessage, PModeIssue.Level.WARNING));
             }
         }
 

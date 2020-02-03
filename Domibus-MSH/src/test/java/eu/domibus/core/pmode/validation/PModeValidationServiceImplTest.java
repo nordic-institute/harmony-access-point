@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_LEVEL;
@@ -53,7 +52,7 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validateAsConfiguration(configuration);
+            compositePModeValidator.validate(configuration);
             times = 0;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            times = 0;
@@ -66,7 +65,7 @@ public class PModeValidationServiceImplTest {
     public void validate_SetAsWarning(@Mocked byte[] rawConfiguration, @Mocked Configuration configuration) {
 
         PModeIssue issue = new PModeIssue();
-        issue.setLevel(PModeIssue.IssueLevel.ERROR);
+        issue.setLevel(PModeIssue.Level.ERROR);
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
@@ -85,21 +84,21 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validateAsConfiguration(configuration);
+            compositePModeValidator.validate(configuration);
             times = 1;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            times = 1;
         }};
 
         Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.IssueLevel.WARNING);
+        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.Level.WARNING);
     }
 
     @Test
     public void validate_SetAsError(@Mocked byte[] rawConfiguration, @Mocked Configuration configuration) {
 
         PModeIssue issue = new PModeIssue();
-        issue.setLevel(PModeIssue.IssueLevel.ERROR);
+        issue.setLevel(PModeIssue.Level.ERROR);
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
@@ -118,14 +117,14 @@ public class PModeValidationServiceImplTest {
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
 
         new Verifications() {{
-            compositePModeValidator.validateAsConfiguration(configuration);
+            compositePModeValidator.validate(configuration);
             times = 1;
 //            compositePModeValidator.validateAsXml(rawConfiguration);
             times = 1;
         }};
 
         Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.IssueLevel.ERROR);
+        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.Level.ERROR);
     }
 
 }

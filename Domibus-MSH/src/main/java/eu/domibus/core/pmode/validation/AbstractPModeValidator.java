@@ -20,7 +20,7 @@ public abstract class AbstractPModeValidator implements PModeValidator {
 //    }
 
     @Override
-    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
+    public List<PModeIssue> validate(Configuration configuration) {
         return new ArrayList<>();
     }
 }

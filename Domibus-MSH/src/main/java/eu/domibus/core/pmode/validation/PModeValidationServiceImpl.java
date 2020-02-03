@@ -47,12 +47,12 @@ public class PModeValidationServiceImpl implements PModeValidationService {
                 continue;
             }
 
-            List<PModeIssue> issues1 = validator.validateAsConfiguration(configuration);
+            List<PModeIssue> issues1 = validator.validate(configuration);
 //            List<PModeIssue> issues2 = validator.validateAsXml(rawConfiguration);
 
             if (level != null) {
                 try {
-                    PModeIssue.IssueLevel issueLevel = PModeIssue.IssueLevel.valueOf(level);
+                    PModeIssue.Level issueLevel = PModeIssue.Level.valueOf(level);
 
                     LOG.debug("Setting level=[{}] to all issues of [{}] validator.", validatorName);
                     issues1.forEach(issue -> issue.setLevel(issueLevel));
@@ -69,8 +69,8 @@ public class PModeValidationServiceImpl implements PModeValidationService {
         if (warningsAsErrors) {
             LOG.debug("Setting level as error for all issues due to warningsAsErrors being true.");
             allIssues.stream()
-                    .filter(el -> el.getLevel() == PModeIssue.IssueLevel.WARNING)
-                    .forEach(issue -> issue.setLevel(PModeIssue.IssueLevel.ERROR));
+                    .filter(el -> el.getLevel() == PModeIssue.Level.WARNING)
+                    .forEach(issue -> issue.setLevel(PModeIssue.Level.ERROR));
         }
 
         return allIssues;

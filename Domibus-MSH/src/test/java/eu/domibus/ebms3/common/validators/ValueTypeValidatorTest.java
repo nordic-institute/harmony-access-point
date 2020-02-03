@@ -20,7 +20,7 @@ public class ValueTypeValidatorTest extends AbstractValidatorTest {
     @Test
     public void validate() throws Exception {
         Configuration configuration = newConfiguration("ValueTypeConfiguration.json");
-        final List<PModeIssue> results = validator.validateAsConfiguration(configuration);
+        final List<PModeIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 4);
         assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("PartyIdType is empty and the partyId is not an URI for red_gw")));
         assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Service type is empty and the service value is not an URI for testService1")));

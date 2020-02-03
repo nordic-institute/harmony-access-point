@@ -174,13 +174,13 @@ public abstract class PModeProvider {
             final String message = StringUtils.join(resultMessage, " ");
             LOG.warn(message);
 
-            issues.add(new PModeIssue(message, PModeIssue.IssueLevel.WARNING));
+            issues.add(new PModeIssue(message, PModeIssue.Level.WARNING));
         }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
 
         issues.addAll(pModeValidationService.validate(bytes, configuration));
-        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == PModeIssue.IssueLevel.ERROR)) {
+        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == PModeIssue.Level.ERROR)) {
             throw new PModeValidationException(issues);
         }
         configurationDAO.updateConfiguration(configuration);

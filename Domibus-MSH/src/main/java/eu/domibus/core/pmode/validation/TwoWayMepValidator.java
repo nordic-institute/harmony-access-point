@@ -36,14 +36,14 @@ public class TwoWayMepValidator extends AbstractPModeValidator {
     );
 
     @Override
-    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
+    public List<PModeIssue> validate(Configuration configuration) {
         List<PModeIssue> issues = new ArrayList<>();
 
         for (Process process : configuration.getBusinessProcesses().getProcesses()) {
             if (process.getMep() != null && TWOWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
                 if (notAccepted.stream().anyMatch(x -> x.equalsIgnoreCase(binding))) {
-                    issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), PModeIssue.IssueLevel.WARNING));
+                    issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), PModeIssue.Level.WARNING));
                 }
             }
         }

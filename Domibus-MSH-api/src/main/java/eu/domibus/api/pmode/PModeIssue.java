@@ -6,7 +6,7 @@ package eu.domibus.api.pmode;
  */
 public class PModeIssue {
 
-    private IssueLevel level;
+    private Level level;
     private String code;
     private String message;
 
@@ -14,19 +14,19 @@ public class PModeIssue {
 
     public PModeIssue(String message) {
         this.message = message;
-        this.level = IssueLevel.NOTE;
+        this.level = Level.NOTE;
     }
 
-    public PModeIssue(String message, IssueLevel level) {
+    public PModeIssue(String message, Level level) {
         this.message = message;
         this.level = level;
     }
 
-    public IssueLevel getLevel() {
+    public Level getLevel() {
         return level;
     }
 
-    public void setLevel(IssueLevel level) {
+    public void setLevel(Level level) {
         this.level = level;
     }
 
@@ -51,13 +51,7 @@ public class PModeIssue {
         return message;
     }
 
-    /**
-     * @author Ion Perpegel
-     * @since 4.2
-     * <p>
-     * TODO: better name
-     */
-    public enum IssueLevel {
+    public enum Level {
         NOTE,
         WARNING,
         ERROR,

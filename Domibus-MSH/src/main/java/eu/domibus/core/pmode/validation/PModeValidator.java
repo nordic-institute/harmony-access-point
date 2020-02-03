@@ -15,8 +15,8 @@ public interface PModeValidator {
     /**
      * Validates pMode as deserialized as Configuration object
      *
-     * @param {Configuration} configuration - Configuration class instance representing the deserialized pmode
+     * @param {pMode} configuration - Configuration class instance representing the deserialized pmode
      * @returns {list|PModeIssue} - the list of issues found( errors or warnings, if any)
      */
-    List<PModeIssue> validateAsConfiguration(Configuration configuration);
+    List<PModeIssue> validate(Configuration pMode);
 }

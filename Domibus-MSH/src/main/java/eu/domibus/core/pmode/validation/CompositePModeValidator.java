@@ -27,10 +27,10 @@ public class CompositePModeValidator extends AbstractPModeValidator {
 //    }
 
     @Override
-    public List<PModeIssue> validateAsConfiguration(Configuration configuration) {
+    public List<PModeIssue> validate(Configuration configuration) {
         List<PModeIssue> issues = new ArrayList<>();
         if (validators != null) {
-            validators.forEach(validator -> issues.addAll(validator.validateAsConfiguration(configuration)));
+            validators.forEach(validator -> issues.addAll(validator.validate(configuration)));
         }
         return issues;
     }

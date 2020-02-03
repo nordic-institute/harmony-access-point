@@ -47,7 +47,7 @@ public class LegValidatorTest {
         }};
 
         //tested method
-        final List<PModeIssue> results = legValidator.validateAsConfiguration(configuration);
+        final List<PModeIssue> results = legValidator.validate(configuration);
 
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() == 6);

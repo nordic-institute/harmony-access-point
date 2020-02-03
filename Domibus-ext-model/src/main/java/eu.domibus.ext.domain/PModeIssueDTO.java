@@ -6,7 +6,7 @@ package eu.domibus.ext.domain;
  */
 public class PModeIssueDTO {
 
-    private IssueLevelExt level;
+    private Level level;
     private String code;
     private String message;
 
@@ -14,19 +14,19 @@ public class PModeIssueDTO {
 
     public PModeIssueDTO(String message) {
         this.message = message;
-        this.level = IssueLevelExt.NOTE;
+        this.level = Level.NOTE;
     }
 
-    public PModeIssueDTO(String message, IssueLevelExt level) {
+    public PModeIssueDTO(String message, Level level) {
         this.message = message;
         this.level = level;
     }
 
-    public IssueLevelExt getLevel() {
+    public Level getLevel() {
         return level;
     }
 
-    public void setLevel(IssueLevelExt level) {
+    public void setLevel(Level level) {
         this.level = level;
     }
 
@@ -51,13 +51,7 @@ public class PModeIssueDTO {
         return message;
     }
 
-    /**
-     * @author Ion Perpegel
-     * @since 4.2
-     * <p>
-     * TODO: better name
-     */
-    public enum IssueLevelExt {
+    public enum Level {
         NOTE,
         WARNING,
         ERROR,
