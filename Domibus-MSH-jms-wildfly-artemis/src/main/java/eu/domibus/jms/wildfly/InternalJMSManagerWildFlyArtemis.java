@@ -16,7 +16,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -37,6 +36,10 @@ import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
  * JMSManager implementation for ActiveMQ Artemis (Wildfly 12)
@@ -157,27 +160,36 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         String[] addressNames = activeMQServerControl.getAddressNames();
         LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
 
-        for (String addressName : addressNames) {
+        Arrays.stream(addressNames).forEach(addressName -> {
             try {
-                ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(
-                        SimpleString.toSimpleString(addressName));
+                ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));
 
                 String[] queueNames = getAddressControl(addressObjectName).getQueueNames();
                 LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
 
-                for (String queueName : queueNames) {
-                    ObjectName objectName = objectNameBuilder.getQueueObjectName(
-                            SimpleString.toSimpleString(addressName),
-                            SimpleString.toSimpleString(queueName),
-                            routingType);
-                    queues.put(queueName, objectName);
-                }
+                queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
             } catch(Exception e) {
-                LOG.error("Error retrieving the queue map for address [" + addressName + "]", e);
+                // Just log the error and continue with the next address name
+                LOG.error("Error creating object name for address [" + addressName + "]", e);
             }
-        }
+        });
 
         return queues;
+    }
+
+    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
+        return Arrays.stream(queueNames).collect(Collectors.toMap(
+                Function.identity(),
+                queueName -> {
+                    try {
+                        return objectNameBuilder.getQueueObjectName(
+                                toSimpleString(addressName),
+                                toSimpleString(queueName),
+                                routingType);
+                    } catch (Exception e) {
+                        throw new DomibusJMXException("Error creating object name for queue [" + queueName + "]", e);
+                    }
+                }));
     }
 
     protected QueueControl getQueueControl(ObjectName objectName) {
