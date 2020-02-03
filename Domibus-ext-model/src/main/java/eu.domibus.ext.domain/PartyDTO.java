@@ -2,7 +2,6 @@ package eu.domibus.ext.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,15 +16,12 @@ public class PartyDTO {
 
     private Integer entityId;
 
-    @NotNull
     private String name;
 
     private String userName;
 
-    @NotNull
     private String endpoint;
 
-    @NotNull
     private Set<PartyIdentifierDTO> identifiers;
 
     private List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();

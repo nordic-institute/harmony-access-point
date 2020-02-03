@@ -10,7 +10,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +23,7 @@ import java.util.Arrays;
  * @since 4.1
  * A Spring interceptor that ensures that the request body of a REST call does not contain blacklisted chars in any of its String properties
  */
-@ControllerAdvice(annotations = RestController.class)
+@ControllerAdvice(basePackages = "eu.domibus.web.rest")
 public class RestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(RestBodyValidationInterceptor.class);
 

@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,14 +52,19 @@ public class PartiesResource {
                 request.getProcess(), request.getPageStart(), request.getPageSize());
     }
 
+    @ApiOperation(value = "Creates a Party",
+            notes = "Creates a Party using name, party id, endpoint and identifiers which are mandatory fields",
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @PostMapping(value = "/save")
     public ResponseEntity<Object> createParty(@RequestBody PartyDTO request) {
-
-        partyExtService.createParty(request);
-
-        final String partyId = "";
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/list?partyId={partyId}").buildAndExpand(partyId).toUri();
-        return ResponseEntity.created(uri).build();
+        try {
+            partyExtService.createParty(request);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/list?name={name}").buildAndExpand(request.getName()).toUri();
+            return ResponseEntity.created(uri).build();
+        } catch (IllegalStateException e) {
+            final String message = ExceptionUtils.getRootCauseMessage(e);
+            return ResponseEntity.badRequest().body(message);
+        }
     }
 
     @ApiOperation(value = "Get Certificate for a Party",
