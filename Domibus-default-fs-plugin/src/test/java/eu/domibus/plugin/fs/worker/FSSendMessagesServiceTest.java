@@ -388,6 +388,7 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getSendWorkerInterval(domain);
             result = 300;
         }};
+
         instance.checkSizeChangedRecently(contentFile, domain);
 
         //tested method
@@ -397,5 +398,79 @@ public class FSSendMessagesServiceTest {
         Thread.sleep(800);
         instance.clearObservedFiles(domain);
         Assert.assertEquals(0, instance.observedFilesInfo.size());
+    }
+
+    @Test
+    public void buildErrorMessageWithErrorDetailsTest() {
+
+        final String errorDetail = null;
+
+        new Expectations(instance) {{
+            instance.buildErrorMessage(null, null, null, null, null, null);
+            result = any;
+        }};
+
+        Assert.assertNull(instance.buildErrorMessage(errorDetail));
+
+    }
+
+    @Test
+    public void testbuildErrorMessage() {
+        final String errorCode = "DOM_001";
+        final String errorDetail = "Error";
+        final String messageId = "messageId";
+        final String mshRole = "mshRole";
+        final String notified = "notified";
+        final String timestamp = null;
+
+        Assert.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
+    }
+
+    @Test
+    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new JAXBException("Invalid metadata file", "DOM_001");
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
+    }
+
+    @Test
+    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new MessagingProcessingException();
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
+    }
+
+    @Test
+    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new RuntimeException();
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
     }
 }

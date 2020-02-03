@@ -22,6 +22,7 @@ import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -1227,5 +1228,53 @@ public class PartyServiceImplTest {
 
         // When
         partyService.updateParties(Lists.newArrayList(), partyToCertificateMap);
+    }
+
+    @Test
+    public void findPushToPartyNamesByServiceAndActionTest(@Mocked MessageExchangePattern messageExchangePattern) {
+
+        // Given
+        final String service = "service1";
+        final String action = "action1";
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        new Expectations(partyService) {{
+            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            result = (List<String>) any;
+        }};
+
+        // When
+        partyService.findPushToPartyNamesByServiceAndAction(service, action);
+        // Then
+        new Verifications() {{
+            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void printPartyProcessesTest(@Injectable Party party,
+                                        @Mocked Process process) {
+        List<Process> processes = new ArrayList<>();
+
+        new Expectations() {{
+            processes.add(process);
+            party.getProcessesWithPartyAsInitiator();
+            result = processes;
+            party.getProcessesWithPartyAsResponder();
+            result = processes;
+        }};
+
+        partyService.printPartyProcesses(party);
+
+        new Verifications() {{
+            party.getProcessesWithPartyAsInitiator();
+            times = 2;
+            party.getProcessesWithPartyAsResponder();
+            times = 2;
+        }};
     }
 }
