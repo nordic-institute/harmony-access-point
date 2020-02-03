@@ -40,16 +40,19 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (handler instanceof HandlerMethod && shouldSkipValidation((HandlerMethod) handler)) {
+        HandlerMethod handlerMethod = handler instanceof HandlerMethod ? (HandlerMethod) handler : null;
+        if (shouldSkipValidation(handlerMethod)) {
             return true;
         }
 
         Map<String, String[]> queryParams = request.getParameterMap();
-        return handleQueryParams(queryParams, (HandlerMethod) handler);
+        return handleQueryParams(queryParams, handlerMethod);
     }
 
-    private boolean shouldSkipValidation(HandlerMethod handler) {
-        HandlerMethod method = handler;
+    private boolean shouldSkipValidation(HandlerMethod method) {
+        if (method == null) {
+            return false;
+        }
         SkipWhiteListed skipAnnot = method.getMethodAnnotation(SkipWhiteListed.class);
         if (skipAnnot != null) {
             return true;

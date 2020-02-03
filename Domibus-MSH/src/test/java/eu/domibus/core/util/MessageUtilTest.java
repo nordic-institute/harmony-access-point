@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
@@ -62,6 +63,7 @@ public class MessageUtilTest {
         }};
 
         Assert.assertEquals(root.getValue(), messageUtil.getMessaging(soapMessage));
+
         new Verifications() {{
             unmarshaller.unmarshal(node);
             times = 1;
@@ -80,6 +82,7 @@ public class MessageUtilTest {
         }};
 
         messageUtil.getMessagingWithDom(soapMessage);
+
         new Verifications() {{
             messageUtil.getMessagingWithDom(messagingNode);
             times = 1;
@@ -93,6 +96,7 @@ public class MessageUtilTest {
                                             @Injectable UserMessage userMessage,
                                             @Injectable QName qName) throws SOAPException {
         final Map<QName, String> otherAttributes = new HashMap<>();
+
         new Expectations(messageUtil) {{
             messageUtil.createSignalMessage(messagingNode);
             result = signalMessage;
@@ -116,6 +120,7 @@ public class MessageUtilTest {
                                       @Injectable MessageProperties messageProperties,
                                       @Injectable PayloadInfo payloadInfo) {
         final String USER_MESSAGE = "UserMessage";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(messagingNode, USER_MESSAGE);
             result = userMessageNode;
@@ -144,6 +149,7 @@ public class MessageUtilTest {
         final String PART_INFO = "PartInfo";
         final List<Node> partInfoNodes = new ArrayList<>();
         partInfoNodes.add(userMessageNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(userMessageNode, PAYLOAD_INFO);
             result = payloadInfoNode;
@@ -162,6 +168,7 @@ public class MessageUtilTest {
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
         propertyNodes.add(partInfoNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(partInfoNode, PART_PROPERTIES);
             result = partPropertiesNode;
@@ -179,6 +186,7 @@ public class MessageUtilTest {
                                    @Injectable Property result) {
         final String NAME = "name";
         final String TYPE = "type";
+
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(propertyNode, NAME);
             result = "name1";
@@ -200,6 +208,7 @@ public class MessageUtilTest {
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
         propertyNodes.add(userMessageNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(userMessageNode, MESSAGE_PROPERTIES);
             result = messagePropertiesNode;
@@ -221,6 +230,7 @@ public class MessageUtilTest {
         final String COLLABORATION_INFO = "CollaborationInfo";
         final String CONVERSATION_ID = "ConversationId";
         final String ACTION = "Action";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(userMessageNode, COLLABORATION_INFO);
             result = collaborationInfoNode;
@@ -233,6 +243,7 @@ public class MessageUtilTest {
             messageUtil.createAgreementRef(collaborationInfoNode);
             result = agreement;
         }};
+
         Assert.assertNotNull(messageUtil.createCollaborationInfo(userMessageNode));
     }
 
@@ -247,6 +258,7 @@ public class MessageUtilTest {
             messageUtil.getTextContent(agreementRefNode);
             result = "serviceValue";
         }};
+
         Assert.assertNotNull(messageUtil.createAgreementRef(collaborationInfoNode));
     }
 
@@ -262,6 +274,7 @@ public class MessageUtilTest {
             messageUtil.getTextContent(serviceNode);
             result = "serviceValue";
         }};
+
         Assert.assertNotNull(messageUtil.createService(collaborationInfoNode));
     }
 
@@ -278,6 +291,7 @@ public class MessageUtilTest {
             messageUtil.createTo(partyInfoNode);
             result = to;
         }};
+
         Assert.assertNotNull(messageUtil.createPartyInfo(userMessageNode));
     }
 
@@ -289,6 +303,7 @@ public class MessageUtilTest {
                              @Injectable PartyId partyId) {
         final Set<PartyId> partyIds = new HashSet<>();
         partyIds.add(partyId);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(partyInfoNode, "To");
             result = toNode;
@@ -297,6 +312,7 @@ public class MessageUtilTest {
             messageUtil.createPartyIds(toNode);
             result = partyIds;
         }};
+
         Assert.assertNotNull(messageUtil.createTo(partyInfoNode));
     }
 
@@ -308,6 +324,7 @@ public class MessageUtilTest {
                                @Injectable PartyId partyId) {
         final Set<PartyId> partyIds = new HashSet<>();
         partyIds.add(partyId);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(partyInfoNode, "From");
             result = fromNode;
@@ -316,6 +333,7 @@ public class MessageUtilTest {
             messageUtil.createPartyIds(fromNode);
             result = partyIds;
         }};
+
         Assert.assertNotNull(messageUtil.createFrom(partyInfoNode));
     }
 
@@ -325,24 +343,28 @@ public class MessageUtilTest {
                                    @Injectable PartyId partyId) {
         final List<Node> partyIdNodes = new ArrayList<>();
         partyIdNodes.add(partyIdNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getChildren(parent, "PartyId");
             result = partyIdNodes;
             messageUtil.createPartyId(partyIdNode);
             result = partyId;
         }};
+
         Assert.assertNotNull(messageUtil.createPartyIds(parent));
     }
 
     @Test
     public void createPartyIdTest(@Injectable Node partyIdNode,
                                   @Injectable PartyId partyId) {
+
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(partyIdNode, "type");
             result = "partyType";
             messageUtil.getTextContent(partyIdNode);
             result = "partyValue";
         }};
+
         Assert.assertNotNull(messageUtil.createPartyId(partyIdNode));
     }
 
@@ -356,6 +378,7 @@ public class MessageUtilTest {
                                         @Injectable Error error) throws SOAPException {
         Set<Error> errors = new HashSet<>();
         errors.add(error);
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(messagingNode, "SignalMessage");
             result = signalNode;
@@ -368,6 +391,7 @@ public class MessageUtilTest {
             messageUtil.createErrors(signalNode);
             result = errors;
         }};
+
         Assert.assertNotNull(messageUtil.createSignalMessage(messagingNode));
     }
 
@@ -377,12 +401,14 @@ public class MessageUtilTest {
                                        @Injectable Node namedItemNS,
                                        @Injectable QName name) {
         final String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
+
         new Expectations(messageUtil) {{
             messagingNode.getAttributes();
             result = attributes;
             attributes.getNamedItemNS(WSU_NS, "Id");
             result = namedItemNS;
         }};
+
         Assert.assertNotNull(messageUtil.getOtherAttributes(messagingNode));
     }
 
@@ -392,12 +418,14 @@ public class MessageUtilTest {
                                  @Injectable Error error) {
         final List<Node> errorNodeList = new ArrayList<>();
         errorNodeList.add(errorNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getChildren(signalNode, "Error");
             result = errorNodeList;
             messageUtil.createError(errorNode);
             result = error;
         }};
+
         Assert.assertNotNull(messageUtil.createErrors(signalNode));
     }
 
@@ -414,6 +442,7 @@ public class MessageUtilTest {
         final String SEVERITY = "severity";
         final String SHORT_DESCRIPTION = "shortDescription";
         errorNodeList.add(errorNode);
+
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(errorNode, CATEGORY);
             result = "category1";
@@ -432,6 +461,7 @@ public class MessageUtilTest {
             messageUtil.getErrorDetail(errorNode);
             result = "error1";
         }};
+
         Assert.assertNotNull(messageUtil.createError(errorNode));
     }
 
@@ -440,12 +470,14 @@ public class MessageUtilTest {
                                    @Injectable Node errorDetailNode) {
         final String ERROR_DETAIL = "ErrorDetail";
         final String textContent = "Error1";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(errorNode, ERROR_DETAIL);
             result = errorDetailNode;
             messageUtil.getTextContent(errorDetailNode);
             result = textContent;
         }};
+
         Assert.assertEquals(textContent, messageUtil.getErrorDetail(errorNode));
     }
 
@@ -455,6 +487,7 @@ public class MessageUtilTest {
         final String DESCRIPTION = "Description";
         final String LANG = "lang";
         final String textContent = "Error1";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(errorNode, DESCRIPTION);
             result = description;
@@ -463,6 +496,7 @@ public class MessageUtilTest {
             messageUtil.getTextContent(description);
             result = textContent;
         }};
+
         Assert.assertNotNull(messageUtil.createDescription(errorNode));
     }
 
@@ -471,13 +505,16 @@ public class MessageUtilTest {
                                  @Injectable NamedNodeMap attributes,
                                  @Injectable Node uri) {
         String attributeName = "attribute1";
+
         new Expectations(messageUtil) {{
             referenceNode.getAttributes();
             result = attributes;
             attributes.getNamedItem(attributeName);
             result = uri;
         }};
+
         messageUtil.getAttribute(referenceNode, attributeName);
+
         new Verifications() {{
             messageUtil.getTextContent(uri);
             times = 1;
@@ -490,6 +527,7 @@ public class MessageUtilTest {
         final String RECEIPT = "Receipt";
         String nonRepudiationInformation = "nonRepudiationInfo";
         String userMessageFromReceipt = "userMessageFromReceipt";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(signalNode, RECEIPT);
             result = receiptNode;
@@ -498,6 +536,7 @@ public class MessageUtilTest {
             messageUtil.getUserMessageFromReceipt(receiptNode);
             result = userMessageFromReceipt;
         }};
+
         Assert.assertNotNull(messageUtil.createReceipt(signalNode));
     }
 
@@ -505,6 +544,7 @@ public class MessageUtilTest {
     public void getNonRepudiationInformationFromReceiptTest(@Injectable Node nonRepudiationInformationNode,
                                                             @Injectable Node receiptNode) throws TransformerException, SOAPException {
         final String NON_REPUDIATION_INFORMATION = "NonRepudiationInformation";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
             result = nonRepudiationInformationNode;
@@ -524,6 +564,7 @@ public class MessageUtilTest {
     public void getUserMessageFromReceiptTest(@Injectable Node userMessageNode,
                                               @Injectable Node receiptNode) throws TransformerException, SOAPException {
         final String USER_MESSAGE = "UserMessage";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, USER_MESSAGE);
             result = userMessageNode;
@@ -543,12 +584,14 @@ public class MessageUtilTest {
     public void createPullRequestTest(@Injectable Node signalNode,
                                       @Injectable Node pullRequestNode) {
         final String PULL_REQUEST = "PullRequest";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(signalNode, PULL_REQUEST);
             result = pullRequestNode;
             messageUtil.getAttribute(pullRequestNode, "mpc");
             result = "mpc";
         }};
+
         Assert.assertNotNull(messageUtil.createPullRequest(signalNode));
     }
 
@@ -562,6 +605,7 @@ public class MessageUtilTest {
         String messageId = "502572a9-0eb5-490e-bc3f-412a1bf41914";
         String refToMessageId = "refMessageId";
         final String REF_TO_MESSAGE_ID = "RefToMessageId";
+
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(signalNode, MESSAGE_INFO);
             result = messageInfoNode;
@@ -572,6 +616,7 @@ public class MessageUtilTest {
             messageUtil.getFirstChildValue(messageInfoNode, REF_TO_MESSAGE_ID);
             result = refToMessageId;
         }};
+
         Assert.assertNotNull(messageUtil.createMessageInfo(signalNode));
 
     }
@@ -597,7 +642,43 @@ public class MessageUtilTest {
             unmarshaller.unmarshal(messagingXml);
             result = root;
         }};
+
         Assert.assertNotNull(messageUtil.getMessageFragment(soapMessage));
 
+    }
+
+    @Test(expected = MessagingException.class)
+    public void getMessageTest(@Injectable SOAPMessage request,
+                               @Injectable Messaging messaging) throws SOAPException, JAXBException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getMessaging(request);
+            result = new JAXBException("Error marshalling the message", "DOM_001");
+        }};
+
+        messageUtil.getMessage(request);
+
+        new Verifications() {{
+            messageUtil.getMessaging(request);
+            times = 1;
+        }};
+        Assert.fail();
+    }
+
+    @Test
+    public void getFirstChildValueTest(@Injectable Node parent) {
+        String childName = "child1";
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(parent, childName);
+            result = null;
+        }};
+
+        messageUtil.getFirstChildValue(parent, childName);
+
+        new Verifications() {{
+            messageUtil.getTextContent(withCapture());
+            times = 0;
+        }};
     }
 }

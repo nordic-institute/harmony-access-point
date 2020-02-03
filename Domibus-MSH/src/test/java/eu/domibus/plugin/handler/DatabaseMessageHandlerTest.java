@@ -4,7 +4,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
@@ -32,6 +31,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
 import eu.domibus.ebms3.common.model.*;
@@ -40,10 +40,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,7 +48,6 @@ import org.junit.runner.RunWith;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.*;
 
@@ -1153,5 +1149,81 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             transformer.transformFromMessaging(userMessage);
         }};
+    }
+
+    @Test
+    public void submitMessageFragmentTest(@Injectable UserMessage userMessage,
+                                          @Injectable MessageInfo messageInfo,
+                                          @Mocked Messaging message,
+                                          @Injectable MessageStatus messageStatus,
+                                          @Injectable MSHRole mshRole,
+                                          @Injectable ObjectFactory ebMS3Of,
+                                          @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
+                                          @Injectable Party to,
+                                          @Injectable LegConfiguration legConfiguration) throws EbMS3Exception, MessagingProcessingException {
+        String backendName = "backendName";
+        String messageId = UUID.randomUUID().toString();
+        String pModeKey = "pmodeKey";
+
+        new Expectations(databaseMessageHandler) {{
+            userMessage.getMessageInfo();
+            result = messageInfo;
+            messageInfo.getMessageId();
+            result = messageId;
+            userMessageLogDao.getMessageStatus(messageId);
+            result = MessageStatus.NOT_FOUND;
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            result = userMessageExchangeConfiguration;
+            userMessageExchangeConfiguration.getPmodeKey();
+            result = pModeKey;
+            databaseMessageHandler.messageValidations(userMessage, pModeKey, backendName);
+            result = to;
+            pModeProvider.getLegConfiguration(pModeKey);
+            result = legConfiguration;
+            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            result = messageStatus;
+        }};
+
+        databaseMessageHandler.submitMessageFragment(userMessage, backendName);
+
+        new Verifications() {{
+            messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+            times = 1;
+            uiReplicationSignalService.userMessageSubmitted(withCapture());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void downloadMessageShouldDeleteDownloadedMessageTest(@Injectable UserMessage userMessage,
+                                                                 @Injectable UserMessageLog userMessageLog,
+                                                                 @Injectable Submission submission,
+                                                                 @Injectable Messaging messaging) throws Exception {
+
+        new Expectations(databaseMessageHandler) {{
+            messagingDao.findMessageByMessageId(MESS_ID);
+            result = messaging;
+
+            userMessageLogDao.findByMessageId(MESS_ID);
+            result = userMessageLog;
+
+            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage);
+            result = true;
+
+            transformer.transformFromMessaging(userMessage);
+            result = submission;
+
+        }};
+
+        databaseMessageHandler.downloadMessage(MESS_ID);
+
+        new Verifications() {{
+            authUtils.hasUserOrAdminRole();
+            times = 1;
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            times = 1;
+
+        }};
+
     }
 }

@@ -5,6 +5,7 @@ import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.scheduler.DomibusSchedulerException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -274,5 +275,81 @@ public class DomibusQuartzStarterTest {
 
         boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger);
         Assert.assertTrue(isErrorOrBlockedState);
+    }
+
+    @Test
+    public void checkJobsAndStartSchedulerTest(@Injectable Domain domain,
+                                               @Injectable Scheduler scheduler) throws Exception {
+        new Expectations() {{
+            domibusSchedulerFactory.createScheduler(domain);
+            result = scheduler;
+            domibusQuartzStarter.checkSchedulerJobs(scheduler);
+            times = 1;
+        }};
+
+        domibusQuartzStarter.checkJobsAndStartScheduler(domain);
+        new Verifications() {{
+            scheduler.start();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void checkSchedulerJobsByTriggerGroupTest(@Injectable Scheduler scheduler,
+                                                     @Injectable TriggerKey triggerKey,
+                                                     @Injectable Trigger trigger,
+                                                     @Injectable JobKey jobKey,
+                                                     @Mocked JobDetail jobDetail,
+                                                     @Injectable Job job) throws Exception {
+
+        String triggerGroup = "retryWorker";
+        new Expectations() {{
+            scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroup));
+            result = triggerKey;
+            scheduler.getTrigger(triggerKey);
+            result = trigger;
+            trigger.getJobKey();
+            result = jobKey;
+            scheduler.getJobDetail(jobKey);
+            result = withAny(jobDetail);
+            jobDetail.getJobClass();
+            result = new SchedulerException();
+        }};
+        domibusQuartzStarter.checkSchedulerJobsByTriggerGroup(scheduler, triggerGroup);
+        new Verifications() {{
+            scheduler.deleteJob(jobKey);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void checkSchedulerJobsFromGroupTest(@Injectable Scheduler scheduler,
+                                                @Injectable JobKey jobKey,
+                                                @Mocked JobDetail jobDetail,
+                                                @Injectable Job job) throws Exception {
+
+        final String groupName = "default";
+        final String jobName = "retryWorker";
+        final String jobGroup = "jobGroup";
+
+        new Expectations() {{
+            scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName));
+            result = jobKey;
+            jobKey.getName();
+            result = jobName;
+            jobKey.getGroup();
+            result = jobGroup;
+            scheduler.getJobDetail(jobKey);
+            result = withAny(jobDetail);
+            jobDetail.getJobClass();
+            result = new SchedulerException();
+        }};
+
+        domibusQuartzStarter.checkSchedulerJobsFromGroup(scheduler, groupName);
+
+        new Verifications() {{
+            scheduler.deleteJob(jobKey);
+            times = 0;
+        }};
     }
 }
