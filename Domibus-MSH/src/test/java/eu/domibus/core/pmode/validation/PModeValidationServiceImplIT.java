@@ -121,7 +121,8 @@ public class PModeValidationServiceImplIT {
 
         @Bean
         public List<PModeValidator> pModeValidatorList() {
-            return Arrays.asList(new TwoWayMepValidator(), new ConfigurablePModeValidator() );
+//            return Arrays.asList(new TwoWayMepValidator(), new ConfigurablePModeValidator() );
+            return Arrays.asList(new TwoWayMepValidator());
         }
     }
 

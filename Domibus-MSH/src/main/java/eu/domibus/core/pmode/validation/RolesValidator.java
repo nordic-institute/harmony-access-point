@@ -1,12 +1,10 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Role;
-import eu.domibus.core.pmode.validation.AbstractPModeValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -33,12 +31,12 @@ public class RolesValidator extends AbstractPModeValidator {
             final Role responderRole = process.getResponderRole();
             if (initiatorRole != null && initiatorRole.equals(responderRole)) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role name and the responder role name are identical [" + initiatorRole.getName() + "]";
-                issues.add(new PModeIssue(errorMessage, IssueLevel.WARNING));
+                issues.add(new PModeIssue(errorMessage, PModeIssue.IssueLevel.WARNING));
             }
             if (initiatorRole != null && responderRole != null
                     && StringUtils.equalsIgnoreCase(initiatorRole.getValue(), responderRole.getValue())) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role value and the responder role value are identical [" + initiatorRole.getValue() + "]";
-                issues.add(new PModeIssue(errorMessage, IssueLevel.WARNING));
+                issues.add(new PModeIssue(errorMessage, PModeIssue.IssueLevel.WARNING));
             }
         }
 

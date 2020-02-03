@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
@@ -49,29 +48,29 @@ public class PModeValidationServiceImpl implements PModeValidationService {
             }
 
             List<PModeIssue> issues1 = validator.validateAsConfiguration(configuration);
-            List<PModeIssue> issues2 = validator.validateAsXml(rawConfiguration);
+//            List<PModeIssue> issues2 = validator.validateAsXml(rawConfiguration);
 
             if (level != null) {
                 try {
-                    IssueLevel issueLevel = IssueLevel.valueOf(level);
+                    PModeIssue.IssueLevel issueLevel = PModeIssue.IssueLevel.valueOf(level);
 
                     LOG.debug("Setting level=[{}] to all issues of [{}] validator.", validatorName);
                     issues1.forEach(issue -> issue.setLevel(issueLevel));
-                    issues2.forEach(issue -> issue.setLevel(issueLevel));
+//                    issues2.forEach(issue -> issue.setLevel(issueLevel));
                 } catch (IllegalArgumentException ex) {
                     LOG.warn("Wrong pMode issue level value [{}] red from configuraton for [{}] validator.", level, validatorName);
                 }
             }
 
             allIssues.addAll(issues1);
-            allIssues.addAll(issues2);
+//            allIssues.addAll(issues2);
         }
 
         if (warningsAsErrors) {
             LOG.debug("Setting level as error for all issues due to warningsAsErrors being true.");
             allIssues.stream()
-                    .filter(el -> el.getLevel() == IssueLevel.WARNING)
-                    .forEach(issue -> issue.setLevel(IssueLevel.ERROR));
+                    .filter(el -> el.getLevel() == PModeIssue.IssueLevel.WARNING)
+                    .forEach(issue -> issue.setLevel(PModeIssue.IssueLevel.ERROR));
         }
 
         return allIssues;

@@ -4,7 +4,6 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.domain.IssueLevelExt;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.PModeIssueDTO;
 import eu.domibus.ext.services.PModeExtService;

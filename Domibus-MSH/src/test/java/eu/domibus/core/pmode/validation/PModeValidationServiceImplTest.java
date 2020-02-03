@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
@@ -56,8 +55,8 @@ public class PModeValidationServiceImplTest {
         new Verifications() {{
             compositePModeValidator.validateAsConfiguration(configuration);
             times = 0;
-            compositePModeValidator.validateAsXml(rawConfiguration);
-            times = 0;
+//            compositePModeValidator.validateAsXml(rawConfiguration);
+//            times = 0;
         }};
 
         Assert.assertTrue(issues.size() == 0);
@@ -67,7 +66,7 @@ public class PModeValidationServiceImplTest {
     public void validate_SetAsWarning(@Mocked byte[] rawConfiguration, @Mocked Configuration configuration) {
 
         PModeIssue issue = new PModeIssue();
-        issue.setLevel(IssueLevel.ERROR);
+        issue.setLevel(PModeIssue.IssueLevel.ERROR);
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
@@ -79,8 +78,8 @@ public class PModeValidationServiceImplTest {
             domibusPropertyProvider.getProperty(DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + "CompositePModeValidator");
             result = "WARNING";
 
-            compositePModeValidator.validateAsXml(rawConfiguration);
-            result = Arrays.asList(issue);
+//            compositePModeValidator.validateAsXml(rawConfiguration);
+//            result = Arrays.asList(issue);
         }};
 
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
@@ -88,19 +87,19 @@ public class PModeValidationServiceImplTest {
         new Verifications() {{
             compositePModeValidator.validateAsConfiguration(configuration);
             times = 1;
-            compositePModeValidator.validateAsXml(rawConfiguration);
-            times = 1;
+//            compositePModeValidator.validateAsXml(rawConfiguration);
+//            times = 1;
         }};
 
         Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == IssueLevel.WARNING);
+        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.IssueLevel.WARNING);
     }
 
     @Test
     public void validate_SetAsError(@Mocked byte[] rawConfiguration, @Mocked Configuration configuration) {
 
         PModeIssue issue = new PModeIssue();
-        issue.setLevel(IssueLevel.ERROR);
+        issue.setLevel(PModeIssue.IssueLevel.ERROR);
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
@@ -112,8 +111,8 @@ public class PModeValidationServiceImplTest {
             domibusPropertyProvider.getProperty(DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + "CompositePModeValidator");
             result = "WARNING";
 
-            compositePModeValidator.validateAsXml(rawConfiguration);
-            result = Arrays.asList(issue);
+//            compositePModeValidator.validateAsXml(rawConfiguration);
+//            result = Arrays.asList(issue);
         }};
 
         List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
@@ -121,12 +120,12 @@ public class PModeValidationServiceImplTest {
         new Verifications() {{
             compositePModeValidator.validateAsConfiguration(configuration);
             times = 1;
-            compositePModeValidator.validateAsXml(rawConfiguration);
+//            compositePModeValidator.validateAsXml(rawConfiguration);
             times = 1;
         }};
 
         Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == IssueLevel.ERROR);
+        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.IssueLevel.ERROR);
     }
 
 }

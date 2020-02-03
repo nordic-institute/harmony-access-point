@@ -14,10 +14,10 @@ import java.util.List;
  */
 public abstract class AbstractPModeValidator implements PModeValidator {
 
-    @Override
-    public List<PModeIssue> validateAsXml(byte[] xml) {
-        return new ArrayList<>();
-    }
+//    @Override
+//    public List<PModeIssue> validateAsXml(byte[] xml) {
+//        return new ArrayList<>();
+//    }
 
     @Override
     public List<PModeIssue> validateAsConfiguration(Configuration configuration) {

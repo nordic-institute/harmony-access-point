@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Process;
@@ -44,7 +43,7 @@ public class TwoWayMepValidator extends AbstractPModeValidator {
             if (process.getMep() != null && TWOWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
                 if (notAccepted.stream().anyMatch(x -> x.equalsIgnoreCase(binding))) {
-                    issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), IssueLevel.WARNING));
+                    issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), PModeIssue.IssueLevel.WARNING));
                 }
             }
         }

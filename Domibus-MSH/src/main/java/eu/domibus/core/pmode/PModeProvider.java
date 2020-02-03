@@ -4,7 +4,6 @@ package eu.domibus.core.pmode;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -52,7 +51,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -176,13 +174,13 @@ public abstract class PModeProvider {
             final String message = StringUtils.join(resultMessage, " ");
             LOG.warn(message);
 
-            issues.add(new PModeIssue(message, IssueLevel.WARNING));
+            issues.add(new PModeIssue(message, PModeIssue.IssueLevel.WARNING));
         }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
 
         issues.addAll(pModeValidationService.validate(bytes, configuration));
-        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == IssueLevel.ERROR)) {
+        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == PModeIssue.IssueLevel.ERROR)) {
             throw new PModeValidationException(issues);
         }
         configurationDAO.updateConfiguration(configuration);

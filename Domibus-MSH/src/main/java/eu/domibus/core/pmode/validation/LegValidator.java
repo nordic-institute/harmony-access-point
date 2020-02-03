@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
@@ -56,7 +55,7 @@ public class LegValidator extends AbstractPModeValidator {
             message = validateAttributeAgainstNull(legConfiguration, attribute);
             if (StringUtils.isNotEmpty(message)) {
                 message += "for leg configuration [" + legConfiguration.getName() + "]";
-                issues.add(new PModeIssue(message, IssueLevel.WARNING));
+                issues.add(new PModeIssue(message, PModeIssue.IssueLevel.WARNING));
                 LOG.debug(message);
             }
         }

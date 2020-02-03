@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.logging.DomibusLogger;
@@ -64,7 +63,7 @@ public class ValueTypeValidator extends AbstractPModeValidator {
                     URI.create(identifier.getPartyId());
                 } catch (IllegalArgumentException exc) {
                     String msg = "PartyIdType is empty and the partyId is not an URI for " + party.getName();
-                    issues.add(new PModeIssue(msg, IssueLevel.WARNING));
+                    issues.add(new PModeIssue(msg, PModeIssue.IssueLevel.WARNING));
                     LOG.debug(msg);
                 }
             }
@@ -79,7 +78,7 @@ public class ValueTypeValidator extends AbstractPModeValidator {
                 URI.create(service.getValue());
             } catch (IllegalArgumentException exc) {
                 String msg = "Service type is empty and the service value is not an URI for " + service.getName();
-                issues.add(new PModeIssue(msg, IssueLevel.WARNING));
+                issues.add(new PModeIssue(msg, PModeIssue.IssueLevel.WARNING));
                 LOG.debug(msg);
             }
         }
@@ -93,7 +92,7 @@ public class ValueTypeValidator extends AbstractPModeValidator {
                 URI.create(agreement.getValue());
             } catch (IllegalArgumentException exc) {
                 String msg = "Agreement type is empty and the agreement value is not an URI for " + agreement.getName();
-                issues.add(new PModeIssue(msg, IssueLevel.WARNING));
+                issues.add(new PModeIssue(msg, PModeIssue.IssueLevel.WARNING));
                 LOG.debug(msg);
             }
         }

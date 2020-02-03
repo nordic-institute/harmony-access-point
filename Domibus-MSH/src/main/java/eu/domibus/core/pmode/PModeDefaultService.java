@@ -68,7 +68,7 @@ public class PModeDefaultService implements PModeService {
             if (e.getErrors().isEmpty()) {
                 message += ExceptionUtils.getRootCauseMessage(e);
             }
-            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
+            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.IssueLevel.ERROR)).collect(Collectors.toList());
             throw new PModeValidationException(message, errors);
         }
     }

@@ -50,4 +50,16 @@ public class PModeIssue {
     public String toString() {
         return message;
     }
+
+    /**
+     * @author Ion Perpegel
+     * @since 4.2
+     * <p>
+     * TODO: better name
+     */
+    public enum IssueLevel {
+        NOTE,
+        WARNING,
+        ERROR,
+    }
 }

@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.pmode.IssueLevel;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -18,7 +17,6 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.SavePModeResponseRO;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -136,7 +134,7 @@ public class PModeResource extends BaseResource {
                 message += ExceptionUtils.getRootCauseMessage(e);
             }
 
-            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, IssueLevel.ERROR)).collect(Collectors.toList());
+            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.IssueLevel.ERROR)).collect(Collectors.toList());
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
         } catch (PModeValidationException ve) {
