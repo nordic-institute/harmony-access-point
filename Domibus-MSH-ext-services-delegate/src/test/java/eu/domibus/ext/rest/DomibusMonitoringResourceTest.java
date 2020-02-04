@@ -19,10 +19,6 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 4.2
  */
-
-/**
- *
- */
 @RunWith(JMockit.class)
 public class DomibusMonitoringResourceTest {
 
