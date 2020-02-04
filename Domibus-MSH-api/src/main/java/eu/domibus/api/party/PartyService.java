@@ -70,5 +70,12 @@ public interface PartyService {
      */
     List<Process> getAllProcesses();
 
-    Party createParty(Party party, String certificateContent);
+    /**
+     * Creates a Party
+     * @param party Party object
+     * @param certificateContent certificate content in base64
+     */
+    void createParty(Party party, String certificateContent);
+
+    void deleteParty(final String partyName);
 }

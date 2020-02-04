@@ -48,6 +48,8 @@ public class PartyServiceImpl implements PartyService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceImpl.class);
     private static final Predicate<Party> DEFAULT_PREDICATE = condition -> true;
 
+    public static final String EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM = "Cannot delete the party describing the current system.";
+
     @Autowired
     private DomainCoreConverter domainCoreConverter;
 
@@ -366,17 +368,42 @@ public class PartyServiceImpl implements PartyService {
      * @param newParties
      * @param configuration
      */
-    private void addConfigurationParties(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
+    private void addPartiesToConfiguration(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
 
         parties.getParty().addAll(newParties);
     }
 
+    private eu.domibus.common.model.configuration.Party removePartyFromConfiguration(final String partyName, Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        Parties parties = businessProcesses.getPartiesXml();
+
+
+        List<eu.domibus.common.model.configuration.Party> removedParties = new ArrayList<>();
+        parties.getParty().stream()
+                .filter(party -> party.getName().equals(partyName))
+                .forEach(removedParties::add);
+
+        if (removedParties.size() >= 1) { //less probable
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party name should be unique among Parties in PMode");
+        }
+        parties.getParty().removeAll(removedParties);
+
+        return removedParties.get(0);
+    }
+
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
         String partyMe = pModeProvider.getGatewayParty().getName();
         if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe))) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Cannot delete the party describing the current system. ");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
+        }
+    }
+
+    private void checkIfPossibleDeleteParty(final String partyName) {
+        String partyMe = pModeProvider.getGatewayParty().getName();
+        if (partyMe.equalsIgnoreCase(partyName)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
         }
     }
 
@@ -393,6 +420,29 @@ public class PartyServiceImpl implements PartyService {
                 }
             });
         });
+    }
+
+    private void removePartyIdTypes(List<eu.domibus.common.model.configuration.Party> removedParties, Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        Parties parties = businessProcesses.getPartiesXml();
+        List<PartyIdType> partyIdTypes =  parties.getPartyIdTypes().getPartyIdType();
+
+        List<PartyIdType> toBeRemoved = new ArrayList<>();
+        removedParties.forEach(party -> party.getIdentifiers().forEach(identifier -> {
+                    toBeRemoved.add(identifier.getPartyIdType());
+                })
+        );
+
+
+
+
+//        removedParties.forEach(party -> {
+//            party.getIdentifiers().forEach(identifier -> {
+//                if (!partyIdTypes.contains(identifier.getPartyIdType())) {
+//                    partyIdTypes.remove(identifier.getPartyIdType());
+//                }
+//            });
+//        });
     }
 
     private void updateProcessConfiguration(List<Party> partyList, Configuration configuration) {
@@ -549,9 +599,41 @@ public class PartyServiceImpl implements PartyService {
         return processes;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param party Party object
+     * @param certificateContent certificate content in base64
+     */
     @Override
-    public Party createParty(final Party party, final String certificateContent) {
+    public void createParty(final Party party, final String certificateContent) {
 
+        //read PMode configuration
+        Configuration configuration = getConfiguration();
+
+        eu.domibus.common.model.configuration.Party newParty = domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
+        List<eu.domibus.common.model.configuration.Party> newParties = Collections.singletonList(newParty);
+
+        //add new party to configuration
+        addPartiesToConfiguration(newParties, configuration);
+
+        //update party id types
+        updatePartyIdTypes(newParties, configuration);
+
+        //update processes
+        updateProcessConfiguration(Collections.singletonList(party), configuration);
+
+        //update the PMode configuration
+        updateConfiguration(new Date(System.currentTimeMillis()), configuration);
+
+        //add certificate as well
+        if (StringUtils.isNotBlank(certificateContent)) {
+            Map<String, String> map = new HashMap<>();
+            map.put(party.getName(), certificateContent);
+            addPartyCertificate(map);
+        }
+    }
+
+    private Configuration getConfiguration() {
         //read current configuration
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
         if (pModeArchiveInfo == null) {
@@ -565,30 +647,38 @@ public class PartyServiceImpl implements PartyService {
             LOG.error("Error reading current PMode", e);
             throw new IllegalStateException(e);
         }
+        return configuration;
+    }
 
-        eu.domibus.common.model.configuration.Party newParty = domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
-        List<eu.domibus.common.model.configuration.Party> newParties = Collections.singletonList(newParty);
+    /**
+     * {@inheritDoc}
+     * @param partyName
+     */
+    @Override
+    public void deleteParty(String partyName) {
 
-        //add new party to configuration
-        addConfigurationParties(newParties, configuration);
+        //check if party is not in use
+        checkIfPossibleDeleteParty(partyName);
 
-        //update party id types
-        updatePartyIdTypes(newParties, configuration);
+        //read PMode actual configuration
+        Configuration configuration = getConfiguration();
 
-        //update processes
-        updateProcessConfiguration(Collections.singletonList(party), configuration);
+        //remove party from configuration
+        eu.domibus.common.model.configuration.Party removedParty = removePartyFromConfiguration(partyName, configuration);
 
-        //TODO change the date?
-        updateConfiguration(rawConfiguration.getConfigurationDate(), configuration);
+        //TODO update party id types
+        removePartyIdTypes(Collections.singletonList(removedParty), configuration);
 
-        //add certificate as well
-        if (StringUtils.isNotBlank(certificateContent)) {
-            Map<String, String> map = new HashMap<>();
-            map.put(party.getName(), certificateContent);
-            addPartyCertificate(map);
-        }
+        //TODO update processes
+        //updateProcessConfiguration(Collections.singletonList(removedParty), configuration);
 
-        return null;
+
+        //update PMode configuration
+        updateConfiguration(new Date(System.currentTimeMillis()) , configuration);
+
+
+        //TODO remove certificate?
+
     }
 
 }

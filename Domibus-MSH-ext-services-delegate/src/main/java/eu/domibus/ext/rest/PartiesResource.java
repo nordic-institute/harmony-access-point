@@ -9,13 +9,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.security.KeyStoreException;
 import java.util.List;
@@ -37,7 +37,7 @@ public class PartiesResource {
             "Use pageStart and pageSize for pagination purposes",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/list"})
-    public List<PartyDTO> listParties(@Valid PartyFilterRequestDTO request) {
+    public List<PartyDTO> listParties(PartyFilterRequestDTO request) {
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
         }
@@ -71,6 +71,16 @@ public class PartiesResource {
             final String message = ExceptionUtils.getRootCauseMessage(e);
             return ResponseEntity.badRequest().body(message);
         }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteParty(
+            @RequestParam (value = "partyName") String partyName) {
+        if (StringUtils.isEmpty(partyName)) {
+
+        }
+        partyExtService.deleteParty(partyName);
+        return ResponseEntity.ok("Party having partyName=[" + partyName + "] has been successfully deleted");
     }
 
     @ApiOperation(value = "Get Certificate for a Party",

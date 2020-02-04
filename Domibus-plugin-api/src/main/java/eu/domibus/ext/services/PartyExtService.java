@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface PartyExtService {
 
-    String createParty(final PartyDTO partyDTO);
+    void createParty(final PartyDTO partyDTO);
 
     List<PartyDTO> getParties(String name,
                               String endPoint,
@@ -21,6 +21,8 @@ public interface PartyExtService {
                               String processName,
                               int pageStart,
                               int pageSize);
+
+    void deleteParty(final String partyName);
 
     TrustStoreDTO getPartyCertificateFromTruststore(final String partyName) throws KeyStoreException;
 

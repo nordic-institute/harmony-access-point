@@ -37,12 +37,9 @@ public class PartyServiceDelegate implements PartyExtService {
     DomainExtConverter domainConverter;
 
     @Override
-    public String createParty(PartyDTO partyDTO) {
-
+    public void createParty(PartyDTO partyDTO) {
         Party newParty = domainConverter.convert(partyDTO, Party.class);
         partyService.createParty(newParty, partyDTO.getCertificateContent());
-
-        return null;
     }
 
     @Override
@@ -53,8 +50,13 @@ public class PartyServiceDelegate implements PartyExtService {
                                      int pageStart,
                                      int pageSize) {
         List<Party> parties = partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
-        LOG.debug("Returned [{}] parties", parties.size());
+        LOG.debug("Returned [{}] parties", parties != null ? parties.size() : 0);
         return domainConverter.convert(parties, PartyDTO.class);
+    }
+
+    @Override
+    public void deleteParty(String partyName) {
+        partyService.deleteParty(partyName);
     }
 
     @Override
@@ -67,7 +69,7 @@ public class PartyServiceDelegate implements PartyExtService {
     @Override
     public List<ProcessDTO> getAllProcesses() {
         List<Process> processList = partyService.getAllProcesses();
-        LOG.debug("Returned [{}] processes", processList.size());
+        LOG.debug("Returned [{}] processes", processList != null ? processList.size() : 0);
         return domainConverter.convert(processList, ProcessDTO.class);
     }
 }
