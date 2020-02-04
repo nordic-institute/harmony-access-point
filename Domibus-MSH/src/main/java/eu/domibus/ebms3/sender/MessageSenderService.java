@@ -3,6 +3,7 @@ package eu.domibus.ebms3.sender;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.UserMessageDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
@@ -42,6 +43,9 @@ public class MessageSenderService {
     private MessagingDao messagingDao;
 
     @Autowired
+    private UserMessageDao userMessageDao;
+
+    @Autowired
     UserMessageLogDao userMessageLogDao;
 
     @Autowired
@@ -77,8 +81,7 @@ public class MessageSenderService {
         }
 
         com.codahale.metrics.Timer.Context prepare_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "prepare_before_sending")).time();
-        final Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-        final UserMessage userMessage = messaging.getUserMessage();
+        final UserMessage userMessage = userMessageDao.findUserMessageByMessageId(messageId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         prepare_before_sending.stop();
@@ -87,7 +90,7 @@ public class MessageSenderService {
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 
-        messageSender.sendMessage(messaging, userMessageLog);
+        messageSender.sendMessage(userMessage, userMessageLog);
     }
 
     protected MessageStatus getMessageStatus(final UserMessageLog userMessageLog) {

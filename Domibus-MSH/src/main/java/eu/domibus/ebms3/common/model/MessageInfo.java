@@ -31,9 +31,8 @@ import java.util.Date;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MessageInfo", propOrder = {"timestamp", "messageId", "refToMessageId"})
-@Entity
-@Table(name = "TB_MESSAGE_INFO")
-public class MessageInfo extends AbstractBaseEntity {
+@Embeddable
+public class MessageInfo  {
 
     public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";
 

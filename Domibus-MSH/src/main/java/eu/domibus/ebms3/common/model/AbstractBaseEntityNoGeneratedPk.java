@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 @XmlTransient
 @MappedSuperclass
-public abstract class AbstractBaseEntityNoGeneratedPk implements Serializable {
+public abstract class AbstractBaseEntityNoGeneratedPk implements DomibusBaseEntity {
 
 
     @Id

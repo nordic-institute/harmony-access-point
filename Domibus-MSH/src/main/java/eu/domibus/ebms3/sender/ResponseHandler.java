@@ -12,6 +12,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.SignalMessageLogDefaultService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
@@ -20,6 +21,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +91,7 @@ public class ResponseHandler {
         return result;
     }
 
-    public void saveResponse(final String nonRepudationXML, final Messaging sentMessage, final Messaging messagingResponse) {
+    public void saveResponse(final String nonRepudationXML, final Messaging messaging, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         Timer.Context responseHandlerContext = null;
 
@@ -97,11 +99,28 @@ public class ResponseHandler {
         try {
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "signalMessageDao.create")).time();
             // Stores the signal message
-
-            Messaging messaging = messagingDao.findById(Messaging.class, sentMessage.getEntityId());
             signalMessage.setMessaging(messaging);
             //one to one
             signalMessage.getReceipt().setSignalMessage(signalMessage);
+
+            responseHandlerContext = null;
+            try {
+                responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "createWarningEntries")).time();
+
+                createWarningEntries(signalMessage);
+            } finally {
+                if (responseHandlerContext != null) {
+                    responseHandlerContext.stop();
+                }
+            }
+
+            UserMessage userMessage = messaging.getUserMessage();
+            // Builds the signal message log
+            // Updating the reference to the signal message
+            String userMessageService = userMessage.getCollaborationInfo().getService().getValue();
+            String userMessageAction = userMessage.getCollaborationInfo().getAction();
+
+            SignalMessageLog signalMessageLog = signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
             signalMessageDao.create(signalMessage);
 
@@ -109,7 +128,7 @@ public class ResponseHandler {
 
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
             messaging.setSignalMessage(signalMessage);
-            messagingDao.update(messaging);
+            messagingDao.update(messaging);//TODO check if it is needed
             responseHandlerContext.stop();
         } finally {
             if (responseHandlerContext != null) {
@@ -117,22 +136,6 @@ public class ResponseHandler {
             }
         }
 
-        responseHandlerContext = null;
-        try {
-            responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "nonrepudiation.signalMessageLog")).time();
-            // Builds the signal message log
-            // Updating the reference to the signal message
-            String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
-            String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
-
-            signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
-
-            createWarningEntries(signalMessage);
-        } finally {
-            if (responseHandlerContext != null) {
-                responseHandlerContext.stop();
-            }
-        }
 
         responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "scheduleSaveNonRepudiationAsync")).time();
         saveNonRepudiation(nonRepudationXML, signalMessage);//TODO use a queue for saving the receipt

@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.common.model.logging.SignalMessageLog;
 import org.w3c.dom.Element;
 
 import javax.persistence.*;
@@ -35,7 +36,7 @@ import java.util.Set;
 public class SignalMessage extends AbstractBaseEntityNoGeneratedPk {
 
     @XmlElement(name = "MessageInfo", required = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @Embedded
     protected MessageInfo messageInfo;
 
     @XmlElement(name = "PullRequest")
@@ -61,6 +62,7 @@ public class SignalMessage extends AbstractBaseEntityNoGeneratedPk {
     @MapsId
     @JoinColumn(name = "ID_PK")
     private Messaging messaging;
+
 
     /**
      * Gets the value of the messageInfo property.

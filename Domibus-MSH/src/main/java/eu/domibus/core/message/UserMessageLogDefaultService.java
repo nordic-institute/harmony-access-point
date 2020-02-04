@@ -66,6 +66,7 @@ public class UserMessageLogDefaultService {
         final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
         userMessageLog.setSourceMessage(sourceMessage);
         userMessageLog.setMessageFragment(messageFragment);
+        userMessageLog.setUserMessage(userMessage);
 
         // Sets the subtype
         MessageSubtype messageSubtype = null;

@@ -26,7 +26,7 @@ public interface MessagingService {
 
     void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
 
-    void persistReceivedMessage(Messaging messaging, Messaging responseMessaging, BackendFilter matchingBackendFilter, UserMessage userMessage, String backendName, Party to, NotificationStatus notificationStatus, String rawXMLMessage) throws EbMS3Exception;
+    void persistReceivedMessage(Messaging messaging, Messaging responseMessaging, BackendFilter matchingBackendFilter, String backendName, Party to, NotificationStatus notificationStatus, String rawXMLMessage) throws EbMS3Exception;
 
     void persistSubmittedMessage(Submission messageData, String backendName, UserMessage userMessage, String messageId, Messaging message, MessageExchangeConfiguration userMessageExchangeConfiguration, Party to, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration);
 

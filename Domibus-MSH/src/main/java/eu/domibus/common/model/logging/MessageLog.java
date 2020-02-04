@@ -5,6 +5,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.ebms3.common.model.AbstractBaseAuditEntity;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.ebms3.common.model.AbstractBaseAuditEntityNonGeneratedPk;
 import eu.domibus.ebms3.common.model.MessageType;
 
 import javax.persistence.*;
@@ -16,39 +17,39 @@ import java.util.Date;
  */
 @MappedSuperclass
 //@DiscriminatorColumn(name = "MESSAGE_TYPE")
-public abstract class MessageLog extends AbstractBaseAuditEntity {
+public abstract class MessageLog extends AbstractBaseAuditEntityNonGeneratedPk {
 
     @Column(name = "MESSAGE_STATUS")
     @Enumerated(EnumType.STRING)
-    private MessageStatus messageStatus;
+    protected MessageStatus messageStatus;
 
     @Column(name = "NOTIFICATION_STATUS")
     @Enumerated(EnumType.STRING)
-    private NotificationStatus notificationStatus;
+    protected NotificationStatus notificationStatus;
 
     @Column(name = "MESSAGE_ID")
-    private String messageId;
+    protected String messageId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
-    private MSHRole mshRole;
+    protected MSHRole mshRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MESSAGE_TYPE")
-    private MessageType messageType;
+    protected MessageType messageType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MESSAGE_SUBTYPE")
-    private MessageSubtype messageSubtype;
+    protected MessageSubtype messageSubtype;
 
     @Column(name = "MPC")
-    private String mpc;
+    protected String mpc;
 
     @Column(name = "BACKEND")
-    private String backend;
+    protected String backend;
 
     @Column(name = "ENDPOINT")
-    private String endpoint;
+    protected String endpoint;
     /**
      * The Date when this message was deleted, A message shall be deleted when one of the following conditions apply:
      * <p>
@@ -62,33 +63,33 @@ public abstract class MessageLog extends AbstractBaseAuditEntity {
      */
     @Column(name = "DELETED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date deleted;
+    protected Date deleted;
 
     @Column(name = "RECEIVED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date received;
+    protected Date received;
 
     @Column(name = "RESTORED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date restored;
+    protected Date restored;
 
     @Column(name = "DOWNLOADED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date downloaded;
+    protected Date downloaded;
 
     @Column(name = "FAILED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date failed;
+    protected Date failed;
 
     @Column(name = "SEND_ATTEMPTS")
-    private int sendAttempts;
+    protected int sendAttempts;
 
     @Column(name = "SEND_ATTEMPTS_MAX")
-    private int sendAttemptsMax;
+    protected int sendAttemptsMax;
 
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date nextAttempt;
+    protected Date nextAttempt;
 
     public String getEndpoint() {
         return endpoint;

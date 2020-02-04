@@ -257,6 +257,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     .setMessageId(signalMessage.getMessageInfo().getMessageId())
                     .setMessageStatus(MessageStatus.ACKNOWLEDGED)
                     .setMshRole(MSHRole.SENDING)
+                    .setSignalMessage(signalMessage)
                     .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
             // Saves an entry of the signal message log
             signalMessageLog = smlBuilder.build();

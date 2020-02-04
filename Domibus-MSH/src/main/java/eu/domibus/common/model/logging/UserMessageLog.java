@@ -1,8 +1,10 @@
 package eu.domibus.common.model.logging;
 
-import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.UserMessage;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -24,7 +26,7 @@ import java.util.Date;
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
                         "and (userMessageLog.sourceMessage is null or userMessageLog.sourceMessage=false)" +
                         "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
-        @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT mi.messageId,mi.timestamp FROM UserMessageLog as um ,MessageInfo mi where um.messageStatus=eu.domibus.common.MessageStatus.READY_TO_PULL and um.messageId=mi.messageId order by mi.timestamp desc"),
+        @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT mi.messageInfo.messageId, mi.messageInfo.timestamp FROM UserMessageLog as um, UserMessage mi where um.messageStatus=eu.domibus.common.MessageStatus.READY_TO_PULL and um.messageId=mi.messageInfo.messageId order by mi.messageInfo.timestamp desc"),//TODO Fix me
         @NamedQuery(name = "UserMessageLog.getMessageStatus", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.setMessageStatus", query = "update UserMessageLog message set message.messageStatus = :STATUS where message.entityId = :ID"),
         @NamedQuery(name = "UserMessageLog.setAsScheduled", query = "update UserMessageLog message set message.scheduled = true where message.entityId = :ID"),
@@ -44,9 +46,11 @@ import java.util.Date;
 })
 public class UserMessageLog extends MessageLog {
 
-    @ManyToOne
-    @JoinColumn(name = "MESSAGE_ID", referencedColumnName = "MESSAGE_ID", updatable = false, insertable = false)
-    protected MessageInfo messageInfo;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "ID_PK")
+    protected UserMessage userMessage;
 
     @Column(name = "SOURCE_MESSAGE")
     protected Boolean sourceMessage;
@@ -57,18 +61,14 @@ public class UserMessageLog extends MessageLog {
     @Column(name = "SCHEDULED")
     protected Boolean scheduled;
 
-    public MessageInfo getMessageInfo() {
-        return messageInfo;
-    }
-
-    public void setMessageInfo(MessageInfo messageInfo) {
-        this.messageInfo = messageInfo;
-    }
-
     public UserMessageLog() {
         setMessageType(MessageType.USER_MESSAGE);
         setReceived(new Date());
         setSendAttempts(0);
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
     }
 
     public Boolean getSourceMessage() {
@@ -97,5 +97,28 @@ public class UserMessageLog extends MessageLog {
 
     public Boolean isSplitAndJoin() {
         return getSourceMessage() || getMessageFragment();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserMessageLog that = (UserMessageLog) o;
+
+        return new EqualsBuilder()
+                .append(messageId, that.messageId)
+                .append(mshRole, that.mshRole)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(messageId)
+                .append(mshRole)
+                .toHashCode();
     }
 }

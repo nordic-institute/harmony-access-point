@@ -78,8 +78,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)
-    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
-        final UserMessage userMessage = messaging.getUserMessage();
+    public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         String messageId = userMessage.getMessageInfo().getMessageId();
 
         MessageAttempt attempt = new MessageAttempt();
@@ -191,7 +190,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
 
                 String nonRepudiationXML = nonRepudiationService.createNonRepudiation(responseSoapMessage);
-                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, nonRepudiationXML, responseResult, legConfiguration, attempt);
+                reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, nonRepudiationXML, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().error("Finally exception when handlingReliability", ex);
 //                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);

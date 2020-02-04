@@ -2,6 +2,7 @@ package eu.domibus.common.dao;
 
 import eu.domibus.common.model.common.BasicAudit;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.DomibusBaseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import java.util.Collection;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-public abstract class BasicDao<T extends AbstractBaseEntity> {
+public abstract class BasicDao<T extends DomibusBaseEntity> {
 
     protected final Class<T> typeOfT;
 

@@ -1,6 +1,7 @@
 package eu.domibus.common.aspect;
 
 import eu.domibus.ebms3.common.model.AbstractBaseAuditEntity;
+import eu.domibus.ebms3.common.model.DomibusBaseEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +31,7 @@ public class BasicAuditAspect {
      * @param auditEntity the entity to be modified
      */
     @Before("@annotation(eu.domibus.common.model.common.BasicAudit) && args(auditEntity)")
-    public void addBasicAudit(AbstractBaseAuditEntity auditEntity) {
+    public void addBasicAudit(DomibusBaseEntity auditEntity) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Adding basic audit to entity " + auditEntity + " whith id " + auditEntity.getEntityId());
         }

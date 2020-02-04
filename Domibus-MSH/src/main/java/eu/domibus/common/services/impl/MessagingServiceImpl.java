@@ -145,21 +145,10 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Override
     @Transactional
-    public void persistReceivedMessage(Messaging messaging, Messaging responseMessaging, BackendFilter matchingBackendFilter, UserMessage userMessage, String backendName, Party to, NotificationStatus notificationStatus, String rawXMLMessage) throws EbMS3Exception {
+    public void persistReceivedMessage(Messaging messaging, Messaging responseMessaging, BackendFilter matchingBackendFilter, String backendName, Party to, NotificationStatus notificationStatus, String rawXMLMessage) throws EbMS3Exception {
         LOG.debug("Saving Messaging");
 
-        userMessageLogService.save(
-                userMessage,
-                userMessage.getMessageInfo().getMessageId(),
-                MessageStatus.RECEIVED.toString(),
-                notificationStatus.toString(),
-                MSHRole.RECEIVING.toString(),
-                0,
-                StringUtils.isEmpty(userMessage.getMpc()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpc(),
-                backendName,
-                to.getEndpoint(),
-                userMessage.getCollaborationInfo().getService().getValue(),
-                userMessage.getCollaborationInfo().getAction(), userMessage.isSourceMessage(), userMessage.isUserMessageFragment(), false);
+        UserMessage userMessage = messaging.getUserMessage();
 
         //one to one mapping
         SignalMessage signalMessage = responseMessaging.getSignalMessage();
@@ -173,6 +162,22 @@ public class MessagingServiceImpl implements MessagingService {
         messaging.setSignalMessage(signalMessage);
         messagingDao.create(messaging);
         timeContext.stop();
+
+
+        Timer.Context messageLogContext = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "userMessageLogService.save")).time();
+        userMessageLogService.save(
+                userMessage,
+                userMessage.getMessageInfo().getMessageId(),
+                MessageStatus.RECEIVED.toString(),
+                notificationStatus.toString(),
+                MSHRole.RECEIVING.toString(),
+                0,
+                StringUtils.isEmpty(userMessage.getMpc()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpc(),
+                backendName,
+                to.getEndpoint(),
+                userMessage.getCollaborationInfo().getService().getValue(),
+                userMessage.getCollaborationInfo().getAction(), userMessage.isSourceMessage(), userMessage.isUserMessageFragment(), false);
+        messageLogContext.stop();
 
         try {
             Timer.Context notifyMessageReceived = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "notifyMessageReceived")).time();

@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.message.fragment.MessageFragmentEntity;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,10 +45,15 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
+@NamedQueries({
+        @NamedQuery(name = "UserMessage.findUserMessageByMessageId",
+                query = "select userMessage from UserMessage userMessage where userMessage.messageInfo.messageId = :MESSAGE_ID"),
+
+})
 public class UserMessage extends AbstractBaseEntityNoGeneratedPk {
 
+    @Embedded
     @XmlElement(name = "MessageInfo", required = true)
-    @OneToOne(cascade = CascadeType.ALL)
     protected MessageInfo messageInfo;
 
     @XmlElement(name = "PartyInfo", required = true)

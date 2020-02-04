@@ -507,16 +507,6 @@
             <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="TB_MESSAGE_INFO">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_INFO"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="TIME_STAMP" type="TIMESTAMP"/>
-        </createTable>
         <createTable tableName="TB_USER_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_LOG"/>
@@ -992,8 +982,13 @@
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SIGNAL_MESSAGE"/>
             </column>
             <column name="PULL_REQUEST_MPC" type="VARCHAR(255)"/>
-            <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
             <column name="RECEIPT_ID_PK" type="BIGINT"/>
+
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
         </createTable>
 
         <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode" tableName="TB_SPLITTING">
@@ -1077,9 +1072,14 @@
             <column name="MPC" type="VARCHAR(255)"/>
             <column name="FROM_ROLE" type="VARCHAR(255)"/>
             <column name="TO_ROLE" type="VARCHAR(255)"/>
-            <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
             <column name="FK_MESSAGE_FRAGMENT_ID" type="INT"/>
             <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
+
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
         </createTable>
 
         <createTable tableName="TB_USER_PASSWORD_HISTORY">
@@ -1142,9 +1142,6 @@
 
         <addUniqueConstraint columnNames="PARTYMPCMAP_ID_PK" constraintName="UK_7H5NW411791GF4LG1YH6SI1WD"
                              tableName="TB_LEG_TB_MPC"/>
-
-        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"
-                             tableName="TB_MESSAGE_INFO"/>
 
         <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
                              tableName="TB_COMMAND_PROPERTY"/>
@@ -1242,14 +1239,6 @@
 
         <createIndex indexName="FK_BACK_RCRITERIA_AUD" tableName="TB_BACK_RCRITERIA_AUD">
             <column name="REV"/>
-        </createIndex>
-
-        <createIndex indexName="FK_BE4XC1069QYW2KLHVM3XMG26S" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGEINFO_ID_PK"/>
-        </createIndex>
-
-        <createIndex indexName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" tableName="TB_SIGNAL_MESSAGE">
-            <column name="MESSAGEINFO_ID_PK"/>
         </createIndex>
 
         <createIndex indexName="FK_CLOYY9K391VHSUP85IWR8IXIV" tableName="TB_PARTY">
@@ -1496,7 +1485,7 @@
             <column name="FK_EVENT"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_INFO_R_T_M_ID" tableName="TB_MESSAGE_INFO">
+        <createIndex indexName="IDX_MESSAGE_INFO_R_T_M_ID" tableName="TB_USER_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
 
@@ -1508,7 +1497,7 @@
             <column name="NEXT_ATTEMPT"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="RECEIVED"/>
         </createIndex>
 
@@ -1516,12 +1505,12 @@
             <column name="GROUP_ID"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MSG_LOG_M_STATUS_SEND_ATT" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_M_STATUS_SEND_ATT" tableName="TB_USER_MESSAGE_LOG">
             <column name="MESSAGE_STATUS"/>
             <column name="SEND_ATTEMPTS"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MSG_LOG_RCV_MSG_ID" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_RCV_MSG_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="RECEIVED"/>
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -1603,7 +1592,7 @@
             <column name="ROLE_ID"/>
         </createIndex>
 
-        <createIndex indexName="IDX_TB_ML_MSG_ID" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_TB_ML_MSG_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="MESSAGE_ID"/>
         </createIndex>
 
@@ -1615,7 +1604,7 @@
             <column name="USER_ID"/>
         </createIndex>
 
-        <createIndex indexName="UK_BPEFLT902YBU9NSHBA2FJPV9D" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="UK_BPEFLT902YBU9NSHBA2FJPV9D" tableName="TB_USER_MESSAGE_LOG">
             <column name="MSH_ROLE"/>
         </createIndex>
     </changeSet>
@@ -1653,15 +1642,6 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
 
-        <!--<addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
-                                 constraintName="FK_433RGM5A446T59Q6JKB885L3X" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>-->
-
-   <!--     <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
-                                 constraintName="FK_53GP9SMTEMQCUIO8O9T10NARM" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>-->
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_CONFIGURATION"
                                  constraintName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" deferrable="false"
@@ -1736,16 +1716,6 @@
                                  constraintName="FK_BACK_RCRITERIA_AUD" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
-
-        <!--<addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>-->
-
-<!--        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"-->
-<!--                                 constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"-->
-<!--                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"-->
-<!--                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>-->
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY"
                                  constraintName="FK_CLOYY9K391VHSUP85IWR8IXIV" deferrable="false"
@@ -2076,7 +2046,7 @@
             ORDER BY VAD.AUDIT_DATE DESC;
         </createView>
     </changeSet>
-    <changeSet id="EDELIVERY-3361-1" author="CatalinEnache" dbms="oracle">
+  <!--  <changeSet id="EDELIVERY-3361-1" author="CatalinEnache" dbms="oracle">
         <comment>create UI Replication view</comment>
         <createView
                 replaceIfExists="true"
@@ -2198,8 +2168,8 @@
             TB_MESSAGE_UI WHERE
             received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
         </createView>
-    </changeSet>
-    <changeSet id="EDELIVERY-3361-2" author="CatalinEnache" dbms="mysql">
+    </changeSet>-->
+    <!--<changeSet id="EDELIVERY-3361-2" author="CatalinEnache" dbms="mysql">
         <createView
                 replaceIfExists="true"
                 viewName="V_MESSAGE_UI_DIFF">
@@ -2320,7 +2290,7 @@
             AND message_log.received BETWEEN DATE_SUB(NOW(), INTERVAL 48 HOUR) AND DATE_ADD(NOW(), INTERVAL 1 HOUR)
             AND flat_table.message_id IS NULL;
         </createView>
-    </changeSet>
+    </changeSet>-->
 
     <!-- inserts -->
     <changeSet author="thomas dussart" id="EDELIVERY-2144_1">

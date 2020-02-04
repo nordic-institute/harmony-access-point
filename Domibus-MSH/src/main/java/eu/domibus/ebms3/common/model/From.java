@@ -26,6 +26,7 @@ public class From {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "FROM_ID")
     protected Set<PartyId> partyId;
+
     @XmlElement(name = "Role", required = true, defaultValue = From.DEFAULT_ROLE)
     @Column(name = "FROM_ROLE")
     protected String role;

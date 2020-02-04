@@ -388,7 +388,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
             boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
             LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-            final String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, responseMessaging, messageFragmentType, matchingBackendFilter, userMessage);
+            final String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, responseMessaging, messageFragmentType, matchingBackendFilter);
 
             return s;
         } finally {
@@ -420,7 +420,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return null;//saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, null, userMessage);
     }
 
-    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Messaging messaging, Messaging responseMessaging, MessageFragmentType messageFragmentType, BackendFilter matchingBackendFilter, UserMessage userMessage) throws EbMS3Exception {
+    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Messaging messaging, Messaging responseMessaging, MessageFragmentType messageFragmentType, BackendFilter matchingBackendFilter) throws EbMS3Exception {
         //skip payload and property profile validations for message fragments
         if (messageFragmentType == null) {
             try {
@@ -432,6 +432,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
         }
 
+        UserMessage userMessage = messaging.getUserMessage();
         String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
         com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "messagingService.storeMessage")).time();
         try {
@@ -459,7 +460,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "messagingService.persistReceivedMessage")).time();
-        messagingService.persistReceivedMessage(messaging, responseMessaging, matchingBackendFilter, userMessage, backendName, to, notificationStatus, nonRepudiation);
+        messagingService.persistReceivedMessage(messaging, responseMessaging, matchingBackendFilter, backendName, to, notificationStatus, nonRepudiation);
         persistReceivedMessage.stop();
 
         uiReplicationSignalService.userMessageReceived(userMessage.getMessageInfo().getMessageId());

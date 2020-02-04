@@ -85,18 +85,20 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      */
     @Transactional
     @Override
-    public void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String nonRepudationXML, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+    public void handleReliability(String messageId, UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String nonRepudationXML, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
         final Boolean isTestMessage = userMessageLog.isTestMessage();
-        final UserMessage userMessage = messaging.getUserMessage();
 
         switch (reliabilityCheckSuccessful) {
             case OK:
                 Timer.Context timerContext = null;
+                timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.messagingDao.findById").time();
+                Messaging messaging = messagingDao.findById(Messaging.class, userMessage.getEntityId());//one to one
+                timerContext.stop();
+
                 try {
                     timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.saveResponse").time();
-
                     responseHandler.saveResponse(nonRepudationXML, messaging, responseResult.getResponseMessaging());
                 } finally {
                     if (timerContext != null) {
@@ -109,7 +111,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                     case OK:
                         try {
                             timerContext = MetricsHelper.getMetricRegistry().timer("handleReliability.ok.setMessageAsAcknowledged").time();
-                            userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
+                            userMessageLogService.setMessageAsAcknowledged(messaging.getUserMessage(), userMessageLog);
                         } finally {
                             if (timerContext != null) {
                                 timerContext.stop();

@@ -10,10 +10,12 @@ import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,11 +33,25 @@ public class UserMessageDao extends BasicDaoNoGeneratePk<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 
+    private static final String MESSAGE_ID = "MESSAGE_ID";
+
     @Autowired
     private MetricRegistry metricRegistry;
 
     public UserMessageDao() {
         super(UserMessage.class);
+    }
+
+
+    public UserMessage findUserMessageByMessageId(final String messageId) {
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(UserMessageDao.class, "findUserMessageByMessageId")).time();
+
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findUserMessageByMessageId", UserMessage.class);
+        query.setParameter(MESSAGE_ID, messageId);
+
+        UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
+        authorizeUserMessageMetric.stop();
+        return userMessage;
     }
 
 

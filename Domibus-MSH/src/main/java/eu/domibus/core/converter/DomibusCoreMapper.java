@@ -116,7 +116,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     MessageInfoDTO messageInfoToMessageInfoDTO(MessageInfo messageInfo);
 
-    @Mapping(target = "entityId", ignore = true)
     MessageInfo messageInfoDTOToMessageInfo(MessageInfoDTO messageInfoDTO);
 
     @InheritInverseConfiguration
@@ -226,7 +225,7 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     UserMessageLog uiMessageEntityToUserMessageLog(UIMessageEntity uiMessageEntity);
 
-    @Mapping(source = "messageInfo.refToMessageId", target = "refToMessageId")
+//    @Mapping(source = "messageInfo.refToMessageId", target = "refToMessageId")//TODO fix me
     UIMessageEntity userMessageLogToUIMessageEntity(UserMessageLog userMessageLog);
 
     CommandEntity commandToCommandEntity(Command command);
