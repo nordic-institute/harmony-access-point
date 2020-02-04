@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
@@ -13,7 +14,6 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.SavePModeResponseRO;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Mircea Musat
@@ -52,6 +51,9 @@ import java.util.stream.Collectors;
 public class PModeResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
+
+    @Autowired
+    PModeService pModeService;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -118,7 +120,8 @@ public class PModeResource extends BaseResource {
 
     private ResponseEntity<SavePModeResponseRO> savePModeAndHandleResponse(byte[] pModeContent,  String pModeDescription) {
         try {
-            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(pModeContent, pModeDescription);
+//            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(pModeContent, pModeDescription);
+            List<PModeIssue> pmodeUpdateMessage = pModeService.updatePModeFile(pModeContent, pModeDescription);
 
             String message = "PMode file has been successfully uploaded";
             if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
@@ -126,23 +129,23 @@ public class PModeResource extends BaseResource {
             }
 
             return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateMessage));
-        } catch (XmlProcessingException e) {
-            LOG.error("Error uploading the PMode", e);
-
-            String message = "Failed to upload the PMode file due to: ";
-            if (CollectionUtils.isEmpty(e.getErrors())) {
-                message += ExceptionUtils.getRootCauseMessage(e);
-            }
-
-            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
-        } catch (PModeValidationException ve) {
+        }
+//        catch (XmlProcessingException e) {
+//            LOG.error("Error uploading the PMode", e);
+//
+//            String message = "Failed to upload the PMode file due to: ";
+//            if (CollectionUtils.isEmpty(e.getErrors())) {
+//                message += ExceptionUtils.getRootCauseMessage(e);
+//            }
+//
+//            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
+//
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
+//        }
+        catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
-
-            String message = "Failed to upload the PMode file due to validation: ";
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseRO(message, ve.getIssues()));
+//            String message = "Failed to upload the PMode file due to validation: ";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseRO(ve.getMessage(), ve.getIssues()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

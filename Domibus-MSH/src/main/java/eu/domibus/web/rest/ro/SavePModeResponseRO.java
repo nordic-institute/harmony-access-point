@@ -32,7 +32,6 @@ public class SavePModeResponseRO {
         this.message = message;
     }
 
-
     public List<PModeIssue> getIssues() {
         return issues;
     }

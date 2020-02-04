@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.PModeIssue;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_LEVEL;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS;
 
 /**
  * @author Ion Perpegel
@@ -28,46 +25,21 @@ public class PModeValidationServiceImpl implements PModeValidationService {
     @Autowired(required = false)
     protected List<PModeValidator> pModeValidatorList;
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-
-    public List<PModeIssue> validate(byte[] rawConfiguration, Configuration configuration) {
-        boolean warningsAsErrors = domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
+    @Override
+    public List<PModeIssue> validate(Configuration configuration) throws PModeValidationException {
         List<PModeIssue> allIssues = new ArrayList<>();
 
-        configuration.preparePersist();
+        if(configuration != null) {
+            configuration.preparePersist();
 
-        for (PModeValidator validator : pModeValidatorList) {
-            String validatorName = validator.getClass().getSimpleName();
-            String levelPropName = DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + validatorName;
-            String level = domibusPropertyProvider.getProperty(levelPropName);
-
-            if ("NONE".equals(level)) {
-                LOG.trace("Skipping [{}] pMode validator due to configuration level being NONE.", validatorName);
-                continue;
+            for (PModeValidator validator : pModeValidatorList) {
+                List<PModeIssue> issues1 = validator.validate(configuration);
+                allIssues.addAll(issues1);
             }
 
-            List<PModeIssue> issues1 = validator.validate(configuration);
-
-            if (level != null) {
-                try {
-                    PModeIssue.Level issueLevel = PModeIssue.Level.valueOf(level);
-
-                    LOG.debug("Setting level=[{}] to all issues of [{}] validator.", validatorName);
-                    issues1.forEach(issue -> issue.setLevel(issueLevel));
-                } catch (IllegalArgumentException ex) {
-                    LOG.warn("Wrong pMode issue level value [{}] red from configuraton for [{}] validator.", level, validatorName);
-                }
+            if (allIssues != null && allIssues.stream().anyMatch(x -> x.getLevel() == PModeIssue.Level.ERROR)) {
+                throw new PModeValidationException(allIssues);
             }
-
-            allIssues.addAll(issues1);
-        }
-
-        if (warningsAsErrors) {
-            LOG.debug("Setting level as error for all issues due to warningsAsErrors being true.");
-            allIssues.stream()
-                    .filter(el -> el.getLevel() == PModeIssue.Level.WARNING)
-                    .forEach(issue -> issue.setLevel(PModeIssue.Level.ERROR));
         }
 
         return allIssues;

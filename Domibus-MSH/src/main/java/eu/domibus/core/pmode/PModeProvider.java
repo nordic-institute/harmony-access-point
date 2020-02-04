@@ -165,24 +165,18 @@ public abstract class PModeProvider {
     public List<PModeIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         LOG.debug("Updating the PMode");
         description = validateDescriptionSize(description);
-        List<PModeIssue> issues = new ArrayList<>();
-        final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
-        if (!unmarshalledConfiguration.isValid()) {
-            List<String> resultMessage = new ArrayList<>();
-            resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
-            resultMessage.addAll(unmarshalledConfiguration.getErrors());
-            final String message = StringUtils.join(resultMessage, " ");
-            LOG.warn(message);
 
-            issues.add(new PModeIssue(message, PModeIssue.Level.WARNING));
+        final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
+
+        List<PModeIssue> issues = new ArrayList<>();
+        if (!unmarshalledConfiguration.isValid()) {
+            issues.add(createParseWarning(unmarshalledConfiguration));
         }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
 
-        issues.addAll(pModeValidationService.validate(bytes, configuration));
-        if (issues != null && issues.stream().anyMatch(x -> x.getLevel() == PModeIssue.Level.ERROR)) {
-            throw new PModeValidationException(issues);
-        }
+        issues.addAll(pModeValidationService.validate(configuration));
+
         configurationDAO.updateConfiguration(configuration);
 
         //save the raw configuration
@@ -199,6 +193,17 @@ public abstract class PModeProvider {
         signalService.signalPModeUpdate();
 
         return issues;
+    }
+
+    private PModeIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
+        List<String> resultMessage = new ArrayList<>();
+        resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
+        resultMessage.addAll(unmarshalledConfiguration.getErrors());
+        final String message = StringUtils.join(resultMessage, " ");
+
+        LOG.warn(message);
+
+        return new PModeIssue(message, PModeIssue.Level.WARNING);
     }
 
     private String validateDescriptionSize(final String description) {

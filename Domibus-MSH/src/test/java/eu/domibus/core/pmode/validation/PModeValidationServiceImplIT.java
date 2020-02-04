@@ -146,7 +146,7 @@ public class PModeValidationServiceImplIT {
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(true, jaxbContext, new ByteArrayInputStream(pModeBytes), null);
         Configuration configuration = unmarshallerResult.getResult();
 
-        List<PModeIssue> issues = pModeValidationService.validate(pModeBytes, configuration);
+        List<PModeIssue> issues = pModeValidationService.validate(configuration);
 
         Assert.assertFalse(issues.isEmpty());
     }

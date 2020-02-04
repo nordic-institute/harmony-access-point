@@ -49,7 +49,7 @@ public class PModeValidationServiceImplTest {
             result = "NONE";
         }};
 
-        List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
+        List<PModeIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
 //            compositePModeValidator.validate(configuration);
@@ -81,7 +81,7 @@ public class PModeValidationServiceImplTest {
 //            result = Arrays.asList(issue);
         }};
 
-        List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
+        List<PModeIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
 //            compositePModeValidator.validate(configuration);
@@ -114,7 +114,7 @@ public class PModeValidationServiceImplTest {
 //            result = Arrays.asList(issue);
         }};
 
-        List<PModeIssue> issues = pModeValidationService.validate(rawConfiguration, configuration);
+        List<PModeIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
 //            compositePModeValidator.validate(configuration);

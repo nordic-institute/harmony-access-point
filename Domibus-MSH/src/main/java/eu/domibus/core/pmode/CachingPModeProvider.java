@@ -4,6 +4,7 @@ package eu.domibus.core.pmode;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -567,7 +568,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<PModeIssue> updatePModes(final byte[] bytes, String description) throws XmlProcessingException {
+    public List<PModeIssue> updatePModes(final byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         List<PModeIssue> issues = super.updatePModes(bytes, description);
         return issues;
     }

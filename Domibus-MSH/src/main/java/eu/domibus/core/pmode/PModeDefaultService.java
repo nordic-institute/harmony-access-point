@@ -14,6 +14,7 @@ import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ public class PModeDefaultService implements PModeService {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
             String message = "Failed to upload the PMode file due to: ";
-            if (e.getErrors().isEmpty()) {
+            if (CollectionUtils.isEmpty(e.getErrors())) {
                 message += ExceptionUtils.getRootCauseMessage(e);
             }
             List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
