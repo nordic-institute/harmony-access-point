@@ -90,7 +90,7 @@ public class PModeResourceTest {
     @Test
     public void testDownloadPModesAudit() {
         // Given
-        final byte[] byteA =new byte[]{1, 0, 1};
+        final byte[] byteA = new byte[]{1, 0, 1};
         new Expectations() {{
             pModeProvider.getPModeFile(0);
             result = byteA;
@@ -100,7 +100,8 @@ public class PModeResourceTest {
 
         new Verifications() {{
             // add audit must be called
-            auditService.addPModeDownloadedAudit("0"); times = 0;
+            auditService.addPModeDownloadedAudit("0");
+            times = 0;
 
         }};
 
@@ -109,7 +110,8 @@ public class PModeResourceTest {
 
         new Verifications() {{
             // add audit must be called
-            auditService.addPModeDownloadedAudit("0"); times = 1;
+            auditService.addPModeDownloadedAudit("0");
+            times = 1;
 
         }};
     }
@@ -155,7 +157,7 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         new Expectations() {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
+            pModeService.updatePModeFile((byte[]) any, anyString);
             result = new ArrayList<>().add("issue1");
         }};
 
@@ -175,7 +177,7 @@ public class PModeResourceTest {
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         new Expectations() {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
+            pModeService.updatePModeFile((byte[]) any, anyString);
             result = new XmlProcessingException("UnitTest1");
         }};
 
@@ -190,36 +192,12 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPModesXmlProcessingWithErrorException() throws XmlProcessingException, IOException {
-        // Given
-        MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-        XmlProcessingException xmlProcessingException = new XmlProcessingException("UnitTest1");
-        xmlProcessingException.getErrors().add("error1");
-
-        new Expectations() {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
-            result = xmlProcessingException;
-        }};
-
-        // When
-        ResponseEntity<SavePModeResponseRO> response = pModeResource.uploadPMode(file, "description");
-
-        // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assert.assertEquals("Failed to upload the PMode file due to: ",
-                response.getBody().getMessage());
-        Assert.assertEquals(1, response.getBody().getIssues().size());
-        Assert.assertEquals("error1", response.getBody().getIssues().get(0).getMessage());
-    }
-
-    @Test
     public void testUploadPModesException() throws XmlProcessingException, IOException {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         new Expectations() {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
+            pModeService.updatePModeFile((byte[]) any, anyString);
             result = new Exception("UnitTest2");
         }};
 
@@ -302,7 +280,7 @@ public class PModeResourceTest {
         // Given
         final Exception exception = new Exception("Mocked exception");
         new Expectations(pModeResource) {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
+            pModeService.updatePModeFile((byte[]) any, anyString);
             result = exception;
         }};
 
@@ -321,7 +299,7 @@ public class PModeResourceTest {
         final Exception exception = new Exception(new Exception("Nested mocked exception"));
 
         new Expectations(pModeResource) {{
-            pModeProvider.updatePModes((byte[]) any, anyString);
+            pModeService.updatePModeFile((byte[]) any, anyString);
             result = exception;
         }};
 
@@ -340,8 +318,8 @@ public class PModeResourceTest {
         List<String> issues = new ArrayList<>();
         issues.add("issue1");
         new Expectations(pModeResource) {{
-           pModeProvider.updatePModes((byte[]) any, anyString);
-           result = issues;
+            pModeService.updatePModeFile((byte[]) any, anyString);
+            result = issues;
         }};
 
         // When
@@ -372,8 +350,8 @@ public class PModeResourceTest {
         pModeResponseROArrayList.add(pModeResponseRO);
 
         new Expectations(pModeResource) {{
-           domainConverter.convert((List<PModeArchiveInfo>)any, PModeResponseRO.class);
-           result = pModeResponseROArrayList;
+            domainConverter.convert((List<PModeArchiveInfo>) any, PModeResponseRO.class);
+            result = pModeResponseROArrayList;
         }};
 
         // When
@@ -405,14 +383,14 @@ public class PModeResourceTest {
         pModeResponseROList.add(pModeResponseRO1);
         pModeResponseROList.add(pModeResponseRO2);
         new Expectations() {{
-           pModeProvider.getRawConfigurationList();
-           result = pModeArchiveInfoList;
-           domainConverter.convert(pModeArchiveInfoList, PModeResponseRO.class);
-           result = pModeResponseROList;
-           csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class, (Map<String, String>)any, (List<String>)any);
-           result = "Configuration Date, Username, Description" + System.lineSeparator() +
-           date + ", user1, description1" + System.lineSeparator() +
-           date + ", user2, description2" + System.lineSeparator();
+            pModeProvider.getRawConfigurationList();
+            result = pModeArchiveInfoList;
+            domainConverter.convert(pModeArchiveInfoList, PModeResponseRO.class);
+            result = pModeResponseROList;
+            csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class, (Map<String, String>) any, (List<String>) any);
+            result = "Configuration Date, Username, Description" + System.lineSeparator() +
+                    date + ", user1, description1" + System.lineSeparator() +
+                    date + ", user2, description2" + System.lineSeparator();
         }};
 
         // When

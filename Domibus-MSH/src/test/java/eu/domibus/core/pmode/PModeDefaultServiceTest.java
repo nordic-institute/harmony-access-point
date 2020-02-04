@@ -1,18 +1,23 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.messaging.XmlProcessingException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -38,7 +43,7 @@ public class PModeDefaultServiceTest {
                                         @Injectable final eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) throws Exception {
         final String messageId = "1";
         final String pmodeKey = "1";
-        final MessageExchangeConfiguration messageExchangeConfiguration=new MessageExchangeConfiguration("1",",","","","","");
+        final MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("1", ",", "", "", "", "");
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
@@ -56,5 +61,28 @@ public class PModeDefaultServiceTest {
         new Verifications() {{
             pModeDefaultService.convert(legConfigurationEntity);
         }};
+    }
+
+    @Test
+    public void testUploadPModesXmlProcessingWithErrorException() throws XmlProcessingException {
+        // Given
+        byte[] file = new byte[]{1, 0, 1};
+        XmlProcessingException xmlProcessingException = new XmlProcessingException("UnitTest1");
+        xmlProcessingException.getErrors().add("error1");
+
+        new Expectations() {{
+            pModeProvider.updatePModes((byte[]) any, anyString);
+            result = xmlProcessingException;
+        }};
+
+        // When
+        try {
+            pModeDefaultService.updatePModeFile(file, "description");
+        } catch (PModeValidationException ex) {
+            Assert.assertEquals("[DOM_003]:Failed to upload the PMode file due to: ", ex.getMessage());
+            Assert.assertEquals(1, ex.getIssues().size());
+            Assert.assertEquals("error1", ex.getIssues().get(0).getMessage());
+        }
+
     }
 }

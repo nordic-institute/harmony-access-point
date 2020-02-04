@@ -110,7 +110,12 @@ public class BusinessProcessValidator implements PModeValidator {
     }
 
     private void createIssue(List<PModeIssue> issues, Process process, String name, String s) {
-        String message = String.format(s, name, process.getName());
+        String message;
+        if(StringUtils.isEmpty(name)) {
+            message = String.format(s.replaceFirst("\\[%s] ", ""), process.getName());
+        } else {
+            message = String.format(s, name, process.getName());
+        }
         issues.add(new PModeIssue(message, PModeIssue.Level.ERROR));
     }
 

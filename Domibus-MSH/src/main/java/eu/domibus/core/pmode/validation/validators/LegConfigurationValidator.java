@@ -30,43 +30,43 @@ public class LegConfigurationValidator implements PModeValidator {
             //service
             if (leg.getService() == null) {
                 String name = getAttributeValue(leg, "serviceXml", String.class);
-                createIssue(issues, leg, name, "Service [%s] of leg configration [%s] not found in business process services.");
+                createIssue(issues, leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
             }
 
             //action
             if (leg.getAction() == null) {
                 String name = getAttributeValue(leg, "actionXml", String.class);
-                createIssue(issues, leg, name, "Action [%s] of leg configration [%s] not found in business process actions.");
+                createIssue(issues, leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
             }
 
             //security
             if (leg.getSecurity() == null) {
                 String name = getAttributeValue(leg, "securityXml", String.class);
-                createIssue(issues, leg, name, "Security [%s] of leg configration [%s] not found in business process securities.");
+                createIssue(issues, leg, name, "Security [%s] of leg configuration [%s] not found in business process securities.");
             }
 
             //defaultMpc
             if (leg.getDefaultMpc() == null) {
                 String name = getAttributeValue(leg, "defaultMpcXml", String.class);
-                createIssue(issues, leg, name, "DefaultMpc [%s] of leg configration [%s] not found in business process mpc.");
+                createIssue(issues, leg, name, "DefaultMpc [%s] of leg configuration [%s] not found in business process mpc.");
             }
 
             //receptionAwareness
             if (leg.getReceptionAwareness() == null) {
                 String name = getAttributeValue(leg, "receptionAwarenessXml", String.class);
-                createIssue(issues, leg, name, "ReceptionAwareness [%s] of leg configration [%s] not found in business process as4 awarness.");
+                createIssue(issues, leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
             }
 
             //reliability
             if (leg.getReliability() == null) {
                 String name = getAttributeValue(leg, "reliabilityXml", String.class);
-                createIssue(issues, leg, name, "Reliability [%s] of leg configration [%s] not found in business process as4 reliability.");
+                createIssue(issues, leg, name, "Reliability [%s] of leg configuration [%s] not found in business process as4 reliability.");
             }
 
             //errorHandling
             if (leg.getErrorHandling() == null) {
                 String name = getAttributeValue(leg, "errorHandlingXml", String.class);
-                createIssue(issues, leg, name, "ErrorHandling [%s] of leg configration [%s] not found in business process error handlings.");
+                createIssue(issues, leg, name, "ErrorHandling [%s] of leg configuration [%s] not found in business process error handlings.");
             }
 
             //splitting
@@ -74,7 +74,7 @@ public class LegConfigurationValidator implements PModeValidator {
                 String name = getAttributeValue(leg, "splittingXml", String.class);
                 //splitting can be null
                 if (StringUtils.isNotEmpty(name)) {
-                    createIssue(issues, leg, name, "Splitting [%s] of leg configration [%s] not found in splitting configurations.");
+                    createIssue(issues, leg, name, "Splitting [%s] of leg configuration [%s] not found in splitting configurations.");
                 }
             }
 
@@ -85,7 +85,12 @@ public class LegConfigurationValidator implements PModeValidator {
     }
 
     private void createIssue(List<PModeIssue> issues, LegConfiguration leg, String name, String s) {
-        String message = String.format(s, name, leg.getName());
+        String message;
+        if(StringUtils.isEmpty(name)) {
+            message = String.format(s.replaceFirst("\\[%s] ", ""), leg.getName());
+        } else {
+            message = String.format(s, name, leg.getName());
+        }
         issues.add(new PModeIssue(message, PModeIssue.Level.ERROR));
     }
 

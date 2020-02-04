@@ -51,12 +51,12 @@ public class LegConfigurationValidatorTest {
 
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() == 6);
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid action specified for leg configuration [" + legConfigurationName + "]")));
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid security specified for leg configuration [" + legConfigurationName + "]")));
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid defaultMpc specified for leg configuration [" + legConfigurationName + "]")));
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid receptionAwareness specified for leg configuration [" + legConfigurationName + "]")));
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid reliability specified for leg configuration [" + legConfigurationName + "]")));
-        Assert.assertTrue(results.stream().anyMatch(el -> el.getMessage().equals("Invalid errorHandling specified for leg configuration [" + legConfigurationName + "]")));
+        Assert.assertTrue(results.get(0).getMessage().equals("Action of leg configuration [" + legConfigurationName + "] not found in business process actions."));
+        Assert.assertTrue(results.get(1).getMessage().equals("Security of leg configuration [" + legConfigurationName + "] not found in business process securities."));
+        Assert.assertTrue(results.get(2).getMessage().equals("DefaultMpc of leg configuration [" + legConfigurationName + "] not found in business process mpc."));
+        Assert.assertTrue(results.get(3).getMessage().equals("ReceptionAwareness of leg configuration [" + legConfigurationName + "] not found in business process as4 awarness."));
+        Assert.assertTrue(results.get(4).getMessage().equals("Reliability of leg configuration [" + legConfigurationName + "] not found in business process as4 reliability."));
+        Assert.assertTrue(results.get(5).getMessage().equals("ErrorHandling of leg configuration [" + legConfigurationName + "] not found in business process error handlings."));
     }
 
 }
