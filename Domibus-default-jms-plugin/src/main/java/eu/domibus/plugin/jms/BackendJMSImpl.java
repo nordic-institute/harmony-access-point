@@ -3,7 +3,6 @@ package eu.domibus.plugin.jms;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
@@ -247,11 +246,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 sendMessageFromC3WithInQueueProperty = "true";
             }
 
-            if (Boolean.parseBoolean(sendMessageFromC3WithInQueueProperty)) {
+            final boolean useInqueue = Boolean.parseBoolean(sendMessageFromC3WithInQueueProperty);
+            LOG.info("Send message from backend using in queue:[{}]",useInqueue);
+            if (useInqueue) {
                 Timer.Context inQueueTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "revert.message.add.inqueue.timer")).time();
                 Destination inQueue = getInQueue();
                 mshToBackendTemplate.send(inQueue, session -> createResponseMessage(submission, submissionResponse, session));
                 inQueueTimer.stop();
+                return;
             }
             try {
                 Timer.Context submit = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.submit.timer")).time();
@@ -325,7 +327,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     private Destination getInQueue() {
-        String destinationName = "in";
+        String destinationName = "jms/domibus.backend.jms.inQueue";
         if (inQueueInitialized) {
             return inQueue;
         } else {

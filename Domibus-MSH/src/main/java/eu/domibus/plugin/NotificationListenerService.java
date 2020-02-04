@@ -143,36 +143,38 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
-                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.RECEIVED.deliverMessage")).time();
-                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED"));
+                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED.timer")).time();
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED.counter"));
                     c.inc();
                     backendConnector.deliverMessage(messageId);
                     deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
-                    com.codahale.metrics.Timer.Context messageSendFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE")).time();
-                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE"));
+                    com.codahale.metrics.Timer.Context messageSendFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE.timer")).time();
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE.counter"));
                     c.inc();
                     backendConnector.messageSendFailed(messageId);
                     messageSendFailed.stop();
                     break;
                 case MESSAGE_SEND_SUCCESS:
-                    com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS")).time();
-                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS"));
+                    com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS.timer")).time();
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS.counter"));
                     c.inc();
                     backendConnector.messageSendSuccess(messageId);
                     messageSendSuccess.stop();
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
-                    com.codahale.metrics.Timer.Context messageRecvFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE")).time();
-                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE"));
+                    com.codahale.metrics.Timer.Context messageRecvFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE.timer")).time();
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE.counter"));
                     c.inc();
                     doMessageReceiveFailure(message);
                     messageRecvFailed.stop();
                     break;
-               case MESSAGE_STATUS_CHANGE:
-                    com.codahale.metrics.Timer.Context messageStatusChanged = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGE")).time();
+                case MESSAGE_STATUS_CHANGE:
+                    com.codahale.metrics.Timer.Context messageStatusChanged = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGE.timer")).time();
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGED.counter"));
                     doMessageStatusChange(message);
+                    c.inc();
                     messageStatusChanged.stop();
                     break;
             }
@@ -181,7 +183,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
         } finally {
             methodCounter.dec();
-            c.dec();
+            if (c != null) {
+                c.dec();
+            }
         }
     }
 
