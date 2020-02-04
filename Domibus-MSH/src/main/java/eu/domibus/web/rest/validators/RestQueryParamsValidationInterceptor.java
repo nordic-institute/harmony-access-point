@@ -12,6 +12,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -29,7 +30,6 @@ import java.util.stream.Collectors;
  * @since 4.1
  * A Spring interceptor that ensures that the request parameters of a REST call does not contain blacklisted chars
  */
-@ControllerAdvice(basePackages = "eu.domibus.web.rest")
 public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdapter {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(RestQueryParamsValidationInterceptor.class);
@@ -148,10 +148,5 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
 
         CustomWhiteListed parameterAnnotation;
-
-//        ParameterInfo(Class parameterType, CustomWhiteListed parameterAnnotation) {
-//            this.parameterAnnotation = parameterAnnotation;
-//            this.parameterType = parameterType;
-//        }
     }
 }
