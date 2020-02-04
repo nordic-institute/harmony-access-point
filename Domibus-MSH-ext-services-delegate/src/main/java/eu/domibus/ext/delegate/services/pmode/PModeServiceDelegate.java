@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Catalin Enache
@@ -44,6 +43,6 @@ public class PModeServiceDelegate implements PModeExtService {
     @Override
     public List<PModeIssueDTO> updatePModeFile(byte[] bytes, String description) {
         List<PModeIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return issues.stream().map(i->domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList());
+        return domainConverter.convert(issues, PModeIssueDTO.class);
     }
 }

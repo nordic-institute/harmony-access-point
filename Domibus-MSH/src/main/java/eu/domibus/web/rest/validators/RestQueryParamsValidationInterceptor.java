@@ -93,7 +93,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
                         .collect(Collectors.toList());
 
                 if (CollectionUtils.isNotEmpty(parameters)) {
-                    // now all GET methods have maximum one request parameter(primitive/simple or class)
+                    // now all GET methods have maximum one Request Parameter that contain all fields (and it is a good practice)
                     if (parameters.size() == 1) {
                         parameterInfo = parameters.get(0);
                         parameterType = parameterInfo.getParameterType();
