@@ -1,7 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.PartyDTO;
-import eu.domibus.ext.domain.PartyRequestDTO;
+import eu.domibus.ext.domain.PartyFilterRequestDTO;
 import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.PartyExtService;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.security.KeyStoreException;
 import java.util.List;
@@ -36,7 +37,7 @@ public class PartiesResource {
             "Use pageStart and pageSize for pagination purposes",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/list"})
-    public List<PartyDTO> listParties(PartyRequestDTO request) {
+    public List<PartyDTO> listParties(@Valid PartyFilterRequestDTO request) {
         if (request.getPageStart() <= 0) {
             request.setPageStart(0);
         }
@@ -59,7 +60,12 @@ public class PartiesResource {
     public ResponseEntity<Object> createParty(@RequestBody PartyDTO request) {
         try {
             partyExtService.createParty(request);
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/list?name={name}").buildAndExpand(request.getName()).toUri();
+            //return in the header the location of the new item
+            URI uri = ServletUriComponentsBuilder.
+                    fromCurrentContextPath().
+                    path("/ext/party/list").
+                    query("name={name}").
+                    buildAndExpand(request.getName()).toUri();
             return ResponseEntity.created(uri).build();
         } catch (IllegalStateException e) {
             final String message = ExceptionUtils.getRootCauseMessage(e);
@@ -84,28 +90,15 @@ public class PartiesResource {
         }
     }
 
-//    @PutMapping(value = "/{partyName}/certificate")
-//    public ResponseEntity convertCertificateContent(@PathVariable(name = "partyName") String partyName,
-//                                                  @RequestBody CertificateDTO certificate) {
-//        if (certificate == null && certificate.getContent() == null) {
-//            throw new IllegalArgumentException("Certificate parameter must be provided");
-//        }
-//
-//        String content = certificate.getContent();
-//        LOG.debug("certificate base 64 received [{}] ", content);
-//
-//        TrustStoreEntry cert = null;
-//        try {
-//            cert = certificateService.convertCertificateContent(content);
-//        } catch (DomibusCertificateException e) {
-//            throw new IllegalArgumentException("Certificate could not be parsed", e);
-//        }
-//        if (cert == null) {
-//            throw new IllegalArgumentException("Certificate could not be parsed");
-//        }
-//
-//        return domainConverter.convert(cert, TrustStoreRO.class);
-//    }
+    @ApiOperation(value = "List all Processes",
+            notes = "List all Processes",
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @GetMapping(value = {"/processes"})
+    public List<ProcessDTO> listProcesses() {
+        return partyExtService.getAllProcesses();
+    }
+
+
 
 //    @PutMapping(value = {"/update"})
 //    public ResponseEntity updateParties(@RequestBody List<PartyInfoDTO> partyInfoDTOs) {
@@ -132,10 +125,7 @@ public class PartiesResource {
 //
 
 
-    @GetMapping(value = {"/processes"})
-    public List<ProcessDTO> listProcesses() {
-        return partyExtService.getAllProcesses();
-    }
+
 
 
 }

@@ -558,8 +558,6 @@ public class PartyServiceImpl implements PartyService {
             throw new IllegalStateException("Could not create a Party: PMode not found!");
         }
         ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
-
-
         Configuration configuration;
         try {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());

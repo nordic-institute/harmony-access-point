@@ -8,12 +8,13 @@ import java.io.Serializable;
  * @author Catalin Enache
  * @since 4.2
  */
-public class PartyRequestDTO implements Serializable {
+public class PartyFilterRequestDTO implements Serializable {
 
     private String name;
     private String endPoint;
     private String partyId;
     private String process;
+
     private int pageStart;
     private int pageSize;
 

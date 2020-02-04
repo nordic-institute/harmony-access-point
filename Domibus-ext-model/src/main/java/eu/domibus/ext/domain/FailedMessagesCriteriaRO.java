@@ -1,4 +1,4 @@
-package eu.domibus.ext.rest;
+package eu.domibus.ext.domain;
 
 import java.io.Serializable;
 import java.util.Date;
