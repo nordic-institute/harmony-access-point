@@ -105,46 +105,37 @@ public class PModeResource extends BaseResource {
 
     @PostMapping
     public ResponseEntity<SavePModeResponseRO> uploadPMode(
-            @RequestPart("file") MultipartFile pmode,
+            @RequestPart("file") MultipartFile pModeFile,
             //we permit more chars for description
-            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws IOException {
+            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) {
 
-        if (pmode.isEmpty()) {
+        if (pModeFile.isEmpty()) {
             return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file since it was empty."));
         }
 
-        byte[] pModeContent = pmode.getBytes();
+        byte[] pModeContent = new byte[0];
+        try {
+            pModeContent = pModeFile.getBytes();
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file because could not receibe the content."));
+        }
 
         return savePModeAndHandleResponse(pModeContent, pModeDescription);
     }
 
     private ResponseEntity<SavePModeResponseRO> savePModeAndHandleResponse(byte[] pModeContent,  String pModeDescription) {
         try {
-//            List<PModeIssue> pmodeUpdateMessage = pModeProvider.updatePModes(pModeContent, pModeDescription);
-            List<PModeIssue> pmodeUpdateMessage = pModeService.updatePModeFile(pModeContent, pModeDescription);
+            List<PModeIssue> pmodeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
 
             String message = "PMode file has been successfully uploaded";
-            if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
+            if (CollectionUtils.isNotEmpty(pmodeUpdateIssues)) {
                 message += " but some issues were detected:";
             }
 
-            return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateMessage));
+            return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateIssues));
         }
-//        catch (XmlProcessingException e) {
-//            LOG.error("Error uploading the PMode", e);
-//
-//            String message = "Failed to upload the PMode file due to: ";
-//            if (CollectionUtils.isEmpty(e.getErrors())) {
-//                message += ExceptionUtils.getRootCauseMessage(e);
-//            }
-//
-//            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
-//
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SavePModeResponseRO(message, errors));
-//        }
         catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
-//            String message = "Failed to upload the PMode file due to validation: ";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseRO(ve.getMessage(), ve.getIssues()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);

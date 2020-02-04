@@ -13,9 +13,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_LEVEL;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS;
-
 @RunWith(JMockit.class)
 public class PModeValidationServiceImplTest {
 
@@ -39,16 +36,6 @@ public class PModeValidationServiceImplTest {
     @Test
     public void validate_Disabled(@Mocked byte[] rawConfiguration, @Mocked Configuration configuration) {
 
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
-            result = true;
-
-            configuration.preparePersist();
-
-            domibusPropertyProvider.getProperty(DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + "CompositePModeValidator");
-            result = "NONE";
-        }};
-
         List<PModeIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
@@ -69,13 +56,7 @@ public class PModeValidationServiceImplTest {
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
-            result = false;
-
             configuration.preparePersist();
-
-            domibusPropertyProvider.getProperty(DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + "CompositePModeValidator");
-            result = "WARNING";
 
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            result = Arrays.asList(issue);
@@ -102,13 +83,7 @@ public class PModeValidationServiceImplTest {
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_P_MODE_VALIDATION_WARNINGS_AS_ERRORS);
-            result = true;
-
             configuration.preparePersist();
-
-            domibusPropertyProvider.getProperty(DOMIBUS_P_MODE_VALIDATION_LEVEL + "." + "CompositePModeValidator");
-            result = "WARNING";
 
 //            compositePModeValidator.validateAsXml(rawConfiguration);
 //            result = Arrays.asList(issue);

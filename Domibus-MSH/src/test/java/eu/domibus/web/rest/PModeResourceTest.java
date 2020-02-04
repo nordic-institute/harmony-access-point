@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -50,6 +51,9 @@ public class PModeResourceTest {
 
     @Injectable
     private AuditService auditService;
+
+    @Injectable
+    PModeService pModeService;
 
     @Test
     public void testDownloadPmodes() {

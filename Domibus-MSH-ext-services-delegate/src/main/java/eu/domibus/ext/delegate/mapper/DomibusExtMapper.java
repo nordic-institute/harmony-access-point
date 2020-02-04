@@ -47,5 +47,5 @@ public interface DomibusExtMapper {
 
     DomibusPropertyMetadata domibusPropertyMetadataDTOToDomibusPropertyMetadata(DomibusPropertyMetadataDTO domibusPropertyMetadata);
 
-    PModeIssueDTO PModeIssueToPModeIssueDTO(PModeIssue pModeIssue);
+    PModeIssueDTO pModeIssueToPModeIssueDTO(PModeIssue pModeIssue);
 }

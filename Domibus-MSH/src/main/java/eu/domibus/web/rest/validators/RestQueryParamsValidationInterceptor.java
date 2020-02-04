@@ -4,6 +4,7 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.common.validators.ObjectPropertiesMapBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,8 +93,8 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
                         .filter(el -> !el.hasParameterAnnotation(RequestBody.class))
                         .collect(Collectors.toList());
 
-                if (parameters != null && !parameters.isEmpty()) {
-                    // all GET methods should have maximum one request parameter
+                if (CollectionUtils.isNotEmpty(parameters)) {
+                    // now all GET methods have maximum one request parameter(primitive/simple or class)
                     if (parameters.size() == 1) {
                         parameterInfo = parameters.get(0);
                         parameterType = parameterInfo.getParameterType();
