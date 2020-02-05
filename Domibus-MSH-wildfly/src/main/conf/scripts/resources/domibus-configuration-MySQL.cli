@@ -15,13 +15,12 @@ xa-data-source add \
 --background-validation=true \
 --min-pool-size=20 \
 --initial-pool-size=5 \
---max-pool-size=100
+--max-pool-size=100 \
+--enabled=true
 
 /subsystem=datasources/xa-data-source=eDeliveryMysqlXADS/xa-datasource-properties=ServerName:add(value=${DB_HOST})
 /subsystem=datasources/xa-data-source=eDeliveryMysqlXADS/xa-datasource-properties=PortNumber:add(value=${DB_PORT})
 /subsystem=datasources/xa-data-source=eDeliveryMysqlXADS/xa-datasource-properties=DatabaseName:add(value="${DB_NAME}")
-
-xa-data-source enable --name=eDeliveryMysqlXADS
 
 data-source add \
 --name=eDeliveryMysqlNonXADS \
@@ -37,10 +36,9 @@ data-source add \
 --background-validation=true \
 --min-pool-size=20 \
 --initial-pool-size=5 \
---max-pool-size=100
+--max-pool-size=100 \
+--enabled=true
 
-data-source enable --name=eDeliveryMysqlNonXADS
-
-run-batch --file=resources\domibus-configuration-common.cli --verbose
+run-batch --file=${CLI_DOMIBUS_CONFIGURATION_COMMON} --verbose
 
 exit

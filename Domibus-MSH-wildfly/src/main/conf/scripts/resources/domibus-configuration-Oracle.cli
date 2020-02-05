@@ -15,11 +15,10 @@ xa-data-source add \
 --background-validation=true \
 --min-pool-size=20 \
 --initial-pool-size=5 \
---max-pool-size=100
+--max-pool-size=100 \
+--enabled=true
 
 /subsystem=datasources/xa-data-source=eDeliveryOracleXADS/xa-datasource-properties=URL:add(value="${JDBC_CONNECTION_URL}")
-
-xa-data-source enable --name=eDeliveryOracleXADS
 
 data-source add \
 --name=eDeliveryOracleNonXADS \
@@ -35,10 +34,9 @@ data-source add \
 --background-validation=true \
 --min-pool-size=20 \
 --initial-pool-size=5 \
---max-pool-size=100
+--max-pool-size=100 \
+--enabled=true
 
-data-source enable --name=eDeliveryOracleNonXADS
-
-run-batch --file=resources\domibus-configuration-common.cli --verbose
+run-batch --file=${CLI_DOMIBUS_CONFIGURATION_COMMON} --verbose
 
 exit

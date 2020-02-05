@@ -15,6 +15,7 @@
                 <paths>
                     <path name="com/sun/org/apache/xerces/internal/jaxp/datatype"/>
                     <path name="com/sun/org/apache/xerces/internal/jaxp/validation"/>
+                    <path name="org/apache/activemq/artemis/api/jms/management"/>
                 </paths>
             </system>
         </dependencies>
