@@ -35,6 +35,9 @@ public class PModeDefaultService implements PModeService {
     @Autowired
     private MessageExchangeService messageExchangeService;
 
+    @Autowired
+    PModeDefaultServiceHelper pModeDefaultServiceHelper;
+
     @Override
     public LegConfiguration getLegConfiguration(String messageId) {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
@@ -64,12 +67,7 @@ public class PModeDefaultService implements PModeService {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
-            String message = "Failed to upload the PMode file due to: ";
-            if (CollectionUtils.isEmpty(e.getErrors())) {
-                message += ExceptionUtils.getRootCauseMessage(e);
-            }
-            List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
-            throw new PModeValidationException(message, errors);
+            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
     }
 

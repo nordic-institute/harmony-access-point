@@ -20,6 +20,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
@@ -86,6 +87,9 @@ public class PartyServiceImplTest {
 
     @Injectable
     private Domain currentDomain;
+
+    @Injectable
+    PModeDefaultServiceHelper pModeDefaultServiceHelper;
 
     @Before
     public void setUp() {
@@ -925,7 +929,7 @@ public class PartyServiceImplTest {
     public void throwsExceptionIfItCannotRetrieveThePModeRawConfigurationsArchiveWhenUpdatingParties() {
         // Given
         thrown.expect(PModeException.class);
-        thrown.expectMessage("[DOM_003]:Could not update PMode parties: PMode not found!");
+        thrown.expectMessage("[DOM_001]:Could not update PMode parties: PMode not found!");
 
         new Expectations() {{
             pModeProvider.getRawConfigurationList();

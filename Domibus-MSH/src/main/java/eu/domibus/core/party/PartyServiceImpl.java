@@ -20,6 +20,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
@@ -69,6 +70,9 @@ public class PartyServiceImpl implements PartyService {
 
     @Autowired
     protected CertificateService certificateService;
+
+    @Autowired
+    PModeDefaultServiceHelper pModeDefaultServiceHelper;
 
     /**
      * {@inheritDoc}
@@ -442,7 +446,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) {
+    public List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
         if (pModeArchiveInfo == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not update PMode parties: PMode not found!");
@@ -455,7 +459,7 @@ public class PartyServiceImpl implements PartyService {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
         } catch (XmlProcessingException e) {
             LOG.error("Error reading current PMode", e);
-            throw createPModeValidationException(e, "Error reading current PMode due to: ");
+            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Error parsing PMode due to: ");
         }
 
         ReplacementResult replacementResult = replaceParties(partyList, configuration);
@@ -467,15 +471,7 @@ public class PartyServiceImpl implements PartyService {
         return result;
     }
 
-    private PModeValidationException createPModeValidationException(XmlProcessingException e, String message) {
-        if (CollectionUtils.isEmpty(e.getErrors())) {
-            message += ExceptionUtils.getRootCauseMessage(e);
-        }
-        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
-        return new PModeValidationException(message, errors);
-    }
-
-    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) {
+    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException{
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
@@ -486,7 +482,7 @@ public class PartyServiceImpl implements PartyService {
             return result;
         } catch (XmlProcessingException e) {
             LOG.error("Error writing current PMode", e);
-            throw createPModeValidationException(e, "Error writing current PMode due to: ");
+            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Error writing current PMode due to: ");
         }
     }
 
