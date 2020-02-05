@@ -19,7 +19,7 @@ import java.util.List;
  * @since 3.3
  */
 @Component
-@Order(1)
+@Order(4)
 public class RolesValidator  implements PModeValidator {
 
     @Override
@@ -43,6 +43,5 @@ public class RolesValidator  implements PModeValidator {
 
         return Collections.unmodifiableList(issues);
     }
-
 
 }

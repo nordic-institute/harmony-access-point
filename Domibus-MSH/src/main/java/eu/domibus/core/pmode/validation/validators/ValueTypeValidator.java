@@ -24,7 +24,7 @@ import java.util.List;
  * the type anyURI (and not require an absolute URI which is too restrictive)
  */
 @Component
-@Order(2)
+@Order(7)
 public class ValueTypeValidator  implements PModeValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValueTypeValidator.class);

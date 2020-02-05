@@ -17,7 +17,7 @@ import java.util.List;
  * Validates self party existence  aka checks if configuration/@party is found in businessProcesses/parties collection
  */
 @Component
-@Order(4)
+@Order(2)
 public class EmptyEndpointValidator implements PModeValidator {
 
     @Override

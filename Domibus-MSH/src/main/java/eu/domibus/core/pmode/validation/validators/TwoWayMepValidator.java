@@ -22,10 +22,9 @@ import java.util.List;
  * Two-Way mep with binding pushAndPush, pullAndPush and pushAndPull are not accepted.
  * These bindings are simulated in Domibus with two One-Way exchange.
  * <p>
- * TODO: is this still the case?!
  */
 @Component
-@Order(2)
+@Order(6)
 public class TwoWayMepValidator  implements PModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TwoWayMepValidator.class);
 
