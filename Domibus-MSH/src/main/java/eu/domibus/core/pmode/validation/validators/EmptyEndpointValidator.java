@@ -27,7 +27,7 @@ public class EmptyEndpointValidator implements PModeValidator {
         pMode.getBusinessProcesses().getParties().forEach(party -> {
             if (StringUtils.isEmpty(party.getEndpoint())) {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
-                issues.add(new PModeIssue(message, PModeIssue.Level.ERROR));
+                issues.add(new PModeIssue(message, PModeIssue.Level.WARNING));
             }
         });
 

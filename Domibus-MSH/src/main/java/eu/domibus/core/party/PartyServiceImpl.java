@@ -160,9 +160,7 @@ public class PartyServiceImpl implements PartyService {
 
         //retrieve all existing processes in the pmode.
         final List<Process> allProcesses =
-                pModeProvider.findAllProcesses().
-                        stream().
-                        collect(collectingAndThen(toList(), ImmutableList::copyOf));
+                pModeProvider.findAllProcesses().stream().collect(collectingAndThen(toList(), ImmutableList::copyOf));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Finding all processes in the pMode: ");

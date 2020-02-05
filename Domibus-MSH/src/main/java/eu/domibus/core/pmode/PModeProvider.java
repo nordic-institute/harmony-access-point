@@ -152,7 +152,6 @@ public abstract class PModeProvider {
 
         //unmarshall the PMode taking into account the whitespaces
         return unmarshall(bytes, false);
-
     }
 
     public Configuration getPModeConfiguration(byte[] bytes) throws XmlProcessingException {

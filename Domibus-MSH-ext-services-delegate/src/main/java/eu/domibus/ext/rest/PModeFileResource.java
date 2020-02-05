@@ -1,8 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
@@ -97,9 +95,6 @@ public class PModeFileResource {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(ve.getMessage(),
                     ve.getIssues().stream().map(i -> domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList())));
-        } catch (PModeException e) {
-            LOG.error("Error uploading the PMode", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(e.getMessage()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -133,8 +133,7 @@ public class PModeResource extends BaseResource {
             }
 
             return ResponseEntity.ok(new SavePModeResponseRO(message, pmodeUpdateIssues));
-        }
-        catch (PModeValidationException ve) {
+        } catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new SavePModeResponseRO(ve.getMessage(), ve.getIssues()));
