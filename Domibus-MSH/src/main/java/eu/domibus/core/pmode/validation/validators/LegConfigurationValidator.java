@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class LegConfigurationValidator implements PModeValidator {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
-    
+
     @Override
     public List<PModeIssue> validate(Configuration pMode) {
         List<PModeIssue> issues = new ArrayList<>();
@@ -90,7 +89,7 @@ public class LegConfigurationValidator implements PModeValidator {
     }
 
     private void createIssue(List<PModeIssue> issues, LegConfiguration leg, String name, String message) {
-        pModeValidationHelper.createIssue(issues, name, message, leg.getName());
+        issues.add(pModeValidationHelper.createIssue(message, name, leg.getName()));
     }
 
 }

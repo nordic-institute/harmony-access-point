@@ -43,14 +43,14 @@ public class PModeValidationHelper {
         }
     }
 
-    public void createIssue(List<PModeIssue> issues, String name, String message, String name2) {
+    public PModeIssue createIssue(String message, String name, String name2) {
         String result;
         if(StringUtils.isEmpty(name)) {
             result = String.format(message.replaceFirst("\\[%s] ", ""), name2);
         } else {
             result = String.format(message, name, name2);
         }
-        issues.add(new PModeIssue(result, PModeIssue.Level.ERROR));
+        return new PModeIssue(result, PModeIssue.Level.ERROR);
     }
 
     public PModeValidationException getPModeValidationException(XmlProcessingException e, String message) {

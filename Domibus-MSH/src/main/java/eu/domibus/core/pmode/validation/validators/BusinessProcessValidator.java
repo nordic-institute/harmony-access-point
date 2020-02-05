@@ -11,7 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
-    
+
     @Override
     public List<PModeIssue> validate(Configuration pMode) {
         List<PModeIssue> issues = new ArrayList<>();
@@ -115,8 +114,8 @@ public class BusinessProcessValidator implements PModeValidator {
         return issues;
     }
 
-    private void createIssue(List<PModeIssue> issues, Process process, String name, String s) {
-        pModeValidationHelper.createIssue(issues, name, s, process.getName());
+    private void createIssue(List<PModeIssue> issues, Process process, String name, String message) {
+        issues.add(pModeValidationHelper.createIssue(message, name, process.getName()));
     }
 
 }
