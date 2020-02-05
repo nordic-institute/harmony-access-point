@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;

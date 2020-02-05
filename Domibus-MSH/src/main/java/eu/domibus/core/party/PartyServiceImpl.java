@@ -18,7 +18,6 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
@@ -441,7 +440,8 @@ public class PartyServiceImpl implements PartyService {
 
     @Override
     public List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
-        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
+//        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
+        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
         if (pModeArchiveInfo == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not update PMode parties: PMode not found!");
         }

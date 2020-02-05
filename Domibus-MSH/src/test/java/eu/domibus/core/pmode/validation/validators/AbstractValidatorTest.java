@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation.validators;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
