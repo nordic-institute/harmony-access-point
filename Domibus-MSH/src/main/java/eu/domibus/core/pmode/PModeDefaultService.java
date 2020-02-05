@@ -9,6 +9,7 @@ import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,7 +37,7 @@ public class PModeDefaultService implements PModeService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    PModeDefaultServiceHelper pModeDefaultServiceHelper;
+    PModeValidationHelper pModeValidationHelper;
 
     @Override
     public LegConfiguration getLegConfiguration(String messageId) {
@@ -67,7 +68,7 @@ public class PModeDefaultService implements PModeService {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
-            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
+            throw pModeValidationHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
     }
 

@@ -23,12 +23,4 @@ public class PModeDefaultServiceHelper implements PModeServiceHelper {
     public Integer getMaxAttempts(LegConfiguration legConfiguration) {
         return legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount();
     }
-
-    public PModeValidationException getPModeValidationException(XmlProcessingException e, String message) {
-        if (CollectionUtils.isEmpty(e.getErrors())) {
-            message += ExceptionUtils.getRootCauseMessage(e);
-        }
-        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
-        return new PModeValidationException(message, errors);
-    }
 }

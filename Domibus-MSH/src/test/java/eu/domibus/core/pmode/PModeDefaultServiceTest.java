@@ -5,6 +5,7 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
@@ -39,7 +40,7 @@ public class PModeDefaultServiceTest {
     private MessageExchangeService messageExchangeService;
 
     @Injectable
-    PModeDefaultServiceHelper pModeDefaultServiceHelper;
+    PModeValidationHelper pModeValidationHelper;
 
     @Test
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,
@@ -77,7 +78,7 @@ public class PModeDefaultServiceTest {
             pModeProvider.updatePModes((byte[]) any, anyString);
             result = xmlProcessingException;
 
-            pModeDefaultServiceHelper.getPModeValidationException(xmlProcessingException, "Failed to upload the PMode file due to: ");
+            pModeValidationHelper.getPModeValidationException(xmlProcessingException, "Failed to upload the PMode file due to: ");
             result = new PModeValidationException("Failed to upload the PMode file due to: ", null);
         }};
 

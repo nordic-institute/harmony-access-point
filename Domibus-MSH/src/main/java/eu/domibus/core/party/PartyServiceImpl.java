@@ -20,6 +20,7 @@ import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -66,7 +67,7 @@ public class PartyServiceImpl implements PartyService {
     protected CertificateService certificateService;
 
     @Autowired
-    PModeDefaultServiceHelper pModeDefaultServiceHelper;
+    PModeValidationHelper pModeValidationHelper;
 
     /**
      * {@inheritDoc}
@@ -452,7 +453,7 @@ public class PartyServiceImpl implements PartyService {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
         } catch (XmlProcessingException e) {
             LOG.error("Error reading current PMode", e);
-            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Error parsing PMode due to: ");
+            throw pModeValidationHelper.getPModeValidationException(e, "Error parsing PMode due to: ");
         }
 
         ReplacementResult replacementResult = replaceParties(partyList, configuration);
@@ -475,7 +476,7 @@ public class PartyServiceImpl implements PartyService {
             return result;
         } catch (XmlProcessingException e) {
             LOG.error("Error writing current PMode", e);
-            throw pModeDefaultServiceHelper.getPModeValidationException(e, "Error writing current PMode due to: ");
+            throw pModeValidationHelper.getPModeValidationException(e, "Error writing current PMode due to: ");
         }
     }
 

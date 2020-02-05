@@ -5,13 +5,17 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.XmlProcessingException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -47,5 +51,13 @@ public class PModeValidationHelper {
             result = String.format(message, name, name2);
         }
         issues.add(new PModeIssue(result, PModeIssue.Level.ERROR));
+    }
+
+    public PModeValidationException getPModeValidationException(XmlProcessingException e, String message) {
+        if (CollectionUtils.isEmpty(e.getErrors())) {
+            message += ExceptionUtils.getRootCauseMessage(e);
+        }
+        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
+        return new PModeValidationException(message, errors);
     }
 }
