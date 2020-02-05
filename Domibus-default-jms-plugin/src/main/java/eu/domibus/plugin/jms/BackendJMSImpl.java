@@ -94,10 +94,20 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     private volatile Boolean inQueueInitialized = false;
 
+    private Destination outQueue;
+
     private Destination inQueue;
 
     public BackendJMSImpl(String name) {
         super(name);
+    }
+
+    public Destination getOutQueue() {
+        return outQueue;
+    }
+
+    public void setOutQueue(Destination outQueue) {
+        this.outQueue = outQueue;
     }
 
     @Override
@@ -215,10 +225,15 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 }
                 LOG.info("Sending message to queue [{}]", queueValue);
                 Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
-                MessageCreator messageCreator = new DownloadMessageCreator(messageId);
-                mshToBackendTemplate.send(queueValue, messageCreator);
+
+                Submission submission = this.messageRetriever.downloadMessage(messageId);
+
+                MessageCreator messageCreator = new DownloadMessageCreator(submission);
+                mshToBackendTemplate.send(outQueue, messageCreator);
                 mshToBackendTemplateTimer.stop();
             }
+        } catch (MessageNotFoundException e) {
+            throw new DefaultJmsPluginException("Unable to download message", e);
         } finally {
             if (deliverMessageTimer != null) {
                 deliverMessageTimer.stop();
@@ -415,11 +430,10 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         jmsExtService.sendMapMessageToQueue(message, queueValue);
     }
 
-    @Override
-    public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", messageId);
+    public MapMessage buildMessage(Submission submission, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", submission.getMessageId());
         try {
-            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return result;
@@ -430,18 +444,18 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     private class DownloadMessageCreator implements MessageCreator {
-        private String messageId;
+        private Submission submission;
 
 
-        public DownloadMessageCreator(final String messageId) {
-            this.messageId = messageId;
+        public DownloadMessageCreator(final Submission submission) {
+            this.submission = submission;
         }
 
         @Override
         public Message createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
-                downloadMessage(messageId, mapMessage);
+                buildMessage(submission, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }

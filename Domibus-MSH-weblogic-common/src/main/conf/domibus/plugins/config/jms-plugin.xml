@@ -13,8 +13,14 @@
                      environment-ref="contextEnvironment">
     </jee:jndi-lookup>
 
+	<jee:jndi-lookup id="backendJmsOutQueue"
+					 jndi-name="${jmsplugin.queue.out}"
+					 environment-ref="contextEnvironment">
+	</jee:jndi-lookup>
+
 	<bean id="backendJms" class="eu.domibus.plugin.jms.BackendJMSImpl">
 		<constructor-arg value="Jms"/>
+		<property name="outQueue" ref="backendJmsOutQueue"/>
 		<property name="messageSubmissionTransformer" ref="jmsMessageTransformer"/>
 		<property name="messageRetrievalTransformer"  ref="jmsMessageTransformer"/>
 	</bean>
