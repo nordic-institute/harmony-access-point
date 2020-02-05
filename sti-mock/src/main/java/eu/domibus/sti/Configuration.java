@@ -13,6 +13,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.jndi.JndiObjectFactoryBean;
@@ -73,6 +74,14 @@ public class Configuration {
     }
 
     @Bean
+    public CachingConnectionFactory producingFactory() {
+        LOG.info("Initiating jms listener factory");
+        CachingConnectionFactory factory = new CachingConnectionFactory(connectionFactory());
+        factory.setSessionCacheSize(10);
+        return factory;
+    }
+
+    @Bean
     public JndiTemplate provider() {
         LOG.info("Configuring provider to:[{}]", providerUrl);
         Properties env = new Properties();
@@ -119,7 +128,7 @@ public class Configuration {
     @Bean
     public JmsTemplate inQueueJmsTemplate() {
         JmsTemplate jmsTemplate =
-                new JmsTemplate(connectionFactory());
+                new JmsTemplate(producingFactory());
         LOG.info("Configuring jms template for");
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
         jmsTemplate.setDestinationResolver(jmsDestinationResolver());
