@@ -69,7 +69,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
             //initiator Parties
             Set<Party> validInitiatorParties = process.getInitiatorParties();
-            InitiatorParties initiatorPartiesXml = process.getInitiatorPartiesXml(); // pModeValidationHelper.getAttributeValue(process, "initiatorPartiesXml", InitiatorParties.class);
+            InitiatorParties initiatorPartiesXml = process.getInitiatorPartiesXml();
             if (initiatorPartiesXml != null) {
                 List<InitiatorParty> allInitiatorParties = initiatorPartiesXml.getInitiatorParty();
                 if (!CollectionUtils.isEmpty(allInitiatorParties) && allInitiatorParties.size() != validInitiatorParties.size()) {
@@ -83,7 +83,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
             //responder Parties
             Set<Party> validResponderParties = process.getResponderParties();
-            ResponderParties responderPartiesXml = process.getResponderPartiesXml(); // pModeValidationHelper.getAttributeValue(process, "responderPartiesXml", ResponderParties.class);
+            ResponderParties responderPartiesXml = process.getResponderPartiesXml();
             if (responderPartiesXml != null) {
                 List<ResponderParty> allResponderParties = responderPartiesXml.getResponderParty();
                 if (!CollectionUtils.isEmpty(allResponderParties) && allResponderParties.size() != validResponderParties.size()) {
