@@ -173,17 +173,10 @@ export class PartyComponent extends mix(BaseListComponent)
     }
 
     return this.partyService.updateParties(this.rows)
-      .then(
-        (res) => {
+      .then((res) => {
           this.resetDirty();
           return res;
-          // this.alertService.success(res);
-        },
-        err => {
-          this.alertService.exception('Error updating paries: ', err);
-        }
-      )
-      ;
+        });
   }
 
   async add() {

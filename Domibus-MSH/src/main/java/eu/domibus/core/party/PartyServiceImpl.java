@@ -3,7 +3,6 @@ package eu.domibus.core.party;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
@@ -14,7 +13,6 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
-import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -28,7 +26,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,9 +55,6 @@ public class PartyServiceImpl implements PartyService {
 
     @Autowired
     private PModeProvider pModeProvider;
-
-//    @Autowired
-//    private PartyDao partyDao;
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
@@ -158,8 +152,7 @@ public class PartyServiceImpl implements PartyService {
 
         //transform parties to map for convenience.
         final Map<String, Party> partyMapByName =
-                parties.
-                        stream().
+                parties.stream().
                         collect(collectingAndThen(toMap(Party::getName, Function.identity()), ImmutableMap::copyOf));
 
         //retrieve all existing processes in the pmode.
@@ -247,10 +240,7 @@ public class PartyServiceImpl implements PartyService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("create name predicate for [{}]", name);
             }
-            return
-                    party ->
-                            StringUtils.containsIgnoreCase(party.getName(), name.toUpperCase());
-
+            return party -> StringUtils.containsIgnoreCase(party.getName(), name.toUpperCase());
         }
         return DEFAULT_PREDICATE;
 
@@ -368,9 +358,12 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
-        String partyMe = pModeProvider.getGatewayParty().getName();
-        if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe))) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Cannot delete the party describing the current system. ");
+        eu.domibus.common.model.configuration.Party partyMe = pModeProvider.getGatewayParty();
+        if (partyMe == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot find the party describing the current system. ");
+        }
+        if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe.getName()))) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot delete the party describing the current system. ");
         }
     }
 
@@ -471,7 +464,7 @@ public class PartyServiceImpl implements PartyService {
         return result;
     }
 
-    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException{
+    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
