@@ -9,9 +9,9 @@
         <version>4.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-MSH-wildfly12</artifactId>
+    <artifactId>domibus-MSH-wildfly</artifactId>
     <packaging>war</packaging>
-    <name>Domibus MSH WildFly 12</name>
+    <name>Domibus MSH WildFly 18</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>

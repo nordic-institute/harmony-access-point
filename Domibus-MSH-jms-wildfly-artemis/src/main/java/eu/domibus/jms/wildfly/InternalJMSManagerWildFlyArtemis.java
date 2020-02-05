@@ -14,9 +14,12 @@ import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,11 +32,14 @@ import javax.jms.Queue;
 import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
  * JMSManager implementation for ActiveMQ Artemis (Wildfly 12)
@@ -49,9 +55,6 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
     private static final String PROPERTY_JNDI_NAME = "Jndi";
 
-    /** prefix for MBean names of topic, queues */
-    static final String MBEAN_PREFIX_QUEUE_TOPIC = "org.apache.activemq.artemis:type=Broker,brokerName=\"";
-
     /** propery key for name of the JMS broker */
     public static final String JMS_BROKER_PROPERTY = "domibus.jms.activemq.artemis.broker";
 
@@ -63,8 +66,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     MBeanServer mBeanServer;
 
     @Autowired
-    @Qualifier("jmsServerControl")
-    JMSServerControl jmsServerControl;
+    @Qualifier("activeMQServerControl")
+    ActiveMQServerControl activeMQServerControl;
 
     @Resource(name = "jmsSender")
     private JmsOperations jmsOperations;
@@ -89,14 +92,13 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
-
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
 
         try {
             for (ObjectName objectName : getQueueMap().values()) {
-                JMSQueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, JMSQueueControl.class, false);
-                InternalJMSDestination internalJmsDestination = createInternalJMSDestination(objectName, jmsQueueControl);
-                destinationMap.put(jmsQueueControl.getName(), internalJmsDestination);
+                QueueControl queueControl = getQueueControl(objectName);
+                InternalJMSDestination internalJmsDestination = createInternalJMSDestination(objectName, queueControl);
+                destinationMap.put(queueControl.getName(), internalJmsDestination);
             }
             return destinationMap;
         } catch (Exception e) {
@@ -104,28 +106,28 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         }
     }
 
-    protected InternalJMSDestination createInternalJMSDestination(ObjectName objectName, JMSQueueControl jmsQueueControl) {
+    protected InternalJMSDestination createInternalJMSDestination(ObjectName objectName, QueueControl queueControl) {
         InternalJMSDestination internalJmsDestination = new InternalJMSDestination();
-        internalJmsDestination.setName(jmsQueueControl.getName());
+        internalJmsDestination.setName(queueControl.getName());
         internalJmsDestination.setType(InternalJMSDestination.QUEUE_TYPE);
-        internalJmsDestination.setNumberOfMessages(getMessagesTotalCount(jmsQueueControl));
+        internalJmsDestination.setNumberOfMessages(getMessagesTotalCount(queueControl));
         internalJmsDestination.setProperty(PROPERTY_OBJECT_NAME, objectName);
-        internalJmsDestination.setProperty(PROPERTY_JNDI_NAME, jmsQueueControl.getAddress());
-        internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(jmsQueueControl.getAddress()));
+        internalJmsDestination.setProperty(PROPERTY_JNDI_NAME, queueControl.getAddress());
+        internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(queueControl.getAddress()));
         return internalJmsDestination;
     }
 
-    protected long getMessagesTotalCount(JMSQueueControl jmsQueueControl) {
+    protected long getMessagesTotalCount(QueueControl queueControl) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
             return NB_MESSAGES_ADMIN;
         }
         long result;
         try {
-            result = jmsQueueControl.getMessageCount();
+            result = queueControl.getMessageCount();
         }
         catch (Exception e) {
-            throw new InternalJMSException("Failed to get messages count on JMS destination: " + jmsQueueControl.getName(), e);
+            throw new InternalJMSException("Failed to get messages count on JMS destination: " + queueControl.getName(), e);
         }
         return result;
     }
@@ -134,21 +136,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (queueMap != null) {
             return queueMap;
         }
-
         queueMap = new HashMap<>();
-        String[] queueNames = jmsServerControl.getQueueNames();
-
-        for (String queueName : queueNames) {
-            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY)
-                    + "\",module=JMS,serviceType=Queue,name=\"" + queueName + "\"";
-
-            try {
-                ObjectName objectName = ObjectName.getInstance(mbeanObjectName);
-                queueMap.put(queueName, objectName);
-            } catch (MalformedObjectNameException e) {
-                LOG.error("Error getting queue [" + queueName + "] using mbeanName [" + mbeanObjectName + "]", e);
-            }
-        }
+        queueMap.putAll(getQueueMap(RoutingType.ANYCAST));
         return queueMap;
     }
 
@@ -156,32 +145,62 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (topicMap != null) {
             return topicMap;
         }
-
         topicMap = new HashMap<>();
-        String[] topicNames = jmsServerControl.getTopicNames();
-        for (String topicName : topicNames) {
-            String mbeanObjectName = MBEAN_PREFIX_QUEUE_TOPIC + domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY)
-                    + "\",module=JMS,serviceType=Topic,name=\"" + topicName + "\"";
-
-            try {
-                ObjectName objectName = ObjectName.getInstance(mbeanObjectName);
-                topicMap.put(topicName, objectName);
-            } catch (MalformedObjectNameException e) {
-                LOG.error("Error getting topic [" + topicName + "] using mbeanName [" + mbeanObjectName + "]", e);
-            }
-        }
+        topicMap.putAll(getQueueMap(RoutingType.MULTICAST));
         return topicMap;
     }
 
-    protected JMSQueueControl getQueueControl(ObjectName objectName) {
-        return MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, JMSQueueControl.class, false);
+    protected Map<String, ObjectName> getQueueMap(RoutingType routingType) {
+        final Map<String, ObjectName> queues = new HashMap<>();
+        LOG.debug("Retrieving the {} map from the server", routingType == RoutingType.ANYCAST ? "queue" : "topic");
+
+        ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(),
+                domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY), true);
+
+        String[] addressNames = activeMQServerControl.getAddressNames();
+        LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
+
+        Arrays.stream(addressNames).forEach(addressName -> {
+            try {
+                ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));
+
+                String[] queueNames = getAddressControl(addressObjectName).getQueueNames();
+                LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
+
+                queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
+            } catch(Exception e) {
+                // Just log the error and continue with the next address name
+                LOG.error("Error creating object name for address [" + addressName + "]", e);
+            }
+        });
+
+        return queues;
     }
 
-    protected TopicControl getTopicControl(ObjectName objectName) {
-        return MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, TopicControl.class, false);
+    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
+        return Arrays.stream(queueNames).collect(Collectors.toMap(
+                Function.identity(),
+                queueName -> {
+                    try {
+                        return objectNameBuilder.getQueueObjectName(
+                                toSimpleString(addressName),
+                                toSimpleString(queueName),
+                                routingType);
+                    } catch (Exception e) {
+                        throw new DomibusJMXException("Error creating object name for queue [" + queueName + "]", e);
+                    }
+                }));
     }
 
-    protected JMSQueueControl getQueueControl(String destName) {
+    protected QueueControl getQueueControl(ObjectName objectName) {
+        return MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, QueueControl.class, false);
+    }
+
+    protected AddressControl getAddressControl(ObjectName objectName) {
+        return MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, AddressControl.class, false);
+    }
+
+    protected QueueControl getQueueControl(String destName) {
         ObjectName objectName = getQueueMap().get(destName);
         if (objectName == null) {
             throw new InternalJMSException("Queue [" + destName + "] does not exists");
@@ -189,12 +208,12 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         return getQueueControl(objectName);
     }
 
-    protected TopicControl getTopicControl(String destName) {
+    protected QueueControl getTopicControl(String destName) {
         ObjectName objectName = getTopicMap().get(destName);
         if (objectName == null) {
             throw new InternalJMSException("Topic [" + destName + "] does not exists");
         }
-        return getTopicControl(objectName);
+        return getQueueControl(objectName);
     }
 
     protected Queue getQueue(String queueName) throws NamingException {
@@ -261,7 +280,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        JMSQueueControl queue = getQueueControl(source);
+        QueueControl queue = getQueueControl(source);
         try {
             queue.removeMessages(jmsSelectorUtil.getSelector(messageIds));
         } catch (Exception e) {
@@ -394,7 +413,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
         try {
-            JMSQueueControl queue = getQueueControl(source);
+            QueueControl queue = getQueueControl(source);
             queue.moveMessages(jmsSelectorUtil.getSelector(messageIds), destination);
         } catch (Exception e) {
             throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + messageIds, e);
@@ -412,7 +431,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             if (!messages.isEmpty()) {
                 intJmsMsg = messages.get(0);
                 // Deletes it
-                JMSQueueControl queue = getQueueControl(source);
+                QueueControl queue = getQueueControl(source);
                 queue.removeMessages(selector);
             }
         } catch (Exception ex) {
@@ -424,10 +443,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     @Override
     public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
         final ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
-        final JMSQueueControl jmsQueueControl =
-                MBeanServerInvocationHandler.newProxyInstance(mBeanServer, objectName, JMSQueueControl.class, false);
-
-        return getMessagesTotalCount(jmsQueueControl);
+        final QueueControl queueControl = getQueueControl(objectName);
+        return getMessagesTotalCount(queueControl);
     }
 
 }
