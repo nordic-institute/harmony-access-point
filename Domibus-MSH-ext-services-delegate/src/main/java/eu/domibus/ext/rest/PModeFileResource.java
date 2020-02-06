@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Catalin Enache
@@ -93,8 +92,8 @@ public class PModeFileResource {
         } catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SavePModeResponseDTO(ve.getMessage(),
-                    ve.getIssues().stream().map(i -> domainConverter.convert(i, PModeIssueDTO.class)).collect(Collectors.toList())));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                    body(new SavePModeResponseDTO(ve.getMessage(), domainConverter.convert(ve.getIssues(), PModeIssueDTO.class)));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

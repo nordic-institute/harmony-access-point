@@ -35,6 +35,11 @@ public interface DomibusPropertyProvider {
      */
     String getProperty(Domain domain, String propertyName);
 
+    /**
+     * Returns all property names for which the given predicate is true
+     * @param predicate the predicate to filter with
+     * @return A set of property names
+     */
     Set<String> getPropertyNames(Predicate<String> predicate);
 
     /**

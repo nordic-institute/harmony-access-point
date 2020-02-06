@@ -117,7 +117,7 @@ public class PModeResource extends BaseResource {
         try {
             pModeContent = pModeFile.getBytes();
         } catch (IOException e) {
-            return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file because could not receibe the content."));
+            return ResponseEntity.badRequest().body(new SavePModeResponseRO("Failed to upload the PMode file because could not receive the content."));
         }
 
         return savePModeAndHandleResponse(pModeContent, pModeDescription);

@@ -59,9 +59,11 @@ public interface PartyService {
     String getGatewayPartyIdentifier();
 
     /**
-     * Updates the list of parties.
-     *
-     * @param partyList
+     * Updates the current pMode with the provided parties
+     * @param partyList the list of parties to update as a snapshot
+     * @param certificates the certificates as strings to be saved along the parties
+     * @return a list of issues because the pMode is saved and validated
+     * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
     List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
 
