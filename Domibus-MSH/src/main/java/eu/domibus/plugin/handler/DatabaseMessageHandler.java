@@ -373,6 +373,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         com.codahale.metrics.Timer.Context submitTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.timer")).time();
         com.codahale.metrics.Counter submitCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.counter"));
         submitCounter.inc();
+
+        com.codahale.metrics.Timer.Context oneTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.1.timer")).time();
         try {
             if (StringUtils.isNotEmpty(messageData.getMessageId())) {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
@@ -421,9 +423,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 message.setUserMessage(userMessage);
 
                 MessageExchangeConfiguration userMessageExchangeConfiguration;
-
+                submitTimer.stop();
+                com.codahale.metrics.Timer.Context twoTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.2.timer")).time();
                 Party to = null;
                 MessageStatus messageStatus = null;
+                oneTimer.stop();
                 if (messageExchangeService.forcePullOnMpc(userMessage)) {
                     // UserMesages submited with the optional mpc attribute are
                     // meant for pulling (if the configuration property is enabled)
@@ -435,6 +439,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
                     findTimer.stop();
                 }
+                twoTimer.stop();
+                com.codahale.metrics.Timer.Context threeTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.3.timer")).time();
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
                 if (to == null) {
@@ -449,6 +455,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 payloadProfileValidator.validate(message, pModeKey);
                 propertyProfileValidator.validate(message, pModeKey);
 
+                threeTimer.stop();
+                com.codahale.metrics.Timer.Context fourTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.4.timer")).time();
                 final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
                 userMessage.setSplitAndJoin(splitAndJoin);
 
@@ -459,8 +467,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     throw ex;
                 }
 
+                fourTimer.stop();
 
-                com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.timer")).time();
+                com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.submit.5.timer")).time();
                 try {
                     messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
                 } catch (CompressionException exc) {
@@ -471,7 +480,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 }
                 storeMessageTimer.stop();
 
-                com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "persistSubmittedMessage")).time();
+                com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "persistSubmittedMessage.submit.6.timer")).time();
                 messagingService.persistSubmittedMessage(messageData, backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, messageStatus, pModeKey, legConfiguration);
                 persistSubmittedMessageTimer.stop();
 
