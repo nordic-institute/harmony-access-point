@@ -158,7 +158,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
                     break;
                 case MESSAGE_SEND_SUCCESS:
                     com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS")).time();
-                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS"));
+                    c = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS.counter"));
                     c.inc();
                     backendConnector.messageSendSuccess(messageId);
                     messageSendSuccess.stop();
@@ -181,7 +181,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
         } finally {
             methodCounter.dec();
-            c.dec();
+            if(c != null) {
+                c.dec();
+            }
         }
     }
 

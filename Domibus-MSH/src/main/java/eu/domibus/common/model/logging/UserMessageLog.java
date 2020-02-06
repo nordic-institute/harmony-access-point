@@ -47,7 +47,7 @@ import java.util.Date;
 public class UserMessageLog extends MessageLog {
 
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ID_PK")
     protected UserMessage userMessage;

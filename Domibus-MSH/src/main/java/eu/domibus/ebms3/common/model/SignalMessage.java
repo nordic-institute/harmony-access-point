@@ -58,7 +58,7 @@ public class SignalMessage extends AbstractBaseEntityNoGeneratedPk {
     protected List<Object> any; //NOSONAR
 
     @XmlTransient
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ID_PK")
     private Messaging messaging;

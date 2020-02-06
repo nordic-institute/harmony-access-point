@@ -22,7 +22,7 @@ import java.util.Date;
 })
 public class SignalMessageLog extends MessageLog {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ID_PK")
     protected SignalMessage signalMessage;

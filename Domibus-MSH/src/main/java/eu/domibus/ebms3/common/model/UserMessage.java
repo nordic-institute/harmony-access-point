@@ -87,7 +87,7 @@ public class UserMessage extends AbstractBaseEntityNoGeneratedPk {
     protected MessageFragmentEntity messageFragment;
 
     @XmlTransient
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ID_PK")
     private Messaging messaging;

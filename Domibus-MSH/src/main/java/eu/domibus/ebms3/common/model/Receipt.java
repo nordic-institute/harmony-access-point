@@ -33,7 +33,7 @@ public class Receipt extends AbstractBaseEntityNoGeneratedPk {
     protected List<String> any; //NOSONAR
 
     @XmlTransient
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ID_PK")
     private SignalMessage signalMessage;
