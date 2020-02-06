@@ -2,7 +2,6 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
@@ -25,7 +24,7 @@ import java.util.List;
  */
 @Component
 @Order(6)
-public class TwoWayMepValidator  implements PModeValidator {
+public class TwoWayMepValidator implements PModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TwoWayMepValidator.class);
 
     private static final String TWOWAY_MEP_VALUE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay";
@@ -39,14 +38,14 @@ public class TwoWayMepValidator  implements PModeValidator {
     public List<PModeIssue> validate(Configuration configuration) {
         List<PModeIssue> issues = new ArrayList<>();
 
-        for (Process process : configuration.getBusinessProcesses().getProcesses()) {
+        configuration.getBusinessProcesses().getProcesses().forEach(process -> {
             if (process.getMep() != null && TWOWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
-                if (notAccepted.stream().anyMatch(x -> x.equalsIgnoreCase(binding))) {
+                if (notAccepted.stream().anyMatch(binding::equalsIgnoreCase)) {
                     issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), PModeIssue.Level.WARNING));
                 }
             }
-        }
+        });
         return Collections.unmodifiableList(issues);
     }
 

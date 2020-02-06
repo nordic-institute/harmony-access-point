@@ -934,8 +934,8 @@ public class PartyServiceImplTest {
         thrown.expectMessage("[DOM_001]:Could not update PMode parties: PMode not found!");
 
         new Expectations() {{
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList();
+            pModeProvider.getCurrentPmode();
+            result = null;
         }};
 
         // When
@@ -1019,8 +1019,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1067,8 +1067,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1159,8 +1159,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);

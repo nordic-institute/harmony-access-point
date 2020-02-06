@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +22,21 @@ import java.util.List;
 @Order(5)
 public class SelfPartyValidator implements PModeValidator {
     @Autowired
-    PModeValidationHelper pModeValidationHelper;
+    protected PModeValidationHelper pModeValidationHelper;
 
     @Override
     public List<PModeIssue> validate(Configuration pMode) {
         List<PModeIssue> issues = new ArrayList<>();
 
         if (pMode.getParty() == null) {
-            String partyName =  pModeValidationHelper.getAttributeValue(pMode, "partyXml", String.class);
-            String message = String.format("Party [%s] not found in business process parties", partyName);
+            String partyName = pModeValidationHelper.getAttributeValue(pMode, "partyXml", String.class);
+            String message = "Party [%s] not found in business process parties";
+            if (StringUtils.isEmpty(partyName)) {
+                message = message.replaceFirst("\\[%s] ", "");
+            } else {
+                message = String.format(message, partyName);
+            }
+
             issues.add(new PModeIssue(message, PModeIssue.Level.ERROR));
         }
 
