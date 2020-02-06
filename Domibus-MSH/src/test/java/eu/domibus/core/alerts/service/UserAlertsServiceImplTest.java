@@ -191,7 +191,7 @@ public class UserAlertsServiceImplTest {
             userAlertsService.getMaximumDefaultPasswordAgeProperty();
             result = "propertyNameToCheck";
 
-            domibusPropertyProvider.getIntegerDomainProperty("propertyNameToCheck");
+            domibusPropertyProvider.getIntegerProperty("propertyNameToCheck");
             result = 0;
         }};
 
