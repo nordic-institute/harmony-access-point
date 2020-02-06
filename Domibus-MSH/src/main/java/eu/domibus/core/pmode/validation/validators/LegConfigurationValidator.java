@@ -17,7 +17,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Validates
+ * Validates that all leg configurations of a pMode have service, action, security, etc
  */
 @Component
 @Order(3)
@@ -89,7 +89,7 @@ public class LegConfigurationValidator implements PModeValidator {
     }
 
     private void createIssue(List<PModeIssue> issues, LegConfiguration leg, String name, String message) {
-        issues.add(pModeValidationHelper.createIssue(message, name, leg.getName()));
+        issues.add(pModeValidationHelper.createValidationIssue(message, name, leg.getName()));
     }
 
 }

@@ -6,7 +6,6 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.core.pmode.validation.validators.LegConfigurationValidator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -47,7 +46,7 @@ public class LegConfigurationValidatorTest {
             businessProcesses.getLegConfigurations();
             result = Collections.singleton(legConfiguration);
 
-            pModeValidationHelper.createIssue(anyString, anyString, anyString);
+            pModeValidationHelper.createValidationIssue(anyString, anyString, anyString);
             result = new PModeIssue("of leg configuration [" + legConfigurationName + "] not found in business process", PModeIssue.Level.ERROR);
         }};
 
@@ -55,12 +54,12 @@ public class LegConfigurationValidatorTest {
         final List<PModeIssue> results = legValidator.validate(configuration);
 
         new Verifications() {{
-            pModeValidationHelper.createIssue("Action [%s] of leg configuration [%s] not found in business process actions.", null,  legConfigurationName);
-            pModeValidationHelper.createIssue("Security [%s] of leg configuration [%s] not found in business process securities.", null,  legConfigurationName);
-            pModeValidationHelper.createIssue("DefaultMpc [%s] of leg configuration [%s] not found in business process mpc.", null,  legConfigurationName);
-            pModeValidationHelper.createIssue("ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.", null,  legConfigurationName);
-            pModeValidationHelper.createIssue("Reliability [%s] of leg configuration [%s] not found in business process as4 reliability.", null,  legConfigurationName);
-            pModeValidationHelper.createIssue("ErrorHandling [%s] of leg configuration [%s] not found in business process error handlings.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("Action [%s] of leg configuration [%s] not found in business process actions.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("Security [%s] of leg configuration [%s] not found in business process securities.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("DefaultMpc [%s] of leg configuration [%s] not found in business process mpc.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("Reliability [%s] of leg configuration [%s] not found in business process as4 reliability.", null,  legConfigurationName);
+            pModeValidationHelper.createValidationIssue("ErrorHandling [%s] of leg configuration [%s] not found in business process error handlings.", null,  legConfigurationName);
         }};
 
         Assert.assertNotNull(results);

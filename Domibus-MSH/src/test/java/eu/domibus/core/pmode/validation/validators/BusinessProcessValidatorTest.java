@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class BusinessProcessValidatorTest {
             businessProcesses.getProcesses();
             result = Arrays.asList(process);
 
-            pModeValidationHelper.createIssue(anyString, anyString, anyString);
+            pModeValidationHelper.createValidationIssue(anyString, anyString, anyString);
             result = new PModeIssue("Agreement of process [%s] not found in business process", PModeIssue.Level.ERROR);
 
         }};
@@ -67,11 +66,11 @@ public class BusinessProcessValidatorTest {
         final List<PModeIssue> results = businessProcessValidator.validate(configuration);
 
         new Verifications() {{
-            pModeValidationHelper.createIssue("Mep [%s] of process [%s] not found in business process meps.", null, processName);
-            pModeValidationHelper.createIssue("Mep binding [%s] of process [%s] not found in business process bindings.", null, processName);
-            pModeValidationHelper.createIssue("Initiator role [%s] of process [%s] not found in business process roles.", null, processName);
-            pModeValidationHelper.createIssue("Responder role [%s] of process [%s] not found in business process roles.", null, processName);
-            pModeValidationHelper.createIssue("Initiator party [%s] of process [%s] not found in business process parties", "testInitiatorParty", processName);
+            pModeValidationHelper.createValidationIssue("Mep [%s] of process [%s] not found in business process meps.", null, processName);
+            pModeValidationHelper.createValidationIssue("Mep binding [%s] of process [%s] not found in business process bindings.", null, processName);
+            pModeValidationHelper.createValidationIssue("Initiator role [%s] of process [%s] not found in business process roles.", null, processName);
+            pModeValidationHelper.createValidationIssue("Responder role [%s] of process [%s] not found in business process roles.", null, processName);
+            pModeValidationHelper.createValidationIssue("Initiator party [%s] of process [%s] not found in business process parties", "testInitiatorParty", processName);
         }};
 
         Assert.assertNotNull(results);

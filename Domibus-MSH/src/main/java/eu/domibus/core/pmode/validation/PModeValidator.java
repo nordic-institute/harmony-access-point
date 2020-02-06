@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface PModeValidator {
     /**
-     * Validates pMode as deserialized as Configuration object
+     * Validates pMode as deserialize as Configuration object
      *
      * @param {pMode} configuration - Configuration class instance representing the deserialized pmode
      * @returns {list|PModeIssue} - the list of issues found( errors or warnings, if any)

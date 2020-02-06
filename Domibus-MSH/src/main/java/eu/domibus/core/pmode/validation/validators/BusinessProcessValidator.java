@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Validates
+ * Validates that all processes of a pMode have Agreement, mep,binding, etc
  */
 @Component
 @Order(1)
@@ -115,7 +115,7 @@ public class BusinessProcessValidator implements PModeValidator {
     }
 
     private void createIssue(List<PModeIssue> issues, Process process, String name, String message) {
-        issues.add(pModeValidationHelper.createIssue(message, name, process.getName()));
+        issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
     }
 
 }

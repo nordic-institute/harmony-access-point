@@ -2,7 +2,7 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.pmode.validation.PModeValidationHelper;
+import eu.domibus.core.pmode.validation.PModeValidationHelperImpl;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class SelfPartyValidatorTest extends AbstractValidatorTest {
 
     @Test
     public void validate() throws Exception {
-        validator.pModeValidationHelper = new PModeValidationHelper();
+        validator.pModeValidationHelper = new PModeValidationHelperImpl();
 
         Configuration configuration = newConfiguration("TestConfiguration.json");
         final List<PModeIssue> results = validator.validate(configuration);

@@ -10,7 +10,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Interface for pMode validation: Calls al validators and aggregates  the results
+ * Interface for pMode validation: Calls al validators, aggregates the results and raises an exception if at least one exception
  */
 public interface PModeValidationService {
     /**
