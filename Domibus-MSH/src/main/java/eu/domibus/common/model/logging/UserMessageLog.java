@@ -71,6 +71,10 @@ public class UserMessageLog extends MessageLog {
         this.userMessage = userMessage;
     }
 
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
     public Boolean getSourceMessage() {
         return BooleanUtils.toBoolean(sourceMessage);
     }

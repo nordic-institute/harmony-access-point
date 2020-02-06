@@ -82,6 +82,8 @@ public class MessageSenderService {
 
         com.codahale.metrics.Timer.Context prepare_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "prepare_before_sending")).time();
         final UserMessage userMessage = userMessageDao.findUserMessageByMessageId(messageId);
+        userMessage.getPartyInfo().setFromTo();
+
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         prepare_before_sending.stop();

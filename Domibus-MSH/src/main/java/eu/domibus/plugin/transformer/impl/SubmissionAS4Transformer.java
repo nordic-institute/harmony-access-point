@@ -6,9 +6,7 @@ import eu.domibus.plugin.Submission;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -73,13 +71,18 @@ public class SubmissionAS4Transformer {
 
     private void generatePartyInfo(final Submission submission, final UserMessage result) {
         final PartyInfo partyInfo = new PartyInfo();
+        Set<PartyId> parties = new HashSet<>();
+
         final From from = new From();
         from.setRole(submission.getFromRole());
         for (final Submission.Party party : submission.getFromParties()) {
             final PartyId partyId = new PartyId();
             partyId.setValue(party.getPartyId());
             partyId.setType(party.getPartyIdType());
+            partyId.setDirection(PartyInfo.DIRECTION_FROM);
+            partyId.setUserMessage(result);
             from.getPartyId().add(partyId);
+            parties.add(partyId);
         }
         partyInfo.setFrom(from);
 
@@ -89,9 +92,13 @@ public class SubmissionAS4Transformer {
             final PartyId partyId = new PartyId();
             partyId.setValue(party.getPartyId());
             partyId.setType(party.getPartyIdType());
+            partyId.setDirection(PartyInfo.DIRECTION_TO);
+            partyId.setUserMessage(result);
             to.getPartyId().add(partyId);
+            parties.add(partyId);
         }
         partyInfo.setTo(to);
+        partyInfo.setParties(parties);
 
         result.setPartyInfo(partyInfo);
     }
@@ -156,12 +163,13 @@ public class SubmissionAS4Transformer {
         result.setFromRole(messaging.getPartyInfo().getFrom().getRole());
         result.setToRole(messaging.getPartyInfo().getTo().getRole());
 
-        for (final PartyId partyId : messaging.getPartyInfo().getFrom().getPartyId()) {
-            result.addFromParty(partyId.getValue(), partyId.getType());
-        }
 
-        for (final PartyId partyId : messaging.getPartyInfo().getTo().getPartyId()) {
-            result.addToParty(partyId.getValue(), partyId.getType());
+        for (final PartyId partyId : messaging.getPartyInfo().getParties()) {
+            if(PartyInfo.DIRECTION_FROM.equals(partyId.getDirection())) {
+                result.addFromParty(partyId.getValue(), partyId.getType());
+            } else if(PartyInfo.DIRECTION_TO.equals(partyId.getDirection())) {
+                result.addToParty(partyId.getValue(), partyId.getType());
+            }
         }
 
         if (messaging.getMessageProperties() != null) {

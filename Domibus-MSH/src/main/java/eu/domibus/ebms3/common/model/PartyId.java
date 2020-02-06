@@ -2,9 +2,7 @@ package eu.domibus.ebms3.common.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 
 /**
@@ -25,9 +23,31 @@ public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
     @XmlValue
     @Column(name = "VALUE")
     protected String value;
+
     @XmlAttribute(name = "type")
     @Column(name = "TYPE")
     protected String type;
+
+    @XmlTransient
+    @Column(name = "DIRECTION")
+    protected String direction;
+
+    @XmlTransient
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID")
+    private UserMessage userMessage;
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
 
     /**
      * gets the party identifier.

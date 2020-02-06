@@ -13,35 +13,13 @@ import java.util.Map;
 public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
 
     public String filterUserMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
-        String query = "select new eu.domibus.common.model.logging.MessageLogInfo(" +
-                "log.messageId," +
-                "log.messageStatus," +
-                "log.notificationStatus," +
-                "log.mshRole," +
-                "log.messageType," +
-                "log.deleted," +
-                "log.received," +
-                "log.sendAttempts," +
-                "log.sendAttemptsMax," +
-                "log.nextAttempt," +
-                "message.collaborationInfo.conversationId," +
-                "partyFrom.value," +
-                "partyTo.value," +
-                (isFourCornerModel() ? "propsFrom.value," : "'',") +
-                (isFourCornerModel() ? "propsTo.value," : "'',") +
-                "info.refToMessageId," +
-                "log.failed," +
-                "log.restored," +
-                "log.messageSubtype," +
-                "log.messageFragment," +
-                "log.sourceMessage" +
-                ")" + getQueryBody();
+        String query = "select log " + getQueryBody(true);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
     public String countUserMessageLogQuery(boolean asc, Map<String, Object> filters) {
-        String query = "select count(message.id)" + getQueryBody();
+        String query = "select count(message.id)" + getQueryBody(false);
 
         StringBuilder result = filterQuery(query, null, asc, filters);
         return result.toString();
@@ -52,23 +30,15 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
      *
      * @return String query body
      */
-    private String getQueryBody() {
+    private String getQueryBody(boolean fetch) {
         return
-                " from UserMessageLog log, " +
-                        "UserMessage message " +
-                        "left join log.userMessage.messageInfo info " +
-                        (isFourCornerModel() ?
-                                "left join message.messageProperties.property propsFrom "  +
-                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
-                        "left join message.partyInfo.from.partyId partyFrom " +
-                        "left join message.partyInfo.to.partyId partyTo " +
-                        "where " +
-                        (isFourCornerModel() ?
-                                " propsFrom.name = 'originalSender' "  +
-                                "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                " from  UserMessageLog log join " +
+                        (fetch ? "fetch " : StringUtils.EMPTY) +
+                        " log.userMessage message " +
+                        " where 1=1 "//TODO fix me
+                ;
 
     }
-
 
 
 }

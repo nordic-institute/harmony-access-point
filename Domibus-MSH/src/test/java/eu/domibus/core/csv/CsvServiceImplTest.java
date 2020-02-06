@@ -69,7 +69,7 @@ public class CsvServiceImplTest {
     private void testExportCsvBySubtype(MessageSubtype messageSubtype) {
         // Given
         Date date = new Date();
-        List<MessageLogInfo> messageLogInfoList = getMessageList(MessageType.USER_MESSAGE, date, messageSubtype);
+        List<MessageLogInfo> messageLogInfoList = null;//TODO fix me getMessageList(MessageType.USER_MESSAGE, date, messageSubtype);
 
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
         ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
@@ -83,7 +83,7 @@ public class CsvServiceImplTest {
         Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId,USER_MESSAGE," + (messageSubtype != null ? messageSubtype.name() : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
-    private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, MessageSubtype messageSubtype) {
+    /*private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, MessageSubtype messageSubtype) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
@@ -91,7 +91,7 @@ public class CsvServiceImplTest {
                 "refToMessageId", date, date, messageSubtype, false, false);
         result.add(messageLog);
         return result;
-    }
+    }*/
 
 
 }

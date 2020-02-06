@@ -22,10 +22,11 @@ import java.util.Set;
 public class To {
 
     public static final String DEFAULT_ROLE = From.DEFAULT_ROLE;
+
+    @Transient
     @XmlElement(name = "PartyId", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "TO_ID")
     protected Set<PartyId> partyId;
+
     @XmlElement(name = "Role", required = true, defaultValue = To.DEFAULT_ROLE)
     @Column(name = "TO_ROLE")
     protected String role;

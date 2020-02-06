@@ -7,14 +7,15 @@ import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.PartyInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
@@ -22,6 +23,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Common behaviour for handling incoming AS4 messages
@@ -56,6 +58,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
             assert false;
         }
+        updateJpaLinks(messaging);
 
         Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
         LOG.info("Using pmodeKey {}", pmodeKey);
@@ -79,6 +82,24 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             throw new WebServiceException(e);
         }
         return responseMessage;
+    }
+
+    protected void updateJpaLinks(Messaging messaging) {
+        UserMessage userMessage = messaging.getUserMessage();
+
+        PartyInfo partyInfo = userMessage.getPartyInfo();
+        Set<PartyId> fromParties = partyInfo.getFrom().getPartyId();
+        for (PartyId fromParty : fromParties) {
+            fromParty.setUserMessage(userMessage);
+            fromParty.setDirection(PartyInfo.DIRECTION_FROM);
+        }
+        Set<PartyId> toParties = partyInfo.getTo().getPartyId();
+        for (PartyId toParty : toParties) {
+            toParty.setUserMessage(userMessage);
+            toParty.setDirection(PartyInfo.DIRECTION_TO);
+        }
+        partyInfo.getParties().addAll(fromParties);
+        partyInfo.getParties().addAll(toParties);
     }
 
     protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;

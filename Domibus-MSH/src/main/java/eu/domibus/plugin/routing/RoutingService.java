@@ -4,6 +4,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.NotificationListener;
@@ -27,6 +28,9 @@ public class RoutingService {
 
     @Autowired
     private BackendFilterDao backendFilterDao;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
 
     @Autowired
     private List<NotificationListener> notificationListeners;
@@ -77,6 +81,9 @@ public class RoutingService {
         List<BackendFilterEntity> backendFilterEntityListToDelete = backendFiltersToDelete(allBackendFilterEntities, backendFilterEntities);
         backendFilterDao.deleteAll(backendFilterEntityListToDelete);
         backendFilterDao.update(backendFilterEntities);
+
+        backendNotificationService.invalidateBackendFiltersCache();
+
     }
 
     protected void validateFilters(List<BackendFilter> filters) {

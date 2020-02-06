@@ -1,11 +1,12 @@
 package eu.domibus.ebms3.common.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This REQUIRED element occurs once,
@@ -20,12 +21,50 @@ import javax.xml.bind.annotation.XmlType;
 @Embeddable
 public class PartyInfo {
 
+    public static final String DIRECTION_FROM = "FROM";
+    public static final String DIRECTION_TO = "TO";
+
+    @XmlTransient
+    @OneToMany(mappedBy = "userMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    protected Set<PartyId> parties;
+
     @XmlElement(name = "From", required = true)
-    @Embedded
     protected From from;
+
     @XmlElement(name = "To", required = true)
-    @Embedded
     protected To to;
+
+    public void setFromTo() {
+        if (parties == null) {
+            return;
+        }
+        for (PartyId party : parties) {
+            if (DIRECTION_FROM.equals(party.getDirection())) {
+                final PartyId partyId = new PartyId();
+                partyId.setValue(party.getValue());
+                partyId.setType(party.getType());
+                partyId.setDirection(PartyInfo.DIRECTION_FROM);
+                from.getPartyId().add(partyId);
+            } else if (DIRECTION_TO.equals(party.getDirection())) {
+                final PartyId partyId = new PartyId();
+                partyId.setValue(party.getValue());
+                partyId.setType(party.getType());
+                partyId.setDirection(PartyInfo.DIRECTION_TO);
+                to.getPartyId().add(partyId);
+            }
+        }
+    }
+
+    public Set<PartyId> getParties() {
+        if (this.parties == null) {
+            this.parties = new HashSet<>();
+        }
+        return parties;
+    }
+
+    public void setParties(Set<PartyId> parties) {
+        this.parties = parties;
+    }
 
     /**
      * The REQUIRED element

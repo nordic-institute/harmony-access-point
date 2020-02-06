@@ -10,6 +10,9 @@ import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.PartyInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -225,20 +228,67 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
 
         String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterUserMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
+        TypedQuery<UserMessageLog> typedQuery = em.createQuery(filteredUserMessageLogQuery, UserMessageLog.class);
+        TypedQuery<UserMessageLog> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
         queryParameterized.setFirstResult(from);
         queryParameterized.setMaxResults(max);
         long startTime = 0;
         if (LOG.isDebugEnabled()) {
             startTime = System.currentTimeMillis();
         }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+        final List<UserMessageLog> userMessageLogs = queryParameterized.getResultList();
+        List<MessageLogInfo> resultList = convert(userMessageLogs);
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
         }
         return resultList;
+    }
+
+    protected List<MessageLogInfo> convert(List<UserMessageLog> list) {
+        List<MessageLogInfo> result = new ArrayList<>();
+        for (UserMessageLog msg : list) {
+            MessageLogInfo messageLogInfo = new MessageLogInfo();
+            messageLogInfo.setMessageId(msg.getMessageId());
+            messageLogInfo.setMessageStatus(msg.getMessageStatus());
+            messageLogInfo.setNotificationStatus(msg.getNotificationStatus());
+            messageLogInfo.setMshRole(msg.getMshRole());
+            messageLogInfo.setMessageType(msg.getMessageType());
+            messageLogInfo.setDeleted(msg.getDeleted());
+            messageLogInfo.setReceived(msg.getReceived());
+            messageLogInfo.setSendAttempts(msg.getSendAttempts());
+            messageLogInfo.setSendAttemptsMax(msg.getSendAttemptsMax());
+            messageLogInfo.setNextAttempt(msg.getNextAttempt());
+            UserMessage userMessage = msg.getUserMessage();
+            messageLogInfo.setConversationId(userMessage.getCollaborationInfo().getConversationId());
+
+
+            Set<PartyId> parties = userMessage.getPartyInfo().getParties();
+            Optional<PartyId> partyFrom = parties.stream().filter(partyId -> PartyInfo.DIRECTION_FROM.equals(partyId.getDirection())).findFirst();
+            if(partyFrom.isPresent()) {
+                messageLogInfo.setFromPartyId(partyFrom.get().getValue());
+            }
+
+
+            Optional<PartyId> partyTo = parties.stream().filter(partyId -> PartyInfo.DIRECTION_TO.equals(partyId.getDirection())).findFirst();
+            if(partyTo.isPresent()) {
+                messageLogInfo.setToPartyId(partyTo.get().getValue());
+            }
+            messageLogInfo.setFailed(msg.getFailed());
+            //TODO add other fields
+            /*
+
+                "info.refToMessageId," +
+                "log.failed," +
+                "log.restored," +
+                "log.messageSubtype," +
+                "log.messageFragment," +
+                "log.sourceMessage" +
+             */
+            result.add(messageLogInfo);
+        }
+
+        return result;
     }
 
     public String findLastUserTestMessageId(String party) {

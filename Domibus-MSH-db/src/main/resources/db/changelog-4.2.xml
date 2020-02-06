@@ -691,10 +691,10 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID"/>
             </column>
+            <column name="DIRECTION" type="VARCHAR(255)"/>
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
-            <column name="TO_ID" type="BIGINT"/>
-            <column name="FROM_ID" type="BIGINT"/>
+            <column name="USER_MESSAGE_ID" type="BIGINT"/>
         </createTable>
 
         <createTable tableName="TB_PARTY_IDENTIFIER">
@@ -1286,7 +1286,7 @@
         </createIndex>
 
         <createIndex indexName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I" tableName="TB_PARTY_ID">
-            <column name="FROM_ID"/>
+            <column name="USER_MESSAGE_ID"/>
         </createIndex>
 
         <createIndex indexName="FK_FPXBDC63GIFACRD4QB6AFRQYW" tableName="TB_JOIN_PROCESS_LEG">
@@ -1463,10 +1463,6 @@
 
         <createIndex indexName="FK_USER_ROLE_AUD" tableName="TB_USER_ROLE_AUD">
             <column name="REV"/>
-        </createIndex>
-
-        <createIndex indexName="FK_YLUB8LPTGVSCH02MJ71EUUIL" tableName="TB_PARTY_ID">
-            <column name="TO_ID"/>
         </createIndex>
 
         <createIndex indexName="IDX_FK_ALERT" tableName="TB_EVENT_ALERT">
@@ -1781,7 +1777,7 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_EVENT"/>
 
-        <addForeignKeyConstraint baseColumnNames="FROM_ID" baseTableName="TB_PARTY_ID"
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_PARTY_ID"
                                  constraintName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
@@ -2009,10 +2005,6 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="TO_ID" baseTableName="TB_PARTY_ID"
-                                 constraintName="FK_YLUB8LPTGVSCH02MJ71EUUIL" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_LEG" constraintName="UK_LEG_SPLT"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"

@@ -266,6 +266,10 @@ public class BackendNotificationService {
         return true;
     }
 
+    public void invalidateBackendFiltersCache() {
+        this.backendFiltersCache = null;
+    }
+
     protected List<BackendFilter> getBackendFiltersWithCache() {
         if (backendFiltersCache == null) {
             synchronized (this) {//TODO use a dedicated lock object

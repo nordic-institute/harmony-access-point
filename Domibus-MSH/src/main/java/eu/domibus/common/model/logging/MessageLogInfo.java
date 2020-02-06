@@ -5,10 +5,15 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.PartyInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Tiago Miguel
@@ -62,6 +67,61 @@ public class MessageLogInfo {
     public MessageLogInfo() {
     }
 
+    public MessageLogInfo(UserMessage userMessage, UserMessageLog userMessageLog, String messageId) {
+        this.messageId = userMessage.getMessageInfo().getMessageId();
+        this.messageStatus = userMessageLog.getMessageStatus();
+        this.notificationStatus = userMessageLog.getNotificationStatus();
+        this.mshRole = userMessageLog.getMshRole();
+        this.messageType = userMessageLog.getMessageType();
+        this.deleted = userMessageLog.getDeleted();
+        this.received = userMessageLog.getReceived();
+        this.sendAttempts = userMessageLog.getSendAttempts();
+        this.sendAttemptsMax = userMessageLog.getSendAttemptsMax();
+        this.nextAttempt = userMessageLog.nextAttempt;
+        //message information UserMessage/SignalMessage
+        this.conversationId = userMessage.getCollaborationInfo().getConversationId();
+
+        Set<PartyId> parties = userMessage.getPartyInfo().getParties();
+        Optional<PartyId> partyFrom = parties.stream().filter(partyId -> PartyInfo.DIRECTION_FROM.equals(partyId.getDirection())).findFirst();
+        if(partyFrom.isPresent()) {
+            this.fromPartyId = partyFrom.get().getValue();
+        }
+
+
+        Optional<PartyId> partyTo = parties.stream().filter(partyId -> PartyInfo.DIRECTION_TO.equals(partyId.getDirection())).findFirst();
+        if(partyTo.isPresent()) {
+            this.toPartyId = partyTo.get().getValue();
+        }
+
+        /*this.originalSender = originalSender;//TODO Fix me
+        this.finalRecipient = finalRecipient;*/
+        this.refToMessageId = userMessage.getMessageInfo().getRefToMessageId();
+        this.failed = userMessageLog.getFailed();
+        this.restored = userMessageLog.getRestored();
+        this.messageSubtype = userMessageLog.getMessageSubtype();
+        /*
+        *  "log.messageId," +
+                "log.messageStatus," +
+                "log.notificationStatus," +
+                "log.mshRole," +
+                "log.messageType," +
+                "log.deleted," +
+                "log.received," +
+                "log.sendAttempts," +
+                "log.sendAttemptsMax," +
+                "log.nextAttempt," +
+                "message.collaborationInfo.conversationId," +
+                "message.partyInfo.parties," +
+                (isFourCornerModel() ? "propsFrom.value," : "'',") +
+                (isFourCornerModel() ? "propsTo.value," : "'',") +
+                "info.refToMessageId," +
+                "log.failed," +
+                "log.restored," +
+                "log.messageSubtype," +
+                "log.messageFragment," +
+                "log.sourceMessage" */
+    }
+
     //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
@@ -74,8 +134,7 @@ public class MessageLogInfo {
                           final int sendAttemptsMax,
                           final Date nextAttempt,
                           final String conversationId,
-                          final String fromPartyId,
-                          final String toPartyId,
+                          final Set<PartyId> parties,
                           final String originalSender,
                           final String finalRecipient,
                           final String refToMessageId,
@@ -94,8 +153,12 @@ public class MessageLogInfo {
         this.nextAttempt = nextAttempt;
         //message information UserMessage/SignalMessage
         this.conversationId = conversationId;
-        this.fromPartyId = fromPartyId;
-        this.toPartyId = toPartyId;
+
+        Optional<PartyId> partyFrom = parties.stream().filter(partyId -> PartyInfo.DIRECTION_FROM.equals(partyId.getDirection())).findFirst();
+        this.fromPartyId = partyFrom.get().getValue();
+
+        Optional<PartyId> partyTo = parties.stream().filter(partyId -> PartyInfo.DIRECTION_TO.equals(partyId.getDirection())).findFirst();
+        this.toPartyId = partyTo.get().getValue();
         this.originalSender = originalSender;
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
@@ -103,6 +166,7 @@ public class MessageLogInfo {
         this.restored = restored;
         this.messageSubtype = messageSubtype;
     }
+
 
     //constructor for user messages
     public MessageLogInfo(final String messageId,
@@ -116,8 +180,7 @@ public class MessageLogInfo {
                           final int sendAttemptsMax,
                           final Date nextAttempt,
                           final String conversationId,
-                          final String fromPartyId,
-                          final String toPartyId,
+                          final Set<PartyId> parties,
                           final String originalSender,
                           final String finalRecipient,
                           final String refToMessageId,
@@ -127,7 +190,7 @@ public class MessageLogInfo {
                           final Boolean messageFragment,
                           final Boolean sourceMessage) {
         this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
-                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
+                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, parties,
                 originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
 
         this.messageFragment = messageFragment;
@@ -311,26 +374,14 @@ public class MessageLogInfo {
         MessageLogInfo that = (MessageLogInfo) o;
 
         return new EqualsBuilder()
-                .append(sendAttempts, that.sendAttempts)
-                .append(sendAttemptsMax, that.sendAttemptsMax)
-                .append(messageSubtype, that.messageSubtype)
                 .append(messageId, that.messageId)
                 .append(fromPartyId, that.fromPartyId)
                 .append(toPartyId, that.toPartyId)
-                .append(messageStatus, that.messageStatus)
-                .append(notificationStatus, that.notificationStatus)
-                .append(received, that.received)
                 .append(mshRole, that.mshRole)
-                .append(nextAttempt, that.nextAttempt)
-                .append(conversationId, that.conversationId)
                 .append(messageType, that.messageType)
-                .append(deleted, that.deleted)
-                .append(originalSender, that.originalSender)
-                .append(finalRecipient, that.finalRecipient)
-                .append(refToMessageId, that.refToMessageId)
-                .append(failed, that.failed)
-                .append(restored, that.restored)
-                .append(messageFragment, this.messageFragment)
+                .append(messageSubtype, that.messageSubtype)
+                .append(messageFragment, that.messageFragment)
+                .append(sourceMessage, that.sourceMessage)
                 .isEquals();
     }
 
@@ -340,23 +391,11 @@ public class MessageLogInfo {
                 .append(messageId)
                 .append(fromPartyId)
                 .append(toPartyId)
-                .append(messageStatus)
-                .append(notificationStatus)
-                .append(received)
                 .append(mshRole)
-                .append(sendAttempts)
-                .append(sendAttemptsMax)
-                .append(nextAttempt)
-                .append(conversationId)
                 .append(messageType)
-                .append(deleted)
-                .append(originalSender)
-                .append(finalRecipient)
-                .append(refToMessageId)
-                .append(failed)
-                .append(restored)
                 .append(messageSubtype)
                 .append(messageFragment)
+                .append(sourceMessage)
                 .toHashCode();
     }
 }
