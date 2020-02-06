@@ -370,6 +370,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Timer(value = SUBMITTED_MESSAGES)
     @Counter(SUBMITTED_MESSAGES)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
+        com.codahale.metrics.Timer.Context oneTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.1.timer")).time();
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
         }
@@ -417,7 +418,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
-
+            oneTimer.stop();
             Party to = null;
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
@@ -427,10 +428,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 to = createNewParty(userMessage.getMpc());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
-                com.codahale.metrics.Timer.Context findTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageExchangeContext.timer")).time();
+                com.codahale.metrics.Timer.Context findTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.2.timer")).time();
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
                 findTimer.stop();
             }
+            com.codahale.metrics.Timer.Context threeTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.3.timer")).time();
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
             if (to == null) {
@@ -441,13 +443,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             if (userMessage.getMpc() == null) {
                 fillMpc(userMessage, legConfiguration, to);
             }
+            threeTimer.stop();
+            com.codahale.metrics.Timer.Context fourTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.4.timer")).time();
 
             payloadProfileValidator.validate(message, pModeKey);
             propertyProfileValidator.validate(message, pModeKey);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSplitAndJoin(splitAndJoin);
-
+            fourTimer.stop();
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
@@ -456,7 +460,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
 
-            com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.timer")).time();
+            com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.5.timer")).time();
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
@@ -467,13 +471,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             storeMessageTimer.stop();
 
-            com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "persistSubmittedMessage")).time();
+            com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.6.timer")).time();
             messagingService.persistSubmittedMessage(messageData, backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, messageStatus, pModeKey, legConfiguration);
             persistSubmittedMessageTimer.stop();
+
+            com.codahale.metrics.Timer.Context sevenTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "submit.7.timer")).time();
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
 
             LOG.info("Message submitted");
+            sevenTimer.stop();
             return userMessage.getMessageInfo().getMessageId();
 
         } catch (EbMS3Exception ebms3Ex) {
