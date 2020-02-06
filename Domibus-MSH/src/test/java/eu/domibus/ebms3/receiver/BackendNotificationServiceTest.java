@@ -648,6 +648,35 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
+    public void initWithEmptyBackendFilterTest(@Injectable NotificationListener notificationListener,
+                                               @Injectable CriteriaFactory routingCriteriaFactory,
+                                               @Injectable BackendFilterEntity backendFilterEntity) {
+        Map notificationListenerBeanMap = new HashMap();
+        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
+        routingCriteriaFactories.add(routingCriteriaFactory);
+        backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
+        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            notificationListenerBeanMap.put(any, notificationListener);
+            backendFilterEntities.add(backendFilterEntity);
+            applicationContext.getBeansOfType(NotificationListener.class);
+            result = notificationListenerBeanMap;
+            backendFilterDao.findAll();
+            backendNotificationService.createBackendFiltersWithDefaultPriority();
+            times = 1;
+        }};
+
+        backendNotificationService.init();
+
+        new Verifications() {{
+            backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+            ;
+            times = 0;
+        }};
+    }
+
+    @Test
     public void createBackendFiltersBasedOnExistingUserPriorityTest(@Injectable BackendFilterEntity backendFilterEntity) {
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         List<String> pluginList = new ArrayList<>();
@@ -676,7 +705,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void assignPriorityToPluginsTest() {
+    public void assignPriorityToWsPluginsTest() {
         List<String> pluginList = new ArrayList<>();
         int priority = 0;
         final String BACK_END_WEBSERVICE = "backendWebservice";
@@ -685,5 +714,72 @@ public class BackendNotificationServiceTest {
             pluginList.add(BACK_END_WEBSERVICE);
         }};
         Assert.assertNotNull(backendNotificationService.assignPriorityToPlugins(pluginList, priority));
+    }
+
+    @Test
+    public void assignPriorityToJmsPluginsTest() {
+        List<String> pluginList = new ArrayList<>();
+        int priority = 0;
+        final String BACKEND_JMS = "Jms";
+
+        new Expectations(backendNotificationService) {{
+            pluginList.add(BACKEND_JMS);
+        }};
+        Assert.assertNotNull(backendNotificationService.assignPriorityToPlugins(pluginList, priority));
+    }
+
+    @Test
+    public void assignPriorityToFSPluginsTest() {
+        List<String> pluginList = new ArrayList<>();
+        int priority = 0;
+        final String BACKEND_FS_PLUGIN = "backendFSPlugin";
+
+        new Expectations(backendNotificationService) {{
+            pluginList.add(BACKEND_FS_PLUGIN);
+        }};
+        Assert.assertNotNull(backendNotificationService.assignPriorityToPlugins(pluginList, priority));
+    }
+
+    @Test
+    public void getPluginsWithNoUserPriorityTest(@Injectable NotificationListener notificationListener,
+                                                 @Injectable BackendFilterEntity backendFilterEntity) {
+        List<NotificationListener> notificationListenerServices = new ArrayList<>();
+        List<String> pluginList = new ArrayList<>();
+        final String BACK_END_WEBSERVICE = "backendWebservice";
+        final String BACKEND_JMS = "Jms";
+        backendNotificationService.notificationListenerServices = notificationListenerServices;
+
+        new Expectations() {{
+            notificationListener.getBackendName();
+            result = BACK_END_WEBSERVICE;
+            notificationListenerServices.add(notificationListener);
+            backendFilterEntity.getBackendName();
+            result = BACKEND_JMS;
+        }};
+
+        Assert.assertNotNull(backendNotificationService.getPluginsWithNoUserPriority(backendFilterEntity, pluginList));
+    }
+
+    @Test
+    public void createWSBackendFiltersWithDefaultPriorityTest(@Injectable NotificationListener notificationListener,
+                                                              @Injectable BackendFilterEntity backendFilterEntity) {
+        List<NotificationListener> notificationListenerServices = new ArrayList<>();
+        List<BackendFilterEntity> backendFilters = new ArrayList<>();
+        final String BACK_END_WEBSERVICE = "backendWebservice";
+        notificationListenerServices.add(notificationListener);
+        backendNotificationService.notificationListenerServices = notificationListenerServices;
+
+        new Expectations() {{
+            notificationListener.getBackendName();
+            result = BACK_END_WEBSERVICE;
+            backendFilters.add(backendFilterEntity);
+        }};
+
+        backendNotificationService.createBackendFiltersWithDefaultPriority();
+
+        new Verifications() {{
+            backendFilterDao.create(backendFilters);
+            times = 1;
+        }};
     }
 }
