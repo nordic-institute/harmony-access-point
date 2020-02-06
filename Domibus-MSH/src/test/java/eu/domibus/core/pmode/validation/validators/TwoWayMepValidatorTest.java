@@ -9,6 +9,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+  */
 public class TwoWayMepValidatorTest extends AbstractValidatorTest {
 
     private TwoWayMepValidator validator = new TwoWayMepValidator();

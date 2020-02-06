@@ -15,6 +15,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ * <p>
+ */
 @RunWith(JMockit.class)
 public class BusinessProcessValidatorTest {
 

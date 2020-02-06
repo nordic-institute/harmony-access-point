@@ -10,6 +10,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 public class SelfPartyValidatorTest extends AbstractValidatorTest {
 
     private SelfPartyValidator validator = new SelfPartyValidator();
