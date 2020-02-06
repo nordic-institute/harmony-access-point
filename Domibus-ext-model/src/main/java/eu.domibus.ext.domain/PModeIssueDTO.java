@@ -3,6 +3,7 @@ package eu.domibus.ext.domain;
 /**
  * @author Ion Perpegel
  * @since 4.2
+ * Class that encapsulates information about a pMode validation: code, level and message
  */
 public class PModeIssueDTO {
 
@@ -11,16 +12,6 @@ public class PModeIssueDTO {
     private String message;
 
     public PModeIssueDTO() {}
-
-    public PModeIssueDTO(String message) {
-        this.message = message;
-        this.level = Level.NOTE;
-    }
-
-    public PModeIssueDTO(String message, Level level) {
-        this.message = message;
-        this.level = level;
-    }
 
     public Level getLevel() {
         return level;

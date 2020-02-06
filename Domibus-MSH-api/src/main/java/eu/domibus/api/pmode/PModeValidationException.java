@@ -4,6 +4,12 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Class that encapsulates information about a pMode validation exception aka the list of issues
+ */
 public class PModeValidationException extends PModeException {
     final static String PMODE_VALIDATION_ISSUES = "PMode validation failed";
 

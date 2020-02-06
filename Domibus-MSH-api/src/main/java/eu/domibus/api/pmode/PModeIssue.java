@@ -3,6 +3,8 @@ package eu.domibus.api.pmode;
 /**
  * @author Ion Perpegel
  * @since 4.2
+ *
+ * Class that encapsulates information about a pMode validation: code, level and message
  */
 public class PModeIssue {
 
