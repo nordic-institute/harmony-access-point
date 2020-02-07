@@ -38,6 +38,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService{
         if(userMessage == null) {
             return null;
         }
+        userMessage.getMessageInfo().setTimestamp(null);//TODO remove this is it was added for fixing the date formatter on the client
         return domainConverter.convert(userMessage, UserMessageDTO.class);
     }
 }
