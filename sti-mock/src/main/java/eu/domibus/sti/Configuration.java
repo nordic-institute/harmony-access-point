@@ -63,6 +63,9 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
+    @Value("${session.cache.size}")
+    private Integer cacheSize;
+
     @Bean
     public DefaultJmsListenerContainerFactory myFactory() {
         LOG.info("Initiating jms listener factory");
@@ -75,9 +78,9 @@ public class Configuration {
 
     @Bean
     public CachingConnectionFactory producingFactory() {
-        LOG.info("Initiating jms listener factory");
+        LOG.info("Initiating Jms caching connection factory with session cache size:[{}]",cacheSize);
         CachingConnectionFactory factory = new CachingConnectionFactory(connectionFactory());
-        factory.setSessionCacheSize(10);
+        factory.setSessionCacheSize(cacheSize);
         return factory;
     }
 
