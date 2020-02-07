@@ -4,10 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.*;
 
 /**
@@ -27,9 +24,8 @@ import java.util.*;
 public class PayloadInfo {
 
     @XmlElement(name = "PartInfo", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "PAYLOADINFO_ID")
-    @OrderColumn(name="PART_ORDER")
+//    @OrderColumn(name="PART_ORDER", nullable = false)//TODO FIX ME
+    @OneToMany(mappedBy = "userMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     protected List<PartInfo> partInfo;
 
     /**

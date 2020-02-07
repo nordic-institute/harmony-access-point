@@ -1,10 +1,7 @@
 package eu.domibus.ebms3.common.model;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,10 +21,24 @@ import java.util.Set;
 @Embeddable
 public class MessageProperties {
 
+    @Transient
     @XmlElement(name = "Property", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "MESSAGEPROPERTIES_ID")
     protected Set<Property> property;
+
+    @XmlTransient
+    @OneToMany(mappedBy = "userMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    protected Set<MessageProperty> messageProperties;
+
+    public void setXmlProperties() {
+        Set<MessageProperty> messageProperties = getMessageProperties();
+        for (MessageProperty messageProperty : messageProperties) {
+            Property property = new Property();
+            property.setName(messageProperty.getName());
+            property.setType(messageProperty.getType());
+            property.setValue(messageProperty.getValue());
+            getProperty().add(property);
+        }
+    }
 
     /**
      * An eb:Property element is of xs:anySimpleType (e.g. string, URI) and has two attributes:
@@ -63,6 +74,13 @@ public class MessageProperties {
             this.property = new HashSet<>();
         }
         return this.property;
+    }
+
+    public Set<MessageProperty> getMessageProperties() {
+        if (this.messageProperties == null) {
+            this.messageProperties = new HashSet<>();
+        }
+        return this.messageProperties;
     }
 
     @Override

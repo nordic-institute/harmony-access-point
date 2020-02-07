@@ -93,6 +93,15 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "ENCRYPTED")
     protected Boolean encrypted;
 
+    @XmlTransient
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGE_ID")
+    private UserMessage userMessage;
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
     }

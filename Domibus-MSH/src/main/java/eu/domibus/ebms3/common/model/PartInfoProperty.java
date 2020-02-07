@@ -4,43 +4,30 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.*;
-import java.util.regex.Pattern;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
-/**
- * An eb:Property element is of xs:anySimpleType (e.g. string, URI) and has two attributes:
- * • @name: The value of this REQUIRED attribute must be agreed upon between partners.
- * • @type: This OPTIONAL attribute allows for resolution of conflicts between properties with the
- * same name, and may also help with Property grouping, e.g. various elements of an address.
- * Its actual semantics is beyond the scope of this specification. The element is intended to be consumed
- * outside the ebMS-specified functions. It may contain some information that qualifies or abstracts message
- * data, or that allows for binding the message to some business process. A representation in the header of
- * such properties allows for more efficient monitoring, correlating, dispatching and validating functions (even
- * if these are out of scope of ebMS specification) that do not require payload access.
- *
- * @author Christian Koch
- * @version 1.0
- * @since 3.0
- */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Property", propOrder = "value")
-public class Property implements Comparable<Property> {
+@Entity
+@Table(name = "TB_PART_INFO_PROPERTY")
+public class PartInfoProperty extends AbstractBaseEntity {
 
-    public static final String MIME_TYPE = "MimeType";
-    public static final String CHARSET = "CharacterSet";
-    public static final Pattern CHARSET_PATTERN = Pattern.compile("[A-Za-z]([A-Za-z0-9._-])*");
-
-    @XmlValue
+    @Column(name = "VALUE")
     protected String value;
 
-    @XmlAttribute(name = "name", required = true)
+    @Column(name = "NAME", nullable = false)
     protected String name;
 
-    @XmlAttribute(name = "type", required = false)
+    @Column(name = "TYPE", nullable = true)
     protected String type;
+
+    @XmlTransient
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PART_INFO_ID")
+    private PartInfo partInfo;
+
+    public void setPartInfo(PartInfo partInfo) {
+        this.partInfo = partInfo;
+    }
 
     /**
      * Gets the value of the value property.
@@ -84,7 +71,7 @@ public class Property implements Comparable<Property> {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        Property property = (Property) o;
+        PartInfoProperty property = (PartInfoProperty) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
@@ -102,11 +89,6 @@ public class Property implements Comparable<Property> {
                 .append(name)
                 .append(type)
                 .toHashCode();
-    }
-
-    @Override
-    public int compareTo(final Property o) {
-        return this.hashCode() - o.hashCode();
     }
 
     public String getType() {

@@ -760,7 +760,7 @@
             <column name="SCHEMA_LOCATION" type="VARCHAR(255)"/>
             <column name="SCHEMA_NAMESPACE" type="VARCHAR(255)"/>
             <column name="SCHEMA_VERSION" type="VARCHAR(255)"/>
-            <column name="PAYLOADINFO_ID" type="BIGINT"/>
+            <column name="MESSAGE_ID" type="BIGINT"/>
             <column name="FILENAME" type="VARCHAR(255)"/>
             <column name="MIME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -826,17 +826,28 @@
             </column>
         </createTable>
 
-        <createTable tableName="TB_PROPERTY">
+        <createTable tableName="TB_USER_MESSAGE_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_UMSG_PROPERTY"/>
             </column>
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="VALUE" type="VARCHAR(255)"/>
-            <column name="MESSAGEPROPERTIES_ID" type="BIGINT"/>
-            <column name="PARTPROPERTIES_ID" type="BIGINT"/>
             <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="MESSAGE_ID" type="BIGINT"/>
+        </createTable>
+
+        <createTable tableName="TB_PART_INFO_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PART_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="PART_INFO_ID" type="BIGINT"/>
         </createTable>
 
         <createTable tableName="TB_RAWENVELOPE_LOG">
@@ -1169,8 +1180,11 @@
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" tableName="TB_PROPERTY">
-            <column name="MESSAGEPROPERTIES_ID"/>
+        <createIndex indexName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" tableName="TB_USER_MESSAGE_PROPERTY">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="FK_2H31P0A2Y6WEG2GRH70C9CYVAB" tableName="TB_PART_INFO_PROPERTY">
+            <column name="PART_INFO_ID"/>
         </createIndex>
 
         <createIndex indexName="FK_2SW6KNALOR7RPR04YE0O2R9AP" tableName="TB_ROLE">
@@ -1251,10 +1265,6 @@
 
         <createIndex indexName="FK_CONFIGURATION_RAW_AUD" tableName="TB_CONFIGURATION_RAW_AUD">
             <column name="REV"/>
-        </createIndex>
-
-        <createIndex indexName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" tableName="TB_PROPERTY">
-            <column name="PARTPROPERTIES_ID"/>
         </createIndex>
 
         <createIndex indexName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" tableName="TB_PAYLOAD">
@@ -1446,7 +1456,7 @@
         </createIndex>
 
         <createIndex indexName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" tableName="TB_PART_INFO">
-            <column name="PAYLOADINFO_ID"/>
+            <column name="MESSAGE_ID"/>
         </createIndex>
 
         <createIndex indexName="FK_UM_MF" tableName="TB_USER_MESSAGE">
@@ -1565,21 +1575,6 @@
             <column name="USER_ID"/>
         </createIndex>
 
-        <createIndex indexName="IDX_PROPERTY_NAME" tableName="TB_PROPERTY">
-            <column name="NAME"/>
-        </createIndex>
-
-        <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID" tableName="TB_PROPERTY">
-            <column name="NAME"/>
-            <column name="MESSAGEPROPERTIES_ID"/>
-        </createIndex>
-
-        <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL" tableName="TB_PROPERTY">
-            <column name="NAME"/>
-            <column name="MESSAGEPROPERTIES_ID"/>
-            <column name="VALUE"/>
-        </createIndex>
-
         <createIndex indexName="IDX_RAWENVELOPE_MESSAGE_ID" tableName="TB_RAWENVELOPE_LOG">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -1618,10 +1613,14 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID" baseTableName="TB_USER_MESSAGE_PROPERTY"
                                  constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID" baseTableName="TB_PART_INFO_PROPERTY"
+                                 constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVAB" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ROLE"
                                  constraintName="FK_2SW6KNALOR7RPR04YE0O2R9AP" deferrable="false"
@@ -1728,10 +1727,7 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
-                                 constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PAYLOAD"
                                  constraintName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" deferrable="false"
@@ -1971,7 +1967,7 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_MEP_BINDING"/>
 
-        <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID" baseTableName="TB_PART_INFO"
                                  constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>

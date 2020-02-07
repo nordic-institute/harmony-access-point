@@ -67,61 +67,6 @@ public class MessageLogInfo {
     public MessageLogInfo() {
     }
 
-    public MessageLogInfo(UserMessage userMessage, UserMessageLog userMessageLog, String messageId) {
-        this.messageId = userMessage.getMessageInfo().getMessageId();
-        this.messageStatus = userMessageLog.getMessageStatus();
-        this.notificationStatus = userMessageLog.getNotificationStatus();
-        this.mshRole = userMessageLog.getMshRole();
-        this.messageType = userMessageLog.getMessageType();
-        this.deleted = userMessageLog.getDeleted();
-        this.received = userMessageLog.getReceived();
-        this.sendAttempts = userMessageLog.getSendAttempts();
-        this.sendAttemptsMax = userMessageLog.getSendAttemptsMax();
-        this.nextAttempt = userMessageLog.nextAttempt;
-        //message information UserMessage/SignalMessage
-        this.conversationId = userMessage.getCollaborationInfo().getConversationId();
-
-        Set<PartyId> parties = userMessage.getPartyInfo().getParties();
-        Optional<PartyId> partyFrom = parties.stream().filter(partyId -> PartyInfo.DIRECTION_FROM.equals(partyId.getDirection())).findFirst();
-        if(partyFrom.isPresent()) {
-            this.fromPartyId = partyFrom.get().getValue();
-        }
-
-
-        Optional<PartyId> partyTo = parties.stream().filter(partyId -> PartyInfo.DIRECTION_TO.equals(partyId.getDirection())).findFirst();
-        if(partyTo.isPresent()) {
-            this.toPartyId = partyTo.get().getValue();
-        }
-
-        /*this.originalSender = originalSender;//TODO Fix me
-        this.finalRecipient = finalRecipient;*/
-        this.refToMessageId = userMessage.getMessageInfo().getRefToMessageId();
-        this.failed = userMessageLog.getFailed();
-        this.restored = userMessageLog.getRestored();
-        this.messageSubtype = userMessageLog.getMessageSubtype();
-        /*
-        *  "log.messageId," +
-                "log.messageStatus," +
-                "log.notificationStatus," +
-                "log.mshRole," +
-                "log.messageType," +
-                "log.deleted," +
-                "log.received," +
-                "log.sendAttempts," +
-                "log.sendAttemptsMax," +
-                "log.nextAttempt," +
-                "message.collaborationInfo.conversationId," +
-                "message.partyInfo.parties," +
-                (isFourCornerModel() ? "propsFrom.value," : "'',") +
-                (isFourCornerModel() ? "propsTo.value," : "'',") +
-                "info.refToMessageId," +
-                "log.failed," +
-                "log.restored," +
-                "log.messageSubtype," +
-                "log.messageFragment," +
-                "log.sourceMessage" */
-    }
-
     //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,

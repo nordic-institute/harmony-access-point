@@ -94,7 +94,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     PropertyDTO propertyToPropertyDTO(Property property);
 
-    @Mapping(target = "entityId", ignore = true)
     Property propertyDTOToProperty(PropertyDTO propertyDTO);
 
     @InheritInverseConfiguration

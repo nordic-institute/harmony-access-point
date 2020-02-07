@@ -6,10 +6,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.PartyInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -23,6 +20,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -100,6 +98,38 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         }
         partyInfo.getParties().addAll(fromParties);
         partyInfo.getParties().addAll(toParties);
+
+        MessageProperties messageProperties = userMessage.getMessageProperties();
+        Set<Property> propertyList = messageProperties.getProperty();
+        if (propertyList != null) {
+            for (Property property : propertyList) {
+                MessageProperty messageProperty = new MessageProperty();
+                messageProperty.setName(property.getName());
+                messageProperty.setType(property.getType());
+                messageProperty.setValue(property.getValue());
+                messageProperty.setUserMessage(userMessage);
+                messageProperties.getMessageProperties().add(messageProperty);
+            }
+        }
+
+        List<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
+        if(partInfo != null) {
+            for (PartInfo info : partInfo) {
+                PartProperties partProperties = info.getPartProperties();
+                if(partProperties != null) {
+                    Set<Property> properties = partProperties.getProperties();
+                    for (Property property : properties) {
+                        PartInfoProperty partInfoProperty = new PartInfoProperty();
+                        partInfoProperty.setName(property.getName());
+                        partInfoProperty.setType(property.getType());
+                        partInfoProperty.setValue(property.getValue());
+                        partInfoProperty.setPartInfo(info);
+                        partProperties.getPartInfoProperties().add(partInfoProperty);
+                    }
+                }
+                info.setUserMessage(userMessage);
+            }
+        }
     }
 
     protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;

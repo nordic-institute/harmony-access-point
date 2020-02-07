@@ -9,17 +9,18 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.common.services.impl.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.PartProperties;
+import eu.domibus.ebms3.common.model.PayloadInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -83,6 +84,17 @@ public class MessageSenderService {
         com.codahale.metrics.Timer.Context prepare_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "prepare_before_sending")).time();
         final UserMessage userMessage = userMessageDao.findUserMessageByMessageId(messageId);
         userMessage.getPartyInfo().setFromTo();
+        userMessage.getMessageProperties().setXmlProperties();
+        PayloadInfo payloadInfo = userMessage.getPayloadInfo();
+        if(payloadInfo != null) {
+            List<PartInfo> partInfo = payloadInfo.getPartInfo();
+            for (PartInfo info : partInfo) {
+                PartProperties partProperties = info.getPartProperties();
+                if(partProperties != null) {
+                    partProperties.setXmlProperties();
+                }
+            }
+        }
 
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);

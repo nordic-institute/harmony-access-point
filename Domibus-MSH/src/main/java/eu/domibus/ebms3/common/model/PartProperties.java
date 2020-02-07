@@ -5,10 +5,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,10 +27,24 @@ import java.util.Set;
 @Embeddable
 public class PartProperties {
 
+    @Transient
     @XmlElement(name = "Property", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "PARTPROPERTIES_ID")
     protected Set<Property> property;
+
+    @XmlTransient
+    @OneToMany(mappedBy = "partInfo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    protected Set<PartInfoProperty> partInfoProperties;
+
+    public void setXmlProperties() {
+        Set<PartInfoProperty> partInfoProperties = getPartInfoProperties();
+        for (PartInfoProperty partInfoProperty : partInfoProperties) {
+            Property property = new Property();
+            property.setName(partInfoProperty.getName());
+            property.setType(partInfoProperty.getType());
+            property.setValue(partInfoProperty.getValue());
+            getProperties().add(property);
+        }
+    }
 
     // used by the mapper
     public Set<Property> getProperty() {
@@ -72,6 +83,13 @@ public class PartProperties {
             this.property = new HashSet<>();
         }
         return this.property;
+    }
+
+    public Set<PartInfoProperty> getPartInfoProperties() {
+        if (this.partInfoProperties == null) {
+            this.partInfoProperties = new HashSet<>();
+        }
+        return this.partInfoProperties;
     }
 
     @Override

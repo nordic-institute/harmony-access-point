@@ -95,6 +95,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
+    private UserMessageDao userMessageDao;
+
+    @Autowired
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
@@ -140,7 +143,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    private UserMessageDao userMessageDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private MetricRegistry metricRegistry;
@@ -155,8 +158,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.info("Downloading message with id [{}]", messageId);
 
             com.codahale.metrics.Timer.Context findMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findMessageById.timer")).time();
-            Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-            if (messaging == null) {
+            UserMessage userMessage = userMessageDao.findUserMessageByMessageId(messageId);
+            if (userMessage == null) {
                 throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
             }
             findMessageTimer.stop();
@@ -166,7 +169,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             findUserMessageLogTimer.stop();
 
             com.codahale.metrics.Timer.Context checkMessageAuthorizationTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "checkMessageAuthorization.timer")).time();
-            UserMessage userMessage = messaging.getUserMessage();
+
             checkMessageAuthorization(userMessage, messageLog);
             checkMessageAuthorizationTimer.stop();
 
@@ -186,6 +189,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 setAsDeletedTimer.stop();
 
                 com.codahale.metrics.Timer.Context setSignalAsDeletedTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "setSignalAsDeleted.timer")).time();
+                Messaging messaging = messagingDao.findMessageByMessageId(messageId);//TODO optimze the retrieval of the SignalMessage
                 SignalMessage signalMessage = messaging.getSignalMessage();
                 if (signalMessage != null) {
                     String signalMessageId = signalMessage.getMessageInfo().getMessageId();

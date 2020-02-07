@@ -39,6 +39,13 @@ public class SubmissionAS4Transformer {
             prop.setValue(propertyEntry.getValue());
             prop.setType(propertyEntry.getType());
             messageProperties.getProperty().add(prop);
+
+            MessageProperty messageProperty = new MessageProperty();
+            messageProperty.setName(propertyEntry.getKey());
+            messageProperty.setValue(propertyEntry.getValue());
+            messageProperty.setType(propertyEntry.getType());
+            messageProperty.setUserMessage(result);
+            messageProperties.getMessageProperties().add(messageProperty);
         }
 
         result.setMessageProperties(messageProperties);
@@ -123,9 +130,18 @@ public class SubmissionAS4Transformer {
                 property.setValue(entry.getValue());
                 property.setType(entry.getType());
                 partProperties.getProperties().add(property);
+
+                PartInfoProperty partInfoProperty = new PartInfoProperty();
+                partInfoProperty.setName(entry.getKey());
+                partInfoProperty.setValue(entry.getValue());
+                partInfoProperty.setType(entry.getType());
+                partInfoProperty.setPartInfo(partInfo);
+                partProperties.getPartInfoProperties().add(partInfoProperty);
             }
 
             partInfo.setPartProperties(partProperties);
+            partInfo.setUserMessage(result);
+
             payloadInfo.getPartInfo().add(partInfo);
 
             result.setPayloadInfo(payloadInfo);
@@ -172,9 +188,17 @@ public class SubmissionAS4Transformer {
             }
         }
 
+
         if (messaging.getMessageProperties() != null) {
             for (final Property property : messaging.getMessageProperties().getProperty()) {
                 result.addMessageProperty(property.getName(), property.getValue(), property.getType());
+            }
+
+            Set<MessageProperty> propertyList = messaging.getMessageProperties().getMessageProperties();
+            if (propertyList != null) {
+                for (MessageProperty property : propertyList) {
+                    result.addMessageProperty(property.getName(), property.getValue(), property.getType());
+                }
             }
         }
         return result;
@@ -184,6 +208,10 @@ public class SubmissionAS4Transformer {
         final Collection<Submission.TypedProperty> properties = new ArrayList<>();
         if (partInfo.getPartProperties() != null) {
             for (final Property property : partInfo.getPartProperties().getProperties()) {
+                properties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
+            }
+
+            for (final PartInfoProperty property : partInfo.getPartProperties().getPartInfoProperties()) {
                 properties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
             }
         }
