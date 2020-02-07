@@ -136,10 +136,9 @@ public class BackendNotificationService {
             notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
             List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
             if (backendFilterEntities.isEmpty()) {
-                LOG.debug("No Plugins details available in database!");
+                LOG.warn("No Plugins details available in database!");
                 createBackendFiltersWithDefaultPriority();
             } else {
-                LOG.debug("Loading Plugins to database which doesn't have any existing priority set by User!");
                 createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
             }
         }
@@ -150,13 +149,14 @@ public class BackendNotificationService {
     }
 
     /**
-     * Create Backend Filters of plugins in DB by checking the existing User Priority
+     * Create Backend Filters of plugins in DB by checking the existing User Priority     *
      *
      * @param backendFilterEntities
      */
     protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
         List<String> pluginList = new ArrayList<>();
         int priority = 0;
+        LOG.debug("Loading Plugins to database which doesn't have any existing priority set by User!");
         for (BackendFilterEntity backendFilterEntity : backendFilterEntities) {
             pluginList = getPluginsWithNoUserPriority(backendFilterEntity, pluginList);
             priority = backendFilterEntity.getIndex();
