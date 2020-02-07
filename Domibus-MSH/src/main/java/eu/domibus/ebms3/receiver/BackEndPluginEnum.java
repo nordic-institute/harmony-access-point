@@ -1,5 +1,11 @@
 package eu.domibus.ebms3.receiver;
 
+/**
+ * Stores the plugin Names and its priority
+ *
+ * @author Soumya Chandran
+ * @since 4.2
+ */
 public enum BackEndPluginEnum {
 
     WS_PLUGIN("backendWebservice", 0),
@@ -22,13 +28,18 @@ public enum BackEndPluginEnum {
         return pluginName;
     }
 
-    public static BackEndPluginEnum findEnumByPluginName(final String pluginName) {
+    /**
+     * Find the respective BackEndPluginEnum based on the plugin name
+     *
+     * @param pluginName
+     * @return BackEndPluginEnum
+     */
+    public static BackEndPluginEnum getBackendPluginEnum(final String pluginName) {
         for (final BackEndPluginEnum backEndPlugin : BackEndPluginEnum.values()) {
             if (pluginName.equals(backEndPlugin.getPluginName())) {
                 return backEndPlugin;
             }
         }
-
         throw new IllegalArgumentException("No Default BackEnd Plugin found for pluginName: " + pluginName);
     }
 }

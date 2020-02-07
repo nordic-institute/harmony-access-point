@@ -166,7 +166,7 @@ public class BackendNotificationService {
     }
 
     /**
-     * Assigning priorities to the backend plugin, which doesn't have any priority set by User
+     * Assigning priorities to the default plugin, which doesn't have any priority set by User
      *
      * @param pluginList
      * @param priority
@@ -176,12 +176,11 @@ public class BackendNotificationService {
         List<BackendFilterEntity> backendFilters = new ArrayList<>();
         List<String> defaultPluginOrderList = Arrays.asList(BackEndPluginEnum.WS_PLUGIN.getPluginName(), BackEndPluginEnum.JMS_PLUGIN.getPluginName(), BackEndPluginEnum.FS_PLUGIN.getPluginName());
         pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
-        LOG.debug("Assigning priorities to the backend plugin, which doesn't have any priority set by User.");
+        LOG.debug("Assigning priorities to the default plugin, which doesn't have any priority set by User.");
         for (String pluginName : pluginList) {
-            LOG.debug("Sorted Plugin List :" + pluginName);
             BackendFilterEntity filterEntity = new BackendFilterEntity();
             filterEntity.setBackendName(pluginName);
-            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.findEnumByPluginName(pluginName);
+            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.getBackendPluginEnum(pluginName);
             if (backEndPluginEnum != null)
                 filterEntity.setIndex(++priority);
             backendFilters.add(filterEntity);
@@ -215,7 +214,7 @@ public class BackendNotificationService {
             BackendFilterEntity backendFilterEntity = new BackendFilterEntity();
             LOG.debug("Loading Plugin with BackendName [{}] to database.", notificationListener.getBackendName());
             backendFilterEntity.setBackendName(notificationListener.getBackendName());
-            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.findEnumByPluginName(notificationListener.getBackendName());
+            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.getBackendPluginEnum(notificationListener.getBackendName());
             backendFilterEntity.setIndex(backEndPluginEnum.getPriority());
             backendFilters.add(backendFilterEntity);
         }
