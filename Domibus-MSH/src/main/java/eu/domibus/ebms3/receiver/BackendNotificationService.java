@@ -127,12 +127,6 @@ public class BackendNotificationService {
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
-    public static final String BACK_END_WEBSERVICE = "backendWebservice";
-
-    public static final String BACKEND_JMS = "Jms";
-
-    public static final String BACKEND_FS_PLUGIN = "backendFSPlugin";
-
     @PostConstruct
     public void init() {
         Map notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
@@ -155,6 +149,11 @@ public class BackendNotificationService {
         }
     }
 
+    /**
+     * Create Backend Filters of plugins in DB by checking the existing User Priority
+     *
+     * @param backendFilterEntities
+     */
     protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
         List<String> pluginList = new ArrayList<>();
         int priority = 0;
@@ -166,33 +165,38 @@ public class BackendNotificationService {
         backendFilterDao.create(backendFilters);
     }
 
+    /**
+     * Assigning priorities to the backend plugin, which doesn't have any priority set by User
+     *
+     * @param pluginList
+     * @param priority
+     * @return backendFilters
+     */
     protected List<BackendFilterEntity> assignPriorityToPlugins(List<String> pluginList, int priority) {
         List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        List<String> defaultPluginOrderList = Arrays.asList(BACK_END_WEBSERVICE, BACKEND_JMS, BACKEND_FS_PLUGIN);
-        pluginList.sort(Comparator.comparingInt(defaultPluginOrderList::indexOf));
+        List<String> defaultPluginOrderList = Arrays.asList(BackEndPluginEnum.WS_PLUGIN.getPluginName(), BackEndPluginEnum.JMS_PLUGIN.getPluginName(), BackEndPluginEnum.FS_PLUGIN.getPluginName());
+        pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
         LOG.debug("Assigning priorities to the backend plugin, which doesn't have any priority set by User.");
         for (String pluginName : pluginList) {
             LOG.debug("Sorted Plugin List :" + pluginName);
             BackendFilterEntity filterEntity = new BackendFilterEntity();
             filterEntity.setBackendName(pluginName);
-            switch (pluginName) {
-                case BACK_END_WEBSERVICE:
-                    filterEntity.setIndex(++priority);
-                    break;
-                case BACKEND_JMS:
-                    filterEntity.setIndex(++priority);
-                    break;
-                case BACKEND_FS_PLUGIN:
-                    filterEntity.setIndex(++priority);
-                    break;
-            }
+            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.findEnumByPluginName(pluginName);
+            if (backEndPluginEnum != null)
+                filterEntity.setIndex(++priority);
             backendFilters.add(filterEntity);
         }
         return backendFilters;
     }
 
+    /**
+     * Get list of backend plugins which doesn't have have priority already set by User
+     *
+     * @param backendFilterEntity
+     * @param pluginList
+     * @return pluginList
+     */
     protected List<String> getPluginsWithNoUserPriority(BackendFilterEntity backendFilterEntity, List<String> pluginList) {
-
         for (NotificationListener notificationListener : notificationListenerServices) {
             if (!backendFilterEntity.getBackendName().equals(notificationListener.getBackendName())) {
                 pluginList.add(notificationListener.getBackendName());
@@ -202,24 +206,17 @@ public class BackendNotificationService {
         return pluginList;
     }
 
-
+    /**
+     * create BackendFilters With Priorities in the order of WS, JMS and FS when No Plugins priorities already set by User.
+     */
     protected void createBackendFiltersWithDefaultPriority() {
         List<BackendFilterEntity> backendFilters = new ArrayList<>();
         for (NotificationListener notificationListener : notificationListenerServices) {
             BackendFilterEntity backendFilterEntity = new BackendFilterEntity();
             LOG.debug("Loading Plugin with BackendName [{}] to database.", notificationListener.getBackendName());
             backendFilterEntity.setBackendName(notificationListener.getBackendName());
-            switch (notificationListener.getBackendName()) {
-                case BACK_END_WEBSERVICE:
-                    backendFilterEntity.setIndex(0);
-                    break;
-                case BACKEND_JMS:
-                    backendFilterEntity.setIndex(1);
-                    break;
-                case BACKEND_FS_PLUGIN:
-                    backendFilterEntity.setIndex(2);
-                    break;
-            }
+            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.findEnumByPluginName(notificationListener.getBackendName());
+            backendFilterEntity.setIndex(backEndPluginEnum.getPriority());
             backendFilters.add(backendFilterEntity);
         }
         backendFilterDao.create(backendFilters);
