@@ -6,7 +6,7 @@ package eu.domibus.ebms3.receiver;
  * @author Soumya Chandran
  * @since 4.2
  */
-public enum BackEndPluginEnum {
+public enum BackendPluginEnum {
 
     WS_PLUGIN("backendWebservice", 0),
     JMS_PLUGIN("Jms", 1),
@@ -15,7 +15,7 @@ public enum BackEndPluginEnum {
     private final int priority;
     private final String pluginName;
 
-    BackEndPluginEnum(String pluginName, int priority) {
+    BackendPluginEnum(String pluginName, int priority) {
         this.pluginName = pluginName;
         this.priority = priority;
     }
@@ -29,13 +29,13 @@ public enum BackEndPluginEnum {
     }
 
     /**
-     * Find the respective BackEndPluginEnum based on the plugin name
+     * Find the respective BackendPluginEnum based on the plugin name
      *
      * @param pluginName
      * @return BackEndPluginEnum
      */
-    public static BackEndPluginEnum getBackendPluginEnum(final String pluginName) {
-        for (final BackEndPluginEnum backEndPlugin : BackEndPluginEnum.values()) {
+    public static BackendPluginEnum getBackendPluginEnum(final String pluginName) {
+        for (final BackendPluginEnum backEndPlugin : BackendPluginEnum.values()) {
             if (pluginName.equals(backEndPlugin.getPluginName())) {
                 return backEndPlugin;
             }

@@ -51,6 +51,7 @@ import javax.annotation.Resource;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
@@ -154,15 +155,16 @@ public class BackendNotificationService {
      * @param backendFilterEntities
      */
     protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
-        List<String> pluginList = new ArrayList<>();
-        int priority = 0;
+
         LOG.debug("Loading Plugins to database which doesn't have any existing priority set by User!");
-        for (BackendFilterEntity backendFilterEntity : backendFilterEntities) {
-            pluginList = getPluginsWithNoUserPriority(backendFilterEntity, pluginList);
-            priority = backendFilterEntity.getIndex();
+        List<String> notificationListenerPluginsList = notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
+        List<String> backendFilterPluginList = backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
+        notificationListenerPluginsList.removeAll(backendFilterPluginList);
+        BackendFilterEntity backendFilterEntity = backendFilterEntities.stream().max(Comparator.comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new);
+        if (!notificationListenerPluginsList.isEmpty()) {
+            List<BackendFilterEntity> backendFilters = assignPriorityToPlugins(notificationListenerPluginsList, backendFilterEntity.getIndex());
+            backendFilterDao.create(backendFilters);
         }
-        List<BackendFilterEntity> backendFilters = assignPriorityToPlugins(pluginList, priority);
-        backendFilterDao.create(backendFilters);
     }
 
     /**
@@ -174,35 +176,18 @@ public class BackendNotificationService {
      */
     protected List<BackendFilterEntity> assignPriorityToPlugins(List<String> pluginList, int priority) {
         List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        List<String> defaultPluginOrderList = Arrays.asList(BackEndPluginEnum.WS_PLUGIN.getPluginName(), BackEndPluginEnum.JMS_PLUGIN.getPluginName(), BackEndPluginEnum.FS_PLUGIN.getPluginName());
+        List<String> defaultPluginOrderList = Arrays.asList(BackendPluginEnum.WS_PLUGIN.getPluginName(), BackendPluginEnum.JMS_PLUGIN.getPluginName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
         pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
         LOG.debug("Assigning priorities to the default plugin, which doesn't have any priority set by User.");
         for (String pluginName : pluginList) {
             BackendFilterEntity filterEntity = new BackendFilterEntity();
             filterEntity.setBackendName(pluginName);
-            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.getBackendPluginEnum(pluginName);
+            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(pluginName);
             if (backEndPluginEnum != null)
                 filterEntity.setIndex(++priority);
             backendFilters.add(filterEntity);
         }
         return backendFilters;
-    }
-
-    /**
-     * Get list of backend plugins which doesn't have have priority already set by User
-     *
-     * @param backendFilterEntity
-     * @param pluginList
-     * @return pluginList
-     */
-    protected List<String> getPluginsWithNoUserPriority(BackendFilterEntity backendFilterEntity, List<String> pluginList) {
-        for (NotificationListener notificationListener : notificationListenerServices) {
-            if (!backendFilterEntity.getBackendName().equals(notificationListener.getBackendName())) {
-                pluginList.add(notificationListener.getBackendName());
-                LOG.debug("Plugin [{}]  doesn't have any existing priority set by User", notificationListener.getBackendName());
-            }
-        }
-        return pluginList;
     }
 
     /**
@@ -214,7 +199,7 @@ public class BackendNotificationService {
             BackendFilterEntity backendFilterEntity = new BackendFilterEntity();
             LOG.debug("Loading Plugin with BackendName [{}] to database.", notificationListener.getBackendName());
             backendFilterEntity.setBackendName(notificationListener.getBackendName());
-            BackEndPluginEnum backEndPluginEnum = BackEndPluginEnum.getBackendPluginEnum(notificationListener.getBackendName());
+            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(notificationListener.getBackendName());
             backendFilterEntity.setIndex(backEndPluginEnum.getPriority());
             backendFilters.add(backendFilterEntity);
         }
