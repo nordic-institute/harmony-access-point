@@ -15,7 +15,6 @@
 	<name>Domibus MSH SoapUI</name>
 
     <properties>
-        <mysql.version>5.1.34</mysql.version>
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
         <soapui.scripting.library>${soapui.root.folder}/scripting</soapui.scripting.library>
         <soapui.ext.libraries>${soapui.root.folder}/lib</soapui.ext.libraries>
@@ -99,7 +98,7 @@
                         <dependency>
                             <groupId>mysql</groupId>
                             <artifactId>mysql-connector-java</artifactId>
-                            <version>${mysql.version}</version>
+                            <version>${mysql.connector.java.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.reflections</groupId>
