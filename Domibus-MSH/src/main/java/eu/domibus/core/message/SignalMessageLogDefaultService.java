@@ -50,7 +50,7 @@ public class SignalMessageLogDefaultService {
         final SignalMessageLog signalMessageLog = createSignalMessageLog(signalMessage, messageSubtype);
 
         // Saves an entry of the signal message log
-//        signalMessageLogDao.create(signalMessageLog);
+        signalMessageLogDao.create(signalMessageLog);
         return signalMessageLog;
     }
 

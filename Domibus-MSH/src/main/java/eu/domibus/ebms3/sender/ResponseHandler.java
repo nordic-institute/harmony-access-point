@@ -124,6 +124,7 @@ public class ResponseHandler {
 
             signalMessageDao.create(signalMessage);
 
+
             responseHandlerContext.stop();
 
             responseHandlerContext = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(ResponseHandler.class, "messagingDao.update")).time();
