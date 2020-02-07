@@ -31,11 +31,11 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 
 import javax.activation.DataHandler;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
+import javax.jms.*;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.ws.rs.core.MediaType;
+import java.lang.IllegalStateException;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -56,6 +56,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
     public static final String DOMIBUS_SEND_FROM_C3 = "domibus.send.from.c3";
+    public static final String DOMIBUS_SEND_FROM_C3_WITH_IN_QUEUE = "domibus.send.from.c3.with.in.queue";
 
     private final static String HAPPY_FLOW_MESSAGE_TEMPLATE = "<?xml version='1.0' encoding='UTF-8'?>\n" +
             "<message_id>\n" +
@@ -91,8 +92,22 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     private DomainDTO DEFAULT_DOMAIN = new DomainDTO("default", "Default");
 
+    private volatile Boolean inQueueInitialized = false;
+
+    private Destination outQueue;
+
+    private Destination inQueue;
+
     public BackendJMSImpl(String name) {
         super(name);
+    }
+
+    public Destination getOutQueue() {
+        return outQueue;
+    }
+
+    public void setOutQueue(Destination outQueue) {
+        this.outQueue = outQueue;
     }
 
     @Override
@@ -155,7 +170,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                     errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
                 }
                 submitInMessageTimer.stop();
-                Timer.Context replyInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.repry.timer")).time();
+                Timer.Context replyInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.reply.timer")).time();
                 sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
                 replyInMessageTimer.stop();
 
@@ -210,10 +225,15 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 }
                 LOG.info("Sending message to queue [{}]", queueValue);
                 Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
-                MessageCreator messageCreator = new DownloadMessageCreator(messageId);
-                mshToBackendTemplate.send(queueValue, messageCreator);
+
+                Submission submission = this.messageRetriever.downloadMessage(messageId);
+
+                MessageCreator messageCreator = new DownloadMessageCreator(submission);
+                mshToBackendTemplate.send(outQueue, messageCreator);
                 mshToBackendTemplateTimer.stop();
             }
+        } catch (MessageNotFoundException e) {
+            throw new DefaultJmsPluginException("Unable to download message", e);
         } finally {
             if (deliverMessageTimer != null) {
                 deliverMessageTimer.stop();
@@ -236,6 +256,20 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             Submission submissionResponse = getSubmissionResponse(submission, HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId));
             getSubmissionResponseTimer.stop();
             getSubmissionResponseCounter.dec();
+            String sendMessageFromC3WithInQueueProperty = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3_WITH_IN_QUEUE);
+            if (StringUtils.isEmpty(sendMessageFromC3WithInQueueProperty)) {
+                sendMessageFromC3WithInQueueProperty = "true";
+            }
+
+            final boolean useInqueue = Boolean.parseBoolean(sendMessageFromC3WithInQueueProperty);
+            LOG.info("Send message from backend using in queue:[{}]",useInqueue);
+            if (useInqueue) {
+                Timer.Context inQueueTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "revert.message.add.inqueue.timer")).time();
+                Destination inQueue = getInQueue();
+                mshToBackendTemplate.send(inQueue, session -> createResponseMessage(submission, submissionResponse, session));
+                inQueueTimer.stop();
+                return;
+            }
             try {
                 Timer.Context submit = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.submit.timer")).time();
                 Counter submitCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "downloadAndSendBack.submit.counter"));
@@ -251,6 +285,78 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         } finally {
             jms_deliver_message_hacked.stop();
             jms_deliver_message_hacked_counter.dec();
+        }
+    }
+
+    private Message createResponseMessage(Submission submission, Submission submissionResponse, Session session) throws JMSException {
+        MapMessage messageMap = session.createMapMessage();
+
+        // Declare message as submit
+        messageMap.setStringProperty("username", "plugin_admin");
+        messageMap.setStringProperty("password", "123456");
+
+        messageMap.setStringProperty("messageType", "submitMessage");
+        messageMap.setStringProperty("messageId", UUID.randomUUID().toString());
+        final String messageId1 = submissionResponse.getRefToMessageId();
+
+        messageMap.setStringProperty("refToMessageId", messageId1);
+
+        messageMap.setStringProperty("service", "eu_ics2_c2t");
+        messageMap.setStringProperty("agreementRef", "EU-ICS2-TI-V1.0");
+
+
+        messageMap.setStringProperty("action", "IE3R01");
+        Submission.Party fromParty = submissionResponse.getFromParties().iterator().next();
+        messageMap.setStringProperty("fromPartyId", fromParty.getPartyId());
+        messageMap.setStringProperty("fromPartyType", fromParty.getPartyIdType()); // Mandatory
+
+        messageMap.setStringProperty("fromRole", submission.getFromRole());
+
+        Submission.Party toParty = submissionResponse.getToParties().iterator().next();
+        messageMap.setStringProperty("toPartyId", toParty.getPartyId());
+        messageMap.setStringProperty("toPartyType", toParty.getPartyIdType()); // Mandatory
+
+        messageMap.setStringProperty("toRole", submission.getToRole());
+
+        Submission.TypedProperty originalSender = extractEndPoint(submission, "originalSender");
+        Submission.TypedProperty finalRecipient = extractEndPoint(submission, "finalRecipient");
+        messageMap.setStringProperty("originalSender", originalSender.getValue());
+        messageMap.setStringProperty("finalRecipient", finalRecipient.getValue());
+        messageMap.setStringProperty("protocol", "AS4");
+
+        // messageMap.setJMSCorrelationID("12345");
+        //Set up the payload properties
+        messageMap.setStringProperty("totalNumberOfPayloads", "1");
+        messageMap.setStringProperty("payload_1_description", "message");
+        messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
+        messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+
+        String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId1);
+
+        //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
+
+        //send the payload in the JMS message as byte array
+        byte[] payload = response.getBytes();
+        messageMap.setBytes("payload_1", payload);
+        return messageMap;
+    }
+
+    private Destination getInQueue() {
+        String destinationName = "jms/domibus.backend.jms.inQueue";
+        if (inQueueInitialized) {
+            return inQueue;
+        } else {
+            synchronized (this) {
+                if (inQueueInitialized) {
+                    return inQueue;
+                }
+                try {
+                    return InitialContext.doLookup(destinationName);
+                } catch (NamingException e) {
+                    LOG.error("Error while loading destination:[{}]", destinationName);
+                    throw new IllegalStateException(e);
+                }
+            }
         }
     }
 
@@ -324,11 +430,10 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         jmsExtService.sendMapMessageToQueue(message, queueValue);
     }
 
-    @Override
-    public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", messageId);
+    public MapMessage buildMessage(Submission submission, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", submission.getMessageId());
         try {
-            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return result;
@@ -339,18 +444,18 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     private class DownloadMessageCreator implements MessageCreator {
-        private String messageId;
+        private Submission submission;
 
 
-        public DownloadMessageCreator(final String messageId) {
-            this.messageId = messageId;
+        public DownloadMessageCreator(final Submission submission) {
+            this.submission = submission;
         }
 
         @Override
         public Message createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
-                downloadMessage(messageId, mapMessage);
+                buildMessage(submission, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }

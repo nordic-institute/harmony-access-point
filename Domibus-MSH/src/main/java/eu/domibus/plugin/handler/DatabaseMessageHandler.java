@@ -151,7 +151,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
-        com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class,"downloadMessage.counter"));
+        com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class, "downloadMessage.counter"));
         com.codahale.metrics.Timer.Context downloadMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "downloadMessage.timer")).time();
         try {
             downloadMessageCounter.inc();
@@ -206,7 +206,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             Submission submission = transformer.transformFromMessaging(userMessage);
             transformFromMessagingTimer.stop();
             return submission;
-        }finally {
+        } finally {
             downloadMessageCounter.dec();
             downloadMessageTimer.stop();
         }
@@ -374,121 +374,139 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Timer(value = SUBMITTED_MESSAGES)
     @Counter(SUBMITTED_MESSAGES)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
-        if (StringUtils.isNotEmpty(messageData.getMessageId())) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
-        }
-        LOG.debug("Preparing to submit message");
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
-        }
+        com.codahale.metrics.Timer.Context submitTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.timer")).time();
+        com.codahale.metrics.Counter submitCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.counter"));
+        submitCounter.inc();
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        String displayUser = originalUser == null ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
-
-        UserMessage userMessage = transformer.transformFromSubmission(messageData);
-
-        if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
-        }
-
-        validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
+        com.codahale.metrics.Timer.Context oneTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.1.timer")).time();
         try {
-            // MessageInfo is always initialized in the get method
-            MessageInfo messageInfo = userMessage.getMessageInfo();
-            String messageId = messageInfo.getMessageId();
-            if (messageId == null) {
-                messageId = messageIdGenerator.generateMessageId();
-                messageInfo.setMessageId(messageId);
-            } else {
-                backendMessageValidator.validateMessageId(messageId);
-                userMessage.getMessageInfo().setMessageId(messageId);
+            if (StringUtils.isNotEmpty(messageData.getMessageId())) {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
             }
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
-
-            String refToMessageId = messageInfo.getRefToMessageId();
-            if (refToMessageId != null) {
-                backendMessageValidator.validateRefToMessageId(refToMessageId);
-            }
-            // handle if the messageId is unique. This should only fail if the ID is set from the outside
-            if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
-                throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
+            LOG.debug("Preparing to submit message");
+            if (!authUtils.isUnsecureLoginAllowed()) {
+                authUtils.hasUserOrAdminRole();
             }
 
-            Messaging message = ebMS3Of.createMessaging();
-            message.setUserMessage(userMessage);
+            String originalUser = authUtils.getOriginalUserFromSecurityContext();
+            String displayUser = originalUser == null ? "super user" : originalUser;
+            LOG.debug("Authorized as [{}]", displayUser);
 
-            MessageExchangeConfiguration userMessageExchangeConfiguration;
+            UserMessage userMessage = transformer.transformFromSubmission(messageData);
 
-            Party to = null;
-            MessageStatus messageStatus = null;
-            if (messageExchangeService.forcePullOnMpc(userMessage)) {
-                // UserMesages submited with the optional mpc attribute are
-                // meant for pulling (if the configuration property is enabled)
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                to = createNewParty(userMessage.getMpc());
-                messageStatus = MessageStatus.READY_TO_PULL;
-            } else {
-                com.codahale.metrics.Timer.Context findTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageExchangeContext.timer")).time();
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-                findTimer.stop();
-            }
-            String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
-            if (to == null) {
-                to = messageValidations(userMessage, pModeKey, backendName);
+            if (userMessage == null) {
+                LOG.warn(USER_MESSAGE_IS_NULL);
+                throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
             }
 
-            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            if (userMessage.getMpc() == null) {
-                fillMpc(userMessage, legConfiguration, to);
-            }
+            validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
-            payloadProfileValidator.validate(message, pModeKey);
-            propertyProfileValidator.validate(message, pModeKey);
-
-            final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
-            userMessage.setSplitAndJoin(splitAndJoin);
-
-            if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
-                LOG.error("SplitAndJoin feature needs payload storage on the file system");
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
-            }
-
-
-            com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.timer")).time();
             try {
-                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
-            } catch (CompressionException exc) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                // MessageInfo is always initialized in the get method
+                MessageInfo messageInfo = userMessage.getMessageInfo();
+                String messageId = messageInfo.getMessageId();
+                if (messageId == null) {
+                    messageId = messageIdGenerator.generateMessageId();
+                    messageInfo.setMessageId(messageId);
+                } else {
+                    backendMessageValidator.validateMessageId(messageId);
+                    userMessage.getMessageInfo().setMessageId(messageId);
+                }
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
+
+                String refToMessageId = messageInfo.getRefToMessageId();
+                if (refToMessageId != null) {
+                    backendMessageValidator.validateRefToMessageId(refToMessageId);
+                }
+                // handle if the messageId is unique. This should only fail if the ID is set from the outside
+                if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
+                    throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
+                }
+
+                Messaging message = ebMS3Of.createMessaging();
+                message.setUserMessage(userMessage);
+
+                MessageExchangeConfiguration userMessageExchangeConfiguration;
+                submitTimer.stop();
+                com.codahale.metrics.Timer.Context twoTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.2.timer")).time();
+                Party to = null;
+                MessageStatus messageStatus = null;
+                oneTimer.stop();
+                if (messageExchangeService.forcePullOnMpc(userMessage)) {
+                    // UserMesages submited with the optional mpc attribute are
+                    // meant for pulling (if the configuration property is enabled)
+                    userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                    to = createNewParty(userMessage.getMpc());
+                    messageStatus = MessageStatus.READY_TO_PULL;
+                } else {
+                    com.codahale.metrics.Timer.Context findTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageExchangeContext.timer")).time();
+                    userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                    findTimer.stop();
+                }
+                twoTimer.stop();
+                com.codahale.metrics.Timer.Context threeTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.3.timer")).time();
+                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+
+                if (to == null) {
+                    to = messageValidations(userMessage, pModeKey, backendName);
+                }
+
+                LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+                if (userMessage.getMpc() == null) {
+                    fillMpc(userMessage, legConfiguration, to);
+                }
+
+                payloadProfileValidator.validate(message, pModeKey);
+                propertyProfileValidator.validate(message, pModeKey);
+
+                threeTimer.stop();
+                com.codahale.metrics.Timer.Context fourTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, ".submit.4.timer")).time();
+                final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
+                userMessage.setSplitAndJoin(splitAndJoin);
+
+                if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
+                    LOG.error("SplitAndJoin feature needs payload storage on the file system");
+                    EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageInfo().getMessageId(), null);
+                    ex.setMshRole(MSHRole.SENDING);
+                    throw ex;
+                }
+
+                fourTimer.stop();
+
+                com.codahale.metrics.Timer.Context storeMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storeMessage.submit.5.timer")).time();
+                try {
+                    messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+                } catch (CompressionException exc) {
+                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
+                    EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+                    ex.setMshRole(MSHRole.SENDING);
+                    throw ex;
+                }
+                storeMessageTimer.stop();
+
+                com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "persistSubmittedMessage.submit.6.timer")).time();
+                messagingService.persistSubmittedMessage(messageData, backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, messageStatus, pModeKey, legConfiguration);
+                persistSubmittedMessageTimer.stop();
+
+                uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
+
+                LOG.info("Message submitted");
+                return userMessage.getMessageInfo().getMessageId();
+
+            } catch (EbMS3Exception ebms3Ex) {
+                LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
+                errorLogDao.create(new ErrorLogEntry(ebms3Ex));
+                throw MessagingExceptionFactory.transform(ebms3Ex);
+            } catch (PModeException p) {
+                LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
+                errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
+                throw new PModeMismatchException(p.getMessage(), p);
             }
-            storeMessageTimer.stop();
-
-            com.codahale.metrics.Timer.Context persistSubmittedMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "persistSubmittedMessage")).time();
-            messagingService.persistSubmittedMessage(messageData, backendName, userMessage, messageId, message, userMessageExchangeConfiguration, to, messageStatus, pModeKey, legConfiguration);
-            persistSubmittedMessageTimer.stop();
-
-            uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
-
-            LOG.info("Message submitted");
-            return userMessage.getMessageInfo().getMessageId();
-
-        } catch (EbMS3Exception ebms3Ex) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
-            errorLogDao.create(new ErrorLogEntry(ebms3Ex));
-            throw MessagingExceptionFactory.transform(ebms3Ex);
-        } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
-            throw new PModeMismatchException(p.getMessage(), p);
+        } finally {
+            submitTimer.stop();
+            submitCounter.dec();
         }
+
     }
 
     @Override

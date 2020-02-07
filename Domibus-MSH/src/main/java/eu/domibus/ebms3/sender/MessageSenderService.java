@@ -62,7 +62,7 @@ public class MessageSenderService {
     protected UserMessageHandlerService userMessageHandlerService;
 
     public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
-        com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "findByMessageIdSafely_before_sending")).time();
+        com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(MessageSenderService.class, "findByMessageIdSafely_before_sending")).time();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         findByMessageIdSafely_before_sending.stop();
         MessageStatus messageStatus = getMessageStatus(userMessageLog);

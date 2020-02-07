@@ -34,10 +34,7 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
         com.codahale.metrics.Timer.Context on_message = metricRegistry.timer(MetricRegistry.name(MessageSenderListener.class, "on_message")).time();
         try {
             methodCounter.inc();
-            com.codahale.metrics.Timer.Context before_on_message = metricRegistry.timer(MetricRegistry.name(MessageSenderListener.class, "before_on_message")).time();
             LOG.debug("Processing message [{}]", message);
-            before_on_message.stop();
-
             super.onMessage(message);
         } finally {
             methodCounter.dec();
