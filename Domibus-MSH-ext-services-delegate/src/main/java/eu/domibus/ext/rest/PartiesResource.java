@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.security.KeyStoreException;
 import java.util.List;
@@ -75,7 +77,7 @@ public class PartiesResource {
 
     @DeleteMapping
     public ResponseEntity<String> deleteParty(
-            @RequestParam (value = "partyName") String partyName) {
+            @RequestParam (value = "partyName") @Valid @NotNull  String partyName) {
         if (StringUtils.isEmpty(partyName)) {
 
         }

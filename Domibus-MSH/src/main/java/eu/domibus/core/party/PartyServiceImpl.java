@@ -375,34 +375,20 @@ public class PartyServiceImpl implements PartyService {
         parties.getParty().addAll(newParties);
     }
 
-    private eu.domibus.common.model.configuration.Party removePartyFromConfiguration(final String partyName, Configuration configuration) {
-        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
-        Parties parties = businessProcesses.getPartiesXml();
-
-
-        List<eu.domibus.common.model.configuration.Party> removedParties = new ArrayList<>();
-        parties.getParty().stream()
-                .filter(party -> party.getName().equals(partyName))
-                .forEach(removedParties::add);
-
-        if (removedParties.size() >= 1) { //less probable
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party name should be unique among Parties in PMode");
+    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted,
+                                              List<eu.domibus.common.model.configuration.Party> existingParties, BusinessProcesses businessProcesses) {
+       Parties parties = businessProcesses.getPartiesXml();
+        if (!existingParties.remove(partyToBeDeleted)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party having name [" + partyToBeDeleted.getName() + "] not deleted from PMode");
         }
-        parties.getParty().removeAll(removedParties);
+        parties.getParty().clear();
+        parties.getParty().addAll(existingParties);
 
-        return removedParties.get(0);
     }
 
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
         String partyMe = pModeProvider.getGatewayParty().getName();
         if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe))) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
-        }
-    }
-
-    private void checkIfPossibleDeleteParty(final String partyName) {
-        String partyMe = pModeProvider.getGatewayParty().getName();
-        if (partyMe.equalsIgnoreCase(partyName)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
         }
     }
@@ -422,27 +408,23 @@ public class PartyServiceImpl implements PartyService {
         });
     }
 
-    private void removePartyIdTypes(List<eu.domibus.common.model.configuration.Party> removedParties, Configuration configuration) {
-        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
-        Parties parties = businessProcesses.getPartiesXml();
-        List<PartyIdType> partyIdTypes =  parties.getPartyIdTypes().getPartyIdType();
+    private void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
+                                    List<eu.domibus.common.model.configuration.Party> existingParties,
+                                    BusinessProcesses businessProcesses) {
+        Set<PartyIdType> partyIdTypeSet = businessProcesses.getPartyIdTypes();
 
-        List<PartyIdType> toBeRemoved = new ArrayList<>();
-        removedParties.forEach(party -> party.getIdentifiers().forEach(identifier -> {
-                    toBeRemoved.add(identifier.getPartyIdType());
-                })
-        );
+        Set<PartyIdType> toBeRemoved = partyToBeDeleted.getIdentifiers().stream().map(Identifier::getPartyIdType).collect(Collectors.toSet());
+        Set<PartyIdType> existing = existingParties.stream().flatMap(party -> party.getIdentifiers().stream().map(Identifier::getPartyIdType)).collect(Collectors.toSet());
 
+        Map<Boolean, List<PartyIdType>> filtered = toBeRemoved.stream()
+                .collect(partitioningBy(existing::contains));
 
+        List<PartyIdType> intersection = filtered.get(true);
+        List<PartyIdType> difference = filtered.get(false);
 
-
-//        removedParties.forEach(party -> {
-//            party.getIdentifiers().forEach(identifier -> {
-//                if (!partyIdTypes.contains(identifier.getPartyIdType())) {
-//                    partyIdTypes.remove(identifier.getPartyIdType());
-//                }
-//            });
-//        });
+        if (!difference.isEmpty()) {
+            partyIdTypeSet.removeAll(difference);
+        }
     }
 
     private void updateProcessConfiguration(List<Party> partyList, Configuration configuration) {
@@ -633,6 +615,10 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
+    /**
+     * Read latest ocnfiguration from PMode
+     * @return
+     */
     private Configuration getConfiguration() {
         //read current configuration
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
@@ -647,6 +633,10 @@ public class PartyServiceImpl implements PartyService {
             LOG.error("Error reading current PMode", e);
             throw new IllegalStateException(e);
         }
+
+        //kind of hack to have the children populated
+        configuration.getBusinessProcesses().getPartiesXml().getParty().forEach(party -> party.init(configuration));
+
         return configuration;
     }
 
@@ -658,16 +648,30 @@ public class PartyServiceImpl implements PartyService {
     public void deleteParty(String partyName) {
 
         //check if party is not in use
-        checkIfPossibleDeleteParty(partyName);
+        String partyMe = pModeProvider.getGatewayParty().getName();
+        if (partyMe.equalsIgnoreCase(partyName)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
+        }
 
         //read PMode actual configuration
         Configuration configuration = getConfiguration();
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+
+        //get all parties
+        List<eu.domibus.common.model.configuration.Party> allParties =  businessProcesses.getPartiesXml().getParty();
+
+        //find the party to be deleted
+        eu.domibus.common.model.configuration.Party partyToBeDeleted =
+                allParties.stream().filter(party -> party.getName().equals(partyName)).findFirst().orElse(null);
+        if (partyToBeDeleted == null) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
+        }
 
         //remove party from configuration
-        eu.domibus.common.model.configuration.Party removedParty = removePartyFromConfiguration(partyName, configuration);
+        removePartyFromConfiguration(partyToBeDeleted, allParties, businessProcesses);
 
-        //TODO update party id types
-        removePartyIdTypes(Collections.singletonList(removedParty), configuration);
+        //remove party id types
+        removePartyIdTypes(partyToBeDeleted, allParties, businessProcesses);
 
         //TODO update processes
         //updateProcessConfiguration(Collections.singletonList(removedParty), configuration);
