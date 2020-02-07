@@ -226,14 +226,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 LOG.info("Sending message to queue [{}]", queueValue);
                 Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
 
-                Submission submission = this.messageRetriever.downloadMessage(messageId);
+//                Submission submission = this.messageRetriever.downloadMessage(messageId);
 
-                MessageCreator messageCreator = new DownloadMessageCreator(submission);
+                MessageCreator messageCreator = new DownloadMessageCreator(messageId);
                 mshToBackendTemplate.send(outQueue, messageCreator);
                 mshToBackendTemplateTimer.stop();
             }
-        } catch (MessageNotFoundException e) {
-            throw new DefaultJmsPluginException("Unable to download message", e);
+//        } catch (MessageNotFoundException e) {
+//            throw new DefaultJmsPluginException("Unable to download message", e);
         } finally {
             if (deliverMessageTimer != null) {
                 deliverMessageTimer.stop();
@@ -262,7 +262,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             }
 
             final boolean useInqueue = Boolean.parseBoolean(sendMessageFromC3WithInQueueProperty);
-            LOG.info("Send message from backend using in queue:[{}]",useInqueue);
+            LOG.info("Send message from backend using in queue:[{}]", useInqueue);
             if (useInqueue) {
                 Timer.Context inQueueTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "revert.message.add.inqueue.timer")).time();
                 Destination inQueue = getInQueue();
@@ -430,13 +430,17 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         jmsExtService.sendMapMessageToQueue(message, queueValue);
     }
 
-    public MapMessage buildMessage(Submission submission, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", submission.getMessageId());
+    public MapMessage buildMessage(String messageId, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", messageId);
         try {
-            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
+            target.setStringProperty(MESSAGE_ID, messageId);
+//            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
-            return result;
+            return target;
+        } catch (final JMSException ex) {
+            LOG.error("Error while filling the MapMessage", ex);
+            throw new DefaultJmsPluginException(ex);
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
@@ -444,18 +448,18 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     private class DownloadMessageCreator implements MessageCreator {
-        private Submission submission;
+        private String messageId;
 
 
-        public DownloadMessageCreator(final Submission submission) {
-            this.submission = submission;
+        public DownloadMessageCreator(final String messageId) {
+            this.messageId = messageId;
         }
 
         @Override
         public Message createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
-                buildMessage(submission, mapMessage);
+                buildMessage(messageId, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }
