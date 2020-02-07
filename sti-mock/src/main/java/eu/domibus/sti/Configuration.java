@@ -73,6 +73,8 @@ public class Configuration {
         factory.setConnectionFactory(connectionFactory());
         factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
+        factory.setSessionTransacted(true);
+        factory.setSessionAcknowledgeMode(0);
         return factory;
     }
 
