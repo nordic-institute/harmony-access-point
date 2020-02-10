@@ -45,6 +45,17 @@ public class PartInfoDTO implements Serializable {
      */
     private String mime;
 
+    //TODO check a better way to download payloads as an alternative of including it as base64
+    protected String payload;
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
     /**
      * Gets the Schema information
      * @return Schema information {@link SchemaDTO}

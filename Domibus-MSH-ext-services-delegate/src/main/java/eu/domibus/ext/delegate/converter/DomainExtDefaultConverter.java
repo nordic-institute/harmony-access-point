@@ -12,7 +12,6 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.*;
-import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +97,7 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         }
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
-        throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
+        throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);//TODO throw exception from the ext modules only
 
     }
 

@@ -15,7 +15,7 @@ import org.mapstruct.Mapper;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(componentModel = "spring")
+@Mapper(uses = PartInfoMapper.class, componentModel = "spring")
 public interface DomibusExtMapper {
     DomainDTO domainToDomainDTO(Domain domain);
 
