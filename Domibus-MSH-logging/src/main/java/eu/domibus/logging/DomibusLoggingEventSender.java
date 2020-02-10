@@ -1,6 +1,7 @@
 package eu.domibus.logging;
 
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
+import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.ext.logging.event.LogEventSender;
 import org.apache.cxf.ext.logging.event.LogMessageFormatter;
@@ -31,12 +32,8 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     @Override
     protected String getLogMessage(LogEvent event) {
-        LOG.debug("printPayload=[{}]", printPayload);
 
-        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
-        LOG.debug("[{}] set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
-
-        if (isCxfLoggingInfoEnabled && !printPayload) {
+        if (checkIfStripPayloadPossible()) {
             try {
                 stripPayload(event);
             } catch (RuntimeException e) {
@@ -53,20 +50,49 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
      * @param event
      */
     protected void stripPayload(LogEvent event) {
-        final String payload = event.getPayload();
+        final String operationName = event.getOperationName();
+        final EventType eventType = event.getType();
 
+        //check conditions to strip the payload and get the xmlTag
+        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlTagIfStripPayloadIsPossible(operationName, eventType);
+        if (xmlTag == null) {
+            LOG.debug("for operationName=[{}] and eventType=[{}] we don't strip the payload", operationName, eventType);
+            return;
+        }
+
+        //if it's multipart and we want to strip the AS4 payload
+        if (event.isMultipartContent()) {
+            String payload = event.getPayload();
+            event.setPayload(replaceInPayload(payload, xmlTag));
+        }
+
+    }
+
+    private boolean checkIfStripPayloadPossible(){
+        LOG.debug("printPayload=[{}]", printPayload);
+        if (printPayload) {
+            return false;
+        }
+
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        LOG.debug("[{}] is set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
+
+        return isCxfLoggingInfoEnabled;
+    }
+
+    private String replaceInPayload(final String payload, final String xmlTag) {
+        String newPayload = payload;
         //C2 -> C3
-        if (payload.contains(CONTENT_TYPE)) {
-            //if it's multipart and we want to strip the AS4 payload
-            if (event.isMultipartContent()) {
-
-                String[] payloadSplits = payload.split(CONTENT_TYPE);
-                //keeping only first 2 Content-Type elements
-                if (payloadSplits.length >= 2) {
-                    event.setPayload(payloadSplits[0] + CONTENT_TYPE + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
-                }
+        if (payload.contains(xmlTag)) {
+            String[] payloadSplits = payload.split(xmlTag);
+            //keeping only first 2 Content-Type elements
+            if (payloadSplits.length >= 2) {
+                newPayload = payloadSplits[0] + xmlTag + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
             }
         }
+        return newPayload;
     }
+
+
 
 }
