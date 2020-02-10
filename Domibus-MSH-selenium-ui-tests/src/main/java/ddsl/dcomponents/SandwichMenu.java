@@ -20,7 +20,7 @@ public class SandwichMenu extends DComponent {
 
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
-		log.info("sandwich menu init");
+		log.debug("sandwich menu init");
 	}
 
 	By expandButton = By.id("settingsmenu_id");
@@ -31,6 +31,10 @@ public class SandwichMenu extends DComponent {
 
 	By logoutLnk = By.id("logout_id");
 
+	By changePassLnk =By.cssSelector(".mat-menu-item#changePassword_id");
+	By changePassId =By.id("changePassword_id");
+
+
 
 	public String getCurrentUserID() throws Exception{
 		expandMenu();
@@ -38,7 +42,7 @@ public class SandwichMenu extends DComponent {
 		return driver.findElement(currentUserID).getText().trim();
 	}
 
-	private boolean isMenuExpanded() throws Exception {
+	private boolean isMenuExpanded() {
 		try {
 			driver.findElement(menuContainer);
 			return true;
@@ -48,6 +52,8 @@ public class SandwichMenu extends DComponent {
 	}
 
 	private void expandMenu() throws Exception {
+		clickVoidSpace();
+
 		if (isMenuExpanded()) return;
 		driver.findElement(expandButton).click();
 		try {
@@ -66,7 +72,7 @@ public class SandwichMenu extends DComponent {
 		expandMenu();
 		String userIDStr = driver.findElement(currentUserID).getText();
 		boolean toReturn = !StringUtils.equalsIgnoreCase(userIDStr, "Not logged in");
-		log.info("User login status is: " + toReturn);
+		log.debug("User login status is: " + toReturn);
 
 		contractMenu();
 		return toReturn;
@@ -77,11 +83,31 @@ public class SandwichMenu extends DComponent {
 		clickVoidSpace();
 
 		expandMenu();
-		log.info("Logging out...");
+		log.debug("Logging out...");
 		driver.findElement(logoutLnk).click();
 		contractMenu();
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 
+	/**This method is implemented to open Change Password page from Sandwich menu*/
+
+	public void openchangePassword() throws Exception {
+
+		clickVoidSpace();
+		log.debug("Expand Sandwich menu");
+		expandMenu();
+		log.debug("click on Change password link");
+		driver.findElement(changePassId).click();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
+	}
+	/**This method is implemented to check presence of link in Sandwich menu*/
+	public boolean isChangePassLnkPresent() throws Exception {
+		expandMenu();
+		String changePasswordLnk = driver.findElement(changePassLnk).getText();
+		boolean toReturn = !StringUtils.equalsIgnoreCase(changePasswordLnk, "Change Password");
+		log.debug("Availability of Change Password link is : " + toReturn);
+
+		return toReturn;
+	}
 
 }

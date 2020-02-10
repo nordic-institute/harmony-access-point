@@ -40,10 +40,6 @@ public class InfoModal extends DComponent {
 		return new DObject(driver, title).getText();
 	}
 
-	public void closeModal() throws Exception {
-		getCloseBtn().click();
-		wait.forElementToBeGone(closeBtn);
-	}
 
 
 }

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>eu.domibus</groupId>
 		<artifactId>domibus</artifactId>
-		<version>4.1.4-SNAPSHOT</version>
+		<version>4.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>domibus-selenium-tests</artifactId>
@@ -18,18 +18,18 @@
 
 	<properties>
 		<junit_version>1.1.0</junit_version>
-		<slf4j_version>1.7.25</slf4j_version>
+		<slf4j_version>2.0.0-alpha0</slf4j_version>
 		<commons-csv_version>1.5</commons-csv_version>
 		<selenium-chrome-driver_version>3.14.0</selenium-chrome-driver_version>
 		<selenium-java_version>3.9.1</selenium-java_version>
-		<testng_version>7.0.0-beta1</testng_version>
+		<testng_version>7.0.0</testng_version>
 		<poi-ooxml_version>3.17</poi-ooxml_version>
 		<reflections_version>0.9.11</reflections_version>
 		<jersey-client_version>1.19.4</jersey-client_version>
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
 		<json_version>20080701</json_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
-		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
+		<domibus-ws-stubs_version>4.1.1-SNAPSHOT</domibus-ws-stubs_version>
 	</properties>
 
 	<dependencies>
@@ -127,8 +127,21 @@
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
 		</dependency>
-
-
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<version>1.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -142,23 +155,24 @@
 
 	<profiles>
 		<profile>
-			<id>local</id>
+			<id>selenium_local</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
 
 			<build>
 				<plugins>
-
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
-						<!--<version>2.22.1</version>-->
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
 							<environmentVariables>
-								<propertiesFile>./src/main/resources/l-e2-s.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
+								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>
@@ -173,6 +187,7 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<configuration>
 							<compilerVersion>1.8</compilerVersion>
+							<target>1.8</target>
 						</configuration>
 
 					</plugin>
@@ -186,13 +201,15 @@
 
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
-						<!--<version>2.22.1</version>-->
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
 							<environmentVariables>
-								<propertiesFile>./src/main/resources/equality-e2-s.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
+								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>

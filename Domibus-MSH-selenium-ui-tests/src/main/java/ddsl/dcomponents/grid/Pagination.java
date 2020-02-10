@@ -1,7 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ public class Pagination extends DComponent {
 	public Pagination(WebDriver driver) {
 		super(driver);
 
-		log.info("initiating pagination controls");
+		log.debug("initiating pagination controls");
 		PageFactory.initElements(driver, this);
 
 	}
@@ -80,7 +80,7 @@ public class Pagination extends DComponent {
 	public int getExpectedNoOfPages() throws Exception {
 
 		try {
-			log.info("getting expected number of pages");
+			log.debug("getting expected number of pages");
 
 			int noOfItems = getTotalItems();
 			int itemsPerPg = Integer.valueOf(getPageSizeSelect().getSelectedValue());
@@ -95,7 +95,7 @@ public class Pagination extends DComponent {
 	public int getNoOfItemsOnLastPg() throws Exception {
 
 		try {
-			log.info("getting expected number of items on last page");
+			log.debug("getting expected number of items on last page");
 
 			int noOfItems = getTotalItems();
 			int itemsPerPg = Integer.valueOf(getPageSizeSelect().getSelectedValue());
@@ -108,7 +108,7 @@ public class Pagination extends DComponent {
 	}
 
 	public boolean isPaginationPresent() {
-		log.info("checking if pagination is present on page");
+		log.debug("checking if pagination is present on page");
 		return (getActivePageLnk().isPresent());
 	}
 
@@ -116,7 +116,7 @@ public class Pagination extends DComponent {
 	public Integer getActivePage() throws Exception {
 
 		try {
-			log.info("getting active page number");
+			log.debug("getting active page number");
 
 			if (!getActivePageLnk().isPresent()) {
 				return 1;
@@ -129,7 +129,7 @@ public class Pagination extends DComponent {
 
 	public void goToPage(int pgNo) throws Exception {
 
-		log.info("going to page .. " + pgNo);
+		log.debug("going to page .. " + pgNo);
 
 		try {
 			for (WebElement pgLink : pgLinks) {
@@ -147,11 +147,13 @@ public class Pagination extends DComponent {
 	}
 
 
-	public void skipToFirstPage() throws Exception {
-		log.info("skip to FIRST page of results");
+	public void skipToFirstPage(){
+		log.debug("skip to FIRST page of results");
 
 		try {
-			getSkipFirstLnk().click();
+//			weToDLink(pgLinks.get(0)).click();
+			weToDLink(skipFirstLnk).click();
+			wait.forAttributeToContain(pgLinks.get(0), "class", "active");
 		} catch (Exception e) {
 		}
 		PageFactory.initElements(driver, this);
@@ -159,13 +161,13 @@ public class Pagination extends DComponent {
 	}
 
 	public void skipToLastPage() throws Exception {
-		log.info("skip to last page of results");
+		log.debug("skip to last page of results");
 		getSkipLastLnk().click();
 		PageFactory.initElements(driver, this);
 	}
 
 	public void goToNextPage() throws Exception {
-		log.info("going to next page");
+		log.debug("going to next page");
 		if (hasNextPage()) {
 			getNextPageLnk().click();
 		}
@@ -173,7 +175,7 @@ public class Pagination extends DComponent {
 	}
 
 	public void goToPrevPage() throws Exception {
-		log.info("going to prev page");
+		log.debug("going to prev page");
 		if (hasPrevPage()) {
 			getPrevPageLnk().click();
 		}
@@ -181,31 +183,34 @@ public class Pagination extends DComponent {
 	}
 
 
-	public int getTotalItems() throws Exception {
+	public int getTotalItems(){
 
 		try {
-			log.info("getting total number of items to be displayed");
+			log.debug("getting total number of items to be displayed");
 
-			String raw = pageCount.getText().trim();
+			String raw = weToDobject(pageCount).getText();
 			if (raw.contains("total")) {
 				String[] splits = raw.split("/");
 				for (String split : splits) {
 					if (split.contains("total")) {
 						String total = split.replaceAll("\\D", "");
+						log.debug("Total number of records  "+ Integer.valueOf(total));
 						return Integer.valueOf(total);
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return 0;
 	}
 
-	public Integer getNoOfSelectedItems() throws Exception {
+	public Integer getNoOfSelectedItems(){
 
 		try {
-			log.info("getting number of selected items in grid");
+			log.debug("getting number of selected items in grid");
 
 			String raw = pageCount.getText().trim();
 			if (raw.contains("selected")) {
