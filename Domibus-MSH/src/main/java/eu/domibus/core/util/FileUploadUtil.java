@@ -15,7 +15,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS__FI
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Implementation of helper methods for pMode validation
+ * Helper methods for file upload through REST interface
  */
 @Service
 public class FileUploadUtil {

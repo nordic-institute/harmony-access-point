@@ -12,6 +12,7 @@ import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.util.FileUploadUtil;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
@@ -22,7 +23,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
 /**
@@ -76,32 +75,39 @@ public class TruststoreResourceTest {
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    FileUploadUtil fileUploadUtil;
+
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {
         // Given
         MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         // When
-        ResponseEntity<String> responseEntity = truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
+        String response = truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
 
         // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals("Truststore file has been successfully replaced.", responseEntity.getBody());
+        Assert.assertNotNull(response);
+        Assert.assertEquals("Truststore file has been successfully replaced.", response);
     }
 
     @Test
     public void testUploadTruststoreEmpty() throws IOException {
         // Given
-        MultipartFile emptyFile = new MockMultipartFile("emptyfile", new byte[]{});
+        MultipartFile emptyFile = new MockMultipartFile("truststore", new byte[]{});
+
+        new Expectations() {{
+            fileUploadUtil.sanitiseFileUpload(emptyFile);
+            result = new IllegalArgumentException("Failed to upload the truststore file since it was empty.");
+        }};
 
         // When
-        ResponseEntity<String> responseEntity = truststoreResource.uploadTruststoreFile(emptyFile, "pass");
-
-        // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        Assert.assertEquals("Failed to upload the truststore file since it was empty.", responseEntity.getBody());
+        try {
+            String responseEntity = truststoreResource.uploadTruststoreFile(emptyFile, "pass");
+        } catch (IllegalArgumentException ex) {
+            // Then
+            Assert.assertEquals("Failed to upload the truststore file since it was empty.", ex.getMessage());
+        }
     }
 
     @Test(expected = CryptoException.class)
@@ -112,6 +118,9 @@ public class TruststoreResourceTest {
         final Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations() {{
+            fileUploadUtil.sanitiseFileUpload(multiPartFile);
+            result = new byte[]{1, 0, 1};
+
             domainProvider.getCurrentDomain();
             result = domain;
 
@@ -120,7 +129,7 @@ public class TruststoreResourceTest {
         }};
 
         // When
-        ResponseEntity<String> responseEntity = truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
+        truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
     }
 
     private List<TrustStoreRO> getTestTrustStoreROList(Date date) {
@@ -194,11 +203,14 @@ public class TruststoreResourceTest {
         final String emptyPassword = "";
 
         // WHEN
-        ResponseEntity<String> response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
-
+        try {
+            String response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
+        } catch (Exception ex) {
+            Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
+        }
         // THEN
-        Assert.assertEquals("Should have rejected the request as bad", HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
+//        Assert.assertEquals("Should have rejected the request as bad", HttpStatus.BAD_REQUEST, response.getStatusCode());
+//        Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
     }
 
     @Test
