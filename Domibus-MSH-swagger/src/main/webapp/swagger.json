@@ -429,6 +429,13 @@
         "readable" : {
           "type" : "boolean"
         },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
+        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -438,13 +445,6 @@
         },
         "open" : {
           "type" : "boolean"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
-        "filename" : {
-          "type" : "string"
         }
       }
     },
@@ -648,6 +648,9 @@
           "type" : "boolean"
         },
         "mime" : {
+          "type" : "string"
+        },
+        "payload" : {
           "type" : "string"
         }
       }

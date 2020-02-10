@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 
 
 /**
@@ -35,8 +36,9 @@ public abstract class PartInfoDTODecorator implements PartInfoMapper {
         InputStream inputStream = null;
         try {
             inputStream = partInfo.getPayloadDatahandler().getInputStream();
-            String payload = IOUtils.toString(inputStream, "utf-8");
-            partInfoDTO.setPayload(payload);
+            byte[] payloadBytes = IOUtils.toByteArray(inputStream);
+            String resultBase64Encoded = Base64.getEncoder().encodeToString(payloadBytes);
+            partInfoDTO.setPayload(resultBase64Encoded);
         } catch (IOException e) {
             throw new ConverterException(DomibusCoreErrorCode.DOM_008, "Could not convert payload", e);
         }

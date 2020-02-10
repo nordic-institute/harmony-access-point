@@ -474,6 +474,9 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageByMessageId == null) {
             return null;
         }
+        userMessageByMessageId.getMessageProperties().setXmlProperties();
+        userMessageByMessageId.getPartyInfo().setFromTo();
+        userMessageByMessageId.getPayloadInfo().getPartInfo().stream().forEach(partInfo -> partInfo.getPartProperties().setXmlProperties());
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 

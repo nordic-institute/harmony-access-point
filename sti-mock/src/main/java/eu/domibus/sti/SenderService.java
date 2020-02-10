@@ -1,28 +1,28 @@
 package eu.domibus.sti;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitMessageFault;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
-import eu.domibus.rest.client.ApiClient;
 import eu.domibus.rest.client.ApiException;
 import eu.domibus.rest.client.api.UsermessageApi;
-import eu.domibus.rest.client.model.UserMessageDTO;
+import eu.domibus.rest.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.scheduling.annotation.Async;
-import sun.util.calendar.LocalGregorianCalendar;
 
 import javax.activation.DataHandler;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.ws.rs.core.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class SenderService {
@@ -141,16 +141,35 @@ public class SenderService {
     }
 
     private Submission prepareSubmission(MapMessage received) throws JMSException, ApiException {
-        String finalRecipient = received.getStringProperty("finalRecipient");
-        String originalSender = received.getStringProperty("originalSender");
-
-        String toRole = received.getStringProperty("toRole");
-        String fromRole = received.getStringProperty("fromRole");
-
-
         final String messageId = received.getStringProperty("messageId");
-        UserMessageDTO userMessageDTO = usermessageApi.getUserMessage(messageId);//TODO put the payloads in the REST message
 
+        UserMessageDTO userMessageDTO = usermessageApi.getUserMessage(messageId);//TODO put the payloads in the REST message
+        List<PartInfoDTO> partInfo = userMessageDTO.getPayloadInfo().getPartInfo();
+        for (PartInfoDTO partInfoDTO : partInfo) {
+            String payload = partInfoDTO.getPayload();
+            byte[] asBytes = Base64.getDecoder().decode(payload);
+            try {
+                String resultAsStringAgain = new String(asBytes, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Optional<PropertyDTO> finalRecipientOptional = userMessageDTO.getMessageProperties().getProperty().stream().filter(propertyDTO -> "finalRecipient".equals(propertyDTO.getName())).findFirst();
+        String finalRecipient = null;
+        if(finalRecipientOptional.isPresent()) {
+            finalRecipient = finalRecipientOptional.get().getValue();
+        }
+
+        Optional<PropertyDTO> originalSenderOptional = userMessageDTO.getMessageProperties().getProperty().stream().filter(propertyDTO -> "originalSender".equals(propertyDTO.getName())).findFirst();
+        String originalSender = null;
+        if(originalSenderOptional.isPresent()) {
+            originalSender = originalSenderOptional.get().getValue();
+        }
+        FromDTO from = userMessageDTO.getPartyInfo().getFrom();
+        String fromRole = from.getRole();
+        ToDTO to = userMessageDTO.getPartyInfo().getTo();
+        String toRole = to.getRole();
 
         String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId);
 
@@ -181,8 +200,10 @@ public class SenderService {
         responseFrom.setRole(toRole);
         partyInfo.setFrom(responseFrom);
         PartyId responseFromPartyId = new PartyId();
-        final String toPartyId = received.getStringProperty("toPartyId");
-        final String toPartyIdType = received.getStringProperty("toPartyType");
+
+        PartyIdDTO toPartyIdDTO = to.getPartyId().stream().findFirst().get();
+        final String toPartyId = toPartyIdDTO.getValue();
+        final String toPartyIdType = toPartyIdDTO.getType();
         responseFromPartyId.setValue(toPartyId);
         responseFromPartyId.setType(toPartyIdType);
         responseFrom.setPartyId(responseFromPartyId);
@@ -192,8 +213,10 @@ public class SenderService {
         partyInfo.setTo(responseTo);
         PartyId responseToPartyId = new PartyId();
 
-        responseToPartyId.setValue(received.getStringProperty("fromPartyId"));
-        responseToPartyId.setType(received.getStringProperty("fromPartyType"));
+
+        PartyIdDTO fromPartyIdDTO = from.getPartyId().stream().findFirst().get();
+        responseToPartyId.setValue(fromPartyIdDTO.getValue());
+        responseToPartyId.setType(fromPartyIdDTO.getType());
         responseTo.setPartyId(responseToPartyId);
 
         CollaborationInfo collaborationInfo = new CollaborationInfo();
