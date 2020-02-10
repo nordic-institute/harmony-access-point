@@ -82,14 +82,6 @@ public class Configuration {
     }
 
     @Bean
-    public CachingConnectionFactory producingFactory() {
-        LOG.info("Initiating Jms caching connection factory with session cache size:[{}]", cacheSize);
-        CachingConnectionFactory factory = new CachingConnectionFactory(connectionFactory());
-        factory.setSessionCacheSize(cacheSize);
-        return factory;
-    }
-
-    @Bean
     public JndiTemplate provider() {
         LOG.info("Configuring provider to:[{}]", providerUrl);
         Properties env = new Properties();
@@ -101,16 +93,14 @@ public class Configuration {
     @Bean
     public QueueConnectionFactory connectionFactory() {
         try {
-            return (QueueConnectionFactory) provider().lookup(CONNECTION_FACTORY_JNDI);
+            QueueConnectionFactory lookup = (QueueConnectionFactory) provider().lookup(CONNECTION_FACTORY_JNDI);
+            CachingConnectionFactory factory = new CachingConnectionFactory(lookup);
+            factory.setSessionCacheSize(cacheSize);
+            return factory;
         } catch (NamingException e) {
             LOG.error("Impossible to get connection factory:[{}]", CONNECTION_FACTORY_JNDI, e);
             throw new IllegalStateException("Impossible to get connection factory");
         }
-        /*JndiObjectFactoryBean factory = new JndiObjectFactoryBean();
-        factory.setJndiTemplate(provider());
-        factory.setJndiName(connectionType);
-        factory.setProxyInterface(ConnectionFactory.class);
-        return factory;*/
     }
 
     @Bean
@@ -135,8 +125,7 @@ public class Configuration {
 
     @Bean
     public JmsTemplate inQueueJmsTemplate() {
-        JmsTemplate jmsTemplate =
-                new JmsTemplate(producingFactory());
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
         LOG.info("Configuring jms template for");
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
         jmsTemplate.setDestinationResolver(jmsDestinationResolver());
