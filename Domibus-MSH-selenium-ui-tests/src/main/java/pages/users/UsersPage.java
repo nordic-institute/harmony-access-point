@@ -81,11 +81,13 @@ public class UsersPage extends DomibusPage {
 	}
 
 	public void saveAndConfirm() throws Exception {
+		log.info("saving");
 		getSaveBtn().click();
 		new Dialog(driver).confirm();
 	}
 
 	public void cancelAndConfirm() throws Exception {
+		log.info("canceling");
 		getCancelBtn().click();
 		new Dialog(driver).confirm();
 	}

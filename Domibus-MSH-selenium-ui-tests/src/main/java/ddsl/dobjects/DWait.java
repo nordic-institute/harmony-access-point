@@ -17,13 +17,11 @@ import utils.TestRunData;
 public class DWait {
 
 	public final WebDriverWait defaultWait;
-	public final WebDriverWait longWait;
 	private TestRunData data = new TestRunData();
 
 
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
-		this.longWait = new WebDriverWait(driver, data.getLongWait());
 	}
 
 	public void forXMillis(Integer millis) {
@@ -58,7 +56,7 @@ public class DWait {
 
 	public void forElementToBeGone(WebElement element) {
 		try {
-			defaultWait.until(ExpectedConditions.not(ExpectedConditions.visibilityOf(element)));
+			defaultWait.until(ExpectedConditions.invisibilityOf(element));
 		} catch (Exception e) {
 		}
 	}
@@ -91,15 +89,6 @@ public class DWait {
 		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
 	}
 
-	public void longWaitforElementToBe(WebElement element) {
 
-		longWait.until(new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				return element.getLocation() != null;
-			}
-		});
-
-	}
 
 }

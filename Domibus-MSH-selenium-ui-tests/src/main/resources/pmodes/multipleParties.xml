@@ -27,8 +27,80 @@
             <party name="indigo_gw" endpoint="http://indigo.com">
                 <identifier partyId="indigo_gw" partyIdType="indigo_gw"/>
             </party>
-  <party name="orange_gw" endpoint="http://orange.com">
+			<party name="orange_gw" endpoint="http://orange.com">
                 <identifier partyId="orange_gw" partyIdType="orange_gw"/>
+            </party>
+			<party name="red_gw1" endpoint="http://localhost:8080/">
+                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
+                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="green_gw1" endpoint="http://green:9898/domibus">
+                <identifier partyId="green_gw1" partyIdType="ds"/>
+            </party>
+            <party name="yellow_gw1" endpoint="http://yellow:0909/domibus">
+                <identifier partyId="yellow_gw1" partyIdType="type"/>
+            </party>
+            <party name="indigo_gw1" endpoint="http://indigo.com">
+                <identifier partyId="indigo_gw1" partyIdType="indigo_gw1"/>
+            </party>
+			<party name="orange_gw1" endpoint="http://orange.com">
+                <identifier partyId="orange_gw1" partyIdType="orange_gw1"/>
+            </party>
+			<party name="red_gw2" endpoint="http://localhost:8080/">
+                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="blue_gw2" endpoint="http://localhost:8080/domibus/services/msh">
+                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="green_gw2" endpoint="http://green:9898/domibus">
+                <identifier partyId="green_gw2" partyIdType="ds"/>
+            </party>
+            <party name="yellow_gw2" endpoint="http://yellow:0909/domibus">
+                <identifier partyId="yellow_gw2" partyIdType="type"/>
+            </party>
+            <party name="indigo_gw2" endpoint="http://indigo.com">
+                <identifier partyId="indigo_gw2" partyIdType="indigo_gw2"/>
+            </party>
+			<party name="orange_gw2" endpoint="http://orange.com">
+                <identifier partyId="orange_gw2" partyIdType="orange_gw2"/>
+            </party>
+			<party name="red_gw3" endpoint="http://localhost:8080/">
+                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="blue_gw3" endpoint="http://localhost:8080/domibus/services/msh">
+                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="green_gw3" endpoint="http://green:9898/domibus">
+                <identifier partyId="green_gw3" partyIdType="ds"/>
+            </party>
+            <party name="yellow_gw3" endpoint="http://yellow:0909/domibus">
+                <identifier partyId="yellow_gw3" partyIdType="type"/>
+            </party>
+            <party name="indigo_gw3" endpoint="http://indigo.com">
+                <identifier partyId="indigo_gw3" partyIdType="indigo_gw3"/>
+            </party>
+			<party name="orange_gw3" endpoint="http://orange.com">
+                <identifier partyId="orange_gw3" partyIdType="orange_gw3"/>
+            </party>
+			<party name="red_gw4" endpoint="http://localhost:8080/">
+                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="blue_gw4" endpoint="http://localhost:8080/domibus/services/msh">
+                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="green_gw4" endpoint="http://green:9898/domibus">
+                <identifier partyId="green_gw4" partyIdType="ds"/>
+            </party>
+            <party name="yellow_gw4" endpoint="http://yellow:0909/domibus">
+                <identifier partyId="yellow_gw4" partyIdType="type"/>
+            </party>
+            <party name="indigo_gw4" endpoint="http://indigo.com">
+                <identifier partyId="indigo_gw4" partyIdType="indigo_gw4"/>
+            </party>
+			<party name="orange_gw4" endpoint="http://orange.com">
+                <identifier partyId="orange_gw4" partyIdType="orange_gw4"/>
             </party>
         </parties>
         <meps>

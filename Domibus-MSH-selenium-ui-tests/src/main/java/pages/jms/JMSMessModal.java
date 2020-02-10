@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSMessModal extends InfoModal {
@@ -101,7 +101,7 @@ public class JMSMessModal extends InfoModal {
 
 	public HashMap<String, String> getMessageInfo() throws Exception{
 
-		log.info("retreive info from popup");
+		log.debug("retreive info from popup");
 
 
 		HashMap<String, String> toReturn = new HashMap<String, String>();

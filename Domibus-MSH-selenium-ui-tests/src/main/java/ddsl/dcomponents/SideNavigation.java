@@ -3,6 +3,7 @@ package ddsl.dcomponents;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -78,6 +79,9 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "#testservice_id")
 	private WebElement testServiceLnk;
 
+	@FindBy(css= "#logging_id")
+	private WebElement loggingLnk;
+
 	private boolean isPmodeSectionExpanded() {
 		try {
 			return new DButton(driver, pmodeExpandLnk).getAttribute("class").contains("mat-expanded");
@@ -94,11 +98,11 @@ public class SideNavigation extends DComponent {
 		}
 	}
 
-	public DLink getPageLnk(PAGES page) throws Exception {
+	public DLink getPageLnk(PAGES page){
 
 		wait.forElementToHaveText(sideBar);
 
-		log.info("Get link to " + page.name());
+		log.debug("Get link to " + page.name());
 		switch (page) {
 			case MESSAGES:
 				return new DLink(driver, messagesLnk);
@@ -129,6 +133,8 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, alertsLnk);
 			case TEST_SERVICE:
 				return new DLink(driver, testServiceLnk);
+			case LOGGING:
+				return new DLink(driver,loggingLnk);
 		}
 		return null;
 	}
@@ -152,9 +158,16 @@ public class SideNavigation extends DComponent {
 
 	}
 
-	public void gGoToPage(PAGES page) throws Exception {
+	public void goToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
-		getPageLnk(page).click();
+		DLink link = getPageLnk(page);
+		link.click();
+
+		DomibusPage pg = new DomibusPage(driver);
+		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
+		pg.wait.forElementToContainText(pg.pageTitle, text);
+
+		wait.forXMillis(500);
 	}
 
 	public boolean isUserState() throws Exception {
@@ -172,6 +185,8 @@ public class SideNavigation extends DComponent {
 				&& !getPageLnk(PAGES.AUDIT).isPresent()
 				&& !getPageLnk(PAGES.ALERTS).isPresent()
 				&& !getPageLnk(PAGES.TEST_SERVICE).isPresent()
+				&& !getPageLnk(PAGES.LOGGING).isPresent()
+
 		);
 	}
 
@@ -189,6 +204,7 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.AUDIT).isPresent()
 				&& getPageLnk(PAGES.ALERTS).isPresent()
 				&& getPageLnk(PAGES.TEST_SERVICE).isPresent()
+				&& getPageLnk(PAGES.LOGGING).isPresent()
 		);
 	}
 

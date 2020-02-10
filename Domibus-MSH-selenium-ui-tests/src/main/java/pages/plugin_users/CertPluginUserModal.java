@@ -1,6 +1,6 @@
 package pages.plugin_users;
 
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
@@ -11,7 +11,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class CertPluginUserModal extends EditModal {
