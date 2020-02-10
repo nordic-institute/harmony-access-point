@@ -35,6 +35,7 @@ public class DriverManager {
 	private static WebDriver getChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", data.getChromeDriverPath());
 		ChromeOptions options = new ChromeOptions();
+		options.addArguments("window-size=1920,1080");
 		options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 		options.addArguments("--ignore-certificate-errors");
 		if (data.useProxy()) {
@@ -55,6 +56,7 @@ public class DriverManager {
 		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
 
 		FirefoxOptions options = new FirefoxOptions();
+		options.addArguments("window-size=1920,1080");
 		options.setHeadless(data.isHeadless());
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());
