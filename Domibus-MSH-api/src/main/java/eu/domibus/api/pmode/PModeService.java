@@ -23,5 +23,5 @@ public interface PModeService {
      * @return a list of issues( notes or warnings) if any encountered
      * @throws PModeException In case there are any validation errors amongst the issues, an exception is raised
      */
-    List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeException;
+    List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeException;
 }

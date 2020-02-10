@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
@@ -25,8 +25,8 @@ public class SelfPartyValidator implements PModeValidator {
     protected PModeValidationHelper pModeValidationHelper;
 
     @Override
-    public List<PModeIssue> validate(Configuration pMode) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration pMode) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         if (pMode.getParty() == null) {
             String partyName = pModeValidationHelper.getAttributeValue(pMode, "partyXml", String.class);
@@ -37,7 +37,7 @@ public class SelfPartyValidator implements PModeValidator {
                 message = String.format(message, partyName);
             }
 
-            issues.add(new PModeIssue(message, PModeIssue.Level.ERROR));
+            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
         }
 
         return issues;

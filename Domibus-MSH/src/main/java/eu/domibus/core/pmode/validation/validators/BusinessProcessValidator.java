@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
@@ -29,8 +29,8 @@ public class BusinessProcessValidator implements PModeValidator {
     PModeValidationHelper pModeValidationHelper;
 
     @Override
-    public List<PModeIssue> validate(Configuration pMode) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration pMode) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses().forEach(process -> {
 
@@ -114,7 +114,7 @@ public class BusinessProcessValidator implements PModeValidator {
         return issues;
     }
 
-    private void createIssue(List<PModeIssue> issues, Process process, String name, String message) {
+    private void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
     }
 

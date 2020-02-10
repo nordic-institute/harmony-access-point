@@ -5,13 +5,13 @@ package eu.domibus.ext.domain;
  * @since 4.2
  * Class that encapsulates information about a pMode validation: code, level and message
  */
-public class PModeIssueDTO {
+public class ValidationIssueDTO {
 
     private Level level;
     private String code;
     private String message;
 
-    public PModeIssueDTO() {}
+    public ValidationIssueDTO() {}
 
     public Level getLevel() {
         return level;

@@ -5,7 +5,7 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -161,13 +161,13 @@ public abstract class PModeProvider {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public List<PModeIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
+    public List<ValidationIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         LOG.debug("Updating the PMode");
         description = validateDescriptionSize(description);
 
         final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
 
-        List<PModeIssue> issues = new ArrayList<>();
+        List<ValidationIssue> issues = new ArrayList<>();
         if (!unmarshalledConfiguration.isValid()) {
             issues.add(createParseWarning(unmarshalledConfiguration));
         }
@@ -194,7 +194,7 @@ public abstract class PModeProvider {
         return issues;
     }
 
-    private PModeIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
+    private ValidationIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
         List<String> resultMessage = new ArrayList<>();
         resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
         resultMessage.addAll(unmarshalledConfiguration.getErrors());
@@ -202,7 +202,7 @@ public abstract class PModeProvider {
 
         LOG.warn(message);
 
-        return new PModeIssue(message, PModeIssue.Level.WARNING);
+        return new ValidationIssue(message, ValidationIssue.Level.WARNING);
     }
 
     private String validateDescriptionSize(final String description) {

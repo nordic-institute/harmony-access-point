@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Process;
@@ -23,8 +23,8 @@ import java.util.List;
 public class RolesValidator  implements PModeValidator {
 
     @Override
-    public List<PModeIssue> validate(Configuration configuration) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration configuration) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         for (Process process : businessProcesses.getProcesses()) {
@@ -32,12 +32,12 @@ public class RolesValidator  implements PModeValidator {
             final Role responderRole = process.getResponderRole();
             if (initiatorRole != null && initiatorRole.equals(responderRole)) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role name and the responder role name are identical [" + initiatorRole.getName() + "]";
-                issues.add(new PModeIssue(errorMessage, PModeIssue.Level.WARNING));
+                issues.add(new ValidationIssue(errorMessage, ValidationIssue.Level.WARNING));
             }
             if (initiatorRole != null && responderRole != null
                     && StringUtils.equalsIgnoreCase(initiatorRole.getValue(), responderRole.getValue())) {
                 String errorMessage = "For the business process [" + process.getName() + "], the initiator role value and the responder role value are identical [" + initiatorRole.getValue() + "]";
-                issues.add(new PModeIssue(errorMessage, PModeIssue.Level.WARNING));
+                issues.add(new ValidationIssue(errorMessage, ValidationIssue.Level.WARNING));
             }
         }
 

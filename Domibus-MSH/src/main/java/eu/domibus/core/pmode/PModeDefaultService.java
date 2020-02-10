@@ -12,13 +12,10 @@ import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -64,7 +61,7 @@ public class PModeDefaultService implements PModeService {
     }
 
     @Override
-    public List<PModeIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
+    public List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {

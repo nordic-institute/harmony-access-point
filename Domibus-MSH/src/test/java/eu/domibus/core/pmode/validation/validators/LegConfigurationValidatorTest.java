@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -47,11 +47,11 @@ public class LegConfigurationValidatorTest {
             result = Collections.singleton(legConfiguration);
 
             pModeValidationHelper.createValidationIssue(anyString, anyString, anyString);
-            result = new PModeIssue("of leg configuration [" + legConfigurationName + "] not found in business process", PModeIssue.Level.ERROR);
+            result = new ValidationIssue("of leg configuration [" + legConfigurationName + "] not found in business process", ValidationIssue.Level.ERROR);
         }};
 
         //tested method
-        final List<PModeIssue> results = legValidator.validate(configuration);
+        final List<ValidationIssue> results = legValidator.validate(configuration);
 
         new Verifications() {{
             pModeValidationHelper.createValidationIssue("Action [%s] of leg configuration [%s] not found in business process actions.", null,  legConfigurationName);

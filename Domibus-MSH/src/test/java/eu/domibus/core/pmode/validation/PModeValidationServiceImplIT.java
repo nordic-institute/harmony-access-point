@@ -3,7 +3,7 @@ package eu.domibus.core.pmode.validation;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
@@ -146,7 +146,7 @@ public class PModeValidationServiceImplIT {
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(true, jaxbContext, new ByteArrayInputStream(pModeBytes), null);
         Configuration configuration = unmarshallerResult.getResult();
 
-        List<PModeIssue> issues = pModeValidationService.validate(configuration);
+        List<ValidationIssue> issues = pModeValidationService.validate(configuration);
 
         Assert.assertFalse(issues.isEmpty());
     }

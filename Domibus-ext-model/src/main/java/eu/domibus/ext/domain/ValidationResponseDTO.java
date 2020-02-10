@@ -7,17 +7,17 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  */
-public class SavePModeResponseDTO {
+public class ValidationResponseDTO {
 
     private String message;
 
-    private List<PModeIssueDTO> issues;
+    private List<ValidationIssueDTO> issues;
 
-    public SavePModeResponseDTO(String message) {
+    public ValidationResponseDTO(String message) {
         this(message, new ArrayList<>());
     }
 
-    public SavePModeResponseDTO(String message, List<PModeIssueDTO> issues) {
+    public ValidationResponseDTO(String message, List<ValidationIssueDTO> issues) {
         this.issues = issues;
         this.message = message;
     }
@@ -31,11 +31,11 @@ public class SavePModeResponseDTO {
     }
 
 
-    public List<PModeIssueDTO> getIssues() {
+    public List<ValidationIssueDTO> getIssues() {
         return issues;
     }
 
-    public void setIssues(List<PModeIssueDTO> issues) {
+    public void setIssues(List<ValidationIssueDTO> issues) {
         this.issues = issues;
     }
 

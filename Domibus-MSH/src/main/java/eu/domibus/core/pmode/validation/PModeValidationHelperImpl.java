@@ -1,10 +1,11 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -42,14 +43,14 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
     }
 
     @Override
-    public PModeIssue createValidationIssue(String message, String name, String name2) {
+    public ValidationIssue createValidationIssue(String message, String name, String name2) {
         String result;
         if (StringUtils.isEmpty(name)) {
             result = String.format(message.replaceFirst("\\[%s] ", ""), name2);
         } else {
             result = String.format(message, name, name2);
         }
-        return new PModeIssue(result, PModeIssue.Level.ERROR);
+        return new ValidationIssue(result, ValidationIssue.Level.WARNING);
     }
 
     @Override
@@ -57,7 +58,16 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
         if (CollectionUtils.isEmpty(e.getErrors())) {
             message += ExceptionUtils.getRootCauseMessage(e);
         }
-        List<PModeIssue> errors = e.getErrors().stream().map(err -> new PModeIssue(err, PModeIssue.Level.ERROR)).collect(Collectors.toList());
+        List<ValidationIssue> errors = e.getErrors().stream().map(err -> new ValidationIssue(err, ValidationIssue.Level.ERROR)).collect(Collectors.toList());
         return new PModeValidationException(message, errors);
+    }
+
+    @Override
+    public ValidationResponseRO getValidationResponse(List<ValidationIssue> pmodeUpdateIssues, String message) {
+        if (CollectionUtils.isNotEmpty(pmodeUpdateIssues)) {
+            message += "Some issues were detected:";
+        }
+
+        return new ValidationResponseRO(message, pmodeUpdateIssues);
     }
 }

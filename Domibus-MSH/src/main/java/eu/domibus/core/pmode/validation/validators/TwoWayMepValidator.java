@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
@@ -35,14 +35,14 @@ public class TwoWayMepValidator implements PModeValidator {
     );
 
     @Override
-    public List<PModeIssue> validate(Configuration configuration) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration configuration) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         configuration.getBusinessProcesses().getProcesses().forEach(process -> {
             if (process.getMep() != null && TWOWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
                 if (notAccepted.stream().anyMatch(binding::equalsIgnoreCase)) {
-                    issues.add(new PModeIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), PModeIssue.Level.WARNING));
+                    issues.add(new ValidationIssue("Two-Way mep with binding " + binding + " not accepted for process " + process.getName(), ValidationIssue.Level.WARNING));
                 }
             }
         });

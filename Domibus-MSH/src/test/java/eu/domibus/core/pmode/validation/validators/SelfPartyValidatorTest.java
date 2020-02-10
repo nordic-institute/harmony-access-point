@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidationHelperImpl;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class SelfPartyValidatorTest extends AbstractValidatorTest {
         validator.pModeValidationHelper = new PModeValidationHelperImpl();
 
         Configuration configuration = newConfiguration("TestConfiguration.json");
-        final List<PModeIssue> results = validator.validate(configuration);
+        final List<ValidationIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 1);
         assertEquals("Party not found in business process parties", results.get(0).getMessage());
     }

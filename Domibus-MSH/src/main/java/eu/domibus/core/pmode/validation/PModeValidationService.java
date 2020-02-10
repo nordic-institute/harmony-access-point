@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Configuration;
 
@@ -20,5 +20,5 @@ public interface PModeValidationService {
      * @return list of validation issues in case there are no error among them
      * @throws PModeValidationException an exception that contains the list of issues found( errors or warnings)
      */
-    List<PModeIssue> validate(Configuration configuration) throws PModeValidationException;
+    List<ValidationIssue> validate(Configuration configuration) throws PModeValidationException;
 }

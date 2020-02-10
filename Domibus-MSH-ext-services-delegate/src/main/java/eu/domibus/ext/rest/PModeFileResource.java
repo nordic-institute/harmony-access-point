@@ -4,8 +4,8 @@ package eu.domibus.ext.rest;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
-import eu.domibus.ext.domain.PModeIssueDTO;
-import eu.domibus.ext.domain.SavePModeResponseDTO;
+import eu.domibus.ext.domain.ValidationIssueDTO;
+import eu.domibus.ext.domain.ValidationResponseDTO;
 import eu.domibus.ext.services.PModeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -72,32 +72,32 @@ public class PModeFileResource {
     @ApiOperation(value = "Upload a PMode file", notes = "Upload the PMode file",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
     @PostMapping(consumes = {"multipart/form-data", "application/x-www-form-urlencoded"})
-    public ResponseEntity<SavePModeResponseDTO> uploadPMode(
+    public ResponseEntity<ValidationResponseDTO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {
         if (pmode.isEmpty()) {
-            return ResponseEntity.badRequest().body(new SavePModeResponseDTO("Failed to upload the PMode file since it was empty."));
+            return ResponseEntity.badRequest().body(new ValidationResponseDTO("Failed to upload the PMode file since it was empty."));
         }
         try {
             byte[] bytes = pmode.getBytes();
 
-            List<PModeIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
+            List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
 
             String message = "PMode file has been successfully uploaded";
             if (!CollectionUtils.isEmpty(pmodeUpdateMessage)) {
                 message += " but some issues were detected:";
             }
 
-            return ResponseEntity.ok(new SavePModeResponseDTO(message, pmodeUpdateMessage));
+            return ResponseEntity.ok(new ValidationResponseDTO(message, pmodeUpdateMessage));
         } catch (PModeValidationException ve) {
             LOG.error("Validation exception uploading the PMode", ve);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body(new SavePModeResponseDTO(ve.getMessage(), domainConverter.convert(ve.getIssues(), PModeIssueDTO.class)));
+                    body(new ValidationResponseDTO(ve.getMessage(), domainConverter.convert(ve.getIssues(), ValidationIssueDTO.class)));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new SavePModeResponseDTO("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e)));
+                    .body(new ValidationResponseDTO("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e)));
         }
     }
 

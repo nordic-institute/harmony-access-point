@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +9,17 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  */
-public class SavePModeResponseRO {
+public class ValidationResponseRO {
 
     private String message;
 
-    private List<PModeIssue> issues;
+    private List<ValidationIssue> issues;
 
-    public SavePModeResponseRO(String message) {
+    public ValidationResponseRO(String message) {
         this(message, new ArrayList<>());
     }
 
-    public SavePModeResponseRO(String message, List<PModeIssue> issues) {
+    public ValidationResponseRO(String message, List<ValidationIssue> issues) {
         this.issues = issues;
         this.message = message;
     }
@@ -32,11 +32,11 @@ public class SavePModeResponseRO {
         this.message = message;
     }
 
-    public List<PModeIssue> getIssues() {
+    public List<ValidationIssue> getIssues() {
         return issues;
     }
 
-    public void setIssues(List<PModeIssue> issues) {
+    public void setIssues(List<ValidationIssue> issues) {
         this.issues = issues;
     }
 

@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 
 import java.util.List;
@@ -18,5 +18,5 @@ public interface PModeValidator {
      * @param {pMode} configuration - Configuration class instance representing the deserialized pmode
      * @returns {list|PModeIssue} - the list of issues found( errors or warnings, if any)
      */
-    List<PModeIssue> validate(Configuration pMode);
+    List<ValidationIssue> validate(Configuration pMode);
 }

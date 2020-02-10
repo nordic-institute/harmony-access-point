@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.logging.DomibusLogger;
@@ -26,18 +26,18 @@ public class PModeValidationServiceImpl implements PModeValidationService {
     protected List<PModeValidator> pModeValidatorList;
 
     @Override
-    public List<PModeIssue> validate(Configuration configuration) throws PModeValidationException {
-        List<PModeIssue> allIssues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration configuration) throws PModeValidationException {
+        List<ValidationIssue> allIssues = new ArrayList<>();
 
         if(configuration != null) {
             configuration.preparePersist();
 
             for (PModeValidator validator : pModeValidatorList) {
-                List<PModeIssue> issues1 = validator.validate(configuration);
+                List<ValidationIssue> issues1 = validator.validate(configuration);
                 allIssues.addAll(issues1);
             }
 
-            if (allIssues != null && allIssues.stream().anyMatch(x -> x.getLevel() == PModeIssue.Level.ERROR)) {
+            if (allIssues != null && allIssues.stream().anyMatch(x -> x.getLevel() == ValidationIssue.Level.ERROR)) {
                 throw new PModeValidationException(allIssues);
             }
         }

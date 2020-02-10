@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -21,13 +21,13 @@ import java.util.List;
 public class EmptyEndpointValidator implements PModeValidator {
 
     @Override
-    public List<PModeIssue> validate(Configuration pMode) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration pMode) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getParties().forEach(party -> {
             if (StringUtils.isEmpty(party.getEndpoint())) {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
-                issues.add(new PModeIssue(message, PModeIssue.Level.WARNING));
+                issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
             }
         });
 

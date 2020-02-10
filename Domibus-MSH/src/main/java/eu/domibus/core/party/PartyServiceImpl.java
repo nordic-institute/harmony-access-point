@@ -11,7 +11,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -439,13 +439,13 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
-        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
-        if (pModeArchiveInfo == null) {
+    public List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
+        final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
+        if (currentPmode == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not update PMode parties: PMode not found!");
         }
 
-        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
+        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(currentPmode.getId());
 
         Configuration configuration;
         try {
@@ -457,21 +457,21 @@ public class PartyServiceImpl implements PartyService {
 
         ReplacementResult replacementResult = replaceParties(partyList, configuration);
 
-        List<PModeIssue> result = updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
+        List<ValidationIssue> result = updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
 
         updatePartyCertificate(partyToCertificateMap, replacementResult);
 
         return result;
     }
 
-    private List<PModeIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
+    private List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
 
         try {
             byte[] updatedPMode = pModeProvider.serializePModeConfiguration(updatedConfiguration);
-            List<PModeIssue> result = pModeProvider.updatePModes(updatedPMode, updatedDescription);
+            List<ValidationIssue> result = pModeProvider.updatePModes(updatedPMode, updatedDescription);
             return result;
         } catch (XmlProcessingException e) {
             LOG.error("Error writing current PMode", e);

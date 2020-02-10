@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
@@ -27,8 +27,8 @@ public class LegConfigurationValidator implements PModeValidator {
     PModeValidationHelper pModeValidationHelper;
 
     @Override
-    public List<PModeIssue> validate(Configuration pMode) {
-        List<PModeIssue> issues = new ArrayList<>();
+    public List<ValidationIssue> validate(Configuration pMode) {
+        List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getLegConfigurations().forEach(leg -> {
             //service
@@ -88,7 +88,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return issues;
     }
 
-    private void createIssue(List<PModeIssue> issues, LegConfiguration leg, String name, String message) {
+    private void createIssue(List<ValidationIssue> issues, LegConfiguration leg, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, leg.getName()));
     }
 

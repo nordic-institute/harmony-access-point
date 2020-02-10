@@ -3,7 +3,7 @@ package eu.domibus.core.pmode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.MSHRole;
@@ -297,7 +297,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<PModeIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
+    public List<ValidationIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         return getCurrentPModeProvider().updatePModes(bytes, description);
     }
 

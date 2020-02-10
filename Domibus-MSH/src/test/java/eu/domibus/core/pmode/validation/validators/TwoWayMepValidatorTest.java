@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class TwoWayMepValidatorTest extends AbstractValidatorTest {
     @Test
     public void validate() throws Exception {
         Configuration configuration = newConfiguration("TestConfiguration.json");
-        final List<PModeIssue> results = validator.validate(configuration);
+        final List<ValidationIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 1);
         assertEquals(
                 "Two-Way mep with binding http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush not accepted for process TestProcess",

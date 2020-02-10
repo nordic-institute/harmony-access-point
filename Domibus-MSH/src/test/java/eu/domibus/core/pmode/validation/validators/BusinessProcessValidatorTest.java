@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
@@ -63,12 +63,12 @@ public class BusinessProcessValidatorTest {
             result = Arrays.asList(process);
 
             pModeValidationHelper.createValidationIssue(anyString, anyString, anyString);
-            result = new PModeIssue("Agreement of process [%s] not found in business process", PModeIssue.Level.ERROR);
+            result = new ValidationIssue("Agreement of process [%s] not found in business process", ValidationIssue.Level.ERROR);
 
         }};
 
         //tested method
-        final List<PModeIssue> results = businessProcessValidator.validate(configuration);
+        final List<ValidationIssue> results = businessProcessValidator.validate(configuration);
 
         new Verifications() {{
             pModeValidationHelper.createValidationIssue("Mep [%s] of process [%s] not found in business process meps.", null, processName);

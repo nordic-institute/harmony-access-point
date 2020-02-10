@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
@@ -39,7 +39,7 @@ public class PModeValidationServiceImplTest {
     @Test
     public void validate_Disabled(@Mocked Configuration configuration) {
 
-        List<PModeIssue> issues = pModeValidationService.validate(configuration);
+        List<ValidationIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
             legConfigurationValidator.validate(configuration);
@@ -52,8 +52,8 @@ public class PModeValidationServiceImplTest {
     @Test(expected = PModeValidationException.class)
     public void validate_Error(@Mocked Configuration configuration) {
 
-        PModeIssue issue = new PModeIssue();
-        issue.setLevel(PModeIssue.Level.ERROR);
+        ValidationIssue issue = new ValidationIssue();
+        issue.setLevel(ValidationIssue.Level.ERROR);
         issue.setMessage("Leg configuration is wrong");
 
         new Expectations() {{
@@ -63,7 +63,7 @@ public class PModeValidationServiceImplTest {
             result = Arrays.asList(issue);
         }};
 
-        List<PModeIssue> issues = pModeValidationService.validate(configuration);
+        List<ValidationIssue> issues = pModeValidationService.validate(configuration);
 
         new Verifications() {{
             legConfigurationValidator.validate(configuration);
@@ -71,7 +71,7 @@ public class PModeValidationServiceImplTest {
         }};
 
         Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == PModeIssue.Level.ERROR);
+        Assert.assertTrue(issues.get(0).getLevel() == ValidationIssue.Level.ERROR);
     }
 
 

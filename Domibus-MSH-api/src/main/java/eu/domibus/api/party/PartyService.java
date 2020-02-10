@@ -1,6 +1,6 @@
 package eu.domibus.api.party;
 
-import eu.domibus.api.pmode.PModeIssue;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.process.Process;
 
@@ -65,7 +65,7 @@ public interface PartyService {
      * @return a list of issues because the pMode is saved and validated
      * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
-    List<PModeIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
+    List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
 
     /**
      * Retrieve all the processes configured in the pmode.

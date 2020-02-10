@@ -6,20 +6,20 @@ package eu.domibus.api.pmode;
  *
  * Class that encapsulates information about a pMode validation: code, level and message
  */
-public class PModeIssue {
+public class ValidationIssue {
 
     private Level level;
     private String code;
     private String message;
 
-    public PModeIssue() {}
+    public ValidationIssue() {}
 
-    public PModeIssue(String message) {
+    public ValidationIssue(String message) {
         this.message = message;
         this.level = Level.NOTE;
     }
 
-    public PModeIssue(String message, Level level) {
+    public ValidationIssue(String message, Level level) {
         this.message = message;
         this.level = level;
     }

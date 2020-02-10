@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode;
 
-import eu.domibus.api.pmode.PModeIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.MessagingDao;
@@ -17,8 +16,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.List;
 
 /**
  * @author Cosmin Baciu
