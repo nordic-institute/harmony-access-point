@@ -50,7 +50,7 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
         } else {
             result = String.format(message, name, name2);
         }
-        return new ValidationIssue(result, ValidationIssue.Level.WARNING);
+        return new ValidationIssue(result, ValidationIssue.Level.ERROR);
     }
 
     @Override
