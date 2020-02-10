@@ -1,10 +1,7 @@
 package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.popups.InfoModal;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import jdk.nashorn.internal.runtime.ScriptObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -18,15 +15,14 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
+import utils.Order;
 import utils.TestRunData;
-import utils.TestUtils;
 
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -37,11 +33,11 @@ public class DGrid extends DComponent {
 
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
-		log.info("init grid ...");
+		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "span.datatable-header-cell-wrapper > span")
+	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
@@ -55,7 +51,6 @@ public class DGrid extends DComponent {
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
 
-
 	//	------------------------------------------------
 	public Pagination getPagination() {
 		return new Pagination(driver);
@@ -66,6 +61,7 @@ public class DGrid extends DComponent {
 	}
 
 	public boolean isPresent() {
+
 		boolean isPresent = false;
 		try {
 			isPresent = getColumnNames().size() >= 0;
@@ -84,7 +80,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void selectRow(int rowNumber) throws Exception {
-		log.info("selecting row with number ... " + rowNumber);
+		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
@@ -93,7 +89,7 @@ public class DGrid extends DComponent {
 
 	public void doubleClickRow(int rowNumber) throws Exception {
 
-		log.info("double clicking row ... " + rowNumber);
+		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
@@ -113,6 +109,7 @@ public class DGrid extends DComponent {
 		try {
 			wait.forElementToBe(progressBar);
 			wait.forElementToBeGone(progressBar);
+			wait.forXMillis(100);
 		} catch (Exception e) {
 
 		}
@@ -186,14 +183,20 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
+		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			DObject column = new DObject(driver, gridHeaders.get(i));
+			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.click();
+				wait.forAttributeNotEmpty(gridHeaders.get(i), "class");
+				try {
+					wait.forAttributeToContain(gridHeaders.get(i), "class", "sort-active");
+				} catch (Exception e) {
+				}
 				return;
 			}
 		}
-		throw new Exception("Column name not present in the grid");
+		throw new Exception("Column name not present in the grid " + columnName);
 	}
 
 	public void scrollToAndDoubleClick(String columnName, String value) throws Exception {
@@ -227,7 +230,7 @@ public class DGrid extends DComponent {
 	public int getSelectedRowIndex() throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
 			String classStr = new DObject(driver, gridRows.get(i)).getAttribute("class");
-			if(null == classStr || classStr.isEmpty()){
+			if (null == classStr || classStr.isEmpty()) {
 				continue;
 			}
 			if (classStr.contains("active")) {
@@ -279,9 +282,20 @@ public class DGrid extends DComponent {
 	}
 
 
+	public boolean isColumnSortable(String columnName) throws Exception {
+		List<String> columns = getColumnNames();
+		int index = columns.indexOf(columnName);
+		if (index < 0) {
+			throw new Exception("Column not visible,. cannot get sortable status");
+		}
+		WebElement header = gridHeaders.get(index);
+		wait.forAttributeNotEmpty(header, "class");
+		String classStr = header.getAttribute("class");
+		return classStr.contains("sortable");
+	}
 
 
-	public void assertControls(SoftAssert soft)throws Exception{
+	public void assertControls(SoftAssert soft) throws Exception {
 
 
 		getGridCtrl().showCtrls();
@@ -291,25 +305,27 @@ public class DGrid extends DComponent {
 		checkShowLink(soft);
 		checkHideLink(soft);
 		checkModifyVisibleColumns(soft, chkOptions);
-		checkAllLink(soft, chkOptions);
+		checkAllLink(soft);
 		checkNoneLink(soft);
 		checkChangeNumberOfRows(soft);
 	}
 
-	private void checkShowLink(SoftAssert soft) throws Exception{
+	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
 		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
-
 	}
-	private void checkHideLink(SoftAssert soft) throws Exception{
+
+	public void checkHideLink(SoftAssert soft) throws Exception {
 		//-----------Hide
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	private void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception{
+
+	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
 		//-----------Show - Modify - Hide
 		for (String colName : chkOptions) {
+			log.info("checking checkbox for " + colName);
 			getGridCtrl().showCtrls();
 			getGridCtrl().checkBoxWithLabel(colName);
 			soft.assertTrue(columnsVsCheckboxes());
@@ -318,59 +334,66 @@ public class DGrid extends DComponent {
 			soft.assertTrue(columnsVsCheckboxes());
 		}
 	}
-	private void checkAllLink(SoftAssert soft, List<String> chkOptions) throws Exception{
+
+	public void checkAllLink(SoftAssert soft) throws Exception {
 		//-----------All link
 		getGridCtrl().showCtrls();
+		log.info("clicking All link");
 		getGridCtrl().getAllLnk().click();
 		getGridCtrl().hideCtrls();
 
 		List<String> visibleColumns = getColumnNames();
-		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, chkOptions), "All the desired columns are visible");
+		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, getGridCtrl().getAllCheckboxLabels()), "All the desired columns are visible");
 	}
-	private void checkNoneLink(SoftAssert soft) throws Exception{
+
+	public void checkNoneLink(SoftAssert soft) throws Exception {
 		//-----------None link
 		getGridCtrl().showCtrls();
+		log.info("clicking None link");
 		getGridCtrl().getNoneLnk().click();
 		getGridCtrl().hideCtrls();
 
 		List<String> noneColumns = getColumnNames();
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
-
 	}
-	private void checkChangeNumberOfRows(SoftAssert soft) throws Exception{
+
+	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception {
+		log.info("checking changing number of rows displayed");
 		//----------Rows
-		getGridCtrl().showCtrls();
-		getGridCtrl().getAllLnk().click();
 
 		int rows = getPagination().getTotalItems();
+		log.info("changing number of rows to 25");
 		getPagination().getPageSizeSelect().selectOptionByText("25");
 		waitForRowsToLoad();
 
+		log.info("checking pagination reset to 1");
 		soft.assertTrue(getPagination().getActivePage() == 1, "pagination is reset to 1 after changing number of items per page");
 
-		if(rows > 10){
+		log.info("check listed number of rows");
+		if (rows > 10) {
 			soft.assertTrue(getRowsNo() > 10, "Number of rows is bigger than 10");
 			soft.assertTrue(getRowsNo() <= 25, "Number of rows is less or equal to 25");
 		}
 
-		if(rows > 25){
+		log.info("check pagination");
+		if (rows > 25) {
 			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
 		}
 	}
 
+	public void checkCSVvsGridInfo(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
 
-
-	public void checkCSVAgainstGridInfo(String filename, SoftAssert soft) throws Exception {
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
 		List<CSVRecord> records = csvParser.getRecords();
-
-
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
 
-		soft.assertTrue(CollectionUtils.isEqualCollection(gridHeaders, csvParser.getHeaderMap().keySet()), "Headers between grid and CSV file match");
+		log.info("comparing number of items");
+		soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
 
+		log.info("checking listed data");
 		for (int i = 0; i < gridInfo.size(); i++) {
 			HashMap<String, String> gridRecord = gridInfo.get(i);
 			CSVRecord record = records.get(i);
@@ -378,8 +401,32 @@ public class DGrid extends DComponent {
 		}
 	}
 
-	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
 
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+
+		log.info("removing Actions from the list of columns");
+		List<String> columnNames = getColumnNames();
+		columnNames.remove("Actions");
+
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+
+
+		log.info("checking file headers against column names");
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+
+	}
+
+	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+		log.debug("record: " + record);
+		log.debug("gridRow: " + gridRow);
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;
@@ -417,5 +464,116 @@ public class DGrid extends DComponent {
 		return true;
 	}
 
+	public String getSortedColumnName() throws Exception {
+		String sortClassName = "sort-active";
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			String classes = headerObj.getAttribute("class");
+			if (classes.contains(sortClassName)) {
+				return headerObj.getText();
+			}
+		}
+		return null;
+	}
 
+	public Order getSortOrder() throws Exception {
+		String sortIndicatorDesc = "sort-desc";
+		String sortIndicatorAsc = "sort-asc";
+		String columnName = getSortedColumnName();
+		if (null == columnName) {
+			return null;
+		}
+
+		for (WebElement gridHeader : gridHeaders) {
+			DObject headerObj = weToDobject(gridHeader);
+			if (StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)) {
+				String classes = headerObj.getAttribute("class");
+				if (classes.contains(sortIndicatorDesc)) {
+					return Order.DESC;
+				}
+				if (classes.contains(sortIndicatorAsc)) {
+					return Order.ASC;
+				}
+			}
+
+		}
+		throw new Exception("Sort order cannot be determined");
+	}
+
+	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft, int i) throws Exception {
+		log.info("Checking csv file vs grid content for specific row");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+		HashMap<String, String> gridInfo = getRowInfo(i);
+
+
+		log.info("checking listed data for  data row" + i);
+		HashMap<String, String> gridRecord = gridInfo;
+		CSVRecord record = records.get(i);
+		soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+	}
+
+	public String getRowSpecificColumnVal(int rowNumber, String columnName) throws Exception {
+		HashMap<String, String> gridInfo = getRowInfo(rowNumber);
+		String colName = columnName;
+		if (gridInfo.containsKey(columnName)) {
+			String val = gridInfo.get(columnName);
+			return val;
+		}
+		return "";
+	}
+
+	//This method will specifically verify csv headers for plugin user page for both authentication type
+	public void checkCSVvsGridHeadersWithAdditionalHeaders(String filename, SoftAssert soft,String authType) throws Exception {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+
+		log.info("removing Actions from the list of columns");
+		List<String> columnNames = getColumnNames();
+		columnNames.remove("Actions");
+
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+
+		List<String> additionalFieldBasic =new ArrayList<>();
+		additionalFieldBasic.add("Certificate Id");
+		additionalFieldBasic.add("Authentication Type");
+		additionalFieldBasic.add("Suspended");
+
+		List<String> additionalFieldCert= new ArrayList<>();
+		additionalFieldCert.add("Username");
+		additionalFieldCert.add("Authentication Type");
+		additionalFieldCert.add("Active");
+		additionalFieldCert.add("Suspended");
+
+		if(authType.equals("BASIC")){
+			log.info("checking additional field headers");
+			soft.assertTrue(csvFileHeaders.containsAll(additionalFieldBasic),"Csv file contaisn all mandatory additional fields");
+			log.info("Removing additional field headers for comparison");
+			csvFileHeaders.removeAll(additionalFieldBasic);
+
+		}
+		if(authType.equals("CERTIFICATE")){
+			log.info("Checking additional field headers for Certificae authentication type");
+			soft.assertTrue(csvFileHeaders.containsAll(additionalFieldCert),"Mandatory additional fields are available for CERT type auth");
+			log.info("Removing additional headers for comparison");
+			csvFileHeaders.removeAll(additionalFieldCert);
+		}
+
+		log.info("checking file headers against column names");
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+
+	}
 }
+
+
+

@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class ObjectProvider {
