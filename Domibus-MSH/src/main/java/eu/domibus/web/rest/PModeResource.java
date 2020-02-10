@@ -13,6 +13,7 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
+import eu.domibus.core.util.FileUploadUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PModeResponseRO;
@@ -30,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -68,6 +68,9 @@ public class PModeResource extends BaseResource {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
+
+    @Autowired
+    FileUploadUtil fileUploadUtil;
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
@@ -107,20 +110,11 @@ public class PModeResource extends BaseResource {
 
     @PostMapping
     public ValidationResponseRO uploadPMode(
-            @RequestPart("file") MultipartFile pModeFile,
+            @RequestPart("file") @Valid MultipartFile pModeFile,
             //we permit more chars for description
-            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
+            @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
-        if (pModeFile.isEmpty()) {
-            throw new IllegalArgumentException("Failed to upload the PMode file since it was empty.");
-        }
-
-        byte[] pModeContent;
-        try {
-            pModeContent = pModeFile.getBytes();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to upload the PMode file since could not read the content.");
-        }
+        byte[] pModeContent = fileUploadUtil.sanitiseFileUpload(pModeFile);
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");

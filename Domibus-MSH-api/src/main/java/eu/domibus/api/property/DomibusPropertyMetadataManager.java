@@ -276,7 +276,9 @@ public interface DomibusPropertyMetadataManager {
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
+    String DOMIBUS__FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.max.size";
 
+    //
     /**
      * Get all the properties metadata that support changing at runtime
      *
