@@ -2,6 +2,7 @@ package eu.domibus.plugin.webService.logging;
 
 import eu.domibus.logging.DomibusLoggingEventSender;
 import eu.domibus.logging.DomibusLoggingEventStripPayloadEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
@@ -52,7 +53,8 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
         if (!event.isMultipartContent()) {
             payload = replaceInPayloadValues(payload, xmlTag);
         } else {
-            //TODO
+            final String boundary = getMultipartBoundary(event.getContentType());
+            payload = replaceInPayloadMultipart(payload, boundary, xmlTag);
         }
 
         //finally set the payload back
@@ -88,5 +90,42 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
         }
 
         return newPayload;
+    }
+
+    private String replaceInPayloadMultipart(final String payload, final String boundary, final String xmlTag) {
+        String newPayload = payload;
+
+        if (payload.contains(boundary)) {
+            String[] payloadSplits = payload.split(boundary);
+
+            //the first payload is the message itself
+            if (payloadSplits.length >= 3) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < payloadSplits.length; i++) {
+                    stringBuilder.append(getReplacementPart(payloadSplits[i], xmlTag));
+                    if (i != payloadSplits.length - 1) {
+                        stringBuilder.append(boundary);
+                    }
+                }
+                newPayload = stringBuilder.toString();
+            }
+        }
+        return newPayload;
+    }
+
+    private String getMultipartBoundary(final String contentType) {
+        String[] tmp = contentType.split("boundary=\"");
+        if (tmp.length >= 2) {
+            return System.lineSeparator() + "--" + tmp[1].substring(0, tmp[1].length() - 1);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private String getReplacementPart(final String boundarySplit, final String xmlTag) {
+        if (boundarySplit.isEmpty() ||
+                (boundarySplit.contains("Content-Type: ") && boundarySplit.contains(xmlTag))
+        || boundarySplit.equals("--" + System.lineSeparator())) return boundarySplit;
+
+        return AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
     }
 }
