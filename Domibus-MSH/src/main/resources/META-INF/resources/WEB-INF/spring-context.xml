@@ -6,13 +6,15 @@
        xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:jms="http://www.springframework.org/schema/jms"
-       xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
-                           http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+                           http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 <!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
     <context:component-scan base-package="eu.domibus">
