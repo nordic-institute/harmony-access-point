@@ -124,7 +124,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     private String getReplacementPart(final String boundarySplit, final String xmlTag) {
         if (boundarySplit.isEmpty() ||
                 (boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
-                boundarySplit.equals("--" + System.lineSeparator())) return boundarySplit;
+                boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator())) return boundarySplit;
 
         return AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
     }
