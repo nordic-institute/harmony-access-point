@@ -1,7 +1,6 @@
 package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -25,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.ValidationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,15 +86,19 @@ public class UploadPModeIT extends AbstractIT {
     /**
      * Tests that the PMode is not saved in the DB because there is a wrong configuration.
      */
-//    @Test
-//    public void testSavePModeNOk() throws IOException {
-//        String pmodeName = "domibus-configuration-xsd-not-compliant.xml";
-//        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
-//
-//        MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
-//        ResponseEntity<ValidationResponseRO> response = adminGui.uploadPMode(pModeContent, "description");
-//        assertTrue(response.getBody().getMessage().contains("Failed to upload the PMode file due to"));
-//    }
+    @Test
+    public void testSavePModeNOk() throws IOException {
+        String pmodeName = "domibus-configuration-xsd-not-compliant.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+
+        MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+        }catch (PModeValidationException ex) {
+            assertTrue(ex.getMessage().contains("Failed to upload the PMode file due to"));
+        }
+    }
+
     private Configuration testUpdatePModes(final byte[] bytes) throws JAXBException {
         final Configuration configuration = (Configuration) this.jaxbContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(bytes));
         configurationDAO.updateConfiguration(configuration);
