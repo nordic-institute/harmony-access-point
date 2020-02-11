@@ -24,6 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,6 +115,9 @@ public class PModeResource extends BaseResource {
             //we permit more chars for description
             @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
+        if (!pModeFile.getContentType().equals(MimeTypeUtils.TEXT_XML_VALUE)) {
+            throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", pModeFile.getName()));
+        }
         byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile);
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);

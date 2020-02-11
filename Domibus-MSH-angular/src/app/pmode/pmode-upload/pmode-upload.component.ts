@@ -60,6 +60,9 @@ export class PmodeUploadComponent implements OnInit {
     try {
       const file = this.getFile();
       await this.fileUploadService.validateSize(file);
+      if (file.type !== 'text/xml') {
+        throw new Error('The file type should be xml.');
+      }
 
       let input = new FormData();
       input.append('file', file);
