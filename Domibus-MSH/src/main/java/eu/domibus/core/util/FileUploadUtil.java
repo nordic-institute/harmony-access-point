@@ -22,9 +22,6 @@ public class FileUploadUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileUploadUtil.class);
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-
     public byte[] sanitiseFileUpload(MultipartFile file) throws IllegalArgumentException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
