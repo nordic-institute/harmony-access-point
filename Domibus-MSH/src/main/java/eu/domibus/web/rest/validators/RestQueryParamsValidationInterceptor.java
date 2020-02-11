@@ -96,6 +96,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
     }
 
     private ParameterInfo extractMethodParameterInfo(HandlerMethod method) {
+        ParameterInfo res = new ParameterInfo();
         MethodParameter parameterInfo = null;
         Class parameterType = null;
         CustomWhiteListed parameterAnnotation = null;
@@ -109,14 +110,15 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
                     parameterInfo = parameters.get(0);
                     parameterType = parameterInfo.getParameterType();
                     parameterAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
-                    return new ParameterInfo(parameterType, parameterAnnotation);
+                    res.setParameterType(parameterType);
+                    res.setParameterAnnotation(parameterAnnotation);
                 } else {
                     LOG.trace("Method [{}] has [{}] request parameters instead of maximum one so blacklist validation will not have type information!",
                             method.getMethod().getName(), parameters.size());
                 }
             }
         }
-        return null;
+        return res;
     }
 
     private List<MethodParameter> getMethodParameters(HandlerMethod method) {
@@ -131,17 +133,25 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return parameterType;
         }
 
+        public void setParameterType(Class parameterType) {
+            this.parameterType = parameterType;
+        }
+
         Class parameterType;
 
         public CustomWhiteListed getParameterAnnotation() {
             return parameterAnnotation;
         }
 
+        public void setParameterAnnotation(CustomWhiteListed parameterAnnotation) {
+            this.parameterAnnotation = parameterAnnotation;
+        }
+
         CustomWhiteListed parameterAnnotation;
 
-        ParameterInfo(Class parameterType, CustomWhiteListed parameterAnnotation) {
-            this.parameterAnnotation = parameterAnnotation;
-            this.parameterType = parameterType;
-        }
+//        ParameterInfo(Class parameterType, CustomWhiteListed parameterAnnotation) {
+//            this.parameterAnnotation = parameterAnnotation;
+//            this.parameterType = parameterType;
+//        }
     }
 }
