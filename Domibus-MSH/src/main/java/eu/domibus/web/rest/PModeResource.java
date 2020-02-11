@@ -13,7 +13,7 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.core.util.MultiPartFileUtil;
+import eu.domibus.ext.rest.MultiPartFileUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PModeResponseRO;
@@ -115,10 +115,7 @@ public class PModeResource extends BaseResource {
             //we permit more chars for description
             @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
-        if (!pModeFile.getContentType().equals(MimeTypeUtils.TEXT_XML_VALUE)) {
-            throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", pModeFile.getName()));
-        }
-        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile);
+        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, MimeTypeUtils.TEXT_XML);
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");

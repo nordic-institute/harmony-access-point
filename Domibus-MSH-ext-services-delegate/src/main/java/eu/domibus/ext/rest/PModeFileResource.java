@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,11 +76,9 @@ public class PModeFileResource {
     public ResponseEntity<ValidationResponseDTO> uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {
-        if (pmode.isEmpty()) {
-            return ResponseEntity.badRequest().body(new ValidationResponseDTO("Failed to upload the PMode file since it was empty."));
-        }
+
         try {
-            byte[] bytes = pmode.getBytes();
+            byte[] bytes = pModeExtService.validateAndGetFileContent(pmode, MimeTypeUtils.TEXT_XML);
 
             List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
 
@@ -94,6 +93,10 @@ public class PModeFileResource {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                     body(new ValidationResponseDTO(ve.getMessage(), domainConverter.convert(ve.getIssues(), ValidationIssueDTO.class)));
+        } catch (IllegalArgumentException iae) {
+            LOG.error("Validation exception uploading the PMode", iae);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                    body(new ValidationResponseDTO(iae.getMessage()));
         } catch (Exception e) {
             LOG.error("Error uploading the PMode", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

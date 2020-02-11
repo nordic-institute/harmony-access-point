@@ -2,6 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
+import org.springframework.util.MimeType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,4 +45,5 @@ public interface PModeExtService {
      */
     List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description);
 
+    byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws IllegalArgumentException;
 }

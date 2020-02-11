@@ -1,8 +1,9 @@
-package eu.domibus.core.util;
+package eu.domibus.ext.rest;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,8 +19,12 @@ public class MultiPartFileUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtil.class);
 
-    public byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException {
+    public byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws IllegalArgumentException {
         if (file.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
+        }
+
+        if (type != null && !type.equals(file.getContentType())) {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
         }
 
@@ -30,5 +35,9 @@ public class MultiPartFileUtil {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since could not read the content.", file.getName()));
         }
         return pModeContent;
+    }
+
+    public byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException {
+        return validateAndGetFileContent(file, null);
     }
 }

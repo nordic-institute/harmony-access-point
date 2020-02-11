@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.ext.rest.MultiPartFileUtil;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
