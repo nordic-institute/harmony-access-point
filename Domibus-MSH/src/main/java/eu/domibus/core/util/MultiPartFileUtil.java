@@ -1,15 +1,11 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS__FILE_UPLOAD_MAX_SIZE;
 
 /**
  * @author Ion Perpegel
@@ -18,11 +14,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS__FI
  * Helper methods for file upload through REST interface
  */
 @Service
-public class FileUploadUtil {
+public class MultiPartFileUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileUploadUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtil.class);
 
-    public byte[] sanitiseFileUpload(MultipartFile file) throws IllegalArgumentException {
+    public byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
         }

@@ -7,13 +7,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
 
-public class FileUploadUtilTest {
+public class MultiPartFileUtilTest {
 
     @Tested
-    FileUploadUtil fileUploadUtil;
+    MultiPartFileUtil multiPartFileUtil;
 
     @Test(expected = IllegalArgumentException.class)
     public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) throws IOException {
@@ -23,7 +22,7 @@ public class FileUploadUtilTest {
         }};
 
         //tested
-        fileUploadUtil.sanitiseFileUpload(file);
+        multiPartFileUtil.validateAndGetFileContent(file);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -36,7 +35,7 @@ public class FileUploadUtilTest {
         }};
 
         //tested
-        fileUploadUtil.sanitiseFileUpload(file);
+        multiPartFileUtil.validateAndGetFileContent(file);
     }
 
     @Test()
@@ -51,7 +50,7 @@ public class FileUploadUtilTest {
         }};
 
         //tested
-        byte[] result = fileUploadUtil.sanitiseFileUpload(file);
+        byte[] result = multiPartFileUtil.validateAndGetFileContent(file);
 
         Assert.assertTrue(result == bytes);
     }

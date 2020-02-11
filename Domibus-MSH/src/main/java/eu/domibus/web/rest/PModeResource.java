@@ -13,7 +13,7 @@ import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.core.util.FileUploadUtil;
+import eu.domibus.core.util.MultiPartFileUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PModeResponseRO;
@@ -70,7 +70,7 @@ public class PModeResource extends BaseResource {
     PModeValidationHelper pModeValidationHelper;
 
     @Autowired
-    FileUploadUtil fileUploadUtil;
+    MultiPartFileUtil multiPartFileUtil;
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
@@ -114,7 +114,7 @@ public class PModeResource extends BaseResource {
             //we permit more chars for description
             @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
-        byte[] pModeContent = fileUploadUtil.sanitiseFileUpload(pModeFile);
+        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile);
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");

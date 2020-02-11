@@ -10,7 +10,7 @@ import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.util.FileUploadUtil;
+import eu.domibus.core.util.MultiPartFileUtil;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -63,7 +63,7 @@ public class TruststoreResource extends BaseResource {
     private ErrorHandlerService errorHandlerService;
 
     @Autowired
-    FileUploadUtil fileUploadUtil;
+    MultiPartFileUtil multiPartFileUtil;
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
@@ -75,7 +75,7 @@ public class TruststoreResource extends BaseResource {
     @PostMapping(value = "/save")
     public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
                                        @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
-        byte[] truststoreFileContent = fileUploadUtil.sanitiseFileUpload(truststoreFile);
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);

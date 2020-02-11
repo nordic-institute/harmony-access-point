@@ -12,7 +12,7 @@ import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.util.FileUploadUtil;
+import eu.domibus.core.util.MultiPartFileUtil;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
@@ -76,7 +76,7 @@ public class TruststoreResourceTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    FileUploadUtil fileUploadUtil;
+    MultiPartFileUtil multiPartFileUtil;
 
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {
@@ -97,7 +97,7 @@ public class TruststoreResourceTest {
         MultipartFile emptyFile = new MockMultipartFile("truststore", new byte[]{});
 
         new Expectations() {{
-            fileUploadUtil.sanitiseFileUpload(emptyFile);
+            multiPartFileUtil.validateAndGetFileContent(emptyFile);
             result = new IllegalArgumentException("Failed to upload the truststore file since it was empty.");
         }};
 
@@ -118,7 +118,7 @@ public class TruststoreResourceTest {
         final Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations() {{
-            fileUploadUtil.sanitiseFileUpload(multiPartFile);
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = new byte[]{1, 0, 1};
 
             domainProvider.getCurrentDomain();

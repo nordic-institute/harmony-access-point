@@ -7,6 +7,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
+import eu.domibus.core.util.MultiPartFileUtil;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -55,6 +56,9 @@ public class PModeResourceTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    MultiPartFileUtil multiPartFileUtil;
 
     @Test
     public void testDownloadPmodes() {
@@ -122,16 +126,6 @@ public class PModeResourceTest {
         Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
         Assert.assertEquals("attachment; filename=Pmodes.xml", responseEntity.getHeaders().get("content-disposition").get(0));
         Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testUploadPmodesEmptyFile() throws IOException {
-        // Given
-        MultipartFile file = new MockMultipartFile("filename", new byte[]{});
-
-        // When
-        ValidationResponseRO response = pModeResource.uploadPMode(file, "description");
-
     }
 
     @Test
