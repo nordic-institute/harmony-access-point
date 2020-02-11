@@ -1,7 +1,7 @@
 package pages.Audit;
 
 import ddsl.dcomponents.FilterArea;
-import ddsl.dobjects.DatePicker;
+import ddsl.dcomponents.DatePicker;
 import ddsl.dobjects.multi_select.MultiSelect;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
