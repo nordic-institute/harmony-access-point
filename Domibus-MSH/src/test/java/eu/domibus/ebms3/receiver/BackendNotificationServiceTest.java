@@ -623,9 +623,9 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void initTest(@Injectable NotificationListener notificationListener,
-                         @Injectable CriteriaFactory criteriaFactory,
-                         @Injectable BackendFilterEntity backendFilterEntity) {
+    public void testInitWithOutEmptyBackendFilter(@Injectable NotificationListener notificationListener,
+                                                  @Injectable CriteriaFactory criteriaFactory,
+                                                  @Injectable BackendFilterEntity backendFilterEntity) {
 
         Map notificationListenerBeanMap = new HashMap();
         routingCriteriaFactories.add(criteriaFactory);
@@ -654,7 +654,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void initWithEmptyBackendFilterTest(@Injectable NotificationListener notificationListener,
+    public void testInitWithEmptyBackendFilter(@Injectable NotificationListener notificationListener,
                                                @Injectable CriteriaFactory routingCriteriaFactory,
                                                @Injectable BackendFilterEntity backendFilterEntity) {
 
@@ -686,20 +686,19 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void createBackendFiltersBasedOnExistingUserPriorityTest(@Mocked BackendFilterEntity backendFilterEntity,
-                                                                    @Mocked NotificationListener notificationListener) {
+    public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
+                                                                    @Injectable NotificationListener notificationListener) {
 
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        List<String> pluginList = new ArrayList<>();
-        pluginList.add(BackendPluginEnum.WS_PLUGIN.getPluginName());
+        int priority = 0;
         List<String> notificationListenerPluginsList = new ArrayList<>();
         List<String> backendFilterPluginList = new ArrayList<>();
         backendFilterEntities.add(backendFilterEntity);
         notificationListenerServices.add(notificationListener);
         notificationListenerPluginsList.add(BackendPluginEnum.WS_PLUGIN.getPluginName());
         notificationListenerPluginsList.add(BackendPluginEnum.JMS_PLUGIN.getPluginName());
-        backendFilterPluginList.add(BackendPluginEnum.JMS_PLUGIN.getPluginName());
+        backendFilterPluginList.add(BackendPluginEnum.WS_PLUGIN.getPluginName());
         backendNotificationService.notificationListenerServices = notificationListenerServices;
 
         new Expectations(backendNotificationService) {{
@@ -714,13 +713,24 @@ public class BackendNotificationServiceTest {
 
             backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
             result = backendFilterPluginList;
+
+            notificationListenerPluginsList.removeAll(backendFilterPluginList);
+            times = 1;
+
+            backendFilterEntities.stream().max(Comparator.comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new);
+            result = priority;
         }};
 
         backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
 
         new Verifications() {{
-            backendNotificationService.assignPriorityToPlugins(withCapture(), withCapture());
+            List<String> capturedList = null;
+            int capturedPriority;
+            backendNotificationService.assignPriorityToPlugins(capturedList = withCapture(), capturedPriority = withCapture());
             times = 1;
+
+            Assert.assertEquals(capturedList, notificationListenerPluginsList);
+            Assert.assertEquals(capturedPriority, priority);
 
             backendFilterDao.create(backendFilterEntities);
             times = 0;
@@ -728,14 +738,16 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void assignPriorityToPluginsTest(@Injectable BackendFilterEntity backendFilterEntity) {
+    public void testAssignPriorityToPlugins(@Injectable BackendFilterEntity backendFilterEntity) {
         List<String> pluginList = new ArrayList<>();
         int priority = 0;
+        pluginList.add(BackendPluginEnum.FS_PLUGIN.getPluginName());
+        pluginList.add(BackendPluginEnum.JMS_PLUGIN.getPluginName());
+        pluginList.add(BackendPluginEnum.WS_PLUGIN.getPluginName());
+        List<String> defaultPluginOrderList = Arrays.asList(BackendPluginEnum.WS_PLUGIN.getPluginName(), BackendPluginEnum.JMS_PLUGIN.getPluginName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
 
         new Expectations(backendNotificationService) {{
-            pluginList.add(BackendPluginEnum.WS_PLUGIN.getPluginName());
-            pluginList.add(BackendPluginEnum.JMS_PLUGIN.getPluginName());
-            pluginList.add(BackendPluginEnum.FS_PLUGIN.getPluginName());
+            pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
         }};
 
         List<BackendFilterEntity> backendFilters = backendNotificationService.assignPriorityToPlugins(pluginList, priority);
@@ -746,7 +758,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void createWSBackendFiltersWithDefaultPriorityTest(@Injectable NotificationListener notificationListener,
+    public void testCreateWSBackendFiltersWithDefaultPriority(@Injectable NotificationListener notificationListener,
                                                               @Injectable BackendFilterEntity backendFilterEntity) {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
