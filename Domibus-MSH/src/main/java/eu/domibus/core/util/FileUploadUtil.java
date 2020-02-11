@@ -30,11 +30,6 @@ public class FileUploadUtil {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
         }
 
-//        int maxFileSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS__FILE_UPLOAD_MAX_SIZE);
-//        if (maxFileSize != 0 && file.getSize() > maxFileSize) {
-//            throw new IllegalArgumentException(String.format("Failed to upload the %s since the file size exceeds the acceptable limit.", file.getName()));
-//        }
-
         byte[] pModeContent;
         try {
             pModeContent = file.getBytes();
