@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender {
     private static final Logger LOG = LoggerFactory.getLogger(DomibusWSPluginLoggingEventSender.class);
 
-    static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String VALUE_START = "<value";
     static final String VALUE_END = "</value";
     static final String SUBMIT_MESSAGE = "submitRequest";
-
-
+    public static final String BOUNDARY_MARKER = "boundary=\"";
+    public static final String CONTENT_TYPE_MARKER = "Content-Type: ";
+    public static final String BOUNDARY_MARKER_PREFIX = "--";
 
 
     /**
@@ -114,17 +114,17 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     }
 
     private String getMultipartBoundary(final String contentType) {
-        String[] tmp = contentType.split("boundary=\"");
+        String[] tmp = contentType.split(BOUNDARY_MARKER);
         if (tmp.length >= 2) {
-            return System.lineSeparator() + "--" + tmp[1].substring(0, tmp[1].length() - 1);
+            return System.lineSeparator() + BOUNDARY_MARKER_PREFIX + tmp[1].substring(0, tmp[1].length() - 1);
         }
         return StringUtils.EMPTY;
     }
 
     private String getReplacementPart(final String boundarySplit, final String xmlTag) {
         if (boundarySplit.isEmpty() ||
-                (boundarySplit.contains("Content-Type: ") && boundarySplit.contains(xmlTag))
-        || boundarySplit.equals("--" + System.lineSeparator())) return boundarySplit;
+                (boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
+                boundarySplit.equals("--" + System.lineSeparator())) return boundarySplit;
 
         return AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
     }
