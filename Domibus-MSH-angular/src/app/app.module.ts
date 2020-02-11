@@ -99,7 +99,8 @@ import {UserCrossFieldValidatorsDirective} from './common/directive/user-cross-f
 import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
 import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';
-
+import {PropertiesService} from './properties/properties.service';
+import {FileUploadService} from './common/file-upload.service';
 
 @NgModule({
   declarations: [
@@ -231,7 +232,9 @@ import {EditPopupBaseComponent} from './common/edit-popup-base.component';
     },
     UserService,
     UserValidatorService,
-    DialogsService
+    DialogsService,
+    PropertiesService,
+    FileUploadService
   ],
   bootstrap: [AppComponent]
 })
