@@ -27,10 +27,8 @@ public class BackendFilterDao extends BasicDao<BackendFilterEntity> {
     }
 
     public void create(final List<BackendFilterEntity> filters) {
-        for (int i = 0; i < filters.size(); i++) {
-            final BackendFilterEntity f = filters.get(i);
-            f.setIndex(i);
-            super.create(f);
+        for (BackendFilterEntity backendFilterEntity : filters) {
+            super.create(backendFilterEntity);
         }
     }
 
