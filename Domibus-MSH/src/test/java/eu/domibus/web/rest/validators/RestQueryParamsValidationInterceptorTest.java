@@ -3,9 +3,11 @@ package eu.domibus.web.rest.validators;
 import eu.domibus.common.validators.ObjectPropertiesMapBlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.web.method.HandlerMethod;
 
 import javax.validation.ValidationException;
 import java.util.HashMap;
@@ -48,4 +50,5 @@ public class RestQueryParamsValidationInterceptorTest {
 
         restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
     }
+
 }

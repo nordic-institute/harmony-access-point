@@ -82,30 +82,8 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             return true;
         }
         try {
-            MethodParameter parameterInfo = null;
-            Class parameterType = null;
-            CustomWhiteListed parameterAnnotation = null;
-
-            if (method != null) {
-                List<MethodParameter> parameters = Arrays.asList(method.getMethodParameters()).stream()
-                        .filter(el -> !el.hasParameterAnnotation(RequestPart.class))
-                        .filter(el -> !el.hasParameterAnnotation(RequestBody.class))
-                        .collect(Collectors.toList());
-
-                if (CollectionUtils.isNotEmpty(parameters)) {
-                    // now all GET methods have maximum one Request Parameter that contain all fields (and it is a good practice)
-                    if (parameters.size() == 1) {
-                        parameterInfo = parameters.get(0);
-                        parameterType = parameterInfo.getParameterType();
-                        parameterAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
-                    } else {
-                        LOG.trace("Method [{}] has [{}] request parameters instead of maximum one so blacklist validation will not have type information!",
-                                method.getMethod().getName(), parameters.size());
-                    }
-                }
-            }
-
-            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, parameterType, parameterAnnotation));
+            ParameterInfo paramInfo = extractMethodParameterInfo(method);
+            blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, paramInfo.getParameterType(), paramInfo.getParameterAnnotation()));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {
@@ -117,4 +95,63 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
     }
 
+    private ParameterInfo extractMethodParameterInfo(HandlerMethod method) {
+        ParameterInfo res = new ParameterInfo();
+        MethodParameter parameterInfo = null;
+        Class parameterType = null;
+        CustomWhiteListed parameterAnnotation = null;
+
+        if (method != null) {
+            List<MethodParameter> parameters = getMethodParameters(method);
+
+            if (CollectionUtils.isNotEmpty(parameters)) {
+                // now all GET methods have maximum one Request Parameter that contain all fields
+                if (parameters.size() == 1) {
+                    parameterInfo = parameters.get(0);
+                    parameterType = parameterInfo.getParameterType();
+                    parameterAnnotation = parameterInfo.getParameterAnnotation(CustomWhiteListed.class);
+                    res.setParameterType(parameterType);
+                    res.setParameterAnnotation(parameterAnnotation);
+                } else {
+                    LOG.trace("Method [{}] has [{}] request parameters instead of maximum one so blacklist validation will not have type information!",
+                            method.getMethod().getName(), parameters.size());
+                }
+            }
+        }
+        return res;
+    }
+
+    private List<MethodParameter> getMethodParameters(HandlerMethod method) {
+        return Arrays.asList(method.getMethodParameters()).stream()
+                .filter(el -> !el.hasParameterAnnotation(RequestPart.class))
+                .filter(el -> !el.hasParameterAnnotation(RequestBody.class))
+                .collect(Collectors.toList());
+    }
+
+    class ParameterInfo {
+        public Class getParameterType() {
+            return parameterType;
+        }
+
+        public void setParameterType(Class parameterType) {
+            this.parameterType = parameterType;
+        }
+
+        Class parameterType;
+
+        public CustomWhiteListed getParameterAnnotation() {
+            return parameterAnnotation;
+        }
+
+        public void setParameterAnnotation(CustomWhiteListed parameterAnnotation) {
+            this.parameterAnnotation = parameterAnnotation;
+        }
+
+        CustomWhiteListed parameterAnnotation;
+
+//        ParameterInfo(Class parameterType, CustomWhiteListed parameterAnnotation) {
+//            this.parameterAnnotation = parameterAnnotation;
+//            this.parameterType = parameterType;
+//        }
+    }
 }
