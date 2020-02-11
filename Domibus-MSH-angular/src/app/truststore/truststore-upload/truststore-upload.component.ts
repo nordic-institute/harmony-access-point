@@ -3,7 +3,7 @@ import {MatDialogRef} from '@angular/material';
 import {TrustStoreService} from '../trustore.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {FileUploadService} from '../../common/file-upload.service';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-truststore-upload',
@@ -24,7 +24,7 @@ export class TrustStoreUploadComponent {
   constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
               private truststoreService: TrustStoreService,
               private alertService: AlertService,
-              private fb: FormBuilder, private fileUploadService: FileUploadService) {
+              private fb: FormBuilder, private fileUploadService: FileUploadValidatorService) {
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
     });

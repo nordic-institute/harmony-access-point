@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {PropertiesService} from '../properties/properties.service';
 
 @Injectable()
-export class FileUploadService {
+export class FileUploadValidatorService {
 
   constructor(private propertiesService: PropertiesService) {
   }

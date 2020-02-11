@@ -3,7 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 import {PropertiesService} from '../../properties/properties.service';
-import {FileUploadService} from '../../common/file-upload.service';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-pmode-upload',
@@ -27,7 +27,7 @@ export class PmodeUploadComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) private data: { pModeContents: string },
               public dialogRef: MatDialogRef<PmodeUploadComponent>,
               private http: HttpClient, private alertService: AlertService,
-              private fileUploadService: FileUploadService) {
+              private fileUploadService: FileUploadValidatorService) {
   }
 
   ngOnInit() {

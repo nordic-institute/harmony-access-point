@@ -100,7 +100,7 @@ import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/
 import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';
 import {PropertiesService} from './properties/properties.service';
-import {FileUploadService} from './common/file-upload.service';
+import {FileUploadValidatorService} from './common/file-upload-validator.service';
 
 @NgModule({
   declarations: [
@@ -234,7 +234,7 @@ import {FileUploadService} from './common/file-upload.service';
     UserValidatorService,
     DialogsService,
     PropertiesService,
-    FileUploadService
+    FileUploadValidatorService
   ],
   bootstrap: [AppComponent]
 })
