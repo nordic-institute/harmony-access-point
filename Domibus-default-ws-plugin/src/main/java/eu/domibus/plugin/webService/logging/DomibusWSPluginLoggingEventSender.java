@@ -50,11 +50,11 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
         String payload = event.getPayload();
 
         //strip 'values' if it's submitMessage or retrieveMessage
-        if (!event.isMultipartContent()) {
-            payload = replaceInPayloadValues(payload, xmlTag);
-        } else {
+        if (event.isMultipartContent()) {
             final String boundary = getMultipartBoundary(event.getContentType());
             payload = replaceInPayloadMultipart(payload, boundary, xmlTag);
+        } else {
+            payload = replaceInPayloadValues(payload, xmlTag);
         }
 
         //finally set the payload back
