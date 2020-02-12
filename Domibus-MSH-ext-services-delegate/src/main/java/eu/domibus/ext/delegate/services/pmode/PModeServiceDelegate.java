@@ -1,12 +1,12 @@
 package eu.domibus.ext.delegate.services.pmode;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
-import eu.domibus.ext.rest.MultiPartFileUtil;
 import eu.domibus.ext.services.PModeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

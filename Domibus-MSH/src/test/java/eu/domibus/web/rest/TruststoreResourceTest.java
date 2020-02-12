@@ -12,7 +12,7 @@ import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.ext.rest.MultiPartFileUtil;
+import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
@@ -76,7 +76,7 @@ public class TruststoreResourceTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    MultiPartFileUtil multiPartFileUtil;
+    MultiPartFileUtilImpl multiPartFileUtil;
 
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {

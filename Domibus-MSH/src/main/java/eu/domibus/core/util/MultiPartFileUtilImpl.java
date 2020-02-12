@@ -1,5 +1,6 @@
-package eu.domibus.ext.rest;
+package eu.domibus.core.util;
 
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,11 @@ import java.io.IOException;
  * Helper methods for file upload through REST interface
  */
 @Service
-public class MultiPartFileUtil {
+public class MultiPartFileUtilImpl implements MultiPartFileUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtilImpl.class);
 
+    @Override
     public byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws IllegalArgumentException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException(String.format("Failed to upload the %s since it was empty.", file.getName()));
@@ -37,6 +39,7 @@ public class MultiPartFileUtil {
         return pModeContent;
     }
 
+    @Override
     public byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException {
         return validateAndGetFileContent(file, null);
     }

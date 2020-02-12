@@ -1,6 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.ext.rest.MultiPartFileUtil;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
@@ -10,10 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public class MultiPartFileUtilTest {
+public class MultiPartFileUtilImplTest {
 
     @Tested
-    MultiPartFileUtil multiPartFileUtil;
+    MultiPartFileUtilImpl multiPartFileUtil;
 
     @Test(expected = IllegalArgumentException.class)
     public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) throws IOException {

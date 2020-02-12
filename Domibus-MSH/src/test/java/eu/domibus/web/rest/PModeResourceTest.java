@@ -7,7 +7,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.ext.rest.MultiPartFileUtil;
+import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -58,7 +58,7 @@ public class PModeResourceTest {
     PModeValidationHelper pModeValidationHelper;
 
     @Injectable
-    MultiPartFileUtil multiPartFileUtil;
+    MultiPartFileUtilImpl multiPartFileUtil;
 
     @Test
     public void testDownloadPmodes() {
