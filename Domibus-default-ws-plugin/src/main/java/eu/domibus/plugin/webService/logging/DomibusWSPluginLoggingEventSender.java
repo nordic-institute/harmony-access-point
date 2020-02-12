@@ -20,12 +20,10 @@ import org.slf4j.LoggerFactory;
 public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender {
     private static final Logger LOG = LoggerFactory.getLogger(DomibusWSPluginLoggingEventSender.class);
 
-    static final String VALUE_START = "<value";
-    static final String VALUE_END = "</value";
-    static final String SUBMIT_MESSAGE = "submitRequest";
-    public static final String BOUNDARY_MARKER = "boundary=\"";
-    public static final String CONTENT_TYPE_MARKER = "Content-Type: ";
-    public static final String BOUNDARY_MARKER_PREFIX = "--";
+    static final String VALUE_START_MARKER = "<value";
+    static final String VALUE_END_MARKER = "</value";
+    static final String BOUNDARY_MARKER = "boundary=\"";
+    static final String BOUNDARY_MARKER_PREFIX = "--";
 
 
     /**
@@ -37,10 +35,10 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     protected void stripPayload(LogEvent event) {
         final String operationName = event.getOperationName();
         final EventType eventType = event.getType();
-        LOG.debug("operationName=[{}] eventType=[{}]", operationName, eventType);
+        LOG.debug("operationName=[{}] eventType=[{}] multipart=[{}]", operationName, eventType, event.isMultipartContent());
 
         //check conditions to strip the payload and get the xmlTag
-        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlTagIfStripPayloadIsPossible(operationName, eventType);
+        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlNodeIfStripPayloadIsPossible(operationName, eventType);
         if (xmlTag == null) {
             LOG.debug("for operationName=[{}] and eventType=[{}] we don't strip the payload", operationName, eventType);
             return;
@@ -71,10 +69,10 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
         }
 
         //start to replace/suppress the content between <value>...</value> pairs
-        int indexStart = newPayload.indexOf(VALUE_START);
+        int indexStart = newPayload.indexOf(VALUE_START_MARKER);
         int startTagLength = newPayload.indexOf('>', indexStart) - indexStart + 1;
 
-        int indexEnd = newPayload.indexOf(VALUE_END);
+        int indexEnd = newPayload.indexOf(VALUE_END_MARKER);
         int endTagLength = newPayload.indexOf('>', indexEnd) - indexEnd + 1;
 
         while (indexStart >= 0 && indexStart > xmlNodeStartIndex && indexStart < indexEnd) {
@@ -83,8 +81,8 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
                     AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
 
             int fromIndex = indexEnd + endTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
-            indexStart = newPayload.indexOf(VALUE_START, fromIndex);
-            indexEnd = newPayload.indexOf(VALUE_END, fromIndex);
+            indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
+            indexEnd = newPayload.indexOf(VALUE_END_MARKER, fromIndex);
             startTagLength = newPayload.indexOf('>', indexStart) - indexStart + 1;
             endTagLength = newPayload.indexOf('>', indexEnd) - indexEnd + 1;
         }
@@ -95,7 +93,7 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
     private String replaceInPayloadMultipart(final String payload, final String boundary, final String xmlTag) {
         String newPayload = payload;
 
-        if (payload.contains(boundary)) {
+        if (payload.contains(xmlTag)) {
             String[] payloadSplits = payload.split(boundary);
 
             //the first payload is the message itself
@@ -126,6 +124,6 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
                 (boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
                 boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator())) return boundarySplit;
 
-        return AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
+        return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
     }
 }

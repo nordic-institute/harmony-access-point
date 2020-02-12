@@ -13,30 +13,37 @@ import java.util.stream.Stream;
 public enum DomibusLoggingEventStripPayloadEnum {
 
     /** WS-PLUGIN */
-    SUBMIT_MESSAGE("submitMessage", EventType.REQ_IN, "submitRequest"),
-    RETRIEVE_MESSAGE_RESPONSE("retrieveMessageResponse",  EventType.REQ_IN, "retrieveMessageResponse"),
+    WS_PLUGIN_SUBMIT_MESSAGE("submitMessage", EventType.REQ_IN, "submitRequest"),
+    WS_PLUGIN_RETRIEVE_MESSAGE("retrieveMessage",  EventType.RESP_OUT, "retrieveMessageResponse"),
 
     /** MSH */
-    MSH_INVOKE("Invoke", EventType.REQ_OUT, "Content-Type:");
+    MSH_INVOKE("Invoke", EventType.REQ_OUT, "UserMessage");
 
-    String xmlTag;
+    String xmlNode;
     String allowedOperationName;
     EventType eventType;
 
-    DomibusLoggingEventStripPayloadEnum(final String allowedOperationName, final EventType eventType, final String xmlTag) {
+    DomibusLoggingEventStripPayloadEnum(final String allowedOperationName, final EventType eventType, final String xmlNode) {
         this.allowedOperationName = allowedOperationName;
         this.eventType = eventType;
-        this.xmlTag = xmlTag;
+        this.xmlNode = xmlNode;
     }
 
-    public static String getXmlTagIfStripPayloadIsPossible(final String operationName, final EventType eventType) {
+    /**
+     * It will checks the oepration name and the event Type and returns xml node if
+     * it's allowed to strip payload
+     * @param operationName Soap operation Name
+     * @param eventType EventType
+     * @return xml node to be present
+     */
+    public static String getXmlNodeIfStripPayloadIsPossible(final String operationName, final EventType eventType) {
         DomibusLoggingEventStripPayloadEnum x = Stream.of(DomibusLoggingEventStripPayloadEnum.values()).
                 filter(e -> operationName.contains(e.allowedOperationName) && e.eventType == eventType).
                 findFirst().
                 orElse(null);
 
         if (x == null)  return null;
-        return x.xmlTag;
+        return x.xmlNode;
     }
 
 }

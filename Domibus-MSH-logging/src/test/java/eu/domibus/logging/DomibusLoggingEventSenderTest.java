@@ -40,7 +40,7 @@ public class DomibusLoggingEventSenderTest {
             final String payloadActual;
             logEvent.setPayload(payloadActual = withCapture());
             Assert.assertNotNull(payloadActual);
-            Assert.assertTrue(payloadActual.split(DomibusLoggingEventSender.CONTENT_TYPE).length == 2);
+            Assert.assertTrue(payloadActual.split(DomibusLoggingEventSender.CONTENT_TYPE_MARKER).length == 2);
         }};
     }
 }

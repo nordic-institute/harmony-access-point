@@ -21,7 +21,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
 
-    static final String CONTENT_TYPE = "Content-Type:";
+    protected static final String CONTENT_TYPE_MARKER = "Content-Type:";
     private static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
     private boolean printPayload;
@@ -32,7 +32,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     @Override
     protected String getLogMessage(LogEvent event) {
-
         if (checkIfStripPayloadPossible()) {
             try {
                 stripPayload(event);
@@ -54,7 +53,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
         final EventType eventType = event.getType();
 
         //check conditions to strip the payload and get the xmlTag
-        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlTagIfStripPayloadIsPossible(operationName, eventType);
+        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlNodeIfStripPayloadIsPossible(operationName, eventType);
         if (xmlTag == null) {
             LOG.debug("for operationName=[{}] and eventType=[{}] we don't strip the payload", operationName, eventType);
             return;
@@ -68,7 +67,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     }
 
-    private boolean checkIfStripPayloadPossible(){
+    private boolean checkIfStripPayloadPossible() {
         LOG.debug("printPayload=[{}]", printPayload);
         if (printPayload) {
             return false;
@@ -84,15 +83,13 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
         String newPayload = payload;
         //C2 -> C3
         if (payload.contains(xmlTag)) {
-            String[] payloadSplits = payload.split(xmlTag);
+            String[] payloadSplits = payload.split(CONTENT_TYPE_MARKER);
             //keeping only first 2 Content-Type elements
             if (payloadSplits.length >= 2) {
-                newPayload = payloadSplits[0] + xmlTag + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
+                newPayload = payloadSplits[0] + CONTENT_TYPE_MARKER + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
             }
         }
         return newPayload;
     }
-
-
 
 }
