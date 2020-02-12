@@ -1,10 +1,12 @@
 package eu.domibus.web.rest.error;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -40,18 +42,30 @@ public class ErrorHandlerService {
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<ErrorRO> createResponse(Throwable ex, HttpStatus status) {
+    public ResponseEntity<ValidationResponseRO> createResponse(PModeValidationException ex, HttpStatus status) {
         LOG.error(ex.getMessage(), ex);
 
         HttpHeaders headers = new HttpHeaders();
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
         headers.set(HttpHeaders.CONNECTION, "close");
 
-        //unwrapt the domain task exception for the root error
+        ValidationResponseRO body = new ValidationResponseRO(ex.getMessage(), ex.getIssues());
+
+        return new ResponseEntity(body, headers, status);
+    }
+
+    public ResponseEntity<ErrorRO> createResponse(Throwable ex, HttpStatus status) {
+        LOG.error(ex.getMessage(), ex);
+
+        //unwrap the domain task exception for the root error
         if (ex instanceof DomainTaskException) {
             Throwable rootCause = ExceptionUtils.getRootCause(ex);
             ex = rootCause == null ? ex : rootCause;
         }
+
+        HttpHeaders headers = new HttpHeaders();
+        //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
+        headers.set(HttpHeaders.CONNECTION, "close");
 
         boolean enabled = true;
         try {
@@ -62,7 +76,9 @@ public class ErrorHandlerService {
 
         String errorMessage = enabled ? ex.getMessage() : "A server error occurred";
 
-        return new ResponseEntity(new ErrorRO(errorMessage), headers, status);
+        ErrorRO body = new ErrorRO(errorMessage);
+
+        return new ResponseEntity(body, headers, status);
     }
 
     public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {

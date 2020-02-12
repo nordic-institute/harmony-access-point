@@ -1,6 +1,10 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -8,13 +12,11 @@ import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +52,9 @@ public class PModeResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
 
     @Autowired
+    PModeService pModeService;
+
+    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
@@ -59,6 +65,9 @@ public class PModeResource extends BaseResource {
 
     @Autowired
     private AuditService auditService;
+
+    @Autowired
+    PModeValidationHelper pModeValidationHelper;
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
@@ -97,33 +106,24 @@ public class PModeResource extends BaseResource {
     }
 
     @PostMapping
-    public ResponseEntity<String> uploadPMode(
-            @RequestPart("file") MultipartFile pmode,
-            @RequestParam("description") @Valid String pModeDescription) {
-        if (pmode.isEmpty()) {
-            return ResponseEntity.badRequest().body("Failed to upload the PMode file since it was empty.");
+    public ValidationResponseRO uploadPMode(
+            @RequestPart("file") MultipartFile pModeFile,
+            //we permit more chars for description
+            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
+
+        if (pModeFile.isEmpty()) {
+            throw new IllegalArgumentException("Failed to upload the PMode file since it was empty.");
         }
+
+        byte[] pModeContent;
         try {
-            byte[] bytes = pmode.getBytes();
-
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
-            String message = "PMode file has been successfully uploaded";
-            if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
-                message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
-            }
-            return ResponseEntity.ok(message);
-        } catch (XmlProcessingException e) {
-            LOG.error("Error uploading the PMode", e);
-            String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
-            if (CollectionUtils.isNotEmpty(e.getErrors())) {
-                message += ";" + StringUtils.join(e.getErrors(), ";");
-
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
-        } catch (Exception e) {
-            LOG.error("Error uploading the PMode", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e));
+            pModeContent = pModeFile.getBytes();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to upload the PMode file since could not read the content.");
         }
+
+        List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");
     }
 
     @DeleteMapping
@@ -145,7 +145,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ResponseEntity<String> restorePmode(@PathVariable(value = "id") Integer id) {
+    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);
@@ -157,17 +157,8 @@ public class PModeResource extends BaseResource {
         newRawConfiguration.setConfigurationDate(new Date());
         newRawConfiguration.setXml(existingRawConfiguration.getXml());
 
-        String message = "PMode was successfully uploaded";
-        try {
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
-
-            if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
-                message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible to upload PModes due to \n" + e.getMessage());
-        }
-        return ResponseEntity.ok(message);
+        List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully restored.");
     }
 
     @GetMapping(value = {"/list"})

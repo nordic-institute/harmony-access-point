@@ -42,15 +42,20 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
       this.setActiveFilter();
-      this.filterData();
+      try {
+        await this.filterData();
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
-    return canFilter;
+    return false;
   }
 
   /**
    * The method is supposed to be overridden in derived classes to implement actual search
    */
-  public filterData() {
+  public filterData(): Promise<any> {
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {

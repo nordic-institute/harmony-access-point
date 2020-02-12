@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.domain.ValidationIssueDTO;
 
 import java.util.List;
 
@@ -40,6 +41,6 @@ public interface PModeExtService {
      * @param description of the PMode uploaded version
      * @return List<String> as errors
      */
-    List<String> updatePModeFile(byte[] bytes, String description);
+    List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description);
 
 }

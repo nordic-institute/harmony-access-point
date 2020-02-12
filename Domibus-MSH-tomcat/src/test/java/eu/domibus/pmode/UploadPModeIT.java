@@ -1,6 +1,7 @@
 package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.dao.ConfigurationDAO;
@@ -9,12 +10,12 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.PModeResource;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -91,8 +92,11 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
 
         MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
-        ResponseEntity<String> response = adminGui.uploadPMode(pModeContent, "description");
-        assertTrue(response.getBody().contains("Failed to upload the PMode file due to"));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+        }catch (PModeValidationException ex) {
+            assertTrue(ex.getMessage().contains("Failed to upload the PMode file due to"));
+        }
     }
 
     private Configuration testUpdatePModes(final byte[] bytes) throws JAXBException {
@@ -202,8 +206,12 @@ public class UploadPModeIT extends AbstractIT {
         String pmodeName = "domibus-configuration-long-names.xml";
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-long-names", pmodeName, "text/xml", IOUtils.toByteArray(is));
-        ResponseEntity<String> response = adminGui.uploadPMode(pModeContent, "description");
-        assertTrue(response.getBody().contains("is not facet-valid with respect to maxLength"));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+        } catch (PModeValidationException ex) {
+            assertTrue(ex.getIssues().size() == 2);
+            assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxLength"));
+        }
     }
 
     /**

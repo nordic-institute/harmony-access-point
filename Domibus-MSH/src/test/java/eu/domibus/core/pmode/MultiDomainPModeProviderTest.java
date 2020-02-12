@@ -8,7 +8,7 @@ import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.core.mpc.MpcService;
-import eu.domibus.ebms3.common.validators.ConfigurationValidator;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -21,7 +21,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.persistence.EntityManager;
 import javax.xml.bind.JAXBContext;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,7 +50,7 @@ public class MultiDomainPModeProviderTest {
     XMLUtil xmlUtil;
 
     @Injectable
-    List<ConfigurationValidator> configurationValidators;
+    PModeValidationService pModeValidationService;
 
     @Injectable
     protected ProcessDao processDao;

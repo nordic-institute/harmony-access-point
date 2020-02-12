@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation.validators;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -45,6 +45,11 @@ public abstract class AbstractValidatorTest {
     protected String getResourceAsString(String resourceName) throws IOException {
         ClassPathResource json = new ClassPathResource(this.getClass().getPackage().getName().replaceAll("\\.","\\/") + "/" + resourceName);
         return IOUtils.toString(json.getInputStream(), StandardCharsets.UTF_8);
+    }
+
+    protected byte[] getPModeAsByteArray(String resourceName) throws IOException {
+        ClassPathResource res = new ClassPathResource(this.getClass().getPackage().getName().replaceAll("\\.","\\/") + "/" + resourceName);
+        return IOUtils.toByteArray(res.getInputStream());
     }
 
 }

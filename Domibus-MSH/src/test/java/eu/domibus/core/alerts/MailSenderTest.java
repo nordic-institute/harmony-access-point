@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts;
 
-import com.google.common.collect.Sets;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
@@ -24,7 +23,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
-import static eu.domibus.core.alerts.MailSender.*;
 
 /**
  * @author Thomas Dussart
@@ -83,7 +81,7 @@ public class MailSenderTest {
             result = true;
             javaMailSender.getJavaMailProperties();
             result = javaMailProperties;
-            domibusPropertyProvider.filterPropertiesName(withAny(predicate));
+            domibusPropertyProvider.getPropertyNames(withAny(predicate));
             result = dynamicPropertySet;
             domibusPropertyProvider.getProperty(dynamicPropertyName);
             result = dynamicSmtpPort;

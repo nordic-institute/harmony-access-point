@@ -1,5 +1,6 @@
-package eu.domibus.ebms3.common.validators;
+package eu.domibus.core.pmode.validation.validators;
 
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import org.junit.Test;
 
@@ -19,9 +20,9 @@ public class RolesValidatorTest extends AbstractValidatorTest {
     @Test
     public void validate() throws Exception {
         Configuration configuration = newConfiguration("RolesConfiguration.json");
-        final List<String> results = validator.validate(configuration);
+        final List<ValidationIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 2);
-        assertEquals("For the business process [TestProcess], the initiator role name and the responder role name are identical [eCODEXRole]", results.get(0));
-        assertEquals("For the business process [TestProcess], the initiator role value and the responder role value are identical [GW]", results.get(1));
+        assertEquals("For the business process [TestProcess], the initiator role name and the responder role name are identical [eCODEXRole]", results.get(0).getMessage());
+        assertEquals("For the business process [TestProcess], the initiator role value and the responder role value are identical [GW]", results.get(1).getMessage());
     }
 }

@@ -105,7 +105,7 @@ export class PartyService {
     }
   }
 
-  updateParties (partyList: PartyResponseRo[]) {
+  updateParties (partyList: PartyResponseRo[]): Promise<any> {
     return this.http.put(PartyService.UPDATE_PARTIES, partyList).toPromise();
   }
 }

@@ -1,10 +1,14 @@
 package eu.domibus.ext.delegate.services.pmode;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.domain.ValidationIssueDTO;
 import eu.domibus.ext.services.PModeExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,8 @@ import java.util.List;
  */
 @Service
 public class PModeServiceDelegate implements PModeExtService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeServiceDelegate.class);
 
     @Autowired
     private PModeService pModeService;
@@ -35,7 +41,8 @@ public class PModeServiceDelegate implements PModeExtService {
     }
 
     @Override
-    public List<String> updatePModeFile(byte[] bytes, String description) {
-        return pModeService.updatePModeFile(bytes, description);
+    public List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description) {
+        List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
+        return domainConverter.convert(issues, ValidationIssueDTO.class);
     }
 }

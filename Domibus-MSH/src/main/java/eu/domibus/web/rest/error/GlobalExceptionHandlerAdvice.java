@@ -1,7 +1,10 @@
 package eu.domibus.web.rest.error;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +61,16 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
+    }
+
+    @ExceptionHandler({PModeException.class})
+    public ResponseEntity<ErrorRO> handlePModeException(PModeException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({PModeValidationException.class})
+    public ResponseEntity<ValidationResponseRO> handleValidationException(PModeValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

@@ -3,6 +3,8 @@ import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {IPageableList} from '../mixins/ipageable-list';
+import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
 
 @Injectable()
 export class AlertService {
@@ -43,8 +45,16 @@ export class AlertService {
     this.close();
   }
 
-  public success(message: string, keepAfterNavigationChange = false) {
+  public success(response: any, keepAfterNavigationChange = false) {
     this.needsExplicitClosing = keepAfterNavigationChange;
+    let message = '';
+    if (typeof response === 'string') {
+      message = response;
+    } else {
+      if(instanceOfMultipleItemsResponse(response)) {
+        message = this.processMultipleItemsResponse(response);
+      }
+    }
     this.subject.next({type: 'success', text: message});
   }
 
@@ -118,38 +128,60 @@ export class AlertService {
     return (message ? message + ' \n' : '') + (errMsg || '');
   }
 
-  private tryExtractErrorMessageFromResponse(error: HttpErrorResponse | HttpResponse<any> | string | any) {
+  private tryExtractErrorMessageFromResponse(response: HttpErrorResponse | HttpResponse<any> | string | any) {
     let errMsg: string = null;
 
-    if (typeof error === 'string') {
-      errMsg = error;
-    } else if (error instanceof HttpErrorResponse) {
-      if (error.error && error.error.message) {
-        errMsg = error.error.message;
-      } else {
-        errMsg = error.error;
+    if (typeof response === 'string') {
+      errMsg = response;
+    } else if (response instanceof HttpErrorResponse) {
+      if (response.error) {
+        if(instanceOfMultipleItemsResponse(response.error)) {
+          errMsg = this.processMultipleItemsResponse(response.error);
+        } else if (response.error.message) {
+          errMsg = response.error.message;
+        }
       }
-    } else if (error instanceof HttpResponse) {
-      errMsg = error.body;
+    } else if (response instanceof HttpResponse) {
+      errMsg = response.body;
     }
 
     //TODO: check if it is dead code with the new Http library
     if (!errMsg) {
       try {
-        if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' && error.json) {
-          if (error.hasOwnProperty('message')) {
-            errMsg = error.message;
+        if (response.headers && response.headers.get('content-type') !== 'text/html;charset=utf-8' && response.json) {
+          if (response.hasOwnProperty('message')) {
+            errMsg = response.message;
           } else {
-            errMsg = error.toString();
+            errMsg = response.toString();
           }
         } else {
-          errMsg = error._body ? error._body : error.toString();
+          errMsg = response._body ? response._body : response.toString();
         }
       } catch (e) {
       }
     }
 
     return errMsg;
+  }
+
+  private processMultipleItemsResponse(response: MultipleItemsResponse) {
+    let message = '';
+    if (response.message) {
+      message = response.message;
+    }
+    if (Array.isArray(response.issues)) {
+      message += '<br>' + this.formatArrayOfItems(response.issues);
+    }
+    return message;
+  }
+
+  private formatArrayOfItems(errors: Array<ResponseItemDetail>): string {
+    let message = '';
+    errors.forEach(err => {
+      let m = (err.level ? err.level + ': ' : '') + (err.message ? err.message : '');
+      message += m + '<br>';
+    });
+    return message;
   }
 
   private tryParseHtmlResponse(errMsg: string) {
@@ -178,4 +210,6 @@ export class AlertService {
     }
     return res;
   }
+
+
 }
