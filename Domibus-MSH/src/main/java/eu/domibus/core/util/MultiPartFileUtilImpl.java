@@ -27,7 +27,7 @@ public class MultiPartFileUtilImpl implements MultiPartFileUtil {
             throw new RequestValidationException(String.format("Failed to upload the %s since it was empty.", file.getName()));
         }
 
-        if (type != null && !type.equals(file.getContentType())) {
+        if (type != null && !type.toString().equals(file.getContentType())) {
             throw new RequestValidationException(String.format("Failed to upload the %s since it has the wrong mime type.", file.getName()));
         }
 
