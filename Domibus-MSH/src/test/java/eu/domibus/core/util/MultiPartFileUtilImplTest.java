@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
@@ -14,7 +15,7 @@ public class MultiPartFileUtilImplTest {
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RequestValidationException.class)
     public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) throws IOException {
         new Expectations() {{
             file.isEmpty();
@@ -25,7 +26,7 @@ public class MultiPartFileUtilImplTest {
         multiPartFileUtil.validateAndGetFileContent(file);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RequestValidationException.class)
     public void sanitiseFileUpload_IOException(final @Mocked MultipartFile file) throws IOException {
         new Expectations() {{
             file.isEmpty();

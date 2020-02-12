@@ -205,12 +205,10 @@ public class TruststoreResourceTest {
         // WHEN
         try {
             String response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
+            Assert.fail();
         } catch (Exception ex) {
             Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
         }
-        // THEN
-//        Assert.assertEquals("Should have rejected the request as bad", HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        Assert.assertTrue("Should have returned the correct error message", response.getBody().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
     }
 
     @Test

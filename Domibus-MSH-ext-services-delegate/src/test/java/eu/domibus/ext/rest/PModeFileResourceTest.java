@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.services.PModeExtService;
 import mockit.*;
@@ -30,6 +31,8 @@ public class PModeFileResourceTest {
     @Injectable
     PModeExtService pModeExtService;
 
+    @Injectable
+    DomainExtConverter domainConverter;
 
     @Test
     public void test_downloadPMode(@Mocked ResponseEntity responseEntity) {

@@ -93,7 +93,6 @@ public class TruststoreResource extends BaseResource {
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
-            ;
         }
 
         return ResponseEntity.status(status)
