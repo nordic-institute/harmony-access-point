@@ -63,7 +63,7 @@
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.178</h2.version>
         <liquibase.version>3.5.3</liquibase.version>
-        <mysql.connector.java.version>5.1.34</mysql.connector.java.version>
+        <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.0.8-beta</wiremock.version>
         <dropwizard.metrics.version>4.0.3</dropwizard.metrics.version>
         <!-- do not upgrade to 5.2.x as Liquibase will fail to generate DDL scripts -->
