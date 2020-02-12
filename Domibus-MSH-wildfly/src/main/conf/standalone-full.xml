@@ -166,7 +166,6 @@
                     <!--Connector/J 8.0.x -->
                     <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
                     <!--Connector/J 5.4.x (deprecated)
-                    Check https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html to enable previous MySQL plugin authentication.
                     <driver-class>com.mysql.jdbc.Driver</driver-class
                     -->
                     <driver>com.mysql</driver>
@@ -263,7 +262,6 @@
                         <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
                         <xa-datasource-class>com.mysql.cj.jdbc.MysqlXADataSource</xa-datasource-class>
                         <!--Connector/J 5.4.x (deprecated)
-                        Check https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html to enable previous MySQL plugin authentication.
                         <driver-class>com.mysql.jdbc.Driver</driver-class>
                         <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
                         -->
