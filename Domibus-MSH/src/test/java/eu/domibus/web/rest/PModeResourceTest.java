@@ -1,13 +1,13 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.*;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -58,7 +58,7 @@ public class PModeResourceTest {
     PModeValidationHelper pModeValidationHelper;
 
     @Injectable
-    MultiPartFileUtilImpl multiPartFileUtil;
+    MultiPartFileUtil multiPartFileUtil;
 
     @Test
     public void testDownloadPmodes() {
@@ -193,7 +193,7 @@ public class PModeResourceTest {
         }
     }
 
-     @Test
+    @Test
     public void testDeletePmodesEmptyList() {
         // Given
         final ArrayList<String> emptyList = new ArrayList<>();
