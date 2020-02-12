@@ -28,7 +28,7 @@ public class MultiPartFileUtil {
         try {
             pModeContent = file.getBytes();
         } catch (IOException e) {
-            throw new RequestValidationException(String.format("Failed to upload the %s since could not read the content.", file.getName()));
+            throw new RequestValidationException(String.format("Failed to upload the %s since could not read the content.", file.getName()), e);
         }
         return pModeContent;
     }
