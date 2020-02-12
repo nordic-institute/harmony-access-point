@@ -12,8 +12,6 @@ import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
-import utils.Generator;
-import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
 import java.util.ArrayList;
@@ -40,8 +38,9 @@ public class BaseTest {
 	 * suite and the browser window is reused for all tests in suite
 	 */
 	@BeforeSuite(alwaysRun = true)
-	public void beforeClass() {
+	public void beforeSuite() throws Exception{
 		log.info("-------- Starting -------");
+		generateTestData();
 		driver = DriverManager.getDriver();
 		driver.get(data.getUiBaseUrl());
 	}
@@ -269,4 +268,32 @@ public class BaseTest {
 		}
 		return domain1;
 	}
+
+	public void generateTestData() throws Exception{
+
+		String pass = data.defaultPass();
+
+		int noOfMess = rest.getListOfMessages(null).length();
+		if(noOfMess<15){
+			rest.uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
+			String pluginUsername = getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
+			for (int i = noOfMess; i < 15; i++) {
+				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
+			}
+		}
+
+		JSONArray messageFilters = rest.getMessageFilters(null);
+		for (int i = 0; i < messageFilters.length(); i++) {
+			JSONObject obj = messageFilters.getJSONObject(i);
+			if(!obj.getBoolean("persisted")){
+				rest.saveMessageFilters(messageFilters, null);
+				break;
+			}
+		}
+
+
+
+	}
+
+
 }
