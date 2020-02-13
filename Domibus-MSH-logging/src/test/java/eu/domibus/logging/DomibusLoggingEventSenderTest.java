@@ -5,6 +5,7 @@ import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.helpers.IOUtils;
 import org.junit.Assert;
@@ -26,6 +27,12 @@ public class DomibusLoggingEventSenderTest {
         final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SendMessage.xml"), "UTF-8");
 
         new Expectations() {{
+            logEvent.getType();
+            result = EventType.REQ_OUT;
+
+            logEvent.getOperationName();
+            result = "test Invoke";
+
             logEvent.isMultipartContent();
             result = true;
 

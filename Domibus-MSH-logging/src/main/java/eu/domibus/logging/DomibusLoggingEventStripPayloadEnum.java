@@ -37,6 +37,7 @@ public enum DomibusLoggingEventStripPayloadEnum {
      * @return xml node to be present
      */
     public static String getXmlNodeIfStripPayloadIsPossible(final String operationName, final EventType eventType) {
+        if (operationName == null || eventType == null) return null;
         DomibusLoggingEventStripPayloadEnum x = Stream.of(DomibusLoggingEventStripPayloadEnum.values()).
                 filter(e -> operationName.contains(e.allowedOperationName) && e.eventType == eventType).
                 findFirst().
