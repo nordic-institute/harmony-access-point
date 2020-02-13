@@ -60,7 +60,7 @@
     <!-- Example ends here -->
 
     <!--Message logger configuration-->
-    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.DomibusWSPluginLoggingEventSender">
+    <bean id="wsPluginLoggingSender" class="eu.domibus.logging.DomibusLoggingEventSender">
         <property name="printPayload" value="${domibus.logging.payload.print}"/>
     </bean>
 </beans>
