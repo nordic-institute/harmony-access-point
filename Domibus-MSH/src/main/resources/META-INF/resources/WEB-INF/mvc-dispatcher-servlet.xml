@@ -19,14 +19,6 @@
 
     <import resource="classpath*:config/*-domibusServlet.xml"/>
 
-    <util:properties id="domibusProperties" ignore-resource-not-found="true"
-                     location="classpath:config/application.properties,
-                     classpath:config/domibus-default.properties,classpath:config/domibus.properties, file:///${domibus.config.location}/domibus.properties,
-                     file:///${domibus.config.location}/*-domibus.properties,
-                     classpath*:config/*-plugin-default.properties,file:///${domibus.config.location}/plugins/config/*-plugin.properties,file:///${domibus.config.location}/extensions/config/*-extension.properties"/>
-
-    <context:property-placeholder properties-ref="domibusProperties" ignore-resource-not-found="true" ignore-unresolvable="true"/>
-
     <!-- Configuring interceptors based on URI -->
     <mvc:interceptors>
         <mvc:interceptor>
@@ -48,10 +40,6 @@
             <bean class="eu.domibus.web.security.AuthenticatedPrincipalInterceptor" />
         </mvc:interceptor>
     </mvc:interceptors>
-
-    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="maxUploadSize" value="${domibus.file.upload.maxSize}"/>
-    </bean>
 
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
