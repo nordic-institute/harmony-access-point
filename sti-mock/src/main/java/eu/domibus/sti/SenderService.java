@@ -1,6 +1,7 @@
 package eu.domibus.sti;
 
 import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
@@ -58,14 +59,18 @@ public class SenderService {
 
     protected UsermessageApi usermessageApi;
 
+    protected NoArgGenerator uuidGenerator;
+
     public SenderService(JmsTemplate jmsTemplate,
                          BackendInterface backendInterface,
                          MetricRegistry metricRegistry,
-                         UsermessageApi usermessageApi) {
+                         UsermessageApi usermessageApi,
+                         NoArgGenerator uuidGenerator) {
         this.jmsTemplate = jmsTemplate;
         this.backendInterface = backendInterface;
         this.metricRegistry = metricRegistry;
         this.usermessageApi = usermessageApi;
+        this.uuidGenerator = uuidGenerator;
     }
 
     //@Async("threadPoolTaskExecutor")
@@ -98,7 +103,7 @@ public class SenderService {
         messageMap.setStringProperty("password", "123456");
 
         messageMap.setStringProperty("messageType", "submitMessage");
-        messageMap.setStringProperty("messageId", UUID.randomUUID().toString());
+        messageMap.setStringProperty("messageId", uuidGenerator.generate().toString());
         final String messageId = received.getStringProperty("messageId");
 
         messageMap.setStringProperty("refToMessageId", messageId);

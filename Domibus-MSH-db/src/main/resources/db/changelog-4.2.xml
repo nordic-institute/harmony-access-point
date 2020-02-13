@@ -1462,6 +1462,9 @@
         <createIndex indexName="FK_UM_MF" tableName="TB_USER_MESSAGE">
             <column name="FK_MESSAGE_FRAGMENT_ID"/>
         </createIndex>
+        <createIndex indexName="FK_UM_MI" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
 
         <createIndex indexName="FK_USERMSG_ID_FK_RAWENV_ID" tableName="TB_RAWENVELOPE_LOG">
             <column name="USERMESSAGE_ID_FK"/>

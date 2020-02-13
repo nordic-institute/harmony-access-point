@@ -12,6 +12,7 @@
 
     <properties>
         <domibus.version>4.2-SNAPSHOT</domibus.version>
+        <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
     </properties>
 
     <artifactId>sti-mock</artifactId>
@@ -50,10 +51,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-activemq</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -112,6 +109,12 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>${java-uuid-generator.version}</version>
         </dependency>
     </dependencies>
 

@@ -4,6 +4,9 @@ import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.servlets.AdminServlet;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.BackendService11;
 import eu.domibus.rest.client.ApiClient;
@@ -118,6 +121,12 @@ public class Configuration {
         return dest;
     }
 
+    @Bean("stiUUIDGenerator")
+    public NoArgGenerator createUUIDGenerator() {
+        final EthernetAddress ethernetAddress = EthernetAddress.fromInterface();
+        return Generators.timeBasedGenerator(ethernetAddress);
+    }
+
     @Bean
     public JmsListener jmsListener() {
         return new JmsListener(senderService(), metricRegistry());
@@ -174,7 +183,7 @@ public class Configuration {
 
     @Bean
     public SenderService senderService() {
-        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry(), usermessageApi());
+        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry(), usermessageApi(), createUUIDGenerator());
     }
 
     @Bean
