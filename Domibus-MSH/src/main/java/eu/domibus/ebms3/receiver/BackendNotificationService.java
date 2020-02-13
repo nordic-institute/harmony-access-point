@@ -135,14 +135,13 @@ public class BackendNotificationService {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         } else {
             notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
-            //TODO: uncomment this code before commit
-//            List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-//            if (backendFilterEntities.isEmpty()) {
-//                LOG.info("No Plugins details available in database!");
-//                createBackendFiltersWithDefaultPriority();
-//            } else {
-//                createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
-//            }
+            List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
+            if (backendFilterEntities.isEmpty()) {
+                LOG.info("No Plugins details available in database!");
+                createBackendFiltersWithDefaultPriority();
+            } else {
+                createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+            }
         }
         criteriaMap = new HashMap<>();
         for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
