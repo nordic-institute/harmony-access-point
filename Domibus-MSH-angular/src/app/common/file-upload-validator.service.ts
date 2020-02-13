@@ -15,7 +15,7 @@ export class FileUploadValidatorService {
   }
 
   private async getUploadSizeLimit(): Promise<number> {
-    const res = await this.propertiesService.getProperties('domibus.file.upload.max.size', true, 1, 0)
+    const res = await this.propertiesService.getProperties('domibus.file.upload.maxSize', true, 1, 0)
     return +res.items[0].value;
   }
 
