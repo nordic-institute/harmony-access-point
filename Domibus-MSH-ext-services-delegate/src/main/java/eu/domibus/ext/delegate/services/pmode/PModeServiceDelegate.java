@@ -12,9 +12,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,7 +54,9 @@ public class PModeServiceDelegate implements PModeExtService {
     }
 
     @Override
-    public byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws IllegalArgumentException {
-        return multiPartFileUtil.validateAndGetFileContent(file, type);
+    public List<ValidationIssueDTO> updatePModeFile(MultipartFile file, String description) throws IllegalArgumentException {
+        byte[] bytes = multiPartFileUtil.validateAndGetFileContent(file, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
+        List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
+        return domainConverter.convert(issues, ValidationIssueDTO.class);
     }
 }

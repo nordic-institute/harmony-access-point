@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -12,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public interface MultiPartFileUtil {
-    byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws IllegalArgumentException;
+    byte[] validateAndGetFileContent(MultipartFile file, List<MimeType> allowedTypes) throws IllegalArgumentException;
 
     byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException;
 }

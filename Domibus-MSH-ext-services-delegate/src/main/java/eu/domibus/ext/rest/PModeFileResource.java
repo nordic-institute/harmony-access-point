@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,9 +74,7 @@ public class PModeFileResource {
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid String pModeDescription) {
 
-        byte[] bytes = pModeExtService.validateAndGetFileContent(pmode, MimeTypeUtils.TEXT_XML);
-
-        List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(bytes, pModeDescription);
+        List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(pmode, pModeDescription);
 
         String message = "PMode file has been successfully uploaded";
         if (!CollectionUtils.isEmpty(pmodeUpdateMessage)) {

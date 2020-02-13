@@ -6,9 +6,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -22,12 +24,12 @@ public class MultiPartFileUtilImpl implements MultiPartFileUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtilImpl.class);
 
     @Override
-    public byte[] validateAndGetFileContent(MultipartFile file, MimeType type) throws RequestValidationException {
+    public byte[] validateAndGetFileContent(MultipartFile file, List<MimeType> allowedTypes) throws RequestValidationException {
         if (file.isEmpty()) {
             throw new RequestValidationException(String.format("Failed to upload the %s since it was empty.", file.getName()));
         }
 
-        if (type != null && !type.toString().equals(file.getContentType())) {
+        if (allowedTypes != null && !allowedTypes.contains(MimeType.valueOf(file.getContentType()))) {
             throw new RequestValidationException(String.format("Failed to upload the %s since it has the wrong mime type.", file.getName()));
         }
 

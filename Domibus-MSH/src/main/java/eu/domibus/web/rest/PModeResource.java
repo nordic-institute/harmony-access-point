@@ -35,10 +35,7 @@ import javax.ws.rs.QueryParam;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Mircea Musat
@@ -115,7 +112,7 @@ public class PModeResource extends BaseResource {
             //we permit more chars for description
             @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
-        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, MimeTypeUtils.TEXT_XML);
+        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");
