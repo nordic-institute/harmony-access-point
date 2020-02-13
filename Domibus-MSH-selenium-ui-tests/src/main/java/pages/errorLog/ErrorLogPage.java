@@ -1,6 +1,6 @@
 package pages.errorLog;
 
-import ddsl.dobjects.DatePicker;
+import ddsl.dcomponents.DatePicker;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;

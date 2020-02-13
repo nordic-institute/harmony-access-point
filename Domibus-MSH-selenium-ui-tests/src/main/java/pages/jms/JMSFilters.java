@@ -1,6 +1,6 @@
 package pages.jms;
 
-import ddsl.dobjects.DatePicker;
+import ddsl.dcomponents.DatePicker;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
