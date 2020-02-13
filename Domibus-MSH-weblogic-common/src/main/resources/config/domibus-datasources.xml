@@ -18,7 +18,7 @@
                      expected-type="javax.jms.ConnectionFactory" environment-ref="contextEnvironment"/>
 
     <bean id="domibusJMS-XAConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory" lazy-init="true">
-        <property name="sessionCacheSize" value="100" />
+        <property name="sessionCacheSize" value="200" />
         <property name="targetConnectionFactory" ref="domibusJMS-XAConnectionFactoryWebLogic"/>
     </bean>
 
