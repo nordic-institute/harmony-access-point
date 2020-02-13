@@ -23,7 +23,7 @@ public class DomibusLoggingEventHelperTest {
 
     @Test
     public void test_stripPayload(final @Mocked LogEvent logEvent) throws Exception {
-        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SendMessage.xml"), "UTF-8");
+        final String payload = readPayload("payload_SendMessage.xml");
 
         new Expectations() {{
             logEvent.getType();
@@ -53,7 +53,7 @@ public class DomibusLoggingEventHelperTest {
     @Test
     public void test_stripPayload_SubmitMessage(final @Mocked LogEvent logEvent) throws Exception {
 
-        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SubmitMessage.xml"), "UTF-8");
+        final String payload = readPayload("payload_SubmitMessage.xml");
 
         new Expectations() {{
             logEvent.getType();
@@ -79,7 +79,7 @@ public class DomibusLoggingEventHelperTest {
     @Test
     public void test_stripPayload_SubmitMessage_MultipleValues(final @Mocked LogEvent logEvent) throws Exception {
 
-        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SubmitMessage_MultiplePayloads.xml"), "UTF-8");
+        final String payload = readPayload("payload_SubmitMessage_MultiplePayloads.xml");
 
         new Expectations() {{
             logEvent.getType();
@@ -108,7 +108,7 @@ public class DomibusLoggingEventHelperTest {
     @Test
     public void test_stripPayload_RetrieveMessage(final @Mocked LogEvent logEvent) throws Exception {
 
-        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_RetrieveMessage.xml"), "UTF-8");
+        final String payload = readPayload("payload_RetrieveMessage.xml");
 
         new Expectations() {{
             logEvent.getType();
@@ -134,7 +134,7 @@ public class DomibusLoggingEventHelperTest {
     @Test
     public void test_stripPayload_SubmitMessage_NoContent(final @Mocked LogEvent logEvent) throws Exception {
 
-        final String payload = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("payload_SubmitMessage_no_content.xml"), "UTF-8");
+        final String payload = readPayload("payload_SubmitMessage_no_content.xml");
 
         new Expectations() {{
             logEvent.getType();
@@ -160,5 +160,8 @@ public class DomibusLoggingEventHelperTest {
         }};
     }
 
+    private String readPayload(final String payloadName) throws Exception {
+        return IOUtils.toString(getClass().getClassLoader().getResourceAsStream(payloadName), "UTF-8");
+    }
 
 }
