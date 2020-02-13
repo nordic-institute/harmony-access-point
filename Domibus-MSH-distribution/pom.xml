@@ -99,7 +99,7 @@
             </activation>
 
             <properties>
-                <tomcat.version>8.5.38</tomcat.version>
+                <tomcat.version>9.0.30</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -117,7 +117,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <container>
-                                        <containerId>tomcat8x</containerId>
+                                        <containerId>tomcat9x</containerId>
                                         <zipUrlInstaller>
                                             <url>
                                                 https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
