@@ -33,13 +33,13 @@ public class MultiPartFileUtilImpl implements MultiPartFileUtil {
             throw new RequestValidationException(String.format("Failed to upload the %s since it has the wrong mime type.", file.getName()));
         }
 
-        byte[] pModeContent;
+        byte[] fileContent;
         try {
-            pModeContent = file.getBytes();
+            fileContent = file.getBytes();
         } catch (IOException e) {
             throw new RequestValidationException(String.format("Failed to upload the %s since could not read the content.", file.getName()), e);
         }
-        return pModeContent;
+        return fileContent;
     }
 
     @Override

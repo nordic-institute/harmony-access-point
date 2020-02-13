@@ -287,7 +287,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
 
-            new DomibusPropertyMetadata(DOMIBUS__FILE_UPLOAD_MAX_SIZE, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_FILE_UPLOAD_MAX_SIZE, DomibusPropertyMetadata.Usage.DOMAIN, true),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

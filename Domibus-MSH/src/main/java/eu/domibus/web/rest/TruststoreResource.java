@@ -119,7 +119,7 @@ public class TruststoreResource extends BaseResource {
         return exportToCSV(trustStoreROS, TrustStoreRO.class,
                 CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
                 CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
-                "truststoreFile");
+                "truststore");
 
     }
 
