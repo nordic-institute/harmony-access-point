@@ -1,62 +1,98 @@
-package eu.domibus.plugin.webService.logging;
+package eu.domibus.logging;
 
-import eu.domibus.logging.DomibusLoggingEventSender;
-import eu.domibus.logging.DomibusLoggingEventStripPayloadEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.stream.Stream;
 
 /**
- * This class extends {@code DomibusLoggingEventSender}
- * <p>
- * It will implement operations based on {@code LogEvent} like partially printing the payload, etc
+ * Business for striping the apache cxf log payloads
  *
+ * @since 4.1.4
  * @author Catalin Enache
- * @since 4.1.1
  */
-public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender {
-    private static final Logger LOG = LoggerFactory.getLogger(DomibusWSPluginLoggingEventSender.class);
+@Service
+public class DomibusLoggingEventHelper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventHelper.class);
+
+    static final String CONTENT_TYPE_MARKER = "Content-Type:";
     static final String VALUE_START_MARKER = "<value";
     static final String VALUE_END_MARKER = "</value";
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";
 
-
     /**
-     * It removes some parts of the payload info
+     * Strips the payload base on LogEvent details
      *
-     * @param event LogEvent
+     * @param event
      */
-    @Override
-    protected void stripPayload(LogEvent event) {
+    public void stripPayload(LogEvent event) {
         final String operationName = event.getOperationName();
         final EventType eventType = event.getType();
         LOG.debug("operationName=[{}] eventType=[{}] multipart=[{}]", operationName, eventType, event.isMultipartContent());
 
-        //check conditions to strip the payload and get the xmlTag
-        final String xmlTag = DomibusLoggingEventStripPayloadEnum.getXmlNodeIfStripPayloadIsPossible(operationName, eventType);
-        if (xmlTag == null) {
+        //check conditions to strip the payload
+        final EventStripPayloadEnum e = EventStripPayloadEnum.getEventStripPayloadEnum(operationName, eventType);
+        if (e == null) {
             LOG.debug("for operationName=[{}] and eventType=[{}] we don't strip the payload", operationName, eventType);
             return;
         }
 
+        final String xmlNode = e.getXmlNode();
+        switch (e) {
+            case MSH_INVOKE:
+                stripPayloadMSH(event, xmlNode);
+                break;
+            case WS_PLUGIN_SUBMIT_MESSAGE:
+            case WS_PLUGIN_RETRIEVE_MESSAGE:
+                stripPayloadWSPlugin(event, xmlNode);
+                break;
+            default:
+        }
+    }
+
+    private void stripPayloadMSH(final LogEvent event, final String xmlNode) {
+        //if it's multipart and we want to strip the AS4 payload
+        if (event.isMultipartContent()) {
+            String payload = event.getPayload();
+            event.setPayload(replaceInPayload(payload, xmlNode));
+        }
+    }
+
+    private void stripPayloadWSPlugin(final LogEvent event, final String xmlNode) {
         //get the payload
         String payload = event.getPayload();
 
         //strip 'values' if it's submitMessage or retrieveMessage
         if (event.isMultipartContent()) {
             final String boundary = getMultipartBoundary(event.getContentType());
-            payload = replaceInPayloadMultipart(payload, boundary, xmlTag);
+            payload = replaceInPayloadMultipart(payload, boundary, xmlNode);
         } else {
-            payload = replaceInPayloadValues(payload, xmlTag);
+            payload = replaceInPayloadValues(payload, xmlNode);
         }
 
         //finally set the payload back
         event.setPayload(payload);
+    }
+
+
+    private String replaceInPayload(final String payload, final String xmlTag) {
+        String newPayload = payload;
+        //C2 -> C3
+        if (payload.contains(xmlTag)) {
+            String[] payloadSplits = payload.split(CONTENT_TYPE_MARKER);
+            //keeping only first 2 Content-Type elements
+            if (payloadSplits.length >= 2) {
+                newPayload = payloadSplits[0] + CONTENT_TYPE_MARKER + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
+            }
+        }
+        return newPayload;
     }
 
     private String replaceInPayloadValues(String payload, String xmlNodeStartTag) {
@@ -125,5 +161,46 @@ public class DomibusWSPluginLoggingEventSender extends DomibusLoggingEventSender
                 boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator())) return boundarySplit;
 
         return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
+    }
+
+    /**
+     *  * It maps positives cases when the strip payload occurs
+     */
+    enum EventStripPayloadEnum {
+
+        /**
+         * WS-PLUGIN
+         */
+        WS_PLUGIN_SUBMIT_MESSAGE("submitMessage", EventType.REQ_IN, "submitRequest"),
+        WS_PLUGIN_RETRIEVE_MESSAGE("retrieveMessage", EventType.RESP_OUT, "retrieveMessageResponse"),
+
+        /**
+         * MSH
+         */
+        MSH_INVOKE("Invoke", EventType.REQ_OUT, "UserMessage"
+        );
+
+        String xmlNode;
+        String allowedOperationName;
+        EventType eventType;
+
+
+        EventStripPayloadEnum(final String allowedOperationName, final EventType eventType, final String xmlNode) {
+            this.allowedOperationName = allowedOperationName;
+            this.eventType = eventType;
+            this.xmlNode = xmlNode;
+        }
+
+        static EventStripPayloadEnum getEventStripPayloadEnum(final String operationName, final EventType eventType) {
+            if (operationName == null || eventType == null) return null;
+            return Stream.of(EventStripPayloadEnum.values()).
+                    filter(e -> operationName.contains(e.allowedOperationName) && e.eventType == eventType).
+                    findFirst().
+                    orElse(null);
+        }
+
+        public String getXmlNode() {
+            return this.xmlNode;
+        }
     }
 }
