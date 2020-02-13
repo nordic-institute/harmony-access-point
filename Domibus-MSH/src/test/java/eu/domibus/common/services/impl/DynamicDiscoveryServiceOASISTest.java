@@ -137,13 +137,13 @@ public class DynamicDiscoveryServiceOASISTest {
     @Test
     public void testLookupInformationRegexNull(final @Capturing DynamicDiscovery smpClient) throws Exception {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             result = "bdxr-transport-ebms3-as4-v1p0";
 
-            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_CERT_REGEX);
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_CERT_REGEX);
             result = null;
 
             ServiceMetadata sm = buildServiceMetadata();
