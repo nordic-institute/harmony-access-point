@@ -134,6 +134,34 @@ public class DynamicDiscoveryServiceOASISTest {
         }};
     }
 
+    @Test
+    public void testLookupInformationRegexNull(final @Capturing DynamicDiscovery smpClient) throws Exception {
+        new NonStrictExpectations() {{
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            result = TEST_SML_ZONE;
+
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            result = "bdxr-transport-ebms3-as4-v1p0";
+
+            domibusPropertyProvider.getDomainProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_CERT_REGEX);
+            result = null;
+
+            ServiceMetadata sm = buildServiceMetadata();
+            smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentIdentifier) any);
+            result = sm;
+
+        }};
+
+        EndpointInfo endpoint = dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        assertNotNull(endpoint);
+        assertEquals(ADDRESS, endpoint.getAddress());
+
+        new Verifications() {{
+            smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentIdentifier) any);
+        }};
+    }
+
+
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing DynamicDiscovery smpClient) throws Exception {
         new NonStrictExpectations() {{
