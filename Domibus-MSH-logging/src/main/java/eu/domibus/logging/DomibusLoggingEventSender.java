@@ -43,13 +43,16 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
     }
 
     private boolean checkIfStripPayloadPossible() {
-        LOG.debug("printPayload=[{}]", printPayload);
+        LOG.debug("Printing payload is" + (printPayload ? " " : " not ") + "active");
         if (printPayload) {
             return false;
         }
 
         boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
-        LOG.debug("[{}] is set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
+        if (isCxfLoggingInfoEnabled) {
+            LOG.debug("[{}] is set to at least INFO level", ORG_APACHE_CXF_CATEGORY);
+        }
+
 
         return isCxfLoggingInfoEnabled;
     }

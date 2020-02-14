@@ -38,14 +38,14 @@ public class DomibusLoggingEventHelper {
         LOG.debug("operationName=[{}] eventType=[{}] multipart=[{}]", operationName, eventType, event.isMultipartContent());
 
         //check conditions to strip the payload
-        final EventStripPayloadEnum e = EventStripPayloadEnum.getEventStripPayloadEnum(operationName, eventType);
-        if (e == null) {
+        final EventStripPayloadEnum eventStripPayloadEnum = EventStripPayloadEnum.getEventStripPayloadEnum(operationName, eventType);
+        if (eventStripPayloadEnum == null) {
             LOG.debug("for operationName=[{}] and eventType=[{}] we don't strip the payload", operationName, eventType);
             return;
         }
 
-        final String xmlNode = e.getXmlNode();
-        switch (e) {
+        final String xmlNode = eventStripPayloadEnum.getXmlNode();
+        switch (eventStripPayloadEnum) {
             case MSH_INVOKE:
                 stripPayloadMSH(event, xmlNode);
                 break;
@@ -82,10 +82,10 @@ public class DomibusLoggingEventHelper {
     }
 
 
-    private String replaceInPayload(final String payload, final String xmlTag) {
+    private String replaceInPayload(final String payload, final String xmlNode) {
         String newPayload = payload;
         //C2 -> C3
-        if (payload.contains(xmlTag)) {
+        if (payload.contains(xmlNode)) {
             String[] payloadSplits = payload.split(CONTENT_TYPE_MARKER);
             //keeping only first 2 Content-Type elements
             if (payloadSplits.length >= 2) {
@@ -95,12 +95,13 @@ public class DomibusLoggingEventHelper {
         return newPayload;
     }
 
-    private String replaceInPayloadValues(String payload, String xmlNodeStartTag) {
+    private String replaceInPayloadValues(String payload, String xmlNode) {
         String newPayload = payload;
 
         //first we find the xml node starting index - e.g submitRequest
-        int xmlNodeStartIndex = newPayload.indexOf(xmlNodeStartTag);
+        int xmlNodeStartIndex = newPayload.indexOf(xmlNode);
         if (xmlNodeStartIndex == -1) {
+            LOG.debug("[{}] xml node wasn't found in the payload so no striping will occur", xmlNode);
             return newPayload;
         }
 
@@ -131,9 +132,7 @@ public class DomibusLoggingEventHelper {
 
         if (payload.contains(xmlTag)) {
             String[] payloadSplits = payload.split(boundary);
-
-            //the first payload is the message itself
-            if (payloadSplits.length >= 3) {
+            if (payloadSplits.length > 0) {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (int i = 0; i < payloadSplits.length; i++) {
                     stringBuilder.append(getReplacementPart(payloadSplits[i], xmlTag));
@@ -148,9 +147,9 @@ public class DomibusLoggingEventHelper {
     }
 
     private String getMultipartBoundary(final String contentType) {
-        String[] tmp = contentType.split(BOUNDARY_MARKER);
-        if (tmp.length >= 2) {
-            return System.lineSeparator() + BOUNDARY_MARKER_PREFIX + tmp[1].substring(0, tmp[1].length() - 1);
+        String[] contenTypeSplits = contentType.split(BOUNDARY_MARKER);
+        if (contenTypeSplits.length >= 2) {
+            return System.lineSeparator() + BOUNDARY_MARKER_PREFIX + contenTypeSplits[1].substring(0, contenTypeSplits[1].length() - 1);
         }
         return StringUtils.EMPTY;
     }
