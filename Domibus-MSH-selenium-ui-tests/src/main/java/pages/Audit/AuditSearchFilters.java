@@ -33,10 +33,13 @@ public class AuditSearchFilters extends DComponent {
     WebElement changedToContainer;
     @FindBy(id = "from_id")
     WebElement changedFromContainer;
+
     @FindBy(css = "#table_id")
     public WebElement tableFilterContainer;
+
     @FindBy(css = "#user_id:nth-of-type(2)")
     public WebElement userFilterContainer;
+
     @FindBy(css = "#action_id:nth-of-type(3)")
     public WebElement actionFilterContainer;
 
@@ -72,7 +75,6 @@ public class AuditSearchFilters extends DComponent {
     public DLink getBasicSearchLnk() {
         return new DLink(driver, basicSearchLnk);
     }
-
 
     public DomibusPage getPage() {
         return new DomibusPage(driver);
@@ -111,7 +113,6 @@ public class AuditSearchFilters extends DComponent {
             return;
         }
         multiSelect.selectOptionByText(data);
-        getPage().clickVoidSpace();
     }
 
 

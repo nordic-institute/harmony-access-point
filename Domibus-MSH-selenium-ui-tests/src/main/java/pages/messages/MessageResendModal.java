@@ -22,7 +22,8 @@ public class MessageResendModal extends DComponent {
 
 	}
 
-	@FindBy(id = "messageDialogResendButton")
+//	@FindBy(id = "messageDialogResendButton")
+	@FindBy(id = "yesbuttondialog_id")
 	WebElement resendButton;
 	@FindBy(id = "messageDialogCancelButton")
 	WebElement cancel;

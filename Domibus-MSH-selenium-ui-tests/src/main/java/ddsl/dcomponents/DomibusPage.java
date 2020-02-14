@@ -82,7 +82,7 @@ public class DomibusPage extends DComponent {
 	}
 
 	public void waitForTitle(){
-		wait.forElementToBe(pageTitle);
+		wait.forElementToHaveText(pageTitle);
 	}
 
 	public boolean hasOpenDialog(){

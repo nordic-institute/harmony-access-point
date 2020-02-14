@@ -262,7 +262,7 @@
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
+								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>
 								<property>

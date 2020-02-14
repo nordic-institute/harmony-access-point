@@ -470,7 +470,7 @@ public class UsersPgTest extends BaseTest {
 
 		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
 
-		rest.deleteUser(username, null);
+//		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 
