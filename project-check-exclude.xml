@@ -135,6 +135,9 @@
         <cve>CVE-2018-12056</cve>
         <!-- Included by artemis client which is used internally by Domibus to access the activeMQ broker -->
         <cve>CVE-2019-16869</cve>
+        <!-- Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker -->
+        <cve>CVE-2019-20444</cve>
+        <cve>CVE-2019-20445</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -156,5 +159,15 @@
         <!-- CVE in initDocumentParser used to parse job description passed to quartz.
         In Domibus, Quartz is used with predefined jobs (not user input) -->
         <cve>CVE-2019-13990</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-core-3.2.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf.*@.*$</packageUrl>
+        <!-- We don't store public/private keys in JWK format as opposed to the default JKS/PKCS12 formats -->
+        <cve>CVE-2019-12423</cve>
+        <!-- Minimum impact since we don't use mobile browsers platforms -->
+        <cve>CVE-2019-17573</cve>
     </suppress>
 </suppressions>

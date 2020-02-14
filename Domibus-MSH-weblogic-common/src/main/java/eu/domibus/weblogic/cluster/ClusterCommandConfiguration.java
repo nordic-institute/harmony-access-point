@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class ClusterCommandConfiguration {
     @Autowired
     protected CommandService commandService;
 
+    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
         final List<Domain> domains = domainService.getDomains();

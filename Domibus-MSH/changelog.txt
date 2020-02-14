@@ -1,5 +1,11 @@
 Domibus 4.1.3
 - Remove unnecessary RMI port usage from ActiveMQ on Tomcat
+- Fixed payload encryption at start up of WebLogic cluster
+- Fixed subject for certificate imminent expiration alert
+- Fixed ListPendingMessages which returned messages in an intermediate state
+- CXF Mtom/XOP request contain wrong encoded Content-ID HTTP header
+- domain_name.domibus.attachment.temp.storage.location property is missing in sample domain_name-domibus.properties file
+- Test Service fails using pushAndPush binding
 Domibus 4.1.2
 - Possibility to encrypt passwords in the configuration files
 - Possibility to encrypt payloads at rest
