@@ -101,19 +101,16 @@ public class PModeFileResourceTest {
     }
 
     @Test
-    public void test_uploadPMode(final @Mocked MultipartFile pMode, final @Mocked byte[] bytes) throws Exception {
+    public void test_uploadPMode(final @Mocked MultipartFile pModeFile, final @Mocked byte[] bytes) throws Exception {
         final String description = "test upload";
         final List<String> uploadResult = new ArrayList<>();
 
         new Expectations() {{
-            pMode.getBytes();
-            result = bytes;
-
-            pModeExtService.updatePModeFile(bytes, description);
+            pModeExtService.updatePModeFile(pModeFile, description);
             result = uploadResult;
         }};
 
         //tested
-        pModeFileResource.uploadPMode(pMode, description);
+        pModeFileResource.uploadPMode(pModeFile, description);
     }
 }
