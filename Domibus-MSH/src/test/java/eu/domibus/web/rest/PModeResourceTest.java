@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.*;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.services.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -55,6 +56,9 @@ public class PModeResourceTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    MultiPartFileUtil multiPartFileUtil;
 
     @Test
     public void testDownloadPmodes() {
@@ -124,16 +128,6 @@ public class PModeResourceTest {
         Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUploadPmodesEmptyFile() throws IOException {
-        // Given
-        MultipartFile file = new MockMultipartFile("filename", new byte[]{});
-
-        // When
-        ValidationResponseRO response = pModeResource.uploadPMode(file, "description");
-
-    }
-
     @Test
     public void testUploadPmodesSuccess() throws IOException {
         // Given
@@ -199,7 +193,7 @@ public class PModeResourceTest {
         }
     }
 
-     @Test
+    @Test
     public void testDeletePmodesEmptyList() {
         // Given
         final ArrayList<String> emptyList = new ArrayList<>();

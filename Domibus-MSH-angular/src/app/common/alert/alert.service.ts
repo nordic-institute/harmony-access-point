@@ -143,22 +143,8 @@ export class AlertService {
       }
     } else if (response instanceof HttpResponse) {
       errMsg = response.body;
-    }
-
-    //TODO: check if it is dead code with the new Http library
-    if (!errMsg) {
-      try {
-        if (response.headers && response.headers.get('content-type') !== 'text/html;charset=utf-8' && response.json) {
-          if (response.hasOwnProperty('message')) {
-            errMsg = response.message;
-          } else {
-            errMsg = response.toString();
-          }
-        } else {
-          errMsg = response._body ? response._body : response.toString();
-        }
-      } catch (e) {
-      }
+    } else if (response instanceof Error) {
+      errMsg = response.message;
     }
 
     return errMsg;

@@ -4,6 +4,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.common.services.AuditService;
@@ -23,6 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,14 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Mircea Musat
@@ -68,6 +66,9 @@ public class PModeResource extends BaseResource {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
+
+    @Autowired
+    MultiPartFileUtil multiPartFileUtil;
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
@@ -107,20 +108,11 @@ public class PModeResource extends BaseResource {
 
     @PostMapping
     public ValidationResponseRO uploadPMode(
-            @RequestPart("file") MultipartFile pModeFile,
+            @RequestPart("file") @Valid MultipartFile pModeFile,
             //we permit more chars for description
-            @RequestParam("description") @Valid @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
+            @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
 
-        if (pModeFile.isEmpty()) {
-            throw new IllegalArgumentException("Failed to upload the PMode file since it was empty.");
-        }
-
-        byte[] pModeContent;
-        try {
-            pModeContent = pModeFile.getBytes();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to upload the PMode file since could not read the content.");
-        }
+        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
 
         List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");

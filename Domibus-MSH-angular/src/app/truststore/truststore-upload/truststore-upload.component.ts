@@ -3,6 +3,7 @@ import {MatDialogRef} from '@angular/material';
 import {TrustStoreService} from '../trustore.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-truststore-upload',
@@ -23,7 +24,7 @@ export class TrustStoreUploadComponent {
   constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
               private truststoreService: TrustStoreService,
               private alertService: AlertService,
-              private fb: FormBuilder) {
+              private fb: FormBuilder, private fileUploadService: FileUploadValidatorService) {
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
     });
@@ -37,18 +38,26 @@ export class TrustStoreUploadComponent {
     return this.truststoreForm.valid && this.fileSelected;
   }
 
-  public submit() {
+  public async submit() {
     if (this.isFormValid()) {
       const fileToUpload = this.fileInput.nativeElement.files[0];
-      this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
-        .subscribe(res => {
-            this.alertService.success(res, false);
-            this.onTruststoreUploaded.emit();
-          },
-          err => {
-            this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
-          }
-        );
+      try {
+        await this.fileUploadService.validateSize(fileToUpload);
+
+        this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
+          .subscribe(res => {
+              this.alertService.success(res, false);
+              this.onTruststoreUploaded.emit();
+            },
+            err => {
+              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
+            }
+          );
+
+      } catch (e) {
+        this.alertService.exception('Could not upload the truststore file. ', e);
+      }
+
       this.dialogRef.close();
     }
   }
