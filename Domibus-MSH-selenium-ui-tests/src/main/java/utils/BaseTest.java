@@ -271,6 +271,8 @@ public class BaseTest {
 
 	public void generateTestData() throws Exception{
 
+		log.info("GENERATING TEST DATA");
+
 		String pass = data.defaultPass();
 
 		int noOfMess = rest.getListOfMessages(null).length();
@@ -290,9 +292,7 @@ public class BaseTest {
 				break;
 			}
 		}
-
-
-
+		log.info("DONE GENERATING TEST DATA");
 	}
 
 
