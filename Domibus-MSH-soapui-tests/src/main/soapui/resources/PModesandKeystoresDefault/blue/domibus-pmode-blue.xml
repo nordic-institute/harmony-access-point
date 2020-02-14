@@ -14,7 +14,7 @@
 		<mpc name="defaultMpcFive" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCFive" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="600"/>
 		<mpc name="defaultMpcSeven" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 		<mpc name="defaultMpcEight" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcEight" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
-		<mpc name="defaultMpcRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcRetention" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="10"/>
+		<mpc name="defaultMpcRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcRetention" enabled="true" default="true" retention_downloaded="1" retention_undownloaded="2"/>
 	</mpcs>
 	<businessProcesses>
 		<roles>

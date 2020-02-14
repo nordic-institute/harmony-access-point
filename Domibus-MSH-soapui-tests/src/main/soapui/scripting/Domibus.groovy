@@ -92,7 +92,7 @@ class Domibus{
         def jsonSlurper = new JsonSlurper()
         def domPropMap = jsonSlurper.parseText(allDomainsPropertiesString)
         assert domPropMap != null
-        // it�s possible that the response wasn�t in proper JSON format and is deserialized as empty
+        // it's possible that the response wasn't in proper JSON format and is deserialized as empty
         assert !domPropMap.isEmpty()
 
         debugLog("  parseDomainProperties  [][]  Mandatory logs are: ${mandatoryProperties}.", log)
@@ -2853,7 +2853,13 @@ static def String pathToLogFiles(side, log, context) {
 //---------------------------------------------------------------------------------------------------------------------------------
 // Alerts in DB verification
 //---------------------------------------------------------------------------------------------------------------------------------
-
+	// Verification that mesage status change alert exist for specific message_id
+    def verifyMessageStatusChangeAlerts(domainId, propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
+        debugLog("  ====  Calling \"verifyMessageStatusChangeAlerts\".", log)
+        genericAlertValidation(domainId, "MESSAGE_ID", propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts, filterEventType)
+		debugLog("  ====  Ending \"verifyMessageStatusChangeAlerts\".", log)
+    }	
+	
 	 // Verification of user iminnent expiration and expired
     def verifyUserAlerts(domainId, propertyValue, eventType, alertStatus, alertLevel, expectNumberOfAlerts = 1, filterEventType = "%") {
         debugLog("  ====  Calling \"verifyUserAlerts\".", log)
