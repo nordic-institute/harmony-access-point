@@ -106,7 +106,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public void handleMessage(final SoapMessage message) throws Fault {
        /* Timer.Context time=null;
         try {
