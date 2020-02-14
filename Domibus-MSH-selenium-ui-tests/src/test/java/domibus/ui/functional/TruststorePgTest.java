@@ -198,7 +198,7 @@ public class TruststorePgTest extends BaseTest {
 
         tPage.uploadFile(path, "test123", soft);
         log.info(tPage.getAlertArea().getAlertMessage());
-        soft.assertFalse(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
+        soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
 
 
         if (data.isIsMultiDomain()) {
@@ -209,7 +209,7 @@ public class TruststorePgTest extends BaseTest {
 
             log.info(tPage.getAlertArea().getAlertMessage());
             log.info("Validate  presence of Error in alert message ");
-            soft.assertFalse(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
+            soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
 
         }
         soft.assertAll();

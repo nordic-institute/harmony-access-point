@@ -85,16 +85,16 @@ public class MessagesPage extends DomibusPage {
     public void compareGridData(SoftAssert soft, String columnName) throws Exception {
         int firstDomainGridRowCount = grid().getPagination().getTotalItems();
         List<String> msgIds = grid().getValuesOnColumn(columnName);
-
         getDomainSelector().selectOptionByIndex(1);
-        log.info("Domain name is " + getDomainSelector().selectOptionByIndex(1));
+        log.info("Domain name is " + getDomainFromTitle());
 
         int secondDomainGridRowCount = grid().getPagination().getTotalItems();
-        List<String> msgIdsSecDomain = grid().getValuesOnColumn(columnName);
         int secDomainActivePg=grid().getPagination().getActivePage();
 
         log.info("Active page for new Domain is " + secDomainActivePg);
         soft.assertTrue(secDomainActivePg==1,"After navigation user is at Pg 1");
+        List<String> msgIdsSecDomain = grid().getValuesOnColumn(columnName);
+
 
 
         if (firstDomainGridRowCount == 0 && secondDomainGridRowCount == 0) {

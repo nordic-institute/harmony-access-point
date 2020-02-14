@@ -12,6 +12,9 @@ import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -173,7 +176,7 @@ public class JMSMessPgTest extends BaseTest {
 		JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
 
 		log.info("Extract current domain name from page title");
-		String currentDomain=jmsPage.getDomainFromTitle();
+		String currentDomain = jmsPage.getDomainFromTitle();
 		log.info("select any message queue having some messages");
 		jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages();
 
@@ -184,8 +187,8 @@ public class JMSMessPgTest extends BaseTest {
 		jmsPage.grid().selectRow(0);
 
 		log.info("Confirm status of Move button and Delete button");
-		soft.assertTrue(jmsPage.moveButton.isEnabled(),"Move button is enabled on row selection");
-		soft.assertTrue(jmsPage.deleteButton.isEnabled(),"Delete button is enabled on row selection");
+		soft.assertTrue(jmsPage.moveButton.isEnabled(), "Move button is enabled on row selection");
+		soft.assertTrue(jmsPage.deleteButton.isEnabled(), "Delete button is enabled on row selection");
 
 		log.info("select other domain from domain selector");
 		jmsPage.getDomainSelector().selectOptionByIndex(1);
@@ -195,17 +198,49 @@ public class JMSMessPgTest extends BaseTest {
 		jmsPage.grid().waitForRowsToLoad();
 
 		log.info("Compare old and new domain name");
-		soft.assertTrue(!jmsPage.getDomainFromTitle().equals(currentDomain),"Current domain differs from old domain");
+		soft.assertTrue(!jmsPage.getDomainFromTitle().equals(currentDomain), "Current domain differs from old domain");
 
 		log.info("Check status of move button and delete button");
-		soft.assertFalse(jmsPage.moveButton.isEnabled(),"Move button is not enabled");
-		soft.assertFalse(jmsPage.deleteButton.isEnabled(),"Delete button is not enabled");
+		soft.assertFalse(jmsPage.moveButton.isEnabled(), "Move button is not enabled");
+		soft.assertFalse(jmsPage.deleteButton.isEnabled(), "Delete button is not enabled");
+		soft.assertAll();
+	}
+
+	@Test(description = "JMS-11", groups = {"multiTenancy"})
+	public void changeDomainFromSecondPage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Login into application and navigate to JMS Monitoring page");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
+
+		JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
+		log.info("Extract current domain name from page title");
+		String currentDomain = jmsPage.getDomainFromTitle();
+
+		log.info("select any message queue having some messages");
+		int noOfMsgs = jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+		if (noOfMsgs > 10) {
+			jmsPage.grid().getPagination().goToPage(2);
+		}
+		soft.assertTrue(jmsPage.grid().getPagination().getActivePage() == 2, "Selected page is 2");
+		jmsPage.getDomainSelector().selectOptionByIndex(1);
+		jmsPage.grid().waitForRowsToLoad();
+		soft.assertTrue(jmsPage.grid().getPagination().getActivePage() != 2, "Active page number in not 2");
+		int currentNoOfMsgs = jmsPage.grid().getPagination().getTotalItems();
+
+		soft.assertTrue(currentNoOfMsgs != noOfMsgs, " Total number of messages are different");
 		soft.assertAll();
 
+	}
 
+	@Test(description = "JMS-21", groups = {"multiTenancy"})
+	public void checkReceivedUpTo() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Login into application and navigate to JMS Monitoring page");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 
-
-
+		JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
+		DateFormat dateFormat= new SimpleDateFormat("dd-MM-yyyy");
+		String currentDate= dateFormat.format(new Date());
 
 	}
 }
