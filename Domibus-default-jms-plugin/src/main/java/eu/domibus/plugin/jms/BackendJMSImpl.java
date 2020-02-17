@@ -55,6 +55,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
     protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
+    public static final String DOMIBUS_SEND_PAYLOAD_INQUEUE = "domibus.send.payload.inqueue";
     public static final String DOMIBUS_SEND_FROM_C3 = "domibus.send.from.c3";
     public static final String DOMIBUS_SEND_FROM_C3_WITH_IN_QUEUE = "domibus.send.from.c3.with.in.queue";
 
@@ -208,32 +209,53 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             deliverMessageCounter.inc();
             boolean sendResponseFromC3Plugin = true;
             final String property = domibusPropertyExtService.getProperty(DOMIBUS_SEND_FROM_C3);
+
             if (StringUtils.isNotEmpty(property)) {
                 sendResponseFromC3Plugin = Boolean.parseBoolean(property);
             }
+
+            boolean sendPayloadInQueue = true;
+            final String propertyPayload = domibusPropertyExtService.getProperty(DOMIBUS_SEND_PAYLOAD_INQUEUE);
+            if (StringUtils.isNotEmpty(propertyPayload)) {
+                sendPayloadInQueue = Boolean.parseBoolean(propertyPayload);
+            }
+
             if (sendResponseFromC3Plugin) {
                 downloadAndSendBack(messageId);
                 /*domainTaskExtExecutor.submitLongRunningTask(
                         () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);*/
 
-            } else {
-                LOG.debug("Delivering message");
+            } else if(sendPayloadInQueue){
+                LOG.debug("Delivering submission to out queue");
                 final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
                 final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
                 if (StringUtils.isEmpty(queueValue)) {
                     throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
                 }
                 LOG.info("Sending message to queue [{}]", queueValue);
-                Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "mshToBackendTemplate.send")).time();
+                Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "submission.mshToBackendTemplate.send")).time();
 
-//                Submission submission = this.messageRetriever.downloadMessage(messageId);
+                Submission submission = this.messageRetriever.downloadMessage(messageId);
+
+                MessageCreator messageCreator = new DownloadSubmissionMessageCreator(submission);
+                mshToBackendTemplate.send(outQueue, messageCreator);
+                mshToBackendTemplateTimer.stop();
+            } else {
+                LOG.debug("Delivering message_id to out queue");
+                final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+                final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
+                if (StringUtils.isEmpty(queueValue)) {
+                    throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
+                }
+                LOG.info("Sending message to queue [{}]", queueValue);
+                Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "message_id.mshToBackendTemplate.send")).time();
 
                 MessageCreator messageCreator = new DownloadMessageCreator(messageId);
                 mshToBackendTemplate.send(outQueue, messageCreator);
                 mshToBackendTemplateTimer.stop();
             }
-//        } catch (MessageNotFoundException e) {
-//            throw new DefaultJmsPluginException("Unable to download message", e);
+        } catch (MessageNotFoundException e) {
+            throw new DefaultJmsPluginException("Unable to download message", e);
         } finally {
             if (deliverMessageTimer != null) {
                 deliverMessageTimer.stop();
@@ -430,6 +452,19 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         jmsExtService.sendMapMessageToQueue(message, queueValue);
     }
 
+    public MapMessage buildMessage(Submission submission, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", submission.getMessageId());
+        try {
+            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return result;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
+    }
+
     public MapMessage buildMessage(String messageId, MapMessage target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         try {
@@ -460,6 +495,29 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             final MapMessage mapMessage = session.createMapMessage();
             try {
                 buildMessage(messageId, mapMessage);
+            } catch (final MessageNotFoundException e) {
+                throw new DefaultJmsPluginException("Unable to create push message", e);
+            }
+            mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_INCOMING);
+            final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+            mapMessage.setStringProperty(MessageConstants.DOMAIN, currentDomain.getCode());
+            return mapMessage;
+        }
+    }
+
+    private class DownloadSubmissionMessageCreator implements MessageCreator {
+        private Submission submission;
+
+
+        public DownloadSubmissionMessageCreator(final Submission submission) {
+            this.submission = submission;
+        }
+
+        @Override
+        public Message createMessage(final Session session) throws JMSException {
+            final MapMessage mapMessage = session.createMapMessage();
+            try {
+                buildMessage(submission, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }
