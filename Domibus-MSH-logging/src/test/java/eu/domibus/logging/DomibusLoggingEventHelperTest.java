@@ -18,13 +18,19 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class DomibusLoggingEventHelperTest {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingEventHelperTest.class);
+
+    private static void logInfo(String test, String methodName, long milliseconds) {
+        LOG.info("Test {}, method {} has spent {} milliseconds",
+                test, methodName, milliseconds);
+    }
+
     @Tested
     DomibusLoggingEventHelper domibusLoggingEventHelper;
 
     @Test
     public void test_stripPayload(final @Mocked LogEvent logEvent) throws Exception {
         final String payload = readPayload("payload_SendMessage.xml");
-
         new Expectations() {{
             logEvent.getType();
             result = EventType.REQ_OUT;
@@ -40,7 +46,9 @@ public class DomibusLoggingEventHelperTest {
         }};
 
         //tested method
+        long before = System.currentTimeMillis();
         domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload", "stripPayload", System.currentTimeMillis() - before);
 
         new Verifications() {{
             final String payloadActual;
@@ -66,11 +74,14 @@ public class DomibusLoggingEventHelperTest {
             result = payload;
         }};
 
+        //tested method
+        long before = System.currentTimeMillis();
         domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_SubmitMessage", "stripPayload", System.currentTimeMillis() - before);
 
         new Verifications() {{
             final String actualPayload;
-            logEvent.setPayload(actualPayload = withCapture() );
+            logEvent.setPayload(actualPayload = withCapture());
             Assert.assertNotNull(actualPayload);
             Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
@@ -95,7 +106,11 @@ public class DomibusLoggingEventHelperTest {
             result = payload;
         }};
 
+        //tested method
+        long before = System.currentTimeMillis();
         domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_SubmitMessage_MultipleValues", "stripPayload", System.currentTimeMillis() - before);
+
 
         new FullVerifications() {{
             final String actualPayload;
@@ -121,11 +136,15 @@ public class DomibusLoggingEventHelperTest {
             result = payload;
         }};
 
+        //tested method
+        long before = System.currentTimeMillis();
         domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_RetrieveMessage", "stripPayload", System.currentTimeMillis() - before);
+
 
         new Verifications() {{
             final String actualPayload;
-            logEvent.setPayload(actualPayload = withCapture() );
+            logEvent.setPayload(actualPayload = withCapture());
             Assert.assertNotNull(actualPayload);
             Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
@@ -150,13 +169,18 @@ public class DomibusLoggingEventHelperTest {
             result = payload;
         }};
 
+        //tested method
+        long before = System.currentTimeMillis();
         domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_SubmitMessage_NoContent",
+                "stripPayload", System.currentTimeMillis() - before);
+
 
         new Verifications() {{
             String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
             Assert.assertEquals(payload, actualPayload);
-            times=1;
+            times = 1;
         }};
     }
 
