@@ -137,7 +137,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional //added for test
+    //@Transactional //added for test
     public void receiveMessage(MapMessage map) {
         Counter inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
         Timer.Context inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
