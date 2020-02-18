@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.jms.*;
@@ -56,6 +57,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
 
     public static final String DOMIBUS_SEND_PAYLOAD_INQUEUE = "domibus.send.payload.inqueue";
+    public static final String DOMIBUS_SEND_METADATA_INQUEUE = "domibus.send.metadata.inqueue";
     public static final String DOMIBUS_SEND_FROM_C3 = "domibus.send.from.c3";
     public static final String DOMIBUS_SEND_FROM_C3_WITH_IN_QUEUE = "domibus.send.from.c3.with.in.queue";
 
@@ -135,7 +137,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void receiveMessage(final MapMessage map) {
+    @Transactional //added for test
+    public void receiveMessage(MapMessage map) {
         Counter inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
         Timer.Context inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
         try {
@@ -160,6 +163,23 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                     wrongInMessageTimer.stop();
                     return;
                 }
+
+                boolean sendMetadataInQueue = true;
+                final String propertyMetadata = domibusPropertyExtService.getProperty(DOMIBUS_SEND_METADATA_INQUEUE);
+                if (StringUtils.isNotEmpty(propertyMetadata)) {
+                    sendMetadataInQueue = Boolean.parseBoolean(propertyMetadata);
+                }
+
+                if (sendMetadataInQueue) {
+                    LOG.info("Attach payload to the message.");
+                    map.clearBody();
+
+                    String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageID);
+
+                    byte[] payload = response.getBytes();
+                    map.setBytes("payload_1", payload);
+                }
+
 
                 Timer.Context submitInMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.submit.timer")).time();
                 String errorMessage = null;
@@ -220,12 +240,18 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 sendPayloadInQueue = Boolean.parseBoolean(propertyPayload);
             }
 
+            boolean sendMetadataInQueue = true;
+            final String propertyMetadata = domibusPropertyExtService.getProperty(DOMIBUS_SEND_METADATA_INQUEUE);
+            if (StringUtils.isNotEmpty(propertyMetadata)) {
+                sendMetadataInQueue = Boolean.parseBoolean(propertyMetadata);
+            }
+
             if (sendResponseFromC3Plugin) {
                 downloadAndSendBack(messageId);
                 /*domainTaskExtExecutor.submitLongRunningTask(
                         () -> downloadAndSendBack(messageId), DEFAULT_DOMAIN);*/
 
-            } else if(sendPayloadInQueue){
+            } else if (sendPayloadInQueue) {
                 LOG.debug("Delivering submission to out queue");
                 final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
                 final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
@@ -236,6 +262,12 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 Timer.Context mshToBackendTemplateTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "submission.mshToBackendTemplate.send")).time();
 
                 Submission submission = this.messageRetriever.downloadMessage(messageId);
+
+
+                if (sendMetadataInQueue) {
+                    LOG.info("Remove payload from the message.");
+                    submission.getPayloads().clear();
+                }
 
                 MessageCreator messageCreator = new DownloadSubmissionMessageCreator(submission);
                 mshToBackendTemplate.send(outQueue, messageCreator);

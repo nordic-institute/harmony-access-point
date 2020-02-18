@@ -57,6 +57,10 @@ public class SenderService {
     @Value("${send.with.jms}")
     private Boolean sendWithJms;
 
+    @Value("${send.metadata.only}")
+    private Boolean sendMetadataOnly;
+
+
     protected UsermessageApi usermessageApi;
 
     protected NoArgGenerator uuidGenerator;
@@ -129,18 +133,23 @@ public class SenderService {
 
         // messageMap.setJMSCorrelationID("12345");
         //Set up the payload properties
+        LOG.info("Send metadata only is " + sendMetadataOnly);
+
         messageMap.setStringProperty("totalNumberOfPayloads", "1");
         messageMap.setStringProperty("payload_1_description", "message");
         messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
         messageMap.setStringProperty("payload_1_mimeType", "text/xml");
 
-        String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId);
+        if(!sendMetadataOnly) {
+            LOG.info("Adding happy flow payload to the map message");
+            String response = HAPPY_FLOW_MESSAGE_TEMPLATE.replace("$messId", messageId);
 
-        //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
+            //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
 
-        //send the payload in the JMS message as byte array
-        byte[] payload = response.getBytes();
-        messageMap.setBytes("payload_1", payload);
+            //send the payload in the JMS message as byte array
+            byte[] payload = response.getBytes();
+            messageMap.setBytes("payload_1", payload);
+        }
         return messageMap;
 
     }
