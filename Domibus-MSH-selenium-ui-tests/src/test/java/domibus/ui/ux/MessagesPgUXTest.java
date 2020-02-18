@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
+import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -281,8 +282,10 @@ public class MessagesPgUXTest extends BaseUXTest {
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		for (int i = 0; i < colDescs.length(); i++) {
-			JSONObject colDesc = colDescs.getJSONObject(i);
+		for (int i = 0; i < 3; i++) {
+			int index = Generator.randomNumber(colDescs.length()-1);
+			JSONObject colDesc = colDescs.getJSONObject(index);
+			log.info("checking sorting for column" + colDesc.getString("name"));
 			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
 				TestUtils.testSortingForColumn(soft, grid, colDesc);
 			}
