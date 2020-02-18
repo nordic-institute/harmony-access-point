@@ -28,7 +28,7 @@ public class JMSSelect extends Select {
 		return getListedNoOfMessInQName(qName);
 	}
 
-	private int getListedNoOfMessInQName(String qName){
+	public int getListedNoOfMessInQName(String qName){
 		int startIndex = qName.lastIndexOf("(");
 		int endIndex = qName.lastIndexOf(")");
 
@@ -72,7 +72,6 @@ public class JMSSelect extends Select {
 		}
 		return null;
 	}
-
 
 
 }
