@@ -173,7 +173,7 @@ public class TestService {
         testServiceMessageInfoRO.setPartyId(partyId);
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
+        testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
         return testServiceMessageInfoRO;
     }
 

@@ -12,6 +12,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
+import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.pull.PullRetryWorker;
 import eu.domibus.core.replication.UIReplicationJob;
@@ -413,6 +414,27 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(uiReplicationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
+        obj.setStartDelay(30000);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean connectionMonitoringJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ConnectionMonitoringJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean connectionMonitoringTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(connectionMonitoringJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_CRON));
         obj.setStartDelay(30000);
         return obj;
     }
