@@ -77,18 +77,16 @@ public class JMSMonitoringPage extends DomibusPage {
                 && getDeleteButton().isPresent()
         );
     }
-    public String getCountFromQueueName( String queueName){
-        String queueStr[]= queueName.split(" ");
-        if(queueStr.length==2){
+
+    public String getCountFromQueueName(String queueName) {
+        String queueStr[] = queueName.split(" ");
+        if (queueStr.length == 2) {
             return null;
-        }
-        else{
+        } else {
             return queueStr[2];
 
         }
     }
-
-
 
 
 }
