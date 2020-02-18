@@ -149,7 +149,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private MetricRegistry metricRegistry;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         com.codahale.metrics.Counter downloadMessageCounter = MetricsHelper.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class, "downloadMessage.counter"));
         com.codahale.metrics.Timer.Context downloadMessageTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "downloadMessage.timer")).time();
@@ -165,7 +164,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             findMessageTimer.stop();
 
             com.codahale.metrics.Timer.Context findUserMessageLogTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "findUserMessageLogById.timer")).time();
-            final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+            final UserMessageLog messageLog = userMessageLogDao.findById(UserMessageLog.class, userMessage.getEntityId());
             findUserMessageLogTimer.stop();
 
             com.codahale.metrics.Timer.Context checkMessageAuthorizationTimer = MetricsHelper.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "checkMessageAuthorization.timer")).time();

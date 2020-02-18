@@ -31,7 +31,7 @@ public class LargeMessageSenderListener extends AbstractMessageSenderListener {
     }
 
     @Override
-    public void sendUserMessage(String messageId, int retryCount) {
-        super.messageSenderService.sendUserMessage(messageId, retryCount, true);
+    public void sendUserMessage(String messageId, Long messageIdPk,  int retryCount) {
+        super.messageSenderService.sendUserMessage(messageId, messageIdPk, retryCount, true);
     }
 }

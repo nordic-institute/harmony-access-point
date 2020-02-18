@@ -33,10 +33,13 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
     public void onMessage(final Message message) {
         Long delay = 0L;
         String messageId = null;
+        Long messageIdPk = null;
         int retryCount = 0;
         String domainCode = null;
         try {
             messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+            messageIdPk = message.getLongProperty(MessageConstants.MESSAGE_ID_PK);
+
             if (message.propertyExists(MessageConstants.RETRY_COUNT)) {
                 retryCount = message.getIntProperty(MessageConstants.RETRY_COUNT);
             }
@@ -68,12 +71,12 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             return;
         }
 
-        sendUserMessage(messageId, retryCount);
+        sendUserMessage(messageId, messageIdPk, retryCount);
 
         LOG.debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
     }
 
     public abstract void scheduleSending(String messageId, Long delay);
 
-    public abstract void sendUserMessage(final String messageId, int retryCount);
+    public abstract void sendUserMessage(final String messageId, Long messageIdPk, int retryCount);
 }

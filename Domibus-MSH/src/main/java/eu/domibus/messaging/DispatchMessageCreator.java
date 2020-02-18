@@ -11,9 +11,11 @@ import eu.domibus.api.multitenancy.Domain;
 public class DispatchMessageCreator {
 
     private final String messageId;
+    private final Long messageIdPk;
 
-    public DispatchMessageCreator(final String messageId) {
+    public DispatchMessageCreator(final String messageId, Long messageIdPk) {
         this.messageId = messageId;
+        this.messageIdPk = messageIdPk;
     }
 
     public JmsMessage createMessage() {
@@ -21,14 +23,15 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ID_PK, messageIdPk)
                 .build();
     }
 
     public JmsMessage createMessage(final int retryCount) {
-
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ID_PK, messageIdPk)
                 .property(MessageConstants.RETRY_COUNT, retryCount)
                 .build();
     }

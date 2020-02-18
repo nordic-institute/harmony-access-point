@@ -61,9 +61,9 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
-    public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
+    public void sendUserMessage(final String messageId, Long messageIdPk, int retryCount, boolean isSplitAndJoin) {
         com.codahale.metrics.Timer.Context findByMessageIdSafely_before_sending = metricRegistry.timer(MetricRegistry.name(MessageSenderService.class, "findByMessageIdSafely_before_sending")).time();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findById(UserMessageLog.class, messageIdPk);
         findByMessageIdSafely_before_sending.stop();
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
         if (MessageStatus.NOT_FOUND == messageStatus) {
@@ -82,15 +82,15 @@ public class MessageSenderService {
         }
 
         com.codahale.metrics.Timer.Context prepare_before_sending = metricRegistry.timer(MetricRegistry.name(AbstractUserMessageSender.class, "prepare_before_sending")).time();
-        final UserMessage userMessage = userMessageDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findById(UserMessage.class, messageIdPk);
         userMessage.getPartyInfo().setFromTo();
         userMessage.getMessageProperties().setXmlProperties();
         PayloadInfo payloadInfo = userMessage.getPayloadInfo();
-        if(payloadInfo != null) {
-            List<PartInfo> partInfo = payloadInfo.getPartInfo();
+        if (payloadInfo != null) {
+            Set<PartInfo> partInfo = payloadInfo.getPartInfo();
             for (PartInfo info : partInfo) {
                 PartProperties partProperties = info.getPartProperties();
-                if(partProperties != null) {
+                if (partProperties != null) {
                     partProperties.setXmlProperties();
                 }
             }

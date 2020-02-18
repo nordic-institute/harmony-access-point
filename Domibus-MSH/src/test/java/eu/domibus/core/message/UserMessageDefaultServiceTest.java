@@ -433,7 +433,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId);
+            new DispatchMessageCreator(messageId, null);//todo fix me
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();

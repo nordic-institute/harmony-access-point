@@ -280,7 +280,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     public void scheduleSending(UserMessageLog userMessageLog) {
-        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
+        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId(), null).createMessage());
     }
 
     @Override
@@ -297,13 +297,13 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
-        scheduleSending(messageId, null, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+        scheduleSending(messageId, null, new DispatchMessageCreator(messageId, null).createMessage(retryCount), isSplitAndJoin);
     }
 
     //TODO remove all other scheduleSending methods
     @Override
-    public void scheduleSendingToQueue(String messageId, Boolean isSplitAndJoin) {
-        JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+    public void scheduleSendingToQueue(String messageId, Boolean isSplitAndJoin, Long messageIdPk) {
+        JmsMessage jmsMessage = new DispatchMessageCreator(messageId, messageIdPk).createMessage();
         if (isSplitAndJoin) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
@@ -346,7 +346,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void scheduleSourceMessageSending(String messageId) {
         LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId, null).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 

@@ -12,7 +12,7 @@ public class DelayedDispatchMessageCreator extends DispatchMessageCreator {
     private final long delay;
 
     public DelayedDispatchMessageCreator(final String messageId, final long delay) {
-        super(messageId);
+        super(messageId, null);//TODO fix me
         this.delay = delay;
     }
 

@@ -26,7 +26,7 @@ public class PayloadInfo {
     @XmlElement(name = "PartInfo", required = true)
 //    @OrderColumn(name="PART_ORDER", nullable = false)//TODO FIX ME
     @OneToMany(mappedBy = "userMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    protected List<PartInfo> partInfo;
+    protected Set<PartInfo> partInfo;
 
     /**
      * This element occurs zero or more times. The PartInfo element is used to reference a MIME
@@ -53,9 +53,9 @@ public class PayloadInfo {
      */
 
     //TODO: support payloadreference?
-    public List<PartInfo> getPartInfo() {
+    public Set<PartInfo> getPartInfo() {
         if (this.partInfo == null) {
-            this.partInfo = new ArrayList<>();
+            this.partInfo = new HashSet<>();
         }
         return this.partInfo;
     }

@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
 
@@ -218,7 +219,7 @@ public class MessagingServiceImpl implements MessagingService {
                         MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                         backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null, true);
 
-                userMessageService.scheduleSendingToQueue(messageId, false);
+                userMessageService.scheduleSendingToQueue(messageId, false, userMessageLog.getEntityId());
             } else {
                 final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                         MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
@@ -260,7 +261,7 @@ public class MessagingServiceImpl implements MessagingService {
 
     protected boolean scheduleSourceMessagePayloads(Messaging messaging, final Domain domain) {
         final PayloadInfo payloadInfo = messaging.getUserMessage().getPayloadInfo();
-        final List<PartInfo> partInfos = payloadInfo.getPartInfo();
+        final Set<PartInfo> partInfos = payloadInfo.getPartInfo();
         if (payloadInfo == null || partInfos == null || partInfos.isEmpty()) {
             LOG.debug("SourceMessages does not have any payloads");
             return false;

@@ -20,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -96,7 +94,7 @@ public class PayloadProfileValidator {
         }
 
         modifiableProfileList.addAll(profile.getPayloads());
-        List<PartInfo> partInfos = new ArrayList<>();
+        Set<PartInfo> partInfos = new HashSet<>();
         if(userMessage.getPayloadInfo() != null) {
             partInfos = userMessage.getPayloadInfo().getPartInfo();
         }

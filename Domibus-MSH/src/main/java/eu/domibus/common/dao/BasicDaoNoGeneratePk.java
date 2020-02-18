@@ -34,6 +34,10 @@ public abstract class BasicDaoNoGeneratePk<T extends AbstractBaseEntityNoGenerat
         return em.find(typeOfT, id);
     }
 
+    public <T> T findById(Class<T> typeOfT, Long id) {
+        return em.find(typeOfT, id);
+    }
+
     @BasicAudit
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(final T entity) {

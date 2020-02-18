@@ -112,7 +112,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             }
         }
 
-        List<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
+        Set<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
         if(partInfo != null) {
             for (PartInfo info : partInfo) {
                 PartProperties partProperties = info.getPartProperties();

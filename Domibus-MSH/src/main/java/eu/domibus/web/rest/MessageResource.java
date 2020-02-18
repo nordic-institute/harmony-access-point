@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -109,7 +110,7 @@ public class MessageResource {
             return ret;
         }
 
-        final List<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
+        final Set<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
         for (PartInfo info : partInfo) {
             try {
                 ret.put(getPayloadName(info), info.getPayloadDatahandler().getInputStream());
