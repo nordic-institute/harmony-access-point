@@ -2,10 +2,12 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
 import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Tiago Miguel
@@ -32,6 +36,9 @@ public class TestServiceResource {
 
     @Autowired
     private PartyService partyService;
+
+    @Autowired
+    protected ConnectionMonitoringService connectionMonitoringService;
 
     @RequestMapping(value = "sender", method = RequestMethod.GET)
     public String getSenderParty() {
@@ -53,5 +60,15 @@ public class TestServiceResource {
     @ResponseBody
     public String submitTestDynamicDiscovery(@RequestBody @Valid TestServiceRequestRO testServiceRequestRO) throws IOException, MessagingProcessingException {
         return testService.submitTestDynamicDiscovery(testServiceRequestRO.getSender(), testServiceRequestRO.getReceiver(), testServiceRequestRO.getReceiverType());
+    }
+
+    @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
+    public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
+        Map<String, ConnectionMonitorRO> r = new HashMap<>();
+        for (String partyId : partyIds) {
+            ConnectionMonitorRO status = connectionMonitoringService.getConnectionStatus(partyId);
+            r.put(partyId, status);
+        }
+        return r;
     }
 }
