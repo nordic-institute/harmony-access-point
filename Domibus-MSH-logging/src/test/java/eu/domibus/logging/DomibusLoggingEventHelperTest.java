@@ -187,6 +187,39 @@ public class DomibusLoggingEventHelperTest {
     }
 
     @Test
+    public void test_stripPayload_RetrieveMessage_2Attachments(final @Mocked LogEvent logEvent) throws Exception {
+
+        final String payload = readPayload("payload_RetrieveMessage_2Attachments.xml");
+
+        new Expectations() {{
+            logEvent.getType();
+            result = EventType.RESP_OUT;
+
+            logEvent.getOperationName();
+            result = "test retrieveMessage";
+
+            logEvent.isMultipartContent();
+            result = false;
+
+            logEvent.getPayload();
+            result = payload;
+        }};
+
+        //tested method
+        long before = System.currentTimeMillis();
+        domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_RetrieveMessage_2Attachments", "stripPayload", System.currentTimeMillis() - before);
+
+
+        new Verifications() {{
+            final String actualPayload;
+            logEvent.setPayload(actualPayload = withCapture());
+            Assert.assertNotNull(actualPayload);
+            Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+        }};
+    }
+
+    @Test
     public void test_stripPayload_SubmitMessage_NoContent(final @Mocked LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_SubmitMessage_no_content.xml");
