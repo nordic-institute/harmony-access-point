@@ -74,6 +74,9 @@ public class Configuration {
     @Value("${session.cache.size}")
     private Integer cacheSize;
 
+    @Value("${jms.session.transacted}")
+    private Boolean sessionTransacted;
+
     @Bean
     public DefaultJmsListenerContainerFactory myFactory() {
         LOG.info("Initiating jms listener factory");
@@ -81,6 +84,13 @@ public class Configuration {
         factory.setConnectionFactory(connectionFactory());
         factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
+
+        if(sessionTransacted) {
+            LOG.info("Configuring DefaultJmsListenerContainerFactory: myFactory with session transacted");
+            factory.setSessionTransacted(true);
+            factory.setSessionAcknowledgeMode(0);
+        }
+
         return factory;
     }
 

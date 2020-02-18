@@ -21,7 +21,6 @@ import java.util.List;
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomainServiceImpl implements DomainService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
