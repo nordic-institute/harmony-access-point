@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 /**
  * Business for striping the apache cxf log payloads
  *
- * @since 4.1.4
  * @author Catalin Enache
+ * @since 4.1.4
  */
 @Service
 public class DomibusLoggingEventHelper {
@@ -147,23 +147,24 @@ public class DomibusLoggingEventHelper {
     }
 
     private String getMultipartBoundary(final String contentType) {
-        String[] contenTypeSplits = contentType.split(BOUNDARY_MARKER);
-        if (contenTypeSplits.length >= 2) {
-            return System.lineSeparator() + BOUNDARY_MARKER_PREFIX + contenTypeSplits[1].substring(0, contenTypeSplits[1].length() - 1);
+        String[] contentTypeSplits = contentType.split(BOUNDARY_MARKER);
+        if (contentTypeSplits.length >= 2) {
+            return /*System.lineSeparator() +*/ BOUNDARY_MARKER_PREFIX + contentTypeSplits[1].substring(0, contentTypeSplits[1].length() - 1);
         }
         return StringUtils.EMPTY;
     }
 
     private String getReplacementPart(final String boundarySplit, final String xmlTag) {
-        if (boundarySplit.isEmpty() ||
-                (boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
-                boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator())) return boundarySplit;
+        if ((boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
+                boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator()) ||
+                boundarySplit.equals(System.lineSeparator())
+        ) return boundarySplit;
 
-        return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
+        return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED + System.lineSeparator();
     }
 
     /**
-     *  * It maps positives cases when the strip payload occurs
+     * * It maps positives cases when the strip payload occurs
      */
     enum EventStripPayloadEnum {
 

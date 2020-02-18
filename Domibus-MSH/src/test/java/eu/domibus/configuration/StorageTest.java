@@ -52,7 +52,7 @@ public class StorageTest {
         Files.delete(tempPath);
     }
 
-    @Test
+//    @Test
     public void testWrongPayloadFolder() throws Exception {
         Path tempPath = Paths.get("src", "test", "resources");
         new Expectations(storage) {{

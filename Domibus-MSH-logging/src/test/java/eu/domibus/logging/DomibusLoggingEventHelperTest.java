@@ -121,6 +121,42 @@ public class DomibusLoggingEventHelperTest {
     }
 
     @Test
+    public void test_stripPayload_SubmitMessage_MTOM(final @Mocked LogEvent logEvent) throws Exception {
+
+        final String payload = readPayload("payload_SubmitMessage_MTOM_Attachments.xml");
+
+        new Expectations() {{
+            logEvent.getType();
+            result = EventType.REQ_IN;
+
+            logEvent.getOperationName();
+            result = "{http://org.ecodex.backend/1_1/}submitMessage";
+
+            logEvent.isMultipartContent();
+            result = true;
+
+            logEvent.getPayload();
+            result = payload;
+
+            logEvent.getContentType();
+            result = "multipart/related; type=\"application/xop+xml\"; start=\"<rootpart@soapui.org>\"; start-info=\"application/soap+xml\"; action=\"\"; boundary=\"----=_Part_6_567004613.1582023394958\"";
+        }};
+
+        //tested method
+        long before = System.currentTimeMillis();
+        domibusLoggingEventHelper.stripPayload(logEvent);
+        logInfo("test_stripPayload_SubmitMessage_MTOM", "stripPayload", System.currentTimeMillis() - before);
+
+
+        new FullVerifications() {{
+            final String actualPayload;
+            logEvent.setPayload(actualPayload = withCapture());
+            Assert.assertNotNull(actualPayload);
+            Assert.assertEquals(3, StringUtils.countMatches(actualPayload, AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+        }};
+    }
+
+    @Test
     public void test_stripPayload_RetrieveMessage(final @Mocked LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_RetrieveMessage.xml");
