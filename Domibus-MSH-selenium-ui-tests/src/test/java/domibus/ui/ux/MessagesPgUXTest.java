@@ -135,7 +135,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
 		log.info("checking info in grid against the file");
-		page.grid().checkCSVvsGridInfo(fileName, soft);
+		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "datetime");
 
 		soft.assertAll();
 	}
