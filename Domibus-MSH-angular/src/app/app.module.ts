@@ -11,9 +11,9 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
-  MatMenuModule,
+  MatMenuModule, MatProgressSpinnerModule,
   MatSelectModule,
-  MatSidenavModule,
+  MatSidenavModule, MatSlideToggleModule,
   MatTooltipModule
 } from '@angular/material';
 import 'hammerjs';
@@ -101,6 +101,8 @@ import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-fo
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';
 import {PropertiesService} from './properties/properties.service';
 import {FileUploadValidatorService} from './common/file-upload-validator.service';
+import {ConnectionsComponent} from './testservice/connections.component';
+import {ConnectionDetailsComponent} from './testservice/connection-details/connection-details.component';
 
 @NgModule({
   declarations: [
@@ -161,6 +163,8 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     UserCrossFieldValidatorsDirective,
     EditPopupFooterComponent,
     EditPopupBaseComponent,
+    ConnectionsComponent,
+    ConnectionDetailsComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -185,6 +189,7 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     ChangePasswordComponent,
     PropertiesComponent,
     EditPopupBaseComponent,
+    ConnectionDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -211,7 +216,9 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     MatTooltipModule,
     HttpClientModule,
     MatCardModule,
-    CommonModule
+    CommonModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

@@ -16,8 +16,7 @@ mat-sidenav {
 }
 
 mat-sidenav.menu-expanded {
-  width: 220px;
-
+  width: 250px;
 }
 
 mat-sidenav.menu-collapsed {

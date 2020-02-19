@@ -172,7 +172,7 @@ export class AlertService {
 
   private tryParseHtmlResponse(errMsg: string) {
     let res = errMsg;
-    if (errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
+    if (errMsg && errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
       let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
       if (res1 && res1.length > 0) {
         res = res1[1];

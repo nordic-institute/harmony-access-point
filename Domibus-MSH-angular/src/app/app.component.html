@@ -70,7 +70,11 @@
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/testservice']" *ngIf="isAdmin()" id="testservice_id">
       <mat-icon mat-tooltip="Test Service">import_export</mat-icon>
-      <span *ngIf="fullMenu">Test Service</span>
+      <span *ngIf="fullMenu">Test Service (old)</span>
+    </button>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" *ngIf="isAdmin()" id="connectionmonitoring_id">
+      <mat-icon mat-tooltip="Connection Monitoring">import_export</mat-icon>
+      <span *ngIf="fullMenu">Connection Monitoring</span>
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
       <mat-icon mat-tooltip="Logging">list_alt</mat-icon>

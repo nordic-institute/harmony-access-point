@@ -24,6 +24,7 @@ import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
 import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
 import {SecurityService} from "./security/security.service";
 import {PropertiesComponent} from './properties/properties.component';
+import {ConnectionsComponent} from './testservice/connections.component';
 
 
 const appRoutes: Routes = [
@@ -167,6 +168,15 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'TestService'
+    }
+  },
+  {
+    path: 'connections',
+    component: ConnectionsComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.ADMIN_ROLES,
+      helpPage: 'ConnectionMonitoring'
     }
   },
   {
