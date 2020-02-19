@@ -149,18 +149,16 @@ public class DomibusLoggingEventHelper {
     private String getMultipartBoundary(final String contentType) {
         String[] contentTypeSplits = contentType.split(BOUNDARY_MARKER);
         if (contentTypeSplits.length >= 2) {
-            return /*System.lineSeparator() +*/ BOUNDARY_MARKER_PREFIX + contentTypeSplits[1].substring(0, contentTypeSplits[1].length() - 1);
+            return BOUNDARY_MARKER_PREFIX + contentTypeSplits[1].substring(0, contentTypeSplits[1].length() - 1);
         }
         return StringUtils.EMPTY;
     }
 
     private String getReplacementPart(final String boundarySplit, final String xmlTag) {
-        if ((boundarySplit.contains(CONTENT_TYPE_MARKER) && boundarySplit.contains(xmlTag)) ||
-                boundarySplit.equals(BOUNDARY_MARKER_PREFIX + System.lineSeparator()) ||
-                boundarySplit.equals(System.lineSeparator())
-        ) return boundarySplit;
-
-        return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED + System.lineSeparator();
+        if (boundarySplit.contains(CONTENT_TYPE_MARKER) && !boundarySplit.contains(xmlTag)) {
+            return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED + System.lineSeparator();
+        }
+        return boundarySplit;
     }
 
     /**
