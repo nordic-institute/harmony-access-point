@@ -3,17 +3,24 @@ package utils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
 import utils.soap_client.DomibusC1;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +37,29 @@ public class BaseTest {
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 
-	public final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+//	public final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	public final Logger log = Logger.getLogger(this.getClass().getName());
+
+	public String logFilename;
+
+
+	private void makeLoggerLog() throws Exception{
+		PatternLayout layout = new PatternLayout("%d{ISO8601} [%C.%M] - %m%n");
+
+		Path file = Files.createTempFile("autoTests", ".txt");
+		this.logFilename = file.toAbsolutePath().toString();
+
+		FileAppender fileAppender = new FileAppender();
+		fileAppender.setFile(file.toAbsolutePath().toString());
+		fileAppender.setAppend(true);
+		fileAppender.setImmediateFlush(true);
+		fileAppender.setLayout(layout);
+		fileAppender.setName("CustomAppender");
+		fileAppender.setWriter(new BufferedWriter(new FileWriter(logFilename)));
+		log.addAppender(fileAppender);
+	}
+
+
 
 
 	/**
@@ -39,6 +68,9 @@ public class BaseTest {
 	 */
 	@BeforeSuite(alwaysRun = true)
 	public void beforeSuite() throws Exception{
+
+		makeLoggerLog();
+		log.info("Log file name is "+logFilename);
 		log.info("-------- Starting -------");
 		generateTestData();
 		driver = DriverManager.getDriver();
