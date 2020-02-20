@@ -3,13 +3,15 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import org.apache.commons.io.FileUtils;
 import pages.jms.JMSMonitoringPage;
+import pages.messages.MessageResendModal;
+import pages.messages.MessagesPage;
 import utils.BaseTest;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
-import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
@@ -17,9 +19,10 @@ import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
+import utils.DFileUtils;
 import utils.Generator;
 import utils.TestUtils;
-
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -768,7 +771,7 @@ public class AuditPgTest extends BaseTest {
 
     /* AU-12 Check log presence on jms message deletion event*/
     @Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
-    public void JmsMsgDeletionLog() throws Exception {
+    public void jmsMsgDeletionLog() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credentials and navigate to Audit page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
@@ -841,4 +844,132 @@ public class AuditPgTest extends BaseTest {
 
 
     }
+
+    /* AU-12 Check log presence on Message resend  event*/
+    @Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
+    public void msgResendLog() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        log.info("Login into application with Admin credentials and navigate to Audit page");
+        login(data.getAdminUser());
+        MessagesPage mPage = new MessagesPage(driver);
+        mPage.waitForTitle();
+        mPage.grid().waitForRowsToLoad();
+        log.info("uploading pmode");
+        rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", null);
+        String user = Generator.randomAlphaNumeric(10);
+
+        log.info("Create plugin user");
+        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        log.info("send message ");
+        messageSender.sendMessage(user, data.defaultPass(), null, null);
+        AuditPage aPage = new AuditPage(driver);
+
+        do {
+            mPage.refreshPage();
+
+            log.info("Wait for grid row to load");
+            mPage.grid().waitForRowsToLoad();
+
+            log.info("Extract message id from first row");
+            String msgId = mPage.grid().getRowInfo(0).get("Message Id");
+
+            log.info("Check Message status for first row as SEND_FAILURE or SEND_ENQUEUED");
+            soft.assertTrue(mPage.grid().getRowInfo(0).get("Message Status").equals("SEND_FAILURE") || mPage.grid().getRowInfo(0).get("Message Status").equals("SEND_ENQUEUED"), "Message status is SEND_FAILURE");
+
+            log.info("Select first row");
+            mPage.grid().selectRow(0);
+
+            log.info("Check status of Resend button");
+            soft.assertTrue(mPage.getResendButton().isEnabled(), "Resend button is enabled");
+
+            log.info("Click on resend button");
+            mPage.getResendButton().click();
+            MessageResendModal msgModel = new MessageResendModal(driver);
+
+            log.info("Click Resend for confirmation");
+            msgModel.getResendButton().click();
+
+            log.info("Check success alert message");
+            soft.assertTrue(mPage.getAlertArea().getAlertMessage().contains("success"));
+
+            log.info("Navigate to Audit page");
+            mPage.getSidebar().goToPage(PAGES.AUDIT);
+
+            log.info("Wait for grid row to load");
+            aPage.grid().waitForRowsToLoad();
+
+            log.info("Check ID as message id , Action as resent Table as Message and User as Super(for multitenancy) or Admin(for Singletenancy) log on audit page");
+            soft.assertTrue(aPage.grid().getRowInfo(0).get("Id").equals(msgId) &&
+                    aPage.grid().getRowInfo(0).containsValue("Resent") &&
+                    aPage.grid().getRowInfo(0).containsValue("Message") &&
+                    (aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin")));
+
+            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals("domain1")) {
+                log.info("Break loop if domain title is domain1 or null");
+                break;
+            }
+            log.info("Change domain");
+            aPage.getDomainSelector().selectOptionByIndex(1);
+
+            log.info("uploading pmode for second domain");
+            rest.uploadPMode("pmodes/Edelivery-secDomain-NoRetry.xml", "domain1");
+            String userr = Generator.randomAlphaNumeric(10);
+
+            log.info("Create plugin user for second domain");
+            rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), "domain1");
+
+            log.info("send message to second domain");
+            messageSender.sendMessage(userr, data.defaultPass(), null, null);
+
+            log.info("Navigate to Message page");
+            aPage.getSidebar().goToPage(PAGES.MESSAGES);
+
+        } while (aPage.getDomainFromTitle().equals("domain1"));
+
+        soft.assertAll();
+    }
+
+    /* AU-21 Check log presence on Download event on Pmode Current page*/
+    @Test(description = "AU-21", groups = {"multiTenancy", "singleTenancy"})
+    public void currentPmodeDownloadLog() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        log.info("Login into application with Admin credentials and navigate to Audit page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+        PModeCurrentPage pcPage = new PModeCurrentPage(driver);
+        AuditPage aPage = new AuditPage(driver);
+        do {
+            soft.assertTrue(pcPage.getDownloadBtn().isPresent(), "Download button is present");
+            log.info("Customized location for download");
+            String filePath = DFileUtils.downloadFolderPath();
+
+            log.info("Clean given directory");
+            FileUtils.cleanDirectory(new File(filePath));
+            log.info("Click on download button");
+            pcPage.getDownloadBtn().click();
+            soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
+            log.info("Navigate to Audit page");
+            pcPage.getSidebar().goToPage(PAGES.AUDIT);
+
+            log.info("Verify value for column table, action and user on audit page for first row");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Pmode")
+                    && aPage.grid().getRowInfo(0).containsValue("Downloaded") &&
+                    (aPage.grid().getRowInfo(0).containsValue("super")
+                            || aPage.grid().getRowInfo(0).containsValue("admin")));
+
+
+            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals("domain1")) {
+                log.info("Break from loop if current domain name is null (for single tenancy) and domain1 for multitenancy");
+
+                break;
+            }
+            log.info("Change domain");
+            aPage.getDomainSelector().selectOptionByIndex(1);
+            log.info("Navigate to Pmode current page");
+            aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+        } while (aPage.getDomainFromTitle().equals("domain1"));
+        soft.assertAll();
+
+    }
+
 }

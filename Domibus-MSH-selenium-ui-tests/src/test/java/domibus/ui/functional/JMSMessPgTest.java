@@ -302,7 +302,7 @@ public class JMSMessPgTest extends BaseTest {
     }
 
     @Test(description = "JMS-12", groups = {"multiTenancy"})
-    public void JmsMsgDelOnDomainChange() throws Exception {
+    public void jmsMsgDelOnDomainChange() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application and navigate to JMS Monitoring page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
@@ -569,7 +569,7 @@ public class JMSMessPgTest extends BaseTest {
 
 
     @Test(description = "JMS-26", groups = {"multiTenancy"})
-    public void MsgCountOnMoveForSuperAdmin() throws Exception {
+    public void msgCountOnMoveForSuperAdmin() throws Exception {
         SoftAssert soft = new SoftAssert();
 
         log.info("Login into application and navigate to Jms Monitoring Page");
