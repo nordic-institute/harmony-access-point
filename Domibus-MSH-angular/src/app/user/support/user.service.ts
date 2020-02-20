@@ -36,7 +36,7 @@ export class UserService {
     this.http.post('rest/user/delete', users).subscribe(res => {
       this.alertService.success('User(s) deleted', false);
     }, err => {
-      this.alertService.exception('Error deleting user: ', err, false);
+      this.alertService.exception('Error deleting user: ', err);
     });
   }
 

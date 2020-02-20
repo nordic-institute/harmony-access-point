@@ -19,12 +19,7 @@ export class AlertService {
     router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         if (this.isRouteChanged(event.url)) {
-          // console.log('Clearing alert when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
-          if (!this.needsExplicitClosing) {
-            this.clearAlert();
-          }
-        } else {
-          // console.log('Alert kept when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
+          this.clearAlert();
         }
       } else if (event instanceof NavigationEnd) {
         const navigationEnd: NavigationEnd = event;
@@ -55,7 +50,7 @@ export class AlertService {
     let message = this.formatResponse(response);
     this.matSnackBar.open(message, 'X', {
       panelClass: 'success',
-      duration: 5000,
+      duration: 3000,
       verticalPosition: 'top',
     });
   }
@@ -72,9 +67,9 @@ export class AlertService {
     return message;
   }
 
-  public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
+  public exception(message: string, error: any) {
     const errMsg = this.formatError(error, message);
-    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
+    this.displayMessage(errMsg, false, 0);
     return Promise.resolve();
   }
 
@@ -88,11 +83,11 @@ export class AlertService {
     return Promise.resolve();
   }
 
-  public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
-               fadeTime: number = 0) {
-    if (message.handled) return;
-    if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
-    if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
+  public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    // public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    //   if (message.handled) return;
+    //   if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
+    //   if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
 
     const errMsg = this.formatError(message);
 

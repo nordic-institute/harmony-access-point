@@ -114,7 +114,6 @@ export class TestServiceComponent implements OnInit {
       this.getLastSentRequest(this.filter.finalRecipient);
       this.getLastReceivedRequest(this.filter.receiverPartyId, this.messageInfoSent.messageId);
     } else if (this.isPModeDaoOrCachingPModeProvider()) {
-      // this.getLastSentRequest(this.filter.receiverPartyId);
       this.alertService.clearAlert();
       this.getLastReceivedRequest(this.filter.receiverPartyId, this.messageInfoSent.messageId);
     } else {
@@ -132,7 +131,7 @@ export class TestServiceComponent implements OnInit {
     this.http.get<string>(TestServiceComponent.TEST_SERVICE_SENDER_URL).subscribe(res => {
       this.sender = res;
     }, error => {
-      this.alertService.exception('The test service is not properly configured.', error, false);
+      this.alertService.exception('The test service is not properly configured.', error);
     });
   }
 
@@ -142,12 +141,10 @@ export class TestServiceComponent implements OnInit {
       if (!isNullOrUndefined(res) && res.length) {
         this.receiverParties = res;
       } else {
-        this.alertService.error('The test service is not properly configured.', false);
+        this.alertService.error('The test service is not properly configured.');
       }
-      // only static is enabled for now
-      //this.dynamicDiscoveryEnabled = this.receiverParties.length == 0;
     }, error => {
-      this.alertService.exception('The test service is not properly configured.', error, false);
+      this.alertService.exception('The test service is not properly configured.', error);
     });
   }
 
@@ -162,8 +159,6 @@ export class TestServiceComponent implements OnInit {
           this.messageInfoSent.finalRecipient = result.accessPoint;
           this.messageInfoSent.receivedTo = new Date(result.timeReceived);
           this.messageInfoSent.messageId = result.messageId;
-          //return this.messageInfoSent.messageId;
-          //  this.getLastReceivedRequest(partyId, result.messageId);
         }
       }, (err) => {
         this.alertService.exception(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);

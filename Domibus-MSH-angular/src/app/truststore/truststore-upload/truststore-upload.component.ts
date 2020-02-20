@@ -50,7 +50,7 @@ export class TrustStoreUploadComponent {
               this.onTruststoreUploaded.emit();
             },
             err => {
-              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
+              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err);
             }
           );
 
