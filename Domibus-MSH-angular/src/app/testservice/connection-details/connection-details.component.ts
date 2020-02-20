@@ -1,8 +1,9 @@
 import {Component, Inject, OnInit, Input} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {MessageLogEntry} from 'app/messagelog/support/messagelogentry';
 import {AlertService} from 'app/common/alert/alert.service';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {ConnectionsMonitorService} from '../connectionsmonitor.service';
 
 @Component({
   moduleId: module.id,
@@ -13,29 +14,21 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 export class ConnectionDetailsComponent implements OnInit {
 
-  static readonly TEST_SERVICE_URL: string = 'rest/testservice';
-  static readonly TEST_SERVICE_PARTIES_URL: string = ConnectionDetailsComponent.TEST_SERVICE_URL + '/parties';
-  static readonly TEST_SERVICE_SENDER_URL: string = ConnectionDetailsComponent.TEST_SERVICE_URL + '/sender';
-  static readonly TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL: string = ConnectionDetailsComponent.TEST_SERVICE_URL + '/dynamicdiscovery';
-
   static readonly MESSAGE_LOG_LAST_TEST_SENT_URL: string = 'rest/messagelog/test/outgoing/latest';
   static readonly MESSAGE_LOG_LAST_TEST_RECEIVED_URL: string = 'rest/messagelog/test/incoming/latest';
 
   @Input() partyId: string;
-
-  filter: any;
+  sender: string;
 
   messageInfoSent: MessageLogEntry;
   messageInfoReceived: MessageLogEntry;
 
-  sender: string;
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialogRef: MatDialogRef<ConnectionDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private connectionsMonitorService: ConnectionsMonitorService, private http: HttpClient, private alertService: AlertService, public dialogRef: MatDialogRef<ConnectionDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.partyId = data.partyId;
   }
 
   async ngOnInit() {
-    this.filter = {};
     this.sender = '';
 
     this.clearInfo();
@@ -48,8 +41,7 @@ export class ConnectionDetailsComponent implements OnInit {
   async test() {
     this.clearInfo();
     try {
-      const payload = {sender: this.sender, receiver: this.partyId};
-      this.messageInfoSent.messageId = await this.http.post<string>(ConnectionDetailsComponent.TEST_SERVICE_URL, payload).toPromise();
+      this.messageInfoSent.messageId = await this.connectionsMonitorService.sendTestMessage(this.partyId, this.sender);
       this.alertService.success('Test Message Sent Successfully. Please press Update button to refresh and receive the response!')
       this.update();
     } catch (err) {
@@ -65,14 +57,14 @@ export class ConnectionDetailsComponent implements OnInit {
     }
   }
 
-  clearInfo() {
+  private clearInfo() {
     this.messageInfoSent = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
     this.messageInfoReceived = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
   }
 
   async getSenderParty() {
     try {
-      this.sender = await this.http.get<string>(ConnectionDetailsComponent.TEST_SERVICE_SENDER_URL).toPromise();
+      this.sender = await this.connectionsMonitorService.getSenderParty();
     } catch (error) {
       this.sender = '';
       this.alertService.exception('The test service is not properly configured.', error);

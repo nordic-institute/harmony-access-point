@@ -11,7 +11,8 @@
             {{ partyId }}
           </label>
 
-          <div class="buttonsRow" style="margin-top: 10px;">
+          <div class="buttonsRow">
+            <!-- Refresh Button -->
             <button mat-raised-button color="primary" [disabled]="!sender || !messageInfoSent.messageId" id="updatebutton_id"
                     (click)="update()" button-click-behaviour>
               <mat-icon>refresh</mat-icon>

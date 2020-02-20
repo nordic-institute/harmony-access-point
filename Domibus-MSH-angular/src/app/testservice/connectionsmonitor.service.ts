@@ -1,8 +1,6 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import * as FileSaver from 'file-saver';
 import {PartyResponseRo} from '../party/support/party';
 
 /**
@@ -61,13 +59,19 @@ export class ConnectionsMonitorService {
     return this.http.get<Map<string, ConnectionMonitorEntry>>(url, {params: searchParams}).toPromise();
   }
 
-  async sendTestMessage(receiverPartyId: string) {
+  getSenderParty() {
+    return this.http.get<string>(ConnectionsMonitorService.TEST_SERVICE_SENDER_URL).toPromise();
+  }
+
+  async sendTestMessage(receiverPartyId: string, sender?: string) {
     console.log('sending test message to ', receiverPartyId);
 
-    let sender = await this.http.get<string>(ConnectionsMonitorService.TEST_SERVICE_SENDER_URL).toPromise();
-    // TODO: exception handling
+    if (!sender) {
+      sender = await this.getSenderParty();
+      // TODO: exception handling
+    }
     const payload = {sender: sender, receiver: receiverPartyId};
-    return await this.http.post(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
+    return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
   }
 
   async setMonitorState(partyId: string, enabled: boolean) {
