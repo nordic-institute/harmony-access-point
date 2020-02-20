@@ -166,14 +166,39 @@ public class TestService {
         throw new TestServiceException("No User Message found. Error Details in error log [" + errorMap + "]");
     }
 
+    public TestServiceMessageInfoRO getLastTestSentSafely(String partyId) {
+        TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, null, null);
+        LOG.debug("Getting last sent test message for partyId [{}]", partyId);
+
+        String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
+        if (StringUtils.isBlank(userMessageId)) {
+            LOG.debug("Could not find last user message id for party [{}]", partyId);
+            return result;
+        }
+        result.setMessageId(userMessageId);
+
+        try {
+            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
+            if (userMessageLog != null) {
+                result.setTimeReceived(userMessageLog.getReceived());
+                result.setMessageStatus(userMessageLog.getMessageStatus());
+            }
+        } catch (NoResultException ex) {
+            LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
+        }
+        return result;
+    }
+
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
         TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
         testServiceMessageInfoRO.setMessageId(userMessageId);
-        testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
         testServiceMessageInfoRO.setPartyId(partyId);
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-        testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
+        if(userMessageLog != null) {
+            testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
+            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
+        }
         return testServiceMessageInfoRO;
     }
 

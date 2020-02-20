@@ -74,27 +74,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     public ConnectionMonitorRO getConnectionStatus(String partyId) {
-
-        TestServiceMessageInfoRO lastSent = null;
-        TestServiceMessageInfoRO lastReceived = null;
-
-
-        try {
-            lastSent = testService.getLastTestSent(partyId);
-        } catch (TestServiceException e) {
-            // TODO : this is temp
-        }
-
-        if (lastSent != null) {
-            try {
-                lastReceived = testService.getLastTestReceived(partyId, lastSent.getMessageId());
-            } catch (TestServiceException e) {
-                // TODO : this is temp
-            }
-        }
-
         ConnectionMonitorRO r = new ConnectionMonitorRO();
+
+        TestServiceMessageInfoRO lastSent = testService.getLastTestSentSafely(partyId);
         r.setLastSent(lastSent);
+
+        TestServiceMessageInfoRO lastReceived = getLastReceivedInfo(partyId, lastSent);
         r.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
@@ -109,6 +94,18 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         r.setStatus(getConnectionStatus(lastSent));
 
         return r;
+    }
+
+    private TestServiceMessageInfoRO getLastReceivedInfo(String partyId, TestServiceMessageInfoRO lastSent) {
+        TestServiceMessageInfoRO lastReceived = null;
+        if (lastSent != null) {
+            try {
+                lastReceived = testService.getLastTestReceived(partyId, lastSent.getMessageId());
+            } catch (TestServiceException e) {
+                // TODO : this is temp
+            }
+        }
+        return lastReceived;
     }
 
     private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {
