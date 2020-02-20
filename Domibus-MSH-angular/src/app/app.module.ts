@@ -13,7 +13,7 @@ import {
   MatListModule,
   MatMenuModule, MatProgressSpinnerModule,
   MatSelectModule,
-  MatSidenavModule, MatSlideToggleModule,
+  MatSidenavModule, MatSlideToggleModule, MatSnackBarModule,
   MatTooltipModule
 } from '@angular/material';
 import 'hammerjs';
@@ -218,7 +218,8 @@ import {ConnectionDetailsComponent} from './testservice/connection-details/conne
     MatCardModule,
     CommonModule,
     MatSlideToggleModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

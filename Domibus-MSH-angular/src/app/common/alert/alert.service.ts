@@ -3,8 +3,8 @@ import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {IPageableList} from '../mixins/ipageable-list';
 import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
+import {MatSnackBar} from '@angular/material';
 
 @Injectable()
 export class AlertService {
@@ -13,7 +13,7 @@ export class AlertService {
   private needsExplicitClosing: boolean;
 
   // TODO move the logic in the ngInit block
-  constructor(private router: Router) {
+  constructor(private router: Router, private matSnackBar: MatSnackBar) {
     this.previousRoute = '';
     // clear alert message on route change
     router.events.subscribe(event => {
@@ -47,20 +47,44 @@ export class AlertService {
 
   public success(response: any, keepAfterNavigationChange = false) {
     this.needsExplicitClosing = keepAfterNavigationChange;
+    let message = this.formatResponse(response);
+    this.subject.next({type: 'success', text: message});
+  }
+
+  public success2(response: any) {
+    let message = this.formatResponse(response);
+    this.matSnackBar.open(message, 'X', {
+      panelClass: 'success',
+      duration: 5000,
+      verticalPosition: 'top',
+    });
+  }
+
+  private formatResponse(response: any | string) {
     let message = '';
     if (typeof response === 'string') {
       message = response;
     } else {
-      if(instanceOfMultipleItemsResponse(response)) {
+      if (instanceOfMultipleItemsResponse(response)) {
         message = this.processMultipleItemsResponse(response);
       }
     }
-    this.subject.next({type: 'success', text: message});
+    return message;
   }
 
   public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
     const errMsg = this.formatError(error, message);
     this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
+    return Promise.resolve();
+  }
+
+  public exception2(message: string, error: any) {
+    const errMsg = this.formatError(error, message);
+    this.matSnackBar.open(errMsg, 'X', {
+      panelClass: 'error',
+      duration: 5000,
+      verticalPosition: 'top',
+    });
     return Promise.resolve();
   }
 
@@ -135,7 +159,7 @@ export class AlertService {
       errMsg = response;
     } else if (response instanceof HttpErrorResponse) {
       if (response.error) {
-        if(instanceOfMultipleItemsResponse(response.error)) {
+        if (instanceOfMultipleItemsResponse(response.error)) {
           errMsg = this.processMultipleItemsResponse(response.error);
         } else if (response.error.message) {
           errMsg = response.error.message;

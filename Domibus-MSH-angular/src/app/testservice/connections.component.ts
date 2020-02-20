@@ -104,7 +104,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     this.columnPicker.selectedColumns = this.columnPicker.allColumns;
   }
 
-
   formatDate(dt) {
     // TODO : add a pipe
     return moment(dt).fromNow();
@@ -114,7 +113,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newMonitoredValue = !row.monitored;
     await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
     row.monitored = newMonitoredValue;
-    this.alertService.success(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for ${row.partyId}`);
+    this.alertService.success2(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for ${row.partyId}`);
   }
 
   async sendTestMessage(row: ConnectionMonitorEntry) {

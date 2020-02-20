@@ -9,7 +9,7 @@ import {ConnectionsMonitorService} from '../connectionsmonitor.service';
   moduleId: module.id,
   templateUrl: 'connection-details.component.html',
   styleUrls: ['connection-details.component.css'],
-  providers: []
+  providers: [ConnectionsMonitorService]
 })
 
 export class ConnectionDetailsComponent implements OnInit {
@@ -45,7 +45,7 @@ export class ConnectionDetailsComponent implements OnInit {
       this.alertService.success('Test Message Sent Successfully. Please press Update button to refresh and receive the response!')
       this.update();
     } catch (err) {
-      this.alertService.exception('Problems while submitting test', err)
+      this.alertService.exception2('Problems while submitting test', err)
     }
   }
 
@@ -67,7 +67,7 @@ export class ConnectionDetailsComponent implements OnInit {
       this.sender = await this.connectionsMonitorService.getSenderParty();
     } catch (error) {
       this.sender = '';
-      this.alertService.exception('The test service is not properly configured.', error);
+      this.alertService.exception2('The test service is not properly configured.', error);
     }
   }
 
@@ -85,7 +85,7 @@ export class ConnectionDetailsComponent implements OnInit {
         this.messageInfoSent.messageId = result.messageId;
       }
     } catch (err) {
-      this.alertService.exception(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);
+      this.alertService.exception2(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);
     }
   }
 
@@ -103,7 +103,7 @@ export class ConnectionDetailsComponent implements OnInit {
         this.messageInfoReceived.messageId = result.messageId;
       }
     } catch (err) {
-      this.alertService.exception(`Error retrieving Last Received Test Messages for PartyId '${partyId}'`, err);
+      this.alertService.exception2(`Error retrieving Last Received Test Messages for PartyId '${partyId}'`, err);
     }
   }
 
