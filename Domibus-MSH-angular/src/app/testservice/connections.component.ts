@@ -5,7 +5,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import * as moment from 'moment';
-import {ConnectionMonitorEntry, ConnectionsMonitorService} from './connectionsmonitor.service';
+import {ConnectionMonitorEntry, ConnectionsMonitorService} from './support/connectionsmonitor.service';
 import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
 

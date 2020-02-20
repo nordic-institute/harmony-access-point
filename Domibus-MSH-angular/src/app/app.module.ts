@@ -71,7 +71,7 @@ import {PageHeaderComponent} from './common/page-header/page-header.component';
 import {DomainSelectorComponent} from './common/domain-selector/domain-selector.component';
 import {PmodeViewComponent} from './pmode/archive/pmode-view/pmode-view.component';
 import {AlertsComponent} from './alerts/alerts.component';
-import {TestServiceComponent} from './testservice/testservice.component';
+import {TestServiceComponent} from './testservice/old/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
 import {EditBasicPluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-basic-plugin-user-form.component';
 import {EditCertificatePluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-certificate-plugin-user-form.component';

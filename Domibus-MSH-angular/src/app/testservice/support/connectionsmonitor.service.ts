@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {PartyResponseRo} from '../party/support/party';
+import {PartyResponseRo} from '../../party/support/party';
 
 /**
  * @Author Dussart Thomas

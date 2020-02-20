@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {MessageLogEntry} from 'app/messagelog/support/messagelogentry';
 import {AlertService} from 'app/common/alert/alert.service';
-import {ConnectionsMonitorService} from '../connectionsmonitor.service';
+import {ConnectionsMonitorService} from '../support/connectionsmonitor.service';
 
 @Component({
   moduleId: module.id,

@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {MessageLogEntry} from '../messagelog/support/messagelogentry';
+import {MessageLogEntry} from '../../messagelog/support/messagelogentry';
 import {isNullOrUndefined} from 'util';
-import {AlertService} from '../common/alert/alert.service';
+import {AlertService} from '../../common/alert/alert.service';
 
 @Component({
   moduleId: module.id,
-  templateUrl: 'testservice.component.html',
-  styleUrls: ['testservice.component.css'],
+  templateUrl: './testservice.component.html',
+  styleUrls: ['./testservice.component.css'],
   providers: []
 })
 
