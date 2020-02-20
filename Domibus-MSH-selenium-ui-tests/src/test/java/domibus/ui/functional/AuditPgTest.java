@@ -4,6 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
+import pages.Audit.AuditFilters;
 import pages.jms.JMSMonitoringPage;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
@@ -22,7 +23,11 @@ import pages.pmode.parties.PartyModal;
 import utils.DFileUtils;
 import utils.Generator;
 import utils.TestUtils;
+
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -822,8 +827,8 @@ public class AuditPgTest extends BaseTest {
             log.info("Verify first row ID column data as ID shown for Message on Jms monitoring page");
             soft.assertTrue(aPage.grid().getRowInfo(0).containsValue(jmsMsgId));
 
-            log.info("Break from loop if domain name is domain1 for multitenancy or null for single tenancy");
-            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals("domain1")) {
+            log.info("Break from loop if domain name is same as second domain code for multitenancy or null for single tenancy");
+            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
             }
 
@@ -839,14 +844,14 @@ public class AuditPgTest extends BaseTest {
                 jmsPage.grid().waitForRowsToLoad();
 
             }
-        } while (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainFromTitle().equals("domain1"));
+        } while (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 
 
     }
 
-    /* AU-12 Check log presence on Message resend  event*/
-    @Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
+    /* AU-13 Check log presence on Message resend  event*/
+    @Test(description = "AU-13", groups = {"multiTenancy", "singleTenancy"})
     public void msgResendLog() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credentials and navigate to Audit page");
@@ -904,19 +909,19 @@ public class AuditPgTest extends BaseTest {
                     aPage.grid().getRowInfo(0).containsValue("Message") &&
                     (aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin")));
 
-            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals("domain1")) {
-                log.info("Break loop if domain title is domain1 or null");
+            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break loop if domain title is same as second domain code or null");
                 break;
             }
             log.info("Change domain");
             aPage.getDomainSelector().selectOptionByIndex(1);
 
             log.info("uploading pmode for second domain");
-            rest.uploadPMode("pmodes/Edelivery-secDomain-NoRetry.xml", "domain1");
+            rest.uploadPMode("pmodes/Edelivery-secDomain-NoRetry.xml", rest.getDomainNames().get(1));
             String userr = Generator.randomAlphaNumeric(10);
 
             log.info("Create plugin user for second domain");
-            rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), "domain1");
+            rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
 
             log.info("send message to second domain");
             messageSender.sendMessage(userr, data.defaultPass(), null, null);
@@ -924,7 +929,7 @@ public class AuditPgTest extends BaseTest {
             log.info("Navigate to Message page");
             aPage.getSidebar().goToPage(PAGES.MESSAGES);
 
-        } while (aPage.getDomainFromTitle().equals("domain1"));
+        } while (aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
         soft.assertAll();
     }
@@ -956,9 +961,8 @@ public class AuditPgTest extends BaseTest {
                     (aPage.grid().getRowInfo(0).containsValue("super")
                             || aPage.grid().getRowInfo(0).containsValue("admin")));
 
-
-            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals("domain1")) {
-                log.info("Break from loop if current domain name is null (for single tenancy) and domain1 for multitenancy");
+            if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break from loop if current domain name is null (for single tenancy) and second domain  for multitenancy");
 
                 break;
             }
@@ -966,10 +970,13 @@ public class AuditPgTest extends BaseTest {
             aPage.getDomainSelector().selectOptionByIndex(1);
             log.info("Navigate to Pmode current page");
             aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-
-        } while (aPage.getDomainFromTitle().equals("domain1"));
+            aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+        } while (aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 
     }
 
+
 }
+
+

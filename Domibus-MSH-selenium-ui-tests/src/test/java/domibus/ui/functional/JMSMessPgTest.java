@@ -272,7 +272,7 @@ public class JMSMessPgTest extends BaseTest {
 
                 soft.assertTrue(defaultReceivedUpto[0].equals(currentDate), "Dates are same");
                 soft.assertTrue(defaultReceivedUpto[1].equals("23:59"), "Time matches 23:59");
-                if (jmsPage.getDomainSelector().getSelectedValue().equals("domain1")) {
+                if (jmsPage.getDomainSelector().getSelectedValue().equals(rest.getDomainNames().get(1))) {
                     break;
                 }
 
@@ -280,7 +280,7 @@ public class JMSMessPgTest extends BaseTest {
                     log.info("Change domain");
                     jmsPage.getDomainSelector().selectOptionByIndex(1);
                 }
-            } while (jmsPage.getDomainFromTitle().equals("domain1"));
+            } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         } else {
 
             log.info("Extract Received Upto field default data");
@@ -385,21 +385,21 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("Count shown in queue name :" + jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()));
 
                 soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()) == null, "Message count is not shown for Admin user for Multi Tenancy");
-                log.info("Break from loop if current domain name is domain1");
-                if (jmsPage.getDomainFromTitle().equals("domain1")) {
+                log.info("Break from loop if current domain name is second domain");
+                if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                     break;
                 }
                 log.info("Logout from application");
                 logout();
 
-                log.info("Create new user for domain1");
+                log.info("Create new user for second domain");
                 String userr = Generator.randomAlphaNumeric(10);
-                rest.createUser(userr, DRoles.ADMIN, data.defaultPass(), "domain1");
+                rest.createUser(userr, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
 
-                log.info("Login into application with admin user of domain1");
+                log.info("Login into application with admin user of second domain");
                 login(userr, data.defaultPass());
 
-            } while (jmsPage.getDomainFromTitle().equals("domain1"));
+            } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
         } else {
 
@@ -473,21 +473,21 @@ public class JMSMessPgTest extends BaseTest {
                 jmsPage.refreshPage();
                 jmsPage.grid().waitForRowsToLoad();
 
-                log.info("Break from loop if current domain name is domain1");
-                if (jmsPage.getDomainFromTitle().equals("domain1")) {
+                log.info("Break from loop if current domain name is second domain");
+                if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                     break;
                 }
 
                 log.info("Logout from application");
                 logout();
-                log.info("Create Admin user for domain1 ");
+                log.info("Create Admin user for second domain ");
                 String userr = Generator.randomAlphaNumeric(10);
-                rest.createUser(userr, DRoles.ADMIN, data.defaultPass(), "domain1");
+                rest.createUser(userr, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
 
-                log.info("Login into application with Admin user of domain1 and navigate to JMS Monitoring page");
+                log.info("Login into application with Admin user of second domain and navigate to JMS Monitoring page");
                 login(userr, data.defaultPass());
 
-            } while (jmsPage.getDomainFromTitle().equals("domain1"));
+            } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
         } else {
 
@@ -555,13 +555,13 @@ public class JMSMessPgTest extends BaseTest {
             log.info("Count shown in queue name is : " + jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(1).getText()));
 
             log.info("Get domain name from page title");
-            if (jmsPage.getDomainFromTitle().equals("domain1")) {
+            if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
             }
             log.info("Change domain");
             jmsPage.getDomainSelector().selectOptionByIndex(1);
 
-        } while (jmsPage.getDomainFromTitle().equals("domain1"));
+        } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
 
         soft.assertAll();
@@ -616,14 +616,15 @@ public class JMSMessPgTest extends BaseTest {
             jmsPage.refreshPage();
             jmsPage.grid().waitForRowsToLoad();
 
-            log.info("break from loop if domain name is domain1");
-            if (jmsPage.getDomainFromTitle().equals("domain1")) {
+            log.info("break from loop if domain name is same as second domain name");
+            log.info("break from loop if domain name is same as second domain name");
+            if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
             }
 
             log.info("Change domain");
             jmsPage.getDomainSelector().selectOptionByIndex(1);
-        } while (jmsPage.getDomainFromTitle().equals("domain1"));
+        } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 
     }
