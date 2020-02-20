@@ -58,7 +58,7 @@ export class TestServiceComponent implements OnInit {
         .subscribe(
           () => {
             this.onChangeParties(),
-              this.alertService.success('Test Message Sent Successfully. Please press Update button to refresh and receive the response! ', false)
+              this.alertService.success('Test Message Sent Successfully. Please press Update button to refresh and receive the response! ');
           },
           (err) => this.alertService.exception('Problems while submitting test', err)
         );

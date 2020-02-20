@@ -30,7 +30,8 @@ export class AlertService {
 
   // called from the alert component explicitly by the user
   public close(): void {
-    this.subject.next();
+    this.matSnackBar.dismiss();
+    // this.subject.next();
   }
 
   public clearAlert(): void {
@@ -40,17 +41,11 @@ export class AlertService {
     this.close();
   }
 
-  public success(response: any, keepAfterNavigationChange = false) {
-    this.needsExplicitClosing = keepAfterNavigationChange;
-    let message = this.formatResponse(response);
-    this.subject.next({type: 'success', text: message});
-  }
-
-  public success2(response: any) {
+  public success(response: any) {
     let message = this.formatResponse(response);
     this.matSnackBar.open(message, 'X', {
       panelClass: 'success',
-      duration: 3000,
+      duration: 5000,
       verticalPosition: 'top',
     });
   }
@@ -69,37 +64,27 @@ export class AlertService {
 
   public exception(message: string, error: any) {
     const errMsg = this.formatError(error, message);
-    this.displayMessage(errMsg, false, 0);
+    this.displayErrorMessage(errMsg, false, 0);
     return Promise.resolve();
   }
 
-  public exception2(message: string, error: any) {
-    const errMsg = this.formatError(error, message);
-    this.matSnackBar.open(errMsg, 'X', {
-      panelClass: 'error',
-      duration: 5000,
-      verticalPosition: 'top',
-    });
-    return Promise.resolve();
-  }
-
-  public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    // public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    //   if (message.handled) return;
-    //   if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
-    //   if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
+  // public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
+  public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    if (message.handled) return;
+    if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
+    if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
 
     const errMsg = this.formatError(message);
 
-    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
+    this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
   }
 
-  public getMessage(): Observable<any> {
-    return this.subject.asObservable();
-  }
+  // public getMessage(): Observable<any> {
+  //   return this.subject.asObservable();
+  // }
 
   public handleError(error: HttpResponse<any> | any) {
-    this.error(error, false);
+    this.error(error);
 
     let errMsg: string;
     if (error instanceof HttpResponse) {
@@ -113,9 +98,14 @@ export class AlertService {
     return Promise.reject({reason: errMsg, handled: true});
   }
 
-  private displayMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
+  private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
     this.needsExplicitClosing = keepAfterNavigationChange;
-    this.subject.next({type: 'error', text: errMsg});
+    this.matSnackBar.open(errMsg, 'X', {
+      panelClass: 'error',
+      // duration: 5000,
+      verticalPosition: 'top',
+    });
+    // this.subject.next({type: 'error', text: errMsg});
     if (fadeTime) {
       setTimeout(() => this.clearAlert(), fadeTime);
     }

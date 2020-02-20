@@ -68,7 +68,7 @@ export class PmodeUploadComponent implements OnInit {
       input.append('file', file);
       input.append('description', this.description);
       this.http.post<string>(this.url, input).subscribe(res => {
-          this.alertService.success(res, false);
+          this.alertService.success(res);
           this.dialogRef.close({done: true});
           this.submitInProgress = false;
         }, err => {

@@ -113,7 +113,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newMonitoredValue = !row.monitored;
     await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
     row.monitored = newMonitoredValue;
-    this.alertService.success2(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for ${row.partyId}`);
+    this.alertService.success(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for ${row.partyId}`);
   }
 
   async sendTestMessage(row: ConnectionMonitorEntry) {
