@@ -3,7 +3,6 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
@@ -107,16 +106,23 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             r.setMonitored(true);
         }
 
+        r.setStatus(getConnectionStatus(lastSent));
+
+        return r;
+    }
+
+    private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {
+        ConnectionMonitorRO.ConnectionStatus status = null;
         if (lastSent != null) {
             if (lastSent.getMessageStatus() == MessageStatus.SEND_FAILURE) {
-                r.setStatus(ConnectionMonitorRO.ConnectionStatus.BROKEN);
+                status = ConnectionMonitorRO.ConnectionStatus.BROKEN;
             } else if (lastSent.getMessageStatus() == MessageStatus.ACKNOWLEDGED) {
-                r.setStatus(ConnectionMonitorRO.ConnectionStatus.OK);
+                status = ConnectionMonitorRO.ConnectionStatus.OK;
             } else {
-                r.setStatus(ConnectionMonitorRO.ConnectionStatus.PENDING);
+                status = ConnectionMonitorRO.ConnectionStatus.PENDING;
             }
         }
-        return r;
+        return status;
     }
 
     private List<String> getMonitorEnabledParties() {
