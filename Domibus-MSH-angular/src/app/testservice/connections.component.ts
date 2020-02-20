@@ -1,4 +1,4 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {MessageLogEntry} from '../messagelog/support/messagelogentry';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
@@ -39,7 +39,8 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
 
 
-  constructor(private connectionsMonitorService: ConnectionsMonitorService, private alertService: AlertService, private dialog: MatDialog,) {
+  constructor(private connectionsMonitorService: ConnectionsMonitorService, private alertService: AlertService,
+              private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -55,6 +56,10 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   ngAfterViewInit() {
     this.initColumns();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
   private async loadData() {
