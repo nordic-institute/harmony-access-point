@@ -414,9 +414,9 @@
     "ByteArrayResource" : {
       "type" : "object",
       "properties" : {
-        "byteArray" : {
-          "type" : "array",
-          "items" : {
+        "byteArray": {
+          "type": "array",
+          "items": {
             "type": "string",
             "format": "byte"
           }
@@ -426,9 +426,6 @@
         },
         "inputStream": {
           "$ref": "#/definitions/InputStream"
-        },
-        "readable": {
-          "type": "boolean"
         },
         "url": {
           "type": "string",
@@ -440,12 +437,15 @@
         "open": {
           "type": "boolean"
         },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
+        "readable": {
+          "type": "boolean"
         },
-        "filename" : {
-          "type" : "string"
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "filename": {
+          "type": "string"
         }
       }
     },
