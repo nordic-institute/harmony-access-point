@@ -20,14 +20,16 @@ public class DomibusLoggingEventHelperImpl implements DomibusLoggingEventHelper 
     @Override
     public void stripPayload(LogEvent logEvent) {
         final String operationName = logEvent.getOperationName();
-        final EventType type = logEvent.getType();
+        final EventType eventType = logEvent.getType();
         final boolean isMultipart = logEvent.isMultipartContent();
-        LOG.debug("operationName=[{}] eventType=[{}] multipart=[{}]", operationName, type, isMultipart);
+        LOG.debug("operationName=[{}] eventType=[{}] multipart=[{}]", operationName, eventType, isMultipart);
 
-        if (checkIfOperationIsAllowed(logEvent)) {
-            String payload = logEvent.getPayload();
-            logEvent.setPayload(replacePayloadMSH(payload));
+        if (!checkIfOperationIsAllowed(logEvent)) {
+            LOG.debug("payload not striped for operationName=[{}] eventType=[{}]", operationName, eventType);
+            return;
         }
+        String payload = logEvent.getPayload();
+        logEvent.setPayload(replacePayloadMSH(payload));
     }
 
     @Override

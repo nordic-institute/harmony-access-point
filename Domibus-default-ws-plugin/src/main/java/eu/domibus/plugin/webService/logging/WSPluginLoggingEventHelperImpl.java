@@ -21,7 +21,9 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String VALUE_START_MARKER = "<value";
     static final String VALUE_END_MARKER = "</value";
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
-    static final String SUBMIT_MESSAGE = "submitRequest";
+    static final String SUBMIT_REQUEST = "submitRequest";
+    static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
+    static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
 
     @Override
     public void stripPayload(LogEvent event) {
@@ -31,7 +33,7 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
         //get the payload
         String payload = event.getPayload();
-        String xmlNode = (event.getType() == EventType.REQ_IN) ? SUBMIT_MESSAGE : ((event.getType() == EventType.RESP_OUT) ? RETRIEVE_MESSAGE_RESPONSE : null);
+        String xmlNode = checkIfOperationIsAllowed(event);
         if (xmlNode == null) {
             LOG.debug("payload not striped for operationName=[{}] eventType=[{}]", operationName, eventType);
             return;
@@ -47,7 +49,17 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
         // finally set the payload back
         event.setPayload(payload);
+    }
 
+    @Override
+    public String checkIfOperationIsAllowed(LogEvent logEvent) {
+        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
+            return SUBMIT_REQUEST;
+        }
+        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
+            return RETRIEVE_MESSAGE_RESPONSE;
+        }
+        return null;
     }
 
     private String replaceInPayloadMultipart(final String payload, final String boundary, final String xmlTag) {

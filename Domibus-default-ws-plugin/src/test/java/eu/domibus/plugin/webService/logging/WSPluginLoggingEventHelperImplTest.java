@@ -36,7 +36,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = "test submitMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_SUBMIT_MESSAGE;
 
             logEvent.getPayload();
             result = payload;
@@ -65,7 +65,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = "test submitMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;
@@ -98,7 +98,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = "{http://org.ecodex.backend/1_1/}submitMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = true;
@@ -134,7 +134,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
 
             logEvent.getOperationName();
-            result = "test retrieveMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_RETRIEVE_MESSAGE;
 
             logEvent.getPayload();
             result = payload;
@@ -164,7 +164,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
 
             logEvent.getOperationName();
-            result = "test retrieveMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_RETRIEVE_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;
@@ -197,7 +197,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = "test submitMessage";
+            result = WSPluginLoggingEventHelperImpl.OPERATION_SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;

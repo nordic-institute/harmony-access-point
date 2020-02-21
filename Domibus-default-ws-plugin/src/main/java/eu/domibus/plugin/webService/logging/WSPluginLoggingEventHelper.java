@@ -11,4 +11,6 @@ import org.apache.cxf.ext.logging.event.LogEvent;
 public interface WSPluginLoggingEventHelper {
 
     void stripPayload(LogEvent logEvent);
+
+    String checkIfOperationIsAllowed(LogEvent logEvent);
 }
