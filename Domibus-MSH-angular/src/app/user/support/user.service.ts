@@ -18,18 +18,15 @@ export class UserService {
   getUsers(filter: UserSearchCriteria): Observable<UserResponseRO[]> {
     return this.http.get<UserResponseRO[]>('rest/user/users')
       .filter(this.filterData(filter))
-      // .catch(err => this.alertService.handleError(err));
   }
 
   getUserNames(): Observable<string[]> {
     return this.http.get<UserResponseRO[]>('rest/user/users')
       .map((users: UserResponseRO[]) => users.map(u => u.userName))
-      // .catch(err => this.alertService.handleError(err));
   }
 
   getUserRoles(): Observable<string[]> {
     return this.http.get<string[]>('rest/user/userroles')
-      // .catch(err => this.alertService.handleError(err));
   }
 
   deleteUsers(users: Array<UserResponseRO>): void {
@@ -64,7 +61,6 @@ export class UserService {
       return users;
     }
   }
-
 }
 
 export class UserSearchCriteria {

@@ -27,7 +27,6 @@ export class PropertiesService {
 
     return this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams})
       .toPromise()
-      // .catch(err => this.alertService.handleError(err));
   }
 
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
@@ -35,7 +34,6 @@ export class PropertiesService {
       .map(() => {
       })
       .toPromise()
-      // .catch(err => this.alertService.handleError(err));
   }
 }
 

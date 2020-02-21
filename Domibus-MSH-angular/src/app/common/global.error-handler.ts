@@ -15,7 +15,6 @@ export class GlobalErrorHandler implements ErrorHandler {
       const res = <HttpResponse<any>>error;
       if (res.status === 401 || res.status === 403) return;
     } else if (error.rejection) {
-      // if (error.rejection.handled) return;
       //unpack the promice rejection
       error = error.rejection;
     }

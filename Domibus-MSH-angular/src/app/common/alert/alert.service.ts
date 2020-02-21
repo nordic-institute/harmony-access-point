@@ -1,6 +1,5 @@
 ﻿import {Injectable} from '@angular/core';
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
-import {Observable} from 'rxjs';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
@@ -73,11 +72,6 @@ export class AlertService {
   }
 
   public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    // public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    //   if (message.handled) return;
-    //   if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
-    //   if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
-
     const errMsg = this.formatError(message);
 
     this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
@@ -87,28 +81,11 @@ export class AlertService {
   //   return this.subject.asObservable();
   // }
 
-  // public handleError(error: HttpResponse<any> | any) {
-  //   return Promise.reject(error);
-  //
-  //   // this.exception('', error);
-  //   // let errMsg: string;
-  //   // if (error instanceof HttpResponse) {
-  //   //   const body = error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' ? error.body || '' : error.toString();
-  //   //   const err = body.error || JSON.stringify(body);
-  //   //   errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-  //   // } else {
-  //   //   errMsg = error.message ? error.message : error.toString();
-  //   // }
-  //   // console.error(errMsg);
-  //   // return Promise.reject({reason: errMsg, handled: true});
-  // }
-
   private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
     console.log('displayErrorMessage');
     this.needsExplicitClosing = keepAfterNavigationChange;
     this.matSnackBar.open(errMsg, 'X', {
       panelClass: 'error',
-      // duration: 5000,
       verticalPosition: 'top',
     });
     // this.subject.next({type: 'error', text: errMsg});

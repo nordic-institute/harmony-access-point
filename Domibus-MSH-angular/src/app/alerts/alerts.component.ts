@@ -133,19 +133,16 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   getAlertTypes(): void {
     this.http.get<any[]>(AlertsComponent.ALERTS_TYPES_URL)
-      // .catch(err => this.alertService.handleError(err))
       .subscribe(aTypes => this.aTypes = aTypes);
   }
 
   getAlertStatuses(): void {
     this.http.get<any[]>(AlertsComponent.ALERTS_STATUS_URL)
-      // .catch(err => this.alertService.handleError(err))
       .subscribe(aStatuses => this.aStatuses = aStatuses);
   }
 
   getAlertLevels(): void {
     this.http.get<any[]>(AlertsComponent.ALERTS_LEVELS_URL)
-      // .catch(err => this.alertService.handleError(err))
       .subscribe(aLevels => this.aLevels = aLevels);
   }
 
