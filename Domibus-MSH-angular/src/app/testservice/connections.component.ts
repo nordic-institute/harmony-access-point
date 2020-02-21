@@ -19,20 +19,20 @@ import {ConnectionDetailsComponent} from './connection-details/connection-detail
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit {
 
-  static readonly TEST_SERVICE_URL: string = 'rest/testservice';
-  static readonly TEST_SERVICE_PARTIES_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/parties';
-  static readonly TEST_SERVICE_SENDER_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/sender';
-  static readonly TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/dynamicdiscovery';
+  // static readonly TEST_SERVICE_URL: string = 'rest/testservice';
+  // static readonly TEST_SERVICE_PARTIES_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/parties';
+  // static readonly TEST_SERVICE_SENDER_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/sender';
+  // static readonly TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/dynamicdiscovery';
 
-  static readonly MESSAGE_LOG_LAST_TEST_SENT_URL: string = 'rest/messagelog/test/outgoing/latest';
-  static readonly MESSAGE_LOG_LAST_TEST_RECEIVED_URL: string = 'rest/messagelog/test/incoming/latest';
+  // static readonly MESSAGE_LOG_LAST_TEST_SENT_URL: string = 'rest/messagelog/test/outgoing/latest';
+  // static readonly MESSAGE_LOG_LAST_TEST_RECEIVED_URL: string = 'rest/messagelog/test/incoming/latest';
 
-  filter: any;
+  // filter: any;
 
-  messageInfoSent: MessageLogEntry;
-  messageInfoReceived: MessageLogEntry;
+  // messageInfoSent: MessageLogEntry;
+  // messageInfoReceived: MessageLogEntry;
 
-  sender: string;
+  // sender: string;
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
@@ -46,8 +46,8 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   ngOnInit() {
     super.ngOnInit();
 
-    this.filter = {};
-    this.sender = '';
+    // this.filter = {};
+    // this.sender = '';
 
     this.loadServerData();
   }
