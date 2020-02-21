@@ -1,5 +1,10 @@
 ﻿import {Injectable} from '@angular/core';
-import {NavigationEnd, NavigationStart, Router} from '@angular/router';
+import {
+  NavigationEnd,
+  NavigationStart,
+  Router,
+  RouterEvent
+} from '@angular/router';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './support/multiple-items-response';
@@ -16,29 +21,7 @@ export class AlertService {
   constructor(private router: Router, private matSnackBar: MatSnackBar) {
     this.previousRoute = '';
     // clear alert message on route change
-    router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        if (this.isRouteChanged(event.url)) {
-          this.clearAlert();
-        }
-      } else if (event instanceof NavigationEnd) {
-        const navigationEnd: NavigationEnd = event;
-        this.previousRoute = navigationEnd.url;
-      }
-    });
-  }
-
-  // called from the alert component explicitly by the user
-  public close(): void {
-    this.matSnackBar.dismiss();
-    // this.subject.next();
-  }
-
-  public clearAlert(): void {
-    if (this.needsExplicitClosing) {
-      return;
-    }
-    this.close();
+    router.events.subscribe(event => this.reactToNavigationEvents(event));
   }
 
   public success(response: any) {
@@ -49,18 +32,6 @@ export class AlertService {
       duration: 5000,
       verticalPosition: 'top',
     });
-  }
-
-  private formatResponse(response: any | string) {
-    let message = '';
-    if (typeof response === 'string') {
-      message = response;
-    } else {
-      if (instanceOfMultipleItemsResponse(response)) {
-        message = this.processMultipleItemsResponse(response);
-      }
-    }
-    return message;
   }
 
   public exception(message: string, error: any) {
@@ -79,9 +50,30 @@ export class AlertService {
     this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
   }
 
-  // public getMessage(): Observable<any> {
-  //   return this.subject.asObservable();
-  // }
+  // called from the alert component explicitly by the user
+  public close(): void {
+    this.matSnackBar.dismiss();
+    // this.subject.next();
+  }
+
+  public clearAlert(): void {
+    if (this.needsExplicitClosing) {
+      return;
+    }
+    this.close();
+  }
+
+  private formatResponse(response: any | string) {
+    let message = '';
+    if (typeof response === 'string') {
+      message = response;
+    } else {
+      if (instanceOfMultipleItemsResponse(response)) {
+        message = this.processMultipleItemsResponse(response);
+      }
+    }
+    return message;
+  }
 
   private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
 
@@ -191,5 +183,18 @@ export class AlertService {
     return res;
   }
 
+  private reactToNavigationEvents(event: RouterEvent | NavigationStart | NavigationEnd | any) {
+    if (event instanceof NavigationStart) {
+      if (this.isRouteChanged(event.url)) {
+        this.clearAlert();
+      }
+    } else if (event instanceof NavigationEnd) {
+      const navigationEnd: NavigationEnd = event;
+      this.previousRoute = navigationEnd.url;
+    }
+  }
 
+  // public getMessage(): Observable<any> {
+  //   return this.subject.asObservable();
+  // }
 }

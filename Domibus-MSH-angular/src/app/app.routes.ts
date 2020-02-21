@@ -26,7 +26,6 @@ import {SecurityService} from "./security/security.service";
 import {PropertiesComponent} from './properties/properties.component';
 import {ConnectionsComponent} from './testservice/connections.component';
 
-
 const appRoutes: Routes = [
   {
     path: '',
@@ -161,15 +160,15 @@ const appRoutes: Routes = [
       helpPage: 'Alerts'
     }
   },
-  {
-    path: 'testservice',
-    component: TestServiceComponent,
-    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
-    data: {
-      checkRoles: SecurityService.ADMIN_ROLES,
-      helpPage: 'TestService'
-    }
-  },
+  // {
+  //   path: 'testservice',
+  //   component: TestServiceComponent,
+  //   canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+  //   data: {
+  //     checkRoles: SecurityService.ADMIN_ROLES,
+  //     helpPage: 'TestService'
+  //   }
+  // },
   {
     path: 'connections',
     component: ConnectionsComponent,
