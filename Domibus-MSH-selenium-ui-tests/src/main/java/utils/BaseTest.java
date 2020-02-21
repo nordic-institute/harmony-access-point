@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
@@ -37,7 +35,6 @@ public class BaseTest {
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 
-//	public final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public final Logger log = Logger.getLogger(this.getClass().getName());
 
 	public String logFilename;

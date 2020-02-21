@@ -30,7 +30,6 @@ public class Select extends DComponent {
         PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
         this.selectContainer = container;
-        //	extractOptionIDs();
     }
 
     protected List<String> optionIDs = new ArrayList<String>();

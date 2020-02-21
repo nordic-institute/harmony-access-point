@@ -469,8 +469,6 @@ public class UsersPgTest extends BaseTest {
 		soft.assertEquals(loginPage.getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
 
 		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
-
-//		rest.deleteUser(username, null);
 		soft.assertAll();
 	}
 

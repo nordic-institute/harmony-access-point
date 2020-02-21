@@ -147,7 +147,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		HashMap<String, String> row = grid.getRowInfo(0);
 
 		log.info("filtering by data listed in first row of grid: " + row);
-//		page.filters().advancedSearch(row.get("Signal Message Id"), row.get("Message Id"), row.get("Timestamp"), null, row.get("Error Detail"), row.get("AP Role"), row.get("Error Code"), null, null);
+
 		page.filters().advancedSearch(row.get("Signal Message Id"), row.get("Message Id"), row.get("Timestamp"), null, null, row.get("AP Role"), row.get("Error Code"), null, null);
 		grid.waitForRowsToLoad();
 

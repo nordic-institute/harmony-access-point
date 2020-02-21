@@ -320,7 +320,6 @@ public class PmodePartiesPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
         PModePartiesPage pPage = new PModePartiesPage(driver);
 
-        //String defaultPmode = pPage.getPage().getTextArea().getText();
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
