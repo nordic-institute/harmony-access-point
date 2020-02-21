@@ -60,7 +60,7 @@
     </jaxws:endpoint>
 
     <!--Message logger configuration-->
-    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.DomibusWSPluginLoggingEventSender">
+    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender">
         <property name="printPayload" value="${domibus.logging.payload.print}"/>
     </bean>
 

@@ -1,3 +1,4 @@
+Domibus 4.1.4 (from 4.1.3)
 Domibus 4.1.3 (from 4.1.2):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - [Tomcat only]
@@ -30,7 +31,7 @@ Domibus 4.1.2 (from 4.1.1):
                     </jaxws:endpoint>
 
                     <!--Message logger configuration-->
-                    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.DomibusWSPluginLoggingEventSender">
+                    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.impl.logging.DomibusWSPluginLoggingEventSender">
                         <property name="printPayload" value="${domibus.logging.payload.print}"/>
                     </bean>
 Domibus 4.1.1 (from 4.1):
