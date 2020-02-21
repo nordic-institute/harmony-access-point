@@ -1,4 +1,4 @@
-package eu.domibus.logging;
+package eu.domibus.plugin.webService.logging;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -10,15 +10,13 @@ import org.apache.cxf.helpers.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author Catalin Enache
- * @since 4.1.1
- */
 @RunWith(JMockit.class)
-public class DomibusLoggingEventHelperImplTest {
+public class WSPluginLoggingEventHelperImplTest {
+    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImplTest.class);
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingEventHelperImplTest.class);
 
     private static void logInfo(String test, String methodName, long before) {
         LOG.info("Test {}, method {} has spent {} milliseconds",
@@ -26,37 +24,7 @@ public class DomibusLoggingEventHelperImplTest {
     }
 
     @Tested
-    DomibusLoggingEventHelperImpl domibusLoggingEventHelper;
-
-    @Test
-    public void test_stripPayload_SendMessage(final @Mocked LogEvent logEvent) throws Exception {
-        final String payload = readPayload("payload_SendMessage.xml");
-        new Expectations() {{
-            logEvent.getType();
-            result = EventType.REQ_OUT;
-
-            logEvent.getOperationName();
-            result = "test Invoke";
-
-            logEvent.isMultipartContent();
-            result = true;
-
-            logEvent.getPayload();
-            result = payload;
-        }};
-
-        //tested method
-        long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
-        logInfo("test_stripPayload_SendMessage", "stripPayload", before);
-
-        new Verifications() {{
-            final String payloadActual;
-            logEvent.setPayload(payloadActual = withCapture());
-            Assert.assertNotNull(payloadActual);
-            Assert.assertTrue(payloadActual.split(DomibusLoggingEventHelperImpl.CONTENT_TYPE_MARKER).length == 2);
-        }};
-    }
+    WSPluginLoggingEventHelperImpl wsPluginLoggingEventHelper;
 
     @Test
     public void test_stripPayload_SubmitMessage(final @Mocked LogEvent logEvent) throws Exception {
@@ -76,7 +44,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_SubmitMessage", "stripPayload", before);
 
         new Verifications() {{
@@ -108,7 +76,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_SubmitMessage_MultipleValues", "stripPayload", before);
 
 
@@ -144,7 +112,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_SubmitMessage_MTOM", "stripPayload", before);
 
 
@@ -174,7 +142,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_RetrieveMessage", "stripPayload", before);
 
 
@@ -207,7 +175,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_RetrieveMessage_2Attachments", "stripPayload", before);
 
 
@@ -240,7 +208,7 @@ public class DomibusLoggingEventHelperImplTest {
 
         //tested method
         long before = System.currentTimeMillis();
-        domibusLoggingEventHelper.stripPayload(logEvent);
+        wsPluginLoggingEventHelper.stripPayload(logEvent);
         logInfo("test_stripPayload_SubmitMessage_NoContent",
                 "stripPayload", before);
 

@@ -8,10 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Business for striping the apache cxf log payloads
- *
- * @author Catalin Enache
- * @since 4.1.4
+ * {@inheritDoc}
  */
 @Service
 public class DomibusLoggingEventHelperImpl implements DomibusLoggingEventHelper {
@@ -57,18 +54,5 @@ public class DomibusLoggingEventHelperImpl implements DomibusLoggingEventHelper 
         }
         return newPayload;
     }
-
-
-    private String replaceInPayload(final String payload) {
-        String newPayload = payload;
-        //C2 -> C3
-        String[] payloadSplits = payload.split(CONTENT_TYPE_MARKER);
-        //keeping only first 2 Content-Type elements
-        if (payloadSplits.length >= 2) {
-            newPayload = payloadSplits[0] + CONTENT_TYPE_MARKER + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
-        }
-        return newPayload;
-    }
-
 
 }
