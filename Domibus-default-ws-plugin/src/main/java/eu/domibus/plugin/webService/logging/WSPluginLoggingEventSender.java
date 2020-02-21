@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WSPluginLoggingEventSender extends Slf4jEventSender {
     private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventSender.class);
 
-    private static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
+    static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
     private boolean printPayload;
 

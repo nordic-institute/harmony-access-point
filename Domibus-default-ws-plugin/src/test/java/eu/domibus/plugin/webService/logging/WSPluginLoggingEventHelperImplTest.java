@@ -221,6 +221,25 @@ public class WSPluginLoggingEventHelperImplTest {
         }};
     }
 
+    @Test
+    public void test_checkIfOperationIsAllowed(final @Mocked LogEvent logEvent) {
+        new Expectations() {{
+            logEvent.getType();
+            result = EventType.REQ_IN;
+            result = EventType.RESP_OUT;
+
+            logEvent.getOperationName();
+            result = WSPluginLoggingEventHelperImpl.OPERATION_SUBMIT_MESSAGE;
+            result = WSPluginLoggingEventHelperImpl.OPERATION_RETRIEVE_MESSAGE;
+        }};
+
+
+        Assert.assertEquals(WSPluginLoggingEventHelperImpl.SUBMIT_REQUEST,
+                wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+        Assert.assertEquals(WSPluginLoggingEventHelperImpl.RETRIEVE_MESSAGE_RESPONSE,
+                wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+    }
+
     private String readPayload(final String payloadName) throws Exception {
         return IOUtils.toString(getClass().getClassLoader().getResourceAsStream(payloadName), "UTF-8");
     }
