@@ -1,5 +1,7 @@
 package ddsl.dobjects;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -19,9 +21,11 @@ public class DWait {
 	public final WebDriverWait defaultWait;
 	private TestRunData data = new TestRunData();
 
+	private WebDriver driver;
 
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
+		this.driver = driver;
 	}
 
 	public void forXMillis(Integer millis) {
@@ -65,10 +69,17 @@ public class DWait {
 	}
 
 	public void forElementToBeGone(WebElement element) {
-		try {
-			defaultWait.until(ExpectedConditions.invisibilityOf(element));
-		} catch (Exception e) {
-		}
+		defaultWait.until(new ExpectedCondition<Boolean>() {
+			@Override
+			public Boolean apply(WebDriver driver) {
+				String content = null;
+				try {
+					content = "" + ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;",element);
+					System.out.println("content = " + content);
+				} catch (Exception e) {}
+				return StringUtils.isEmpty(content);
+			}
+		});
 	}
 
 	public void forElementToBe(WebElement element) {

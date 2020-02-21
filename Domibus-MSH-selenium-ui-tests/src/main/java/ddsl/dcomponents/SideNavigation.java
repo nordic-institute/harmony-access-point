@@ -3,6 +3,7 @@ package ddsl.dcomponents;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -155,8 +156,14 @@ public class SideNavigation extends DComponent {
 
 	public void goToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
-		getPageLnk(page).click();
+		DLink link = getPageLnk(page);
+		link.click();
+
 		log.debug("Navigated to " + page.name());
+
+		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
+		DomibusPage pg = new DomibusPage(driver);
+		wait.forElementToContainText (pg.pageTitle, text);
 	}
 
 	public boolean isUserState() throws Exception {

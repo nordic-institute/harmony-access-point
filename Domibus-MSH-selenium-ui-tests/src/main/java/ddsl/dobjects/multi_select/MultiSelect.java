@@ -19,7 +19,6 @@ public class MultiSelect extends Select {
 
 	public MultiSelect(WebDriver driver, WebElement container) {
 		super(driver, container);
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 	}
 
 	public boolean selectOptionByText(String text) throws Exception{
