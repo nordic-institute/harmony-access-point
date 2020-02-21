@@ -1,7 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import org.joda.time.DateTime;
-
 /**
  * @author Ion Perpegel
  * @since 4.2

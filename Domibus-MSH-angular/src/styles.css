@@ -381,6 +381,10 @@ mat-select .mat-select {
   margin-top: -10px !important;
 }
 
+.mat-snack-bar-container {
+  max-width: 50vw !important;
+}
+
 .mat-snack-bar-container.error {
   background-color: #f44336 !important;
 }

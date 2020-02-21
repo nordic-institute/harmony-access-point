@@ -4,7 +4,6 @@ import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.testservice.TestService;
-import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -79,7 +78,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         TestServiceMessageInfoRO lastSent = testService.getLastTestSentSafely(partyId);
         r.setLastSent(lastSent);
 
-        TestServiceMessageInfoRO lastReceived = getLastReceivedInfo(partyId, lastSent);
+        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceivedSafely(partyId,
+                lastSent != null ? lastSent.getMessageId() : null);
         r.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
@@ -96,17 +96,13 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return r;
     }
 
-    private TestServiceMessageInfoRO getLastReceivedInfo(String partyId, TestServiceMessageInfoRO lastSent) {
-        TestServiceMessageInfoRO lastReceived = null;
-        if (lastSent != null) {
-            try {
-                lastReceived = testService.getLastTestReceived(partyId, lastSent.getMessageId());
-            } catch (TestServiceException e) {
-                // TODO : this is temp
-            }
-        }
-        return lastReceived;
-    }
+//    private TestServiceMessageInfoRO getLastReceivedInfo(String partyId, TestServiceMessageInfoRO lastSent) {
+//        TestServiceMessageInfoRO lastReceived = null;
+//        if (lastSent != null) {
+//            lastReceived = testService.getLastTestReceivedSafely(partyId, lastSent.getMessageId());
+//        }
+//        return lastReceived;
+//    }
 
     private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {
         ConnectionMonitorRO.ConnectionStatus status = null;
