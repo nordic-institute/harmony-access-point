@@ -89,6 +89,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     } catch (error) {
       this.isLoading = false;
       this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+      error.handled = true;
       return Promise.reject(error);
     }
 
@@ -149,6 +150,5 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
 };
-
 
 

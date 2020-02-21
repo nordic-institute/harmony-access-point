@@ -63,16 +63,20 @@ export class AlertService {
   }
 
   public exception(message: string, error: any) {
+    if (error && error.handled) {
+      return;
+    }
+
     const errMsg = this.formatError(error, message);
     this.displayErrorMessage(errMsg, false, 0);
     return Promise.resolve();
   }
 
-  // public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
-  public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    if (message.handled) return;
-    if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
-    if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
+  public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    // public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    //   if (message.handled) return;
+    //   if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
+    //   if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
 
     const errMsg = this.formatError(message);
 
@@ -83,22 +87,24 @@ export class AlertService {
   //   return this.subject.asObservable();
   // }
 
-  public handleError(error: HttpResponse<any> | any) {
-    this.error(error);
-
-    let errMsg: string;
-    if (error instanceof HttpResponse) {
-      const body = error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' ? error.body || '' : error.toString();
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error.message ? error.message : error.toString();
-    }
-    console.error(errMsg);
-    return Promise.reject({reason: errMsg, handled: true});
-  }
+  // public handleError(error: HttpResponse<any> | any) {
+  //   return Promise.reject(error);
+  //
+  //   // this.exception('', error);
+  //   // let errMsg: string;
+  //   // if (error instanceof HttpResponse) {
+  //   //   const body = error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' ? error.body || '' : error.toString();
+  //   //   const err = body.error || JSON.stringify(body);
+  //   //   errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+  //   // } else {
+  //   //   errMsg = error.message ? error.message : error.toString();
+  //   // }
+  //   // console.error(errMsg);
+  //   // return Promise.reject({reason: errMsg, handled: true});
+  // }
 
   private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
+    console.log('displayErrorMessage');
     this.needsExplicitClosing = keepAfterNavigationChange;
     this.matSnackBar.open(errMsg, 'X', {
       panelClass: 'error',

@@ -21,7 +21,7 @@ export class TrustStoreService {
 
   getEntries(): Observable<TrustStoreEntry[]> {
     return this.http.get<TrustStoreEntry[]>(this.url + '/list')
-      .catch(err => this.alertService.handleError(err));
+      // .catch(err => this.alertService.handleError(err));
   }
 
   uploadTrustStore(file, password): Observable<string> {
