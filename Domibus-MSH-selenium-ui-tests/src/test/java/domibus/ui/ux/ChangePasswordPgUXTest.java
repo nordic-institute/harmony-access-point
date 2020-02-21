@@ -125,7 +125,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 
 		SoftAssert soft = new SoftAssert();
 
-	DomibusPage page = new DomibusPage(driver); //login(data.getAdminUser());
+	DomibusPage page = new DomibusPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		log.info("Open change password page by clicking its link");
 		page.getSandwichMenu().openchangePassword();

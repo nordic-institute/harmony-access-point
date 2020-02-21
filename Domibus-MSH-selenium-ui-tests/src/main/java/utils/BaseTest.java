@@ -3,19 +3,22 @@ package utils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
-import utils.Generator;
-import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +35,28 @@ public class BaseTest {
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 
-	public final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	public final Logger log = Logger.getLogger(this.getClass().getName());
+
+	public String logFilename;
+
+
+	private void makeLoggerLog() throws Exception{
+		PatternLayout layout = new PatternLayout("%d{ISO8601} [%C.%M] - %m%n");
+
+		Path file = Files.createTempFile("autoTests", ".txt");
+		this.logFilename = file.toAbsolutePath().toString();
+
+		FileAppender fileAppender = new FileAppender();
+		fileAppender.setFile(file.toAbsolutePath().toString());
+		fileAppender.setAppend(true);
+		fileAppender.setImmediateFlush(true);
+		fileAppender.setLayout(layout);
+		fileAppender.setName("CustomAppender");
+		fileAppender.setWriter(new BufferedWriter(new FileWriter(logFilename)));
+		log.addAppender(fileAppender);
+	}
+
+
 
 
 	/**
@@ -40,8 +64,12 @@ public class BaseTest {
 	 * suite and the browser window is reused for all tests in suite
 	 */
 	@BeforeSuite(alwaysRun = true)
-	public void beforeClass() {
+	public void beforeSuite() throws Exception{
+
+		makeLoggerLog();
+		log.info("Log file name is "+logFilename);
 		log.info("-------- Starting -------");
+		generateTestData();
 		driver = DriverManager.getDriver();
 		driver.get(data.getUiBaseUrl());
 	}
@@ -269,4 +297,32 @@ public class BaseTest {
 		}
 		return domain1;
 	}
+
+	public void generateTestData() throws Exception{
+
+		log.info("GENERATING TEST DATA");
+
+		String pass = data.defaultPass();
+
+		int noOfMess = rest.getListOfMessages(null).length();
+		if(noOfMess<15){
+			rest.uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
+			String pluginUsername = getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
+			for (int i = noOfMess; i < 15; i++) {
+				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
+			}
+		}
+
+		JSONArray messageFilters = rest.getMessageFilters(null);
+		for (int i = 0; i < messageFilters.length(); i++) {
+			JSONObject obj = messageFilters.getJSONObject(i);
+			if(!obj.getBoolean("persisted")){
+				rest.saveMessageFilters(messageFilters, null);
+				break;
+			}
+		}
+		log.info("DONE GENERATING TEST DATA");
+	}
+
+
 }

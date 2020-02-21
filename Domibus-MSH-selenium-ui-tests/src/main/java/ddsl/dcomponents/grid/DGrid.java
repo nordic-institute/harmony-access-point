@@ -17,6 +17,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
 import utils.Order;
 import utils.TestRunData;
+import utils.TestUtils;
 
 import java.io.Reader;
 import java.nio.file.Files;
@@ -299,7 +300,6 @@ public class DGrid extends DComponent {
         return classStr.contains("sortable");
     }
 
-
     public void assertControls(SoftAssert soft) throws Exception {
 
 
@@ -540,6 +540,54 @@ public class DGrid extends DComponent {
         }
         return "";
     }
+
+    public void relaxCheckCSVvsGridInfo(String filename, SoftAssert soft, String sortedColumnDataType) throws Exception {
+        Reader reader = Files.newBufferedReader(Paths.get(filename));
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+                .withTrim());
+        List<CSVRecord> records = csvParser.getRecords();
+
+        log.info("Checking csv file vs grid order");
+
+        String column = getSortedColumnName();
+        Order order = getSortOrder();
+
+        if(!csvParser.getHeaderMap().containsKey(column)){
+            throw new Exception(column + " not present in CSV file");
+        }
+
+        int colIndex = csvParser.getHeaderMap().get(column);
+        List<String> colContent = new ArrayList<>();
+
+        for (int i = 0; i < records.size(); i++) {
+            colContent.add(records.get(i).get(colIndex));
+        }
+
+        TestUtils.checkSortOrder(soft, column, sortedColumnDataType, order, colContent);
+
+
+
+        log.info("checking number of records");
+
+        List<HashMap<String, String>> gridInfo = getAllRowInfo();
+        soft.assertEquals(gridInfo.size(), records.size(), "Same number of rows present in grid and CSV file");
+
+
+        log.info("checking individual records");
+        for (HashMap<String, String> gridRow : gridInfo) {
+            boolean found = false;
+            for (CSVRecord record : records) {
+                if(csvRowVsGridRow(record, gridRow)){
+                    found = true;
+                    break;
+                }
+            }
+            soft.assertTrue(found, "Row has been identified in CSV file");
+        }
+    }
+
+
+
 }
 
 

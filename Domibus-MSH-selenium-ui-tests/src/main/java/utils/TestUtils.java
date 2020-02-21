@@ -87,7 +87,7 @@ public class TestUtils {
         }
     }
 
-    private static void checkSortOrder(SoftAssert soft, String columnName, String type, Order order, List<String> values) throws Exception {
+    public static void checkSortOrder(SoftAssert soft, String columnName, String type, Order order, List<String> values) throws Exception {
         log.debug("Checking sort for " + columnName);
         if (StringUtils.equalsIgnoreCase(type, "text")) {
             soft.assertTrue(isStringListSorted(values, order), "Text sorting for column " + columnName);

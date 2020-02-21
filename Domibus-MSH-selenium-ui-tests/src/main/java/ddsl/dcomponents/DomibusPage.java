@@ -47,6 +47,12 @@ public class DomibusPage extends DComponent {
 
 	public void refreshPage() {
 		driver.navigate().refresh();
+		try {
+			wait.forXMillis(300);
+			waitForTitle();
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+		}
 	}
 
 	public String getTitle() throws Exception {
@@ -78,7 +84,7 @@ public class DomibusPage extends DComponent {
 	}
 
 	public void waitForTitle(){
-		wait.forElementToBe(pageTitle);
+		wait.forElementToHaveText(pageTitle);
 	}
 
 	public boolean hasOpenDialog(){

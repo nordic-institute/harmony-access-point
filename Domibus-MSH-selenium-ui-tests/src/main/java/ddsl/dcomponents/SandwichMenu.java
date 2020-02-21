@@ -85,7 +85,7 @@ public class SandwichMenu extends DComponent {
 		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
 
 		expandMenu();
-//		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(logoutLnk));
 		wait.forXMillis(500);
 
