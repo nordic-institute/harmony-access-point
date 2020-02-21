@@ -1,9 +1,6 @@
 package eu.domibus.logging;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
@@ -55,10 +52,45 @@ public class DomibusLoggingEventHelperImplTest {
     }
 
     @Test
-    public void checkIfOperationIsAllowed() {
+    public void checkIfOperationIsAllowed(final @Mocked LogEvent logEvent) {
+        new Expectations() {{
+            logEvent.isMultipartContent();
+            result = true;
+
+            logEvent.getType();
+            result = EventType.REQ_OUT;
+        }};
+
+
+        //tested method
+        Assert.assertTrue(domibusLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+    }
+
+
+    @Test
+    public void test_stripPayload(final @Mocked LogEvent logEvent) {
+        new Expectations() {{
+            logEvent.getOperationName();
+            result = "test";
+
+            domibusLoggingEventHelper.checkIfOperationIsAllowed(logEvent);
+            result = false;
+        }};
+
+        //tested method
+        domibusLoggingEventHelper.stripPayload(logEvent);
+
+        new FullVerifications(domibusLoggingEventHelper) {{
+
+        }};
+    }
+
+    @Test
+    public void testCheckIfOperationIsAllowed() {
     }
 
     private String readPayload(final String payloadName) throws Exception {
         return IOUtils.toString(getClass().getClassLoader().getResourceAsStream("eu/domibus/logging/" + payloadName), "UTF-8");
     }
+
 }

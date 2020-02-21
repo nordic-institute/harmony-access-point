@@ -417,28 +417,28 @@
         "byteArray" : {
           "type" : "array",
           "items" : {
-            "type" : "string",
-            "format" : "byte"
+            "type": "string",
+            "format": "byte"
           }
         },
-        "description" : {
-          "type" : "string"
+        "description": {
+          "type": "string"
         },
-        "inputStream" : {
-          "$ref" : "#/definitions/InputStream"
+        "inputStream": {
+          "$ref": "#/definitions/InputStream"
         },
-        "url" : {
-          "type" : "string",
-          "format" : "url"
+        "readable": {
+          "type": "boolean"
         },
-        "file" : {
-          "type" : "file"
+        "url": {
+          "type": "string",
+          "format": "url"
         },
-        "open" : {
-          "type" : "boolean"
+        "file": {
+          "type": "file"
         },
-        "readable" : {
-          "type" : "boolean"
+        "open": {
+          "type": "boolean"
         },
         "uri" : {
           "type" : "string",
