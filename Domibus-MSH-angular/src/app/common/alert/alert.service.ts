@@ -2,8 +2,9 @@
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
+import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './support/multiple-items-response';
 import {MatSnackBar} from '@angular/material';
+import {AlertComponent} from './alert.component';
 
 @Injectable()
 export class AlertService {
@@ -42,7 +43,8 @@ export class AlertService {
 
   public success(response: any) {
     let message = this.formatResponse(response);
-    this.matSnackBar.open(message, 'X', {
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: message, service: this},
       panelClass: 'success',
       duration: 5000,
       verticalPosition: 'top',
@@ -82,13 +84,16 @@ export class AlertService {
   // }
 
   private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
-    console.log('displayErrorMessage');
+
     this.needsExplicitClosing = keepAfterNavigationChange;
-    this.matSnackBar.open(errMsg, 'X', {
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: errMsg, service: this},
       panelClass: 'error',
       verticalPosition: 'top',
     });
+
     // this.subject.next({type: 'error', text: errMsg});
+
     if (fadeTime) {
       setTimeout(() => this.clearAlert(), fadeTime);
     }
@@ -112,11 +117,8 @@ export class AlertService {
 
   private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
     let errMsg = this.tryExtractErrorMessageFromResponse(error);
-
     errMsg = this.tryParseHtmlResponse(errMsg);
-
     errMsg = this.tryClearMessage(errMsg);
-
     return (message ? message + ' \n' : '') + (errMsg || '');
   }
 

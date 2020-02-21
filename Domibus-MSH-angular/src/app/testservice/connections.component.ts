@@ -38,20 +38,22 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
 
-
   constructor(private connectionsMonitorService: ConnectionsMonitorService, private alertService: AlertService,
               private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
-
     super.ngOnInit();
 
     this.filter = {};
     this.sender = '';
 
-    this.loadData();
+    this.loadServerData();
+  }
+
+  public get name(): string {
+    return 'Connection Monitoring';
   }
 
   ngAfterViewInit() {
@@ -62,7 +64,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     this.changeDetector.detectChanges();
   }
 
-  private async loadData() {
+  private async getDataAndSetResults() {
     let rows = await this.connectionsMonitorService.getMonitors();
     super.rows = rows;
     super.count = this.rows.length;
@@ -113,7 +115,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newMonitoredValue = !row.monitored;
     await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
     row.monitored = newMonitoredValue;
-    this.alertService.success(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for ${row.partyId}`);
+    this.alertService.success(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for <b> ${row.partyId}</b>`);
   }
 
   async sendTestMessage(row: ConnectionMonitorEntry) {

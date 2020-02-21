@@ -190,6 +190,7 @@ import {ConnectionDetailsComponent} from './testservice/connection-details/conne
     PropertiesComponent,
     EditPopupBaseComponent,
     ConnectionDetailsComponent,
+    AlertComponent
   ],
   imports: [
     BrowserModule,

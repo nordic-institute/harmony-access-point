@@ -1,4 +1,4 @@
-import {AlertComponent} from '../alert/alert.component';
+import {OldAlertComponent} from '../alert/old/old-alert.component';
 import {AlertService} from '../alert/alert.service';
 import {DownloadService} from '../download.service';
 import {OnInit} from '@angular/core';
@@ -22,6 +22,9 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
+  public static readonly MAX_COUNT_CSV: number = 10000;
+  public static readonly CSV_ERROR_MESSAGE = 'Maximum number of rows reached for downloading CSV';
+
   public rows: T[];
   public selected: T[];
   public count: number;
@@ -112,8 +115,8 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       await this.saveIfNeeded();
     }
 
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+    if (this.count > BaseListComponent.MAX_COUNT_CSV) {
+      this.alertService.error(BaseListComponent.CSV_ERROR_MESSAGE);
       return;
     }
 
