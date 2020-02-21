@@ -472,14 +472,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                 selector = "true";
             }
             Integer timeout = 0;
-            Integer stateMask = new Integer( // Show messages in destination in all possible states
-                    MessageInfo.STATE_VISIBLE | // Visible and available for consumption
-                            MessageInfo.STATE_DELAYED | // Pending delayed delivery
-                            MessageInfo.STATE_PAUSED | // Pending pause operation
-                            MessageInfo.STATE_RECEIVE | // Pending receive operation
-                            MessageInfo.STATE_SEND | // Pending send operation
-                            MessageInfo.STATE_TRANSACTION // Pending send or receive operation as part of global transaction
-            );
+            // Visible and available for consumption
+            Integer stateMask = MessageInfo.STATE_VISIBLE;
 
             String messageCursor = (String) mbsc.invoke(
                     destination,
