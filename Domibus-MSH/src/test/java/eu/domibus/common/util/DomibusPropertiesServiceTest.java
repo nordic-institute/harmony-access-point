@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 public class DomibusPropertiesServiceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesServiceTest.class);
- 
+
     @Tested
     DomibusPropertiesService service;
 
@@ -32,7 +32,6 @@ public class DomibusPropertiesServiceTest {
 
         assertEquals("domibus-MSH", service.getArtifactName());
         assertNotEquals("", service.getBuiltTime());
-        assertNotEquals("", service.getArtifactVersion());
 
         LOG.info(service.getDisplayVersion());
     }
