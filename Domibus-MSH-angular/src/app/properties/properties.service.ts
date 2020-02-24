@@ -15,7 +15,7 @@ export class PropertiesService {
     if (searchString && searchString.trim()) {
       searchParams = searchParams.append('name', searchString.trim());
     }
-    if (showDomainProperties) {
+    if (!showDomainProperties) {
       searchParams = searchParams.append('showDomain', showDomainProperties.toString());
     }
     if (pageSize) {
@@ -30,6 +30,7 @@ export class PropertiesService {
   }
 
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
+    if (value === '') value = ' ';
     return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain.toString()}})
       .map(() => {
       })

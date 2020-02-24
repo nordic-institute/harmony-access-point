@@ -82,7 +82,7 @@ export class ConnectionsMonitorService {
     if (enabled) enabledParties += ',' + partyId;
 
     url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties).toPromise();
+    return await this.http.put(url, enabledParties || " ").toPromise();
   }
 
 }

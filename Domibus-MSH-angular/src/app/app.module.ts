@@ -214,7 +214,6 @@ import {ConnectionDetailsComponent} from './testservice/connection-details/conne
     MatExpansionModule,
     MatCheckboxModule,
     MatButtonToggleModule,
-    MatTooltipModule,
     HttpClientModule,
     MatCardModule,
     CommonModule,

@@ -56,6 +56,9 @@ public class ConfigurationPropertyResource {
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
                             @RequestBody String propertyValue) {
+        // sanitize empty body sent by various clients
+        propertyValue = propertyValue == null ? "" : propertyValue.trim();
+
         configurationPropertyService.setPropertyValue(propertyName, isDomain, propertyValue);
     }
 

@@ -27,8 +27,8 @@
 
 <ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
   <span class="connection-monitor-status">
-    <mat-slide-toggle *ngIf="row.testable" [checked]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
-    <span *ngIf="!row.testable">N/A</span>
+    <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
+    <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
   </span>
 </ng-template>
 

@@ -19,21 +19,6 @@ import {ConnectionDetailsComponent} from './connection-details/connection-detail
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit {
 
-  // static readonly TEST_SERVICE_URL: string = 'rest/testservice';
-  // static readonly TEST_SERVICE_PARTIES_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/parties';
-  // static readonly TEST_SERVICE_SENDER_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/sender';
-  // static readonly TEST_SERVICE_SUBMIT_DYNAMICDISCOVERY_URL: string = ConnectionsComponent.TEST_SERVICE_URL + '/dynamicdiscovery';
-
-  // static readonly MESSAGE_LOG_LAST_TEST_SENT_URL: string = 'rest/messagelog/test/outgoing/latest';
-  // static readonly MESSAGE_LOG_LAST_TEST_RECEIVED_URL: string = 'rest/messagelog/test/incoming/latest';
-
-  // filter: any;
-
-  // messageInfoSent: MessageLogEntry;
-  // messageInfoReceived: MessageLogEntry;
-
-  // sender: string;
-
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
@@ -45,9 +30,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   ngOnInit() {
     super.ngOnInit();
-
-    // this.filter = {};
-    // this.sender = '';
 
     this.loadServerData();
   }
@@ -107,15 +89,22 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   formatDate(dt) {
-    // TODO : add a pipe
-    return moment(dt).fromNow();
+    return dt ? moment(dt).fromNow() : '';
   }
 
   async toggleConnectionMonitor(row: ConnectionMonitorEntry) {
-    let newMonitoredValue = !row.monitored;
-    await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
-    row.monitored = newMonitoredValue;
-    this.alertService.success(`Monitoring ${(newMonitoredValue ? 'enabled' : 'disabled')} for <b> ${row.partyId}</b>`);
+
+    let newMonitoredValue = row.monitored;
+    let newMonitorState = `${(newMonitoredValue ? 'enabled' : 'disabled')}`;
+
+    try {
+      await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
+      row.monitored = newMonitoredValue;
+      this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
+    } catch (err) {
+      row.monitored = !newMonitoredValue;
+      this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>`, err);
+    }
   }
 
   async sendTestMessage(row: ConnectionMonitorEntry) {
