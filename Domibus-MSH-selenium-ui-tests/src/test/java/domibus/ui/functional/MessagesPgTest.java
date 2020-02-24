@@ -1,7 +1,6 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -23,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -512,8 +510,8 @@ public class MessagesPgTest extends BaseTest {
 		MessagesPage page = new MessagesPage(driver);
 
 		log.info("Current Domain Name is " + page.getDomainFromTitle());
-		log.info("Compare grid data for both domain");
-		page.compareGridData(soft, "Message Id");
+		log.info("Compare message ids data for both domain");
+		page.compareMsgIDsOfDomains(soft);
 		soft.assertAll();
 	}
 

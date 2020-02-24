@@ -82,9 +82,9 @@ public class MessagesPage extends DomibusPage {
         return iconElement.isEnabled();
     }
 
-    public void compareGridData(SoftAssert soft, String columnName) throws Exception {
+    public void compareMsgIDsOfDomains(SoftAssert soft) throws Exception {
         int firstDomainGridRowCount = grid().getPagination().getTotalItems();
-        List<String> msgIds = grid().getValuesOnColumn(columnName);
+        List<String> msgIds = grid().getValuesOnColumn("Message Id");
         getDomainSelector().selectOptionByIndex(1);
         log.info("Domain name is " + getDomainFromTitle());
 
@@ -93,7 +93,7 @@ public class MessagesPage extends DomibusPage {
 
         log.info("Active page for new Domain is " + secDomainActivePg);
         soft.assertTrue(secDomainActivePg==1,"After navigation user is at Pg 1");
-        List<String> msgIdsSecDomain = grid().getValuesOnColumn(columnName);
+        List<String> msgIdsSecDomain = grid().getValuesOnColumn("Message Id");
 
 
 
@@ -104,7 +104,7 @@ public class MessagesPage extends DomibusPage {
             for (int i = 0; i < msgIds.size(); i++) {
                 if (msgIds.get(i).equals(msgIdsSecDomain.get(i))) {
 
-                    log.info("Both domains have record with same column value for column : " +columnName+" row : " + i);
+                    log.info("Both domains have record with same column value for column : Message Id"+" row : " + i);
                     break;
                 }
             }

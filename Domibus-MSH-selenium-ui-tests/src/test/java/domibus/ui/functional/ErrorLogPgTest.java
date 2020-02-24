@@ -1,29 +1,16 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DWait;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import pages.errorLog.ErrorLogPage;
-import pages.errorLog.ErrorModal;
 import pages.messages.MessagesPage;
-import pages.pmode.current.PModeCurrentPage;
-import rest.RestServicePaths;
 import utils.BaseUXTest;
-import utils.DFileUtils;
 import utils.Generator;
-import utils.TestUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,7 +18,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -56,7 +42,7 @@ public class ErrorLogPgTest extends BaseUXTest {
         log.info("Current Domain Name is " + page.getDomainFromTitle());
 
         log.info("Compare grid data for both domain");
-        mPage.compareGridData(soft, "Message Id");
+        mPage.compareMsgIDsOfDomains(soft);
         soft.assertAll();
 
     }
@@ -64,84 +50,52 @@ public class ErrorLogPgTest extends BaseUXTest {
     @Test(description = "ERR-18", groups = {"multiTenancy", "singleTenancy"})
     public void errorLogForFailedMsg() throws Exception {
         SoftAssert soft = new SoftAssert();
+
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
-        log.info("uploading pmode");
-        rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
-        String user = Generator.randomAlphaNumeric(10);
+        do {
+        log.info("Send message for domain " + page.getDomainFromTitle());
+            rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", page.getDomainFromTitle());
+            String user = Generator.randomAlphaNumeric(10);
 
-        log.info("Create plugin user");
-        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+            log.info("Create plugin user for" + page.getDomainFromTitle());
+            rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), page.getDomainFromTitle());
 
-        log.info("send message ");
-        String messageID = messageSender.sendMessage(user, data.defaultPass(), null, null);
-        log.info("Message id " + messageID);
+            log.info("send message for " + page.getDomainFromTitle());
+            String messageID = messageSender.sendMessage(user, data.defaultPass(), null, null);
 
-        log.info("Navigate to Message page");
-        page.getSidebar().goToPage(PAGES.MESSAGES);
-        mPage.refreshPage();
-
-        log.info("Wait for grid row to load");
-        mPage.grid().waitForRowsToLoad();
-
-        log.info("Check Message status for first row");
-        soft.assertTrue(mPage.grid().getRowInfo(0).containsValue("WAITING_FOR_RETRY"));
-
-        log.info("Navigate to Error log page");
-        page.getSidebar().goToPage(PAGES.ERROR_LOG);
-
-        log.info("Wait for grid row to load");
-        page.grid().waitForRowsToLoad();
-        log.info("Verify message id for first row");
-        soft.assertTrue(page.grid().getRowInfo(0).containsValue(messageID));
-
-        log.info("Extract all message ids from error log page:message id column");
-        List<String> msgIds = page.grid().getValuesOnColumn("Message Id");
-
-        soft.assertTrue(msgIds.contains(messageID), "Error log page has record present");
-
-        if (data.isIsMultiDomain()) {
-            log.info("uploading pmode");
-            String domainName = rest.getDomainNames().get(1);
-            String domain = rest.getDomainCodeForName(domainName);
-
-            log.info("Upload pmode for second domain ");
-            rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", domain);
-            String userr = Generator.randomAlphaNumeric(10);
-
-            log.info("Create plugin user");
-            rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), domain);
-
-            log.info("Change domain from admin console");
-            page.getDomainSelector().selectOptionByIndex(1);
-
-            log.info("Send message from second domain");
-            String messageeID = messageSender.sendMessage(userr, data.defaultPass(), null, null);
-            log.info("Message id " + messageID);
-
-            //page.getSidebar().goToPage(PAGES.MESSAGES);
+            log.info("Navigate to Message page");
+            page.getSidebar().goToPage(PAGES.MESSAGES);
             mPage.refreshPage();
 
             log.info("Wait for grid row to load");
             mPage.grid().waitForRowsToLoad();
-            log.info("Verify message status for first row");
-            soft.assertTrue(mPage.grid().getRowInfo(0).containsValue("WAITING_FOR_RETRY"));
 
-            log.info("Navigate to error log");
+            log.info("Check Message status for first row");
+            soft.assertTrue(mPage.grid().getRowInfo(0).containsValue(messageID));
+
+            log.info("Navigate to Error log page");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
 
             log.info("Wait for grid row to load");
             page.grid().waitForRowsToLoad();
+            soft.assertTrue(page.grid().getRowInfo(0).containsValue(messageID), "compare message id ");
 
-            log.info("Verify presence of message id in first row");
-            soft.assertTrue(page.grid().getRowInfo(0).containsValue(messageeID));
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+               log.info("Break if it is single tenancy or current domain is other than default");
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain");
+                page.getDomainSelector().selectOptionByIndex(1);
+            }
+            page.getSidebar().goToPage(PAGES.MESSAGES);
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
-            log.info("Extract all message ids from Error log page");
-            List<String> msggIds = page.grid().getValuesOnColumn("Message Id");
-            soft.assertTrue(msggIds.contains(messageeID), "Error log page has record present");
-        }
         soft.assertAll();
+
     }
+
 
     @Test(description = "ERR-19", groups = {"multiTenancy", "singleTenancy"})
     public void totalErrorLogs() throws Exception {

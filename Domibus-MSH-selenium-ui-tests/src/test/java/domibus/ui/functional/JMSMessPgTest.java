@@ -422,11 +422,10 @@ public class JMSMessPgTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
 
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
-        if (data.isIsMultiDomain()) {
 
             log.info("Create Admin user for default domain");
             String user = Generator.randomAlphaNumeric(10);
-            rest.createUser(user, DRoles.ADMIN, data.defaultPass(), "default");
+            rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
             log.info("Login into application with Admin user of Multitenancy and navigate to JMS Monitoring page");
             login(user, data.defaultPass());
@@ -443,13 +442,27 @@ public class JMSMessPgTest extends BaseTest {
                 jmsPage.getSidebar().goToPage(PAGES.JMS_MONITORING);
                 jmsPage.waitForTitle();
 
-                log.info("Select queue [internal] domibus.notification.webservice ");
-                jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
-                log.info("Wait for grid row to load");
-                jmsPage.grid().waitForRowsToLoad();
+                if(jmsPage.grid().getPagination().getTotalItems()>0){
+                    jmsPage.grid().selectRow(0);
+                }
+                else{
+                    if(data.isIsMultiDomain()) {
+                        log.info("Select queue [internal] domibus.notification.webservice ");
+                        jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
 
-                log.info("select first row");
-                jmsPage.grid().selectRow(0);
+                    }
+                    else {
+                        log.info("Select queue [internal] domibus.notification.webservice ");
+                        jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+
+                    }
+                    log.info("Wait for grid row to load");
+                    }
+                    jmsPage.grid().waitForRowsToLoad();
+                soft.assertTrue(jmsPage.grid().getPagination().getTotalItems()>0);
+                    log.info("select first row");
+                    jmsPage.grid().selectRow(0);
+
 
                 log.info("Check status of Move button");
                 soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
@@ -458,26 +471,45 @@ public class JMSMessPgTest extends BaseTest {
                 jmsPage.getMoveButton().click();
                 JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
 
-                log.info("Click on arrow to open destination fields on Move pop up");
-                jmsModel.destinationArrows.get(2).click();
+                if((jmsModel.getQueueSelect().getSelectedValue()!=null)){
+                    if(data.isIsMultiDomain()) {
 
-                log.info("Select first queue");
-                jmsModel.getQueueSelect().selectOptionByIndex(0);
+                        soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null);
+                    }
+                    else{
+                        soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) != null);
 
-                log.info("Extract name of selected queue name");
-                String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
+                    }
+                }
+                else{ if(jmsModel.getQueueSelect().getSelectedValue()==null){
 
-                log.info("Verify presence of no count in selected queue name");
-                soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
+                        log.info("Click on arrow to open destination fields on Move pop up");
+                        jmsModel.destinationArrows.get(2).click();
+
+                        log.info("Select first queue");
+                        jmsModel.getQueueSelect().selectOptionByIndex(0);
+
+                        log.info("Extract name of selected queue name");
+                        String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
+                        if(data.isIsMultiDomain()) {
+                            log.info("Verify presence of no count in selected queue name");
+                            soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
+                        }
+                        else{
+                            log.info("Verify present of count in case of single tenancy");
+                    soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee)!=null , "Count is  shown for queue on Move pop up for Single tenant Admin user");
+
+                    }}}
 
                 jmsPage.refreshPage();
                 jmsPage.grid().waitForRowsToLoad();
 
                 log.info("Break from loop if current domain name is second domain");
-                if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                if (jmsPage.getDomainFromTitle()==null || jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                     break;
                 }
 
+               if(data.isIsMultiDomain()){
                 log.info("Logout from application");
                 logout();
                 log.info("Create Admin user for second domain ");
@@ -487,48 +519,7 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("Login into application with Admin user of second domain and navigate to JMS Monitoring page");
                 login(userr, data.defaultPass());
 
-            } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
-
-        } else {
-
-            log.info("Login into application with Admin user of Single tenancy and navigate to JMS Monitoring page");
-            login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
-
-            jmsPage.waitForTitle();
-            log.info("Select first grid row if total count >0");
-            if (jmsPage.grid().getPagination().getTotalItems() > 0) {
-                jmsPage.grid().selectRow(0);
-
-            } else {
-                rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
-                String pluginUser = Generator.randomAlphaNumeric(10);
-
-                log.info("Create plugin user");
-                rest.createPluginUser(pluginUser, DRoles.ADMIN, data.defaultPass(), null);
-
-                log.info("send message ");
-                messageSender.sendMessage(pluginUser, data.defaultPass(), null, null);
-
-                log.info("Select queue [internal] domibus.notification.webservice and Wait for grid row to load");
-                jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
-                jmsPage.grid().waitForRowsToLoad();
-
-                log.info("Select first row");
-                jmsPage.grid().selectRow(0);
-            }
-
-            soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
-
-            log.info("Click on Move button");
-            jmsPage.getMoveButton().click();
-            JMSMoveMessageModal jmsModell = new JMSMoveMessageModal(driver);
-
-            log.info("Get selected queue name and verify absence of count number");
-            String selectedQueue = jmsModell.getQueueSelect().getSelectedValue();
-
-            log.info("Count shown in queue is : " + jmsPage.getCountFromQueueName(selectedQueue));
-            soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueue) != null, "Count is shown for queue on Move pop up for Single tenant Admin user");
-        }
+            }} while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
         soft.assertAll();
 
