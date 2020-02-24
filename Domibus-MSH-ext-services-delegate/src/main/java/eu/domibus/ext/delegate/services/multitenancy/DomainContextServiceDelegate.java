@@ -1,5 +1,6 @@
 package eu.domibus.ext.delegate.services.multitenancy;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -20,6 +21,9 @@ public class DomainContextServiceDelegate implements DomainContextExtService {
 
     @Autowired
     protected DomainExtConverter domainConverter;
+
+    @Autowired
+    protected MetricRegistry metricRegistry;
 
     @Override
     public DomainDTO getCurrentDomain() {
@@ -42,5 +46,10 @@ public class DomainContextServiceDelegate implements DomainContextExtService {
     @Override
     public void clearCurrentDomain() {
         domainContextProvider.clearCurrentDomain();
+    }
+
+    @Override
+    public MetricRegistry getMetricRegistry() {
+        return metricRegistry;
     }
 }

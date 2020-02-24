@@ -1,6 +1,10 @@
 package eu.domibus.plugin;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.common.*;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -45,6 +49,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Autowired
     protected MessageExtService messageExtService;
 
+    @Autowired
+    protected DomainContextExtService domainContextExtService;
+
     private MessageLister lister;
 
     public AbstractBackendConnector(final String name) {
@@ -59,7 +66,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     // The following does not have effect at this level since the transaction would have already been rolled back!
     // @Transactional(noRollbackFor = {IllegalArgumentException.class, IllegalStateException.class})
     public String submit(final U message) throws MessagingProcessingException {
+        Counter inMessageCounter = null;
+        Timer.Context inMessageTimer = null;
         try {
+            inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(AbstractBackendConnector.class, "before.submit.counter"));
+            inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(AbstractBackendConnector.class, "before.submit.timer")).time();
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = this.messageSubmitter.submit(messageData, this.getName());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
@@ -73,6 +84,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         } catch (MessagingProcessingException mpEx) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
             throw mpEx;
+        } finally {
+            if (inMessageTimer != null) {
+                inMessageTimer.stop();
+            }
+            if (inMessageCounter != null) {
+                inMessageCounter.dec();
+            }
         }
     }
 

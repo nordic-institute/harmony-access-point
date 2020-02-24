@@ -1,5 +1,8 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
@@ -92,17 +95,21 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional
-    public void receiveMessage(final MapMessage map) {
+    //@Transactional //added for test
+    public void receiveMessage(MapMessage map) {
+        Counter inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
+        Timer.Context inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
         try {
-            String messageID = map.getStringProperty(MESSAGE_ID);
-            if (StringUtils.isNotBlank(messageID)) {
-                //trim the empty space
-                messageID = messageExtService.cleanMessageIdentifier(messageID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
-            }
-            final String jmsCorrelationID = map.getJMSCorrelationID();
-            final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
+            inMessageCounter.inc();
+            try {
+                String messageID = map.getStringProperty(MESSAGE_ID);
+                if (StringUtils.isNotBlank(messageID)) {
+                    //trim the empty space
+                    messageID = messageExtService.cleanMessageIdentifier(messageID);
+                    LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
+                }
+                final String jmsCorrelationID = map.getJMSCorrelationID();
+                final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
 
             LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
 
@@ -128,6 +135,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
+        }
+        } finally {
+            if (inMessageTimer != null) {
+                inMessageTimer.stop();
+            }
+            if (inMessageCounter != null) {
+                inMessageCounter.dec();
+            }
         }
     }
 
