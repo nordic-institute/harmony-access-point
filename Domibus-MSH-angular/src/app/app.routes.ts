@@ -13,7 +13,6 @@ import {DirtyGuard} from './common/guards/dirty.guard';
 import {AuditComponent} from './audit/audit.component';
 import {PartyComponent} from './party/party.component';
 import {AlertsComponent} from './alerts/alerts.component';
-import {TestServiceComponent} from './testservice/old/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
 import {DefaultPasswordGuard} from './security/defaultPassword.guard';
 import {AuthExternalProviderGuard} from './common/guards/auth-external-provider.guard';

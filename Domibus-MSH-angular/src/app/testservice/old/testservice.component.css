@@ -1,7 +1,0 @@
-.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
-  width: 100% !important;
-}
-
-.mat-form-field, mat-select {
-  width: 80% !important;
-}
