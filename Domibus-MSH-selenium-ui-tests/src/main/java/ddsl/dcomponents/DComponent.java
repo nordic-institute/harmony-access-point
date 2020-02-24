@@ -36,7 +36,7 @@ public class DComponent {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
 			wait.forElementToBeGone(driver.findElement(selector));
 		} catch (Exception e) {
-//			log.debug("wait for Element to be gone failed ",e);
+			log.debug("wait for Element to be gone failed ",e);
 		}
 	}
 

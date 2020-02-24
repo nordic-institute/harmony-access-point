@@ -286,6 +286,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
@@ -325,7 +327,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
         Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
             LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-            return propMeta.get();
+            DomibusPropertyMetadata meta = propMeta.get();
+            // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
+            meta.setName(propertyName);
+            return meta;
         }
 
         // if still not found, initialize metadata on-the-fly

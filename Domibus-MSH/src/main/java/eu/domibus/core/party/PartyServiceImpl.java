@@ -3,7 +3,6 @@ package eu.domibus.core.party;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
@@ -11,13 +10,16 @@ import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.common.dao.PartyDao;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -57,9 +59,6 @@ public class PartyServiceImpl implements PartyService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private PartyDao partyDao;
-
-    @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Autowired
@@ -67,6 +66,9 @@ public class PartyServiceImpl implements PartyService {
 
     @Autowired
     protected CertificateService certificateService;
+
+    @Autowired
+    PModeValidationHelper pModeValidationHelper;
 
     /**
      * {@inheritDoc}
@@ -152,15 +154,12 @@ public class PartyServiceImpl implements PartyService {
 
         //transform parties to map for convenience.
         final Map<String, Party> partyMapByName =
-                parties.
-                        stream().
+                parties.stream().
                         collect(collectingAndThen(toMap(Party::getName, Function.identity()), ImmutableMap::copyOf));
 
         //retrieve all existing processes in the pmode.
         final List<Process> allProcesses =
-                pModeProvider.findAllProcesses().
-                        stream().
-                        collect(collectingAndThen(toList(), ImmutableList::copyOf));
+                pModeProvider.findAllProcesses().stream().collect(collectingAndThen(toList(), ImmutableList::copyOf));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Finding all processes in the pMode: ");
@@ -243,10 +242,7 @@ public class PartyServiceImpl implements PartyService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("create name predicate for [{}]", name);
             }
-            return
-                    party ->
-                            StringUtils.containsIgnoreCase(party.getName(), name.toUpperCase());
-
+            return party -> StringUtils.containsIgnoreCase(party.getName(), name.toUpperCase());
         }
         return DEFAULT_PREDICATE;
 
@@ -387,9 +383,12 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
-        String partyMe = pModeProvider.getGatewayParty().getName();
-        if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe))) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
+        eu.domibus.common.model.configuration.Party partyMe = pModeProvider.getGatewayParty();
+        if (partyMe == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot find the party describing the current system. ");
+        }
+        if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe.getName()))) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot delete the party describing the current system. ");
         }
     }
 
@@ -484,40 +483,43 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public void updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) {
-        final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getRawConfigurationList().stream().findFirst().orElse(null);
-        if (pModeArchiveInfo == null) {
-            throw new IllegalStateException("Could not update PMode parties: PMode not found!");
+    public List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
+        final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
+        if (currentPmode == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not update PMode parties: PMode not found!");
         }
 
-        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(pModeArchiveInfo.getId());
+        ConfigurationRaw rawConfiguration = pModeProvider.getRawConfiguration(currentPmode.getId());
 
         Configuration configuration;
         try {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
         } catch (XmlProcessingException e) {
             LOG.error("Error reading current PMode", e);
-            throw new IllegalStateException(e);
+            throw pModeValidationHelper.getPModeValidationException(e, "Error parsing PMode due to: ");
         }
 
         ReplacementResult replacementResult = replaceParties(partyList, configuration);
 
-        updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
+        List<ValidationIssue> result = updateConfiguration(rawConfiguration.getConfigurationDate(), replacementResult.getUpdatedConfiguration());
 
         updatePartyCertificate(partyToCertificateMap, replacementResult);
+
+        return result;
     }
 
-    private void updateConfiguration(Date configurationDate, Configuration updatedConfiguration) {
+    private List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
 
         try {
             byte[] updatedPMode = pModeProvider.serializePModeConfiguration(updatedConfiguration);
-            pModeProvider.updatePModes(updatedPMode, updatedDescription);
+            List<ValidationIssue> result = pModeProvider.updatePModes(updatedPMode, updatedDescription);
+            return result;
         } catch (XmlProcessingException e) {
             LOG.error("Error writing current PMode", e);
-            throw new IllegalStateException(e);
+            throw pModeValidationHelper.getPModeValidationException(e, "Error writing current PMode due to: ");
         }
     }
 

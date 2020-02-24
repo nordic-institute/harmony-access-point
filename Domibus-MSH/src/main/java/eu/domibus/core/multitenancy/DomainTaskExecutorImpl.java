@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.concurrent.*;
@@ -50,6 +52,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
 
+
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void submit(Runnable task, Runnable errorHandler, File lockFile) {
         LOG.trace("Submitting task with lock file [{}]", lockFile);
@@ -61,6 +65,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void submit(Runnable task, Domain domain) {
         submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);

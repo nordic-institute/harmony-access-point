@@ -9,6 +9,7 @@ import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
@@ -111,6 +112,10 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         if (typeOfT == MonitoringInfoDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) monitoringMapper.monitoringInfoToMonitoringInfoDTO((MonitoringInfo) source);
+        }
+        if (typeOfT == ValidationIssueDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.pModeIssueToPModeIssueDTO((ValidationIssue) source);
         }
 
         if (typeOfT == PartyDTO.class) {

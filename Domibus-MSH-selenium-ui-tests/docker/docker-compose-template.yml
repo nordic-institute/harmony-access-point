@@ -17,7 +17,7 @@ services:
       - DB_PASS=edelivery
       - CHECK_DEFAULT_PASSWD=false
     ports:
-      - "9088:8080"
+      - "9008:8080"
     command: dockerize -wait tcp://mysqlc2:3306 -timeout 20s
     depends_on:
       - mysqlc2

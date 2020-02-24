@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <cargo-maven2-plugin.version>1.6.7</cargo-maven2-plugin.version>
+        <cargo-maven2-plugin.version>1.7.8</cargo-maven2-plugin.version>
     </properties>
 
     <parent>
@@ -99,7 +99,7 @@
             </activation>
 
             <properties>
-                <tomcat.version>8.5.38</tomcat.version>
+                <tomcat.version>9.0.30</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -117,7 +117,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <container>
-                                        <containerId>tomcat8x</containerId>
+                                        <containerId>tomcat9x</containerId>
                                         <zipUrlInstaller>
                                             <url>
                                                 https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
@@ -225,9 +225,9 @@
             </build>
         </profile>
         <profile>
-            <id>wildfly12</id>
+            <id>wildfly</id>
             <properties>
-                <wildfly12.version>12.0.0.Final</wildfly12.version>
+                <wildfly.version>18.0.1.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
@@ -237,17 +237,17 @@
                         <version>${cargo-maven2-plugin.version}</version>
                         <executions>
                             <execution>
-                                <id>build-wildfly12</id>
+                                <id>build-wildfly</id>
                                 <goals>
                                     <goal>configure</goal>
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <container>
-                                        <containerId>wildfly12x</containerId>
+                                        <containerId>wildfly18x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly12.version}/wildfly-as-dist-${wildfly12.version}.zip
+                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>
@@ -263,7 +263,7 @@
                         <version>1.5.3</version>
                         <executions>
                             <execution>
-                                <id>domibus-conf-location12</id>
+                                <id>domibus-conf-location</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>replace</goal>
@@ -271,10 +271,10 @@
                                 <configuration>
                                     <includes>
                                         <include>
-                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf.bat
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf.bat
                                         </include>
                                         <include>
-                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly12.version}/wildfly-${wildfly12.version}/bin/standalone.conf
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf
                                         </include>
                                     </includes>
                                     <replacements>
@@ -301,9 +301,9 @@
                                 <id>make-assembly-wildfly12</id>
                                 <configuration>
                                     <descriptors>
-                                        <descriptor>src/main/assembly/wildfly12/wildfly-configuration-only.xml</descriptor>
-                                        <descriptor>src/main/assembly/wildfly12/wildfly-war.xml</descriptor>
-                                        <descriptor>src/main/assembly/wildfly12/wildfly-full.xml</descriptor>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-war.xml</descriptor>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-full.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                                 <!-- bound to verify because we need to execute cargo-package first

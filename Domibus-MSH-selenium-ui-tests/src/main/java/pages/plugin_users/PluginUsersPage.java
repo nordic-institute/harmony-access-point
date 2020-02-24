@@ -102,9 +102,6 @@ public class PluginUsersPage extends DomibusPage {
 		if (!userGridContainer.isDisplayed()) {
 			return false;
 		}
-//		if (!filters.isLoaded()) {
-//			return false;
-//		}
 
 		return true;
 	}

@@ -2,6 +2,8 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
+import {PropertiesService} from '../../properties/properties.service';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-pmode-upload',
@@ -23,7 +25,9 @@ export class PmodeUploadComponent implements OnInit {
   private fileInput;
 
   constructor(@Inject(MAT_DIALOG_DATA) private data: { pModeContents: string },
-              public dialogRef: MatDialogRef<PmodeUploadComponent>, private http: HttpClient, private alertService: AlertService) {
+              public dialogRef: MatDialogRef<PmodeUploadComponent>,
+              private http: HttpClient, private alertService: AlertService,
+              private fileUploadService: FileUploadValidatorService) {
   }
 
   ngOnInit() {
@@ -39,7 +43,7 @@ export class PmodeUploadComponent implements OnInit {
       || (!this.useFileSelector && !!this.data.pModeContents);
   }
 
-  private getFile() {
+  private getFile(): Blob {
     if (this.useFileSelector) {
       return this.fileInput.nativeElement.files[0];
     } else {
@@ -47,34 +51,41 @@ export class PmodeUploadComponent implements OnInit {
     }
   }
 
-  public submit() {
+  public async submit() {
     if (this.submitInProgress) {
       return;
     }
     this.submitInProgress = true;
 
     try {
+      const file = this.getFile();
+      await this.fileUploadService.validateSize(file);
+      if (file.type !== 'text/xml') {
+        throw new Error('The file type should be xml.');
+      }
+
       let input = new FormData();
-      input.append('file', this.getFile());
+      input.append('file', file);
       input.append('description', this.description);
       this.http.post<string>(this.url, input).subscribe(res => {
           this.alertService.success(res, false);
           this.dialogRef.close({done: true});
-        }, err => {
-          this.alertService.exception('Error uploading the PMode:', err, false);
-          this.dialogRef.close({done: false});
-        },
-        () => {
           this.submitInProgress = false;
-        }
-      );
-    } catch (e) {
-      this.submitInProgress = false;
+        }, err => {
+          this.processError(err);
+        });
+    } catch (err) {
+      this.processError(err);
     }
+  }
+
+  private processError(err) {
+    this.alertService.exception('Error uploading the PMode:', err);
+    this.dialogRef.close({done: false});
+    this.submitInProgress = false;
   }
 
   public cancel() {
     this.dialogRef.close({done: false})
   }
-
 }

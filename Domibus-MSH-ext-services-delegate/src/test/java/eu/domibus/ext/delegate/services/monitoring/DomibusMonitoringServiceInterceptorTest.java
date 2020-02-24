@@ -14,6 +14,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * @author Soumya Chandran
+ * @since 4.2
+ */
 @RunWith(JMockit.class)
 public class DomibusMonitoringServiceInterceptorTest {
 
@@ -78,7 +82,7 @@ public class DomibusMonitoringServiceInterceptorTest {
         try {
             domibusMonitoringServiceInterceptor.intercept(joinPoint);
         } catch (DomibusMonitoringExtException e) {
-            Assert.assertTrue(domibusMonitoringExtException ==e);
+            Assert.assertTrue(domibusMonitoringExtException == e);
             return;
         }
         Assert.fail();

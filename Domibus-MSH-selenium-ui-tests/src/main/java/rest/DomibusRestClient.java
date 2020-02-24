@@ -447,6 +447,14 @@ public class DomibusRestClient {
 		}
 	}
 
+	public void saveMessageFilters(JSONArray filters, String domain) throws JSONException {
+		switchDomain(domain);
+		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), filters.toString());
+		if (response.getStatus() != 200) {
+			throw new RuntimeException("Could not get message filter");
+		}
+	}
+
 	public void deleteMessageFilter(String actionName, String domain) {
 
 		switchDomain(domain);
@@ -586,7 +594,7 @@ public class DomibusRestClient {
 	public JSONArray getListOfMessages(String domain) throws Exception {
 		switchDomain(domain);
 		HashMap<String, String> par = new HashMap<>();
-		par.put("messageStatus", "SEND_FAILURE");
+		par.put("pageSize", "100");
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
 		if (clientResponse.getStatus() != 200) {
 			return new JSONArray();

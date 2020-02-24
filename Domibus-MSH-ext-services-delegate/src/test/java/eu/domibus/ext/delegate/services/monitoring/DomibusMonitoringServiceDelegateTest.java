@@ -21,6 +21,10 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Soumya Chandran
+ * @since 4.2
+ */
 @RunWith(JMockit.class)
 public class DomibusMonitoringServiceDelegateTest {
 
@@ -29,7 +33,6 @@ public class DomibusMonitoringServiceDelegateTest {
 
     @Injectable
     DomibusMonitoringService domibusMonitoringService;
-    ;
 
     @Injectable
     DomainExtConverter domainConverter;

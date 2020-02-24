@@ -5,8 +5,6 @@ import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
-import {PaginationType} from './ipageable-list';
-import {ErrorLogResult} from '../../errorlog/support/errorlogresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
@@ -91,7 +89,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     } catch (error) {
       this.isLoading = false;
       this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
-      throw error;
+      return Promise.reject(error);
     }
 
     this.isLoading = false;

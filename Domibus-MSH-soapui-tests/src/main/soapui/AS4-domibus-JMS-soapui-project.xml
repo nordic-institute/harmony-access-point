@@ -758,15 +758,15 @@ testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://loca
 
 // Set DB configurations
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
-{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue","dbUser":"root","dbPassword":"root"}, 
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red","dbUser":"root","dbPassword":"root"}, 
-"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green","dbUser":"root","dbPassword":"root"}, 
-"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1","dbUser":"root","dbPassword":"root"}, 
-"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2","dbUser":"root","dbPassword":"root"}, 
-"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3","dbUser":"root","dbPassword":"root"},  
-"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1","dbUser":"root","dbPassword":"root"},  
-"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2","dbUser":"root","dbPassword":"root"},  
-"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3","dbUser":"root","dbPassword":"root"} }''');
+{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue","dbUser":"root","dbPassword":"root"}, 
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red","dbUser":"root","dbPassword":"root"}, 
+"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green","dbUser":"root","dbPassword":"root"}, 
+"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1","dbUser":"root","dbPassword":"root"}, 
+"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2","dbUser":"root","dbPassword":"root"}, 
+"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3","dbUser":"root","dbPassword":"root"},  
+"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1","dbUser":"root","dbPassword":"root"},  
+"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2","dbUser":"root","dbPassword":"root"},  
+"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3","dbUser":"root","dbPassword":"root"} }''');
 
 // Set third gateway option
 testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
@@ -796,7 +796,7 @@ Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,
             <con:testStep type="groovy" name="Set custom properties" id="bda05f2f-c032-4b3a-96bb-a7422be0e0b2"><con:settings/><con:config><script>// blue: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:3306/domibus_blue_alt");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root");
@@ -804,7 +804,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root")
 // red: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:3306/domibus_red_alt");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "root");
@@ -841,7 +841,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "edeliv
 // red: tomcat (edeltest2)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "edelCld2017");
@@ -861,7 +861,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edel
 // Set DB configurations
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
 {"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"oracle","dbDriver":"oracle.jdbc.OracleDriver","dbJdbcUrl":"jdbc:oracle:thin:@localhost:41521/xe","dbUser":"domibus_default","dbPassword":"domibus_default"}, 
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:23306/domibus_default_tomcat","dbUser":"root","dbPassword":"edelCld2017"}, 
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:23306/domibus_default_tomcat","dbUser":"root","dbPassword":"edelCld2017"}, 
 }''');
 
 // Set third gateway option
@@ -889,7 +889,7 @@ log.info "Update done.";</script></con:config></con:testStep><con:tearDownScript
             <con:testStep type="groovy" name="Set custom properties" id="46af3ddc-9660-431f-aea4-a31b5d89f104"><con:settings/><con:config><script>// blue: tomcat (edeltest1)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest1.westeurope.cloudapp.azure.com:9080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:13306/domtestusr");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "edelCld2017");
@@ -897,7 +897,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "edelCl
 // red: tomcat (edeltest2)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "edelCld2017");
@@ -925,7 +925,7 @@ Domibus.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-re
             <con:testStep type="groovy" name="Set custom properties" id="5daf8fd6-b640-4ed4-9465-35c82e0b79d1"><con:settings/><con:config><script>// blue: wildfly (edeltest2)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest2.westeurope.cloudapp.azure.com:8085/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:23306/domibus33wildfly");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "domibus33wildfly");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "domibus33wildfly");
@@ -933,7 +933,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "domibu
 // red: tomcat (edeltest2)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "domtestusr");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "domtestusr");
@@ -996,15 +996,15 @@ testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://loca
 
 // Set DB configurations
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
-{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue","dbUser":"root","dbPassword":"root"}, 
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red","dbUser":"root","dbPassword":"root"}, 
-"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green","dbUser":"root","dbPassword":"root"}, 
-"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1","dbUser":"root","dbPassword":"root"}, 
-"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2","dbUser":"root","dbPassword":"root"}, 
-"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3","dbUser":"root","dbPassword":"root"},  
-"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1","dbUser":"root","dbPassword":"root"},  
-"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2","dbUser":"root","dbPassword":"root"},  
-"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3","dbUser":"root","dbPassword":"root"} }''');
+{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue","dbUser":"root","dbPassword":"root"}, 
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red","dbUser":"root","dbPassword":"root"}, 
+"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green","dbUser":"root","dbPassword":"root"}, 
+"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1","dbUser":"root","dbPassword":"root"}, 
+"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2","dbUser":"root","dbPassword":"root"}, 
+"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3","dbUser":"root","dbPassword":"root"},  
+"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1","dbUser":"root","dbPassword":"root"},  
+"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2","dbUser":"root","dbPassword":"root"},  
+"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3","dbUser":"root","dbPassword":"root"} }''');
 
 // Set third gateway option
 testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
@@ -1025,7 +1025,7 @@ Domibus.setMessageFilters("receiver","Jms",context,log);
 </script></con:config></con:testStep><con:tearDownScript/><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>65ecdf7b-e0e2-477b-b020-da4c7fb8c855</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>3bc33515-eae2-46e7-a50f-1104a8d1a301</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>7aefe4d7-98b5-43b1-8f34-4aa71764de77</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="b3cb71a7-643e-4018-aeef-06960585f246" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Start 3 gateways configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set custom properties" id="675f3ce8-1ca1-4742-b103-e37a1fb27ec0"><con:settings/><con:config><script>// blue: tomcat (edeltest1)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:3306/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root");
@@ -1033,7 +1033,7 @@ testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root")
 // red: tomcat (edeltest2)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql");
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.jdbc.Driver");
+testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver");
 testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:3306/domibus");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "root");
 testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "root");
@@ -9622,4 +9622,4 @@ Domibus.removePluginUser("C2",context,log,"domibus_C2Dom2","userC1C2Dom2");
 Domibus.removePluginUser("C3",context,log,"Default","userC4");</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Message" id="55fc2258-e04a-46a1-b547-9728d6442e3f" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith(context.expand('-DomX60-'))
 test.finalize();	
-</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8080/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/domibus/sender/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/domibus/receiver/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_3_3_4_test_results.xlsx</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall2.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue_bugfix","dbUser":"root","dbPassword":"root"},  "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red_bugfix","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>Domibus-123</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>userC1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>c3_a1</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8080/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/domibus/sender/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/domibus/receiver/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_3_3_4_test_results.xlsx</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall2.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue_bugfix","dbUser":"root","dbPassword":"root"},  "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red_bugfix","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>Domibus-123</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>userC1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>c3_a1</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>

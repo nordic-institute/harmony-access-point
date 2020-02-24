@@ -11,9 +11,9 @@
           class="java.lang.management.ManagementFactory"
           factory-method="getPlatformMBeanServer"/>
 
-    <bean id="jmsServerControl" class="org.springframework.jmx.access.MBeanProxyFactoryBean"
-          p:objectName="org.apache.activemq.artemis:type=Broker,brokerName=&quot;${domibus.jms.activemq.artemis.broker}&quot;,module=JMS,serviceType=Server"
-          p:proxyInterface="org.apache.activemq.artemis.api.jms.management.JMSServerControl"
+    <bean id="activeMQServerControl" class="org.springframework.jmx.access.MBeanProxyFactoryBean"
+          p:objectName="org.apache.activemq.artemis:broker=&quot;${domibus.jms.activemq.artemis.broker}&quot;"
+          p:proxyInterface="org.apache.activemq.artemis.api.core.management.ActiveMQServerControl"
           p:server-ref="mbeanServer" />
 
     <bean id="jmsSender"

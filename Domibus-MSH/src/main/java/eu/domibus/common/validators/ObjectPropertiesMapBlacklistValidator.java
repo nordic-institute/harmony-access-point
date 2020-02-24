@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -24,17 +24,19 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesMapBlacklistValidator.class);
 
+    private String message = ObjectWhiteListed.MESSAGE;
+
+    @Autowired
+    ItemsBlacklistValidator listValidator;
+
     @PostConstruct
     public void init() {
         listValidator.init();
     }
 
-    @Autowired
-    ItemsBlacklistValidator listValidator;
-
     @Override
     protected String getErrorMessage() {
-        return ObjectWhiteListed.MESSAGE;
+        return message;
     }
 
     @Override
@@ -45,20 +47,20 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             return true;
         }
 
-        Class type = null;
-        if (value.getTypes() != null && !value.getTypes().isEmpty()) {
-            // all GET REST methods have just one parameter/payload
-            type = value.getTypes().get(0);
-        }
-
         for (Map.Entry<String, String[]> pair : valuesMap.entrySet()) {
             CustomWhiteListed whitelistAnnotation = null;
-            // use custom whitelist chars, if declared on the corresponding field
-            if (type != null) {
+            Class parameterType = value.getParameterType();
+            if (parameterType != null) {
+                // use custom whitelist chars, if declared on the parameter or corresponding field
+                whitelistAnnotation = value.getParameterAnnotation();
                 String prop = pair.getKey();
                 try {
-                    Field field = type.getDeclaredField(prop);
-                    whitelistAnnotation = field.getAnnotation(CustomWhiteListed.class);
+                    Field field = parameterType.getDeclaredField(prop);
+                    CustomWhiteListed fieldWhitelistAnnotation = field.getAnnotation(CustomWhiteListed.class);
+                    if (fieldWhitelistAnnotation != null) {
+                        // field annotation takes precedence
+                        whitelistAnnotation = fieldWhitelistAnnotation;
+                    }
                 } catch (NoSuchFieldException e) {
                     LOG.trace("Could not find property named [{}] in metadata class", prop);
                 }
@@ -66,7 +68,9 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
             String[] val = pair.getValue();
             if (!listValidator.isValid(val, whitelistAnnotation)) {
-                LOG.debug("Forbidden character detected in the query parameter [{}]:[{}] ", pair.getKey(), val);
+                message = String.format("Forbidden character detected in the query parameter [%s]:[%s] ",
+                        pair.getKey(), Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg));
+                LOG.debug(message);
                 return false;
             }
         }
@@ -77,7 +81,25 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     public static class Parameter {
         private Map<String, String[]> values;
-        private List<? extends Class<?>> types;
+        private Class parameterType;
+        private CustomWhiteListed parameterAnnotation;
+
+        public Class getParameterType() {
+            return parameterType;
+        }
+
+        public void setParameterType(Class parameterType) {
+            this.parameterType = parameterType;
+        }
+
+
+        public CustomWhiteListed getParameterAnnotation() {
+            return parameterAnnotation;
+        }
+
+        public void setParameterAnnotation(CustomWhiteListed parameterAnnotation) {
+            this.parameterAnnotation = parameterAnnotation;
+        }
 
         public Map<String, String[]> getValues() {
             return values;
@@ -87,17 +109,10 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
             this.values = values;
         }
 
-        public List<? extends Class<?>> getTypes() {
-            return types;
-        }
-
-        public void setTypes(List<? extends Class<?>> types) {
-            this.types = types;
-        }
-
-        public Parameter(Map<String, String[]> values, List<? extends Class<?>> types) {
+        public Parameter(Map<String, String[]> values, Class parameterType, CustomWhiteListed parameterAnnotation) {
             this.values = values;
-            this.types = types;
+            this.parameterType = parameterType;
+            this.parameterAnnotation = parameterAnnotation;
         }
     }
 }

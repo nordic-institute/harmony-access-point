@@ -9,8 +9,6 @@ import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.validation.ValidationException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +36,7 @@ public class ObjectPropertiesMapBlacklistValidatorTest {
             result = true;
         }};
 
-        ObjectPropertiesMapBlacklistValidator.Parameter payload = new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, null);
+        ObjectPropertiesMapBlacklistValidator.Parameter payload = new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, null, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
         Assert.assertEquals(true, actualValid);
@@ -59,13 +57,13 @@ public class ObjectPropertiesMapBlacklistValidatorTest {
         }};
 
         ObjectPropertiesMapBlacklistValidator.Parameter payload =
-                new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, Arrays.asList(JmsFilterRequestRO.class));
+                new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
         Assert.assertEquals(true, actualValid);
     }
 
-    @Test //(expected = ValidationException.class)
+    @Test
     public void handleTestInvalid_ClassInfo() {
         String[] arr1 = new String[]{"", "valid value",};
         String[] arr2 = new String[]{"", "invalid.value;=",};
@@ -80,7 +78,7 @@ public class ObjectPropertiesMapBlacklistValidatorTest {
         }};
 
         ObjectPropertiesMapBlacklistValidator.Parameter payload =
-                new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, Arrays.asList(JmsFilterRequestRO.class));
+                new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
         Assert.assertEquals(false, actualValid);
