@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import ddsl.dobjects.DWait;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
@@ -53,8 +54,9 @@ public class ErrorLogPgTest extends BaseUXTest {
 
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
+
         do {
-        log.info("Send message for domain " + page.getDomainFromTitle());
+            log.info("Send message for domain " + page.getDomainFromTitle());
             rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", page.getDomainFromTitle());
             String user = Generator.randomAlphaNumeric(10);
 
@@ -73,6 +75,22 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Check Message status for first row");
             soft.assertTrue(mPage.grid().getRowInfo(0).containsValue(messageID));
+            DWait wait = new DWait(driver);
+
+            for (; ; ) {
+                if (mPage.grid().getRowInfo(0).containsValue("SEND_ENQUEUED")) {
+                    log.info("Wait for some time");
+                    wait.forXMillis(100);
+
+                } else if (mPage.grid().getRowInfo(0).containsValue("WAITING_FOR_RETRY")
+                        || mPage.grid().getRowInfo(0).containsValue("SEND_FAILURE")) {
+                    log.info("Break if message status changes to Waiting for retry or Send failure");
+                    break;
+
+                } else {
+                    log.info("Row has message status other than waiting for retry or send failure");
+                }
+            }
 
             log.info("Navigate to Error log page");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
@@ -82,7 +100,7 @@ public class ErrorLogPgTest extends BaseUXTest {
             soft.assertTrue(page.grid().getRowInfo(0).containsValue(messageID), "compare message id ");
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-               log.info("Break if it is single tenancy or current domain is other than default");
+                log.info("Break if it is single tenancy or current domain is other than default");
                 break;
             }
             if (data.isIsMultiDomain()) {
