@@ -10,9 +10,9 @@ import java.util.TimeZone;
 
 /**
  * @author Federico Martini
- *         <p>
- *         This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
- *         Spring will take care of the creation of this Singleton object at startup.
+ * <p>
+ * This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
+ * Spring will take care of the creation of this Singleton object at startup.
  */
 @Service(value = "domibusPropertiesService")
 public class DomibusPropertiesService {
@@ -61,10 +61,10 @@ public class DomibusPropertiesService {
 
     public String getDisplayVersion() {
         StringBuilder display = new StringBuilder();
+        display.append(" Build-Name [");
         display.append(getArtifactName());
-        display.append(" Version [");
-        display.append(getArtifactVersion());
-        display.append("] Build-Time [");
+        display.append("]");
+        display.append(" Build-Time [");
         display.append(getBuiltTime());
         display.append("]");
         return display.toString();
