@@ -1,5 +1,6 @@
 package eu.domibus.plugin.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Sets;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
@@ -13,6 +14,8 @@ import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.CompressionException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.exception.MessagingExceptionFactory;
+import eu.domibus.common.metrics.Counter;
+import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
@@ -34,6 +37,7 @@ import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -52,6 +56,9 @@ import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.common.metrics.MetricNames.INCOMING_PULL_REQUEST;
+import static eu.domibus.common.metrics.MetricNames.SUBMITTED_MESSAGES;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -137,6 +144,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
+    protected DomainContextExtService domainContextExtService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -361,6 +371,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Timer(SUBMITTED_MESSAGES)
+    @Counter(SUBMITTED_MESSAGES)
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
 
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
@@ -446,8 +458,14 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
 
+            com.codahale.metrics.Counter storeMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(DatabaseMessageHandler.class, "storemessage.counter"));
+            com.codahale.metrics.Timer.Context storeMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(DatabaseMessageHandler.class, "storemessage.timer")).time();
+
             try {
+                storeMessageCounter.inc();
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+                storeMessageCounter.dec();
+                storeMessageTimer.stop();
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
