@@ -149,10 +149,12 @@ public class BackendNotificationService {
 
             notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
             if (!domibusConfigurationService.isMultiTenantAware()) {
+                LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
                 createBackendFilters();
             } else {
                 // Get All Domains
                 final List<Domain> domains = domainService.getDomains();
+                LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
                 for (Domain domain : domains) {
                     domainTaskExecutor.submit(() -> createBackendFilters(), domain);
                 }
