@@ -9,7 +9,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -75,12 +74,12 @@ public class PartiesResource {
         }
     }
 
+    @ApiOperation(value = "Delete a Party",
+            notes = "Delete a Party based on party name",
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @DeleteMapping
     public ResponseEntity<String> deleteParty(
-            @RequestParam (value = "partyName") @Valid @NotNull  String partyName) {
-        if (StringUtils.isEmpty(partyName)) {
-
-        }
+            @RequestParam(value = "partyName") @Valid @NotNull String partyName) {
         partyExtService.deleteParty(partyName);
         return ResponseEntity.ok("Party having partyName=[" + partyName + "] has been successfully deleted");
     }
@@ -111,7 +110,6 @@ public class PartiesResource {
     }
 
 
-
 //    @PutMapping(value = {"/update"})
 //    public ResponseEntity updateParties(@RequestBody List<PartyInfoDTO> partyInfoDTOs) {
 //        LOG.debug("Updating parties [{}]", Arrays.toString(partyInfoDTOs.toArray()));
@@ -135,9 +133,6 @@ public class PartiesResource {
 //        }
 //    }
 //
-
-
-
 
 
 }
