@@ -3,6 +3,7 @@ package eu.domibus.core.party;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
@@ -11,8 +12,8 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -371,15 +372,12 @@ public class PartyServiceImpl implements PartyService {
         parties.getParty().addAll(newParties);
     }
 
-    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted,
-                                              List<eu.domibus.common.model.configuration.Party> existingParties, BusinessProcesses businessProcesses) {
-       Parties parties = businessProcesses.getPartiesXml();
-        if (!existingParties.remove(partyToBeDeleted)) {
+    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        Parties parties = businessProcesses.getPartiesXml();
+        if (!parties.getParty().remove(partyToBeDeleted)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party having name [" + partyToBeDeleted.getName() + "] not deleted from PMode");
         }
-        parties.getParty().clear();
-        parties.getParty().addAll(existingParties);
-
     }
 
     private void preventGatewayPartyRemoval(List<eu.domibus.common.model.configuration.Party> removedParties) {
@@ -408,19 +406,20 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
-                                    List<eu.domibus.common.model.configuration.Party> existingParties,
-                                    BusinessProcesses businessProcesses) {
+                                    Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Set<PartyIdType> partyIdTypeSet = businessProcesses.getPartyIdTypes();
 
         Set<PartyIdType> toBeRemoved = partyToBeDeleted.getIdentifiers().stream().map(Identifier::getPartyIdType).collect(Collectors.toSet());
-        Set<PartyIdType> existing = existingParties.stream().flatMap(party -> party.getIdentifiers().stream().map(Identifier::getPartyIdType)).collect(Collectors.toSet());
+        Set<PartyIdType> existing = businessProcesses.getPartiesXml().getParty().stream().
+                flatMap(party -> party.getIdentifiers().stream().map(Identifier::getPartyIdType)).collect(Collectors.toSet());
 
         Map<Boolean, List<PartyIdType>> filtered = toBeRemoved.stream()
                 .collect(partitioningBy(existing::contains));
 
-        List<PartyIdType> intersection = filtered.get(true);
         List<PartyIdType> difference = filtered.get(false);
 
+        //remove those partyIdType not used anymore
         if (!difference.isEmpty()) {
             partyIdTypeSet.removeAll(difference);
         }
@@ -525,15 +524,15 @@ public class PartyServiceImpl implements PartyService {
 
     /**
      * Updates certificates for parties
+     *
      * @param partyToCertificateMap
      * @param replacementResult
      */
     protected void updatePartyCertificate(Map<String, String> partyToCertificateMap, ReplacementResult replacementResult) {
-        Domain currentDomain = domainProvider.getCurrentDomain();
+
         List<String> aliases = getRemovedParties(replacementResult);
-        if (CollectionUtils.isNotEmpty(aliases)) {
-            multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
-        }
+        removePartyCertificate(aliases);
+
         addPartyCertificate(partyToCertificateMap);
     }
 
@@ -563,6 +562,13 @@ public class PartyServiceImpl implements PartyService {
         }
         if (CollectionUtils.isNotEmpty(certificates)) {
             multiDomainCertificateProvider.addCertificate(currentDomain, certificates, true);
+        }
+    }
+
+    protected void removePartyCertificate(final List<String> aliases) {
+        if (CollectionUtils.isNotEmpty(aliases)) {
+            Domain currentDomain = domainProvider.getCurrentDomain();
+            multiDomainCertificateProvider.removeCertificate(currentDomain, aliases);
         }
     }
 
@@ -604,7 +610,11 @@ public class PartyServiceImpl implements PartyService {
         updatePartyIdTypes(newParties, configuration);
 
         //update processes
-        updateProcessConfiguration(Collections.singletonList(party), configuration);
+        List<Party> allParties = domainCoreConverter.convert(configuration.getBusinessProcesses().getPartiesXml().getParty(), Party.class);
+                final List<Process> allProcesses =
+                pModeProvider.findAllProcesses().stream().collect(collectingAndThen(toList(), ImmutableList::copyOf));
+        linkPartiesAndProcesses(allParties, allProcesses);
+        updateProcessConfiguration(allParties, configuration);
 
         //update the PMode configuration
         updateConfiguration(new Date(System.currentTimeMillis()), configuration);
@@ -617,8 +627,33 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
+    private List<Party> linkPartiesAndProcesses(List<Party> parties, List<Process> allProcesses) {
+
+        //transform parties to map for convenience.
+        final Map<String, Party> partyMapByName =
+                parties.stream().
+                        collect(collectingAndThen(toMap(Party::getName, Function.identity()), ImmutableMap::copyOf));
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Finding all processes in the pMode: ");
+            allProcesses.forEach(process -> LOG.debug("[{}]", process));
+        }
+
+        linkProcessWithPartyAsInitiator(partyMapByName, allProcesses);
+
+        linkProcessWithPartyAsResponder(partyMapByName, allProcesses);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Finding all parties with initiators and responders: ");
+            parties.forEach(party -> printPartyProcesses(party));
+        }
+
+        return parties;
+    }
+
     /**
-     * Read latest ocnfiguration from PMode
+     * Read latest configuration from PMode
+     * Also it call the par
      * @return
      */
     private Configuration getConfiguration() {
@@ -636,10 +671,14 @@ public class PartyServiceImpl implements PartyService {
             throw new IllegalStateException(e);
         }
 
-        //kind of hack to have the children populated
-        configuration.getBusinessProcesses().getPartiesXml().getParty().forEach(party -> party.init(configuration));
-
         return configuration;
+    }
+
+    private void initConfigurationParties(Configuration configuration) {
+        configuration.getBusinessProcesses().setPartyIdTypes(new HashSet<>(configuration.getBusinessProcesses().getPartiesXml().getPartyIdTypes().getPartyIdType()));
+        for (final eu.domibus.common.model.configuration.Party party : configuration.getBusinessProcesses().getPartiesXml().getParty()) {
+            party.init(configuration);
+        }
     }
 
     /**
@@ -655,12 +694,12 @@ public class PartyServiceImpl implements PartyService {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
         }
 
-        //read PMode actual configuration
+        //read actual PMode configuration
         Configuration configuration = getConfiguration();
-        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        initConfigurationParties(configuration);
 
         //get all parties
-        List<eu.domibus.common.model.configuration.Party> allParties =  businessProcesses.getPartiesXml().getParty();
+        List<eu.domibus.common.model.configuration.Party> allParties = configuration.getBusinessProcesses().getPartiesXml().getParty();
 
         //find the party to be deleted
         eu.domibus.common.model.configuration.Party partyToBeDeleted =
@@ -670,20 +709,20 @@ public class PartyServiceImpl implements PartyService {
         }
 
         //remove party from configuration
-        removePartyFromConfiguration(partyToBeDeleted, allParties, businessProcesses);
+        removePartyFromConfiguration(partyToBeDeleted, configuration);
 
         //remove party id types
-        removePartyIdTypes(partyToBeDeleted, allParties, businessProcesses);
+        removePartyIdTypes(partyToBeDeleted, configuration);
 
-        //TODO update processes
-        //updateProcessConfiguration(Collections.singletonList(removedParty), configuration);
-
+        //update processes
+        updateProcessConfiguration(domainCoreConverter.convert(configuration.getBusinessProcesses().getPartiesXml().getParty(), Party.class), configuration);
 
         //update PMode configuration
-        updateConfiguration(new Date(System.currentTimeMillis()) , configuration);
+        updateConfiguration(new Date(System.currentTimeMillis()), configuration);
 
 
-        //TODO remove certificate?
+        //remove certificate
+        removePartyCertificate(Collections.singletonList(partyToBeDeleted.getName()));
 
     }
 
