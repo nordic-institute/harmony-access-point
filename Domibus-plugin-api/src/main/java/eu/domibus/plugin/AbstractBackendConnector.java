@@ -70,6 +70,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         Timer.Context inMessageTimer = null;
         try {
             inMessageCounter = domainContextExtService.getMetricRegistry().counter(MetricRegistry.name(AbstractBackendConnector.class, "before.submit.counter"));
+            inMessageCounter.inc();;
             inMessageTimer = domainContextExtService.getMetricRegistry().timer(MetricRegistry.name(AbstractBackendConnector.class, "before.submit.timer")).time();
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = this.messageSubmitter.submit(messageData, this.getName());
