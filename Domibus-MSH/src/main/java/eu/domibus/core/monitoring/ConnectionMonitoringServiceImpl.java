@@ -78,8 +78,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         TestServiceMessageInfoRO lastSent = testService.getLastTestSentSafely(partyId);
         r.setLastSent(lastSent);
 
-        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceivedSafely(partyId,
-                lastSent != null ? lastSent.getMessageId() : null);
+        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceivedSafely(partyId, null);
         r.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
@@ -96,16 +95,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return r;
     }
 
-//    private TestServiceMessageInfoRO getLastReceivedInfo(String partyId, TestServiceMessageInfoRO lastSent) {
-//        TestServiceMessageInfoRO lastReceived = null;
-//        if (lastSent != null) {
-//            lastReceived = testService.getLastTestReceivedSafely(partyId, lastSent.getMessageId());
-//        }
-//        return lastReceived;
-//    }
-
     private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {
-        ConnectionMonitorRO.ConnectionStatus status = null;
+        ConnectionMonitorRO.ConnectionStatus status;
         if (lastSent != null) {
             if (lastSent.getMessageStatus() == MessageStatus.SEND_FAILURE) {
                 status = ConnectionMonitorRO.ConnectionStatus.BROKEN;
@@ -114,6 +105,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             } else {
                 status = ConnectionMonitorRO.ConnectionStatus.PENDING;
             }
+        } else {
+            status = ConnectionMonitorRO.ConnectionStatus.UNKNOWN;
         }
         return status;
     }

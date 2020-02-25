@@ -207,7 +207,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
-    public String findLastUserTestMessageId(String party) {
+    public String findLastTestMessageId(String party) {
         Map<String, Object> filters = new HashMap<>();
         filters.put("messageSubtype", MessageSubtype.TEST);
         filters.put("mshRole", MSHRole.SENDING);

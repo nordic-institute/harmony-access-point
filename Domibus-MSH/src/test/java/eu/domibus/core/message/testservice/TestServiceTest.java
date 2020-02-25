@@ -401,7 +401,7 @@ public class TestServiceTest {
             times = 0;
             xStream.fromXML((InputStream) any);
             times = 0;
-            userMessageLogDao.findLastUserTestMessageId(partyId);
+            userMessageLogDao.findLastTestMessageId(partyId);
             result = userMessageId;
             userMessageLogDao.findByMessageId(userMessageId);
             result = userMessageLog;
@@ -418,7 +418,7 @@ public class TestServiceTest {
             times = 0;
             xStream.fromXML((InputStream) any);
             times = 0;
-            userMessageLogDao.findLastUserTestMessageId(anyString);
+            userMessageLogDao.findLastTestMessageId(anyString);
             result = userMessageId;
             userMessageLogDao.findByMessageId(userMessageId);
             result = null;

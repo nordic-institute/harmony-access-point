@@ -111,15 +111,15 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     row.status = 'PENDING';
     let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId);
     await this.refreshMonitor(row);
-
-    if (row.status == 'PENDING') {
-      setTimeout(() => this.refreshMonitor(row), 1500);
-    }
   }
 
   async refreshMonitor(row: ConnectionMonitorEntry) {
     let refreshedRow = await this.connectionsMonitorService.getMonitor(row.partyId);
     Object.assign(row, refreshedRow);
+
+    if (row.status == 'PENDING') {
+      setTimeout(() => this.refreshMonitor(row), 1500);
+    }
   }
 
   openDetails(row: ConnectionMonitorEntry) {

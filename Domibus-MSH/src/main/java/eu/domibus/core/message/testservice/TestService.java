@@ -8,6 +8,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.ErrorLogEntry;
@@ -57,6 +58,9 @@ public class TestService {
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
+
+    @Autowired
+    private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -145,7 +149,7 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String partyId) throws TestServiceException {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
+        String userMessageId = userMessageLogDao.findLastTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
             throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message id  found for the sending party [" + partyId + "]");
@@ -171,7 +175,7 @@ public class TestService {
 
         TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, null, null);
 
-        String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
+        String userMessageId = userMessageLogDao.findLastTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
             return result;
@@ -233,26 +237,19 @@ public class TestService {
     }
 
     public TestServiceMessageInfoRO getLastTestReceivedSafely(String partyId, String userMessageId) {
-        LOG.debug("Getting last received test message from partyId [{}]", partyId);
+        LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
 
-        TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, null);
-
-        if (userMessageId == null) {
-            LOG.debug("Message ID should not be null.");
-            return result;
+        String signalMessageId = signalMessageLogDao.findLastTestMessageId(partyId);
+        if (signalMessageId == null) {
+            LOG.debug("Could not find any signal message from party [{}]", partyId);
+            return null;
         }
-
-        Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-        if (messaging == null) {
-            LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
-            return result;
+        SignalMessage signalMessage = messagingDao.findSignalMessageByMessageId(signalMessageId);
+        if (signalMessage == null) {
+            LOG.warn("Could not find signal message with id [{}]", signalMessageId);
+            return null;
         }
-
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        if (signalMessage != null) {
-            result.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            result.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
-        }
+        TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, signalMessage);
         return result;
     }
 

@@ -10,7 +10,6 @@ import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.VerificationsInOrder;
@@ -667,7 +666,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        String result = userMessageLogDao.findLastUserTestMessageId("party");
+        String result = userMessageLogDao.findLastTestMessageId("party");
 
         // THEN
         new Verifications() {{
@@ -688,7 +687,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        String result = userMessageLogDao.findLastUserTestMessageId("party");
+        String result = userMessageLogDao.findLastTestMessageId("party");
 
         // THEN
         new Verifications() {{
