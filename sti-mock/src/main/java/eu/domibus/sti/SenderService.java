@@ -147,9 +147,9 @@ public class SenderService {
             //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
 
             //send the payload in the JMS message as byte array
-//            byte[] payload = response.getBytes();
-//            messageMap.setBytes("payload_1", payload);
-            messageMap.setString("payload_1", response);
+            //byte[] payload = response.getBytes();
+            byte[] payload = org.apache.commons.codec.binary.Base64.encodeBase64(response.getBytes());
+            messageMap.setBytes("payload_1", payload);
         }
         return messageMap;
 
