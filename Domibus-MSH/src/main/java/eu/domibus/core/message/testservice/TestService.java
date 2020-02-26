@@ -151,8 +151,8 @@ public class TestService {
 
         String userMessageId = userMessageLogDao.findLastTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
-            LOG.debug("Could not find last user message id for party [{}]", partyId);
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message id  found for the sending party [" + partyId + "]");
+            LOG.debug("Could not find last user message id sent to party [{}]", partyId);
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message id found for the receiving party [" + partyId + "]");
         }
 
         UserMessageLog userMessageLog = null;
@@ -173,25 +173,20 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSentSafely(String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, null, null);
-
         String userMessageId = userMessageLogDao.findLastTestMessageId(partyId);
         if (StringUtils.isBlank(userMessageId)) {
             LOG.debug("Could not find last user message id for party [{}]", partyId);
-            return result;
+            return null;
         }
-        result.setMessageId(userMessageId);
 
+        UserMessageLog userMessageLog = null;
         try {
-            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-            if (userMessageLog != null) {
-                result.setTimeReceived(userMessageLog.getReceived());
-                result.setMessageStatus(userMessageLog.getMessageStatus());
-            }
+            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
         } catch (NoResultException ex) {
             LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
         }
-        return result;
+
+        return getTestServiceMessageInfoRO(partyId, userMessageId, userMessageLog);
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
@@ -249,8 +244,7 @@ public class TestService {
             LOG.warn("Could not find signal message with id [{}]", signalMessageId);
             return null;
         }
-        TestServiceMessageInfoRO result = getTestServiceMessageInfoRO(partyId, signalMessage);
-        return result;
+        return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
     protected Map<ErrorCode, String> getErrorsForMessage(String userMessageId) {
