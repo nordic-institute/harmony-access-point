@@ -1,8 +1,12 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
@@ -43,6 +47,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.context.ApplicationContext;
 
 import javax.jms.Queue;
@@ -129,6 +136,19 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     UserMessageService userMessageService;
+
+    @Injectable
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    protected DomainService domainService;
+
+    @Mock
+    @Injectable
+    protected DomainTaskExecutor domainTaskExecutor;
+
+    @Captor
+    ArgumentCaptor argCaptor;
 
     @Test
     public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission, @Injectable final UserMessage userMessage) throws Exception {
@@ -647,6 +667,68 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.init();
 
+        new Verifications() {{
+            backendNotificationService.createBackendFiltersWithDefaultPriority();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testInitWithBackendFilterInMultitenancyEnv(@Injectable NotificationListener notificationListener,
+                                                           @Injectable CriteriaFactory routingCriteriaFactory,
+                                                           @Injectable BackendFilterEntity backendFilterEntity,
+                                                           @Injectable Domain domain,
+                                                           @Injectable IRoutingCriteria iRoutingCriteria) {
+
+        Map notificationListenerBeanMap = new HashMap();
+        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
+        routingCriteriaFactories.add(routingCriteriaFactory);
+        backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
+        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+        backendFilterEntities.add(backendFilterEntity);
+        notificationListenerBeanMap.put("1", notificationListener);
+        List<Domain> domains = new ArrayList<>();
+        domains.add(domain);
+
+        new Expectations(backendNotificationService) {{
+
+            applicationContext.getBeansOfType(NotificationListener.class);
+            result = notificationListenerBeanMap;
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            domainService.getDomains();
+            result = domains;
+
+            routingCriteriaFactory.getName();
+            result =anyString;
+
+            routingCriteriaFactory.getInstance();
+            result = iRoutingCriteria;
+        }};
+
+        backendNotificationService.init();
+
+        new FullVerifications() {{
+            domainTaskExecutor.submit((Runnable) any, domain);
+            minTimes = 1;
+        }};
+
+    }
+
+    @Test
+    public void testCreateBackendFilters(@Injectable BackendFilterEntity backendFilterEntity) {
+        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+        backendFilterEntities.add(backendFilterEntity);
+
+        new Expectations(backendNotificationService) {{
+            backendFilterDao.findAll();
+            result = backendFilterEntities;
+            backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+            times = 1;
+        }};
+        backendNotificationService.createBackendFilters();
         new Verifications() {{
             backendNotificationService.createBackendFiltersWithDefaultPriority();
             times = 0;

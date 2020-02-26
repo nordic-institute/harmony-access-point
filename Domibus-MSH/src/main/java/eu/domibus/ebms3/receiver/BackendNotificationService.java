@@ -1,6 +1,10 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
@@ -124,6 +128,14 @@ public class BackendNotificationService {
     @Autowired
     protected UserMessageService userMessageService;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected DomainService domainService;
+
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
@@ -134,13 +146,18 @@ public class BackendNotificationService {
         if (notificationListenerBeanMap.isEmpty()) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         } else {
+
             notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
-            List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-            if (backendFilterEntities.isEmpty()) {
-                LOG.info("No Plugins details available in database!");
-                createBackendFiltersWithDefaultPriority();
+            if (!domibusConfigurationService.isMultiTenantAware()) {
+                LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
+                createBackendFilters();
             } else {
-                createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+                // Get All Domains
+                final List<Domain> domains = domainService.getDomains();
+                LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
+                for (Domain domain : domains) {
+                    domainTaskExecutor.submit(() -> createBackendFilters(), domain);
+                }
             }
         }
         criteriaMap = new HashMap<>();
@@ -150,7 +167,21 @@ public class BackendNotificationService {
     }
 
     /**
-     * Create Backend Filters of plugins in DB by checking the existing User Priority     *
+     * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
+     */
+    protected void createBackendFilters() {
+        List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
+
+        if (backendFilterEntities.isEmpty()) {
+            LOG.info("No Plugins details available in database!");
+            createBackendFiltersWithDefaultPriority();
+        } else {
+            createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+        }
+    }
+
+    /**
+     * Create Backend Filters of plugins in DB by checking the existing User Priority
      *
      * @param backendFilterEntities
      */
