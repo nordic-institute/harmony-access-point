@@ -45,7 +45,9 @@ public class SenderService {
             " $messId\n" +
             "</response_to_message_id>\n" +
             "<dataset>\n" +
-            "PGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4KPGE+VGhpcyBpcyBhIDAuNWsgbWVzc2FnZTwvYT4K\n" +
+            "This is a test for 500 bytes sent from a Weblogic cluster to a single Wildfly instance using Domibus." +
+            "This is a test for 500 bytes sent from a Weblogic cluster to a single Wildfly instance using Domibus." +
+            "This is ... \n" +
             "</dataset>";
 
     private JmsTemplate jmsTemplate;
