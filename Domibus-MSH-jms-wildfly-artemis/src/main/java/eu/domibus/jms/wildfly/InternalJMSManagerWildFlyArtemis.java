@@ -58,6 +58,13 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     /** propery key for name of the JMS broker */
     public static final String JMS_BROKER_PROPERTY = "domibus.jms.activemq.artemis.broker";
 
+    /**
+     * The old Artemis 1.x JMS prefix.
+     *
+     * @see org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl#OLD_QUEUE_PREFIX
+      */
+    public static final String JMS_QUEUE_PREFIX = "jms.queue.";
+
     protected Map<String, ObjectName> queueMap;
 
     protected Map<String, ObjectName> topicMap;
@@ -178,7 +185,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
-        return Arrays.stream(queueNames).collect(Collectors.toMap(
+        Map<String, ObjectName> queueMap = Arrays.stream(queueNames).collect(Collectors.toMap(
                 Function.identity(),
                 queueName -> {
                     try {
@@ -190,6 +197,17 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                         throw new DomibusJMXException("Error creating object name for queue [" + queueName + "]", e);
                     }
                 }));
+
+        // Add corresponding entries for the non-qualified names so lookups without the Artemis 1.x JMS prefix will work
+        // (using the ActiveMQJMSClient.enable1xPrefixes Artemis 2.x parameter doesn't seem to work)
+        Map<String, ObjectName> nonFQNObjectMap = new HashMap<>();
+        queueMap.entrySet().stream().forEach(queueEntry -> {
+            String keyNonFQN = StringUtils.removeStart(queueEntry.getKey(), JMS_QUEUE_PREFIX);
+            nonFQNObjectMap.put(keyNonFQN, queueEntry.getValue());
+        });
+        queueMap.putAll(nonFQNObjectMap);
+
+        return queueMap;
     }
 
     protected QueueControl getQueueControl(ObjectName objectName) {
@@ -313,6 +331,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (StringUtils.isEmpty(source)) {
             throw new InternalJMSException("Source has not been specified");
         }
+
+        source = StringUtils.prependIfMissing(source, JMS_QUEUE_PREFIX);
         InternalJMSDestination destination = findDestinationsGroupedByFQName().get(source);
         if (destination == null) {
             throw new InternalJMSException("Could not find destination for [" + source + "]");
