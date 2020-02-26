@@ -166,6 +166,9 @@ public class BackendNotificationService {
         }
     }
 
+    /**
+     * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
+     */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
 
@@ -178,7 +181,7 @@ public class BackendNotificationService {
     }
 
     /**
-     * Create Backend Filters of plugins in DB by checking the existing User Priority     *
+     * Create Backend Filters of plugins in DB by checking the existing User Priority
      *
      * @param backendFilterEntities
      */

@@ -677,8 +677,8 @@ public class BackendNotificationServiceTest {
     public void testInitWithBackendFilterInMultitenancyEnv(@Injectable NotificationListener notificationListener,
                                                            @Injectable CriteriaFactory routingCriteriaFactory,
                                                            @Injectable BackendFilterEntity backendFilterEntity,
-                                                           @Injectable Domain domain
-    ) throws Exception {
+                                                           @Injectable Domain domain,
+                                                           @Injectable IRoutingCriteria iRoutingCriteria) {
 
         Map notificationListenerBeanMap = new HashMap();
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -701,13 +701,18 @@ public class BackendNotificationServiceTest {
             domainService.getDomains();
             result = domains;
 
+            routingCriteriaFactory.getName();
+            result =anyString;
+
+            routingCriteriaFactory.getInstance();
+            result = iRoutingCriteria;
         }};
 
         backendNotificationService.init();
 
-        new Verifications() {{
-            backendNotificationService.createBackendFilters();
-            times = 0;
+        new FullVerifications() {{
+            domainTaskExecutor.submit((Runnable) any, domain);
+            minTimes = 1;
         }};
 
     }
