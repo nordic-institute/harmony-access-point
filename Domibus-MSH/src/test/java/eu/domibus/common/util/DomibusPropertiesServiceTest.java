@@ -11,11 +11,10 @@ import org.junit.runner.RunWith;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 /**
- * @author Federico Martini
+ * @author Federico Martini, soumya
  */
 @RunWith(JMockit.class)
 public class DomibusPropertiesServiceTest {
@@ -32,6 +31,7 @@ public class DomibusPropertiesServiceTest {
 
         assertEquals("domibus-MSH", service.getArtifactName());
         assertNotEquals("", service.getBuiltTime());
+        assertNotEquals("", service.getArtifactVersion());
 
         LOG.info(service.getDisplayVersion());
     }
@@ -49,6 +49,26 @@ public class DomibusPropertiesServiceTest {
 
         String version2 = service.getVersionNumber();
         assertEquals("4.0.2", version2);
+    }
+
+    @Test
+    public void testGetBuildDetails() {
+
+        String artifactName = "domibus-MSH";
+        String buildTime = "2020-02-26 13:21|Central European Time";
+
+        new Expectations(service) {{
+            service.getArtifactName();
+            result = artifactName;
+
+            service.getBuiltTime();
+            result = buildTime;
+        }};
+
+        String buildDetails = service.getBuildDetails();
+
+        assertTrue(buildDetails.contains(artifactName));
+        assertTrue(buildDetails.contains(buildTime));
     }
 
 }
