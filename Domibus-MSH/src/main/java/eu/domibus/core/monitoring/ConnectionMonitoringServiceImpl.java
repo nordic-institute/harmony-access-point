@@ -47,10 +47,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     public void sendTestMessages() {
-        List<String> enabledParties = getMonitorEnabledParties();
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        List<String> monitoredParties = testableParties.stream().filter(p -> enabledParties.contains(p)).collect(Collectors.toList());
-
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
             return;
@@ -58,10 +55,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         String selfParty = partyService.getGatewayPartyIdentifier();
         if (StringUtils.isEmpty(selfParty)) {
-            LOG.warn("The self party is not configured"); // TODO: lower level
+            LOG.info("The self party is not configured -> could not send test messages");
             return;
         }
 
+        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> monitoredParties = testableParties.stream().filter(p -> enabledParties.contains(p)).collect(Collectors.toList());
         for (String party : monitoredParties) {
             try {
                 String testMessageId = testService.submitTest(selfParty, party);
@@ -113,7 +112,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     private List<String> getMonitorEnabledParties() {
         List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED).split(","));
-        enabledParties = enabledParties.stream().map(p -> p.trim()).collect(Collectors.toList());
+        enabledParties = enabledParties.stream().map(p -> StringUtils.trim(p)).collect(Collectors.toList());
         return enabledParties;
     }
 

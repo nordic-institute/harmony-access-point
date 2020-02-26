@@ -16,7 +16,7 @@ export class PropertiesService {
       searchParams = searchParams.append('name', searchString.trim());
     }
     if (!showDomainProperties) {
-      searchParams = searchParams.append('showDomain', showDomainProperties.toString());
+      searchParams = searchParams.append('showDomain', (!!showDomainProperties).toString());
     }
     if (pageSize) {
       searchParams = searchParams.append('pageSize', pageSize.toString());
@@ -30,7 +30,10 @@ export class PropertiesService {
   }
 
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
-    if (value === '') value = ' ';
+    if (value === '') { // sanitize empty value: the api needs the body to be present, even if empty
+      value = ' ';
+    }
+
     return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain.toString()}})
       .map(() => {
       })

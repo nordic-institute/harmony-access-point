@@ -8,6 +8,7 @@ import eu.domibus.core.property.ConfigurationPropertyService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -57,7 +58,7 @@ public class ConfigurationPropertyResource {
     public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
                             @RequestBody String propertyValue) {
         // sanitize empty body sent by various clients
-        propertyValue = propertyValue == null ? "" : propertyValue.trim();
+        propertyValue = StringUtils.trimToEmpty(propertyValue);
 
         configurationPropertyService.setPropertyValue(propertyName, isDomain, propertyValue);
     }

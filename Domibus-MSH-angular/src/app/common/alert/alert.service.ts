@@ -84,8 +84,6 @@ export class AlertService {
       verticalPosition: 'top',
     });
 
-    // this.subject.next({type: 'error', text: errMsg});
-
     if (fadeTime) {
       setTimeout(() => this.clearAlert(), fadeTime);
     }
@@ -194,7 +192,4 @@ export class AlertService {
     }
   }
 
-  // public getMessage(): Observable<any> {
-  //   return this.subject.asObservable();
-  // }
 }
