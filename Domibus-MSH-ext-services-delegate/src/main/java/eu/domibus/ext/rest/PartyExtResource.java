@@ -41,12 +41,6 @@ public class PartyExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/list"})
     public List<PartyDTO> listParties(PartyFilterRequestDTO request) {
-        if (request.getPageStart() <= 0) {
-            request.setPageStart(0);
-        }
-        if (request.getPageSize() <= 0) {
-            request.setPageSize(Integer.MAX_VALUE);
-        }
         LOG.debug("Searching parties with parameters:" +
                         " name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
                 request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
@@ -95,7 +89,7 @@ public class PartyExtResource {
             notes = "Get Certificate for a Party based on party name",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = "/{partyName}/certificate")
-    public ResponseEntity<TrustStoreDTO> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
+    public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
         try {
             TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
             if (cert == null) {
@@ -104,7 +98,7 @@ public class PartyExtResource {
             return ResponseEntity.ok(cert);
         } catch (PartyExtServiceException e) {
             LOG.error("Failed to get certificate from truststore", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -129,7 +123,5 @@ public class PartyExtResource {
             return ResponseEntity.badRequest().body(message);
         }
     }
-
-
 
 }

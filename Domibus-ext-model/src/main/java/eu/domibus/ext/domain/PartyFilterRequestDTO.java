@@ -56,7 +56,7 @@ public class PartyFilterRequestDTO implements Serializable {
     }
 
     public void setPageStart(int pageStart) {
-        this.pageStart = pageStart;
+        this.pageStart = pageStart < 0 ? 0 : pageStart;
     }
 
     public int getPageSize() {
@@ -64,6 +64,6 @@ public class PartyFilterRequestDTO implements Serializable {
     }
 
     public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+        this.pageSize = pageSize < 0 ? Integer.MAX_VALUE : pageSize;
     }
 }
