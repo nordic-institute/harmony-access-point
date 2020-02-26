@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * External API for Particpants (Parties)
+ * External API for Participants (Parties)
  *
  * @author Catalin Enache
  * @since 4.2
