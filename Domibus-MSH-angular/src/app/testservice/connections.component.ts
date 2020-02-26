@@ -9,6 +9,12 @@ import {ConnectionMonitorEntry, ConnectionsMonitorService} from './support/conne
 import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ *
+ * Connections monitor form.
+ */
 @Component({
   moduleId: module.id,
   templateUrl: 'connections.component.html',

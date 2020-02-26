@@ -140,7 +140,8 @@ public class TestService {
     }
 
     /**
-     * This method is to get the last Sent User Message for the given party Id
+     * This method is to get the last test Sent User Message for the given party Id,
+     * including errors if not found
      *
      * @param partyId
      * @return TestServiceMessageInfoRO
@@ -160,6 +161,13 @@ public class TestService {
         return result;
     }
 
+    /**
+     * This method retrieves the last test Sent User Message for the given party Id
+     *
+     * @param partyId
+     * @return TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
     public TestServiceMessageInfoRO getLastTestSent(String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
@@ -193,7 +201,8 @@ public class TestService {
     }
 
     /**
-     * This method is to get the last Received Signal Message for the given party Id and User MessageId
+     * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
+     * including errors if an acceptable signal message cannot be found.
      *
      * @param partyId, userMessageId
      * @return TestServiceMessageInfoRO
@@ -215,6 +224,12 @@ public class TestService {
         return result;
     }
 
+    /**
+     * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
+     *
+     * @param partyId, userMessageId
+     * @return TestServiceMessageInfoRO
+     */
     public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) {
         LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
 

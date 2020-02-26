@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -62,4 +64,14 @@ public class ConnectionMonitorRO {
     public void setLastReceived(TestServiceMessageInfoRO lastReceived) {
         this.lastReceived = lastReceived;
     }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("testable", testable)
+                .append("monitored", monitored)
+                .append("status", status)
+                .toString();
+    }
+
 }

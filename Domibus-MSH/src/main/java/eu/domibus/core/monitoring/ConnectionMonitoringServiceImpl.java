@@ -40,12 +40,14 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
+    @Override
     public boolean isMonitoringEnabled() {
         boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
 
+    @Override
     public void sendTestMessages() {
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
         if (CollectionUtils.isEmpty(testableParties)) {
@@ -71,6 +73,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
     }
 
+    @Override
     public ConnectionMonitorRO getConnectionStatus(String partyId) {
         ConnectionMonitorRO r = new ConnectionMonitorRO();
 
@@ -95,19 +98,16 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {
-        ConnectionMonitorRO.ConnectionStatus status;
         if (lastSent != null) {
             if (lastSent.getMessageStatus() == MessageStatus.SEND_FAILURE) {
-                status = ConnectionMonitorRO.ConnectionStatus.BROKEN;
+                return ConnectionMonitorRO.ConnectionStatus.BROKEN;
             } else if (lastSent.getMessageStatus() == MessageStatus.ACKNOWLEDGED) {
-                status = ConnectionMonitorRO.ConnectionStatus.OK;
+                return ConnectionMonitorRO.ConnectionStatus.OK;
             } else {
-                status = ConnectionMonitorRO.ConnectionStatus.PENDING;
+                return ConnectionMonitorRO.ConnectionStatus.PENDING;
             }
-        } else {
-            status = ConnectionMonitorRO.ConnectionStatus.UNKNOWN;
         }
-        return status;
+        return ConnectionMonitorRO.ConnectionStatus.UNKNOWN;
     }
 
     private List<String> getMonitorEnabledParties() {

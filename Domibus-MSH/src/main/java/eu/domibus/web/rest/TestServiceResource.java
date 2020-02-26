@@ -64,11 +64,11 @@ public class TestServiceResource {
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
     public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
-        Map<String, ConnectionMonitorRO> r = new HashMap<>();
+        Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
             ConnectionMonitorRO status = connectionMonitoringService.getConnectionStatus(partyId);
-            r.put(partyId, status);
+            result.put(partyId, status);
         }
-        return r;
+        return result;
     }
 }

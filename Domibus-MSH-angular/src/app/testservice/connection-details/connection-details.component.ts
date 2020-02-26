@@ -5,6 +5,13 @@ import {MessageLogEntry} from 'app/messagelog/support/messagelogentry';
 import {AlertService} from 'app/common/alert/alert.service';
 import {ConnectionsMonitorService} from '../support/connectionsmonitor.service';
 
+/**
+ * @author Tiago MIGUEL
+ * @since 4.0
+ *
+ * Test service form for a single party.
+ */
+
 @Component({
   moduleId: module.id,
   templateUrl: 'connection-details.component.html',

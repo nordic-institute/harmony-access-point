@@ -59,6 +59,7 @@ public class DomainSchedulerFactoryConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
 
     private static final String GROUP_GENERAL = "GENERAL";
+    private static final Integer JOB_START_DELAY_IN_MS = 30000;
 
     @Autowired
     @Qualifier("taskExecutor")
@@ -414,7 +415,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(uiReplicationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
-        obj.setStartDelay(30000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -435,7 +436,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(connectionMonitoringJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_CRON));
-        obj.setStartDelay(30000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
