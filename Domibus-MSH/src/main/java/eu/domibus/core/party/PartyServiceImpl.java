@@ -3,7 +3,6 @@ package eu.domibus.core.party;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
@@ -556,7 +555,7 @@ public class PartyServiceImpl implements PartyService {
      * @param certificateContent certificate content in base64
      */
     @Override
-    public void createParty(final Party party, final String certificateContent) {
+    public void createParty(final Party party, final String certificateContent) throws PModeException {
 
         //read PMode configuration
         Configuration configuration = getConfiguration();
@@ -585,6 +584,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     /**
+     * Add a {@code Party} to configuration
      *
      * @param configParty
      * @param configuration
@@ -627,12 +627,12 @@ public class PartyServiceImpl implements PartyService {
      * @param partyName
      */
     @Override
-    public void deleteParty(String partyName) {
+    public void deleteParty(String partyName) throws PModeException {
 
         //check if party is not in use
         String partyMe = pModeProvider.getGatewayParty().getName();
         if (partyMe.equalsIgnoreCase(partyName)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
         }
 
         //read actual PMode configuration
@@ -646,7 +646,7 @@ public class PartyServiceImpl implements PartyService {
         eu.domibus.common.model.configuration.Party partyToBeDeleted =
                 allParties.stream().filter(party -> party.getName().equals(partyName)).findFirst().orElse(null);
         if (partyToBeDeleted == null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
         }
 
         //remove party from configuration
@@ -666,11 +666,11 @@ public class PartyServiceImpl implements PartyService {
 
     }
 
-    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration) {
+    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
         if (!parties.getParty().remove(partyToBeDeleted)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Party having name [" + partyToBeDeleted.getName() + "] not deleted from PMode");
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party having name [" + partyToBeDeleted.getName() + "] not deleted from PMode");
         }
     }
 
@@ -722,7 +722,7 @@ public class PartyServiceImpl implements PartyService {
      *
      * @return Configuration object
      */
-    private Configuration getConfiguration() {
+    private Configuration getConfiguration() throws PModeException {
         //read current configuration
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
         if (pModeArchiveInfo == null) {
@@ -733,8 +733,9 @@ public class PartyServiceImpl implements PartyService {
         try {
             configuration = pModeProvider.getPModeConfiguration(rawConfiguration.getXml());
         } catch (XmlProcessingException e) {
-            LOG.error("Error reading current PMode", e);
-            throw new IllegalStateException(e);
+            String errorMsg = "Error reading current PMode";
+            LOG.error(errorMsg, e);
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, errorMsg);
         }
 
         return configuration;
