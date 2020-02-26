@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.PartyFilterRequestDTO;
 import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,18 +19,19 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.security.KeyStoreException;
 import java.util.List;
 
 /**
+ * External API for Particpants (Parties)
+ *
  * @author Catalin Enache
  * @since 4.2
  */
 @RestController
 @RequestMapping(value = "/ext/party")
-public class PartiesResource {
+public class PartyExtResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartiesResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
     @Autowired
     PartyExtService partyExtService;
@@ -68,7 +70,7 @@ public class PartiesResource {
                     query("name={name}").
                     buildAndExpand(request.getName()).toUri();
             return ResponseEntity.created(uri).build();
-        } catch (IllegalStateException e) {
+        } catch (PartyExtServiceException e) {
             final String message = ExceptionUtils.getRootCauseMessage(e);
             return ResponseEntity.badRequest().body(message);
         }
@@ -80,8 +82,13 @@ public class PartiesResource {
     @DeleteMapping
     public ResponseEntity<String> deleteParty(
             @RequestParam(value = "partyName") @Valid @NotNull String partyName) {
-        partyExtService.deleteParty(partyName);
-        return ResponseEntity.ok("Party having partyName=[" + partyName + "] has been successfully deleted");
+        try {
+            partyExtService.deleteParty(partyName);
+            return ResponseEntity.ok("Party having partyName=[" + partyName + "] has been successfully deleted");
+        } catch (PartyExtServiceException e ) {
+            final String message = ExceptionUtils.getRootCauseMessage(e);
+            return ResponseEntity.badRequest().body(message);
+        }
     }
 
     @ApiOperation(value = "Get Certificate for a Party",
@@ -95,7 +102,7 @@ public class PartiesResource {
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.ok(cert);
-        } catch (KeyStoreException e) {
+        } catch (PartyExtServiceException e) {
             LOG.error("Failed to get certificate from truststore", e);
             return ResponseEntity.badRequest().build();
         }
@@ -106,33 +113,23 @@ public class PartiesResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/processes"})
     public List<ProcessDTO> listProcesses() {
+
         return partyExtService.getAllProcesses();
     }
 
 
-//    @PutMapping(value = {"/update"})
-//    public ResponseEntity updateParties(@RequestBody List<PartyInfoDTO> partyInfoDTOs) {
-//        LOG.debug("Updating parties [{}]", Arrays.toString(partyInfoDTOs.toArray()));
-//
-//        List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
-//        LOG.debug("Updating partyList [{}]", partyList.toArray());
-//
-//        Map<String, String> certificates = partiesRo.stream()
-//                .filter(party -> party.getCertificateContent() != null)
-//                .collect(Collectors.toMap(PartyResponseRo::getName, PartyResponseRo::getCertificateContent));
-//
-//        try {
-//            partyService.updateParties(partyList, certificates);
-//            return ResponseEntity.noContent().build();
-//        } catch (IllegalStateException e) {
-//            StringBuilder errorMessageB = new StringBuilder();
-//            for (Throwable err = e; err != null; err = err.getCause()) {
-//                errorMessageB.append("\n").append(err.getMessage());
-//            }
-//            return ResponseEntity.badRequest().body(errorMessageB.toString());
-//        }
-//    }
-//
+    @PutMapping(value = {"/update"})
+    public ResponseEntity updateParties(@RequestBody PartyDTO partyDTO) {
+        LOG.debug("Updating party [{}]", partyDTO);
+        try {
+            partyExtService.updateParty(partyDTO);
+            return ResponseEntity.noContent().build();
+        } catch (PartyExtServiceException e) {
+            final String message = ExceptionUtils.getRootCauseMessage(e);
+            return ResponseEntity.badRequest().body(message);
+        }
+    }
+
 
 
 }

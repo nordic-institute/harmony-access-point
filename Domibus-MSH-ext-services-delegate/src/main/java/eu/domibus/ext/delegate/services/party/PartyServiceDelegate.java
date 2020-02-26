@@ -9,6 +9,7 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,8 +20,7 @@ import java.security.KeyStoreException;
 import java.util.List;
 
 /**
- * @author Catalin Enache
- * @since 4.2
+ * {@inheritDoc}
  */
 @Service
 public class PartyServiceDelegate implements PartyExtService {
@@ -36,12 +36,19 @@ public class PartyServiceDelegate implements PartyExtService {
     @Autowired
     DomainExtConverter domainConverter;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void createParty(PartyDTO partyDTO) {
         Party newParty = domainConverter.convert(partyDTO, Party.class);
+
         partyService.createParty(newParty, partyDTO.getCertificateContent());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<PartyDTO> getParties(String name,
                                      String endPoint,
@@ -49,23 +56,55 @@ public class PartyServiceDelegate implements PartyExtService {
                                      String processName,
                                      int pageStart,
                                      int pageSize) {
+
         List<Party> parties = partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
+
         LOG.debug("Returned [{}] parties", parties != null ? parties.size() : 0);
         return domainConverter.convert(parties, PartyDTO.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateParty(PartyDTO partyDTO) {
+        //first we delete the party
+        final String partyName = partyDTO.getName();
+        deleteParty(partyName);
+
+        //then we create it
+        partyDTO.setEntityId(0);
+        createParty(partyDTO);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteParty(String partyName) {
         partyService.deleteParty(partyName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public TrustStoreDTO getPartyCertificateFromTruststore(String partyName) throws KeyStoreException {
-        TrustStoreEntry trustStoreEntry = certificateService.getPartyCertificateFromTruststore(partyName);
+    public TrustStoreDTO getPartyCertificateFromTruststore(String partyName)  {
+
+        TrustStoreEntry trustStoreEntry;
+        try {
+            trustStoreEntry = certificateService.getPartyCertificateFromTruststore(partyName);
+        } catch (KeyStoreException e) {
+            LOG.error("getPartyCertificateFromTruststore returned exception", e);
+            throw new PartyExtServiceException(e);
+        }
         LOG.debug("Returned trustStoreEntry=[{}] for party name=[{}]", trustStoreEntry.getName(), partyName);
         return domainConverter.convert(trustStoreEntry, TrustStoreDTO.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ProcessDTO> getAllProcesses() {
         List<Process> processList = partyService.getAllProcesses();

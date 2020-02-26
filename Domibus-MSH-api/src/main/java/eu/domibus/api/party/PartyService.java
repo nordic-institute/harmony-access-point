@@ -1,7 +1,8 @@
 package eu.domibus.api.party;
 
-import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 
 import java.util.List;
@@ -75,11 +76,18 @@ public interface PartyService {
     List<Process> getAllProcesses();
 
     /**
-     * Creates a Party
+     * Creates a {@code Party}
+     *
      * @param party Party object
      * @param certificateContent certificate content in base64
      */
-    void createParty(Party party, String certificateContent);
+    void createParty(Party party, String certificateContent) throws PModeException;
 
-    void deleteParty(final String partyName);
+    /**
+     * Deletes a {@code Party}
+     *
+     * @param partyName
+     * @throws PModeException
+     */
+    void deleteParty(final String partyName) throws PModeException;
 }
