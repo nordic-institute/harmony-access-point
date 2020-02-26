@@ -85,7 +85,7 @@ export class ConnectionDetailsComponent implements OnInit {
         this.messageInfoSent.messageId = result.messageId;
       }
     } catch (err) {
-      this.alertService.exception(`Error retrieving Last Sent Test Messages for PartyId '${partyId}'`, err);
+      this.alertService.exception(`Error retrieving Last Sent Test Message for ${partyId}`, err);
     }
   }
 
@@ -103,7 +103,7 @@ export class ConnectionDetailsComponent implements OnInit {
         this.messageInfoReceived.messageId = result.messageId;
       }
     } catch (err) {
-      this.alertService.exception(`Error retrieving Last Received Test Messages for PartyId '${partyId}'`, err);
+      this.alertService.exception(`Error retrieving Last Received Test Message for ${partyId}`, err);
     }
   }
 

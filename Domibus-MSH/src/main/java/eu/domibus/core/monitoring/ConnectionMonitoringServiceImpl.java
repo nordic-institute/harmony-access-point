@@ -75,10 +75,10 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     public ConnectionMonitorRO getConnectionStatus(String partyId) {
         ConnectionMonitorRO r = new ConnectionMonitorRO();
 
-        TestServiceMessageInfoRO lastSent = testService.getLastTestSentSafely(partyId);
+        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
         r.setLastSent(lastSent);
 
-        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceivedSafely(partyId, null);
+        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
         r.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);

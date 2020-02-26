@@ -2,6 +2,7 @@ package eu.domibus.core.message.testservice;
 
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
@@ -34,6 +35,9 @@ public class TestServiceIT {
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
     private MessagingDao messagingDao;
