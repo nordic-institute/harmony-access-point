@@ -133,9 +133,19 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
             return (T) domibusExtMapper.trustStoreEntryToTrustStoreDTO((TrustStoreEntry) source);
         }
 
+        if (typeOfT == TrustStoreEntry.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.trustStoreDTOToTrustStoreEntry((TrustStoreDTO) source);
+        }
+
         if (typeOfT == ProcessDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.processToProcessDTO((Process) source);
+        }
+
+        if (typeOfT == Process.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.processDTOToProcess((ProcessDTO) source);
         }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());

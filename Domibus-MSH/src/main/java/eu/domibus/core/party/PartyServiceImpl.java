@@ -369,7 +369,7 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void updatePartyIdTypes(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
+    void updatePartyIdTypes(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
         PartyIdTypes partyIdTypes = parties.getPartyIdTypes();
@@ -440,7 +440,6 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-
     @Override
     public List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
         final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
@@ -467,7 +466,7 @@ public class PartyServiceImpl implements PartyService {
         return result;
     }
 
-    private List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
+    protected List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
         ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
@@ -589,21 +588,21 @@ public class PartyServiceImpl implements PartyService {
      * @param configParty
      * @param configuration
      */
-    private void addPartyToConfiguration(eu.domibus.common.model.configuration.Party configParty, Configuration configuration) {
+    protected void addPartyToConfiguration(eu.domibus.common.model.configuration.Party configParty, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
 
         parties.getParty().add(configParty);
     }
 
-    private void addProcessConfiguration(Party party, Configuration configuration) {
+    protected void addProcessConfiguration(Party party, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         List<Process> processes = businessProcesses.getProcesses();
 
         processes.forEach(process -> addProcessConfigurationInitiatorResponderParties(party, process));
     }
 
-    private void addProcessConfigurationInitiatorResponderParties(Party party, Process process) {
+    protected void addProcessConfigurationInitiatorResponderParties(Party party, Process process) {
 
         if (process.getInitiatorPartiesXml() == null) {
             process.setInitiatorPartiesXml(new InitiatorParties());
@@ -722,7 +721,7 @@ public class PartyServiceImpl implements PartyService {
      *
      * @return Configuration object
      */
-    private Configuration getConfiguration() throws PModeException {
+    Configuration getConfiguration() throws PModeException {
         //read current configuration
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
         if (pModeArchiveInfo == null) {

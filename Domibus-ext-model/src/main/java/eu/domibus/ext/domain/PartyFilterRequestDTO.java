@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain;
 
-import java.io.Serializable;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Party request for listing parties on external API
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Catalin Enache
  * @since 4.2
  */
-public class PartyFilterRequestDTO implements Serializable {
+public class PartyFilterRequestDTO {
 
     private String name;
     private String endPoint;
@@ -65,5 +65,17 @@ public class PartyFilterRequestDTO implements Serializable {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize < 0 ? Integer.MAX_VALUE : pageSize;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", name)
+                .append("endPoint", endPoint)
+                .append("partyId", partyId)
+                .append("process", process)
+                .append("pageStart", pageStart)
+                .append("pageSize", pageSize)
+                .toString();
     }
 }

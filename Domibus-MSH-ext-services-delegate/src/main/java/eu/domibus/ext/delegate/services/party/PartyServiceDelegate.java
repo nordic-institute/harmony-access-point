@@ -21,6 +21,8 @@ import java.util.List;
 
 /**
  * {@inheritDoc}
+ * @since 4.2
+ * @author Catalin Enache
  */
 @Service
 public class PartyServiceDelegate implements PartyExtService {

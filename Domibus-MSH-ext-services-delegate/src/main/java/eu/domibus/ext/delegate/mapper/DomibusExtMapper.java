@@ -59,7 +59,11 @@ public interface DomibusExtMapper {
 
     ProcessDTO processToProcessDTO(Process process);
 
+    Process processDTOToProcess(ProcessDTO processDTO);
+
     PartyIdentifierDTO partyIdentifierToPartyIdentifierDto(Identifier partyIdentifier);
 
     TrustStoreDTO trustStoreEntryToTrustStoreDTO(TrustStoreEntry trustStoreEntry);
+
+    TrustStoreEntry trustStoreDTOToTrustStoreEntry(TrustStoreDTO  trustStoreDTO);
 }
