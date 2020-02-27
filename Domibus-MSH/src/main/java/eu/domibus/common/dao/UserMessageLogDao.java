@@ -215,6 +215,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLogInfoFilter;
     }
 
+    @Override
     public String findLastTestMessageId(String party) {
         return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
     }

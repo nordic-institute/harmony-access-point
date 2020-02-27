@@ -98,6 +98,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return signalMessageLogInfoFilter;
     }
 
+    @Override
     public String findLastTestMessageId(String party) {
         return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
     }

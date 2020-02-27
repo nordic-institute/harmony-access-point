@@ -13,7 +13,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -109,6 +108,8 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
     }
 
     protected abstract MessageLogInfoFilter getMessageLogInfoFilter();
+
+    public abstract String findLastTestMessageId(String party);
 
     protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
         Map<String, Object> filters = new HashMap<>();

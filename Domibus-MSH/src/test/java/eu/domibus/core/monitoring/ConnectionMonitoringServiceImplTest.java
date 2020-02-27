@@ -16,6 +16,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +24,11 @@ import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
+@Service
 @RunWith(JMockit.class)
 public class ConnectionMonitoringServiceImplTest {
 
