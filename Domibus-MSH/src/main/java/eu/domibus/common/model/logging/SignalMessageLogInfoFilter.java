@@ -71,7 +71,7 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                         "inner join messaging.userMessage message " +
                         "left join signal.messageInfo info " +
                         (isFourCornerModel() ? "left join message.messageProperties.property propsFrom " +
-                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                        "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +
