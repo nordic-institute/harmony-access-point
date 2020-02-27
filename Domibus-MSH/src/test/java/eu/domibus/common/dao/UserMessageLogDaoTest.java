@@ -631,7 +631,7 @@ public class UserMessageLogDaoTest {
                                      @Injectable TypedQuery<MessageLogInfo> query,
                                      @Injectable List<MessageLogInfo> information) {
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("messageId", true, filters);
+            userMessageLogInfoFilter.filterMessageLogQuery("messageId", true, filters);
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getResultList(); result = information;
@@ -658,7 +658,7 @@ public class UserMessageLogDaoTest {
         filters.put("messageType", MessageType.USER_MESSAGE);
 
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("received", false, withEqual(filters));
+            userMessageLogInfoFilter.filterMessageLogQuery("received", false, withEqual(filters));
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getResultList(); result = Lists.newArrayList(messageLogInfo);
@@ -680,7 +680,7 @@ public class UserMessageLogDaoTest {
     public void testFindLastUserTestMessageId_returnsNullWhenTheLastTestMessageNotFound(@Injectable TypedQuery<MessageLogInfo> query) {
         // GIVEN
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("received", false, (Map<String, Object>) any);
+            userMessageLogInfoFilter.filterMessageLogQuery("received", false, (Map<String, Object>) any);
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, (Map<String, Object>) any); result = query;
             query.getResultList(); result = Lists.newArrayList();

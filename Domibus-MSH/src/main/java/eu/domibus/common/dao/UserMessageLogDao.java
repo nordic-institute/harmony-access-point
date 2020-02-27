@@ -1,11 +1,13 @@
 package eu.domibus.common.dao;
 
 import com.google.common.collect.Maps;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.model.logging.*;
+import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.MessageLogInfoFilter;
+import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -26,8 +31,6 @@ import java.util.*;
  */
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
-
-
 
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -190,7 +193,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
         }
 
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterUserMessageLogQuery(column, asc, filters);
+        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
         queryParameterized.setFirstResult(from);
@@ -207,27 +210,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
+    @Override
+    protected MessageLogInfoFilter getMessageLogInfoFilter() {
+        return userMessageLogInfoFilter;
+    }
+
     public String findLastTestMessageId(String party) {
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype", MessageSubtype.TEST);
-        filters.put("mshRole", MSHRole.SENDING);
-        filters.put("toPartyId", party);
-        filters.put("messageType", MessageType.USER_MESSAGE);
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterUserMessageLogQuery("received", false, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(0);
-        queryParameterized.setMaxResults(1);
-        long startTime = 0;
-        if (LOG.isDebugEnabled()) {
-            startTime = System.currentTimeMillis();
-        }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
-        if (LOG.isDebugEnabled()) {
-            final long endTime = System.currentTimeMillis();
-            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
-        }
-        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
+        return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
     }
 
 }

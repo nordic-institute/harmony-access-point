@@ -16,7 +16,7 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
     protected String getHQLKey(String originalColumn) {
-        if(StringUtils.equals(originalColumn, CONVERSATION_ID)) {
+        if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
             return "";
         } else {
             return super.getHQLKey(originalColumn);
@@ -25,13 +25,14 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
     protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
-        if(StringUtils.isNotEmpty(String.valueOf(filters.get(CONVERSATION_ID)))) {
-            filters.put(CONVERSATION_ID,null);
+        if (StringUtils.isNotEmpty(String.valueOf(filters.get(CONVERSATION_ID)))) {
+            filters.put(CONVERSATION_ID, null);
         }
-        return super.filterQuery(query,column,asc,filters);
+        return super.filterQuery(query, column, asc, filters);
     }
 
-    public String filterSignalMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
+    @Override
+    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         String query = "select new eu.domibus.common.model.logging.MessageLogInfo(" +
                 "log.messageId," +
                 "log.messageStatus," +
@@ -70,7 +71,7 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                         "inner join messaging.userMessage message " +
                         "left join signal.messageInfo info " +
                         (isFourCornerModel() ? "left join message.messageProperties.property propsFrom " +
-                         "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +

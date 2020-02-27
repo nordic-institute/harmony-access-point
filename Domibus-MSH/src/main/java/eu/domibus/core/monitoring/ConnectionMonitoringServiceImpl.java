@@ -17,7 +17,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
@@ -74,27 +76,36 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public ConnectionMonitorRO getConnectionStatus(String partyId) {
-        ConnectionMonitorRO r = new ConnectionMonitorRO();
+    public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
+        Map<String, ConnectionMonitorRO> result = new HashMap<>();
+        for (String partyId : partyIds) {
+            ConnectionMonitorRO status = this.getConnectionStatus(partyId);
+            result.put(partyId, status);
+        }
+        return result;
+    }
+
+    protected ConnectionMonitorRO getConnectionStatus(String partyId) {
+        ConnectionMonitorRO result = new ConnectionMonitorRO();
 
         TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
-        r.setLastSent(lastSent);
+        result.setLastSent(lastSent);
 
         TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
-        r.setLastReceived(lastReceived);
+        result.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
         if (testableParties.contains(partyId)) {
-            r.setTestable(true);
+            result.setTestable(true);
         }
         List<String> enabledParties = getMonitorEnabledParties();
-        if (enabledParties.contains(partyId) && r.isTestable()) {
-            r.setMonitored(true);
+        if (enabledParties.contains(partyId) && result.isTestable()) {
+            result.setMonitored(true);
         }
 
-        r.setStatus(getConnectionStatus(lastSent));
+        result.setStatus(getConnectionStatus(lastSent));
 
-        return r;
+        return result;
     }
 
     private ConnectionMonitorRO.ConnectionStatus getConnectionStatus(TestServiceMessageInfoRO lastSent) {

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,11 +63,6 @@ public class TestServiceResource {
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
     public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
-        Map<String, ConnectionMonitorRO> result = new HashMap<>();
-        for (String partyId : partyIds) {
-            ConnectionMonitorRO status = connectionMonitoringService.getConnectionStatus(partyId);
-            result.put(partyId, status);
-        }
-        return result;
+        return connectionMonitoringService.getConnectionStatus(partyIds);
     }
 }

@@ -1,10 +1,10 @@
 package eu.domibus.common.dao;
 
 import com.google.common.collect.Maps;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.MessageLogInfoFilter;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +79,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
     }
 
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterSignalMessageLogQuery(column, asc, filters);
+        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = signalMessageLogInfoFilter.applyParameters(typedQuery, filters);
         queryParameterized.setFirstResult(from);
@@ -94,27 +93,13 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return singleResult.intValue();
     }
 
+    @Override
+    protected MessageLogInfoFilter getMessageLogInfoFilter() {
+        return signalMessageLogInfoFilter;
+    }
+
     public String findLastTestMessageId(String party) {
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype", MessageSubtype.TEST);
-        filters.put("mshRole", MSHRole.RECEIVING);
-        filters.put("toPartyId", party);
-        filters.put("messageType", MessageType.SIGNAL_MESSAGE);
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterSignalMessageLogQuery("received", false, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = signalMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(0);
-        queryParameterized.setMaxResults(1);
-        long startTime = 0;
-        if (LOG.isDebugEnabled()) {
-            startTime = System.currentTimeMillis();
-        }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
-        if (LOG.isDebugEnabled()) {
-            final long endTime = System.currentTimeMillis();
-            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
-        }
-        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
+        return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
     }
 
 }
