@@ -31,6 +31,10 @@
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/rest/**"/>
+            <bean class="eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/rest/**"/>
             <bean class="eu.domibus.web.security.AuthenticatedPrincipalInterceptor" />
         </mvc:interceptor>
     </mvc:interceptors>
