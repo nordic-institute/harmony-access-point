@@ -98,6 +98,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         if (testableParties.contains(partyId)) {
             result.setTestable(true);
         }
+
         List<String> enabledParties = getMonitorEnabledParties();
         if (enabledParties.contains(partyId) && result.isTestable()) {
             result.setMonitored(true);
