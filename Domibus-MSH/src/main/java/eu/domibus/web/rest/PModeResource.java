@@ -110,7 +110,7 @@ public class PModeResource extends BaseResource {
     public ValidationResponseRO uploadPMode(
             @RequestPart("file") @Valid MultipartFile pModeFile,
             //we permit more chars for description
-            @RequestParam("description") @CustomWhiteListed(permitted = ".\r\n") String pModeDescription) throws PModeException {
+            @RequestParam("description") @CustomWhiteListed(permitted = ".,;:/*\"&=+%\r\n") String pModeDescription) throws PModeException {
 
         byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
 

@@ -11,9 +11,9 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
-  MatMenuModule,
+  MatMenuModule, MatProgressSpinnerModule,
   MatSelectModule,
-  MatSidenavModule,
+  MatSidenavModule, MatSlideToggleModule, MatSnackBarModule,
   MatTooltipModule
 } from '@angular/material';
 import 'hammerjs';
@@ -71,7 +71,6 @@ import {PageHeaderComponent} from './common/page-header/page-header.component';
 import {DomainSelectorComponent} from './common/domain-selector/domain-selector.component';
 import {PmodeViewComponent} from './pmode/archive/pmode-view/pmode-view.component';
 import {AlertsComponent} from './alerts/alerts.component';
-import {TestServiceComponent} from './testservice/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
 import {EditBasicPluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-basic-plugin-user-form.component';
 import {EditCertificatePluginUserFormComponent} from './pluginuser/editpluginuser-form/edit-certificate-plugin-user-form.component';
@@ -101,6 +100,8 @@ import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-fo
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';
 import {PropertiesService} from './properties/properties.service';
 import {FileUploadValidatorService} from './common/file-upload-validator.service';
+import {ConnectionsComponent} from './testservice/connections.component';
+import {ConnectionDetailsComponent} from './testservice/connection-details/connection-details.component';
 
 @NgModule({
   declarations: [
@@ -143,7 +144,6 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     PageHeaderComponent,
     DomainSelectorComponent,
     AlertsComponent,
-    TestServiceComponent,
     PluginUserComponent,
     EditPluginUserFormBaseComponent,
     EditBasicPluginUserFormComponent,
@@ -161,6 +161,8 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     UserCrossFieldValidatorsDirective,
     EditPopupFooterComponent,
     EditPopupBaseComponent,
+    ConnectionsComponent,
+    ConnectionDetailsComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -185,6 +187,8 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     ChangePasswordComponent,
     PropertiesComponent,
     EditPopupBaseComponent,
+    ConnectionDetailsComponent,
+    AlertComponent
   ],
   imports: [
     BrowserModule,
@@ -208,10 +212,12 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
     MatExpansionModule,
     MatCheckboxModule,
     MatButtonToggleModule,
-    MatTooltipModule,
     HttpClientModule,
     MatCardModule,
-    CommonModule
+    CommonModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   providers: [
     AuthenticatedAuthorizedGuard,

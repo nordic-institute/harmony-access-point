@@ -91,7 +91,7 @@ export class PropertiesComponent implements OnInit {
       this.count = result.count;
       this.rows = result.items;
     } catch (ex) {
-      this.alertService.exception('Could not load properties ', ex, false);
+      this.alertService.exception('Could not load properties ', ex);
     }
     this.loading = false;
   }
@@ -110,7 +110,7 @@ export class PropertiesComponent implements OnInit {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
       if (!ex.handled)
-        this.alertService.exception('Could not update property ', ex, false);
+        this.alertService.exception('Could not update property ', ex);
     }
   }
 

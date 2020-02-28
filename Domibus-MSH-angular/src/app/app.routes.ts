@@ -13,7 +13,6 @@ import {DirtyGuard} from './common/guards/dirty.guard';
 import {AuditComponent} from './audit/audit.component';
 import {PartyComponent} from './party/party.component';
 import {AlertsComponent} from './alerts/alerts.component';
-import {TestServiceComponent} from './testservice/testservice.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
 import {DefaultPasswordGuard} from './security/defaultPassword.guard';
 import {AuthExternalProviderGuard} from './common/guards/auth-external-provider.guard';
@@ -24,7 +23,7 @@ import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
 import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
 import {SecurityService} from "./security/security.service";
 import {PropertiesComponent} from './properties/properties.component';
-
+import {ConnectionsComponent} from './testservice/connections.component';
 
 const appRoutes: Routes = [
   {
@@ -160,13 +159,22 @@ const appRoutes: Routes = [
       helpPage: 'Alerts'
     }
   },
+  // {
+  //   path: 'testservice',
+  //   component: TestServiceComponent,
+  //   canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+  //   data: {
+  //     checkRoles: SecurityService.ADMIN_ROLES,
+  //     helpPage: 'TestService'
+  //   }
+  // },
   {
-    path: 'testservice',
-    component: TestServiceComponent,
+    path: 'connections',
+    component: ConnectionsComponent,
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
-      helpPage: 'TestService'
+      helpPage: 'ConnectionMonitoring'
     }
   },
   {

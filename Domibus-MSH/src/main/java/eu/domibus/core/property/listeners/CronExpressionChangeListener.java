@@ -51,6 +51,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
             {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
+            {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override

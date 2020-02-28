@@ -1,10 +1,15 @@
 ﻿import {Injectable} from '@angular/core';
-import {NavigationEnd, NavigationStart, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {
+  NavigationEnd,
+  NavigationStart,
+  Router,
+  RouterEvent
+} from '@angular/router';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {IPageableList} from '../mixins/ipageable-list';
-import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './multiple-items-response';
+import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './support/multiple-items-response';
+import {MatSnackBar} from '@angular/material';
+import {AlertComponent} from './alert.component';
 
 @Injectable()
 export class AlertService {
@@ -13,29 +18,42 @@ export class AlertService {
   private needsExplicitClosing: boolean;
 
   // TODO move the logic in the ngInit block
-  constructor(private router: Router) {
+  constructor(private router: Router, private matSnackBar: MatSnackBar) {
     this.previousRoute = '';
     // clear alert message on route change
-    router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        if (this.isRouteChanged(event.url)) {
-          // console.log('Clearing alert when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
-          if (!this.needsExplicitClosing) {
-            this.clearAlert();
-          }
-        } else {
-          // console.log('Alert kept when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
-        }
-      } else if (event instanceof NavigationEnd) {
-        const navigationEnd: NavigationEnd = event;
-        this.previousRoute = navigationEnd.url;
-      }
+    router.events.subscribe(event => this.reactToNavigationEvents(event));
+  }
+
+  public success(response: any) {
+    let message = this.formatResponse(response);
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: message, service: this},
+      panelClass: 'success',
+      duration: 5000,
+      verticalPosition: 'top',
     });
+  }
+
+  public exception(message: string, error: any) {
+    if (error && error.handled) {
+      return;
+    }
+
+    const errMsg = this.formatError(error, message);
+    this.displayErrorMessage(errMsg, false, 0);
+    return Promise.resolve();
+  }
+
+  public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    const errMsg = this.formatError(message);
+
+    this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
   }
 
   // called from the alert component explicitly by the user
   public close(): void {
-    this.subject.next();
+    this.matSnackBar.dismiss();
+    // this.subject.next();
   }
 
   public clearAlert(): void {
@@ -45,58 +63,27 @@ export class AlertService {
     this.close();
   }
 
-  public success(response: any, keepAfterNavigationChange = false) {
-    this.needsExplicitClosing = keepAfterNavigationChange;
+  private formatResponse(response: any | string) {
     let message = '';
     if (typeof response === 'string') {
       message = response;
     } else {
-      if(instanceOfMultipleItemsResponse(response)) {
+      if (instanceOfMultipleItemsResponse(response)) {
         message = this.processMultipleItemsResponse(response);
       }
     }
-    this.subject.next({type: 'success', text: message});
+    return message;
   }
 
-  public exception(message: string, error: any, keepAfterNavigationChange = false, fadeTime: number = 0) {
-    const errMsg = this.formatError(error, message);
-    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
-    return Promise.resolve();
-  }
+  private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
 
-  public error(message: HttpResponse<any> | string | any, keepAfterNavigationChange = false,
-               fadeTime: number = 0) {
-    if (message.handled) return;
-    if ((message instanceof HttpResponse) && (message.status === 401 || message.status === 403)) return;
-    if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
-
-    const errMsg = this.formatError(message);
-
-    this.displayMessage(errMsg, keepAfterNavigationChange, fadeTime);
-  }
-
-  public getMessage(): Observable<any> {
-    return this.subject.asObservable();
-  }
-
-  public handleError(error: HttpResponse<any> | any) {
-    this.error(error, false);
-
-    let errMsg: string;
-    if (error instanceof HttpResponse) {
-      const body = error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' ? error.body || '' : error.toString();
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error.message ? error.message : error.toString();
-    }
-    console.error(errMsg);
-    return Promise.reject({reason: errMsg, handled: true});
-  }
-
-  private displayMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
     this.needsExplicitClosing = keepAfterNavigationChange;
-    this.subject.next({type: 'error', text: errMsg});
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: errMsg, service: this},
+      panelClass: 'error',
+      verticalPosition: 'top',
+    });
+
     if (fadeTime) {
       setTimeout(() => this.clearAlert(), fadeTime);
     }
@@ -120,11 +107,8 @@ export class AlertService {
 
   private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
     let errMsg = this.tryExtractErrorMessageFromResponse(error);
-
     errMsg = this.tryParseHtmlResponse(errMsg);
-
     errMsg = this.tryClearMessage(errMsg);
-
     return (message ? message + ' \n' : '') + (errMsg || '');
   }
 
@@ -135,7 +119,7 @@ export class AlertService {
       errMsg = response;
     } else if (response instanceof HttpErrorResponse) {
       if (response.error) {
-        if(instanceOfMultipleItemsResponse(response.error)) {
+        if (instanceOfMultipleItemsResponse(response.error)) {
           errMsg = this.processMultipleItemsResponse(response.error);
         } else if (response.error.message) {
           errMsg = response.error.message;
@@ -172,7 +156,7 @@ export class AlertService {
 
   private tryParseHtmlResponse(errMsg: string) {
     let res = errMsg;
-    if (errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
+    if (errMsg && errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
       let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
       if (res1 && res1.length > 0) {
         res = res1[1];
@@ -197,5 +181,15 @@ export class AlertService {
     return res;
   }
 
+  private reactToNavigationEvents(event: RouterEvent | NavigationStart | NavigationEnd | any) {
+    if (event instanceof NavigationStart) {
+      if (this.isRouteChanged(event.url)) {
+        this.clearAlert();
+      }
+    } else if (event instanceof NavigationEnd) {
+      const navigationEnd: NavigationEnd = event;
+      this.previousRoute = navigationEnd.url;
+    }
+  }
 
 }

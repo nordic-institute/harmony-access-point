@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author Tiago Miguel
@@ -39,7 +38,7 @@ public class MessageLogInfoFilter {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     protected String getHQLKey(String originalColumn) {
-        switch(originalColumn) {
+        switch (originalColumn) {
             case "messageId":
                 return LOG_MESSAGE_ID;
             case "mshRole":
@@ -120,7 +119,7 @@ public class MessageLogInfoFilter {
                 }
             }
         } else {
-            if(filter.getKey().equals("messageSubtype")) {
+            if (filter.getKey().equals("messageSubtype")) {
                 result.append(" and ");
                 String tableName = getHQLKey(filter.getKey());
                 result.append(tableName).append(" is null");
@@ -144,5 +143,9 @@ public class MessageLogInfoFilter {
      */
     protected boolean isFourCornerModel() {
         return domibusPropertyProvider.getBooleanProperty(DomibusConfigurationService.FOURCORNERMODEL_ENABLED_KEY);
+    }
+
+    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
+        return null;
     }
 }

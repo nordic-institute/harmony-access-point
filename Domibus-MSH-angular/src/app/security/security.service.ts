@@ -80,7 +80,6 @@ export class SecurityService {
     if (!this.pluginPasswordPolicy) {
       this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
         .toPromise();
     }
     return this.pluginPasswordPolicy;
@@ -179,7 +178,6 @@ export class SecurityService {
     if (!this.passwordPolicy) {
       this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
         .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
         .toPromise();
     }
     return this.passwordPolicy;

@@ -125,6 +125,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
     String DOMIBUS_UI_REPLICATION_SYNC_CRON = "domibus.ui.replication.sync.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
+    String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
+    String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
     String DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT = "domibus.alert.mail.smtp.timeout";

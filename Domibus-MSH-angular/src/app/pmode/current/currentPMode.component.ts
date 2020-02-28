@@ -108,7 +108,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
         this.alertService.exception('Error downloading PMode:', err);
       });
     } else {
-      this.alertService.error(this.ERROR_PMODE_EMPTY)
+      this.alertService.error(this.ERROR_PMODE_EMPTY);
     }
   }
 

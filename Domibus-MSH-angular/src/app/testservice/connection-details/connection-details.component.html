@@ -5,36 +5,21 @@
     <mat-card-content>
       <div class="panel">
         <form name="filterForm" #filterForm="ngForm">
+
           <!-- Receiver Party -->
-          <div *ngIf="!dynamicDiscoveryEnabled">
-            <mat-select placeholder="Receiver Party Id" name="receiverPartyId" [(ngModel)]="filter.receiverPartyId"
-                        #receiverPartyId="ngModel" id="receiverPartyId_id" (ngModelChange)="onChangeParties()" style="width:80% !important;">
-              <mat-option [value]="''">
-              </mat-option>
-              <mat-option *ngFor="let receiverParty of receiverParties" [value]="receiverParty">
-                {{receiverParty}}
-              </mat-option>
-            </mat-select>
-          </div>
+          <label class="receiver-party">
+            {{ partyId }}
+          </label>
 
-          <div *ngIf="dynamicDiscoveryEnabled">
-            <div>Dynamic Discovery</div>
-            <mat-form-field>
-              <input matInput placeholder="Final Recipient" name="finalRecipient" [(ngModel)]="filter.finalRecipient" #finalRecipient="ngModel" id="finalRecipient_id" (ngModelChange)="onChangeInfo()" disabled>
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput placeholder="Final Recipient Type" name="finalRecipientType" [(ngModel)]="filter.finalRecipientType" #finalRecipientType="ngModel" id="finalRecipientType_id" (ngModelChange)="onChangeInfo()" disabled>
-            </mat-form-field>
-          </div>
-
-          <div class="buttonsRow" style="margin-top: 10px;">
-            <button mat-raised-button color="primary" [disabled]="this.buttonDisabled || !messageInfoSent.messageId" id="updatebutton_id"
+          <div class="buttonsRow">
+            <!-- Refresh Button -->
+            <button mat-raised-button color="primary" [disabled]="!sender || !messageInfoSent.messageId" id="updatebutton_id"
                     (click)="update()" button-click-behaviour>
               <mat-icon>refresh</mat-icon>
               <span>Update</span>
             </button>
             <!-- Test Button -->
-            <button mat-raised-button color="primary" [disabled]="this.buttonDisabled" id="testbutton_id" (click)="test()"
+            <button mat-raised-button color="primary" [disabled]="!sender" id="testbutton_id" (click)="test()"
                     button-click-behaviour>
               <mat-icon>import_export</mat-icon>
               <span>Test</span>
