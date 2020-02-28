@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 
-public class ErrorLogPgUXTest extends BaseUXTest {
+public class ErrorLogPgUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ERROR_LOG);
 

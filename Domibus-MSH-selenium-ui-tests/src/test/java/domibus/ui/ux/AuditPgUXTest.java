@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -21,7 +21,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class AuditPgUXTest extends BaseUXTest {
+public class AuditPgUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 

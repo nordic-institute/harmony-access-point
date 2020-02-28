@@ -33,17 +33,6 @@ public class TestServicePgTest extends BaseTest {
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
-
-		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/pmode-invalid_process.xml", null);
-
-//		wait is required because PMode is updated trough REST API
-		page.wait.forXMillis(500);
-
-		page.refreshPage();
-		log.info("checking invalid pmode triggers error message");
-		soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state (2)");
-
 		soft.assertAll();
 	}
 

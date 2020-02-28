@@ -66,12 +66,14 @@ public class Select extends DComponent {
         try {
             weToDButton(expandBtn).click();
             wait.forAttributeToContain(selectContainer,  "aria-owns", "mat-option");
+            wait.forXMillis(200);
             if (this.optionIDs.size() == 0) extractOptionIDs();
         } catch (Exception e) { }
     }
 
     protected List<DObject> getOptionElements() throws Exception {
         expand();
+
         List<DObject> optionObj = new ArrayList<>();
 
         for (int i = 0; i < optionIDs.size(); i++) {
