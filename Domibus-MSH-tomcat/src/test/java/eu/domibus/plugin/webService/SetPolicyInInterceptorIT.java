@@ -21,8 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static org.junit.Assert.fail;
-
 
 /**
  * @author draguio
@@ -82,7 +80,7 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
         try {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
-            Assert.assertTrue(reply.contains("domibus-MSH Version"));
+            Assert.assertTrue(reply.contains("domibus-MSH"));
             Assert.assertTrue(reply.contains("Build-Time"));
 
         } catch (UnsupportedEncodingException e) {
