@@ -15,8 +15,8 @@ public class PartyFilterRequestDTO {
     private String partyId;
     private String process;
 
-    private int pageStart;
-    private int pageSize;
+    private int pageStart = 0;
+    private int pageSize = 10;
 
 
     public String getName() {

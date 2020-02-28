@@ -14,8 +14,6 @@ import java.util.Set;
  */
 public class PartyDTO {
 
-    private Integer entityId;
-
     private String name;
 
     private String userName;
@@ -29,14 +27,6 @@ public class PartyDTO {
     private List<ProcessDTO> processesWithPartyAsResponder = new ArrayList<>();
 
     private String certificateContent;
-
-    public Integer getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Integer entityId) {
-        this.entityId = entityId;
-    }
 
     public String getName() {
         return name;
@@ -97,7 +87,6 @@ public class PartyDTO {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("entityId", entityId)
                 .append("name", name)
                 .append("userName", userName)
                 .append("endpoint", endpoint)

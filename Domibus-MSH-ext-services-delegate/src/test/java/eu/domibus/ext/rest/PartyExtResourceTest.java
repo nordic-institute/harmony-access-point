@@ -10,7 +10,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * @author Catalin Enache
@@ -58,21 +57,17 @@ public class PartyExtResourceTest {
     }
 
     @Test
-    public void test_createParty(final @Mocked PartyDTO partyDTO,
-                                 final @Mocked ServletUriComponentsBuilder servletUriComponentsBuilder) {
+    public void test_createParty(final @Mocked PartyDTO partyDTO) {
         //tested method
         partyExtResource.createParty(partyDTO);
 
         new FullVerifications(partyExtService) {{
             partyExtService.createParty(partyDTO);
-
-            servletUriComponentsBuilder.fromCurrentContextPath();
         }};
     }
 
     @Test
-    public void test_createParty_Exception(final @Mocked PartyDTO partyDTO,
-                                           final @Mocked ServletUriComponentsBuilder servletUriComponentsBuilder) {
+    public void test_createParty_Exception(final @Mocked PartyDTO partyDTO) {
 
         new Expectations() {{
             partyExtService.createParty(partyDTO);
@@ -81,12 +76,11 @@ public class PartyExtResourceTest {
         }};
 
         //tested method
-        partyExtResource.createParty(partyDTO);
-
-        new Verifications() {{
-            servletUriComponentsBuilder.fromCurrentContextPath();
-            times = 0;
-        }};
+        try {
+            partyExtResource.createParty(partyDTO);
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof PartyExtServiceException);
+        }
     }
 
     @Test
@@ -157,7 +151,7 @@ public class PartyExtResourceTest {
     public void test_updateParties(final @Mocked PartyDTO partyDTO) {
 
         //tested method
-        partyExtResource.updateParties(partyDTO);
+        partyExtResource.updateParty(partyDTO);
 
         new FullVerifications(partyExtService) {{
             PartyDTO partyDTOActual;

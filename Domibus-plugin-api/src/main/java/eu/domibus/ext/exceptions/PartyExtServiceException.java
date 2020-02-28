@@ -32,6 +32,10 @@ public class PartyExtServiceException extends DomibusServiceExtException {
      * @param cause
      */
     public PartyExtServiceException(Throwable cause) {
-        super(DomibusErrorCode.DOM_001, cause.getMessage(), cause);
+        this(DomibusErrorCode.DOM_003, "Parties management Exception", cause);
+    }
+
+    public PartyExtServiceException(String message, Throwable cause) {
+        this(DomibusErrorCode.DOM_003, message, cause);
     }
 }

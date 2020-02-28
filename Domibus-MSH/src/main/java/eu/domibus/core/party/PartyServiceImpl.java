@@ -365,11 +365,11 @@ public class PartyServiceImpl implements PartyService {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot find the party describing the current system. ");
         }
         if (removedParties.stream().anyMatch(party -> party.getName().equals(partyMe.getName()))) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Cannot delete the party describing the current system. ");
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
         }
     }
 
-    void updatePartyIdTypes(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
+    protected void updatePartyIdTypes(List<eu.domibus.common.model.configuration.Party> newParties, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
         PartyIdTypes partyIdTypes = parties.getPartyIdTypes();

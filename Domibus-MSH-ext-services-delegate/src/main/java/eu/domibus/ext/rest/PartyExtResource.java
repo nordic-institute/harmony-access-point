@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.PartyFilterRequestDTO;
 import eu.domibus.ext.domain.ProcessDTO;
@@ -12,13 +13,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -36,10 +36,20 @@ public class PartyExtResource {
     @Autowired
     PartyExtService partyExtService;
 
+    @ExceptionHandler(PartyExtServiceException.class)
+    public ResponseEntity<ErrorRO> handlePartyExtServiceException(PartyExtServiceException e) {
+        String message = e.getMessage();
+        if (e.getCause() instanceof PModeException) {
+            message = ExceptionUtils.getRootCauseMessage(e);
+        }
+        ErrorRO errorRO = new ErrorRO(message);
+        return ResponseEntity.badRequest().body(errorRO);
+    }
+
     @ApiOperation(value = "Get Parties", notes = "Get Parties using certain criteria like name, endpoint, partyId, process name. " +
             "Use pageStart and pageSize for pagination purposes",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
-    @GetMapping(value = {"/list"})
+    @GetMapping
     public List<PartyDTO> listParties(PartyFilterRequestDTO request) {
         LOG.debug("Searching parties with parameters:" +
                         " name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
@@ -53,36 +63,21 @@ public class PartyExtResource {
     @ApiOperation(value = "Creates a Party",
             notes = "Creates a Party using name, party id, endpoint and identifiers which are mandatory fields",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
-    @PostMapping(value = "/save")
-    public ResponseEntity<Object> createParty(@RequestBody PartyDTO request) {
-        try {
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public String createParty(@RequestBody PartyDTO request) {
             partyExtService.createParty(request);
-            //return in the header the location of the new item
-            URI uri = ServletUriComponentsBuilder.
-                    fromCurrentContextPath().
-                    path("/ext/party/list").
-                    query("name={name}").
-                    buildAndExpand(request.getName()).toUri();
-            return ResponseEntity.created(uri).build();
-        } catch (PartyExtServiceException e) {
-            final String message = ExceptionUtils.getRootCauseMessage(e);
-            return ResponseEntity.badRequest().body(message);
-        }
+            return "Party with partyName=["+request.getName()+"] created successfully!";
     }
 
     @ApiOperation(value = "Delete a Party",
             notes = "Delete a Party based on party name",
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @DeleteMapping
-    public ResponseEntity<String> deleteParty(
-            @RequestParam(value = "partyName") @Valid @NotNull String partyName) {
-        try {
+    public String deleteParty(@RequestParam(value = "partyName") @Valid @NotNull String partyName) {
             partyExtService.deleteParty(partyName);
-            return ResponseEntity.ok("Party having partyName=[" + partyName + "] has been successfully deleted");
-        } catch (PartyExtServiceException e ) {
-            final String message = ExceptionUtils.getRootCauseMessage(e);
-            return ResponseEntity.badRequest().body(message);
-        }
+            return "Party having partyName=[" + partyName + "] has been successfully deleted";
+
     }
 
     @ApiOperation(value = "Get Certificate for a Party",
@@ -90,16 +85,11 @@ public class PartyExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = "/{partyName}/certificate")
     public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
-        try {
             TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
             if (cert == null) {
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.ok(cert);
-        } catch (PartyExtServiceException e) {
-            LOG.error("Failed to get certificate from truststore", e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 
     @ApiOperation(value = "List all Processes",
@@ -107,21 +97,17 @@ public class PartyExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = {"/processes"})
     public List<ProcessDTO> listProcesses() {
-
         return partyExtService.getAllProcesses();
     }
 
-
-    @PutMapping(value = {"/update"})
-    public ResponseEntity updateParties(@RequestBody PartyDTO partyDTO) {
+    @ApiOperation(value = "Update a Party",
+            notes = "Update a Party based on party name",
+            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @PutMapping
+    public String updateParty(@RequestBody PartyDTO partyDTO) {
         LOG.debug("Updating party [{}]", partyDTO);
-        try {
             partyExtService.updateParty(partyDTO);
-            return ResponseEntity.noContent().build();
-        } catch (PartyExtServiceException e) {
-            final String message = ExceptionUtils.getRootCauseMessage(e);
-            return ResponseEntity.badRequest().body(message);
-        }
+            return "Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted";
     }
 
 }

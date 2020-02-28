@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.party;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -43,9 +44,12 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void createParty(PartyDTO partyDTO) {
-        Party newParty = domainConverter.convert(partyDTO, Party.class);
-
-        partyService.createParty(newParty, partyDTO.getCertificateContent());
+        try {
+            Party newParty = domainConverter.convert(partyDTO, Party.class);
+            partyService.createParty(newParty, partyDTO.getCertificateContent());
+        } catch (PModeException pme) {
+            throw new PartyExtServiceException("Error while creating a Party in PMode", pme);
+        }
     }
 
     /**
@@ -74,8 +78,6 @@ public class PartyServiceDelegate implements PartyExtService {
         final String partyName = partyDTO.getName();
         deleteParty(partyName);
 
-        //then we create it
-        partyDTO.setEntityId(0);
         createParty(partyDTO);
     }
 
@@ -84,14 +86,18 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void deleteParty(String partyName) {
-        partyService.deleteParty(partyName);
+        try {
+            partyService.deleteParty(partyName);
+        } catch (PModeException pme) {
+            throw new PartyExtServiceException(pme);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public TrustStoreDTO getPartyCertificateFromTruststore(String partyName)  {
+    public TrustStoreDTO getPartyCertificateFromTruststore(String partyName) {
 
         TrustStoreEntry trustStoreEntry;
         try {
@@ -100,8 +106,11 @@ public class PartyServiceDelegate implements PartyExtService {
             LOG.error("getPartyCertificateFromTruststore returned exception", e);
             throw new PartyExtServiceException(e);
         }
-        LOG.debug("Returned trustStoreEntry=[{}] for party name=[{}]", trustStoreEntry.getName(), partyName);
-        return domainConverter.convert(trustStoreEntry, TrustStoreDTO.class);
+        if (null != trustStoreEntry) {
+            LOG.debug("Returned trustStoreEntry=[{}] for party name=[{}]", trustStoreEntry.getName(), partyName);
+            return domainConverter.convert(trustStoreEntry, TrustStoreDTO.class);
+        }
+        return null;
     }
 
     /**

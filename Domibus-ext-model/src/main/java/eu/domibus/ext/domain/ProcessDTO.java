@@ -8,17 +8,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class ProcessDTO {
 
-    private int id;
-
     private String name;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -31,7 +21,6 @@ public class ProcessDTO {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", id)
                 .append("name", name)
                 .toString();
     }
