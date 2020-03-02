@@ -1370,7 +1370,8 @@ public class PartyServiceImplTest {
         partyService.addProcessConfiguration(party, configuration);
 
         new FullVerifications(partyService) {{
-            partyService.addProcessConfigurationInitiatorResponderParties(party, process);
+            partyService.addProcessConfigurationInitiatorParties(party, (Process) any, configuration);
+            partyService.addProcessConfigurationInitiatorParties(party, (Process)any, configuration);
         }};
 
 

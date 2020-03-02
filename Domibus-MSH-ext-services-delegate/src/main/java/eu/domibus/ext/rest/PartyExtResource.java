@@ -66,8 +66,8 @@ public class PartyExtResource {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public String createParty(@RequestBody PartyDTO request) {
-            partyExtService.createParty(request);
-            return "Party with partyName=["+request.getName()+"] created successfully!";
+        partyExtService.createParty(request);
+        return "Party with partyName=[" + request.getName() + "] created successfully!";
     }
 
     @ApiOperation(value = "Delete a Party",
@@ -75,8 +75,8 @@ public class PartyExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @DeleteMapping
     public String deleteParty(@RequestParam(value = "partyName") @Valid @NotNull String partyName) {
-            partyExtService.deleteParty(partyName);
-            return "Party having partyName=[" + partyName + "] has been successfully deleted";
+        partyExtService.deleteParty(partyName);
+        return "Party having partyName=[" + partyName + "] has been successfully deleted";
 
     }
 
@@ -85,11 +85,11 @@ public class PartyExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "party")
     @GetMapping(value = "/{partyName}/certificate")
     public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
-            TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
-            if (cert == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(cert);
+        TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
+        if (cert == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(cert);
     }
 
     @ApiOperation(value = "List all Processes",
@@ -106,8 +106,8 @@ public class PartyExtResource {
     @PutMapping
     public String updateParty(@RequestBody PartyDTO partyDTO) {
         LOG.debug("Updating party [{}]", partyDTO);
-            partyExtService.updateParty(partyDTO);
-            return "Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted";
+        partyExtService.updateParty(partyDTO);
+        return "Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted";
     }
 
 }

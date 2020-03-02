@@ -3,7 +3,6 @@ package eu.domibus.ext.delegate.services.party;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -44,12 +43,8 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void createParty(PartyDTO partyDTO) {
-        try {
             Party newParty = domainConverter.convert(partyDTO, Party.class);
             partyService.createParty(newParty, partyDTO.getCertificateContent());
-        } catch (PModeException pme) {
-            throw new PartyExtServiceException("Error while creating a Party in PMode", pme);
-        }
     }
 
     /**
@@ -86,11 +81,7 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void deleteParty(String partyName) {
-        try {
             partyService.deleteParty(partyName);
-        } catch (PModeException pme) {
-            throw new PartyExtServiceException(pme);
-        }
     }
 
     /**

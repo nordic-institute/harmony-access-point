@@ -595,30 +595,75 @@ public class PartyServiceImpl implements PartyService {
         parties.getParty().add(configParty);
     }
 
-    protected void addProcessConfiguration(Party party, Configuration configuration) {
-        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
-        List<Process> processes = businessProcesses.getProcesses();
 
-        processes.forEach(process -> addProcessConfigurationInitiatorResponderParties(party, process));
+    /**
+     * Make the links between current Party and Processes (Initator and Responder)
+     *
+     * @param party
+     * @param configuration
+     */
+    protected void addProcessConfiguration(Party party, Configuration configuration) {
+        if (party.getProcessesWithPartyAsInitiator() != null) {
+            party.getProcessesWithPartyAsInitiator().forEach(process -> addProcessConfigurationInitiatorParties(party, process, configuration));
+        }
+        if (party.getProcessesWithPartyAsResponder() != null) {
+            party.getProcessesWithPartyAsResponder().forEach(process -> addProcessConfigurationResponderParties(party, process, configuration));
+        }
     }
 
-    protected void addProcessConfigurationInitiatorResponderParties(Party party, Process process) {
-
-        if (process.getInitiatorPartiesXml() == null) {
-            process.setInitiatorPartiesXml(new InitiatorParties());
+    /**
+     *
+     * @param party
+     * @param process
+     * @param configuration
+     */
+    protected void addProcessConfigurationInitiatorParties(Party party, eu.domibus.api.process.Process process, Configuration configuration) {
+        Process configProcess = getProcess(process.getName(), configuration);
+        if (configProcess != null) {
+            if (configProcess.getInitiatorPartiesXml() == null) {
+                configProcess.setInitiatorPartiesXml(new InitiatorParties());
+            }
+            List<InitiatorParty> initiatorPartyList = configProcess.getInitiatorPartiesXml().getInitiatorParty();
+            InitiatorParty initiatorParty = new InitiatorParty();
+            initiatorParty.setName(party.getName());
+            initiatorPartyList.add(initiatorParty);
         }
-        List<InitiatorParty> initiatorPartyList = process.getInitiatorPartiesXml().getInitiatorParty();
-        InitiatorParty initiatorParty = new InitiatorParty();
-        initiatorParty.setName(party.getName());
-        initiatorPartyList.add(initiatorParty);
+    }
 
-        if (process.getResponderPartiesXml() == null) {
-            process.setResponderPartiesXml(new ResponderParties());
+    /**
+     *
+     * @param party
+     * @param process
+     * @param configuration
+     */
+    protected void addProcessConfigurationResponderParties(Party party, eu.domibus.api.process.Process process, Configuration configuration) {
+        Process configProcess = getProcess(process.getName(), configuration);
+        if (configProcess != null) {
+            if (configProcess.getResponderPartiesXml() == null) {
+                configProcess.setResponderPartiesXml(new ResponderParties());
+            }
+            List<ResponderParty> responderPartyList = configProcess.getResponderPartiesXml().getResponderParty();
+            ResponderParty responderParty = new ResponderParty();
+            responderParty.setName(party.getName());
+            responderPartyList.add(responderParty);
         }
-        List<ResponderParty> responderPartyList = process.getResponderPartiesXml().getResponderParty();
-        ResponderParty responderParty = new ResponderParty();
-        responderParty.setName(party.getName());
-        responderPartyList.add(responderParty);
+    }
+
+    /**
+     * Returns the process identified by processName
+     * If not found throws an Exception
+     *
+     * @param processName
+     * @param configuration
+     * @return
+     */
+    protected Process getProcess(final String processName, Configuration configuration) {
+        BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
+        Process configProcess = businessProcesses.getProcesses().stream().filter(p -> p.getName().equalsIgnoreCase(processName)).findFirst().orElse(null);
+        if (configProcess == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Process name [" + processName + "] not found in PModeConfiguration");
+        }
+        return configProcess;
     }
 
     /**
@@ -643,7 +688,7 @@ public class PartyServiceImpl implements PartyService {
 
         //find the party to be deleted
         eu.domibus.common.model.configuration.Party partyToBeDeleted =
-                allParties.stream().filter(party -> party.getName().equals(partyName)).findFirst().orElse(null);
+                allParties.stream().filter(party -> party.getName().equalsIgnoreCase(partyName)).findFirst().orElse(null);
         if (partyToBeDeleted == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
         }
