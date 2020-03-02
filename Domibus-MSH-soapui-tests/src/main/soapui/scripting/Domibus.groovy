@@ -2246,7 +2246,9 @@ static def void stopRestMockService(String restMockServiceName,log,testRunner) {
 	mockRunner=mockService.getMockRunner();
 	if(mockRunner!=null){
 		mockRunner.stop();
-	}
+		assert(!mockRunner.isRunning()),"  startRestMockService  [][]  Mock service is still running.";
+		mockRunner.release() ;
+	}	
 	log.info ("  stopRestMockService  [][]  Rest mock service "+restMockServiceName+" is stopped.");
 }
 
@@ -2274,7 +2276,7 @@ static def void startRestMockService(String restMockServiceName,log,testRunner,s
 	}else{
 		stopRestMockService(restMockServiceName,log,testRunner);
 	}
-	def mockService=null;
+	def mockService=null; def mockRunner=null;
 	try{
 		mockService=testRunner.testCase.testSuite.project.getRestMockServiceByName(restMockServiceName);
 	}
@@ -2283,6 +2285,9 @@ static def void startRestMockService(String restMockServiceName,log,testRunner,s
             assert 0,"Exception occurred: " + ex;
     }
 	mockService.start();
+	mockRunner=mockService.getMockRunner();
+	assert(mockRunner!=null),"  startRestMockService  [][]  Can't get mock runner: mock service did not start.";
+	assert(mockRunner.isRunning()),"  startRestMockService  [][]  Mock service did not start.";
 	log.info ("  startRestMockService  [][]  Rest mock service "+restMockServiceName+" is running.");
 }
 
@@ -2831,7 +2836,10 @@ static def String pathToLogFiles(side, log, context) {
 		def json = null;
 
         log.info "  setLogLevel  [][]  setting Log level of Package/Class \"$packageName\" for Domibus \"$side\".";
-
+		if((logLevel==null)||(logLevel=="")||(logLevel==" ")){
+			logLevel="WARN";
+		}
+		
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
@@ -2848,6 +2856,54 @@ static def String pathToLogFiles(side, log, context) {
         } finally {
             resetAuthTokens(log);
         }
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getLogLevel(String side,context,log,packageName,String domainValue = "Default", String authUser = null, authPwd = null){
+        debugLog("  ====  Calling \"getLogLevel\".", log)
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn = false;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def packagesMetadata=null;
+		def packagesMap=null;
+		def logValue=null;
+		def i=0;
+		def jsonSlurper = new JsonSlurper();
+
+        log.info "  getLogLevel  [][]  getting Log level of Package/Class \"$packageName\" for Domibus \"$side\".";
+
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?orderBy=loggerName&asc=false&loggerName=$packageName&page=0&pageSize=500", 
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",							
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-H",  "Content-Type: text/xml",							
+							"-v"]
+            commandResult = runCommandInShell(commandString, log)
+            assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getLogLevel: Error while trying to connect to domibus.";
+			packagesMetadata=commandResult[0].substring(5);
+			debugLog("  getLogLevel  [][]  Package serach result: $packagesMetadata", log);
+			packagesMap = jsonSlurper.parseText(packagesMetadata);
+			assert(packagesMap != null),"Error:getLogLevel: Error while parsing the returned packages map: null value found.";
+			assert(packagesMap.loggingEntries != null),"Error:getLogLevel: rror while parsing the returned packages map: empty list found.";
+			
+			while ( (i < packagesMap.loggingEntries.size()) && (logValue == null) ) {
+                assert(packagesMap.loggingEntries[i] != null),"Error:getLogLevel: Error while parsing the list of returned entries.";
+                debugLog("  getLogLevel  [][]  Iteration $i: comparing --$packageName--and--" + packagesMap.loggingEntries[i].name + "--.", log)
+                if (packagesMap.loggingEntries[i].name == packageName) {
+					logValue = packagesMap.loggingEntries[i].level;
+                }
+                i++;
+            }
+            assert(logValue!=null), "Error: getLogLevel: no package found matching name \"$packageName\"" 														
+			log.info "  getLogLevel  [][]  Package \"$packageName\" log level value = \"$logValue\"."
+        } finally {
+            resetAuthTokens(log);
+        }
+		debugLog("  ====  Finished \"getLogLevel\".", log)		
+		return logValue;
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
