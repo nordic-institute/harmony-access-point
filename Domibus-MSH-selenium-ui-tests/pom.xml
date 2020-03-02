@@ -200,7 +200,7 @@
 
 
 		<profile>
-			<id>bamboo</id>
+			<id>bamboo-remote</id>
 			<build>
 				<plugins>
 					<plugin>
