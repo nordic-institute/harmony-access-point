@@ -83,11 +83,11 @@ public class JmsResourceTest {
         }};
 
         // When
-        ResponseEntity<MessagesResponseRO> messages = jmsResource.messages(requestRO);
+        MessagesResponseRO messages = jmsResource.messages(requestRO);
 
         // Then
         Assert.assertNotNull(messages);
-        Assert.assertEquals(jmsMessageList, messages.getBody().getMessages());
+        Assert.assertEquals(jmsMessageList, messages.getMessages());
     }
 
     @Test

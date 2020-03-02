@@ -7,8 +7,11 @@ import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,14 @@ public class JmsResource extends BaseResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
+    @ExceptionHandler({InternalJMSException.class})
+    public ResponseEntity<ErrorRO> handleUserManagementException(InternalJMSException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping(value = {"/destinations"})
     public ResponseEntity<DestinationsResponseRO> destinations() {
 
@@ -58,21 +69,11 @@ public class JmsResource extends BaseResource {
     }
 
     @GetMapping(value = {"/messages"})
-    public ResponseEntity<MessagesResponseRO> messages(@Valid JmsFilterRequestRO request) {
-
-        final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
-        try {
-            messagesResponseRO.setMessages(jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector()));
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(messagesResponseRO);
-
-        } catch (RuntimeException runEx) {
-            LOGGER.error("Error browsing messages for source [" + request.getSource() + "]", runEx);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(messagesResponseRO);
-        }
+    public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
+        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector());
+        final MessagesResponseRO response = new MessagesResponseRO();
+        response.setMessages(messages);
+        return response;
     }
 
     @PostMapping(value = {"/messages/action"})
