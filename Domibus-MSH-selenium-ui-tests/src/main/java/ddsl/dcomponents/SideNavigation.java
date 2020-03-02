@@ -43,6 +43,11 @@ public class SideNavigation extends DComponent {
 	@FindBy(id = "errorlog_id")
 	private WebElement errorlogLnk;
 
+	@FindBy(css = "mat-sidenav button.sideNavButton[tabindex=\"0\"]")
+	private List<WebElement> matSidebarButtons;
+
+
+
 	//	----------------------------------------------------
 	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(1)")
 	private WebElement pmodeCurrentLnk;
@@ -167,20 +172,9 @@ public class SideNavigation extends DComponent {
 	}
 
 	public boolean isUserState() throws Exception {
-		return (getPageLnk(PAGES.MESSAGES).isPresent()
-				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
-
-				&& !getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
-				&& !getPageLnk(PAGES.PMODE_CURRENT).isPresent()
-				&& !getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
-				&& !getPageLnk(PAGES.PMODE_PARTIES).isPresent()
-				&& !getPageLnk(PAGES.JMS_MONITORING).isPresent()
-				&& !getPageLnk(PAGES.TRUSTSTORE).isPresent()
-				&& !getPageLnk(PAGES.USERS).isPresent()
-				&& !getPageLnk(PAGES.PLUGIN_USERS).isPresent()
-				&& !getPageLnk(PAGES.AUDIT).isPresent()
-				&& !getPageLnk(PAGES.ALERTS).isPresent()
-				&& !getPageLnk(PAGES.TEST_SERVICE).isPresent()
+		return (matSidebarButtons.size() == 2
+		&& weToDButton(matSidebarButtons.get(0)).getText().equalsIgnoreCase("Messages")
+		&& weToDButton(matSidebarButtons.get(1)).getText().equalsIgnoreCase("Error Log")
 		);
 	}
 

@@ -25,7 +25,7 @@ public class FailListener implements ITestListener {
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
 		String outputPath = ((BaseTest) result.getInstance()).data.getReportsFolder();
-		String filename = String.format("%s%s_%s_%s.jpg", outputPath, className, testMeth, time);
+		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
 
 		try {
 			WebDriver driver = ((BaseTest) result.getInstance()).driver;

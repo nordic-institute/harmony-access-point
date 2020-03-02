@@ -24,19 +24,17 @@ public class ChangePasswordPgTest extends BaseTest {
 	@Test(description = "CP-5", groups = {"multiTenancy", "singleTenancy"})
 	public void wrongCurrentPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		LoginPage loginPage = new LoginPage(driver);
-		log.info("Validate login page is loaded successfully");
-		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
+
+		String username = getUsername(null, DRoles.USER, true, false, true);
+
 		log.info("Login into application with Admin credentials");
-		loginPage.login(data.getAdminUser());
-		loginPage.waitForTitle();
-		DomibusPage page = new DomibusPage(driver);
-		page.clickVoidSpace();
+		DomibusPage page = login(username, data.defaultPass());
+
 		log.info("Open changePassword Page by clicking link");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
 		log.info("Fill wrong data for current field and correct data for new password and confirmation");
-		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.defaultPass());
+		cpage.setPassFields(data.getNewTestPass(), data.defaultPass(), data.defaultPass());
 		log.info("Click on update button");
 		cpage.getUpdateButton().click();
 		log.info("Error message shown:" + page.getAlertArea().getAlertMessage());
@@ -51,21 +49,12 @@ public class ChangePasswordPgTest extends BaseTest {
 	public void changePassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		log.info("Generate random username");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = getUsername(null, DRoles.USER, true, false, true);
 
-		log.info("Create user with rest call");
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
-		LoginPage loginPage = new LoginPage(driver);
+		log.info("Login into application with Admin credentials");
+		DomibusPage page = login(username, data.defaultPass());
 
-		log.info("Validate login page");
-		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
-
-		log.info("login into application with created user credentials");
-		loginPage.login(username, data.defaultPass());
-		DomibusPage page = new DomibusPage(driver);
-
-		log.info("Validate chnage password link presence");
+		log.info("Validate change password link presence");
 		soft.assertTrue(page.getSandwichMenu().isChangePassLnkPresent(), "Change Password link is available");
 
 		log.info("Open Change password page ");
@@ -85,8 +74,8 @@ public class ChangePasswordPgTest extends BaseTest {
 		logout();
 
 		log.info("login with generated username and updated password ");
-		loginPage.login(username, data.getNewTestPass());
-		loginPage.waitForTitle();
+
+		login(username, data.getNewTestPass());
 
 		log.info("Validate user logged in into application");
 		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User logged in");
@@ -100,20 +89,13 @@ public class ChangePasswordPgTest extends BaseTest {
 	public void newPasswordAmongLast5() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		log.info("Generate random username");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = getUsername(null, DRoles.USER, true, false, true);
 
-		log.info("Create user with above created username and default password through rest call");
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
-		LoginPage loginPage = new LoginPage(driver);
+		log.info("Login into application with Admin credentials");
+		DomibusPage page = login(username, data.defaultPass());
 
-		log.info("Validate login page");
-		soft.assertTrue(loginPage.isLoaded(), "page is loaded successfully");
 
-		log.info("login into application with cretaed user credentials");
-		loginPage.login(username, data.defaultPass());
 
-		DomibusPage page = new DomibusPage(driver);
 		log.info("Open change password page");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
@@ -131,9 +113,9 @@ public class ChangePasswordPgTest extends BaseTest {
 		logout();
 
 		log.info("Login with username and updated password");
-		loginPage.login(username, data.getNewTestPass());
-		loginPage.waitForTitle();
-		page.clickVoidSpace();
+
+		login(username, data.getNewTestPass());
+
 
 		log.info("Open Change password page");
 		page.getSandwichMenu().openchangePassword();

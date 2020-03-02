@@ -80,6 +80,11 @@ public class DGrid extends DComponent {
         return columnNames;
     }
 
+    public WebElement getRowElement(int index){
+        if(index > gridRows.size()-1){return null;}
+        return gridRows.get(index);
+    }
+
     public void selectRow(int rowNumber) throws Exception {
         log.debug("selecting row with number ... " + rowNumber);
         if (rowNumber < gridRows.size()) {
@@ -113,7 +118,7 @@ public class DGrid extends DComponent {
         try {
             wait.forElementToBe(progressBar);
             wait.forElementToBeGone(progressBar);
-            wait.forXMillis(100);
+            wait.forXMillis(500);
         } catch (Exception e) {
 
         }

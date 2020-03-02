@@ -20,7 +20,7 @@ import java.util.List;
 public class TestServicePgTest extends BaseTest {
 
 	/* TS-1 - Login as super admin and open Test service page */
-	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TEST_SERVICE);
@@ -33,22 +33,11 @@ public class TestServicePgTest extends BaseTest {
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
-
-		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/pmode-invalid_process.xml", null);
-
-//		wait is required because PMode is updated trough REST API
-		page.wait.forXMillis(500);
-
-		page.refreshPage();
-		log.info("checking invalid pmode triggers error message");
-		soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state (2)");
-
 		soft.assertAll();
 	}
 
 	/*	TS-2 - User checks available parties in the Party ID	*/
-	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"})
 	public void availableParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading PMode");
@@ -67,7 +56,7 @@ public class TestServicePgTest extends BaseTest {
 	}
 
 	/*	TS-3 - User picks a party and pushes Test button	*/
-	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"})
 	public void testBlueParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading pmode");

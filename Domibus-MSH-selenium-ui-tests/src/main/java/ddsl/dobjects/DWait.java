@@ -19,12 +19,14 @@ import utils.TestRunData;
 public class DWait {
 
 	public final WebDriverWait defaultWait;
+	public final WebDriverWait longWait;
 	private TestRunData data = new TestRunData();
 
 	private WebDriver driver;
 
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
+		this.longWait = new WebDriverWait(driver, data.getLongWait());
 		this.driver = driver;
 	}
 
@@ -41,6 +43,13 @@ public class DWait {
 	}
 
 	public WebElement forElementToBeVisible(WebElement element) {
+		return defaultWait.until(ExpectedConditions.visibilityOf(element));
+	}
+
+	public WebElement forElementToBeVisible(WebElement element, boolean waitLonger) {
+		if(waitLonger){
+			return longWait.until(ExpectedConditions.visibilityOf(element));
+		}
 		return defaultWait.until(ExpectedConditions.visibilityOf(element));
 	}
 
@@ -75,7 +84,7 @@ public class DWait {
 				String content = null;
 				try {
 					content = "" + ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;",element);
-					System.out.println("content = " + content);
+//					System.out.println("content = " + content);
 				} catch (Exception e) {}
 				return StringUtils.isEmpty(content);
 			}

@@ -31,7 +31,7 @@ public class AlertArea extends DComponent {
 
 	public String getAlertMessage(){
 		try {
-			wait.forElementToBeVisible(alertMessage);
+			wait.forElementToBeVisible(alertMessage, true);
 		} catch (Exception e) {		}
 		DObject alertObject = new DObject(driver, alertMessage);
 
@@ -59,8 +59,5 @@ public class AlertArea extends DComponent {
 		}
 		throw new Exception("Alert message not present");
 	}
-
-
-
 
 }

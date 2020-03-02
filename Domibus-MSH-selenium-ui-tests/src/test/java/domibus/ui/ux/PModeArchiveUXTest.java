@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;
@@ -22,7 +22,7 @@ import java.nio.file.Paths;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class PModeArchiveUXTest extends BaseUXTest {
+public class PModeArchiveUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PMODE_ARCHIVE);
 
@@ -52,7 +52,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 
 		soft.assertTrue(page.grid().getPagination().getPageSizeSelect().getSelectedValue().equals("10"), "10 is selected by default in the page size select");
 
-		testButonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
+		testButtonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
 
 		soft.assertAll();
 
