@@ -1,5 +1,7 @@
 package ddsl.dobjects;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -17,13 +19,13 @@ import utils.TestRunData;
 public class DWait {
 
 	public final WebDriverWait defaultWait;
-	public final WebDriverWait longWait;
 	private TestRunData data = new TestRunData();
 
+	private WebDriver driver;
 
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
-		this.longWait = new WebDriverWait(driver, data.getLongWait());
+		this.driver = driver;
 	}
 
 	public void forXMillis(Integer millis) {
@@ -52,15 +54,32 @@ public class DWait {
 		}
 	}
 
+	public void forElementToBeDisabled(WebElement element) {
+		int maxTimeout = data.getTIMEOUT() * 1000;
+		int waitedSoFar = 0;
+
+		while ((null == element.getAttribute("disabled")) && (waitedSoFar < maxTimeout)) {
+			waitedSoFar += 300;
+			forXMillis(300);
+		}
+	}
+
 	public void forAttributeNotEmpty(WebElement element, String attributeName) {
 		defaultWait.until(ExpectedConditions.attributeToBeNotEmpty(element, attributeName));
 	}
 
 	public void forElementToBeGone(WebElement element) {
-		try {
-			defaultWait.until(ExpectedConditions.not(ExpectedConditions.visibilityOf(element)));
-		} catch (Exception e) {
-		}
+		defaultWait.until(new ExpectedCondition<Boolean>() {
+			@Override
+			public Boolean apply(WebDriver driver) {
+				String content = null;
+				try {
+					content = "" + ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;",element);
+					System.out.println("content = " + content);
+				} catch (Exception e) {}
+				return StringUtils.isEmpty(content);
+			}
+		});
 	}
 
 	public void forElementToBe(WebElement element) {
@@ -91,15 +110,6 @@ public class DWait {
 		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
 	}
 
-	public void longWaitforElementToBe(WebElement element) {
 
-		longWait.until(new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				return element.getLocation() != null;
-			}
-		});
-
-	}
 
 }

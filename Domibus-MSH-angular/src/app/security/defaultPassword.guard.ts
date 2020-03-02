@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
 import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanDeactivate} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {SecurityService} from './security.service';
 
 @Injectable()
 export class DefaultPasswordGuard implements CanActivate, CanDeactivate<any> {
 
-  constructor (public dialog: MdDialog, private securityService: SecurityService) {
+  constructor (public dialog: MatDialog, private securityService: SecurityService) {
   };
 
   canActivate (next: ActivatedRouteSnapshot,

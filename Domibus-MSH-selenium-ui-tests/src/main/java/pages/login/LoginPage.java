@@ -24,7 +24,7 @@ public class LoginPage extends DomibusPage {
 	public LoginPage(WebDriver driver) {
 		super(driver);
 
-		log.info(".... init");
+		log.debug(".... init");
 
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
@@ -40,7 +40,7 @@ public class LoginPage extends DomibusPage {
 
 	public boolean isLoaded() {
 
-		log.info("check if is loaded");
+		log.debug("check if is loaded");
 		wait.forElementToBeVisible(username);
 		if (!username.isEnabled()) {
 			log.error("Could not find username input");
@@ -54,25 +54,25 @@ public class LoginPage extends DomibusPage {
 			log.error("Could not find login button");
 			return false;
 		}
-		log.info("Login page controls loaded");
+		log.debug("Login page controls loaded");
 		return true;
 	}
 
 	public <T extends DomibusPage> T login(String user, String pass, Class<T> expect) {
-		log.info("Login started");
+		log.debug("Login started");
 		username.clear();
 		username.sendKeys(user);
 		password.clear();
 		password.sendKeys(pass);
 		loginBtn.click();
 		wait.forElementToBeVisible(helpLnk);
-		log.info("Login action done");
+		log.debug("Login action done");
 
 		return PageFactory.initElements(driver, expect);
 	}
 
 	public void login(String user, String pass) {
-		log.info("Login started");
+		log.debug("Login started");
 		username.clear();
 		username.sendKeys(user);
 		password.clear();
@@ -84,29 +84,22 @@ public class LoginPage extends DomibusPage {
 				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
 		));
 
-		log.info("Login action done");
+		log.debug("Login action done");
 	}
 
 	public void login(String userRole) throws Exception {
 		HashMap<String, String> user = data.getUser(userRole);
-		log.info("Login started");
-		new DInput(driver, username).fill(user.get("username"));
-		new DInput(driver, password).fill(user.get("pass"));
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.info("Login action done");
+		this.login(user);
 	}
 
 	public void login(HashMap<String, String> user) throws Exception {
 
-		wait.longWaitforElementToBe(loginBtn);
-
-		log.info("Login started");
+		log.debug("Login started " + user.get("username") + " / " + user.get("pass"));
 		new DInput(driver, username).fill(user.get("username"));
 		new DInput(driver, password).fill(user.get("pass"));
 		loginBtn.click();
 		wait.forElementToBeVisible(helpLnk);
-		log.info("Login action done");
+		log.debug("Login action done");
 	}
 
 

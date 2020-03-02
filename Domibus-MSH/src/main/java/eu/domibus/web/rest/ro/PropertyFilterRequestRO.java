@@ -15,7 +15,7 @@ public class PropertyFilterRequestRO implements Serializable {
 
     private String name;
 
-    private boolean showDomain;
+    private boolean showDomain = true;
 
 
 

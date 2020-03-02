@@ -20,16 +20,21 @@ public class SandwichMenu extends DComponent {
 
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
-		log.info("sandwich menu init");
+		log.debug("sandwich menu init");
+		wait.defaultWait.until(ExpectedConditions.presenceOfElementLocated(expandButton));
 	}
 
 	By expandButton = By.id("settingsmenu_id");
 
-	By menuContainer = By.cssSelector("div > div.mat-menu-content.ng-trigger.ng-trigger-fadeInItems");
+	By menuContainer = By.id("settingsmenu_expanded_id");
 
 	By currentUserID = By.cssSelector("button[role=\"menuitem\"]:nth-of-type(1) span");
 
 	By logoutLnk = By.id("logout_id");
+
+	By changePassLnk =By.cssSelector(".mat-menu-item#changePassword_id");
+	By changePassId =By.id("changePassword_id");
+
 
 
 	public String getCurrentUserID() throws Exception{
@@ -38,7 +43,7 @@ public class SandwichMenu extends DComponent {
 		return driver.findElement(currentUserID).getText().trim();
 	}
 
-	private boolean isMenuExpanded() throws Exception {
+	private boolean isMenuExpanded() {
 		try {
 			driver.findElement(menuContainer);
 			return true;
@@ -48,6 +53,8 @@ public class SandwichMenu extends DComponent {
 	}
 
 	private void expandMenu() throws Exception {
+		clickVoidSpace();
+
 		if (isMenuExpanded()) return;
 		driver.findElement(expandButton).click();
 		try {
@@ -66,7 +73,7 @@ public class SandwichMenu extends DComponent {
 		expandMenu();
 		String userIDStr = driver.findElement(currentUserID).getText();
 		boolean toReturn = !StringUtils.equalsIgnoreCase(userIDStr, "Not logged in");
-		log.info("User login status is: " + toReturn);
+		log.debug("User login status is: " + toReturn);
 
 		contractMenu();
 		return toReturn;
@@ -75,13 +82,44 @@ public class SandwichMenu extends DComponent {
 	public void logout() throws Exception {
 
 		clickVoidSpace();
+		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
 
 		expandMenu();
-		log.info("Logging out...");
+
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(logoutLnk));
+		wait.forXMillis(500);
+
+		log.debug("Logging out...");
 		driver.findElement(logoutLnk).click();
 		contractMenu();
 		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
 	}
 
+	/**This method is implemented to open Change Password page from Sandwich menu*/
+
+	public void openchangePassword() throws Exception {
+
+		clickVoidSpace();
+		wait.defaultWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("cdk-overlay-container")));
+
+		log.debug("Expand Sandwich menu");
+		expandMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
+		log.debug("click on Change password link");
+		driver.findElement(changePassId).click();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(expandButton));
+	}
+	/**This method is implemented to check presence of link in Sandwich menu*/
+	public boolean isChangePassLnkPresent() throws Exception {
+		expandMenu();
+		wait.defaultWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cdk-overlay-container")));
+
+		String changePasswordLnk = driver.findElement(changePassLnk).getText();
+		boolean toReturn = !StringUtils.equalsIgnoreCase(changePasswordLnk, "Change Password");
+		log.debug("Availability of Change Password link is : " + toReturn);
+
+		return toReturn;
+	}
 
 }

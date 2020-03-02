@@ -52,7 +52,7 @@ public class UserMessageLogInfoFilterTest {
             result = true;
         }};
 
-        String query = userMessageLogInfoFilter.filterUserMessageLogQuery("column", true, filters);
+        String query = userMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);
 
         Assert.assertEquals(QUERY, query);
     }

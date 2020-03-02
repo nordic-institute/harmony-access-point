@@ -5,7 +5,9 @@ import ddsl.enums.DRoles;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -21,6 +23,7 @@ public class TestRunData {
 	public static SimpleDateFormat UI_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	public static SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'GMT'Z");
 	public static SimpleDateFormat TESTSERVICE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss");
+	public static SimpleDateFormat DATEWIDGET_DATE_FORMAT = new SimpleDateFormat(" dd/MM/yyyy HH:mm");
 
 
 	public TestRunData() {
@@ -32,7 +35,7 @@ public class TestRunData {
 	private void loadTestData() {
 		try {
 			String filename = System.getenv("propertiesFile");
-			FileInputStream stream = new FileInputStream(new File( filename));
+			FileInputStream stream = new FileInputStream(new File(filename));
 			prop.load(stream);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -43,16 +46,19 @@ public class TestRunData {
 
 		HashMap<String, String> toReturn = new HashMap<>();
 
-		toReturn.put("username", prop.getProperty(role+".username"));
-		toReturn.put("pass", prop.getProperty(role+".password"));
+		toReturn.put("username", prop.getProperty(role + ".username"));
+		toReturn.put("pass", prop.getProperty(role + ".password"));
 
 		return toReturn;
 	}
 
-	public String getDefaultTestPass() {
+	public String defaultPass() {
 		return prop.getProperty("default.password");
 	}
 
+	public String getNewTestPass() {
+		return prop.getProperty("new.password");
+	}
 
 	public HashMap<String, String> getAdminUser() {
 		if (isIsMultiDomain()) {
@@ -60,7 +66,6 @@ public class TestRunData {
 		}
 		return getUser(DRoles.ADMIN);
 	}
-
 
 	public String getUiBaseUrl() {
 		return prop.getProperty("UI_BASE_URL");
@@ -82,6 +87,28 @@ public class TestRunData {
 		return Boolean.valueOf(prop.getProperty("isMultiDomain"));
 	}
 
+	public boolean isHeadless() {
+		try {
+			return Boolean.valueOf(prop.getProperty("headless"));
+		} catch (Exception e) {
+			System.out.println("e = " + e);
+			return false;
+		}
+	}
+
+	public boolean useProxy() {
+		try {
+			return Boolean.valueOf(prop.getProperty("useProxy"));
+		} catch (Exception e) {
+			System.out.println("e = " + e);
+			return false;
+		}
+	}
+
+	public String getProxyAddress() {
+		return prop.getProperty("proxyAddress");
+	}
+
 	public String getChromeDriverPath() {
 		return prop.getProperty("webdriver.chrome.driver");
 	}
@@ -90,7 +117,7 @@ public class TestRunData {
 		return prop.getProperty("webdriver.gecko.driver");
 	}
 
-	public String getIEDriverPath() {
+	public String getEdgeDriverPath() {
 		return prop.getProperty("webdriver.ie.driver");
 	}
 
@@ -98,6 +125,14 @@ public class TestRunData {
 		return System.getenv("runBrowser");
 	}
 
+	public Integer getUiReplicationcronTime() {
+		return Integer.valueOf(prop.getProperty("UIReplication_CronTime"));
+	}
+
+	public String fromUIToWidgetFormat(String uiDate) throws ParseException {
+		Date date = UI_DATE_FORMAT.parse(uiDate);
+		return DATEWIDGET_DATE_FORMAT.format(date);
+	}
 
 
 }

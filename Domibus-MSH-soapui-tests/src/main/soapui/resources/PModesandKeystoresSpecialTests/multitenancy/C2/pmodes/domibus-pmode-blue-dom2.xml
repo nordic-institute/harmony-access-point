@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw_dom2">
+	<mpcs>
+		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
+		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
+		<mpc name="defaultMpcTwo" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCTwo" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+	</mpcs>
+	<businessProcesses>
+		<roles>
+			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+			<role name="defaultInitiatorRoleEmpty" value=" "/>
+			<role name="defaultResponderRoleEmpty" value=" "/>
+			<role name="peppolSenderRole" value="urn:fdc:peppol.eu:2017:roles:ap:sender"/> 
+			<role name="peppolReceiverRole" value="urn:fdc:peppol.eu:2017:roles:ap:receiver"/>
+		</roles>
+		<parties>
+			<partyIdTypes>
+				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="partyTypeEmpty" value=""/>
+			</partyIdTypes>
+			<party name="blue_gw_dom1" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
+				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw_dom2" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom2" allowChunking="false">
+				<identifier partyId="domibus-blue-dom2" partyIdType="partyTypeUrn"/>
+			</party>
+		</parties>
+		<meps>
+			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
+			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+		</meps>
+		<properties>
+			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+			<property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+			<propertySet name="ecodexPropertySet">
+				<propertyRef property="finalRecipientProperty"/>
+				<propertyRef property="originalSenderProperty"/>
+			</propertySet>
+		</properties>
+		<payloadProfiles>
+			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml" inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf" inBody="false"/>
+			<payloadProfile name="MessageProfile" maxSize="40894464">
+				<attachment name="businessContentPayload"/>
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>				
+		</payloadProfiles>
+		<securities>
+			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="signOnly" policy="signOnly.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_BST" policy="eDeliveryAS4Policy_BST.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
+		</securities>
+		<errorHandlings>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+		</errorHandlings>
+		<agreements>
+			<agreement name="agreementEmpty" value="" type=""/>
+			<agreement name="domain1-domain2-self" value="domain1-domain2-self" type=""/>
+			<agreement name="domain2-domain2-self" value="domain2-domain2-self" type=""/>			
+		</agreements>
+		<services>											
+			<service name="testService11" value="bdx:noprocess" type="tc11"/>	
+			<service name="testService12" value="bdx:noprocess" type="tc12"/>			
+		</services>
+		<actions>									
+			<action name="tc11Action" value="TC11Leg1"/>
+			<action name="tc12Action" value="TC12Leg1"/>			
+		</actions>
+		<as4>
+			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+			<reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
+		</as4>
+		<legConfigurations>
+			<legConfiguration name="pushDomain1Domain2Self" service="testService11" action="tc11Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain2Domain2Self" service="testService12" action="tc12Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			</legConfigurations>
+		<process name="tc11Process" agreement="domain1-domain2-self" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw_dom1"/>
+				<initiatorParty name="blue_gw_dom2"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="blue_gw_dom2"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain1Domain2Self"/>
+			</legs>
+		</process>
+		<process name="tc12Process" agreement="domain2-domain2-self" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw_dom2"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw_dom2"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain2Domain2Self"/>
+			</legs>
+		</process>
+	</businessProcesses>
+</db:configuration>

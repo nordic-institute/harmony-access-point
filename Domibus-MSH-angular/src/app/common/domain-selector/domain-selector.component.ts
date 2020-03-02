@@ -2,10 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
-import {MdDialog} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
+import {MatDialog} from '@angular/material';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
+import {DialogsService} from '../dialogs/dialogs.service';
 
 @Component({
   selector: 'domain-selector',
@@ -25,7 +25,8 @@ export class DomainSelectorComponent implements OnInit {
 
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
-              private dialog: MdDialog,
+              private dialog: MatDialog,
+              private dialogsService: DialogsService,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
@@ -62,8 +63,8 @@ export class DomainSelectorComponent implements OnInit {
 
   async changeDomain() {
     let canChangeDomain = Promise.resolve(true);
-    if (this.supportsDirtyOperations() && this.currentComponent.isDirty()) {
-      canChangeDomain = this.dialog.open(CancelDialogComponent).afterClosed().toPromise<boolean>();
+    if (this.currentComponent.isDirty && this.currentComponent.isDirty()) {
+      canChangeDomain = this.dialogsService.openCancelDialog();
     }
 
     try {
@@ -74,11 +75,11 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.beforeDomainChange();
         } catch (e) {
-          console.log(e);
+          console.log('Exception raised in before domain change code', e);
         }
       }
 
-      const domain = this.domains.find(d => d.code == this.domainCode);
+      const domain = this.domains.find(d => d.code === this.domainCode);
       await this.domainService.setCurrentDomain(domain);
 
       this.alertService.clearAlert();
@@ -89,7 +90,15 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.ngOnInit();
         } catch (e) {
-          console.log(e);
+          this.alertService.exception('Error in init code', e);
+        }
+      }
+
+      if (this.currentComponent.ngAfterViewInit) {
+        try {
+          this.currentComponent.ngAfterViewInit();
+        } catch (e) {
+          this.alertService.exception('Error in after view init code', e);
         }
       }
 
@@ -101,9 +110,5 @@ export class DomainSelectorComponent implements OnInit {
     }
   }
 
-  private supportsDirtyOperations() {
-    return this.currentComponent && this.currentComponent.isDirty
-      && this.currentComponent.isDirty instanceof Function;
-  }
 }
 

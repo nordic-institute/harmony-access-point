@@ -1,0 +1,153 @@
+package eu.domibus.core.pmode.validation;
+
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.util.xml.UnmarshallerResult;
+import eu.domibus.api.util.xml.XMLUtil;
+import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.configuration.DefaultDomibusConfigurationService;
+import eu.domibus.core.multitenancy.DomainContextProviderImpl;
+import eu.domibus.core.multitenancy.DomainServiceImpl;
+import eu.domibus.core.multitenancy.dao.DomainDao;
+import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
+import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.PropertyResolver;
+import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
+import eu.domibus.xml.XMLUtilImpl;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.xml.sax.SAXException;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+public class PModeValidationServiceImplIT {
+
+
+    @org.springframework.context.annotation.Configuration
+    public static class ContextConfiguration {
+        @Bean
+        public XMLUtil xmlUtil() {
+            return new XMLUtilImpl();
+        }
+
+        @Bean
+        public PModeValidationService pModeValidationService() {
+            return new PModeValidationServiceImpl();
+        }
+
+        @Bean
+        public DomibusPropertyProvider domibusPropertyProvider() {
+            return Mockito.mock(DomibusPropertyProviderImpl.class);
+        }
+
+        @Bean
+        public DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager() {
+            return Mockito.mock(DomibusPropertyMetadataManagerImpl.class);
+        }
+
+        @Bean(name = "domibusDefaultProperties")
+        public Properties domibusDefaultProperties() {
+            return Mockito.mock(Properties.class);
+        }
+
+        @Bean(name = "domibusProperties")
+        public Properties domibusProperties() {
+            return Mockito.mock(Properties.class);
+        }
+
+        @Bean
+        public PropertyResolver propertyResolver() {
+            return Mockito.mock(PropertyResolver.class);
+        }
+
+        @Bean
+        public DomainContextProvider domainContextProvider() {
+            return Mockito.mock(DomainContextProviderImpl.class);
+        }
+
+        @Bean
+        public DomainService domainService() {
+            return Mockito.mock(DomainServiceImpl.class);
+        }
+
+        @Bean
+        public DomainDao domainDao() {
+            return Mockito.mock(DomainDaoImpl.class);
+        }
+
+        @Bean
+        public DomibusConfigurationService domibusConfigurationService() {
+            return Mockito.mock(DefaultDomibusConfigurationService.class);
+        }
+
+        @Bean
+        public PasswordEncryptionService passwordEncryptionService() {
+            return Mockito.mock(PasswordEncryptionService.class);
+        }
+
+        @Bean
+        public PasswordEncryptionContextFactory passwordEncryptionContextFactory() {
+            return Mockito.mock(PasswordEncryptionContextFactory.class);
+        }
+
+        @Bean
+        public JAXBContext jaxbContextConfig() throws JAXBException {
+            return JAXBContext.newInstance("eu.domibus.common.model.configuration");
+        }
+
+        @Bean
+        public List<PModeValidator> pModeValidatorList() {
+//            return Arrays.asList(new TwoWayMepValidator(), new ConfigurablePModeValidator() );
+            return Arrays.asList(new TwoWayMepValidator());
+        }
+    }
+
+    @Autowired
+    PModeValidationService pModeValidationService;
+
+    @Autowired
+    XMLUtil xmlUtil;
+
+    @Autowired
+    JAXBContext jaxbContext;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Test
+    public void validate() throws IOException, SAXException, XMLStreamException, ParserConfigurationException, JAXBException {
+        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("samplePModes/domibus-pmode-validation-tests.xml");
+        byte[] pModeBytes = IOUtils.toByteArray(xmlStream);
+        UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(true, jaxbContext, new ByteArrayInputStream(pModeBytes), null);
+        Configuration configuration = unmarshallerResult.getResult();
+
+        List<ValidationIssue> issues = pModeValidationService.validate(configuration);
+
+        Assert.assertFalse(issues.isEmpty());
+    }
+}

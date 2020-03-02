@@ -13,6 +13,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -49,6 +51,7 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
         LOG.debug("Creating encryption key for all domains if not yet exists");

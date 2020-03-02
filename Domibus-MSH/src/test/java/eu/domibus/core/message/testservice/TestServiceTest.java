@@ -1,17 +1,22 @@
 package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
+
+import eu.domibus.common.dao.ErrorLogDao;
+import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.common.dao.SignalMessageLogDao;
+import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.DatabaseMessageHandler;
-import mockit.Deencapsulation;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
+import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +45,21 @@ public class TestServiceTest {
     private PModeProvider pModeProvider;
 
     @Injectable
+    private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Injectable
+    private UserMessageLog userMessageLog;
+
+    @Injectable
+    private MessagingDao messagingDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
     private DatabaseMessageHandler databaseMessageHandler;
 
     @Rule
@@ -47,6 +67,9 @@ public class TestServiceTest {
 
     @Mocked
     private XStream xStream;
+
+    @Mocked
+    SignalMessage signalMessage;
 
     private String sender;
 
@@ -73,6 +96,9 @@ public class TestServiceTest {
 
     private String messageId, returnedMessageId;
 
+    private String partyId = "test";
+
+    private String userMessageId = "testmessageid";
 
     @Before
     public void setUp() {
@@ -175,7 +201,6 @@ public class TestServiceTest {
 
         thenTheConversationIdentifierIsCorrectlyDefined();
     }
-
 
 
     @Test
@@ -307,10 +332,10 @@ public class TestServiceTest {
     }
 
     private void whenCreatingTheSubmissionMessageData() {
-        returnedSubmission = Deencapsulation.invoke(testService, "createSubmission", new Class[] {String.class}, sender);
+        returnedSubmission = Deencapsulation.invoke(testService, "createSubmission", new Class[]{String.class}, sender);
     }
 
-    private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception{
+    private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception {
         returnedMessageId = testService.submitTest(sender, receiver);
     }
 
@@ -371,5 +396,114 @@ public class TestServiceTest {
     private void thenTheConversationIdentifierIsCorrectlyDefined() {
         Assert.assertEquals("The conversation identifier should have been correctly defined since it's required and the Access Point MUST set its value to \"1\" " +
                 "according to section 4.3 of the [ebMS3CORE] specification", "1", returnedSubmission.getConversationId());
+    }
+
+    @Test
+    public void testGetLastTestSent() {
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(partyId);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
+            result = userMessageLog;
+        }};
+        TestServiceMessageInfoRO lastTestSent = testService.getLastTestSentWithErrors(partyId);
+        Assert.assertEquals(partyId, lastTestSent.getPartyId());
+    }
+
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestSent_NotFound() throws TestServiceException {
+        // Given
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(anyString);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
+            result = null;
+        }};
+
+        // When
+        testService.getLastTestSentWithErrors(partyId);
+    }
+
+    @Test
+    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
+
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
+
+    @Test(expected = Exception.class)
+    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
+        // Given
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = null;
+        }};
+
+        testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+    }
+
+    @Test
+    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            signalMessageLogDao.findLastTestMessageId(partyId);
+            result = "signalMessageId";
+            messagingDao.findSignalMessageByMessageId("signalMessageId");
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
+
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceived(partyId, null);
+
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 }

@@ -1,9 +1,11 @@
 package ddsl.dobjects;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
 
 /**
@@ -13,6 +15,8 @@ import org.openqa.selenium.WebElement;
 
 
 public class DObject {
+
+	protected Logger log = LoggerFactory.getLogger(this.getClass());
 
 	protected WebDriver driver;
 	protected DWait wait;
@@ -39,6 +43,14 @@ public class DObject {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
 			return element.isEnabled();
+		}
+		throw new DObjectNotPresentException();
+	}
+
+	public boolean isDisabled() throws Exception {
+		if (isPresent()) {
+			wait.forElementToBeDisabled(element);
+			return !element.isEnabled();
 		}
 		throw new DObjectNotPresentException();
 	}
@@ -70,8 +82,31 @@ public class DObject {
 
 	public String getAttribute(String attributeName) throws Exception {
 		if (isPresent()) {
-			return element.getAttribute(attributeName).trim();
+			String attr = element.getAttribute(attributeName);
+			if (attr == null) {
+				log.debug("Attribute " + attributeName + " not found");
+				return null;
+			}
+			return attr.trim();
 		}
 		throw new DObjectNotPresentException();
+	}
+
+	/*
+	 * This Method is used to press Tab key
+	 */
+	public void pressTABKey() throws Exception {
+		try {
+			Robot robot = new Robot();
+//			Simulate a key press
+			robot.keyPress(KeyEvent.VK_SHIFT);
+			robot.keyPress(KeyEvent.VK_TAB);
+			robot.keyRelease(KeyEvent.VK_TAB);
+			robot.keyRelease(KeyEvent.VK_SHIFT);
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
+
+
 	}
 }

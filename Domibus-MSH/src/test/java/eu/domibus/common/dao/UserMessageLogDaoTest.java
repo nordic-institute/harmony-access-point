@@ -10,7 +10,6 @@ import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.VerificationsInOrder;
@@ -632,7 +631,7 @@ public class UserMessageLogDaoTest {
                                      @Injectable TypedQuery<MessageLogInfo> query,
                                      @Injectable List<MessageLogInfo> information) {
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("messageId", true, filters);
+            userMessageLogInfoFilter.filterMessageLogQuery("messageId", true, filters);
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getResultList(); result = information;
@@ -659,7 +658,7 @@ public class UserMessageLogDaoTest {
         filters.put("messageType", MessageType.USER_MESSAGE);
 
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("received", false, withEqual(filters));
+            userMessageLogInfoFilter.filterMessageLogQuery("received", false, withEqual(filters));
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getResultList(); result = Lists.newArrayList(messageLogInfo);
@@ -667,7 +666,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        String result = userMessageLogDao.findLastUserTestMessageId("party");
+        String result = userMessageLogDao.findLastTestMessageId("party");
 
         // THEN
         new Verifications() {{
@@ -681,14 +680,14 @@ public class UserMessageLogDaoTest {
     public void testFindLastUserTestMessageId_returnsNullWhenTheLastTestMessageNotFound(@Injectable TypedQuery<MessageLogInfo> query) {
         // GIVEN
         new Expectations() {{
-            userMessageLogInfoFilter.filterUserMessageLogQuery("received", false, (Map<String, Object>) any);
+            userMessageLogInfoFilter.filterMessageLogQuery("received", false, (Map<String, Object>) any);
             em.createQuery(anyString, MessageLogInfo.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, (Map<String, Object>) any); result = query;
             query.getResultList(); result = Lists.newArrayList();
         }};
 
         // WHEN
-        String result = userMessageLogDao.findLastUserTestMessageId("party");
+        String result = userMessageLogDao.findLastTestMessageId("party");
 
         // THEN
         new Verifications() {{

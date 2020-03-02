@@ -6,6 +6,7 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -15,12 +16,15 @@ import java.util.Map;
  * @since 4.1.1
  * <p>
  * Delegate/adapter class that wraps the DomibusPropertyManager and exposes the DomibusPropertyManagerExt
- * Injected in DomibusPropertyService to handle in a polymorphic way plugin and domibus property management
+ * Injected in ConfigurationPropertyServiceImpl to handle in a polymorphic way plugin and domibus property management
  */
-@Service
+@Service(DomibusPropertyManagerDelegate.MSH_DELEGATE)
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {
 
+    public static final String MSH_DELEGATE = "mshDelegate";
+
     @Autowired
+    @Qualifier(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
     private DomibusPropertyManager domibusPropertyManager;
 
     @Autowired

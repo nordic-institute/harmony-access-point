@@ -26,10 +26,10 @@ public class InfoModal extends DComponent {
 		wait.forElementToBeVisible(closeBtn);
 	}
 
-	@FindBy(css = "md-dialog-actions > button")
+	@FindBy(css = "mat-dialog-actions > button")
 	WebElement closeBtn;
 
-	@FindBy(css = "md-dialog-container h2")
+	@FindBy(css = "mat-dialog-container h2")
 	WebElement title;
 
 	public DButton getCloseBtn() {
@@ -40,10 +40,6 @@ public class InfoModal extends DComponent {
 		return new DObject(driver, title).getText();
 	}
 
-	public void closeModal() throws Exception {
-		getCloseBtn().click();
-		wait.forElementToBeGone(closeBtn);
-	}
 
 
 }

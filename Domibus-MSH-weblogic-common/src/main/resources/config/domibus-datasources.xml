@@ -52,10 +52,10 @@
     </bean>
 
     <bean id="domibusJDBC-XADataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="jdbc/cipaeDeliveryDs"/>
+        <property name="jndiName" value="${domibus.jdbc.datasource.jndi.name}"/>
     </bean>
     <bean id="domibusJDBC-nonXADataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="jdbc/cipaeDeliveryNonXADs"/>
+        <property name="jndiName" value="${domibus.jdbc.datasource.quartz.jndi.name}"/>
     </bean>
 
     <bean id="internalDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">

@@ -6,7 +6,7 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * The interface implemented by MSH and the plugins to handle getting and setting of domibus properties at runtime
+ * The interface implemented by MSH to expose metadata for all of the configuration properties
  */
 public interface DomibusPropertyMetadataManager {
 
@@ -125,6 +125,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
     String DOMIBUS_UI_REPLICATION_SYNC_CRON = "domibus.ui.replication.sync.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
+    String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
+    String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
     String DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT = "domibus.alert.mail.smtp.timeout";
@@ -152,7 +154,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "delay_days";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_FREQUENCY_DAYS = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "frequency_days";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_LEVEL = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "level";
-    String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_MAIL_SUBJECT = "mail.subject";
+    String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_MAIL_SUBJECT = DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX + "mail.subject";
     String DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE = DOMIBUS_ALERT_CERT_EXPIRED_PREFIX + "active";
     String DOMIBUS_ALERT_CERT_EXPIRED_FREQUENCY_DAYS = DOMIBUS_ALERT_CERT_EXPIRED_PREFIX + "frequency_days";
     String DOMIBUS_ALERT_CERT_EXPIRED_DURATION_DAYS = DOMIBUS_ALERT_CERT_EXPIRED_PREFIX + "duration_days";
@@ -253,7 +255,6 @@ public interface DomibusPropertyMetadataManager {
     String ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE = "activeMQ.embedded.configurationFile";
     String ACTIVE_MQ_JMXURL = "activeMQ.JMXURL";
     String ACTIVE_MQ_CONNECTOR_PORT = "activeMQ.connectorPort";
-    String ACTIVE_MQ_RMI_SERVER_PORT = "activeMQ.rmiServerPort";
     String ACTIVE_MQ_TRANSPORT_CONNECTOR_URI = "activeMQ.transportConnector.uri";
     String ACTIVE_MQ_USERNAME = "activeMQ.username";
     String ACTIVE_MQ_PASSWORD = "activeMQ.password";//NOSONAR
@@ -278,6 +279,7 @@ public interface DomibusPropertyMetadataManager {
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
+    String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
 
     /**
      * Get all the properties metadata that support changing at runtime

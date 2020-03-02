@@ -5,6 +5,7 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -12,10 +13,13 @@ import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.party.*;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +54,9 @@ public class PartyResource extends BaseResource {
 
     @Autowired
     private CertificateService certificateService;
+
+    @Autowired
+    PModeValidationHelper pModeValidationHelper;
 
     @GetMapping(value = {"/list"})
     public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request) {
@@ -106,7 +113,7 @@ public class PartyResource extends BaseResource {
     }
 
     @PutMapping(value = {"/update"})
-    public ResponseEntity updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
+    public ValidationResponseRO updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
         List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
@@ -116,16 +123,9 @@ public class PartyResource extends BaseResource {
                 .filter(party -> party.getCertificateContent() != null)
                 .collect(Collectors.toMap(PartyResponseRo::getName, PartyResponseRo::getCertificateContent));
 
-        try {
-            partyService.updateParties(partyList, certificates);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalStateException e) {
-            StringBuilder errorMessageB = new StringBuilder();
-            for (Throwable err = e; err != null; err = err.getCause()) {
-                errorMessageB.append("\n").append(err.getMessage());
-            }
-            return ResponseEntity.badRequest().body(errorMessageB.toString());
-        }
+        List<ValidationIssue> pModeUpdateIssues = partyService.updateParties(partyList, certificates);
+
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode parties have been successfully updated.");
     }
 
     /**
@@ -244,7 +244,7 @@ public class PartyResource extends BaseResource {
         if (certificate == null) {
             throw new IllegalArgumentException("Certificate parameter must be provided");
         }
-        
+
         String content = certificate.getContent();
         LOG.debug("certificate base 64 received [{}] ", content);
 

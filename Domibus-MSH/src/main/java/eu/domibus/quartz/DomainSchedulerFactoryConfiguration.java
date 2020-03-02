@@ -12,6 +12,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
+import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.pull.PullRetryWorker;
 import eu.domibus.core.replication.UIReplicationJob;
@@ -58,6 +59,7 @@ public class DomainSchedulerFactoryConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
 
     private static final String GROUP_GENERAL = "GENERAL";
+    private static final Integer JOB_START_DELAY_IN_MS = 30000;
 
     @Autowired
     @Qualifier("taskExecutor")
@@ -413,7 +415,28 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(uiReplicationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
-        obj.setStartDelay(30000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean connectionMonitoringJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ConnectionMonitoringJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean connectionMonitoringTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(connectionMonitoringJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 

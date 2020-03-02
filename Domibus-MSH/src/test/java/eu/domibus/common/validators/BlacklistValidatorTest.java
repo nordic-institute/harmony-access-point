@@ -51,7 +51,7 @@ public class BlacklistValidatorTest {
         blacklistValidator.initialize(null);
 
         String invalidValue = "abc%";
-        boolean result = blacklistValidator.isValid(invalidValue, null);
+        boolean result = blacklistValidator.isValid(invalidValue, (CustomWhiteListed) null);
 
         Assert.assertEquals(true, result);
     }

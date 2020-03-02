@@ -1,7 +1,6 @@
 package pages.msgFilter;
 
-import ddsl.dcomponents.DComponent;
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
@@ -11,7 +10,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -26,7 +24,7 @@ public class MessageFilterModal extends EditModal {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 		wait.forElementToBeEnabled(serviceInput);
-		log.info("Filter details popup initialized");
+		log.debug("Filter details popup initialized");
 	}
 
 	@FindBy(id = "backendfilter_id")
@@ -44,33 +42,14 @@ public class MessageFilterModal extends EditModal {
 	@FindBy(id = "service_id")
 	public WebElement serviceInput;
 
-	@FindBy(css = "md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(2) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement fromErrMess;
-	@FindBy(css = "md-card > div:nth-child(3) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(3) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement toErrMess;
-	@FindBy(css = "md-card > div:nth-child(4) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(4) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement actionErrMess;
-	@FindBy(css = "md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
 	public WebElement serviceErrMess;
-
-
-	@FindBy(id = "okbutton_id")
-	public WebElement okBtn;
-
-	@FindBy(css = "editmessagefilter-form #cancelbutton_id")
-	public WebElement cancelBtn;
-
-
-	@Override
-	public DButton getOkBtn() {
-		return new DButton(driver, okBtn);
-	}
-
-	@Override
-	public DButton getCancelBtn() {
-		return new DButton(driver, cancelBtn);
-	}
-
 
 	public Select getPluginSelect() {
 		return new Select(driver, pluginSelectContainer);

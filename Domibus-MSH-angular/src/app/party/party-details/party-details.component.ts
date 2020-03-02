@@ -1,10 +1,11 @@
-import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MD_DIALOG_DATA, MdDialog, MdDialogRef} from '@angular/material';
+import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
-import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../party';
+import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../support/party';
 import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party-identifier-details.component';
-import {PartyService} from '../party.service';
+import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
 @Component({
   selector: 'app-party-details',
@@ -12,7 +13,7 @@ import {AlertService} from '../../common/alert/alert.service';
   templateUrl: './party-details.component.html',
   styleUrls: ['./party-details.component.css']
 })
-export class PartyDetailsComponent implements OnInit {
+export class PartyDetailsComponent extends EditPopupBaseComponent implements OnInit {
 
   processesRows: ProcessInfoRo[] = [];
   allProcesses: string[];
@@ -25,16 +26,17 @@ export class PartyDetailsComponent implements OnInit {
   selectedIdentifiers = [];
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  @ViewChild('fileInput')
+  @ViewChild('fileInput', {static: false})
   private fileInput;
 
   endpointPattern = '^(?:(?:(?:https?):)?\\/\\/)(?:\\S+)$';
 
-  constructor(public dialogRef: MdDialogRef<PartyDetailsComponent>,
-              @Inject(MD_DIALOG_DATA) public data: any,
-              private dialog: MdDialog,
-              public partyService: PartyService,
-              public alertService: AlertService) {
+  constructor(public dialogRef: MatDialogRef<PartyDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private dialog: MatDialog, public partyService: PartyService, public alertService: AlertService,
+              private cdr: ChangeDetectorRef) {
+
+    super(dialogRef, data);
+
     this.party = data.edit;
     this.identifiers = this.party.identifiers;
     this.allProcesses = data.allProcesses;
@@ -79,7 +81,7 @@ export class PartyDetailsComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      var binaryData = reader.result;
+      var binaryData = <string>reader.result;
 
       this.party.certificateContent = btoa(binaryData); // base64
 
@@ -128,7 +130,7 @@ export class PartyDetailsComponent implements OnInit {
 
     const rowClone = JSON.parse(JSON.stringify(identifierRow));
 
-    const dialogRef: MdDialogRef<PartyIdentifierDetailsComponent> = this.dialog.open(PartyIdentifierDetailsComponent, {
+    const dialogRef = this.dialog.open(PartyIdentifierDetailsComponent, {
       data: {
         edit: rowClone
       }
@@ -154,6 +156,7 @@ export class PartyDetailsComponent implements OnInit {
     const identifierRow = {entityId: 0, partyId: '', partyIdType: {name: '', value: ''}};
 
     this.party.identifiers.push(identifierRow);
+
     this.selectedIdentifiers.length = 0;
     this.selectedIdentifiers.push(identifierRow);
 
@@ -161,12 +164,16 @@ export class PartyDetailsComponent implements OnInit {
     if (!ok) {
       this.removeIdentifier();
     }
+    this.party.identifiers = [...this.party.identifiers];
   }
 
-  ok() {
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
+
+  onSubmitForm() {
     this.persistProcesses();
     this.party.joinedIdentifiers = this.party.identifiers.map(el => el.partyId).join(', ');
-    this.dialogRef.close(true);
   }
 
   persistProcesses() {
@@ -196,14 +203,13 @@ export class PartyDetailsComponent implements OnInit {
       this.party.joinedProcesses = this.party.joinedProcesses.substr(0, this.party.joinedProcesses.length - 2);
   }
 
-  cancel() {
-    this.dialogRef.close(false);
-  }
-
   onActivate(event) {
     if ('dblclick' === event.type) {
       this.editIdentifier();
     }
   }
 
+  isFormDisabled() {
+    return !this.editForm || this.editForm.invalid || this.party.identifiers.length == 0;
+  }
 }

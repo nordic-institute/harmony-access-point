@@ -2,7 +2,6 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {SecurityService} from './security/security.service';
 import {Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {SecurityEventService} from './security/security.event.service';
-import {Http} from '@angular/http';
 import {DomainService} from './security/domain.service';
 import {HttpEventService} from './common/http/http.event.service';
 import {DomibusInfoService} from "./common/appinfo/domibusinfo.service";
@@ -19,13 +18,12 @@ export class AppComponent implements OnInit {
   extAuthProviderEnabled: boolean = false;
   extAuthProvideRedirectTo: string;
 
-  @ViewChild(RouterOutlet)
+  @ViewChild(RouterOutlet, {static: false})
   outlet: RouterOutlet;
 
   constructor (private securityService: SecurityService,
                private router: Router,
                private securityEventService: SecurityEventService,
-               private http: Http,
                private httpEventService: HttpEventService,
                private domainService: DomainService,
                private domibusInfoService: DomibusInfoService) {
@@ -70,9 +68,7 @@ export class AppComponent implements OnInit {
       data => {
         this.router.navigate([this.isExtAuthProviderEnabled() ? '/logout' : '/login']);
       });
-
   }
-
 
   isAdmin (): boolean {
     return this.securityService.isCurrentUserAdmin();

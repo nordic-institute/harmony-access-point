@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.exceptions.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -19,7 +20,7 @@ import java.util.Map;
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 
-@Service
+@Service(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
 
     @Autowired

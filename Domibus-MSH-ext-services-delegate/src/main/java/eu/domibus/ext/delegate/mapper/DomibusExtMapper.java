@@ -5,6 +5,7 @@ import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.usermessage.domain.UserMessage;
@@ -12,11 +13,12 @@ import eu.domibus.ext.domain.*;
 import org.mapstruct.Mapper;
 
 /**
- * @author Ioana Dragusanu (idragusa)
+ * @author Ioana Dragusanu (idragusa), azhikso
  * @since 4.1
  */
-@Mapper(componentModel = "spring")
+@Mapper(uses = MonitoringMapper.class, componentModel = "spring")
 public interface DomibusExtMapper {
+
     DomainDTO domainToDomainDTO(Domain domain);
 
     Domain domainDTOToDomain(DomainDTO domain);
@@ -44,4 +46,6 @@ public interface DomibusExtMapper {
     DomibusPropertyMetadataDTO domibusPropertyMetadataToDomibusPropertyMetadataDTO(DomibusPropertyMetadata domibusPropertyMetadata);
 
     DomibusPropertyMetadata domibusPropertyMetadataDTOToDomibusPropertyMetadata(DomibusPropertyMetadataDTO domibusPropertyMetadata);
+
+    ValidationIssueDTO pModeIssueToPModeIssueDTO(ValidationIssue validationIssue);
 }

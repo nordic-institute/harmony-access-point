@@ -17,6 +17,8 @@
   }, {
     "name" : "pmode"
   }, {
+    "name" : "status"
+  }, {
     "name" : "usermessage"
   } ],
   "schemes" : [ "http", "https" ],
@@ -122,6 +124,35 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/UserMessageDTO"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/monitoring/application/status" : {
+      "get" : {
+        "tags" : [ "status" ],
+        "summary" : "Check Domibus is Alive ",
+        "description" : "Shows the accessibility and status of Domibus Database, JMS broker and Quartz Trigger",
+        "operationId" : "getMonitoringDetails",
+        "parameters" : [ {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/MonitoringInfoDTO"
             }
           }
         },
@@ -437,15 +468,15 @@
         "open" : {
           "type" : "boolean"
         },
-        "readable" : {
-          "type" : "boolean"
+        "filename" : {
+          "type" : "string"
         },
         "uri" : {
           "type" : "string",
           "format" : "uri"
         },
-        "filename" : {
-          "type" : "string"
+        "readable" : {
+          "type" : "boolean"
         }
       }
     },
@@ -611,6 +642,17 @@
         }
       }
     },
+    "MonitoringInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "services" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServiceInfoDTO"
+          }
+        }
+      }
+    },
     "PModeArchiveInfoDTO" : {
       "type" : "object",
       "properties" : {
@@ -735,6 +777,18 @@
         },
         "type" : {
           "type" : "string"
+        }
+      }
+    },
+    "ServiceInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string",
+          "enum" : [ "NORMAL", "ERROR", "BLOCKED" ]
         }
       }
     },

@@ -9,6 +9,7 @@ import eu.domibus.ebms3.common.model.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * @author Tiago Miguel
@@ -47,6 +49,7 @@ public class MessageResourceTest {
     private AuditService auditService;
 
     private UserMessage createUserMessage() {
+        //TODO Use Mocking instead of real Instances
         UserMessage userMessage = new UserMessage();
         userMessage.setEntityId(1);
         userMessage.setMessageInfo(new MessageInfo());
@@ -55,7 +58,7 @@ public class MessageResourceTest {
         userMessage.setMpc("mpc1");
         userMessage.setPartyInfo(new PartyInfo());
         PayloadInfo payloadInfo = new PayloadInfo();
-        byte[] byteA = new byte[]{1,0,1};
+        byte[] byteA = new byte[]{1, 0, 1};
         PartInfo partInfoBody = new PartInfo();
         partInfoBody.setInBody(true);
         partInfoBody.setBinaryData(byteA);
@@ -121,6 +124,23 @@ public class MessageResourceTest {
         UserMessage message = createUserMessage();
         Assert.assertEquals("bodyload", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(0)));
         Assert.assertEquals("href", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(1)));
+    }
+
+    @Test
+    public void testReSend() {
+        String messageId = UUID.randomUUID().toString();
+        messageResource.resend(messageId);
+        new Verifications() {{
+            final String messageIdActual;
+            final String messageIdActual1;
+            userMessageService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
+            times = 1;
+            Assert.assertEquals(messageId, messageIdActual);
+
+            auditService.addMessageResentAudit(messageIdActual1 = withCapture());
+            Assert.assertEquals(messageId, messageIdActual1);
+            times = 1;
+        }};
     }
 
 }

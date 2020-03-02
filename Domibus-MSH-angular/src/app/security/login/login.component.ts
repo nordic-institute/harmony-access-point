@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {SecurityService} from '../security.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {SecurityEventService} from '../security.event.service';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {DefaultPasswordDialogComponent} from 'app/security/default-password-dialog/default-password-dialog.component';
 import {Server} from '../Server';
 
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               private securityService: SecurityService,
               private alertService: AlertService,
               private securityEventService: SecurityEventService,
-              private dialog: MdDialog) {
+              private dialog: MatDialog) {
 
   }
 
@@ -40,12 +40,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       );
 
     this.securityEventService.onLoginErrorEvent().subscribe(
-      error => {
+      res => {
         let message;
-        switch (error.status) {
+        switch (res.status) {
           case Server.HTTP_UNAUTHORIZED:
           case Server.HTTP_FORBIDDEN:
-            const forbiddenCode = error.json().message;
+            const forbiddenCode = res.error.message;
             switch (forbiddenCode) {
               case Server.USER_INACTIVE:
                 message = 'The user is inactive. Please contact your administrator.';
@@ -66,7 +66,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             message = 'Unable to login. Domibus is not running.';
             break;
           default:
-            this.alertService.exception('Error authenticating:', error);
+            this.alertService.exception('Error authenticating:', res);
             return;
         }
         this.alertService.error(message);

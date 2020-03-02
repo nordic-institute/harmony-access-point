@@ -5,6 +5,8 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -17,12 +19,11 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
-import eu.domibus.core.crypto.spi.model.UserMessageMapping;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.validators.ConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -89,7 +90,7 @@ public abstract class PModeProvider {
     XMLUtil xmlUtil;
 
     @Autowired
-    List<ConfigurationValidator> configurationValidators;
+    PModeValidationService pModeValidationService;
 
     @Autowired
     protected ProcessDao processDao;
@@ -128,6 +129,7 @@ public abstract class PModeProvider {
         return null;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removePMode(int id) {
         LOG.debug("Removing PMode with id: [{}]", id);
         configurationRawDAO.deleteById(id);
@@ -150,7 +152,6 @@ public abstract class PModeProvider {
 
         //unmarshall the PMode taking into account the whitespaces
         return unmarshall(bytes, false);
-
     }
 
     public Configuration getPModeConfiguration(byte[] bytes) throws XmlProcessingException {
@@ -160,24 +161,22 @@ public abstract class PModeProvider {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public List<String> updatePModes(byte[] bytes, String description) throws XmlProcessingException {
+    public List<ValidationIssue> updatePModes(byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
         LOG.debug("Updating the PMode");
         description = validateDescriptionSize(description);
-        List<String> resultMessage = new ArrayList<>();
+
         final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
+
+        List<ValidationIssue> issues = new ArrayList<>();
         if (!unmarshalledConfiguration.isValid()) {
-            resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
-            resultMessage.addAll(unmarshalledConfiguration.getErrors());
-            final String message = StringUtils.join(resultMessage, " ");
-            LOG.warn(message);
+            issues.add(createParseWarning(unmarshalledConfiguration));
         }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
-        configurationDAO.updateConfiguration(configuration);
 
-        for (ConfigurationValidator validator : configurationValidators) {
-            resultMessage.addAll(validator.validate(configuration));
-        }
+        issues.addAll(pModeValidationService.validate(configuration));
+
+        configurationDAO.updateConfiguration(configuration);
 
         //save the raw configuration
         final ConfigurationRaw configurationRaw = new ConfigurationRaw();
@@ -192,7 +191,18 @@ public abstract class PModeProvider {
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
         signalService.signalPModeUpdate();
 
-        return resultMessage;
+        return issues;
+    }
+
+    private ValidationIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
+        List<String> resultMessage = new ArrayList<>();
+        resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
+        resultMessage.addAll(unmarshalledConfiguration.getErrors());
+        final String message = StringUtils.join(resultMessage, " ");
+
+        LOG.warn(message);
+
+        return new ValidationIssue(message, ValidationIssue.Level.WARNING);
     }
 
     private String validateDescriptionSize(final String description) {

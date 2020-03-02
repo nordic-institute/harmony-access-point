@@ -8,14 +8,8 @@
 </div>
 
 <div *ngIf="columnSelection" style="margin-bottom: 10px;">
-  <div *ngFor='let col of allColumns' style="display: inline-block;margin:5px;">
-    <input
-      type='checkbox'
-      [id]="col.name"
-      (click)='toggle(col)'
-      [checked]='isChecked(col)'
-    />
-    <label [attr.for]="col.name">{{col.name}}</label>
+  <div *ngFor='let col of allColumns' style="display: inline-block;margin:5px;" class="column-checkbox">
+    <mat-checkbox [id]="col.name" (click)='toggle(col)' [(ngModel)]="col.isSelected">{{col.name}}</mat-checkbox>
   </div>
   <div class="all-none-selection">
     <a href="#" class="domibusLink" id="all_id" (click)="selectAllColumns()" click-stop-propagation>All</a>

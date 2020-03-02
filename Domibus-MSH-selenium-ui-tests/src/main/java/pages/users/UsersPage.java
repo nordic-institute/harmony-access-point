@@ -3,6 +3,7 @@ package pages.users;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -25,23 +26,29 @@ public class UsersPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "userTable")
+	@FindBy(id = "pageGridId")
 	private WebElement userTableContainer;
 
-	@FindBy(id = "userCancelButton")
+	@FindBy(id = "cancelButtonId")
 	private WebElement cancelBtn;
 
-	@FindBy(id = "userSaveButton")
+	@FindBy(id = "saveButtonId")
 	private WebElement saveBtn;
 
-	@FindBy(id = "userNewButton")
+	@FindBy(id = "addButtonId")
 	private WebElement newBtn;
 
-	@FindBy(id = "userEditButton")
+	@FindBy(id = "editButtonId")
 	private WebElement editBtn;
 
-	@FindBy(id = "userDeleteButton")
+	@FindBy(id = "deleteButtonId")
 	private WebElement deleteBtn;
+
+	@FindBy(id = "searchbutton_id")
+	private WebElement searchBtn;
+
+	@FindBy(id = "deleted_id")
+	WebElement deletedChk;
 
 	public DGrid grid() {
 		return new DGrid(driver, userTableContainer);
@@ -71,6 +78,14 @@ public class UsersPage extends DomibusPage {
 		return new DButton(driver, deleteBtn);
 	}
 
+	public DButton getSearchBtn() {
+		return new DButton(driver, searchBtn);
+	}
+
+	public Checkbox getDeletedChk() {
+		return new Checkbox(driver, deletedChk);
+	}
+
 	public boolean isLoaded() throws Exception {
 		return (getCancelBtn().isPresent()
 				&& getSaveBtn().isPresent()
@@ -81,11 +96,13 @@ public class UsersPage extends DomibusPage {
 	}
 
 	public void saveAndConfirm() throws Exception {
+		log.info("saving");
 		getSaveBtn().click();
 		new Dialog(driver).confirm();
 	}
 
 	public void cancelAndConfirm() throws Exception {
+		log.info("canceling");
 		getCancelBtn().click();
 		new Dialog(driver).confirm();
 	}
@@ -105,5 +122,13 @@ public class UsersPage extends DomibusPage {
 		modal.getOkBtn().click();
 	}
 
+	public void includeDeletedUsers() throws Exception {
+		log.info("including deleted users in search");
+		if (!getDeletedChk().isChecked()) {
+			getDeletedChk().click();
+			getDeletedChk().click();
+		}
+		getSearchBtn().click();
+	}
 
 }

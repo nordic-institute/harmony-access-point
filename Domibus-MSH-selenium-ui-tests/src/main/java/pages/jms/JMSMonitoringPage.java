@@ -12,7 +12,7 @@ import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class JMSMonitoringPage extends DomibusPage {
@@ -21,20 +21,20 @@ public class JMSMonitoringPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "#errorLogTable")
-	WebElement messagesTableGrid;
+	@FindBy(css = "#pageGridId")
+	public WebElement messagesTableGrid;
 
-	@FindBy(css = "#jmsCancelButton")
-	WebElement cancelButton;
+	@FindBy(css = "#cancelButtonId")
+	public WebElement cancelButton;
 
-	@FindBy(css = "#jmsSaveButton")
-	WebElement saveButton;
+	@FindBy(css = "#saveButtonId")
+	public WebElement saveButton;
 
 	@FindBy(css = "#jmsMoveButton")
-	WebElement moveButton;
+	public WebElement moveButton;
 
-	@FindBy(css = "#jmsDeleteButton")
-	WebElement deleteButton;
+	@FindBy(css = "#deleteButtonId")
+	public WebElement deleteButton;
 
 	public DGrid grid() {
 		return new DGrid(driver, messagesTableGrid);

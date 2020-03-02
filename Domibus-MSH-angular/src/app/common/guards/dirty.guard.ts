@@ -1,14 +1,13 @@
 import {Injectable} from '@angular/core';
 import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanDeactivate} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {MdDialog} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
+import {MatDialog} from '@angular/material';
+import {DialogsService} from '../dialogs/dialogs.service';
 
 @Injectable()
 export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
-  constructor (public dialog: MdDialog) {
-
+  constructor (public dialog: MatDialog, private dialogsService: DialogsService) {
   };
 
   canActivate (next: ActivatedRouteSnapshot,
@@ -22,6 +21,6 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
     if (component.isDirty && !component.isDirty()) {
       return true;
     }
-    return this.dialog.open(CancelDialogComponent).afterClosed();
+    return this.dialogsService.openCancelDialog();
   }
 }
