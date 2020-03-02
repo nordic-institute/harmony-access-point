@@ -83,7 +83,7 @@ public class MailSender {
 
             //Non static properties.
             final Properties javaMailProperties = javaMailSender.getJavaMailProperties();
-            final Set<String> mailPropertyNames = domibusPropertyProvider.getPropertyNames(s -> s.startsWith(DOMIBUS_ALERT_MAIL));
+            final Set<String> mailPropertyNames = domibusPropertyProvider.filterPropertiesName(s -> s.startsWith(DOMIBUS_ALERT_MAIL));
             mailPropertyNames.
                     forEach(domibusPropertyName -> {
                         final String mailPropertyName = domibusPropertyName.substring(domibusPropertyName.indexOf(MAIL) + 1);
