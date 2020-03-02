@@ -73,10 +73,6 @@ export class AlertsComponent extends mix(BaseListComponent)
   ngOnInit() {
     super.ngOnInit();
 
-    this.aTypes = [];
-    this.aStatuses = [];
-    this.aLevels = [];
-
     this.dynamicFilters = [];
     this.dynamicDatesFilter = {};
     this.nonDateParameters = [];
@@ -132,16 +128,19 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   getAlertTypes(): void {
+    this.aTypes = [];
     this.http.get<any[]>(AlertsComponent.ALERTS_TYPES_URL)
       .subscribe(aTypes => this.aTypes = aTypes);
   }
 
   getAlertStatuses(): void {
+    this.aStatuses = [];
     this.http.get<any[]>(AlertsComponent.ALERTS_STATUS_URL)
       .subscribe(aStatuses => this.aStatuses = aStatuses);
   }
 
   getAlertLevels(): void {
+    this.aLevels = [];
     this.http.get<any[]>(AlertsComponent.ALERTS_LEVELS_URL)
       .subscribe(aLevels => this.aLevels = aLevels);
   }
