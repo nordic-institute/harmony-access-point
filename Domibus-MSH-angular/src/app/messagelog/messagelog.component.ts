@@ -91,7 +91,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private configureColumnPicker() {
-    this.columnPicker.allColumns.push(
+    this.columnPicker.allColumns = [
       {
         name: 'Message Id',
         width: 275
@@ -148,7 +148,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         name: 'Deleted',
         width: 155
       }
-    );
+    ];
 
     if (this.fourCornerEnabled) {
       this.columnPicker.allColumns.push(
