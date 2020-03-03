@@ -1,8 +1,11 @@
 package domibus.ui.functional;
 
+
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import org.testng.SkipException;
+import pages.users.UsersPage;
 import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -13,8 +16,9 @@ import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import utils.Generator;
 
-import java.util.HashMap;
-import java.util.List;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AlertPgTest extends BaseTest {
 
@@ -33,7 +37,7 @@ public class AlertPgTest extends BaseTest {
 
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
-        if(data.isIsMultiDomain()){
+        if (data.isIsMultiDomain()) {
             apage.filters().showDomainAlert();
         }
 
@@ -68,7 +72,7 @@ public class AlertPgTest extends BaseTest {
 
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
-        if(data.isIsMultiDomain()){
+        if (data.isIsMultiDomain()) {
             apage.filters().showDomainAlert();
         }
 
@@ -111,7 +115,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Login into application and navigate to Alerts page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
-        if(data.isIsMultiDomain()){
+        if (data.isIsMultiDomain()) {
             apage.filters().showDomainAlert();
         }
         log.info("Wait for grid row to load ");
@@ -126,7 +130,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Refresh page");
 
         apage.refreshPage();
-        if(data.isIsMultiDomain()){
+        if (data.isIsMultiDomain()) {
             apage.filters().showDomainAlert();
         }
 
@@ -277,7 +281,7 @@ public class AlertPgTest extends BaseTest {
 
     }
 
-    @Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
     public void pluginUserLoginFailure() throws Exception {
         SoftAssert soft = new SoftAssert();
         String user = Generator.randomAlphaNumeric(10);
@@ -297,7 +301,9 @@ public class AlertPgTest extends BaseTest {
         log.info("Send message using plugin user credentials");
         try {
             messageSender.sendMessage(user, data.getNewTestPass(), null, null);
-        } catch (Exception e) {            log.debug("Authentication exception" + e);        }
+        } catch (Exception e) {
+            log.debug("Authentication exception" + e);
+        }
 
         log.info("Login into application");
         log.info("Navigate to Alerts page");
@@ -373,4 +379,686 @@ public class AlertPgTest extends BaseTest {
     }
 
 
+    //This method will verfiy data after clicking show domain alerts checkbox for default domain
+    @Test(description = "ALRT-2", groups = {"multiTenancy"})
+    public void showDomainAlertChecked() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+        log.info("Login into application and navigate to Alerts page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+
+        log.info("wait for grid row to load");
+        page.grid().waitForRowsToLoad();
+
+        log.info("Click on show domain alert checkbox");
+        aFilter.getShowDomainCheckbox().click();
+        log.info("Click on search button");
+        aFilter.getSearchButton().click();
+        page.grid().waitForRowsToLoad();
+
+        log.info("Extract total number of users from Users page");
+        int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
+        log.info("Extract total number of messages from Messages page");
+        int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
+        log.info("Extract total number of records from Alerts page");
+        int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
+
+        if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
+            log.info("Set count as 10, if total count >10");
+            totalCount = 10;
+        }
+        for (int j = 0; j < totalCount; j++) {
+
+            if (page.grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")) {
+                log.info("Check Alert type is USER_LOGIN_FAILURE");
+
+                String user = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                log.info("Extract userName from Parameters ");
+                for (int k = 0; k < totalUsers; k++) {
+                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(user)) {
+                        log.info("Shown user is from current domain");
+                    }
+
+                }
+            } else if (page.grid().getRowInfo(j).containsValue("MSG_STATUS_CHANGED")) {
+                log.info("Check if Alert Type is MSG_STATUS_CHANGED");
+                String messageId = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                log.info("Extract message id from parameters field");
+
+                for (int k = 0; k < totalMessages; k++) {
+                    if (rest.getListOfMessages(page.getDomainFromTitle()).getJSONObject(k).getString("messageId").equals(messageId)) {
+                        log.info("Message belongs to current domain");
+                    }
+                }
+            } else if (page.grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
+                log.info("Check if Alert type is USER_ACCOUNT_DISABLED");
+                String user = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                log.info("Extract userName from parameters page");
+                for (int k = 0; k < totalUsers; k++) {
+                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(user)) {
+                        log.info("Shown disabled user is from current domain");
+                    }
+
+                }
+            }
+        }
+        soft.assertAll();
+    }
+
+    //This method will verify Alert page data for second domain with show domain alerts checked
+    @Test(description = "ALRT-3", groups = {"multiTenancy"})
+    public void showDomainAlertCheckedForSecDomain() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+
+        log.info("Login into application and navigate to Alerts page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+
+        log.info("Change Domain");
+        page.getDomainSelector().selectOptionByIndex(1);
+
+        log.info("wait for grid row to load");
+        page.grid().waitForRowsToLoad();
+        log.info("Select show domain alert checkbox");
+        aFilter.getShowDomainCheckbox().click();
+        log.info("Click on search button");
+        aFilter.getSearchButton().click();
+        page.grid().waitForRowsToLoad();
+
+        log.info("Extract total user");
+        int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
+        log.info("Extract total number of messages");
+        int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
+        log.info("Extract total record from Alerts page");
+        int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
+
+        if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
+            log.info("Set grid count=10 if total count>10");
+            totalCount = 10;
+        }
+        for (int j = 0; j < totalCount; j++) {
+
+            if (page.grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")) {
+                log.info("Extract userName from Parameters field of Alert");
+                String user = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+
+                for (int k = 0; k < totalUsers; k++) {
+                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(user)) {
+                        log.info("Shown user is from current domain");
+                    }
+
+                }
+            } else if (page.grid().getRowInfo(j).containsValue("MSG_STATUS_CHANGED")) {
+                log.info("Extract message id from Parameters field");
+                String messageId = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+
+                for (int k = 0; k < totalMessages; k++) {
+                    if (rest.getListOfMessages(page.getDomainFromTitle()).getJSONObject(k).getString("messageId").equals(messageId)) {
+                        log.info("Message belongs to current domain");
+                    }
+                }
+            } else if (page.grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
+                log.info("Check Alert type is USER_ACCOUNT_DISABLED");
+                String user = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+
+                for (int k = 0; k < totalUsers; k++) {
+                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(user)) {
+                        log.info("Shown disabled user is from current domain");
+                    }
+
+                }
+            }
+        }
+        soft.assertAll();
+    }
+
+    //This method will verify double click feature for Alerts page
+    @Test(description = "ALRT-4", groups = {"multiTenancy", "singleTenancy"})
+    public void doubleClickAuditRow() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
+        log.info("Login into application");
+        login(data.getAdminUser());
+        AlertPage page = new AlertPage(driver);
+
+        log.info("Navigate to Alerts page");
+        page.getSidebar().goToPage(PAGES.ALERTS);
+
+        log.info("Wait for grid row to load");
+        page.grid().waitForRowsToLoad();
+        do {
+            if (page.grid().getRowsNo() < 1) {
+                throw new SkipException("Not enough rows");
+            }
+
+            log.info("double click row 0");
+            page.grid().doubleClickRow(0);
+
+            log.info("checking the current selected row");
+            soft.assertTrue(page.grid().getSelectedRowIndex() == -1, "Rows are not selectable in Alert page");
+            soft.assertTrue(!page.hasOpenDialog(), "No dialog is visible on the page");
+
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break from loop if current domain is null or equal to second domain in multitenancy");
+                break;
+            }
+            log.info("Change domain");
+            page.getDomainSelector().selectOptionByIndex(1);
+
+            log.info("Wait for grid row to load");
+            page.grid().waitForRowsToLoad();
+
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+    }
+
+    //This method will verify data of Alerts page after changing domains
+    @Test(description = "ALRT-9", groups = {"multiTenancy"})
+    public void changeDomain() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+        log.info("Login into application and Navigate to Alerts page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+
+        List<String> userName = new ArrayList<>();
+
+        soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
+        soft.assertFalse(aFilter.getShowDomainCheckbox().isChecked(), "Check Box is not checked");
+
+        if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 0) {
+            for (int i = 0; i < page.grid().getPagination().getTotalItems(); i++) {
+
+                String userNameStr = page.grid().getRowSpecificColumnVal(i, "Parameters").split(",")[0];
+                log.info("Extract all user names available in parameters fields ");
+                userName.add(userNameStr);
+            }
+        }
+        log.info("Remove all duplicate username");
+        List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
+
+        log.info("Navigate to users page");
+        page.getSidebar().goToPage(PAGES.USERS);
+        UsersPage uPage = new UsersPage(driver);
+
+        for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
+            log.info("Verify role of all users as ROLE_AP_ROLE");
+            soft.assertTrue(uPage.getUserRoleWithName("Username", userName.get(j)).equalsIgnoreCase("ROLE_AP_ADMIN"));
+
+        }
+        log.info("Navigate to Alerts page");
+        uPage.getSidebar().goToPage(PAGES.ALERTS);
+        page.grid().waitForRowsToLoad();
+
+        log.info("Extract total number of count for default domain");
+        int defaultDomainCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+
+        log.info("Extract all row infos");
+        List<HashMap<String, String>> defaultDomainRowsInfo = page.grid().getAllRowInfo();
+
+        log.info("Change domain");
+        page.getDomainSelector().selectOptionByIndex(1);
+        page.grid().waitForRowsToLoad();
+
+        soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
+        soft.assertFalse(aFilter.getShowDomainCheckbox().isChecked(), "Check Box is not checked");
+
+        log.info("Extract total number of count");
+        int secDomainCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+        log.info("Extract all row infos");
+        List<HashMap<String, String>> secDomainRowsInfo = page.grid().getAllRowInfo();
+
+        log.info("Compare row count and row infos for both domains");
+        soft.assertTrue(defaultDomainCount == secDomainCount, "Both domains have same number of data");
+        soft.assertTrue(defaultDomainRowsInfo.equals(secDomainRowsInfo), "Both domains have same records");
+
+        soft.assertAll();
+
+    }
+
+    //This method will download csv with/without show domain checkbox checked for all domains
+    @Test(description = "ALRT-10", groups = {"multiTenancy", "singleTenancy"})
+    public void downloadCsv() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+        log.info("Login with Super/Admin user and navigate to Alerts page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+        do {
+
+            log.info("Check presence of Show domain alert and checkbox is not checked");
+            soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent() && !aFilter.getShowDomainCheckbox().isChecked());
+
+            log.info("Click on download csv button");
+            File file = page.downloadCsv();
+
+            log.info("Click on show link");
+            page.gridControl().showCtrls();
+
+            log.info("Click on All link to show all available column headers");
+            page.gridControl().showAllColumns();
+
+            String completeFilePath = file.getAbsolutePath();
+
+            log.info("Check csv header and grid header");
+            page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+
+            int maxAlert = page.grid().getRowsNo();
+
+            log.info("Check specific row data from grid and csv");
+            page.grid().checkCSVvsGridDataForSpecificRow(completeFilePath, soft, Generator.randomNumber(maxAlert));
+            page.grid().checkCSVvsGridDataForSpecificRow(completeFilePath, soft, Generator.randomNumber(maxAlert));
+
+            log.info("Click show domain alert checkbox");
+            aFilter.getShowDomainCheckbox().click();
+            aFilter.getSearchButton().click();
+
+            log.info("Wait for grid row to load");
+            page.grid().waitForRowsToLoad();
+
+            log.info("Click on download csv button");
+            File filee = page.downloadCsv();
+
+            log.info("Click on show link");
+            page.gridControl().showCtrls();
+
+            log.info("Click on All link to show all available column headers");
+            page.gridControl().showAllColumns();
+
+            String completeFilePathh = filee.getAbsolutePath();
+
+
+            log.info("Check csv and grid headers");
+            page.grid().checkCSVvsGridHeaders(completeFilePathh, soft);
+
+            int maxAlertt = page.grid().getRowsNo();
+
+            log.info("Check csv data and grid row data for specifc row");
+            page.grid().checkCSVvsGridDataForSpecificRow(completeFilePath, soft, Generator.randomNumber(maxAlertt));
+            page.grid().checkCSVvsGridDataForSpecificRow(completeFilePath, soft, Generator.randomNumber(maxAlertt));
+
+            log.info("Break from loop if current domain in null or equal to second domain");
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
+            log.info("Check if multidomain is true");
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain");
+                page.getDomainSelector().selectOptionByIndex(1);
+                log.info("Wait for grid row to load");
+                page.grid().waitForRowsToLoad();
+            }
+
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+    }
+
+    //This method will verify data for Admin user
+    @Test(description = "ALRT-12", groups = {"multiTenancy", "singleTenancy"})
+    public void dataForAdminUser() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+
+        String user = Generator.randomAlphaNumeric(3);
+        rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        log.info("created user " + user);
+
+        log.info("Login and navigate to Alert page");
+        login(user, data.defaultPass()).getSidebar().goToPage(PAGES.ALERTS);
+        do {
+
+            log.info("Wait for grid row to load");
+            page.grid().waitForRowsToLoad();
+            log.info("Check absence of Show Domain Alert check box");
+            soft.assertFalse(aFilter.getShowDomainCheckbox().isPresent(), "Checkbox is not present for Admin user");
+
+            log.info("Extract total number of users");
+            int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
+
+            log.info("Extract total number of messages");
+            int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
+
+            log.info("Extract total count from Alerts page");
+            int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+
+            if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 10) {
+                log.info("If total count >10 ,set count value is 10");
+                totalCount = 10;
+            }
+            for (int j = 0; j < totalCount; j++) {
+
+                if (page.grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")) {
+
+                    String userr = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                    log.info("Extract userName from Parameters field of row ");
+                    for (int k = 0; k < totalUsers; k++) {
+                        log.info("Compare userName with all available users from Users page");
+                        if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(userr)) {
+                            log.info("Shown user is from current domain");
+                        }
+
+                    }
+                } else if (page.grid().getRowInfo(j).containsValue("MSG_STATUS_CHANGED")) {
+
+                    String messageId = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                    log.info("Extract message id from Parameters field for row");
+
+                    for (int k = 0; k < totalMessages; k++) {
+                        log.info("Compare message id with all available message ids from Message page");
+                        if (rest.getListOfMessages(page.getDomainFromTitle()).getJSONObject(k).getString("messageId").equals(messageId)) {
+                            log.info("Message belongs to current domain");
+                        }
+                    }
+                } else if (page.grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
+
+                    String userr = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                    log.info("Extract user from parameters field for row");
+                    for (int k = 0; k < totalUsers; k++) {
+                        log.info("Compare userName with all available users");
+                        if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(userr)) {
+                            log.info("Shown disabled user is from current domain");
+                        }
+
+                    }
+                }
+            }
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break from loop if current domain is null or second domain in case of multitenancy");
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Check if multidomain is true");
+
+                String userSecDomain = Generator.randomAlphaNumeric(3);
+                rest.createUser(userSecDomain, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
+                log.info("created user for second domain" + userSecDomain);
+                log.info("logout from application");
+                logout();
+                log.info("Login with user from second domain and navigate to Alerts page");
+                login(userSecDomain, data.defaultPass()).getSidebar().goToPage(PAGES.ALERTS);
+
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+
+
+    }
+
+    //This method will verify absence of super admin records and present record belongs to current domain
+    @Test(description = "ALRT-13", groups = {"multiTenancy"})
+    public void superAdminrecordAbsenceForAdmin() throws Exception {
+
+        SoftAssert soft = new SoftAssert();
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+
+        String user = Generator.randomAlphaNumeric(3);
+        rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        log.info("created user " + user);
+
+        log.info("Login with created user and naviagte to Alerts page");
+        login(user, data.defaultPass()).getSidebar().goToPage(PAGES.ALERTS);
+        do {
+            log.info("Extract total number of users");
+            int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
+
+            List<String> userName = new ArrayList<>();
+
+            soft.assertFalse(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
+
+            log.info("if total alert count >10 then set count as 10");
+            int recordCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+            if (recordCount > 10) {
+                recordCount = 10;
+            }
+
+            for (int j = 0; j < recordCount; j++) {
+
+                if (page.grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")
+                        || page.grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
+
+                    String userNameStr = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                    log.info("Extract all user names available in parameters fields ");
+                    userName.add(userNameStr);
+                }
+            }
+            log.info("Remove all duplicate username");
+            List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
+
+            log.info("Navigate to users page");
+            page.getSidebar().goToPage(PAGES.USERS);
+            UsersPage uPage = new UsersPage(driver);
+
+            for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
+
+                soft.assertFalse(uPage.getUserRoleWithName("Username", userName.get(j)).equalsIgnoreCase("ROLE_AP_ADMIN"));
+
+                for (int k = 0; k < totalUsers; k++) {
+                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
+                        log.info("Shown user is from current domain");
+                    }
+                }
+            }
+
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break from loop if current domain is null for Single tenancy or equal to second domain");
+
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Check if multi domain is true");
+                String userr = Generator.randomAlphaNumeric(3);
+
+                rest.createUser(userr, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
+                log.info("created user for sec domain " + userr);
+
+                log.info("Logout from application");
+                logout();
+                log.info("Login and navigate to Alerts page");
+                login(userr, data.defaultPass()).getSidebar().goToPage(PAGES.ALERTS);
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+
+
+    }
+
+    @Test(description = "ALRT-28", groups = {"multiTenancy", "singleTenancy"})
+    public void defaultDataInSearchFilter() throws Exception {
+
+        SoftAssert soft = new SoftAssert();
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+
+        do {
+            log.info("Extract all options from different search filters available");
+            List<String> processedContainer = aFilter.getAllDropDownOptions(aFilter.ProcessedContainer);
+            List<String> alertTypeContainer = aFilter.getAllDropDownOptions(aFilter.alertTypeContainer);
+            List<String> alertStatusContainer = aFilter.getAllDropDownOptions(aFilter.alertStatusContainer);
+            List<String> alertLevelContainer = aFilter.getAllDropDownOptions(aFilter.alertLevelContainer);
+
+            soft.assertTrue(processedContainer.size() > 0, "Drop down in not blank");
+            soft.assertTrue(alertTypeContainer.size() > 0, "Drop down in not blank");
+            soft.assertTrue(alertStatusContainer.size() > 0, "Drop down in not blank");
+            soft.assertTrue(alertLevelContainer.size() > 0, "Drop down in not blank");
+
+            aFilter.verifyDropDownOptions(aFilter.ProcessedContainer, "Processed", soft);
+            aFilter.verifyDropDownOptions(aFilter.alertTypeContainer, "Alert Type", soft);
+            aFilter.verifyDropDownOptions(aFilter.alertStatusContainer, "Alert Status", soft);
+            aFilter.verifyDropDownOptions(aFilter.alertLevelContainer, "Alert Level", soft);
+
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("Break from loop in case domain is null (for single tenancy) or second domain (for multi tenancy ");
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain if it is multitenant");
+                page.getDomainSelector().selectOptionByIndex(1);
+                page.waitForTitle();
+                page.grid().waitForRowsToLoad();
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+    }
+
+    @Test(description = "ALRT-29", groups = {"multiTenancy", "singleTenancy"})
+    public void checkValidationForAlertId() throws Exception {
+
+        SoftAssert soft = new SoftAssert();
+        log.info("Login into application and navigate to Alert page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+        log.info("Click on advance link");
+        aFilter.getAdvanceLink().click();
+        do {
+            log.info("Create list of correct and incorrect data");
+            List<String> correctDataArray = Arrays.asList("1234567890123456789", "347362", "1");
+            List<String> incorrectDataArray = Arrays.asList("random", "0random", "0000000000000000000", "12345678901234567890", "random1"
+                    , "54 656", "$#%", "-989", "+787");
+
+            for (int i = 0; i < correctDataArray.size(); i++) {
+                log.info("Pass correct value :" + correctDataArray.get(i));
+                aFilter.getAlertId().fill(correctDataArray.get(i));
+                log.info("Verify status of search button as enabled");
+                soft.assertTrue(aFilter.getSearchButton().isEnabled(), "Button is enabled");
+            }
+            for (int i = 0; i < incorrectDataArray.size(); i++) {
+                log.info("Pass incorrect value :" + incorrectDataArray.get(i));
+                aFilter.getAlertId().fill(incorrectDataArray.get(i));
+                log.info("Verify presence of validation message under alert id field");
+                soft.assertTrue(aFilter.alertIdValidation.isDisplayed());
+                log.info("Validation message is : " + aFilter.alertIdValidation.getText());
+                log.info("Verify status of Search button as Disabled ");
+                soft.assertFalse(aFilter.getSearchButton().isEnabled(), "Button is not enabled");
+            }
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
+
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain if set up is multitenant");
+                page.getDomainSelector().selectOptionByIndex(1);
+                page.waitForTitle();
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+    }
+
+    @Test(description = "ALRT-32", groups = {"multiTenancy", "singleTenancy"})
+    public void checkProcessed() throws Exception {
+
+        SoftAssert soft = new SoftAssert();
+        log.info("Login into application and navigate to Alert page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+        AlertPage page = new AlertPage(driver);
+        page.waitForTitle();
+        page.grid().waitForRowsToLoad();
+        AlertFilters aFilter = new AlertFilters(driver);
+        do {
+            log.info("Check alert count when showDomain alert is false");
+            if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 0) {
+                int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+                HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
+                log.info("Verify disabled status of save and cancel button");
+                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled());
+                log.info("Check processed checkbox for first row");
+                page.getCssForProcessedCheckBox(0).click();
+
+                log.info("Click on save button and then ok from confirmation pop up");
+                page.getSaveButton().click();
+                page.confirmationPopup().confirm();
+                log.info("Check total count as 1 less than before");
+                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1);
+
+                log.info("Select processed in search filter ");
+                aFilter.getProcessedContainer().selectOptionByIndex(1);
+                log.info("Click on search button");
+                aFilter.getSearchButton().click();
+                List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
+                for (int i = 0; i < allRowInfo.size(); i++) {
+                    if (allRowInfo.get(i).equals(rowInfo)) {
+                        log.info("Row is present ");
+                    }
+                }
+            } else {
+                log.info("There is no record on page to  verify this feature");
+            }
+
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain");
+                page.getDomainSelector().selectOptionByIndex(1);
+                page.grid().waitForRowsToLoad();
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+    }
+
+    @Test(description = "ALRT-33", groups = {"multiTenancy", "singleTenancy"})
+    public void checkProcessedForDomainData() throws Exception {
+
+        SoftAssert soft = new SoftAssert();
+        log.info("Login into application and navigate to Alert page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+        AlertPage page = new AlertPage(driver);
+        AlertFilters aFilter = new AlertFilters(driver);
+
+        aFilter.getShowDomainCheckbox().click();
+        aFilter.getSearchButton().click();
+
+        page.waitForTitle();
+        page.grid().waitForRowsToLoad();
+        do {
+            log.info("Check alert count when showDomain alert is true");
+            if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 0) {
+                int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+                HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
+                log.info("Verify disabled status of save and cancel button");
+                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled());
+                log.info("Check processed checkbox for first row");
+                page.getCssForProcessedCheckBox(0).click();
+
+                log.info("Click on save button and then ok from confirmation pop up");
+                page.getSaveButton().click();
+                page.confirmationPopup().confirm();
+                log.info("Check total count as 1 less than before");
+                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1);
+
+                log.info("Select processed in search filter ");
+                aFilter.getProcessedContainer().selectOptionByIndex(1);
+                log.info("Click on search button");
+                aFilter.getSearchButton().click();
+                List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
+                for (int i = 0; i < allRowInfo.size(); i++) {
+                    if (allRowInfo.get(i).equals(rowInfo)) {
+                        log.info("Row is present ");
+                    }
+                }
+            } else {
+                log.info("There is no data present to verify this feature");
+            }
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
+            if (data.isIsMultiDomain()) {
+                log.info("Change domain");
+                page.getDomainSelector().selectOptionByIndex(1);
+                page.grid().waitForRowsToLoad();
+            }
+        } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+    }
+
 }
+
+
+
+
+
+
+

@@ -1,15 +1,27 @@
 package pages.users;
 
+import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.Pagination;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import org.testng.asserts.SoftAssert;
+import rest.DomibusRestClient;
 import utils.TestRunData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -105,6 +117,30 @@ public class UsersPage extends DomibusPage {
 		UserModal modal = new UserModal(driver);
 		modal.fillData("", email, role, password, confirmation);
 		modal.getOkBtn().click();
+	}
+	public String getUserRoleWithName(String columnName, String value) throws Exception {
+		ArrayList<String> columnNames = grid().getColumnNames();
+		if (!columnNames.contains(columnName)) {
+			throw new Exception("Selected column name '" + columnName + "' is not visible in the present grid");
+		}
+
+		int columnIndex = -1;
+		for (int i = 0; i < columnNames.size(); i++) {
+			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
+				columnIndex = i;
+			}
+		}
+
+		Pagination pagination = grid().getPagination();
+		pagination.skipToFirstPage();
+		int index = grid().getIndexOf(columnIndex, value);
+
+		while (index < 0 && pagination.hasNextPage()) {
+			pagination.goToNextPage();
+			index = grid().getIndexOf(columnIndex, value);
+		}
+
+		return grid().getRowSpecificColumnVal(index,"Role");
 	}
 
 

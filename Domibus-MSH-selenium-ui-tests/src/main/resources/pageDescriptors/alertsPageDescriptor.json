@@ -41,38 +41,109 @@
       "placeholder": "Reporting From:",
       "isDefault": false
     },
-
     {
       "name": "reportingToContainer",
       "placeholder": "Reporting To:",
       "isDefault": false
-    }
-  ,
+    },
     {
       "name": "showDomainAlertsChk",
       "placeholder": "",
       "isDefault": true
     }
   ],
-
-  "pagination": {
-    "showSelectedNo": true,
-    "showTotalNo": true,
-    "showPageControls": true
-  },
-"buttons": [
-{
-"name": "Cancel",
-"label": "Cancel",
-"enabledByDefault": false,
-"visibleByDefault": true
-},
-{
-"name": "Save",
-"label": "Save",
-"enabledByDefault": false,
-"visibleByDefault": true
-}
-]
+  "grid": {
+    "columnsControls": true,
+    "rowsControls": true,
+    "exportCSV": true,
+    "defaultSort": "Timestamp",
+    "columns": [
+      {
+        "name": "Alert Id",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Alert Status",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Alert Level",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Creation Time",
+        "type": "datetime",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Alert Type",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Reporting Time",
+        "type": "datetime",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Sent Attempts",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Max Attempts",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Next Attempt",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Reporting Time Failure",
+        "type": "datetime",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Parameters",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": true
+      }
+    ],
+    "pagination": {
+      "showSelectedNo": true,
+      "showTotalNo": true,
+      "showPageControls": true
+    },
+    "buttons": [
+      {
+        "name": "Cancel",
+        "label": "Cancel",
+        "enabledByDefault": false,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Save",
+        "label": "Save",
+        "enabledByDefault": false,
+        "visibleByDefault": true
+      }
+    ]
+  }
 }
 

@@ -970,7 +970,6 @@ public class AuditPgTest extends BaseTest {
             aPage.getDomainSelector().selectOptionByIndex(1);
             log.info("Navigate to Pmode current page");
             aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-            aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         } while (aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 
