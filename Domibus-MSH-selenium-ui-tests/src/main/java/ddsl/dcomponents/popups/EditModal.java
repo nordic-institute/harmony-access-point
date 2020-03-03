@@ -25,14 +25,11 @@ public class EditModal extends DComponent {
 	}
 
 
-	@FindBy(css = "md-dialog-container button:nth-of-type(1)")
+	@FindBy(css = "mat-dialog-container #editbuttonok_id")
 	protected WebElement okBtn;
 
-	@FindBy(css = "md-dialog-container button:nth-of-type(2)")
+	@FindBy(css = "mat-dialog-container #editbuttoncancel_id")
 	protected WebElement cancelBtn;
-
-	@FindBy(css = "md-dialog-container p")
-	protected WebElement title;
 
 	public DButton getOkBtn() {
 		return new DButton(driver, okBtn);
@@ -45,16 +42,14 @@ public class EditModal extends DComponent {
 	public void clickOK() throws Exception {
 		getOkBtn().click();
 		wait.forElementToBeGone(okBtn);
+
+//		hardcoded wait to match the time needed for the dialog to disappear
+		wait.forXMillis(200);
 	}
 
 	public void clickCancel() throws Exception {
 		getCancelBtn().click();
 		wait.forElementToBeGone(cancelBtn);
 	}
-
-	public boolean isOKBtnEnabled() throws Exception {
-		return getOkBtn().isEnabled();
-	}
-
 
 }

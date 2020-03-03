@@ -478,7 +478,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         messageExchangeService.initiatePullRequest(mpc);
     }
 
-    private Party messageValidations(UserMessage userMessage, String pModeKey, String backendName) throws EbMS3Exception, MessagingProcessingException {
+    protected Party messageValidations(UserMessage userMessage, String pModeKey, String backendName) throws EbMS3Exception, MessagingProcessingException {
         try {
             Party from = pModeProvider.getSenderParty(pModeKey);
             Party to = pModeProvider.getReceiverParty(pModeKey);

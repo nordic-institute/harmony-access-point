@@ -1,21 +1,19 @@
 ﻿<page-header id="errorlogheader_id">Error Log</page-header>
 <div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-
+  <mat-card>
+    <mat-card-content>
       <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
-
-          <md-input-container>
-            <input mdInput placeholder="Signal Message Id" name="errorSignalMessageId"
+        <form name="filterForm" #filterForm="ngForm">
+          <mat-form-field>
+            <input matInput placeholder="Signal Message Id" name="errorSignalMessageId"
                    [(ngModel)]="filter.errorSignalMessageId" #errorSignalMessageId="ngModel" id="signalmessageid_id"
                    width="40px">
-          </md-input-container>
+          </mat-form-field>
 
-          <md-input-container>
-            <input mdInput placeholder="Message Id" name="messageInErrorId" [(ngModel)]="filter.messageInErrorId"
+          <mat-form-field>
+            <input matInput placeholder="Message Id" name="messageInErrorId" [(ngModel)]="filter.messageInErrorId"
                    #messageInErrorId="ngModel" id="messageid_id">
-          </md-input-container>
+          </mat-form-field>
           <md2-datepicker placeholder="Error From:" appClearInvalid
                           [(ngModel)]="filter.timestampFrom"
                           name="fromTimestmap"
@@ -32,28 +30,27 @@
                           [type]="'datetime'"
                           #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
 
-          <md-input-container *ngIf="advancedSearch">
-            <input mdInput placeholder="Error Detail" name="ErrorDetail" [(ngModel)]="filter.errorDetail"
-                   #errorDetail="ngModel" id="errordetail_id">
-          </md-input-container>
-          <md-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
-                     id="aprole_id"
-                     *ngIf="advancedSearch">
-            <md-option [value]="''">
-            </md-option>
-            <md-option *ngFor="let role of mshRoles" [value]="role">
+          <mat-form-field *ngIf="advancedSearch" >
+            <input matInput placeholder="Error Detail" name="errorDetail" [(ngModel)]="filter.errorDetail"
+                   #errorDetail="ngModel" id="errordetail_id" advanced-filter-behaviour [parent]="this">
+          </mat-form-field>
+          <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
+                     id="aprole_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+            <mat-option [value]="''">
+            </mat-option>
+            <mat-option *ngFor="let role of mshRoles" [value]="role">
               {{role}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
 
-          <md-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
-                     id="errorcode_id" *ngIf="advancedSearch">
-            <md-option [value]="''">
-            </md-option>
-            <md-option *ngFor="let code of errorCodes" [value]="code">
+          <mat-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
+                     id="errorcode_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+            <mat-option [value]="''">
+            </mat-option>
+            <mat-option *ngFor="let code of errorCodes" [value]="code">
               {{code}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
 
 
           <md2-datepicker placeholder="Notified From:" appClearInvalid
@@ -63,7 +60,8 @@
                           [max]="notifiedFromMaxDate"
                           (change)='onNotifiedFromChange($event)'
                           #timestampControl="ngModel" id="notifiedfrom_id"
-                          *ngIf="advancedSearch"></md2-datepicker>
+                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
           <md2-datepicker placeholder="Notified To:" appClearInvalid
                           [(ngModel)]="filter.notifiedTo"
                           name="notifiedTo"
@@ -72,63 +70,22 @@
                           [max]="notifiedToMaxDate"
                           (change)='onNotifiedToChange($event)'
                           #timestampControl="ngModel" id="notifiedto_id"
-                          *ngIf="advancedSearch"></md2-datepicker>
+                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
 
+          <filter-area-footer [parent]="this"></filter-area-footer>
 
-          <div class="searchArea">
-            <button md-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id" button-click-behaviour>
-              <md-icon>search</md-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-          </div>
         </form>
       </div>
 
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>
 
 <div class="panel">
-  <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                       (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-      <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                         (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
-  </div>
+  <grid-header [parent]="this"></grid-header>
 
-
-  <ngx-datatable
-    id="errorLogTable"
-    class="material striped"
-    [rows]="rows"
-    [columnMode]="'force'"
-    [columns]="columnPicker.selectedColumns"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-    (activate)="onActivate($event)"
-  >
-</ngx-datatable>
+  <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value | domibusDate: dateFormat}}</span>

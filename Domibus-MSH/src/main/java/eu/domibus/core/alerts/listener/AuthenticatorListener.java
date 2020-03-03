@@ -5,9 +5,10 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticatorListener {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(AuthenticatorListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticatorListener.class);
 
     @Autowired
     private EventService eventService;
@@ -30,6 +31,9 @@ public class AuthenticatorListener {
 
     @Autowired
     private DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'loginFailure' or selector = 'accountDisabled'")
@@ -45,6 +49,7 @@ public class AuthenticatorListener {
             domainContextProvider.clearCurrentDomain();
             LOG.debug("Authentication event:[{}] for super user.", event);
         }
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.persistEvent(event);
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
         alertService.enqueueAlert(alertOnEvent);

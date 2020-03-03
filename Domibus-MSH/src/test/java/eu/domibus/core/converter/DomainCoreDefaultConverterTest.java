@@ -13,6 +13,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
 import eu.domibus.common.model.logging.ErrorLogEntry;
@@ -20,7 +21,6 @@ import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
-import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
@@ -31,6 +31,7 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.PullRequest;
@@ -43,16 +44,17 @@ import eu.domibus.plugin.routing.BackendFilterEntity;
 import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
+import mockit.Injectable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import sun.security.x509.X509CertImpl;
 
 import java.util.ArrayList;
@@ -62,38 +64,32 @@ import java.util.List;
  * @author Ioana Dragusanu
  * @since 4.1
  */
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-@ActiveProfiles("IN_MEMORY_DATABASE")
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
+    @ComponentScan(basePackageClasses = {EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
-        @Bean
-        public DomainCoreConverter domainCoreConverter() {
-            return new DomainCoreDefaultConverter();
-        }
 
         @Bean
-        public DomibusCoreMapper domibusCoreMapper() {
-            return new DomibusCoreMapperImpl();
-        }
-
-        @Bean
-        public EventMapper eventMapper() {
-            return new EventMapperImpl_();
+        public DateUtil dateUtil() {
+            return new DateUtilImpl();
         }
     }
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
+    DomainCoreConverter domainCoreConverter;
+
+    @Injectable
+    EventMapper eventMapper;
 
     @Autowired
-    private ObjectService objectService;
+    ObjectService objectService;
 
     @Test
     public void testConvertPartyResponseRo() throws Exception {

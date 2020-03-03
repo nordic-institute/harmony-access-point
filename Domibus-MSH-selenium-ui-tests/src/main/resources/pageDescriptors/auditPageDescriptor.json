@@ -1,0 +1,74 @@
+{
+  "title": "Audit",
+  "filters": [
+	{
+	  "name": "tableFilterContainer",
+	  "placeholder": "Table",
+	  "isDefault": true
+	},
+	{
+	  "name": "userFilterContainer",
+	  "placeholder": "User",
+	  "isDefault": true
+	},
+	{
+	  "name": "actionFilterContainer",
+	  "placeholder": "Action",
+	  "isDefault": true
+	},
+	{
+	  "name": "changedFrom",
+	  "placeholder": "Changed from:",
+	  "isDefault": false
+	},
+	{
+	  "name": "changedTo",
+	  "placeholder": "Changed to:",
+	  "isDefault": false
+	}
+  ],
+  "buttons": [],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "Changed",
+	"columns": [
+	  {
+		"name": "Table",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "User",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Action",
+		"type": "text",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Changed",
+		"type": "datetime",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Id",
+		"type": "numeric",
+		"sortable": false,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": false,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  }
+}

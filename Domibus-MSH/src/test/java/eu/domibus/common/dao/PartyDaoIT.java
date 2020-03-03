@@ -43,6 +43,7 @@ public class PartyDaoIT {
         em.persist(party);
 
         Process process = new Process();
+        process.setName("PR1");
         process.addInitiator(party);
 
         party = new Party();

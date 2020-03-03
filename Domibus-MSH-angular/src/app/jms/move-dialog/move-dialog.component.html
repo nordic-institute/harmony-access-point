@@ -1,31 +1,31 @@
-<h1 id="messageDialogTitle" md-dialog-title>
+<h1 id="messageDialogTitle" mat-dialog-title>
   Click on "Ok" to confirm that you want to move the selected messages<br>
   WARNING: This operation will be executed immediately and cannot be reverted.<br>
   Click on "Cancel" to leave the message untouched.
 </h1>
 
 <div style="width:100%;margin-bottom: 15px;">
-  <md-select placeholder="Destination" [(ngModel)]="selectedSource" name="jmsQueueSelector" id="jmsqueuedestination_id"
+  <mat-select placeholder="Destination" [(ngModel)]="selectedSource" name="jmsQueueSelector" id="jmsqueuedestination_id"
              style="width:100%" disabled={{destinationsChoiceDisabled}}>
-    <md-option *ngFor="let queue of queues" [value]="queue" style="width:95%">
+    <mat-option *ngFor="let queue of queues" [value]="queue" style="width:95%">
       {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
-    </md-option>
-  </md-select>
+    </mat-option>
+  </mat-select>
 </div>
 
 <div class="divTable">
   <div class="divTableBody">
     <div class="divTableRow">
       <div class="divTableCell" style="width:50%">
-        <button id="messageDialogResendButton" md-raised-button color="primary"
+        <button id="messageDialogResendButton" mat-raised-button color="primary"
                 (click)="dialogRef.close({destination:selectedSource.name})" [disabled]="!canOk()">
-          <md-icon>check_circle</md-icon>
+          <mat-icon>check_circle</mat-icon>
           <span>OK</span>
         </button>
       </div>
       <div class="divTableCell" style="width:50%">
-        <button id="messageDialogCancelButton" md-raised-button color="primary" (click)="dialogRef.close({})">
-          <md-icon>cancel</md-icon>
+        <button id="messageDialogCancelButton" mat-raised-button color="primary" (click)="dialogRef.close({})">
+          <mat-icon>cancel</mat-icon>
           <span>Cancel</span>
         </button>
       </div>

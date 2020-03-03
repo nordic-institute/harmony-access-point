@@ -108,13 +108,10 @@ public abstract class AbstractIT {
 
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
-        int activeMQRmiServerPort = SocketUtils.findAvailableTcpPort(1200, 1300);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
         System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(ACTIVE_MQ_RMI_SERVER_PORT, String.valueOf(activeMQRmiServerPort));
         System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
-        LOG.info("activeMQ.rmiServerPort=[{}]", activeMQRmiServerPort);
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()

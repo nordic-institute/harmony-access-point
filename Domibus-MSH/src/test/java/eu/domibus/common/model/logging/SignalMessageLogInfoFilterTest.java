@@ -53,7 +53,7 @@ public class SignalMessageLogInfoFilterTest {
             result = true;
         }};
 
-        String query = signalMessageLogInfoFilter.filterSignalMessageLogQuery("column", true, filters);
+        String query = signalMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);
 
         Assert.assertEquals(QUERY, query);
     }

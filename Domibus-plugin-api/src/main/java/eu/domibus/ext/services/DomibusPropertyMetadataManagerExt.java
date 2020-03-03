@@ -8,7 +8,7 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * The interface implemented by the plugins and Domibus delegate class to handle getting and setting of domibus properties at runtime
+ * The interface implemented by the plugins, external modules(DSS) and domibus delegate class to expose configuration property metadata
  */
 public interface DomibusPropertyMetadataManagerExt {
 

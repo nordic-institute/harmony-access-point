@@ -3,6 +3,8 @@ package eu.domibus.core.pmode;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -248,6 +250,7 @@ public class CachingPModeProvider extends PModeProvider {
     protected String findLegName(final String agreementName, final String senderParty, final String receiverParty,
                                  final String service, final String action) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
+        //TODO Refactor the nested for loop and conditions
         for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
             final ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
             for (final Party party : process.getInitiatorParties()) {
@@ -565,9 +568,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<String> updatePModes(final byte[] bytes, String description) throws XmlProcessingException {
-        List<String> messages = super.updatePModes(bytes, description);
-        return messages;
+    public List<ValidationIssue> updatePModes(final byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
+        List<ValidationIssue> issues = super.updatePModes(bytes, description);
+        return issues;
     }
 
     @Override
@@ -598,6 +601,9 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean isPullProcess(Process process) {
+        if (process.getMepBinding() == null) {
+            return false;
+        }
         return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
     }
 

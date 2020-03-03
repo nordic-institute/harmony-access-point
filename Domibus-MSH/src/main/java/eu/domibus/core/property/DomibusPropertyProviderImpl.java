@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -205,7 +206,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
-    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+    public Set<String> getPropertyNames(Predicate<String> predicate) {
         Set<String> filteredPropertyNames = new HashSet<>();
         final Enumeration<?> enumeration = domibusProperties.propertyNames();
         while (enumeration.hasMoreElements()) {

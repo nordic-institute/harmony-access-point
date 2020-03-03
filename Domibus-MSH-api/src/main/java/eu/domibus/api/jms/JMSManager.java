@@ -102,5 +102,14 @@ public interface JMSManager {
      */
     long getDestinationSize(String nameLike);
 
+    /**
+     * Return the number of jms messages in the destination.
+     *
+     * @param jmsDestination
+     * @return the number of messages contained in the destination.
+     */
+    long getDestinationSize(JMSDestination jmsDestination);
+
+
     String getDomainSelector(String selector);
 }

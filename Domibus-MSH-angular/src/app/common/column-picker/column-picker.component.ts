@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {isNullOrUndefined} from "util";
+import {Component, EventEmitter, Input, OnInit, Output, SimpleChanges} from '@angular/core';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'app-column-picker',
@@ -22,6 +22,10 @@ export class ColumnPickerComponent implements OnInit {
   constructor() {
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    this.allColumns.forEach(col => col.isSelected = this.isChecked(col));
+  }
+
   ngOnInit() {
   }
 
@@ -33,17 +37,10 @@ export class ColumnPickerComponent implements OnInit {
   * Note: if an 'Actions' column exists, it will be the last one of the array
   * */
   toggle(col) {
-    const selecting = !this.isChecked(col);
-
-    if (selecting) {
-      this.selectedColumns = this.allColumns.filter(c => this.selectedColumns.indexOf(c) >= 0 || c.name === col.name);
-    } else {
-      this.selectedColumns = this.selectedColumns.filter(c => c.name !== col.name);
-    }
-
-    this.setLastColumn(this.selectedColumns, 'Actions');
-
-    this.onSelectedColumnsChanged.emit(this.selectedColumns);
+    setTimeout(() => {
+      this.selectedColumns = this.allColumns.filter(col => col.isSelected);
+      this.onSelectedColumnsChanged.emit(this.selectedColumns);
+    });
   }
 
   selectAllColumns() {
@@ -57,16 +54,7 @@ export class ColumnPickerComponent implements OnInit {
   }
 
   isChecked(col) {
-    return this.selectedColumns.find(c => c.name === col.name) != null;
+    const isChecked = this.selectedColumns.find(c => c.name === col.name) != null;
+    return isChecked;
   }
-
-  setLastColumn(array : Array<any>, colName : any) {
-    let col = array.find(x => x.name === colName);
-    if(!isNullOrUndefined(col)) {
-      let posCol = array.indexOf(col);
-      array.splice(posCol, 1);
-      array.push(col);
-    }
-  }
-
 }

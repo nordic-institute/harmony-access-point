@@ -12,8 +12,8 @@ import java.util.Map;
 public class FSMessage {
 
     private final Map<String, FSPayload> payloads;
-    
-    private final UserMessage metadata;
+
+    protected final UserMessage metadata;
     
     /**
      * Creates a FSMessage with the given payloads and metadata

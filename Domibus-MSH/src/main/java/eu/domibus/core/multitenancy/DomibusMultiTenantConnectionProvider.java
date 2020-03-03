@@ -6,8 +6,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +48,19 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @Override
     public Connection getAnyConnection() throws SQLException {
+        LOG.trace("Getting any connection");
+
+        String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
+        if(StringUtils.isBlank(mdcUser)) {
+            String userName = databaseUtil.getDatabaseUserName();
+            LOG.putMDC(DomibusLogger.MDC_USER, userName);
+        }
+
         return dataSource.getConnection();
     }
 
@@ -59,7 +72,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     @Override
     public Connection getConnection(String identifier) throws SQLException {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        String databaseSchema = null;
+        String databaseSchema;
         if (currentDomain != null) {
             LOG.trace("Getting schema for domain [{}]", currentDomain);
             databaseSchema = domainService.getDatabaseSchema(currentDomain);

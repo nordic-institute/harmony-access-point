@@ -1,31 +1,28 @@
-import {Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response} from '@angular/http';
+import {ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
-import {isNullOrUndefined} from 'util';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 import {MoveDialogComponent} from './move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './message-dialog/message-dialog.component';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
 import {DirtyOperations} from '../common/dirty-operations';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {Observable} from 'rxjs/Observable';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import mix from '../common/mixins/mixin.utils';
-import BaseListComponent from '../common/base-list.component';
+import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
-export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixin) implements OnInit, DirtyOperations {
-
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
+export class JmsComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
+  implements OnInit, DirtyOperations {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -36,24 +33,20 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   defaultQueueSet: EventEmitter<boolean>;
   queuesInfoGot: EventEmitter<boolean>;
 
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithJSONTpl') rowWithJSONTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
+  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<Object>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
   orderedQueues: any[];
 
   currentSearchSelectedSource;
 
-  selectedMessages: Array<any>;
-  markedForDeletionMessages: Array<any>;
-  loading: boolean;
+  markedForDeletionMessages: any[];
 
-  rows: Array<any>;
   request: MessagesRequestRO;
 
   private _selectedSource: any;
-  offset: any;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -66,16 +59,16 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
+              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
   ngOnInit() {
     super.ngOnInit();
 
-    this.filter = new MessagesRequestRO();
+    super.filter = new MessagesRequestRO();
 
-    this.offset = 0;
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
@@ -86,6 +79,33 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.queues = [];
     this.orderedQueues = [];
 
+    // set toDate equals to now
+    this.filter.toDate = new Date();
+    this.filter.toDate.setHours(23, 59, 59, 999);
+
+    this.markedForDeletionMessages = [];
+
+    this.loadDestinations();
+
+    this.queuesInfoGot.subscribe(result => {
+      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
+    });
+
+    this.defaultQueueSet.subscribe(oldVal => {
+      super.tryFilter().then(done => {
+        if (!done) {
+          //revert the drop-down value to the old one
+          this._selectedSource = oldVal;
+        }
+      });
+    });
+  }
+
+  public get name(): string {
+    return 'JMS Messages';
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'ID',
@@ -131,42 +151,20 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['ID', 'Time', 'Custom prop', 'JMS prop', 'Actions'].indexOf(col.name) != -1
     });
-
-    // set toDate equals to now
-    this.filter.toDate = new Date();
-    this.filter.toDate.setHours(23, 59, 59, 999);
-
-    this.selectedMessages = [];
-    this.markedForDeletionMessages = [];
-    this.loading = false;
-
-    this.rows = [];
-
-    this.loadDestinations();
-
-    this.queuesInfoGot.subscribe(result => {
-      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
-    });
-
-    this.defaultQueueSet.subscribe(oldVal => {
-      super.trySearch().then(ok => {
-        if (!ok) {
-          //revert the drop-down value to the old oen
-          this._selectedSource = oldVal;
-        }
-      });
-    });
   }
 
-  private getDestinations(): Observable<Response> {
-    return this.http.get('rest/jms/destinations')
-      .map(response => response.json().jmsDestinations)
-      .catch((error: Response) => this.alertService.handleError('Could not load queues: ' + error));
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
-  private loadDestinations(): Observable<Response> {
-    const result = this.getDestinations();
-    result.subscribe(
+  private getDestinations(): Observable<any> {
+    return this.http.get<any>('rest/jms/destinations')
+      .map(response => response.jmsDestinations)
+      .catch((error) => this.alertService.exception('Could not load queues ', error));
+  }
+
+  private loadDestinations() {
+    this.getDestinations().subscribe(
       (destinations) => {
         this.queues = [];
         for (const key in destinations) {
@@ -175,11 +173,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.queuesInfoGot.emit();
       }
     );
-
-    return result;
   }
 
-  private refreshDestinations(): Observable<Response> {
+  private refreshDestinations(): Observable<any> {
     const result = this.getDestinations();
     result.subscribe(
       (destinations) => {
@@ -204,34 +200,8 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     this.selectedSource = toSelect;
   }
 
-  changePageSize(newPageSize: number) {
-    super.resetFilters();
-    this.rowLimiter.pageSize = newPageSize;
-    this.refresh();
-  }
-
-  refresh() {
-    // ugly but the grid does not feel the paging changes otherwise
-    this.loading = true;
-    const rows = this.rows;
-    this.rows = [];
-
-    setTimeout(() => {
-      this.rows = rows;
-      this.selectedMessages.length = 0;
-      this.loading = false;
-    }, 50);
-  }
-
-  onSelect({selected}) {
-    this.selectedMessages.splice(0, this.selectedMessages.length);
-    this.selectedMessages.push(...selected);
-  }
-
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
+  edit(row) {
+    this.showDetails(row);
   }
 
   onTimestampFromChange(event) {
@@ -243,83 +213,53 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
   }
 
   canSearch() {
-    return this.filter.source && !this.loading;
+    return this.filter.source && !this.isLoading;
   }
 
-  search() {
-    super.setActiveFilter();
-    this.doSearch();
+  protected get GETUrl(): string {
+    return 'rest/jms/messages';
   }
 
-  private doSearch() {
+  protected async onBeforeGetData(): Promise<any> {
     if (!this.filter.source) {
-      this.alertService.error('Source should be set');
-      return;
-    }
-    if (this.loading) {
-      return;
+      return Promise.reject('Source should be set');
     }
 
-    this.loading = true;
-    this.selectedMessages = [];
     this.markedForDeletionMessages = [];
     this.currentSearchSelectedSource = this.selectedSource;
-    this.http.post('rest/jms/messages', {
-      source: this.activeFilter.source,
-      jmsType: this.activeFilter.jmsType,
-      fromDate: this.activeFilter.fromDate,
-      toDate: this.activeFilter.toDate,
-      selector: this.activeFilter.selector,
-    }).subscribe(
-      (response: Response) => {
-        this.rows = response.json().messages;
-        this.offset = 0;
-        this.refresh();
-        this.loading = false;
-
-        this.refreshDestinations();
-      },
-      error => {
-        this.alertService.exception('An error occurred. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide. ', error);
-        this.loading = false;
-      }
-    );
   }
 
-  cancel() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(result => {
-      if (result) {
-        super.resetFilters();
-        this.doSearch();
-      }
-    });
+  public setServerResults(res) {
+    super.rows = res.messages;
+    super.count = res.messages.length;
+    this.refreshDestinations();
   }
 
-  save() {
+  async doSave(): Promise<any> {
     let messageIds = this.markedForDeletionMessages.map((message) => message.id);
     //because the user can change the source after pressing search and then select the messages and press delete
     //in this case I need to use currentSearchSelectedSource
-    this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+    return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
 
   move() {
-    const dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
 
-      if (this.selectedMessages.length > 1) {
+      if (this.selected.length > 1) {
         dialogRef.componentInstance.queues.push(...this.queues);
       } else {
-        for (let message of this.selectedMessages) {
+        for (let message of this.selected) {
 
           try {
             let originalQueue = message.customProperties.originalQueue;
             // EDELIVERY-2814
             let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-            if (!isNullOrUndefined(originalQueue)) {
+            if (originalQueue) {
               let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
               console.debug(queues);
-              if (!isNullOrUndefined(queues)) {
+              if (queues) {
                 dialogRef.componentInstance.queues = queues;
                 dialogRef.componentInstance.selectedSource = queues[0];
               }
@@ -345,15 +285,15 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+      if (result && result.destination) {
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
   }
 
   moveAction(row) {
-    let dialogRef: MdDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
+    let dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
 
     if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
       try {
@@ -362,7 +302,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
         let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
         console.debug(queues);
-        if (!isNullOrUndefined(queues)) {
+        if (queues) {
           dialogRef.componentInstance.queues = queues;
           dialogRef.componentInstance.selectedSource = queues[0];
         }
@@ -382,20 +322,17 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     }
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!isNullOrUndefined(result) && !isNullOrUndefined(result.destination)) {
-        let messageIds = this.selectedMessages.map((message) => message.id);
+      if (result && result.destination) {
+        let messageIds = this.selected.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
   }
 
-  details(selectedRow: any) {
-    let dialogRef: MdDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
+  showDetails(selectedRow: any) {
+    let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
-    dialogRef.afterClosed().subscribe(result => {
-      //Todo:
-    });
   }
 
   deleteAction(row) {
@@ -403,21 +340,22 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     let newRows = this.rows.filter((element) => {
       return row !== element;
     });
-    this.selectedMessages = [];
-    this.rows = newRows;
+    super.selected = [];
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   delete() {
-    this.markedForDeletionMessages.push(...this.selectedMessages);
+    this.markedForDeletionMessages.push(...this.selected);
     let newRows = this.rows.filter((element) => {
-      return !this.selectedMessages.includes(element);
+      return !this.selected.includes(element);
     });
-    this.selectedMessages = [];
-    this.rows = newRows;
+    super.selected = [];
+    super.rows = newRows;
+    super.count = newRows.length;
   }
 
   serverMove(source: string, destination: string, messageIds: Array<any>) {
-    console.log('serverMove');
     this.http.post('rest/jms/messages/action', {
       source: source,
       destination: destination,
@@ -428,16 +366,17 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         this.alertService.success('The operation \'move messages\' completed successfully.');
 
         //refresh destinations
-        this.refreshDestinations().subscribe((response: Response) => {
+        this.refreshDestinations().subscribe(res => {
           this.setDefaultQueue(this.currentSearchSelectedSource.name);
         });
 
         //remove the selected rows
         let newRows = this.rows.filter((element) => {
-          return !this.selectedMessages.includes(element);
+          return !this.selected.includes(element);
         });
-        this.selectedMessages = [];
-        this.rows = newRows;
+        super.selected = [];
+        super.rows = newRows;
+        super.count = newRows.length;
       },
       error => {
         this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
@@ -445,41 +384,16 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
     )
   }
 
-  serverRemove(source: string, messageIds: Array<any>) {
-    this.http.post('rest/jms/messages/action', {
+  serverRemove(source: string, messageIds: Array<any>): Promise<any> {
+    return this.http.post('rest/jms/messages/action', {
       source: source,
       selectedMessages: messageIds,
       action: 'REMOVE'
-    }).subscribe(
-      () => {
-        this.alertService.success('The operation \'updates on message(s)\' completed successfully.');
+    }).toPromise().then(() => {
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
-      },
-      error => {
-        this.alertService.error('The operation \'updates on message(s)\' could not be completed: ' + error);
       }
     )
-  }
-
-  getFilterPath() {
-    let result = '?';
-    if (!isNullOrUndefined(this.activeFilter.source)) {
-      result += 'source=' + this.activeFilter.source + '&';
-    }
-    if (!isNullOrUndefined(this.activeFilter.jmsType)) {
-      result += 'jmsType=' + this.activeFilter.jmsType + '&';
-    }
-    if (!isNullOrUndefined(this.activeFilter.fromDate)) {
-      result += 'fromDate=' + this.activeFilter.fromDate.toISOString() + '&';
-    }
-    if (!isNullOrUndefined(this.activeFilter.toDate)) {
-      result += 'toDate=' + this.activeFilter.toDate.toISOString() + '&';
-    }
-    if (!isNullOrUndefined(this.activeFilter.selector)) {
-      result += 'selector=' + this.activeFilter.selector + '&';
-    }
-    return result;
   }
 
   saveAsCSV() {
@@ -487,24 +401,27 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
       this.alertService.error('Source should be set');
       return;
     }
-    if (this.rows.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
-    super.resetFilters();
-    DownloadService.downloadNative('rest/jms/csv' + this.getFilterPath());
+
+    super.saveAsCSV();
+  }
+
+  get csvUrl(): string {
+    return 'rest/jms/csv?' + this.createAndSetParameters();
   }
 
   isDirty(): boolean {
-    return !isNullOrUndefined(this.markedForDeletionMessages) && this.markedForDeletionMessages.length > 0;
+    return this.markedForDeletionMessages && this.markedForDeletionMessages.length > 0;
   }
 
-  onPage($event) {
-    this.offset = $event.offset;
-    super.resetFilters();
+  canCancel() {
+    return (this.markedForDeletionMessages.length > 0);
   }
 
-  onSort() {
-    super.resetFilters();
+  canSave() {
+    return this.canCancel();
+  }
+
+  canDelete() {
+    return (this.selected.length > 0);
   }
 }

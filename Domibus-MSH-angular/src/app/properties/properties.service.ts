@@ -1,49 +1,43 @@
-import {Headers, Http, URLSearchParams, Response} from '@angular/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {DomainService} from '../security/domain.service';
-import {SecurityService} from '../security/security.service';
 
 @Injectable()
 export class PropertiesService {
 
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
 
-  constructor(private http: Http, private alertService: AlertService) {
+  constructor(private http: HttpClient, private alertService: AlertService) {
   }
 
   getProperties(searchString: string, showDomainProperties: boolean, pageSize: number, offset: number): Promise<PropertyListModel> {
-    const searchParams = new URLSearchParams();
+    let searchParams = new HttpParams();
     if (searchString && searchString.trim()) {
-      searchParams.set('name', searchString.trim());
+      searchParams = searchParams.append('name', searchString.trim());
     }
-    if (showDomainProperties) {
-      searchParams.set('showDomain', showDomainProperties.toString());
+    if (!showDomainProperties) {
+      searchParams = searchParams.append('showDomain', (!!showDomainProperties).toString());
     }
     if (pageSize) {
-      searchParams.set('pageSize', pageSize.toString());
+      searchParams = searchParams.append('pageSize', pageSize.toString());
     }
     if (offset) {
-      searchParams.set('page', offset.toString());
+      searchParams = searchParams.append('page', offset.toString());
     }
 
-    return this.http.get(PropertiesService.PROPERTIES_URL, {search: searchParams})
-      .map(this.extractData)
+    return this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams})
       .toPromise()
-      .catch(err => this.alertService.handleError(err));
-  }
-
-  private extractData(res: Response) {
-    let body = res.json();
-    return body || {};
   }
 
   updateProperty(name: any, isDomain: boolean, value: any): Promise<void> {
-    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain}})
+    if (value === '') { // sanitize empty value: the api needs the body to be present, even if empty
+      value = ' ';
+    }
+
+    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + name, value, {params: {isDomain: isDomain.toString()}})
       .map(() => {
       })
       .toPromise()
-      .catch(err => this.alertService.handleError(err));
   }
 }
 

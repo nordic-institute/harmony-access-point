@@ -12,7 +12,8 @@ import java.util.Map;
 @Service(value = "userMessageLogInfoFilter")
 public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
 
-    public String filterUserMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
+    @Override
+    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         String query = "select new eu.domibus.common.model.logging.MessageLogInfo(" +
                 "log.messageId," +
                 "log.messageStatus," +

@@ -3,7 +3,8 @@ package eu.domibus.web.rest;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvCustomColumns;
@@ -15,7 +16,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import eu.domibus.api.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +26,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -47,7 +42,7 @@ public class TruststoreResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
 
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststore file since its password was empty."; //NOSONAR
+    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
@@ -68,8 +63,7 @@ public class TruststoreResource extends BaseResource {
     private ErrorHandlerService errorHandlerService;
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
+    MultiPartFileUtil multiPartFileUtil;
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
@@ -79,17 +73,16 @@ public class TruststoreResource extends BaseResource {
     }
 
     @PostMapping(value = "/save")
-    public ResponseEntity<String> uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststore,
-                                                       @SkipWhiteListed @RequestParam("password") String password) throws IOException {
-        if (truststore.isEmpty()) {
-            return ResponseEntity.badRequest().body("Failed to upload the truststore file since it was empty.");
-        }
+    public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
+                                       @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
         if (StringUtils.isBlank(password)) {
-            return ResponseEntity.badRequest().body(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststore.getOriginalFilename(), truststore.getBytes(), password);
-        return ResponseEntity.ok("Truststore file has been successfully replaced.");
+        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        return "Truststore file has been successfully replaced.";
     }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
@@ -99,7 +92,7 @@ public class TruststoreResource extends BaseResource {
 
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;;
+            status = HttpStatus.NO_CONTENT;
         }
 
         return ResponseEntity.status(status)

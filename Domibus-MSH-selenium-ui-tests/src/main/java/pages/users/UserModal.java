@@ -1,6 +1,6 @@
 package pages.users;
 
-import ddsl.dcomponents.Select;
+import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DInput;
@@ -10,7 +10,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -27,37 +26,35 @@ public class UserModal extends EditModal {
 		wait.forElementToBeVisible(okBtn);
 	}
 
-	@FindBy(id = "username_id")
+	@FindBy(css = "edituser-form form #username_id")
 	WebElement usernameInput;
 
-	@FindBy(id = "email_id")
+	@FindBy(css = "edituser-form form #email_id")
 	WebElement emailInput;
 
-	@FindBy(id = "password_id")
+	@FindBy(css = "edituser-form form #password_id")
 	WebElement passwordInput;
 
-	@FindBy(id = "confirmation_id")
+	@FindBy(css = "edituser-form form #confirmation_id")
 	WebElement confirmationInput;
 
-
-	@FindBy(css = "md-card > div:nth-child(4) > md2-select")
+	@FindBy(css = "edituser-form form #domain_id")
 	WebElement domainSelectContainer;
 
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
+	@FindBy(css = "edituser-form form #role_id")
 	WebElement rolesSelectContainer;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(7) input")
+	@FindBy(css = "edituser-form form #active_id")
 	WebElement activeChk;
 
-
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #username_id + span")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #email_id + span")
 	private WebElement emailErrMess;
 
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #password_id + span")
 	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
+	@FindBy(css = "edituser-form form #confirmation_id + span")
 	private WebElement confirmationErrMess;
 
 

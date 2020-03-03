@@ -20,16 +20,15 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.tika.mime.MimeTypeException;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
@@ -89,6 +88,15 @@ public class BackendFSImplTest {
 
     @Injectable
     String name = "fsplugin";
+
+    @Injectable
+    FSXMLHelper fsxmlHelper;
+
+    @Injectable
+    protected FSMimeTypeHelper fsMimeTypeHelper;
+
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
 
     @Tested
     BackendFSImpl backendFS;
@@ -172,8 +180,16 @@ public class BackendFSImplTest {
         FileObject metadataFile = files[0];
 
         Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME, metadataFile.getName().getBaseName());
-        Assert.assertEquals(FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml"),
-                FSTestHelper.getUserMessage(metadataFile.getContent().getInputStream()));
+
+
+        UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        new Verifications() {{
+            UserMessage savedUserMessage = null;
+            fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
+            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+        }};
+
+
         metadataFile.delete();
         metadataFile.close();
 
@@ -257,8 +273,15 @@ public class BackendFSImplTest {
         FileObject fileMetadata = files[0];
         Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
                 fileMetadata.getName().getBaseName());
-        Assert.assertEquals(FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml"),
-                FSTestHelper.getUserMessage(fileMetadata.getContent().getInputStream()));
+
+        UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        new Verifications() {{
+            UserMessage savedUserMessage = null;
+            fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
+            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+        }};
+
+
         fileMetadata.delete();
         fileMetadata.close();
 
@@ -365,7 +388,8 @@ public class BackendFSImplTest {
         event.setToStatus(MessageStatus.SEND_ENQUEUED);
         event.setChangeTimestamp(new Timestamp(new Date().getTime()));
 
-        final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.READY_TO_SEND");
+        String file = "content_" + messageId + ".xml.READY_TO_SEND";
+        final FileObject contentFile = outgoingFolder.resolveFile(file);
 
         new Expectations(1, backendFS) {{
             fsFilesManager.setUpFileSystem(null);
@@ -376,6 +400,9 @@ public class BackendFSImplTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
+
+            fsFileNameHelper.deriveFileName(file, MessageStatus.SEND_ENQUEUED);
+            result = "content_" + messageId + ".xml.SEND_ENQUEUED";
         }};
 
         backendFS.messageStatusChanged(event);
@@ -422,24 +449,58 @@ public class BackendFSImplTest {
     }
 
     @Test
-    public void testMessageStatusChanged_SendSuccessArchive() throws FileSystemException {
-        MessageStatusChangeEvent event = new MessageStatusChangeEvent();
-        event.setMessageId(messageId);
-        event.setFromStatus(MessageStatus.SEND_ENQUEUED);
-        event.setToStatus(MessageStatus.ACKNOWLEDGED);
-        event.setChangeTimestamp(new Timestamp(new Date().getTime()));
-
-        final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.ACKNOWLEDGED");
+    public void testMessageStatusChanged_SendSuccessArchive(@Injectable MessageStatusChangeEvent event) throws FileSystemException {
+        String domain = "myDomain";
+        String service = "myService";
+        String action = "myAction";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("service", service);
+        properties.put("action", action);
 
         new Expectations(1, backendFS) {{
-            fsFilesManager.setUpFileSystem(null);
-            result = rootDir;
+            event.getProperties();
+            result = properties;
 
-            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            fsDomainService.getFSPluginDomain(service, action);
+            result = domain;
+
+            event.getMessageId();
+            result = messageId;
+
+            backendFS.isSendingEvent(event);
+            result = false;
+
+            backendFS.isSendSuccessEvent(event);
+            result = true;
+        }};
+
+        backendFS.messageStatusChanged(event);
+
+        new Verifications() {{
+            backendFS.handleSentMessage(domain, messageId);
+        }};
+
+    }
+
+    @Test
+    public void testHandleSentMessage(@Injectable FileObject contentFile,
+                                      @Injectable FileObject rootDirectory,
+                                      @Injectable FileObject outgoingFolder,
+                                      @Injectable FileObject sentDirectory,
+                                      @Injectable FileObject archivedFile) throws FileSystemException {
+        String file = "content_" + messageId + ".xml";
+        String sentFile = file + ".SENT";
+
+
+        new Expectations(backendFS) {{
+            fsFilesManager.setUpFileSystem(null);
+            result = rootDirectory;
+
+            fsFilesManager.getEnsureChildFolder(rootDirectory, FSFilesManager.OUTGOING_FOLDER);
             result = outgoingFolder;
 
-            fsFilesManager.findAllDescendantFiles(outgoingFolder);
-            result = new FileObject[]{contentFile};
+            backendFS.findMessageFile((FileObject) any, messageId);
+            result = contentFile;
 
             fsPluginProperties.isSentActionDelete(null);
             result = false;
@@ -447,23 +508,31 @@ public class BackendFSImplTest {
             fsPluginProperties.isSentActionArchive(null);
             result = true;
 
-            fsFilesManager.getEnsureChildFolder(rootDir, "/BackendFSImplTest/SENT/");
-            result = sentFolder;
+            contentFile.getParent().getName().getPath();
+            result = sentFile;
 
+            fsFileNameHelper.deriveSentDirectoryLocation(sentFile);
+            result = FSFilesManager.OUTGOING_FOLDER;
+
+            fsFilesManager.getEnsureChildFolder(rootDirectory, FSFilesManager.OUTGOING_FOLDER);
+            result = sentDirectory;
+
+            contentFile.getName().getBaseName();
+            result = sentFile;
+
+            fsFileNameHelper.stripStatusSuffix(sentFile);
+            result = file;
+
+            sentDirectory.resolveFile(file);
+            result = archivedFile;
         }};
 
-        backendFS.messageStatusChanged(event);
+        backendFS.handleSentMessage(null, messageId);
 
-        contentFile.close();
-
-        new VerificationsInOrder(1) {{
-            fsFilesManager.moveFile(contentFile, with(new Delegate<FileObject>() {
-                void delegate(FileObject file) throws IOException {
-                    Assert.assertNotNull(file);
-                    Assert.assertEquals(location + "/SENT/content_" + messageId + ".xml", file.getName().getURI());
-                }
-            }));
+        new Verifications() {{
+            fsFilesManager.moveFile(contentFile, archivedFile);
         }};
+
     }
 
     @Test
@@ -581,5 +650,17 @@ public class BackendFSImplTest {
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
         }};
+    }
+
+    @Test
+    public void getFileNameExtensionTest() throws MimeTypeException {
+        String mimeType = "text/xml";
+
+        new Expectations() {{
+            fsMimeTypeHelper.getExtension(mimeType);
+            result = new MimeTypeException("Invalid Type");
+        }};
+
+        Assert.assertNotNull(backendFS.getFileNameExtension(mimeType));
     }
 }

@@ -26,26 +26,32 @@ public class AlertArea extends DComponent {
 	@FindBy(id = "alertmessage_id")
 	public WebElement alertMessage;
 
-	public String getAlertMessage() throws Exception {
+	@FindBy(css = "#alertmessage_id span")
+	public WebElement closeButton;
 
+	public String getAlertMessage(){
+		try {
+			wait.forElementToBeVisible(alertMessage);
+		} catch (Exception e) {		}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (!alertObject.isPresent()) {
-			log.info("No messages displayed.");
+			log.debug("No messages displayed.");
 			return null;
 		}
 
+		String messageTxt = alertMessage.getText().replace(closeButton.getText(), "").replaceAll("\n", "").trim();
 
-		log.info("alertObject.getText() = " + alertObject.getText());
-		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\\\' ]", "").trim();
-		log.info("messageTxt = " + messageTxt);
+		log.debug("messageTxt = " + messageTxt);
 
-		log.info("Getting alert message ...");
+		log.debug("Getting alert message ...");
 		return messageTxt.trim();
 	}
 
 	public boolean isError() throws Exception {
-
+		try {
+			wait.forElementToBeVisible(alertMessage);
+		} catch (Exception e) {}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (alertObject.isPresent()) {
@@ -53,6 +59,8 @@ public class AlertArea extends DComponent {
 		}
 		throw new Exception("Alert message not present");
 	}
+
+
 
 
 }

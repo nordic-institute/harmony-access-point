@@ -12,7 +12,7 @@ import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
- * @description:
+
  * @since 4.1
  */
 public class MessageResendModal extends DComponent {
@@ -22,12 +22,12 @@ public class MessageResendModal extends DComponent {
 
 	}
 
-	@FindBy(id = "messageDialogResendButton")
+	@FindBy(id = "yesbuttondialog_id")
 	WebElement resendButton;
-	@FindBy(id = "messageDialogCancelButton")
+	@FindBy(id = "nobuttondialog_id")
 	WebElement cancel;
 
-	@FindBy(id = "messageDialogTitle")
+	@FindBy(css = ".mat-dialog-title")
 	WebElement title;
 
 	public DButton getResendButton() {

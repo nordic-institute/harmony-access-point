@@ -1,7 +1,9 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.ext.delegate.services.property.DomibusPropertyManagerDelegate;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -25,23 +27,16 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     ApplicationContext applicationContext;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
-    private boolean externalPropertiesLoaded = false;
-    private Object propertyMetadataMapLock = new Object();
+    private volatile boolean internalPropertiesLoaded = false;
+    private volatile boolean externalPropertiesLoaded = false;
+    private final Object propertyMetadataMapLock = new Object();
+
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new DomibusPropertyMetadata[]{
             //read-only properties
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, false, DomibusPropertyMetadata.Usage.DOMAIN, false, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
             new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, DomibusPropertyMetadata.Usage.DOMAIN, false),
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_USER),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, true),
@@ -71,27 +66,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE), //move the use=age from xml ?
+
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT),  //move the use=age from xml ?
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_OUTPUT_DIR), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_LOG_BASE_DIR), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_TIMEOUT), //move the use=age from xml ?
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_HOST), //cannot find the usage
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_JMXURL), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTOR_PORT), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_RMI_SERVER_PORT), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_USERNAME), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PASSWORD), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PERSISTENT), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT), //move the use=age from xml ?
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT), //move the use=age from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ALERT_QUEUE_CONCURRENCY), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(MESSAGE_FACTORY_CLASS), //move the use=age from xml ?
@@ -107,13 +84,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES),
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED),
-
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(WEBLOGIC_MANAGEMENT_SERVER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD),
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION),
 
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, true),
 
@@ -238,6 +209,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             new DomibusPropertyMetadata(DOMIBUS_ALERT_RETRY_CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON),
             new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
@@ -315,6 +288,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
@@ -336,10 +311,10 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
     /**
      * Returns the metadata for a given propertyName,
      * by interrogating all property managers known to Domibus in order to find it.
-     * If not found, it assumes it is a domain property and it creates the corresponding metadata on-the-fly.
+     * If not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
      *
      * @param propertyName
-     * @return
+     * @return DomibusPropertyMetadata
      */
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         initializeIfNeeded(propertyName);
@@ -350,17 +325,20 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             return prop;
         }
 
-        // try to see if it is a composable property, i.e. propertyName+suffix
+        // try to see if it is a compose-able property, i.e. propertyName+suffix
         Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
-            LOGGER.trace("Found composable property [{}], returning its metadata.", propertyName);
-            return propMeta.get();
+            LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
+            DomibusPropertyMetadata meta = propMeta.get();
+            // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
+            meta.setName(propertyName);
+            return meta;
         }
 
         // if still not found, initialize metadata on-the-fly
-        LOGGER.warn("Creating on-the-fly metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
+        LOGGER.warn("Creating on-the-fly global metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
         synchronized (propertyMetadataMapLock) {
-            DomibusPropertyMetadata newProp = new DomibusPropertyMetadata(propertyName, "", false, DomibusPropertyMetadata.Usage.DOMAIN, true, true, false, false);
+            DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, null);
             propertyMetadataMap.put(propertyName, newProp);
             return newProp;
         }
@@ -372,47 +350,80 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
      * later on, the properties from all managers will be added to the map.
      */
     protected void initializeIfNeeded(String propertyName) {
+        // add domibus-core and specific server  properties first, to avoid infinite loop of bean creation (due to DB properties)
         if (propertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
-                if (propertyMetadataMap == null) {
+                if (!internalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing core properties");
+
                     propertyMetadataMap = new HashMap<>();
-                    // add domibus-core properties directly now, to avoid infinite loop of bean creation(due to DB properties)
-                    propertyMetadataMap.putAll(this.getKnownProperties());
+                    loadInternalProperties();
+
+                    LOGGER.trace("Finished loading property metadata for internal property managers.");
+                    internalPropertiesLoaded = true;
                 }
             }
         }
         if (propertyMetadataMap.containsKey(propertyName)) {
+            LOGGER.trace("Found property metadata [{}] in core properties. Returning.", propertyName);
             return;
         }
 
         // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
-                // double-check locking
-                if (propertyMetadataMap.containsKey(propertyName)) {
-                    return;
+                if (!externalPropertiesLoaded) { // double-check locking
+                    LOGGER.trace("Initializing external properties");
+
+                    loadExternalProperties();
+
+                    externalPropertiesLoaded = true;
+                    LOGGER.trace("Finished loading property metadata for external property managers.");
                 }
-                loadAllProperties();
-                externalPropertiesLoaded = true;
             }
         }
     }
 
-    private void loadAllProperties() {
-        // we retrieve here all managers: one for each plugin/extension + domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
+    protected void loadInternalProperties() {
+        // load manually core/msh/common 'own' properties to avoid  infinite loop
+        loadProperties(this, DomibusPropertyManager.MSH_PROPERTY_MANAGER);
+
+        // server specific properties (and maybe others in the future)
+        String[] propertyManagerNames = applicationContext.getBeanNamesForType(DomibusPropertyManager.class);
+        Arrays.asList(propertyManagerNames).stream()
+                //exclude me/this one
+                .filter(el -> !el.equals(DomibusPropertyManager.MSH_PROPERTY_MANAGER))
+                .forEach(managerName -> {
+                    DomibusPropertyManager propertyManager = applicationContext.getBean(managerName, DomibusPropertyManager.class);
+                    loadProperties(propertyManager, managerName);
+                });
+    }
+
+    protected void loadProperties(DomibusPropertyMetadataManager propertyManager, String managerName) {
+        LOGGER.trace("Loading property metadata for [{}] property manager.", managerName);
+        for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
+            DomibusPropertyMetadata prop = entry.getValue();
+            propertyMetadataMap.put(entry.getKey(), prop);
+        }
+    }
+
+    protected void loadExternalProperties() {
+        // we retrieve here all managers: one for each plugin and extension
         Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-        propertyManagers.values().forEach(propertyManager -> {
-            for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
-                if (propertyMetadataMap.containsKey(entry.getKey())) {
-                    //avoid adding the properties of domibus property manager (added already at the beginning of the method)
-                    return;
-                }
-                DomibusPropertyMetadataDTO extProp = entry.getValue();
-                DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                        extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
-                propertyMetadataMap.put(entry.getKey(), domibusProp);
-            }
-        });
+        // We get also domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt) which is already loaded so we remove it first
+        propertyManagers.remove(DomibusPropertyManagerDelegate.MSH_DELEGATE);
+        propertyManagers.entrySet().forEach(this::loadExternalProperties);
+    }
+
+    protected void loadExternalProperties(Map.Entry<String, DomibusPropertyManagerExt> mapEntry) {
+        DomibusPropertyManagerExt propertyManager = mapEntry.getValue();
+        LOGGER.trace("Loading property metadata for [{}] external property manager.", mapEntry.getKey());
+        for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+            DomibusPropertyMetadataDTO extProp = entry.getValue();
+            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
+                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+            propertyMetadataMap.put(entry.getKey(), domibusProp);
+        }
     }
 
 }

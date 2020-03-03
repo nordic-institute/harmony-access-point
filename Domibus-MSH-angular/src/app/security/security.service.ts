@@ -1,5 +1,5 @@
 ﻿import {Injectable} from '@angular/core';
-import {Headers, Http, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {User} from './user';
 import {SecurityEventService} from './security.event.service';
@@ -19,7 +19,7 @@ export class SecurityService {
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
               private securityEventService: SecurityEventService,
               private alertService: AlertService,
               private domainService: DomainService) {
@@ -28,13 +28,12 @@ export class SecurityService {
   login(username: string, password: string) {
     this.domainService.resetDomain();
 
-    const headers = new Headers({'Content-Type': 'application/json'});
-    return this.http.post('rest/security/authentication',
+    return this.http.post<User>('rest/security/authentication',
       {
         username: username,
         password: password
-      }).subscribe((response: Response) => {
-        this.updateCurrentUser(response.json());
+      }).subscribe((response: User) => {
+        this.updateCurrentUser(response);
 
         this.domainService.setAppTitle();
 
@@ -69,7 +68,7 @@ export class SecurityService {
 
     this.clearSession();
 
-    this.http.delete('rest/security/authentication').subscribe((res: Response) => {
+    this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {
@@ -79,10 +78,8 @@ export class SecurityService {
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.pluginPasswordPolicy) {
-      this.pluginPasswordPolicy = this.http.get('rest/application/pluginPasswordPolicy')
-        .map(this.extractData)
+      this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
         .toPromise();
     }
     return this.pluginPasswordPolicy;
@@ -109,11 +106,11 @@ export class SecurityService {
 
 
   getCurrentUsernameFromServer(): Promise<string> {
-    return this.http.get('rest/security/username').map((resp: Response) => resp.json()).toPromise();
+    return this.http.get<string>('rest/security/username').toPromise();
   }
 
   getCurrentUserFromServer(): Promise<User> {
-    return this.http.get('rest/security/user').map((res: Response) => res.text() ? res.json() : null).toPromise();
+    return this.http.get<User>('rest/security/user').toPromise();
   }
 
 
@@ -179,10 +176,8 @@ export class SecurityService {
 
   getPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.passwordPolicy) {
-      this.passwordPolicy = this.http.get('rest/application/passwordPolicy')
-        .map(this.extractData)
+      this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
         .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
         .toPromise();
     }
     return this.passwordPolicy;
@@ -220,11 +215,6 @@ export class SecurityService {
     }
     return {response: false};
 
-  }
-
-  private extractData(res: Response) {
-    const result = res.json() || {};
-    return result;
   }
 
   async changePassword(params): Promise<any> {

@@ -1,4 +1,4 @@
-.panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
   width: 100% !important;
 }
 .property-value {

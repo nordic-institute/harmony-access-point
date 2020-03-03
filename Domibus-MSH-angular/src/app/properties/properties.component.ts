@@ -1,7 +1,6 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService} from './properties.service';
-import {Headers} from '@angular/http';
 import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {SecurityService} from '../security/security.service';
 
@@ -23,11 +22,12 @@ export class PropertiesComponent implements OnInit {
   offset: number = 0;
   rowLimiter: RowLimiterBase = new RowLimiterBase();
 
-  @ViewChild('propertyValueTpl') propertyValueTpl: TemplateRef<any>;
+  @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
   columns: any[] = [];
 
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService, private securityService: SecurityService) {
+  constructor(private propertiesService: PropertiesService, private alertService: AlertService,
+              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     this.filter = {propertyName: '', showDomainProperties: true};
   }
 
@@ -36,8 +36,10 @@ export class PropertiesComponent implements OnInit {
 
     this.rows = [];
 
-    this.loadProperties(this.rowLimiter.pageSize);
+    this.page();
+  }
 
+  ngAfterViewInit() {
     this.columns = [
       {
         name: 'Property Name',
@@ -50,16 +52,23 @@ export class PropertiesComponent implements OnInit {
     ];
   }
 
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
   onPropertyNameChanged() {
-    this.loadProperties(this.rowLimiter.pageSize);
+    this.page();
   }
 
   onPage(event) {
-    this.loadProperties(event.pageSize, event.offset);
+    this.offset = event.offset;
+    this.page();
   }
 
   onChangePageSize(newPageLimit: number) {
-    this.loadProperties(newPageLimit, 0);
+    this.offset = 0;
+    this.rowLimiter.pageSize = newPageLimit;
+    this.page();
   }
 
   onPropertyValueFocus(row) {
@@ -74,22 +83,22 @@ export class PropertiesComponent implements OnInit {
     return row && row.currentValue && row.currentValue != row.value;
   }
 
-  private async loadProperties(pageSize: number = this.rowLimiter.pageSize, offset: number = 0) {
+  private async page() {
     this.loading = true;
     try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties, pageSize, offset);
+      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties,
+        this.rowLimiter.pageSize, this.offset);
       this.count = result.count;
       this.rows = result.items;
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
     } catch (ex) {
-      this.alertService.exception('Could not load properties ', ex, false);
+      this.alertService.exception('Could not load properties ', ex);
     }
     this.loading = false;
   }
 
   refresh() {
-    this.loadProperties();
+    this.offset = 0;
+    this.page();
   }
 
   private async updateProperty(row) {
@@ -101,7 +110,7 @@ export class PropertiesComponent implements OnInit {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
       if (!ex.handled)
-        this.alertService.exception('Could not update property ', ex, false);
+        this.alertService.exception('Could not update property ', ex);
     }
   }
 

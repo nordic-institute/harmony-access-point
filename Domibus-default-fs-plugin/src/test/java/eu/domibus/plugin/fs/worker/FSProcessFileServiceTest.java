@@ -40,6 +40,12 @@ public class FSProcessFileServiceTest {
     @Injectable
     private FSPluginProperties fsPluginProperties;
 
+    @Injectable
+    protected FSXMLHelper fsxmlHelper;
+
+    @Injectable
+    protected FSFileNameHelper fsFileNameHelper;
+
 
     private String domain = null;
 
@@ -98,6 +104,9 @@ public class FSProcessFileServiceTest {
             fsFilesManager.resolveSibling(contentFile, "metadata.xml");
             result = metadataFile;
 
+            fsProcessFileService.parseMetadata((FileObject) any);
+            result = metadata;
+
             fsFilesManager.getDataHandler(contentFile);
             result = new DataHandler(new FileObjectDataSource(contentFile));
 
@@ -139,6 +148,8 @@ public class FSProcessFileServiceTest {
         final String newFileName = "content_" + messageId + ".xml";
 
         new Expectations() {{
+            fsFileNameHelper.deriveFileName("content.xml", messageId);
+            result = newFileName;
 
             fsFilesManager.renameFile(contentFile, newFileName);
             result = new FileSystemException("Unable to rename the file");

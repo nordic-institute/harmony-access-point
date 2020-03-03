@@ -21,12 +21,21 @@
 
     <xsd:complexType name="UserMessage">
         <xsd:all>
+            <xsd:element name="MessageInfo" type="MessageInfo" minOccurs="0"/>
             <xsd:element name="PartyInfo" type="PartyInfo"/>
             <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
             <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
             <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessageInfo">
+        <xsd:all>
+            <xsd:element name="Timestamp" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="MessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+            <xsd:element name="RefToMessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+        </xsd:all>
     </xsd:complexType>
 
     <xsd:complexType name="PartyInfo">

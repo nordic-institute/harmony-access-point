@@ -11,6 +11,8 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.process.Process;
 import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.exception.EbMS3Exception;
@@ -18,8 +20,11 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -29,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -83,6 +89,9 @@ public class PartyServiceImplTest {
 
     @Injectable
     private Domain currentDomain;
+
+    @Injectable
+    PModeValidationHelper pModeValidationHelper;
 
     @Before
     public void setUp() {
@@ -921,12 +930,12 @@ public class PartyServiceImplTest {
     @Test
     public void throwsExceptionIfItCannotRetrieveThePModeRawConfigurationsArchiveWhenUpdatingParties() {
         // Given
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("Could not update PMode parties: PMode not found!");
+        thrown.expect(PModeException.class);
+        thrown.expectMessage("[DOM_001]:Could not update PMode parties: PMode not found!");
 
         new Expectations() {{
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList();
+            pModeProvider.getCurrentPmode();
+            result = null;
         }};
 
         // When
@@ -937,7 +946,7 @@ public class PartyServiceImplTest {
     public void throwsExceptionIfItCannotRetrieveThePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                           @Injectable ConfigurationRaw rawConfiguration) throws Exception {
         // Given
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(PModeValidationException.class);
 
         new Expectations() {{
             pModeArchiveInfo.getId();
@@ -961,7 +970,7 @@ public class PartyServiceImplTest {
     public void throwsExceptionIfItCannotUpdatePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                      @Injectable ConfigurationRaw rawConfiguration) throws Exception {
         // Given
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(PModeValidationException.class);
 
         new Expectations() {{
             pModeArchiveInfo.getId();
@@ -1010,8 +1019,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1058,8 +1067,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1150,8 +1159,8 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
             pModeProvider.getRawConfiguration(anyLong);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1225,5 +1234,53 @@ public class PartyServiceImplTest {
 
         // When
         partyService.updateParties(Lists.newArrayList(), partyToCertificateMap);
+    }
+
+    @Test
+    public void findPushToPartyNamesByServiceAndActionTest(@Mocked MessageExchangePattern messageExchangePattern) {
+
+        // Given
+        final String service = "service1";
+        final String action = "action1";
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        new Expectations(partyService) {{
+            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            result = (List<String>) any;
+        }};
+
+        // When
+        partyService.findPushToPartyNamesByServiceAndAction(service, action);
+        // Then
+        new Verifications() {{
+            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void printPartyProcessesTest(@Injectable Party party,
+                                        @Mocked Process process) {
+        List<Process> processes = new ArrayList<>();
+
+        new Expectations() {{
+            processes.add(process);
+            party.getProcessesWithPartyAsInitiator();
+            result = processes;
+            party.getProcessesWithPartyAsResponder();
+            result = processes;
+        }};
+
+        partyService.printPartyProcesses(party);
+
+        new Verifications() {{
+            party.getProcessesWithPartyAsInitiator();
+            times = 2;
+            party.getProcessesWithPartyAsResponder();
+            times = 2;
+        }};
     }
 }

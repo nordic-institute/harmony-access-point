@@ -108,6 +108,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addPModeDownloadedAudit(final String messageId) {
         auditDao.savePModeAudit(
@@ -134,6 +135,7 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void addMessageResentAudit(final String messageId) {
         auditDao.saveMessageAudit(

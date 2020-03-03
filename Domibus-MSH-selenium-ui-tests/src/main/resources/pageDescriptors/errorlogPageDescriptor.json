@@ -1,0 +1,105 @@
+{
+  "title": "Error Log",
+  "filters": [
+	{
+	  "name": "signalMessIDInput",
+	  "placeholder": "Signal Message Id",
+	  "isDefault": true
+	},
+	{
+	  "name": "messageIDInput",
+	  "placeholder": "Message Id",
+	  "isDefault": true
+	},
+	{
+	  "name": "errFromContainer",
+	  "placeholder": "Error From:",
+	  "isDefault": true
+	},
+	{
+	  "name": "errToContainer",
+	  "placeholder": "Error To:",
+	  "isDefault": true
+	},
+	{
+	  "name": "errordetailInput",
+	  "placeholder": "Error Detail",
+	  "isDefault": false
+	},
+	{
+	  "name": "apRole",
+	  "placeholder": "AP Role",
+	  "isDefault": false
+	},
+	{
+	  "name": "errorCode",
+	  "placeholder": "Error Code",
+	  "isDefault": false
+	},
+	{
+	  "name": "notifiedFrom",
+	  "placeholder": "Notified From:",
+	  "isDefault": false
+	},
+	{
+	  "name": "notifiedto",
+	  "placeholder": "Notified To:",
+	  "isDefault": false
+	}
+  ],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "Timestamp",
+	"columns": [
+	  {
+		"name": "Message Id",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Error Code",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Timestamp",
+		"type": "datetime",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Signal Message Id",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "AP Role",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Error Detail",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Notified",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": false,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  }
+}

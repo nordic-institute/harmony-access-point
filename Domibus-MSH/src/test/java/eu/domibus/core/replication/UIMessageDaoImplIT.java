@@ -6,12 +6,12 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.dao.InMemoryDataBaseConfig;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ import java.util.*;
 @Transactional
 public class UIMessageDaoImplIT {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -62,6 +62,7 @@ public class UIMessageDaoImplIT {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
 
