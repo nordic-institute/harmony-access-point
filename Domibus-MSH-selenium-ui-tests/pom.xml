@@ -33,6 +33,13 @@
 	</properties>
 
 	<dependencies>
+<!--		<dependency>-->
+<!--			<groupId>com.thoughtworks.xstream</groupId>-->
+<!--			<artifactId>xstream</artifactId>-->
+<!--			<version>1.4.11.1</version>-->
+<!--		</dependency>-->
+
+
 		<!--USED ONLY FOR SOAP REQUEST CLASSES-->
 		<dependency>
 			<groupId>com.bluecatcode.junit</groupId>
@@ -167,7 +174,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>3.0.0-M4</version>
 						<configuration>
-							<rerunFailingTestsCount>5</rerunFailingTestsCount>
+							<rerunFailingTestsCount>3</rerunFailingTestsCount>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
 							<suiteXmlFiles>
@@ -207,7 +214,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>3.0.0-M4</version>
 						<configuration>
-							<rerunFailingTestsCount>5</rerunFailingTestsCount>
+							<rerunFailingTestsCount>3</rerunFailingTestsCount>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
 							<suiteXmlFiles>
