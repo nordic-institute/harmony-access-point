@@ -1320,9 +1320,9 @@ public class PartyServiceImplTest {
 
             partyService.addProcessConfiguration(party, configuration);
 
-            partyService.updateConfiguration((Date)any, configuration);
+            partyService.updateConfiguration((Date) any, configuration);
 
-            partyService.addPartyCertificate((HashMap)any);
+            partyService.addPartyCertificate((HashMap) any);
         }};
     }
 
@@ -1352,28 +1352,93 @@ public class PartyServiceImplTest {
 
     @Test
     public void test_addProcessConfiguration(final @Mocked Party party,
-                                             final @Mocked BusinessProcesses businessProcesses,
+                                             final @Mocked eu.domibus.common.model.configuration.Process configProcess,
                                              final @Mocked Configuration configuration) {
-        final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
-        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        final List<Process> listProcesses = new ArrayList<>();
+        Process process = new Process();
+        process.setName("tc1Process");
         listProcesses.add(process);
 
-        new Expectations() {{
-                configuration.getBusinessProcesses();
-                result = businessProcesses;
+        new Expectations(partyService) {{
 
-                businessProcesses.getProcesses();
-                result = listProcesses;
+            party.getProcessesWithPartyAsInitiator();
+            result = listProcesses;
+            times = 2;
+
+            party.getProcessesWithPartyAsResponder();
+            result = listProcesses;
+            times = 2;
+
+            partyService.getProcess("tc1Process", configuration);
+            result = configProcess;
+
+            configProcess.getInitiatorPartiesXml().getInitiatorParty();
+            result = new ArrayList<InitiatorParty>();
+
+            configProcess.getResponderPartiesXml().getResponderParty();
+            result = new ArrayList<ResponderParty>();
+
         }};
 
         //tested method
         partyService.addProcessConfiguration(party, configuration);
 
-        new FullVerifications(partyService) {{
-            partyService.addProcessConfigurationInitiatorParties(party, (Process) any, configuration);
-            partyService.addProcessConfigurationInitiatorParties(party, (Process)any, configuration);
+        new Verifications() {{
+            partyService.addProcessConfigurationInitiatorParties(party, process, configuration);
+            times = 1;
+
+            partyService.addProcessConfigurationResponderParties(party, process, configuration);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void test_getProcess(final @Mocked Configuration configuration,
+                                final @Mocked BusinessProcesses businessProcesses) {
+        final String processName = "tc1Process";
+        final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
+        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        process.setName(processName);
+        listProcesses.add(process);
+
+        new Expectations() {{
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getProcesses();
+            result = listProcesses;
         }};
 
+        //tested method
+        eu.domibus.common.model.configuration.Process result = partyService.getProcess(processName, configuration);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(processName, result.getName());
+    }
+
+    @Test
+    public void test_getProcess_NotFound(final @Mocked Configuration configuration,
+                                final @Mocked BusinessProcesses businessProcesses) {
+        final String processName = "tc1Process2";
+        final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
+        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        process.setName("tc1Process");
+        listProcesses.add(process);
+
+        new Expectations() {{
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getProcesses();
+            result = listProcesses;
+        }};
+
+        try {
+            //tested method
+            partyService.getProcess(processName, configuration);
+            Assert.fail("exception thrown");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof PModeException);
+        }
 
     }
 }

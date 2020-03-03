@@ -559,6 +559,14 @@ public class PartyServiceImpl implements PartyService {
         //read PMode configuration
         Configuration configuration = getConfiguration();
 
+        //check if party exists
+        final String partyName = party.getName();
+        eu.domibus.common.model.configuration.Party partyFound =
+                configuration.getBusinessProcesses().getPartiesXml().getParty().stream().filter(p -> p.getName().equalsIgnoreCase(partyName)).findFirst().orElse(null);
+        if (partyFound != null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] already exists!");
+        }
+
         eu.domibus.common.model.configuration.Party configParty = domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
         List<eu.domibus.common.model.configuration.Party> configParties = Collections.singletonList(configParty);
 
@@ -700,14 +708,13 @@ public class PartyServiceImpl implements PartyService {
         removePartyIdTypes(partyToBeDeleted, configuration);
 
         //update processes
-       removeProcessConfiguration(partyToBeDeleted, configuration);
+        removeProcessConfiguration(partyToBeDeleted, configuration);
 
         //update PMode configuration
         updateConfiguration(new Date(System.currentTimeMillis()), configuration);
 
         //remove certificate
         removePartyCertificate(Collections.singletonList(partyToBeDeleted.getName()));
-
     }
 
     private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
@@ -721,20 +728,20 @@ public class PartyServiceImpl implements PartyService {
     private void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
                                     Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
-        Set<PartyIdType> partyIdTypeSet = businessProcesses.getPartyIdTypes();
+        List<PartyIdType> partyIdTypeList = businessProcesses.getPartiesXml().getPartyIdTypes().getPartyIdType();
 
-        Set<PartyIdType> toBeRemoved = partyToBeDeleted.getIdentifiers().stream().map(Identifier::getPartyIdType).collect(Collectors.toSet());
+        Set<PartyIdType> toBeDeleted = partyToBeDeleted.getIdentifiers().stream().map(Identifier::getPartyIdType).collect(Collectors.toSet());
         Set<PartyIdType> existing = businessProcesses.getPartiesXml().getParty().stream().
                 flatMap(party -> party.getIdentifiers().stream().map(Identifier::getPartyIdType)).collect(Collectors.toSet());
 
-        Map<Boolean, List<PartyIdType>> filtered = toBeRemoved.stream()
+        Map<Boolean, List<PartyIdType>> filtered = toBeDeleted.stream()
                 .collect(partitioningBy(existing::contains));
 
         List<PartyIdType> difference = filtered.get(false);
 
         //remove those partyIdType not used anymore
         if (!difference.isEmpty()) {
-            partyIdTypeSet.removeAll(difference);
+            partyIdTypeList.removeAll(difference);
         }
     }
 
