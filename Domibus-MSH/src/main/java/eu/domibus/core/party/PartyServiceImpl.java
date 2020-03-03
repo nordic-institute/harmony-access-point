@@ -718,12 +718,12 @@ public class PartyServiceImpl implements PartyService {
      * @return
      */
     protected eu.domibus.common.model.configuration.Party getParty(String partyName, List<eu.domibus.common.model.configuration.Party> allParties) {
-        eu.domibus.common.model.configuration.Party partyToBeDeleted =
+        eu.domibus.common.model.configuration.Party partyToSearch =
                 allParties.stream().filter(party -> party.getName().equalsIgnoreCase(partyName)).findFirst().orElse(null);
-        if (partyToBeDeleted == null) {
+        if (partyToSearch == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
         }
-        return partyToBeDeleted;
+        return partyToSearch;
     }
 
     protected void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
@@ -845,7 +845,7 @@ public class PartyServiceImpl implements PartyService {
      *
      * @return Configuration object
      */
-    Configuration getConfiguration() throws PModeException {
+    protected Configuration getConfiguration() throws PModeException {
         //read current configuration
         final PModeArchiveInfo pModeArchiveInfo = pModeProvider.getCurrentPmode();
         if (pModeArchiveInfo == null) {
