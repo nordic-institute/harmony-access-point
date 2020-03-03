@@ -209,6 +209,8 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             new DomibusPropertyMetadata(DOMIBUS_ALERT_RETRY_CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON),
             new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),

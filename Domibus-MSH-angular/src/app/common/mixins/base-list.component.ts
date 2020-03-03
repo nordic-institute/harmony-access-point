@@ -1,10 +1,9 @@
-import {AlertComponent} from '../alert/alert.component';
 import {AlertService} from '../alert/alert.service';
 import {DownloadService} from '../download.service';
 import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
-import {instanceOfFilterableList, instanceOfModifiableList, instanceOfPageableList, instanceOfSortableList} from './type.utils';
+import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
@@ -22,6 +21,9 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
+  public static readonly MAX_COUNT_CSV: number = 10000;
+  public static readonly CSV_ERROR_MESSAGE = 'Maximum number of rows reached for downloading CSV';
+
   public rows: T[];
   public selected: T[];
   public count: number;
@@ -89,6 +91,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     } catch (error) {
       this.isLoading = false;
       this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+      error.handled = true;
       return Promise.reject(error);
     }
 
@@ -111,8 +114,8 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       await this.saveIfNeeded();
     }
 
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
+    if (this.count > BaseListComponent.MAX_COUNT_CSV) {
+      this.alertService.error(BaseListComponent.CSV_ERROR_MESSAGE);
       return;
     }
 
@@ -149,6 +152,5 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
 };
-
 
 

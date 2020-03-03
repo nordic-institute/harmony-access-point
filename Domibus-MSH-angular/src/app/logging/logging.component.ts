@@ -95,7 +95,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   resetLogging() {
     this.http.post(LoggingComponent.RESET_LOGGING_URL, {}).subscribe(
       res => {
-        this.alertService.success('Logging configuration was successfully reset.', false);
+        this.alertService.success('Logging configuration was successfully reset.');
         this.page();
       },
       error => {

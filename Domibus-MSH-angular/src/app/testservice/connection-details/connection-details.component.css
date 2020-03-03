@@ -5,3 +5,15 @@
 .mat-form-field, mat-select {
   width: 80% !important;
 }
+
+:host {
+  min-width: 50vw;
+  display: block;
+}
+
+.receiver-party {
+  font-size: larger;
+  font-weight: bolder;
+  margin: 16px 0;
+  display: block;
+}

@@ -1,23 +1,24 @@
 package eu.domibus.common.dao;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.logging.MessageLog;
+import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.MessageLogInfoFilter;
+import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -106,4 +107,30 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         return predicates;
     }
 
+    protected abstract MessageLogInfoFilter getMessageLogInfoFilter();
+
+    public abstract String findLastTestMessageId(String party);
+
+    protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("mshRole", mshRole);
+        filters.put("toPartyId", party);
+        filters.put("messageType", messageType);
+        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
+        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
+        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
+        queryParameterized.setFirstResult(0);
+        queryParameterized.setMaxResults(1);
+        long startTime = 0;
+        if (LOG.isDebugEnabled()) {
+            startTime = System.currentTimeMillis();
+        }
+        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+        if (LOG.isDebugEnabled()) {
+            final long endTime = System.currentTimeMillis();
+            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
+        }
+        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
+    }
 }

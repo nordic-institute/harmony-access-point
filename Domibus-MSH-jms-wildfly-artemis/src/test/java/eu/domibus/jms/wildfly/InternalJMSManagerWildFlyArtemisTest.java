@@ -359,11 +359,17 @@ public class InternalJMSManagerWildFlyArtemisTest {
             Assert.assertEquals("Should have built the map of queue object names for the provided address",
                     new HashSet(Arrays.asList(
                             "jms.queue.DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
-                            "jms.queue.DomibusSendMessageQueue2->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue2\"")),
+                            "DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
+                            "jms.queue.DomibusSendMessageQueue2->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue2\"",
+                            "DomibusSendMessageQueue2->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue2\"")),
                     queues.entrySet().stream()
                             .map(entry -> entry.getKey() + "->" + entry.getValue().toString())
                             .collect(Collectors.toSet())
             );
+            Assert.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
+                    queues.get("jms.queue.DomibusSendMessageQueue1"), queues.get("DomibusSendMessageQueue1"));
+            Assert.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
+                    queues.get("jms.queue.DomibusSendMessageQueue2"), queues.get("DomibusSendMessageQueue2"));
         }};
     }
 

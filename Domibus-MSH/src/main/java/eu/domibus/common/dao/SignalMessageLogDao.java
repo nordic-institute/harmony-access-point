@@ -4,8 +4,10 @@ import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.common.model.logging.MessageLogInfoFilter;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogInfoFilter;
+import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +79,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
     }
 
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterSignalMessageLogQuery(column, asc, filters);
+        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = signalMessageLogInfoFilter.applyParameters(typedQuery, filters);
         queryParameterized.setFirstResult(from);
@@ -89,6 +91,16 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         final Query nativeQuery = em.createNativeQuery("SELECT count(sm.ID_PK) FROM  TB_SIGNAL_MESSAGE sm");
         final Number singleResult = (Number) nativeQuery.getSingleResult();
         return singleResult.intValue();
+    }
+
+    @Override
+    protected MessageLogInfoFilter getMessageLogInfoFilter() {
+        return signalMessageLogInfoFilter;
+    }
+
+    @Override
+    public String findLastTestMessageId(String party) {
+        return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
     }
 
 }

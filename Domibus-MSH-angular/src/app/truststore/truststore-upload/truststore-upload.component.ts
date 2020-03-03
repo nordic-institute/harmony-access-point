@@ -46,11 +46,11 @@ export class TrustStoreUploadComponent {
 
         this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
           .subscribe(res => {
-              this.alertService.success(res, false);
+              this.alertService.success(res);
               this.onTruststoreUploaded.emit();
             },
             err => {
-              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err, false);
+              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err);
             }
           );
 

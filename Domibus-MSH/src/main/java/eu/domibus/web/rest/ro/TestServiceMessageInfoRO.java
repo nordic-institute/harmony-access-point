@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.common.MessageStatus;
+
 import java.util.Date;
 
 /**
@@ -16,6 +18,8 @@ public class TestServiceMessageInfoRO {
     Date timeReceived;
 
     String messageId;
+
+    MessageStatus messageStatus;
 
     public String getPartyId() {
         return partyId;
@@ -47,5 +51,13 @@ public class TestServiceMessageInfoRO {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public MessageStatus getMessageStatus() {
+        return messageStatus;
+    }
+
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
     }
 }
