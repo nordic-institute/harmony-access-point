@@ -20,7 +20,6 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.pmode.PModeDefaultServiceHelper;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
@@ -34,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -1282,5 +1280,395 @@ public class PartyServiceImplTest {
             party.getProcessesWithPartyAsResponder();
             times = 2;
         }};
+    }
+
+
+    @Test
+    public void test_createParty(final @Mocked Party party,
+                                 final @Mocked eu.domibus.common.model.configuration.Party configParty,
+                                 final @Mocked BusinessProcesses businessProcesses,
+                                 final @Mocked Parties parties,
+                                 final @Mocked Configuration configuration) {
+        final String certificateContent = "test";
+        final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
+
+        new Expectations(partyService) {{
+            partyService.getConfiguration();
+            result = configuration;
+
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getPartiesXml();
+            result = parties;
+
+            parties.getParty();
+            result = listParties;
+
+            domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
+            result = configParty;
+
+        }};
+
+        //tested method
+        partyService.createParty(party, certificateContent);
+
+        new FullVerifications(partyService) {{
+            partyService.addPartyToConfiguration(configParty, configuration);
+
+            partyService.updatePartyIdTypes(listParties, configuration);
+
+            partyService.addProcessConfiguration(party, configuration);
+
+            partyService.updateConfiguration((Date) any, configuration);
+
+            partyService.addPartyCertificate((HashMap) any);
+        }};
+    }
+
+    @Test
+    public void test_addPartyToConfiguration(final @Mocked eu.domibus.common.model.configuration.Party configParty,
+                                             final @Mocked BusinessProcesses businessProcesses,
+                                             final @Mocked Parties parties,
+                                             final @Mocked Configuration configuration) {
+        final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
+
+        new Expectations() {{
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getPartiesXml();
+            result = parties;
+
+            parties.getParty();
+            result = listParties;
+        }};
+
+        //tested method
+        partyService.addPartyToConfiguration(configParty, configuration);
+
+        Assert.assertEquals(1, listParties.size());
+    }
+
+    @Test
+    public void test_addProcessConfiguration(final @Mocked Party party,
+                                             final @Mocked eu.domibus.common.model.configuration.Process configProcess,
+                                             final @Mocked Configuration configuration) {
+        final List<Process> listProcesses = new ArrayList<>();
+        Process process = new Process();
+        process.setName("tc1Process");
+        listProcesses.add(process);
+
+        new Expectations(partyService) {{
+
+            party.getProcessesWithPartyAsInitiator();
+            result = listProcesses;
+            times = 2;
+
+            party.getProcessesWithPartyAsResponder();
+            result = listProcesses;
+            times = 2;
+
+            partyService.getProcess("tc1Process", configuration);
+            result = configProcess;
+
+            configProcess.getInitiatorPartiesXml().getInitiatorParty();
+            result = new ArrayList<InitiatorParty>();
+
+            configProcess.getResponderPartiesXml().getResponderParty();
+            result = new ArrayList<ResponderParty>();
+
+        }};
+
+        //tested method
+        partyService.addProcessConfiguration(party, configuration);
+
+        new Verifications() {{
+            partyService.addProcessConfigurationInitiatorParties(party, process, configuration);
+            times = 1;
+
+            partyService.addProcessConfigurationResponderParties(party, process, configuration);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void test_getProcess(final @Mocked Configuration configuration,
+                                final @Mocked BusinessProcesses businessProcesses) {
+        final String processName = "tc1Process";
+        final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
+        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        process.setName(processName);
+        listProcesses.add(process);
+
+        new Expectations() {{
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getProcesses();
+            result = listProcesses;
+        }};
+
+        //tested method
+        eu.domibus.common.model.configuration.Process result = partyService.getProcess(processName, configuration);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(processName, result.getName());
+    }
+
+    @Test
+    public void test_getProcess_NotFound(final @Mocked Configuration configuration,
+                                         final @Mocked BusinessProcesses businessProcesses) {
+        final String processName = "tc1Process2";
+        final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
+        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        process.setName("tc1Process");
+        listProcesses.add(process);
+
+        new Expectations() {{
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getProcesses();
+            result = listProcesses;
+        }};
+
+        try {
+            //tested method
+            partyService.getProcess(processName, configuration);
+            Assert.fail("exception thrown");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof PModeException);
+        }
+    }
+
+
+    @Test
+    public void test_deleteParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
+                                 final @Mocked eu.domibus.common.model.configuration.Party party,
+                                 final @Mocked Parties parties) {
+        final String partyName = "red-gw";
+        final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
+        listParties.add(party);
+
+        new Expectations(partyService) {{
+            partyService.getConfiguration();
+            result = configuration;
+
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getPartiesXml();
+            result = parties;
+
+            parties.getParty();
+            result = listParties;
+
+            partyService.getParty(partyName, listParties);
+            result = party;
+        }};
+
+        //tested method
+        partyService.deleteParty(partyName);
+
+        new FullVerifications(partyService) {{
+            partyService.checkPartyInUse(partyName);
+
+            partyService.initConfigurationParties(configuration);
+
+            partyService.removePartyFromConfiguration(party, configuration);
+
+            partyService.removePartyIdTypes(party, configuration);
+
+            partyService.removeProcessConfiguration(party, configuration);
+
+            partyService.updateConfiguration((Date) any, configuration);
+
+            partyService.removePartyCertificate((List<String>) any);
+        }};
+    }
+
+    @Test
+    public void test_removeProcessConfigurationInitiatorResponderParties(final @Mocked Party party,
+                                                                         final @Mocked eu.domibus.common.model.configuration.Process process,
+                                                                         final @Mocked InitiatorParties initiatorParties,
+                                                                         final @Mocked ResponderParties responderParties) {
+        final String partyName = "red-gw";
+
+        InitiatorParty initiatorParty = new InitiatorParty();
+        initiatorParty.setName("RED-GW");
+        final List<InitiatorParty> initiatorPartyList = new ArrayList<>();
+        initiatorPartyList.add(initiatorParty);
+
+        ResponderParty responderParty = new ResponderParty();
+        responderParty.setName("RED-gw");
+        final List<ResponderParty> responderPartyList = new ArrayList<>();
+        responderPartyList.add(responderParty);
+
+        new Expectations() {{
+            party.getName();
+            result = partyName;
+
+            process.getInitiatorPartiesXml();
+            result = initiatorParties;
+            times = 2;
+
+            initiatorParties.getInitiatorParty();
+            result = initiatorPartyList;
+
+            process.getResponderPartiesXml();
+            result = responderParties;
+
+            responderParties.getResponderParty();
+            result = responderPartyList;
+        }};
+
+        //tested method
+        partyService.removeProcessConfigurationInitiatorResponderParties(party, process);
+        Assert.assertTrue(initiatorPartyList.size() == 0);
+        Assert.assertTrue(responderPartyList.size() == 0);
+    }
+
+    @Test
+    public void test_updateParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
+                                 final @Mocked eu.domibus.common.model.configuration.Party configParty,
+                                 final @Mocked Party party,
+                                 final @Mocked Parties parties) {
+        final String partyName = "red-gw";
+        final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
+        listParties.add(configParty);
+        final String certificateContent = "test";
+
+        new Expectations(partyService) {{
+            party.getName();
+            result = partyName;
+
+            partyService.getConfiguration();
+            result = configuration;
+
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getPartiesXml();
+            result = parties;
+
+            parties.getParty();
+            result = listParties;
+
+            partyService.getParty(partyName, listParties);
+            result = configParty;
+        }};
+
+        //tested method
+        partyService.updateParty(party, certificateContent);
+
+        new FullVerifications(partyService) {{
+            partyService.checkPartyInUse(partyName);
+
+            partyService.initConfigurationParties(configuration);
+
+            partyService.removePartyFromConfiguration(configParty, configuration);
+
+            partyService.removePartyIdTypes(configParty, configuration);
+
+            partyService.removeProcessConfiguration(configParty, configuration);
+
+            partyService.updateConfiguration((Date) any, configuration);
+
+            partyService.removePartyCertificate((List<String>) any);
+
+            partyService.addPartyToConfiguration(configParty, configuration);
+
+            partyService.updatePartyIdTypes(listParties, configuration);
+
+            partyService.addProcessConfiguration(party, configuration);
+
+            partyService.updateConfiguration((Date) any, configuration);
+
+            partyService.addPartyCertificate((HashMap) any);
+
+        }};
+    }
+
+
+    @Test
+    public void test_getConfiguration(final @Mocked PModeArchiveInfo pModeArchiveInfo,
+                                      final @Mocked ConfigurationRaw configurationRaw,
+                                      final @Mocked byte[] pmodeContent,
+                                      final @Mocked Configuration configuration) throws Exception {
+        final long pModeId = 1;
+
+        new Expectations(partyService) {{
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
+            times = 1;
+
+            pModeArchiveInfo.getId();
+            result = pModeId;
+
+            pModeProvider.getRawConfiguration(pModeId);
+            result = configurationRaw;
+
+            configurationRaw.getXml();
+            result = pmodeContent;
+
+            pModeProvider.getPModeConfiguration(pmodeContent);
+            result = configuration;
+        }};
+
+        //tested method
+        partyService.getConfiguration();
+
+        new FullVerifications(pModeProvider) {{
+        }};
+    }
+
+    @Test
+    public void test_getConfiguration_Exception(final @Mocked PModeArchiveInfo pModeArchiveInfo,
+                                      final @Mocked ConfigurationRaw configurationRaw,
+                                      final @Mocked byte[] pmodeContent) throws Exception {
+        final long pModeId = 1;
+
+        new Expectations(partyService) {{
+            pModeProvider.getCurrentPmode();
+            result = pModeArchiveInfo;
+            times = 1;
+
+            pModeArchiveInfo.getId();
+            result = pModeId;
+
+            pModeProvider.getRawConfiguration(pModeId);
+            result = configurationRaw;
+
+            configurationRaw.getXml();
+            result = pmodeContent;
+
+            pModeProvider.getPModeConfiguration(pmodeContent);
+            result = new XmlProcessingException("test");
+        }};
+
+        try {
+            //tested method
+            partyService.getConfiguration();
+            Assert.fail("exception expected");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof PModeException);
+        }
+
+        new FullVerifications(pModeProvider) {{
+        }};
+    }
+
+    @Test
+    public void test_getParty() {
+        final String partyName = "red-gw";
+        List<eu.domibus.common.model.configuration.Party> partyList = new ArrayList<>();
+        eu.domibus.common.model.configuration.Party configParty = new eu.domibus.common.model.configuration.Party();
+        configParty.setName("RED-gw");
+        partyList.add(configParty);
+
+        //tested method
+        eu.domibus.common.model.configuration.Party foundParty = partyService.getParty(partyName, partyList);
+        Assert.assertNotNull(foundParty);
+        Assert.assertTrue(partyName.equalsIgnoreCase(foundParty.getName()));
     }
 }
