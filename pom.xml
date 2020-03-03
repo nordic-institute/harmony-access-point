@@ -47,7 +47,7 @@
         <bouncycastle.version>1.64</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.4</c3p0.version>
-        <mapstruct.version>1.3.0.Final</mapstruct.version>
+        <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- fix for OWASP CVE-2019-20330 -->
         <jackson-databind.version>2.9.10.2</jackson-databind.version>
