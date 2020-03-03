@@ -14,6 +14,7 @@ import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
 import utils.Generator;
+import utils.TestRunData;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -180,31 +181,34 @@ public class JMSMessPgTest extends BaseTest {
         log.info("Extract current domain name from page title");
         String currentDomain = jmsPage.getDomainFromTitle();
         log.info("select any message queue having some messages");
-        jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages();
+        if (jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages() > 0) {
 
-        log.info("wait for grid row to load");
-        jmsPage.grid().waitForRowsToLoad();
+            log.info("wait for grid row to load");
+            jmsPage.grid().waitForRowsToLoad();
 
-        log.info("select first row");
-        jmsPage.grid().selectRow(0);
+            log.info("select first row");
+            jmsPage.grid().selectRow(0);
 
-        log.info("Confirm status of Move button and Delete button");
-        soft.assertTrue(jmsPage.moveButton.isEnabled(), "Move button is enabled on row selection");
-        soft.assertTrue(jmsPage.deleteButton.isEnabled(), "Delete button is enabled on row selection");
+            log.info("Confirm status of Move button and Delete button");
+            soft.assertTrue(jmsPage.moveButton.isEnabled(), "Move button is enabled on row selection");
+            soft.assertTrue(jmsPage.deleteButton.isEnabled(), "Delete button is enabled on row selection");
 
-        log.info("select other domain from domain selector");
-        jmsPage.getDomainSelector().selectOptionByIndex(1);
-        log.info("Wait for page title");
-        jmsPage.waitForTitle();
-        log.info("Wait for grid row to load");
-        jmsPage.grid().waitForRowsToLoad();
+            log.info("select other domain from domain selector");
+            jmsPage.getDomainSelector().selectOptionByIndex(1);
+            log.info("Wait for page title");
+            jmsPage.waitForTitle();
+            log.info("Wait for grid row to load");
+            jmsPage.grid().waitForRowsToLoad();
 
-        log.info("Compare old and new domain name");
-        soft.assertTrue(!jmsPage.getDomainFromTitle().equals(currentDomain), "Current domain differs from old domain");
+            log.info("Compare old and new domain name");
+            soft.assertTrue(!jmsPage.getDomainFromTitle().equals(currentDomain), "Current domain differs from old domain");
 
-        log.info("Check status of move button and delete button");
-        soft.assertFalse(jmsPage.moveButton.isEnabled(), "Move button is not enabled");
-        soft.assertFalse(jmsPage.deleteButton.isEnabled(), "Delete button is not enabled");
+            log.info("Check status of move button and delete button");
+            soft.assertFalse(jmsPage.moveButton.isEnabled(), "Move button is not enabled");
+            soft.assertFalse(jmsPage.deleteButton.isEnabled(), "Delete button is not enabled");
+        } else {
+            log.info("Not enough record for execution");
+        }
         soft.assertAll();
     }
 
@@ -250,11 +254,12 @@ public class JMSMessPgTest extends BaseTest {
 
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
         jmsPage.waitForTitle();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        DateFormat dateFormat = data.DATEWIDGET_DATE_FORMAT;
 
         log.info("Find current system date");
         String currentDate = dateFormat.format(new Date());
-        log.info("Current date is :" + currentDate);
+
+        log.info("Current date is :" + currentDate.split(" ")[1]);
         if (data.isIsMultiDomain()) {
             do {
                 log.info("Current domain is" + jmsPage.getDomainSelector().getSelectedValue());
@@ -270,9 +275,9 @@ public class JMSMessPgTest extends BaseTest {
                 log.info(defaultReceivedUpto[0] + " : Date from Received upto field for domain " + jmsPage.getDomainSelector().getSelectedValue());
                 log.info(defaultReceivedUpto[1] + " : Time from Received upto field for domain " + jmsPage.getDomainSelector().getSelectedValue());
 
-                soft.assertTrue(defaultReceivedUpto[0].equals(currentDate), "Dates are same");
+                soft.assertTrue(defaultReceivedUpto[0].equals(currentDate.split(" ")[1]), "Dates are same");
                 soft.assertTrue(defaultReceivedUpto[1].equals("23:59"), "Time matches 23:59");
-                if (jmsPage.getDomainSelector().getSelectedValue().equals(rest.getDomainNames().get(1))) {
+                if (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainSelector().getSelectedValue().equals(rest.getDomainNames().get(1))) {
                     break;
                 }
 
@@ -281,21 +286,6 @@ public class JMSMessPgTest extends BaseTest {
                     jmsPage.getDomainSelector().selectOptionByIndex(1);
                 }
             } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
-        } else {
-
-            log.info("Extract Received Upto field default data");
-            String defaultDate = jmsPage.receivedDateField.get(1).getAttribute("value");
-
-            log.info("Default value of Received upto field : " + defaultDate);
-
-            String defaultReceivedUpto[] = defaultDate.split(" ");
-
-            log.info(defaultReceivedUpto[0] + " : Date from Received upto field for domain ");
-            log.info(defaultReceivedUpto[1] + " : Time from Received upto field for domain ");
-
-            soft.assertTrue(defaultReceivedUpto[0].equals(currentDate), "Dates are same");
-            soft.assertTrue(defaultReceivedUpto[1].equals("23:59"), "Time matches 23:59");
-
         }
         soft.assertAll();
 
@@ -314,44 +304,49 @@ public class JMSMessPgTest extends BaseTest {
         log.info("select any message queue having some messages");
         int noOfMsgs = jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
         log.info("Message count from selected queue other than DLQ : " + noOfMsgs);
+        if (noOfMsgs > 0) {
 
-        soft.assertTrue(noOfMsgs != 0, "JMS queue has some messages");
-        log.info("Select first row");
-        jmsPage.grid().selectRow(0);
+            log.info("Select first row");
+            jmsPage.grid().selectRow(0);
 
-        log.info("Verify status of Move button and Delete button");
-        soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled on selection");
-        soft.assertTrue(jmsPage.getDeleteButton().isEnabled(), "Delete button is enabled on selection");
+            log.info("Verify status of Move button and Delete button");
+            soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled on selection");
+            soft.assertTrue(jmsPage.getDeleteButton().isEnabled(), "Delete button is enabled on selection");
 
-        log.info("Change domain ");
-        jmsPage.getDomainSelector().selectOptionByIndex(1);
-        jmsPage.waitForTitle();
+            log.info("Change domain ");
+            jmsPage.getDomainSelector().selectOptionByIndex(1);
+            jmsPage.waitForTitle();
 
-        log.info("Check message count in queue");
+            log.info("Check message count in queue");
 
-        if (jmsPage.grid().getPagination().getTotalItems() == 0) {
-            log.info("Select any other jms queue if default queue DLQ has no message");
-            jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages();
-            jmsPage.grid().waitForRowsToLoad();
+            if (jmsPage.grid().getPagination().getTotalItems() == 0) {
+                log.info("Select any other jms queue if default queue DLQ has no message");
+                if (jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages() > 0) {
+                    jmsPage.grid().waitForRowsToLoad();
+                    int totalCount = jmsPage.grid().getPagination().getTotalItems();
+                    log.info("Current message count is " + totalCount);
+
+                    log.info("Select first row");
+                    jmsPage.grid().selectRow(0);
+
+                    log.info("Click on delete button");
+                    jmsPage.getDeleteButton().click();
+
+                    log.info("Click on save button");
+                    jmsPage.getSaveButton().click();
+
+                    log.info("Check presence of success message on deletion");
+                    soft.assertTrue(jmsPage.getAlertArea().getAlertMessage().contains("success"), "Success message is shown on deletion");
+
+                    log.info("Verify queue message count as 1 less than before");
+                    soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
+                } else {
+                    log.info("Not enough record present in any queue");
+                }
+            }
+        } else {
+            log.info("Not enough record to proceed with scenario");
         }
-
-        int totalCount = jmsPage.grid().getPagination().getTotalItems();
-        log.info("Current message count is " + totalCount);
-
-        log.info("Select first row");
-        jmsPage.grid().selectRow(0);
-
-        log.info("Click on delete button");
-        jmsPage.getDeleteButton().click();
-
-        log.info("Click on save button");
-        jmsPage.getSaveButton().click();
-
-        log.info("Check presence of success message on deletion");
-        soft.assertTrue(jmsPage.getAlertArea().getAlertMessage().contains("success"), "Success message is shown on deletion");
-
-        log.info("Verify queue message count as 1 less than before");
-        soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
         soft.assertAll();
 
     }
@@ -423,93 +418,91 @@ public class JMSMessPgTest extends BaseTest {
 
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
 
-            log.info("Create Admin user for default domain");
-            String user = Generator.randomAlphaNumeric(10);
-            rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        log.info("Create Admin user for default domain");
+        String user = Generator.randomAlphaNumeric(10);
+        rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
-            log.info("Login into application with Admin user of Multitenancy and navigate to JMS Monitoring page");
-            login(user, data.defaultPass());
-            log.info("uploading pmode");
-            rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
-            String pluginUser = Generator.randomAlphaNumeric(10);
+        log.info("Login into application with Admin user of Multitenancy and navigate to JMS Monitoring page");
+        login(user, data.defaultPass());
+        log.info("uploading pmode");
+        rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
+        String pluginUser = Generator.randomAlphaNumeric(10);
 
-            log.info("Create plugin user");
-            rest.createPluginUser(pluginUser, DRoles.ADMIN, data.defaultPass(), null);
+        log.info("Create plugin user");
+        rest.createPluginUser(pluginUser, DRoles.ADMIN, data.defaultPass(), null);
 
-            log.info("send message ");
-            messageSender.sendMessage(pluginUser, data.defaultPass(), null, null);
-            do {
-                jmsPage.getSidebar().goToPage(PAGES.JMS_MONITORING);
-                jmsPage.waitForTitle();
+        log.info("send message ");
+        messageSender.sendMessage(pluginUser, data.defaultPass(), null, null);
+        do {
+            jmsPage.getSidebar().goToPage(PAGES.JMS_MONITORING);
+            jmsPage.waitForTitle();
 
-                if(jmsPage.grid().getPagination().getTotalItems()>0){
-                    jmsPage.grid().selectRow(0);
+            if (jmsPage.grid().getPagination().getTotalItems() > 0) {
+                jmsPage.grid().selectRow(0);
+            } else {
+                if (data.isIsMultiDomain()) {
+                    log.info("Select queue [internal] domibus.notification.webservice ");
+                    jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
+
+                } else {
+                    log.info("Select queue [internal] domibus.notification.webservice ");
+                    jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+
                 }
-                else{
-                    if(data.isIsMultiDomain()) {
-                        log.info("Select queue [internal] domibus.notification.webservice ");
-                        jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
-
-                    }
-                    else {
-                        log.info("Select queue [internal] domibus.notification.webservice ");
-                        jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
-
-                    }
-                    log.info("Wait for grid row to load");
-                    }
-                    jmsPage.grid().waitForRowsToLoad();
-                soft.assertTrue(jmsPage.grid().getPagination().getTotalItems()>0);
-                    log.info("select first row");
-                    jmsPage.grid().selectRow(0);
+                log.info("Wait for grid row to load");
+            }
+            jmsPage.grid().waitForRowsToLoad();
+            soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() > 0);
+            log.info("select first row");
+            jmsPage.grid().selectRow(0);
 
 
-                log.info("Check status of Move button");
-                soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
+            log.info("Check status of Move button");
+            soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
 
-                log.info("Click on Move button");
-                jmsPage.getMoveButton().click();
-                JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
+            log.info("Click on Move button");
+            jmsPage.getMoveButton().click();
+            JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
 
-                if((jmsModel.getQueueSelect().getSelectedValue()!=null)){
-                    if(data.isIsMultiDomain()) {
+            if ((jmsModel.getQueueSelect().getSelectedValue() != null)) {
+                if (data.isIsMultiDomain()) {
 
-                        soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null);
-                    }
-                    else{
-                        soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) != null);
+                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null);
+                } else {
+                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) != null);
+
+                }
+            } else {
+                if (jmsModel.getQueueSelect().getSelectedValue() == null) {
+
+                    log.info("Click on arrow to open destination fields on Move pop up");
+                    jmsModel.destinationArrows.get(2).click();
+
+                    log.info("Select first queue");
+                    jmsModel.getQueueSelect().selectOptionByIndex(0);
+
+                    log.info("Extract name of selected queue name");
+                    String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
+                    if (data.isIsMultiDomain()) {
+                        log.info("Verify presence of no count in selected queue name");
+                        soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
+                    } else {
+                        log.info("Verify present of count in case of single tenancy");
+                        soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) != null, "Count is  shown for queue on Move pop up for Single tenant Admin user");
 
                     }
                 }
-                else{ if(jmsModel.getQueueSelect().getSelectedValue()==null){
+            }
 
-                        log.info("Click on arrow to open destination fields on Move pop up");
-                        jmsModel.destinationArrows.get(2).click();
+            jmsPage.refreshPage();
+            jmsPage.grid().waitForRowsToLoad();
 
-                        log.info("Select first queue");
-                        jmsModel.getQueueSelect().selectOptionByIndex(0);
+            log.info("Break from loop if current domain name is second domain");
+            if (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
 
-                        log.info("Extract name of selected queue name");
-                        String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
-                        if(data.isIsMultiDomain()) {
-                            log.info("Verify presence of no count in selected queue name");
-                            soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
-                        }
-                        else{
-                            log.info("Verify present of count in case of single tenancy");
-                    soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee)!=null , "Count is  shown for queue on Move pop up for Single tenant Admin user");
-
-                    }}}
-
-                jmsPage.refreshPage();
-                jmsPage.grid().waitForRowsToLoad();
-
-                log.info("Break from loop if current domain name is second domain");
-                if (jmsPage.getDomainFromTitle()==null || jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-                    break;
-                }
-
-               if(data.isIsMultiDomain()){
+            if (data.isIsMultiDomain()) {
                 log.info("Logout from application");
                 logout();
                 log.info("Create Admin user for second domain ");
@@ -519,7 +512,8 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("Login into application with Admin user of second domain and navigate to JMS Monitoring page");
                 login(userr, data.defaultPass());
 
-            }} while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+            }
+        } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 
         soft.assertAll();
 
@@ -567,8 +561,8 @@ public class JMSMessPgTest extends BaseTest {
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
-
         do {
+
             jmsPage.waitForTitle();
             log.info("Wait for grid row to load");
             jmsPage.grid().waitForRowsToLoad();
@@ -577,30 +571,44 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("select first row if grid row count >0");
 
                 jmsPage.grid().selectRow(0);
+                log.info("Click on Move button");
+                jmsPage.getMoveButton().click();
+                JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
+
+                System.out.print(jmsModel.getQueueSelect().getSelectedValue());
             } else {
 
                 log.info("select queue with some messages");
-                jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages();
-                jmsPage.grid().waitForRowsToLoad();
+                if (jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ() > 0) {
+                    jmsPage.grid().waitForRowsToLoad();
 
-                log.info("Select first row");
-                jmsPage.grid().selectRow(0);
+                    log.info("Select first row");
+                    jmsPage.grid().selectRow(0);
+                } else {
+                    log.info("Not enough record in queue");
+                    break;
+                }
+                soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
+
+                log.info("Click on Move button");
+                jmsPage.getMoveButton().click();
+
+                if (data.isIsMultiDomain()) {
+                    log.info("Open destination drop down");
+
+                    new JMSMoveMessageModal(driver).destinationArrows.get(3).click();
+                } else {
+                    log.info("Open destination drop down");
+                    new JMSMoveMessageModal(driver).destinationArrows.get(2).click();
+                }
+                log.info("Select first queue");
+                new JMSMoveMessageModal(driver).getQueueSelect().selectOptionByIndex(0);
 
             }
-            soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
 
-            log.info("Click on Move button");
-            jmsPage.getMoveButton().click();
-            JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
-
-            log.info("Open destination drop down");
-            jmsModel.destinationArrows.get(3).click();
-
-            log.info("Select first queue");
-            jmsModel.getQueueSelect().selectOptionByIndex(0);
 
             log.info("Verify presence of count from selected queue name");
-            String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
+            String selectedQueuee = new JMSMoveMessageModal(driver).getQueueSelect().getSelectedValue();
             log.info("Message count shown in queue name :" + jmsPage.getCountFromQueueName(selectedQueuee));
 
             soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) != null, "Count is  shown for queue on Move pop up for Multi tenant Super Admin user");
@@ -608,8 +616,7 @@ public class JMSMessPgTest extends BaseTest {
             jmsPage.grid().waitForRowsToLoad();
 
             log.info("break from loop if domain name is same as second domain name");
-            log.info("break from loop if domain name is same as second domain name");
-            if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+            if (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
             }
 

@@ -36,6 +36,9 @@ public class JMSSelect extends Select {
 
     public int selectQueueWithMessagesNotDLQ() throws Exception {
         String qName = getQueueNameWithMessages("DLQ");
+        if (StringUtils.isEmpty(qName)) {
+            return 0;
+        }
         selectOptionByText(qName);
         return Integer.valueOf(qName.replaceAll("\\D", ""));
     }
