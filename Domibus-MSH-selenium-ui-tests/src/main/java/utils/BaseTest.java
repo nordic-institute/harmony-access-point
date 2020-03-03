@@ -7,31 +7,25 @@ import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
-//import org.apache.log4j.FileAppender;
-//import org.apache.log4j.PatternLayout;
-//import org.apache.lo
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
-import org.testng.log4testng.Logger;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
 import utils.soap_client.DomibusC1;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 
 /**
  * @author Catalin Comanici
@@ -45,11 +39,9 @@ public class BaseTest {
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 
-	public final Logger log = Logger.getLogger(this.getClass());
+	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
 	public String logFilename;
-
-
 //	private void makeLoggerLog() throws Exception{
 //		PatternLayout layout = new PatternLayout("%d{ISO8601} [%C.%M] - %m%n");
 //

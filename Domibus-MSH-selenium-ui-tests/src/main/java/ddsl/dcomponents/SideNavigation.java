@@ -81,8 +81,8 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "#alerts_id")
 	private WebElement alertsLnk;
 
-	@FindBy(css = "#testservice_id")
-	private WebElement testServiceLnk;
+	@FindBy(css = "#connectionmonitoring_id")
+	private WebElement connectionMonitoring_Lnk;
 
 	private boolean isPmodeSectionExpanded() {
 		try {
@@ -134,8 +134,8 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, auditLnk);
 			case ALERTS:
 				return new DLink(driver, alertsLnk);
-			case TEST_SERVICE:
-				return new DLink(driver, testServiceLnk);
+			case CONNECTION_MONITORING:
+				return new DLink(driver, connectionMonitoring_Lnk);
 		}
 		return null;
 	}
@@ -191,7 +191,7 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.PLUGIN_USERS).isPresent()
 				&& getPageLnk(PAGES.AUDIT).isPresent()
 				&& getPageLnk(PAGES.ALERTS).isPresent()
-				&& getPageLnk(PAGES.TEST_SERVICE).isPresent()
+				&& getPageLnk(PAGES.CONNECTION_MONITORING).isPresent()
 		);
 	}
 

@@ -83,8 +83,9 @@ public class DomibusPage extends DComponent {
 		return new DomainSelector(driver, element);
 	}
 
-	public void waitForTitle(){
+	public void waitForTitle() throws Exception {
 		wait.forElementToHaveText(pageTitle);
+		log.info("Page title is " + weToDobject(pageTitle).getText());
 	}
 
 	public boolean hasOpenDialog(){

@@ -38,7 +38,7 @@ public class DMessages {
 	public static final String USER_DUPLICATE_USERNAME = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 
 
-	public static final String TESTSERVICE_NOTCONFIGURED = "The test service is not properly configured.";
+	public static final String TESTSERVICE_NOTCONFIGURED = "The Connections Monitoring is not properly configured.";
 
 	public static final String MESSAGES_RESEND_MESSAGE_SUCCESS = "The operation resend message completed successfully";
 

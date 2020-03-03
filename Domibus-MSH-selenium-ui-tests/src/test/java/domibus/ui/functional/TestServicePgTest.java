@@ -12,18 +12,17 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class TestServicePgTest extends BaseTest {
 
-	/* TS-1 - Login as super admin and open Test service page */
-	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"})
+	/* TS-1 - Login as super admin and open Connections Monitoring page */
+	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestServicePage page = new TestServicePage(driver);
 
 		log.info("checking page ..");
@@ -37,13 +36,13 @@ public class TestServicePgTest extends BaseTest {
 	}
 
 	/*	TS-2 - User checks available parties in the Party ID	*/
-	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "TS-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void availableParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading PMode");
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestServicePage page = new TestServicePage(driver);
 
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
@@ -56,13 +55,13 @@ public class TestServicePgTest extends BaseTest {
 	}
 
 	/*	TS-3 - User picks a party and pushes Test button	*/
-	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "TS-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void testBlueParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading pmode");
 		rest.uploadPMode("pmodes/pmode-blue.xml", null);
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TEST_SERVICE);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestServicePage page = new TestServicePage(driver);
 
 		log.info("selecting blue party");
