@@ -90,4 +90,12 @@ public interface PartyService {
      * @throws PModeException
      */
     void deleteParty(final String partyName) throws PModeException;
+
+    /**
+     * Updates an existing Party
+     *
+     * @param party
+     * @param certificateContent
+     */
+    void updateParty(Party party, String certificateContent);
 }

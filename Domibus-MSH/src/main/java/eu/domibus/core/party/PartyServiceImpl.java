@@ -682,10 +682,7 @@ public class PartyServiceImpl implements PartyService {
     public void deleteParty(String partyName) throws PModeException {
 
         //check if party is not in use
-        String partyMe = pModeProvider.getGatewayParty().getName();
-        if (partyMe.equalsIgnoreCase(partyName)) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
-        }
+        checkPartyInUse(partyName);
 
         //read actual PMode configuration
         Configuration configuration = getConfiguration();
@@ -695,11 +692,7 @@ public class PartyServiceImpl implements PartyService {
         List<eu.domibus.common.model.configuration.Party> allParties = configuration.getBusinessProcesses().getPartiesXml().getParty();
 
         //find the party to be deleted
-        eu.domibus.common.model.configuration.Party partyToBeDeleted =
-                allParties.stream().filter(party -> party.getName().equalsIgnoreCase(partyName)).findFirst().orElse(null);
-        if (partyToBeDeleted == null) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
-        }
+        eu.domibus.common.model.configuration.Party partyToBeDeleted = getParty(partyName, allParties);
 
         //remove party from configuration
         removePartyFromConfiguration(partyToBeDeleted, configuration);
@@ -717,7 +710,23 @@ public class PartyServiceImpl implements PartyService {
         removePartyCertificate(Collections.singletonList(partyToBeDeleted.getName()));
     }
 
-    private void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
+    /**
+     * Search for a Party among the list
+     *
+     * @param partyName
+     * @param allParties
+     * @return
+     */
+    protected eu.domibus.common.model.configuration.Party getParty(String partyName, List<eu.domibus.common.model.configuration.Party> allParties) {
+        eu.domibus.common.model.configuration.Party partyToBeDeleted =
+                allParties.stream().filter(party -> party.getName().equalsIgnoreCase(partyName)).findFirst().orElse(null);
+        if (partyToBeDeleted == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] not found!");
+        }
+        return partyToBeDeleted;
+    }
+
+    protected void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
         if (!parties.getParty().remove(partyToBeDeleted)) {
@@ -725,7 +734,7 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
+    protected void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
                                     Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         List<PartyIdType> partyIdTypeList = businessProcesses.getPartiesXml().getPartyIdTypes().getPartyIdType();
@@ -745,7 +754,7 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void removeProcessConfiguration(eu.domibus.common.model.configuration.Party configParty, Configuration configuration) {
+    protected void removeProcessConfiguration(eu.domibus.common.model.configuration.Party configParty, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         List<Process> processes = businessProcesses.getProcesses();
         Party party = domainCoreConverter.convert(configParty, Party.class);
@@ -766,6 +775,69 @@ public class PartyServiceImpl implements PartyService {
         }
         List<ResponderParty> responderPartyList = process.getResponderPartiesXml().getResponderParty();
         responderPartyList.removeIf(x -> x.getName().equals(party.getName()));
+    }
+
+
+    @Override
+    public void updateParty(Party party, String certificateContent) {
+
+        final String partyName = party.getName();
+        checkPartyInUse(partyName);
+
+        //read actual PMode configuration
+        Configuration configuration = getConfiguration();
+        initConfigurationParties(configuration);
+
+        //get all parties
+        List<eu.domibus.common.model.configuration.Party> allParties = configuration.getBusinessProcesses().getPartiesXml().getParty();
+
+        //find the party to be deleted
+        eu.domibus.common.model.configuration.Party configParty = getParty(partyName, allParties);
+
+        //remove party from configuration
+        removePartyFromConfiguration(configParty, configuration);
+
+        //remove party id types
+        removePartyIdTypes(configParty, configuration);
+
+        //remove processes
+        removeProcessConfiguration(configParty, configuration);
+
+        //remove certificate
+        removePartyCertificate(Collections.singletonList(configParty.getName()));
+
+        //add new party to configuration
+        addPartyToConfiguration(configParty, configuration);
+
+        //update party id types
+        updatePartyIdTypes(allParties, configuration);
+
+        //update processes
+        addProcessConfiguration(party, configuration);
+
+        //update the PMode configuration
+        updateConfiguration(new Date(System.currentTimeMillis()), configuration);
+
+        //add certificate as well
+        if (StringUtils.isNotBlank(certificateContent)) {
+            Map<String, String> map = new HashMap<>();
+            map.put(party.getName(), certificateContent);
+            addPartyCertificate(map);
+        }
+
+    }
+
+    /**
+     * Checks if a Party is in use
+     *
+     * @param partyName
+     */
+    protected void checkPartyInUse(String partyName) throws PModeException {
+        //check if party is not in use
+        String partyMe = pModeProvider.getGatewayParty().getName();
+        if (partyMe.equalsIgnoreCase(partyName)) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_003, EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
+        }
     }
 
     /**
@@ -797,7 +869,7 @@ public class PartyServiceImpl implements PartyService {
      *
      * @param configuration Configuration object
      */
-    private void initConfigurationParties(Configuration configuration) {
+    protected void initConfigurationParties(Configuration configuration) {
         configuration.getBusinessProcesses().setPartyIdTypes(new HashSet<>(configuration.getBusinessProcesses().getPartiesXml().getPartyIdTypes().getPartyIdType()));
         for (final eu.domibus.common.model.configuration.Party party : configuration.getBusinessProcesses().getPartiesXml().getParty()) {
             party.init(configuration);

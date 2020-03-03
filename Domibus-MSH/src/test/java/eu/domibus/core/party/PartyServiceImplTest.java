@@ -1417,7 +1417,7 @@ public class PartyServiceImplTest {
 
     @Test
     public void test_getProcess_NotFound(final @Mocked Configuration configuration,
-                                final @Mocked BusinessProcesses businessProcesses) {
+                                         final @Mocked BusinessProcesses businessProcesses) {
         final String processName = "tc1Process2";
         final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
         eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
@@ -1439,6 +1439,53 @@ public class PartyServiceImplTest {
         } catch (Exception e) {
             Assert.assertTrue(e instanceof PModeException);
         }
+    }
 
+
+    @Test
+    public void test_deleteParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
+                                 final @Mocked eu.domibus.common.model.configuration.Party party,
+                                 final @Mocked Parties parties) {
+        final String partyName = "red-gw";
+        final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
+        listParties.add(party);
+
+        new Expectations(partyService) {{
+            partyService.getConfiguration();
+            result = configuration;
+
+            configuration.getBusinessProcesses();
+            result = businessProcesses;
+
+            businessProcesses.getPartiesXml();
+            result = parties;
+
+            parties.getParty();
+            result = listParties;
+
+            partyService.getParty(partyName, listParties);
+            result = party;
+        }};
+
+        //tested method
+        partyService.deleteParty(partyName);
+
+        new FullVerifications(partyService) {{
+            partyService.checkPartyInUse(partyName);
+
+            partyService.initConfigurationParties(configuration);
+
+            partyService.removePartyFromConfiguration(party, configuration);
+
+            partyService.removePartyFromConfiguration(party, configuration);
+
+            partyService.removePartyIdTypes(party, configuration);
+
+            partyService.removeProcessConfiguration(party, configuration);
+
+            partyService.updateConfiguration((Date) any, configuration);
+
+            partyService.removePartyCertificate((List<String>) any);
+        }};
     }
 }

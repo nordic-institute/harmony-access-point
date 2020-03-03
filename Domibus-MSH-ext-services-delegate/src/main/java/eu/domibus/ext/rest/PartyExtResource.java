@@ -67,7 +67,7 @@ public class PartyExtResource {
     @ResponseStatus(HttpStatus.CREATED)
     public String createParty(@RequestBody PartyDTO request) {
         partyExtService.createParty(request);
-        return "Party with partyName=[" + request.getName() + "] created successfully!";
+        return "Party having partyName=[" + request.getName() + "] created successfully!";
     }
 
     @ApiOperation(value = "Delete a Party",
@@ -107,7 +107,7 @@ public class PartyExtResource {
     public String updateParty(@RequestBody PartyDTO partyDTO) {
         LOG.debug("Updating party [{}]", partyDTO);
         partyExtService.updateParty(partyDTO);
-        return "Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted";
+        return "Party having partyName=[" + partyDTO.getName() + "] has been successfully updated";
     }
 
 }

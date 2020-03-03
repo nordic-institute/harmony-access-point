@@ -69,11 +69,8 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void updateParty(PartyDTO partyDTO) {
-        //first we delete the party
-        final String partyName = partyDTO.getName();
-        deleteParty(partyName);
-
-        createParty(partyDTO);
+        Party party = domainConverter.convert(partyDTO, Party.class);
+        partyService.updateParty(party, partyDTO.getCertificateContent());
     }
 
     /**
