@@ -762,19 +762,19 @@ public class PartyServiceImpl implements PartyService {
         processes.forEach(process -> removeProcessConfigurationInitiatorResponderParties(party, process));
     }
 
-    private void removeProcessConfigurationInitiatorResponderParties(Party party, Process process) {
+    protected void removeProcessConfigurationInitiatorResponderParties(Party party, Process process) {
 
         if (process.getInitiatorPartiesXml() == null) {
             process.setInitiatorPartiesXml(new InitiatorParties());
         }
         List<InitiatorParty> initiatorPartyList = process.getInitiatorPartiesXml().getInitiatorParty();
-        initiatorPartyList.removeIf(x -> x.getName().equals(party.getName()));
+        initiatorPartyList.removeIf(x -> x.getName().equalsIgnoreCase(party.getName()));
 
         if (process.getResponderPartiesXml() == null) {
             process.setResponderPartiesXml(new ResponderParties());
         }
         List<ResponderParty> responderPartyList = process.getResponderPartiesXml().getResponderParty();
-        responderPartyList.removeIf(x -> x.getName().equals(party.getName()));
+        responderPartyList.removeIf(x -> x.getName().equalsIgnoreCase(party.getName()));
     }
 
 

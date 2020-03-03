@@ -1477,8 +1477,6 @@ public class PartyServiceImplTest {
 
             partyService.removePartyFromConfiguration(party, configuration);
 
-            partyService.removePartyFromConfiguration(party, configuration);
-
             partyService.removePartyIdTypes(party, configuration);
 
             partyService.removeProcessConfiguration(party, configuration);
@@ -1487,5 +1485,46 @@ public class PartyServiceImplTest {
 
             partyService.removePartyCertificate((List<String>) any);
         }};
+    }
+
+    @Test
+    public void test_removeProcessConfigurationInitiatorResponderParties(final @Mocked Party party,
+                                                                         final @Mocked eu.domibus.common.model.configuration.Process process,
+                                                                         final @Mocked InitiatorParties initiatorParties,
+                                                                         final @Mocked ResponderParties responderParties) {
+        final String partyName = "red-gw";
+
+        InitiatorParty initiatorParty = new InitiatorParty();
+        initiatorParty.setName("RED-GW");
+        final List<InitiatorParty> initiatorPartyList = new ArrayList<>();
+        initiatorPartyList.add(initiatorParty);
+
+        ResponderParty responderParty = new ResponderParty();
+        responderParty.setName("RED-gw");
+        final List<ResponderParty> responderPartyList = new ArrayList<>();
+        responderPartyList.add(responderParty);
+
+        new Expectations() {{
+            party.getName();
+            result = partyName;
+
+            process.getInitiatorPartiesXml();
+            result = initiatorParties;
+            times = 2;
+
+            initiatorParties.getInitiatorParty();
+            result = initiatorPartyList;
+
+            process.getResponderPartiesXml();
+            result = responderParties;
+
+            responderParties.getResponderParty();
+            result = responderPartyList;
+        }};
+
+        //tested method
+        partyService.removeProcessConfigurationInitiatorResponderParties(party, process);
+        Assert.assertTrue(initiatorPartyList.size() == 0);
+        Assert.assertTrue(responderPartyList.size() == 0);
     }
 }
