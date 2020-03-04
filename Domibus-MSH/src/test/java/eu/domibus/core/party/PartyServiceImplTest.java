@@ -378,7 +378,7 @@ public class PartyServiceImplTest {
             @Injectable eu.domibus.common.model.configuration.Party replacement) {
         // Expected exception
         thrown.expect(DomibusCoreException.class);
-        thrown.expectMessage("Cannot delete the party describing the current system. ");
+        thrown.expectMessage("[DOM_003]:" + PartyServiceImpl.EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM);
 
         // Given
         List<Party> replacements = Lists.newArrayList();
@@ -966,11 +966,12 @@ public class PartyServiceImplTest {
 
     @Test
     public void throwsExceptionIfItCannotUpdatePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
-                                                                                     @Injectable ConfigurationRaw rawConfiguration) throws Exception {
+                                                                                     @Injectable ConfigurationRaw rawConfiguration,
+                                                                                     @Mocked PartyServiceImpl.ReplacementResult replacementResult) throws Exception {
         // Given
         thrown.expect(PModeValidationException.class);
 
-        new Expectations() {{
+        new Expectations(partyService) {{
             pModeArchiveInfo.getId();
             result = anyInt;
             rawConfiguration.getXml();
@@ -984,7 +985,7 @@ public class PartyServiceImplTest {
             result = configuration;
 
             partyService.replaceParties((List<Party>) any, configuration);
-            result = any;
+            result = replacementResult;
             rawConfiguration.getConfigurationDate();
             result = new Date();
             pModeProvider.serializePModeConfiguration(configuration);
