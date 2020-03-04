@@ -7,11 +7,11 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
 import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.core.security.PluginUserPasswordHistoryDao;
+import eu.domibus.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -20,7 +20,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -97,7 +96,7 @@ public class PluginUserServiceImplTest {
 
     @Test()
     public void testUpdateUsers() {
-        Domain currentDomain = new Domain("d1","D1");
+        Domain currentDomain = new Domain("d1", "D1");
 
         AuthenticationEntity added_user = new AuthenticationEntity();
         added_user.setCertificateId("added_user");
@@ -135,13 +134,13 @@ public class PluginUserServiceImplTest {
         AuthType authType = AuthType.BASIC;
         AuthRole authRole = AuthRole.ROLE_ADMIN;
         String originalUser = "originalUser1";
-        String userName  = "userName1";
+        String userName = "userName1";
 
         Map<String, Object> filters = pluginUserService.createFilterMap(authType, authRole, originalUser, userName);
 
-        Assert.assertEquals("BASIC" , filters.get("authType"));
-        Assert.assertEquals("ROLE_ADMIN" , filters.get("authRoles"));
-        Assert.assertEquals("originalUser1" , filters.get("originalUser"));
+        Assert.assertEquals("BASIC", filters.get("authType"));
+        Assert.assertEquals("ROLE_ADMIN", filters.get("authRoles"));
+        Assert.assertEquals("originalUser1", filters.get("originalUser"));
     }
 
     @Test()
@@ -160,6 +159,34 @@ public class PluginUserServiceImplTest {
 
         new Verifications() {{
             userSecurityPolicyManager.reactivateSuspendedUsers();
+            times = 1;
+        }};
+    }
+
+    @Test()
+    public void testInsertNewUser(@Injectable AuthenticationEntity added_user,
+                                  @Injectable Domain currentDomain) {
+
+        final String userName = "user1";
+        final String password = "Domibus-111";
+
+        new Expectations() {{
+            added_user.getUserName();
+            result = userName;
+            added_user.getPassword();
+            result = password;
+            userSecurityPolicyManager.validateComplexity(userName, password);
+            bcryptEncoder.encode(password);
+            result = "encodedPassword";
+        }};
+
+        pluginUserService.insertNewUser(added_user, currentDomain);
+
+        new Verifications() {{
+            securityAuthenticationDAO.create(added_user);
+            times = 1;
+
+            userDomainService.setDomainForUser(added_user.getUniqueIdentifier(), currentDomain.getCode());
             times = 1;
         }};
     }
