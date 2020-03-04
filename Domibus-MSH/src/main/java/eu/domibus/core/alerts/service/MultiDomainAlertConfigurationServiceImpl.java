@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -67,6 +68,9 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Autowired
     private DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
 
     /**
      * {@inheritDoc}
@@ -328,7 +332,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     }
 
-    abstract class AccountDisabledConfigurationReader {
+    abstract class AccountDisabledConfigurationReader implements UserAuthenticationConfiguration {
         protected abstract AlertType getAlertType();
 
         protected abstract String getModuleName();
@@ -344,10 +348,15 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected AccountDisabledModuleConfiguration readConfiguration() {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             try {
+                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", currentDomain, getModuleName());
+                    return new AccountDisabledModuleConfiguration(getAlertType());
+                }
+
                 final Boolean alertActive = isAlertModuleEnabled();
                 final Boolean accountDisabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
                 if (!alertActive || !accountDisabledActive) {
-                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason:global alert module active[{}], account disabled module active[{}]"
+                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
                             , currentDomain, getModuleName(), alertActive, accountDisabledActive);
                     return new AccountDisabledModuleConfiguration(getAlertType());
                 }
@@ -364,6 +373,13 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 return new AccountDisabledModuleConfiguration(getAlertType());
             }
         }
+    }
+
+    /**
+     * Each configuration reader which handles user alerts have to implement this
+     */
+    interface UserAuthenticationConfiguration {
+        boolean isExternalAuthenticationEnabled();
     }
 
     class ConsoleAccountDisabledConfigurationReader extends AccountDisabledConfigurationReader {
@@ -396,6 +412,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_SUBJECT;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -430,6 +451,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT;
         }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return false;
+        }
     }
 
     class ConsoleLoginFailConfigurationReader extends LoginFailConfigurationReader {
@@ -456,6 +482,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_USER_LOGIN_FAILURE_MAIL_SUBJECT;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -525,7 +556,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return configurationLoader.getConfiguration(new RepetitiveAlertConfigurationReader(alertType)::readConfiguration);
     }
 
-    class RepetitiveAlertConfigurationReader {
+    class RepetitiveAlertConfigurationReader implements UserAuthenticationConfiguration {
         AlertType alertType;
         String property, moduleName;
 
@@ -538,6 +569,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         public RepetitiveAlertModuleConfiguration readConfiguration() {
             Domain domain = domainContextProvider.getCurrentDomainSafely();
             try {
+                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", domain, moduleName);
+                    return new RepetitiveAlertModuleConfiguration(alertType);
+                }
+
                 final Boolean alertModuleActive = isAlertModuleEnabled();
                 final Boolean eventActive = Boolean.valueOf(domibusPropertyProvider.getProperty(property + ".active"));
                 if (!alertModuleActive || !eventActive) {
@@ -558,6 +594,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 return new RepetitiveAlertModuleConfiguration(alertType);
             }
         }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return domibusConfigurationService.isExtAuthProviderEnabled();
+        }
     }
 
     /**
@@ -573,7 +614,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return pluginAccountDisabledConfigurationLoader.getConfiguration(new PluginAccountDisabledConfigurationReader()::readConfiguration);
     }
 
-    abstract class LoginFailConfigurationReader {
+    abstract class LoginFailConfigurationReader implements UserAuthenticationConfiguration {
         protected abstract AlertType getAlertType();
 
         protected abstract String getModuleName();
@@ -587,8 +628,12 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected LoginFailureModuleConfiguration readConfiguration() {
             Domain domain = domainContextProvider.getCurrentDomainSafely();
             try {
-                final Boolean alertActive = isAlertModuleEnabled();
+                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                    LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", getModuleName());
+                    return new LoginFailureModuleConfiguration(getAlertType());
+                }
 
+                final Boolean alertActive = isAlertModuleEnabled();
                 final Boolean loginFailureActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
 
                 if (!alertActive || !loginFailureActive) {
@@ -634,6 +679,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_MAIL_SUBJECT;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return false;
         }
     }
 
