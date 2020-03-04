@@ -131,7 +131,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         }
         final Integer duration = eventConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerDomainProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
             // if password expiration is disabled, do not trigger the corresponding alerts, regardless of alert enabled/disabled status
             return;
