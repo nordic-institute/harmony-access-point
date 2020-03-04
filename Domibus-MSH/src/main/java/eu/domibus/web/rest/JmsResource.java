@@ -46,7 +46,7 @@ public class JmsResource extends BaseResource {
     private ErrorHandlerService errorHandlerService;
 
     @ExceptionHandler({InternalJMSException.class})
-    public ResponseEntity<ErrorRO> handleUserManagementException(InternalJMSException ex) {
+    public ResponseEntity<ErrorRO> handleInternalJMSException(InternalJMSException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

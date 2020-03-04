@@ -21,7 +21,7 @@ public class JmsFilterRequestRO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
 
-    @CustomWhiteListed(permitted = "=,:-'<>.")
+    @CustomWhiteListed(permitted = "=,:-'<>.@!/")
     private String selector;
 
     public String getSource() {
