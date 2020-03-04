@@ -2,21 +2,19 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.services.PluginUserService;
-import eu.domibus.core.security.PluginUserPasswordHistoryDao;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.security.AuthenticationDAO;
 import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.security.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.security.PluginUserSecurityPolicyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel, Catalin Enache
@@ -143,6 +140,7 @@ public class PluginUserServiceImpl implements PluginUserService {
 
     protected void insertNewUser(AuthenticationEntity u, Domain domain) {
         if (u.getPassword() != null) {
+            userSecurityPolicyManager.validateComplexity(u.getUserName(), u.getPassword());
             u.setPassword(bcryptEncoder.encode(u.getPassword()));
         }
         authenticationDAO.create(u);
