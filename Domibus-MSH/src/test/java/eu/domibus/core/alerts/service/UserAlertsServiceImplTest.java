@@ -19,6 +19,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -99,7 +100,7 @@ public class UserAlertsServiceImplTest {
             result = howManyDaysToGenerateAlertsAfterExpiration;
             userAlertsService.getMaximumPasswordAgeProperty();
             result = ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE;
-            domibusPropertyProvider.getIntegerDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
+            domibusPropertyProvider.getIntegerProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
             result = maxPasswordAge;
             userAlertsService.getUserDao();
             result = dao;
@@ -147,7 +148,7 @@ public class UserAlertsServiceImplTest {
             result = true;
             alertsConfiguration.getRepetitiveAlertConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION).getEventDelay();
             result = howManyDaysBeforeExpirationToGenerateAlerts;
-            domibusPropertyProvider.getIntegerDomainProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
+            domibusPropertyProvider.getIntegerProperty(ConsoleUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE);
             result = maxPasswordAge;
             userAlertsService.getEventTypeForPasswordImminentExpiration();
             result = EventType.PASSWORD_IMMINENT_EXPIRATION;
@@ -177,6 +178,28 @@ public class UserAlertsServiceImplTest {
         new VerificationsInOrder() {{
             userAlertsService.triggerExpiredEvents(false);
             times = 1;
+        }};
+    }
+
+
+    @Test
+    public void doNotSendPasswordExpiredEventsIfPasswordExpirationIsDisabled() {
+        new Expectations() {{
+            alertsConfiguration.getRepetitiveAlertConfiguration((AlertType) any);
+            result = new RepetitiveAlertModuleConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED, 100, 20,  AlertLevel.LOW, "alert subject");
+
+            userAlertsService.getMaximumDefaultPasswordAgeProperty();
+            result = "propertyNameToCheck";
+
+            domibusPropertyProvider.getIntegerProperty("propertyNameToCheck");
+            result = 0;
+        }};
+
+        userAlertsService.triggerExpiredEvents(true);
+
+        new VerificationsInOrder() {{
+            userAlertsService.getUserDao();
+            times = 0;
         }};
     }
 
