@@ -207,7 +207,7 @@ public class JMSMessPgTest extends BaseTest {
             soft.assertFalse(jmsPage.moveButton.isEnabled(), "Move button is not enabled");
             soft.assertFalse(jmsPage.deleteButton.isEnabled(), "Delete button is not enabled");
         } else {
-            log.info("Not enough record for execution");
+            throw new SkipException("Not enough messages in any of the queues to run test");
         }
         soft.assertAll();
     }
@@ -341,12 +341,10 @@ public class JMSMessPgTest extends BaseTest {
                     log.info("Verify queue message count as 1 less than before");
                     soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
                 } else {
-                    log.info("Not enough record present in any queue");
-                }
+                    throw new SkipException("Not enough messages in any of the queues to run test");                }
             }
         } else {
-            log.info("Not enough record to proceed with scenario");
-        }
+            throw new SkipException("Not enough messages in any of the queues to run test");        }
         soft.assertAll();
 
     }
@@ -445,14 +443,15 @@ public class JMSMessPgTest extends BaseTest {
                     jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
 
                 } else {
-                    log.info("Select queue [internal] domibus.notification.webservice ");
-                    jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+                    log.info("Select queue other than dlq ");
+                    if(jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ()==0){
+                        throw new SkipException("Not enough messages in any of the queues to run test");
+                    }
 
                 }
                 log.info("Wait for grid row to load");
             }
             jmsPage.grid().waitForRowsToLoad();
-            soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() > 0);
             log.info("select first row");
             jmsPage.grid().selectRow(0);
 
@@ -585,8 +584,7 @@ public class JMSMessPgTest extends BaseTest {
                     log.info("Select first row");
                     jmsPage.grid().selectRow(0);
                 } else {
-                    log.info("Not enough record in queue");
-                    break;
+                    throw new SkipException("Not enough messages in any of the queues to run test");
                 }
                 soft.assertTrue(jmsPage.getMoveButton().isEnabled(), "Move button is enabled");
 
