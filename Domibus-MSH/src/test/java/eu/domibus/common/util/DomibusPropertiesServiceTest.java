@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class DomibusPropertiesServiceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesServiceTest.class);
- 
+
     @Tested
     DomibusPropertiesService service;
 
@@ -51,7 +51,7 @@ public class DomibusPropertiesServiceTest {
         assertEquals("4.0.2", version2);
     }
 
-     @Test
+    @Test
     public void testGetBuildDetails() {
 
         String artifactName = "domibus-MSH";
