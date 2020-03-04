@@ -29,6 +29,9 @@ public class AlertArea extends DComponent {
 	@FindBy(css = "#alertmessage_id span")
 	public WebElement closeButton;
 
+	@FindBy(tagName = "snack-bar-container")
+	public WebElement alertContainer;
+
 	public String getAlertMessage(){
 		try {
 			wait.forElementToBeVisible(alertMessage, true);
@@ -50,9 +53,10 @@ public class AlertArea extends DComponent {
 
 	public boolean isError() throws Exception {
 		try {
-			wait.forElementToBeVisible(alertMessage);
+			wait.forElementToBeVisible(alertContainer, true);
 		} catch (Exception e) {}
-		DObject alertObject = new DObject(driver, alertMessage);
+
+		DObject alertObject = new DObject(driver, alertContainer);
 
 		if (alertObject.isPresent()) {
 			return (alertObject.getAttribute("class").contains("error"));

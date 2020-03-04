@@ -11,6 +11,8 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import utils.TestRunData;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author Catalin Comanici
@@ -48,6 +50,7 @@ public class DriverManager {
 //		WebDriver driver = new ChromeDriver(options);
 		WebDriver driver = new ChromeDriver();
 		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
 		return driver;
 	}
 
@@ -71,6 +74,8 @@ public class DriverManager {
 //		WebDriver driver = new FirefoxDriver(options);
 		WebDriver driver = new FirefoxDriver();
 		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
+
 		return driver;
 	}
 

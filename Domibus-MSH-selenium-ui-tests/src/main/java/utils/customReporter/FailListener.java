@@ -4,6 +4,9 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import utils.BaseTest;
@@ -19,8 +22,25 @@ import java.util.Calendar;
  */
 public class FailListener implements ITestListener {
 
+	Logger log = LoggerFactory.getLogger("ROOT");
+
+	@Override
+	public void onStart(ITestContext context) {
+		 log.info("Tests methods to run - " + context.getSuite().getAllMethods().size());
+	}
+
+
 	@Override
 	public void onTestFailure(ITestResult result) {
+		takeScreenshot(result);
+	}
+
+	@Override
+	public void onTestSkipped(ITestResult result) {
+		takeScreenshot(result);
+	}
+
+	private void takeScreenshot(ITestResult result){
 		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
@@ -36,6 +56,6 @@ public class FailListener implements ITestListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
+
 }

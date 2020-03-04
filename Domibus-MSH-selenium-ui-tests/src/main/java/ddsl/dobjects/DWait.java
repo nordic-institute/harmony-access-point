@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -78,17 +79,7 @@ public class DWait {
 	}
 
 	public void forElementToBeGone(WebElement element) {
-		defaultWait.until(new ExpectedCondition<Boolean>() {
-			@Override
-			public Boolean apply(WebDriver driver) {
-				String content = null;
-				try {
-					content = "" + ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;",element);
-//					System.out.println("content = " + content);
-				} catch (Exception e) {}
-				return StringUtils.isEmpty(content);
-			}
-		});
+		forXMillis(500);
 	}
 
 	public void forElementToBe(WebElement element) {
