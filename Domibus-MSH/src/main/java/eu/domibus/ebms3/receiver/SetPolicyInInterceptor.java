@@ -103,7 +103,7 @@ public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
             final HttpServletResponse response = (HttpServletResponse) message.get(AbstractHTTPDestination.HTTP_RESPONSE);
             response.setStatus(HttpServletResponse.SC_OK);
             try {
-                response.getWriter().println(domibusPropertiesService.getDisplayVersion());
+                response.getWriter().println(domibusPropertiesService.getBuildDetails());
             } catch (IOException ex) {
                 throw new Fault(ex);
             }

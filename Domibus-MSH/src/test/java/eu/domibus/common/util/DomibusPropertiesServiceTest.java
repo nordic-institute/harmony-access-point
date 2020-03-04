@@ -11,8 +11,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Federico Martini
@@ -52,4 +51,19 @@ public class DomibusPropertiesServiceTest {
         assertEquals("4.0.2", version2);
     }
 
+    @Test
+    public void testGetBuildDetails() {
+
+        String artifactName = "domibus-MSH";
+
+        new Expectations(service) {{
+            service.getArtifactName();
+            result = artifactName;
+
+        }};
+
+        String buildDetails = service.getBuildDetails();
+
+        assertTrue(buildDetails.contains(artifactName));
+    }
 }
