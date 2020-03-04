@@ -11,14 +11,17 @@ import java.util.Date;
 
 public class JmsFilterRequestRO {
 
+    @CustomWhiteListed(permitted = ".@!/")
     private String source;
+
     private String jmsType;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+
     private Date fromDate;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
 
-    @CustomWhiteListed(permitted = "=,:-'")
+    @CustomWhiteListed(permitted = "=,:-'<>.@!/")
     private String selector;
 
     public String getSource() {
