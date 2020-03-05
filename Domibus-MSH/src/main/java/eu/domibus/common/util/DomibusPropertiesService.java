@@ -69,4 +69,13 @@ public class DomibusPropertiesService {
         display.append("]");
         return display.toString();
     }
+
+    public String getBuildDetails() {
+        StringBuilder display = new StringBuilder();
+        display.append(" Build-Name [");
+        display.append(getArtifactName());
+        display.append("]");
+        return display.toString();
+
+    }
 }
