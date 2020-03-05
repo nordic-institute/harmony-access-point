@@ -66,7 +66,7 @@
         <h2.version>1.4.178</h2.version>
         <liquibase.version>3.5.3</liquibase.version>
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
-        <wiremock.version>2.0.8-beta</wiremock.version>
+        <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.0.3</dropwizard.metrics.version>
         <!-- do not upgrade to 5.2.x as Liquibase will fail to generate DDL scripts -->
         <dependency.check.version>5.1.1</dependency.check.version>
@@ -395,6 +395,11 @@
             <!-- Hibernate -->
             <dependency>
                 <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>
                 <exclusions>
@@ -455,6 +460,31 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-pool</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-jms-pool</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-openwire-legacy</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>

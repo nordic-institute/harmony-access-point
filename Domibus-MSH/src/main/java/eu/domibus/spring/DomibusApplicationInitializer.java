@@ -40,7 +40,7 @@ import java.util.*;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextLoaderListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
 
     private static final String PLUGINS_LOCATION = "/plugins/lib";
     private static final String EXTENSIONS_LOCATION = "/extensions/lib";
@@ -139,7 +139,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         propertySources.addLast(domibusPropertiesPropertySource);
     }
 
-    protected DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
+    public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
         PropertiesFactoryBean propertiesFactoryBean = new DomibusPropertyConfiguration().domibusProperties(domibusConfigLocation);
         propertiesFactoryBean.setSingleton(false);
         Properties properties = propertiesFactoryBean.getObject();
