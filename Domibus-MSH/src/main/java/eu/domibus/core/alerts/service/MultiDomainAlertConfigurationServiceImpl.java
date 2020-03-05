@@ -553,25 +553,33 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
         ConfigurationLoader<RepetitiveAlertModuleConfiguration> configurationLoader = passwordExpirationAlertsConfigurationHolder.getOrCreate(alertType);
-        return configurationLoader.getConfiguration(new RepetitiveAlertConfigurationReader(alertType)::readConfiguration);
+        switch (alertType) {
+            case PASSWORD_IMMINENT_EXPIRATION:
+                return configurationLoader.getConfiguration(new PasswordImminentExpirationRepetitiveAlertConfigurationReader()::readConfiguration);
+            case PASSWORD_EXPIRED:
+                return configurationLoader.getConfiguration(new PasswordExpiredRepetitiveAlertConfigurationReader()::readConfiguration);
+            case PLUGIN_PASSWORD_IMMINENT_EXPIRATION:
+                return configurationLoader.getConfiguration(new PluginPasswordImminentExpirationRepetitiveAlertConfigurationReader()::readConfiguration);
+            case PLUGIN_PASSWORD_EXPIRED:
+                return configurationLoader.getConfiguration(new PluginPasswordExpiredRepetitiveAlertConfigurationReader()::readConfiguration);
+            default:
+                LOG.error("Invalid alert type[{}]", alertType);
+                throw new IllegalArgumentException("Invalid alert type");
+        }
     }
 
-    class RepetitiveAlertConfigurationReader implements UserAuthenticationConfiguration {
-        AlertType alertType;
-        String property, moduleName;
+    abstract class RepetitiveAlertConfigurationReader implements UserAuthenticationConfiguration {
 
-        public RepetitiveAlertConfigurationReader(AlertType alertType) {
-            this.alertType = alertType;
-            this.property = alertType.getConfigurationProperty();
-            this.moduleName = alertType.getTitle();
-        }
+        protected abstract AlertType getAlertType();
 
         public RepetitiveAlertModuleConfiguration readConfiguration() {
             Domain domain = domainContextProvider.getCurrentDomainSafely();
+            final String moduleName = getAlertType().getTitle();
+            final String property = getAlertType().getConfigurationProperty();
             try {
                 if (isExternalAuthenticationEnabled()) { //ECAS or other provider
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", domain, moduleName);
-                    return new RepetitiveAlertModuleConfiguration(alertType);
+                    return new RepetitiveAlertModuleConfiguration(getAlertType());
                 }
 
                 final Boolean alertModuleActive = isAlertModuleEnabled();
@@ -579,7 +587,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 if (!alertModuleActive || !eventActive) {
                     LOG.debug("domain:[{}] Alert {} module is inactive for the following reason: global alert module active[{}], event active[{}]",
                             domain, moduleName, alertModuleActive, eventActive);
-                    return new RepetitiveAlertModuleConfiguration(alertType);
+                    return new RepetitiveAlertModuleConfiguration(getAlertType());
                 }
 
                 final Integer delay = Integer.valueOf(domibusPropertyProvider.getProperty(property + ".delay_days"));
@@ -588,16 +596,59 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 final String mailSubject = domibusPropertyProvider.getProperty(property + ".mail.subject");
 
                 LOG.info("Alert {} module activated for domain:[{}]", moduleName, domain);
-                return new RepetitiveAlertModuleConfiguration(alertType, delay, frequency, alertLevel, mailSubject);
+                return new RepetitiveAlertModuleConfiguration(getAlertType(), delay, frequency, alertLevel, mailSubject);
             } catch (Exception e) {
                 LOG.warn("An error occurred while reading {} alert module configuration for domain:[{}], ", moduleName, domain, e);
-                return new RepetitiveAlertModuleConfiguration(alertType);
+                return new RepetitiveAlertModuleConfiguration(getAlertType());
             }
+        }
+    }
+
+    class PasswordImminentExpirationRepetitiveAlertConfigurationReader extends RepetitiveAlertConfigurationReader {
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.PASSWORD_IMMINENT_EXPIRATION;
         }
 
         @Override
         public boolean isExternalAuthenticationEnabled() {
             return domibusConfigurationService.isExtAuthProviderEnabled();
+        }
+    }
+
+    class PasswordExpiredRepetitiveAlertConfigurationReader extends RepetitiveAlertConfigurationReader {
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.PASSWORD_EXPIRED;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return false;
+        }
+    }
+
+    class PluginPasswordImminentExpirationRepetitiveAlertConfigurationReader extends RepetitiveAlertConfigurationReader {
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return false;
+        }
+    }
+
+    class PluginPasswordExpiredRepetitiveAlertConfigurationReader extends RepetitiveAlertConfigurationReader {
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.PLUGIN_PASSWORD_EXPIRED;
+        }
+
+        @Override
+        public boolean isExternalAuthenticationEnabled() {
+            return false;
         }
     }
 

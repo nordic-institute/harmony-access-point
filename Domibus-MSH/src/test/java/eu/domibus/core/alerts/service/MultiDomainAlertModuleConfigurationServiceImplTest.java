@@ -1,8 +1,8 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
@@ -66,6 +66,9 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Injectable
     ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     @Test
     public void getAlertLevelForMessage(final @Mocked MessagingModuleConfiguration messagingConfiguration) {
@@ -652,7 +655,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             }
         };
         final RepetitiveAlertModuleConfiguration conf = configurationService.new
-                RepetitiveAlertConfigurationReader(AlertType.PASSWORD_EXPIRED).readConfiguration();
+                PasswordExpiredRepetitiveAlertConfigurationReader().readConfiguration();
 
         assertTrue(conf.isActive());
         assertEquals((long) 15, (long) conf.getEventDelay());
