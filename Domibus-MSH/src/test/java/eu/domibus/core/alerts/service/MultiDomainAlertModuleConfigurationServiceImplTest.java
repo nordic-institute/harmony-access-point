@@ -408,6 +408,17 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     }
 
     @Test
+    public void test_readAccountDisabledConfiguration_ExtAuthProviderEnabled() {
+        new Expectations() {{
+            domibusConfigurationService.isExtAuthProviderEnabled();
+            result = true;
+        }};
+
+        final AccountDisabledModuleConfiguration accountDisabledConfiguration = configurationService.new ConsoleAccountDisabledConfigurationReader().readConfiguration();
+        assertFalse(accountDisabledConfiguration.isActive());
+    }
+
+    @Test
     public void readPluginAccountDisabledConfigurationTest() {
 
         final String mailSubject = "Plugin accout disabled";
