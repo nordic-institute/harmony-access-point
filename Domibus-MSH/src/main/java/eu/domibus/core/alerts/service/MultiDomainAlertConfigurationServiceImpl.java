@@ -379,6 +379,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
      * Each configuration reader which handles user alerts have to implement this
      */
     interface UserAuthenticationConfiguration {
+
+        /**
+         * true if Users External Authentication is enabled
+         * @return boolean
+         */
         boolean isExternalAuthenticationEnabled();
     }
 
@@ -624,7 +629,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         public boolean isExternalAuthenticationEnabled() {
-            return false;
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 

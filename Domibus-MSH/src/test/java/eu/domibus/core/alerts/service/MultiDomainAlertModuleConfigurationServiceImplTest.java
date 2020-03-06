@@ -479,6 +479,18 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         assertFalse(loginFailureConfiguration.isActive());
     }
 
+    @Test
+    public void test_readLoginFailureConfigurationExtAuthProviderEnabled() {
+        new Expectations() {
+            {
+                domibusConfigurationService.isExtAuthProviderEnabled();
+                result = true;
+            }
+        };
+        final LoginFailureModuleConfiguration loginFailureConfiguration = configurationService.new ConsoleLoginFailConfigurationReader().readConfiguration();
+        assertFalse(loginFailureConfiguration.isActive());
+    }
+
 
     @Test
     public void readLoginFailureConfiguration() {
@@ -665,4 +677,18 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         assertEquals(AlertLevel.MEDIUM, conf.getAlertLevel(a));
 
     }
+
+    @Test
+    public void test_getRepetitiveAlertConfiguration_ExtAuthProviderEnabled() {
+        new Expectations() {
+            {
+                domibusConfigurationService.isExtAuthProviderEnabled();
+                result = true;
+            }
+        };
+        final RepetitiveAlertModuleConfiguration conf = configurationService.new
+                PasswordExpiredRepetitiveAlertConfigurationReader().readConfiguration();
+        assertFalse(conf.isActive());
+    }
+
 }
