@@ -81,7 +81,6 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
             Assert.assertTrue(reply.contains("domibus-MSH"));
-            Assert.assertTrue(reply.contains("Build-Time"));
 
         } catch (UnsupportedEncodingException e) {
             Assert.fail();

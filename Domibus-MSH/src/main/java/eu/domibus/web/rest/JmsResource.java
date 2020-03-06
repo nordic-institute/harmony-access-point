@@ -7,13 +7,15 @@ import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,74 +42,52 @@ public class JmsResource extends BaseResource {
     @Autowired
     protected CsvServiceImpl csvServiceImpl;
 
+    @Autowired
+    private ErrorHandlerService errorHandlerService;
+
+    @ExceptionHandler({InternalJMSException.class})
+    public ResponseEntity<ErrorRO> handleInternalJMSException(InternalJMSException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping(value = {"/destinations"})
-    public ResponseEntity<DestinationsResponseRO> destinations() {
+    public DestinationsResponseRO destinations() {
+        SortedMap<String, JMSDestination> destinations = jmsManager.getDestinations();
 
-        final DestinationsResponseRO destinationsResponseRO = new DestinationsResponseRO();
-        try {
-            destinationsResponseRO.setJmsDestinations(jmsManager.getDestinations());
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(destinationsResponseRO);
-
-        } catch (RuntimeException runEx) {
-            LOGGER.error("Error finding the JMS messages sources", runEx);
-            return ResponseEntity.badRequest()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(destinationsResponseRO);
-        }
+        final DestinationsResponseRO response = new DestinationsResponseRO();
+        response.setJmsDestinations(destinations);
+        return response;
     }
 
     @GetMapping(value = {"/messages"})
-    public ResponseEntity<MessagesResponseRO> messages(@Valid JmsFilterRequestRO request) {
-
-        final MessagesResponseRO messagesResponseRO = new MessagesResponseRO();
-        try {
-            messagesResponseRO.setMessages(jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector()));
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(messagesResponseRO);
-
-        } catch (RuntimeException runEx) {
-            LOGGER.error("Error browsing messages for source [" + request.getSource() + "]", runEx);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(messagesResponseRO);
-        }
+    public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
+        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector());
+        final MessagesResponseRO response = new MessagesResponseRO();
+        response.setMessages(messages);
+        return response;
     }
 
     @PostMapping(value = {"/messages/action"})
-    public ResponseEntity<MessagesActionResponseRO> action(@RequestBody @Valid MessagesActionRequestRO request) {
+    public MessagesActionResponseRO action(@RequestBody @Valid MessagesActionRequestRO request) {
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
-        response.setOutcome("Success");
 
-        try {
-            List<String> messageIds = request.getSelectedMessages();
-            String[] ids = messageIds.toArray(new String[0]);
+        List<String> messageIds = request.getSelectedMessages();
+        String[] ids = messageIds.toArray(new String[0]);
 
-            if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
-                Map<String, JMSDestination> destinations = jmsManager.getDestinations();
-                String destName = request.getDestination();
-                if (!destinations.values().stream().anyMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
-                    throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
-                }
-                jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-            } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
-                jmsManager.deleteMessages(request.getSource(), ids);
+        if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
+            Map<String, JMSDestination> destinations = jmsManager.getDestinations();
+            String destName = request.getDestination();
+            if (!destinations.values().stream().anyMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
+                throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
             }
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(response);
-
-        } catch (RuntimeException runEx) {
-            LOGGER.error("Error performing action [" + request.getAction() + "]", runEx);
-            response.setOutcome(runEx.getMessage());
-            return ResponseEntity.badRequest()
-                    .contentType(MediaType.parseMediaType(APPLICATION_JSON))
-                    .body(response);
+            jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
+        } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
+            jmsManager.deleteMessages(request.getSource(), ids);
         }
+
+        response.setOutcome("Success");
+        return response;
     }
 
     /**

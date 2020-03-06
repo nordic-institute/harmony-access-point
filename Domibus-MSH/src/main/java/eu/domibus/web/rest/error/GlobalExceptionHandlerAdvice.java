@@ -64,6 +64,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorRO> handleRuntimeException(RuntimeException ex) {
+        return errorHandlerService.createResponse(ex);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
