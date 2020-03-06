@@ -31,7 +31,6 @@ import java.util.function.Predicate;
  * @since 4.0
  */
 @Service("domibusPropertyProvider")
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);

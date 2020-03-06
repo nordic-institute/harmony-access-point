@@ -261,6 +261,7 @@ public interface DomibusPropertyMetadataManager {
     String ACTIVE_MQ_PERSISTENT = "activeMQ.persistent";
     String ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT = "activeMQ.connection.closeTimeout";
     String ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT = "activeMQ.connection.connectResponseTimeout";
+    String ACTIVE_MQ_ARTEMIS_BROKER = "domibus.jms.activemq.artemis.broker";
     String DOMIBUS_ALERT_QUEUE_CONCURRENCY = "domibus.alert.queue.concurrency";
     String MESSAGE_FACTORY_CLASS = "messageFactoryClass";
     String COMPRESSION_BLACKLIST = "compressionBlacklist";

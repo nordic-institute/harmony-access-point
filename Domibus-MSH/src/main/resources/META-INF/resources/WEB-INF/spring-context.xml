@@ -4,11 +4,6 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
-    <import resource="classpath*:config/*-domibusContext.xml"/>
-
-
-    <import resource="classpath*:config/*-jms-context.xml"/>
     <import resource="classpath*:config/*-taskexecutor-context.xml"/>
 
     <import resource="classpath*:config/*-plugin.xml"/>

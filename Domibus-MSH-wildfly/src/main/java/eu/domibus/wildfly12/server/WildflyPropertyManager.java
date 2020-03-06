@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static eu.domibus.jms.wildfly.InternalJMSManagerWildFlyArtemis.JMS_BROKER_PROPERTY;
-
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -23,7 +21,7 @@ public class WildflyPropertyManager extends DomibusPropertyServiceDelegateAbstra
         implements DomibusPropertyManager {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
-            JMS_BROKER_PROPERTY
+            ACTIVE_MQ_ARTEMIS_BROKER
     })
             .map(name -> DomibusPropertyMetadata.getReadOnlyGlobalProperty(name, Module.WILDFLY_ARTEMIS))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
