@@ -69,6 +69,16 @@
         <wsdl:part element="tns:FaultDetail" name="StatusFault">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="submitTestMessage">
+        <wsdl:part element="tns:submitTestRequest" name="submitTestRequest">
+        </wsdl:part>
+        <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="submitTestMessageResponse">
+        <wsdl:part element="tns:submitTestResponse" name="submitTestResponse">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="submitMessage">
         <wsdl:part element="tns:submitRequest" name="submitRequest">
         </wsdl:part>
@@ -88,6 +98,12 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:portType name="BackendInterface">
+        <wsdl:operation name="submitTestMessage">
+            <wsdl:input message="tns:submitTestMessage" name="submitTestMessage">
+            </wsdl:input>
+            <wsdl:output message="tns:submitTestMessageResponse" name="submitTestMessageResponse">
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="submitMessage">
             <wsdl:input message="tns:submitMessage" name="submitMessage">
             </wsdl:input>
@@ -128,6 +144,17 @@
 
     <wsdl:binding name="BackendService_1_1SoapBinding" type="tns:BackendInterface">
         <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="submitTestMessage">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="submitTestMessage">
+                <soap12:header message="tns:submitTestMessage" part="ebMSHeaderInfo" use="literal"/>
+                <soap12:body parts="submitTestRequest" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="submitTestMessageResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+
         <wsdl:operation name="submitMessage">
             <soap12:operation soapAction="" style="document"/>
             <wsdl:input name="submitMessage">

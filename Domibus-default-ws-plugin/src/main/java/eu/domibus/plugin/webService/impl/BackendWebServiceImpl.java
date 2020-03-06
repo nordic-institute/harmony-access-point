@@ -25,10 +25,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -60,6 +57,29 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     public BackendWebServiceImpl(final String name) {
         super(name);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
+    public SubmitTestResponse submitTestMessage(SubmitTestRequest submitTestRequest,  Messaging ebMSHeaderInfo) {
+        long start = System.currentTimeMillis();
+        long currentRunCount = submitTestRequest.getCurrentRunCount();
+        LOG.info("[] Received TEST message from backend", currentRunCount);
+
+        if (submitTestRequest.getSleepTimeInMillis() > 0) {
+            LOG.info("[{}] Going to sleep for [{}] milliseconds...", currentRunCount, submitTestRequest.getSleepTimeInMillis());
+            try {
+                Thread.sleep(submitTestRequest.getSleepTimeInMillis());
+            } catch (InterruptedException e) {
+                LOG.info("[{}] Interrupted", currentRunCount);
+            }
+        }
+
+        final SubmitTestResponse response = WEBSERVICE_OF.createSubmitTestResponse();
+        response.getMessageID().add("TEST-" + currentRunCount + "@domibus.eu");
+
+        LOG.info("[{}] Finished in seconds [{}]", currentRunCount, (System.currentTimeMillis() - start) / 1000);
+        return response;
     }
 
     /**
