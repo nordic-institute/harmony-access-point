@@ -67,10 +67,10 @@ public class GlobalExceptionHandlerAdviceTest {
     private String mockMvcResultContent(ResultMatcher expectedStatus) throws Exception {
         String dummyPayload = "[]";
         MvcResult result = mockMvc.perform(put("/rest/plugin/users")
-                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(dummyPayload)
         )
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(expectedStatus)
                 .andReturn();
 
