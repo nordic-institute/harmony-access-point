@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.logging.DomibusLogger;

@@ -1,4 +1,4 @@
-package eu.domibus.spring.properties;
+package eu.domibus.core.property;
 
 import org.springframework.core.env.PropertiesPropertySource;
 

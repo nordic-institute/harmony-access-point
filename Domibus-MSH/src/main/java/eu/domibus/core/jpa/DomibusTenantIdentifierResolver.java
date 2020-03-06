@@ -1,4 +1,4 @@
-package eu.domibus.spring.jpa;
+package eu.domibus.core.jpa;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
