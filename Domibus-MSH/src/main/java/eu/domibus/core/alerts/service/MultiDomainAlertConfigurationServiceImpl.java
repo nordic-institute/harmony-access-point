@@ -332,6 +332,18 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     }
 
+    /**
+     * Each configuration reader which handles user alerts have to implement this
+     */
+    interface UserAuthenticationConfiguration {
+
+        /**
+         * true if we should check about external authentication enabled
+         * @return boolean
+         */
+        boolean shouldCheckExtAuthEnabled();
+    }
+
     abstract class AccountDisabledConfigurationReader implements UserAuthenticationConfiguration {
         protected abstract AlertType getAlertType();
 
@@ -348,7 +360,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected AccountDisabledModuleConfiguration readConfiguration() {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             try {
-                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
+                    //ECAS or other provider
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", currentDomain, getModuleName());
                     return new AccountDisabledModuleConfiguration(getAlertType());
                 }
@@ -373,18 +386,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 return new AccountDisabledModuleConfiguration(getAlertType());
             }
         }
-    }
-
-    /**
-     * Each configuration reader which handles user alerts have to implement this
-     */
-    interface UserAuthenticationConfiguration {
-
-        /**
-         * true if Users External Authentication is enabled
-         * @return boolean
-         */
-        boolean isExternalAuthenticationEnabled();
     }
 
     class ConsoleAccountDisabledConfigurationReader extends AccountDisabledConfigurationReader {
@@ -420,8 +421,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
-            return domibusConfigurationService.isExtAuthProviderEnabled();
+        public boolean shouldCheckExtAuthEnabled() {
+            return true;
         }
     }
 
@@ -458,7 +459,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
+        public boolean shouldCheckExtAuthEnabled() {
             return false;
         }
     }
@@ -490,8 +491,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
-            return domibusConfigurationService.isExtAuthProviderEnabled();
+        public boolean shouldCheckExtAuthEnabled() {
+            return true;
         }
     }
 
@@ -582,7 +583,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             final String moduleName = getAlertType().getTitle();
             final String property = getAlertType().getConfigurationProperty();
             try {
-                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", domain, moduleName);
                     return new RepetitiveAlertModuleConfiguration(getAlertType());
                 }
@@ -616,8 +617,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
-            return domibusConfigurationService.isExtAuthProviderEnabled();
+        public boolean shouldCheckExtAuthEnabled() {
+            return true;
         }
     }
 
@@ -628,8 +629,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
-            return domibusConfigurationService.isExtAuthProviderEnabled();
+        public boolean shouldCheckExtAuthEnabled() {
+            return true;
         }
     }
 
@@ -640,7 +641,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
+        public boolean shouldCheckExtAuthEnabled() {
             return false;
         }
     }
@@ -652,7 +653,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
+        public boolean shouldCheckExtAuthEnabled() {
             return false;
         }
     }
@@ -684,7 +685,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected LoginFailureModuleConfiguration readConfiguration() {
             Domain domain = domainContextProvider.getCurrentDomainSafely();
             try {
-                if (isExternalAuthenticationEnabled()) { //ECAS or other provider
+                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
+                    //ECAS or other provider
                     LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", getModuleName());
                     return new LoginFailureModuleConfiguration(getAlertType());
                 }
@@ -738,7 +740,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        public boolean isExternalAuthenticationEnabled() {
+        public boolean shouldCheckExtAuthEnabled() {
             return false;
         }
     }
