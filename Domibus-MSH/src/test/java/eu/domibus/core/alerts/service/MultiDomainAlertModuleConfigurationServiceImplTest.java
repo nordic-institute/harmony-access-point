@@ -1,8 +1,8 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
@@ -66,6 +66,9 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Injectable
     ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     @Test
     public void getAlertLevelForMessage(final @Mocked MessagingModuleConfiguration messagingConfiguration) {
@@ -405,6 +408,17 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     }
 
     @Test
+    public void test_readAccountDisabledConfiguration_ExtAuthProviderEnabled() {
+        new Expectations() {{
+            domibusConfigurationService.isExtAuthProviderEnabled();
+            result = true;
+        }};
+
+        final AccountDisabledModuleConfiguration accountDisabledConfiguration = configurationService.new ConsoleAccountDisabledConfigurationReader().readConfiguration();
+        assertFalse(accountDisabledConfiguration.isActive());
+    }
+
+    @Test
     public void readPluginAccountDisabledConfigurationTest() {
 
         final String mailSubject = "Plugin accout disabled";
@@ -470,6 +484,18 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
                 result = true;
                 domibusPropertyProvider.getBooleanProperty( DOMIBUS_ALERT_USER_LOGIN_FAILURE_ACTIVE);
                 result = false;
+            }
+        };
+        final LoginFailureModuleConfiguration loginFailureConfiguration = configurationService.new ConsoleLoginFailConfigurationReader().readConfiguration();
+        assertFalse(loginFailureConfiguration.isActive());
+    }
+
+    @Test
+    public void test_readLoginFailureConfigurationExtAuthProviderEnabled() {
+        new Expectations() {
+            {
+                domibusConfigurationService.isExtAuthProviderEnabled();
+                result = true;
             }
         };
         final LoginFailureModuleConfiguration loginFailureConfiguration = configurationService.new ConsoleLoginFailConfigurationReader().readConfiguration();
@@ -652,7 +678,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             }
         };
         final RepetitiveAlertModuleConfiguration conf = configurationService.new
-                RepetitiveAlertConfigurationReader(AlertType.PASSWORD_EXPIRED).readConfiguration();
+                PasswordExpiredRepetitiveAlertConfigurationReader().readConfiguration();
 
         assertTrue(conf.isActive());
         assertEquals((long) 15, (long) conf.getEventDelay());
@@ -662,4 +688,18 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         assertEquals(AlertLevel.MEDIUM, conf.getAlertLevel(a));
 
     }
+
+    @Test
+    public void test_getRepetitiveAlertConfiguration_ExtAuthProviderEnabled() {
+        new Expectations() {
+            {
+                domibusConfigurationService.isExtAuthProviderEnabled();
+                result = true;
+            }
+        };
+        final RepetitiveAlertModuleConfiguration conf = configurationService.new
+                PasswordExpiredRepetitiveAlertConfigurationReader().readConfiguration();
+        assertFalse(conf.isActive());
+    }
+
 }
