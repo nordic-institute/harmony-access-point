@@ -100,8 +100,9 @@ public class DomainSchedulerFactoryConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SchedulerFactoryBean schedulerFactory(Domain domain) {
+    public SchedulerFactoryBean schedulerFactory(/*Domain domain*/) {
         // General schema
+        Domain domain = DomainService.DEFAULT_DOMAIN;
         if (domain == null) {
             return schedulerFactoryGeneral();
         }
