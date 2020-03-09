@@ -51,7 +51,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	/* Doubleclik on one error */
+	/* Double click on one error */
 	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickErr() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -70,6 +70,10 @@ public class ErrorLogPgUXTest extends BaseTest {
 
 		log.info("double click row 0");
 		page.grid().doubleClickRow(0);
+
+		if(!page.hasOpenDialog()){
+			log.warn("Error details dialog might not be opened");
+		}
 
 		log.info("get info from modal");
 		HashMap<String, String> modalInfo = new ErrorModal(driver).getListedInfo();

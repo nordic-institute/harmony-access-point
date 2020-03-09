@@ -72,7 +72,7 @@ public class ChangePasswordPgUXTest extends BaseTest {
 		log.info("Navigate to error log page without changing password ");
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-		page.waitForTitle();
+		page.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();
@@ -103,7 +103,7 @@ public class ChangePasswordPgUXTest extends BaseTest {
 		log.info("Navigate to Error log page");
 		cpage.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-		cpage.waitForTitle();
+		cpage.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();

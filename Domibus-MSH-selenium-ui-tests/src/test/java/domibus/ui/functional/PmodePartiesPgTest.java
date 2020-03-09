@@ -293,7 +293,7 @@ public class PmodePartiesPgTest extends BaseTest {
         PModeCurrentPage PCpage = new PModeCurrentPage(driver);
         String updatedpmode = pmPage.printPmode(doc).replaceAll("\\t", " ");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        pmPage.waitForTitle();
+        pmPage.waitForPageToLoad();
         log.info("Edit current text");
         PCpage.getTextArea().fill(updatedpmode);
         log.info("Click on save button");
@@ -311,7 +311,7 @@ public class PmodePartiesPgTest extends BaseTest {
         TestServicePage tPage = new TestServicePage(driver);
         log.info("Navigate to Connections Monitoring page");
         page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate absence of Domibus-red");
@@ -382,7 +382,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertTrue(pPage.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
         log.info("Navigate to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        page.waitForTitle();
+        page.waitForPageToLoad();
         soft.assertTrue(Apage.getPage().getTextArea().isPresent(), "Current pmode is available");
         String UpdatedPmode = Apage.getPage().getTextArea().getText();
         log.info("Current Pmode is :" + UpdatedPmode);
@@ -426,7 +426,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info(page.getAlertArea().getAlertMessage());
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        page.waitForTitle();
+        page.waitForPageToLoad();
         soft.assertTrue(Apage.getPage().getTextArea().isPresent(), "Current pmode is available");
         String UpdatedPmode = Apage.getPage().getTextArea().getText();
         log.info("Current Pmode is :" + UpdatedPmode);
@@ -463,11 +463,11 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getSaveButton().click();
         new Dialog(driver).confirm();
         System.out.println(pPage.getAlertArea().getAlertMessage());
-        page.waitForTitle();
+        page.waitForPageToLoad();
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         PModeCurrentPage Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is not present in pmode");
@@ -476,7 +476,7 @@ public class PmodePartiesPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
         log.info("Navigating to Connections Monitoring page");
         TestServicePage tPage = new TestServicePage(driver);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -496,7 +496,7 @@ public class PmodePartiesPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         SoftAssert soft = new SoftAssert();
         PModeCurrentPage Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String defaultPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(defaultPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is present in pmode");
@@ -506,7 +506,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Navigate to Pmode Parties page");
         page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage pPage = new PModePartiesPage(driver);
-        pPage.waitForTitle();
+        pPage.waitForPageToLoad();
         log.info("Find row number for party with name red_gw and select it");
         pPage.grid().selectRow(pPage.grid().getIndexOf(0, oldPartyName));
         log.info("Click on Edit button");
@@ -521,11 +521,11 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getSaveButton().click();
         new Dialog(driver).confirm();
         log.info(pPage.getAlertArea().getAlertMessage());
-        page.waitForTitle();
+        page.waitForPageToLoad();
         log.info("Navigate to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate presence of red_gw as Initiator party ");
         soft.assertTrue(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is  present in pmode");
@@ -534,7 +534,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Navigating to Connections Monitoring page");
         page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
         TestServicePage tPage = new TestServicePage(driver);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -588,7 +588,7 @@ public class PmodePartiesPgTest extends BaseTest {
         TestServicePage tPage = new TestServicePage(driver);
         log.info("Navigate to Connections Monitoring page");
         page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");

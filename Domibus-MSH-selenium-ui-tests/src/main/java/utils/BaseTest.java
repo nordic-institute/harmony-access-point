@@ -128,7 +128,7 @@ public class BaseTest {
 			}
 
 			loginPage.login(user);
-			loginPage.waitForTitle();
+			loginPage.waitForPageToLoad();
 		} catch (Exception e) {
 			log.info("Login did not succeed!!!");
 			log.debug(e.getMessage());

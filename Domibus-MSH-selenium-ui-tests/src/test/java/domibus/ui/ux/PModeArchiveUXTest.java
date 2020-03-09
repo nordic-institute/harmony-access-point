@@ -136,9 +136,11 @@ public class PModeArchiveUXTest extends BaseTest {
 	@Test(description = "PMA-4", groups = {"multiTenancy", "singleTenancy"})
 	public void restoreOldFile() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		log.info(" go to PMode Archive page");
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 
+		log.info("make sure there are at least 2 entries in grid");
 		if (page.grid().getRowsNo() < 2) {
 			rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
 			rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -157,6 +159,8 @@ public class PModeArchiveUXTest extends BaseTest {
 		log.info("click restore and confirm");
 		page.pmagrid().clickAction(1, "Restore");
 		new Dialog(driver).confirm();
+
+		page.grid().waitForRowsToLoad();
 
 		log.info("checking description");
 		String currentPmodeDescription = page.grid().getRowInfo(0).get("Description");

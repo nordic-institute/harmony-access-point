@@ -331,6 +331,7 @@ public class UsersPgTest extends BaseTest {
 		modal.clickOK();
 
 		page.saveAndConfirm();
+		log.info(page.getAlertArea().getAlertMessage());
 
 		log.info("logging out");
 		page.getSandwichMenu().logout();
@@ -355,6 +356,7 @@ public class UsersPgTest extends BaseTest {
 		modal.clickOK();
 
 		page.saveAndConfirm();
+		log.info(page.getAlertArea().getAlertMessage());
 
 		log.info("logging out");
 		page.getSandwichMenu().logout();

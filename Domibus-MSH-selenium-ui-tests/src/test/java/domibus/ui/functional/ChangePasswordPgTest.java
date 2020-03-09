@@ -7,8 +7,6 @@ import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
-import pages.login.LoginPage;
-import utils.Generator;
 
 
 /**
@@ -68,7 +66,7 @@ public class ChangePasswordPgTest extends BaseTest {
 		cpage.getUpdateButton().click();
 
 		log.info("wait for Message page title");
-		page.waitForTitle();
+		page.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();
@@ -107,7 +105,7 @@ public class ChangePasswordPgTest extends BaseTest {
 		cpage.getUpdateButton().click();
 
 		log.info("Wait for Message page title");
-		page.waitForTitle();
+		page.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();

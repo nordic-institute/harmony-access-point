@@ -11,9 +11,6 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
-import pages.login.LoginPage;
-import pages.msgFilter.MessageFilterModal;
-import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
@@ -450,13 +447,21 @@ public class AuditPgTest extends BaseTest {
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
 
-		page.getFilters().setFilterData("table", "Pmode");
+		page.getFilters().getTableFilter().selectOptionByText("Pmode");
+		page.getFilters().getActionFilter().selectOptionByText("Downloaded");
+
 		log.info("click on search button");
 		page.getFilters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
+
 		log.info("Validate data on Audit page");
 
-		HashMap<String, String> info = page.grid().getRowInfo(0);
+		int index = page.grid().scrollTo("Id", pmodeID.toString());
+		if(index<0){
+			soft.fail("event for desired pmode download not present");
+		}
+
+		HashMap<String, String> info = page.grid().getRowInfo(index);
 
 		soft.assertEquals(info.get("Table"), "Pmode", "Table column has value Pmode");
 		soft.assertEquals(info.get("Action"), "Downloaded", "Action column has value Downloaded");
@@ -490,7 +495,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Success message shown : " + pPage.getAlertArea().getAlertMessage());
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
-		auditPage.waitForTitle();
+		auditPage.waitForPageToLoad();
 		log.info("Set all search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode");
 		auditPage.getFilters().getSearchButton().click();
@@ -537,7 +542,7 @@ public class AuditPgTest extends BaseTest {
 		archivePage.getSidebar().goToPage(PAGES.AUDIT);
 
 		AuditPage auditPage = new AuditPage(driver);
-		auditPage.waitForTitle();
+		auditPage.waitForPageToLoad();
 		log.info("Set all search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode Archive");
 

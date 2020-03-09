@@ -68,9 +68,13 @@ public class DObject {
 		if (!isPresent()) {
 			throw new DObjectNotPresentException();
 		}
-		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+		scrollIntoView();
 		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].innerText;", element).toString();
 		return text.trim();
+	}
+
+	public void scrollIntoView(){
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
 	}
 
 	public void click() throws Exception {

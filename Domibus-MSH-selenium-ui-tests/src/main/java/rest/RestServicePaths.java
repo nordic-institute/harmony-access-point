@@ -25,7 +25,7 @@ public class RestServicePaths {
 	public static final String GET_PARTIES = "/rest/party/list";
 
 
-	public static final String CON_MON_PARTIES = "/rest/party/list";
+	public static final String CON_MON_PARTIES = "/rest/testservice/parties";
 
 
 	public static final String MESSAGE_LOG_CSV = "/rest/messagelog/csv";
