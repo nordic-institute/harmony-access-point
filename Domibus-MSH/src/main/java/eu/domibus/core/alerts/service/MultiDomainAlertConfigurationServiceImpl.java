@@ -360,7 +360,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected AccountDisabledModuleConfiguration readConfiguration() {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             try {
-                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
+                if (shouldCheckExtAuthEnabled()) {
                     //ECAS or other provider
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", currentDomain, getModuleName());
                     return new AccountDisabledModuleConfiguration(getAlertType());
@@ -422,7 +422,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         public boolean shouldCheckExtAuthEnabled() {
-            return true;
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -492,7 +492,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         public boolean shouldCheckExtAuthEnabled() {
-            return true;
+
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -583,7 +584,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             final String moduleName = getAlertType().getTitle();
             final String property = getAlertType().getConfigurationProperty();
             try {
-                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
+                if (shouldCheckExtAuthEnabled()) {
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", domain, moduleName);
                     return new RepetitiveAlertModuleConfiguration(getAlertType());
                 }
@@ -618,7 +619,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         public boolean shouldCheckExtAuthEnabled() {
-            return true;
+
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -630,7 +632,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         public boolean shouldCheckExtAuthEnabled() {
-            return true;
+            return domibusConfigurationService.isExtAuthProviderEnabled();
         }
     }
 
@@ -685,7 +687,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         protected LoginFailureModuleConfiguration readConfiguration() {
             Domain domain = domainContextProvider.getCurrentDomainSafely();
             try {
-                if (shouldCheckExtAuthEnabled() && domibusConfigurationService.isExtAuthProviderEnabled()) {
+                if (shouldCheckExtAuthEnabled()) {
                     //ECAS or other provider
                     LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", getModuleName());
                     return new LoginFailureModuleConfiguration(getAlertType());
