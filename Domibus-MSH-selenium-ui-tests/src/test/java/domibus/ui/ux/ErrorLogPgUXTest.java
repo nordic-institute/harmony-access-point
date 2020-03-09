@@ -52,7 +52,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 	}
 
 	/* Double click on one error */
-	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleClickErr() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -219,7 +219,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 	}
 
 	/* Download list of errors */
-	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);

@@ -222,7 +222,6 @@ public class AlertPgTest extends BaseTest {
 		log.info("Validate presence of alert data for user_login_failure alert type for given user");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Top row contains alert status as success");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(username), "Top row contains alert type as USER_LOGIN_FAILURE");
 		soft.assertAll();
 	}
@@ -264,7 +263,6 @@ public class AlertPgTest extends BaseTest {
 		log.info("Validate top row for user account disabled alert type for given user");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Disable account alert is of High level");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Account disabled alert has Success status");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(username), "Alert for user :" + username + "disabled account is shown here");
 		soft.assertAll();
 
