@@ -16,6 +16,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
+import eu.domibus.common.model.audit.mapper.AuditMapper;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
@@ -64,6 +65,9 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
 
     @Autowired
     EventMapper eventMapper;
+
+    @Autowired
+    AuditMapper auditMapper;
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
@@ -218,7 +222,7 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         }
         if (typeOfT == Audit.class) {
             LOG.debug("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.auditLogToAudit((AuditLog) source);
+            return (T)auditMapper.auditLogToAudit((AuditLog) source);
         }
 
         if (typeOfT == LoggingLevelRO.class && source.getClass() == LoggingEntry.class) {

@@ -13,6 +13,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
+import eu.domibus.common.model.audit.mapper.AuditMapper;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
@@ -43,7 +44,7 @@ import org.mapstruct.Mapping;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(uses = EventMapper.class, componentModel = "spring")
+@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     @Mapping(source = "id", target = "entityId")
@@ -170,8 +171,6 @@ public interface DomibusCoreMapper {
     eu.domibus.common.model.security.User userApiToUserSecurity(User user);
 
     User userSecurityToUserApi(eu.domibus.common.model.security.User user);
-
-    Audit auditLogToAudit(AuditLog auditLog);
 
     AuditLog auditToAuditLog(Audit audit);
 

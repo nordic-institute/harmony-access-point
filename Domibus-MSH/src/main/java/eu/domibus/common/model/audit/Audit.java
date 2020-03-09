@@ -27,17 +27,6 @@ public class Audit {
     @Column(name = "USER_NAME")
     private String user;
 
-    @Column(name = "AUDIT_DATE")
-    private Date changed;
-
-    //needed for mapping
-    public Audit() {
-    }
-
-    public void setId(String id) {
-        this.id = new AuditId(id);
-    }
-
     public void setId(AuditId id) {
         this.id = id;
     }
@@ -46,16 +35,12 @@ public class Audit {
         this.user = user;
     }
 
-    public void setChanged(Date changed) {
-        this.changed = changed;
-    }
-
     public String getUser() {
         return user;
     }
 
     public Date getChanged() {
-        return changed;
+        return this.id.getChanged();
     }
 
     public String getId() {
@@ -83,14 +68,13 @@ public class Audit {
 
         if (!id.equals(audit.id)) return false;
         if (user != null ? !user.equals(audit.user) : audit.user != null) return false;
-        return changed.equals(audit.changed);
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = id.hashCode();
         result = 31 * result + (user != null ? user.hashCode() : 0);
-        result = 31 * result + changed.hashCode();
         return result;
     }
 }
