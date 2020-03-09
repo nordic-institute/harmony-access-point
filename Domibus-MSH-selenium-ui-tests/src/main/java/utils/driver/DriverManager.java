@@ -36,7 +36,13 @@ public class DriverManager {
 
 	private static WebDriver getChromeDriver() {
 		System.setProperty("webdriver.chrome.driver", data.getChromeDriverPath());
-		WebDriver driver = new ChromeDriver();
+
+		ChromeOptions options = new ChromeOptions();
+		if (data.useProxy()) {
+			options.setCapability(CapabilityType.PROXY, getProxy());
+		}
+
+		WebDriver driver = new ChromeDriver(options);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
 		return driver;
@@ -44,7 +50,13 @@ public class DriverManager {
 
 	private static WebDriver getFirefoxDriver() {
 		System.setProperty("webdriver.gecko.driver", data.getFirefoxDriverPath());
-		WebDriver driver = new FirefoxDriver();
+
+		FirefoxOptions options = new FirefoxOptions();
+		if (data.useProxy()) {
+			options.setCapability(CapabilityType.PROXY, getProxy());
+		}
+
+		WebDriver driver = new FirefoxDriver(options);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
 
