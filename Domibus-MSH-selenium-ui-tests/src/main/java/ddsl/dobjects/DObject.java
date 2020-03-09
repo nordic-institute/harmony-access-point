@@ -32,7 +32,7 @@ public class DObject {
 	public boolean isPresent() {
 		try {
 			wait.forElementToBe(element);
-			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+			scrollIntoView();
 		} catch (Exception e) {
 			return false;
 		}
@@ -73,7 +73,7 @@ public class DObject {
 		return text.trim();
 	}
 
-	public void scrollIntoView(){
+	public void scrollIntoView() {
 		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
 	}
 
