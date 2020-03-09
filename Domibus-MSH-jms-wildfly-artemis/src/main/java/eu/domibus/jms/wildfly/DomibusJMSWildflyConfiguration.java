@@ -26,7 +26,7 @@ public class DomibusJMSWildflyConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWildflyConfiguration.class);
 
-    public static final String MQ_BROKER_NAME = "org.apache.activemq.artemis:broker=&quot;%s&quot;";
+    public static final String MQ_BROKER_NAME = "org.apache.activemq.artemis:broker=\"%s\"";
 
     @Bean("mbeanServer")
     public MBeanServer mBeanServerConnectionFactoryBean() {
