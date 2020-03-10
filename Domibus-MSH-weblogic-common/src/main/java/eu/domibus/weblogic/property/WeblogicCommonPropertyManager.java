@@ -1,4 +1,4 @@
-package eu.domibus.weblogic;
+package eu.domibus.weblogic.property;
 
 import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;

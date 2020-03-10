@@ -250,6 +250,7 @@ public interface DomibusPropertyMetadataManager {
     String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
     String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";
     String COM_ATOMIKOS_ICATCH_MAX_TIMEOUT = "com.atomikos.icatch.max_timeout";
+    String COM_ATOMIKOS_ICATCH_MAX_ACTIVES = "com.atomikos.icatch.max_actives";
     String ACTIVE_MQ_BROKER_HOST = "activeMQ.broker.host";
     String ACTIVE_MQ_BROKER_NAME = "activeMQ.brokerName";
     String ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE = "activeMQ.embedded.configurationFile";

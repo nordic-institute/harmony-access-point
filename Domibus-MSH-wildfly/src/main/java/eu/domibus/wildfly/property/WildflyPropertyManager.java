@@ -1,4 +1,4 @@
-package eu.domibus.wildfly12.server;
+package eu.domibus.wildfly.property;
 
 import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;

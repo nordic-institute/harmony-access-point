@@ -1,4 +1,4 @@
-package eu.domibus.wildfly12.server;
+package eu.domibus.wildfly.server;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.server.ServerInfoService;
