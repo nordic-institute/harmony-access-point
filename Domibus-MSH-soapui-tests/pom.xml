@@ -98,7 +98,7 @@
                         <dependency>
                             <groupId>mysql</groupId>
                             <artifactId>mysql-connector-java</artifactId>
-                            <version>${mysql.connector.java.version}</version>
+                            <version>${mysql.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.reflections</groupId>
