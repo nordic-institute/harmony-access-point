@@ -99,10 +99,10 @@ public class DomainSchedulerFactoryConfiguration {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SchedulerFactoryBean schedulerFactory(/*Domain domain*/) {
+    //@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    @Scope(BeanDefinition.SCOPE_SINGLETON)
+    public SchedulerFactoryBean schedulerFactory(Domain domain) {
         // General schema
-        Domain domain = DomainService.DEFAULT_DOMAIN;
         if (domain == null) {
             return schedulerFactoryGeneral();
         }
