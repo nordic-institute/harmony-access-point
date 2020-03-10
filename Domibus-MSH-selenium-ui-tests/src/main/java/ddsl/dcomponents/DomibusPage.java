@@ -84,7 +84,6 @@ public class DomibusPage extends DComponent {
 	}
 
 	public void waitForPageToLoad() throws Exception {
-		wait.forElementToBeVisible(helpLnk);
 		wait.forElementToBeVisible(getSandwichMenu().expandButton);
 	}
 
