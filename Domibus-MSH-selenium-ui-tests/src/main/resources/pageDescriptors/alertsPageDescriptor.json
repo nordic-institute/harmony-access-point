@@ -92,7 +92,7 @@
         "name": "Reporting Time",
         "type": "datetime",
         "sortable": true,
-        "visibleByDefault": true
+        "visibleByDefault": false
       },
       {
         "name": "Sent Attempts",

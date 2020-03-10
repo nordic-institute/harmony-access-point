@@ -19,7 +19,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Rupam
@@ -103,7 +102,7 @@ public class ErrorLogPgTest extends BaseUXTest {
                 log.info("Break if it is single tenancy or current domain is other than default");
                 break;
             }
-            if (data.isIsMultiDomain()) {
+            if (data.isMultiDomain()) {
                 log.info("Change domain");
                 page.getDomainSelector().selectOptionByIndex(1);
             }

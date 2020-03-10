@@ -4,7 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
-import pages.Audit.AuditFilters;
+import org.testng.SkipException;
 import pages.jms.JMSMonitoringPage;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
@@ -25,9 +25,6 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -729,7 +726,7 @@ public class AuditPgTest extends BaseTest {
             log.info("Both domains have different number of data");
         } else if (defaultRowInfos == secondRowInfos) {
             log.info("Both domains have same number of data but all are different");
-            soft.assertFalse(defaultRowInfos == secondRowInfos, "compare both domains grid row data");
+            soft.assertFalse(defaultRowInfos.equals(secondRowInfos), "compare both domains grid row data");
         } else {
             log.info("Something went wrong on this page");
         }
@@ -783,24 +780,20 @@ public class AuditPgTest extends BaseTest {
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
 
         do {
-            log.info("Check total number of records");
-            if (jmsPage.grid().getPagination().getTotalItems() > 0) {
-                log.info("Wait for grid row to load");
-                jmsPage.grid().waitForRowsToLoad();
+            int count = jmsPage.filters().getJmsQueueSelect().selectQueueWithMessages();
 
-                log.info("Select first row");
-                jmsPage.grid().selectRow(0);
-
-            } else {
+            log.info("Wait for grid row to load");
+            jmsPage.grid().waitForRowsToLoad();
+           if(count>0) {
                 log.info("Select jms queue with some messages ");
-                jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
 
-                log.info("Wait for grid row to load");
-                jmsPage.grid().waitForRowsToLoad();
 
                 log.info("Select first row");
                 jmsPage.grid().selectRow(0);
             }
+           else{
+               throw new SkipException("Not enough rows");
+           }
 
             log.info("Extract first row data");
             HashMap<String, String> firstRowData = jmsPage.grid().getRowInfo(0);
@@ -833,7 +826,7 @@ public class AuditPgTest extends BaseTest {
             }
 
 
-            if (data.isIsMultiDomain()) {
+            if (data.isMultiDomain()) {
                 log.info("Navigate to jms monitoring page in case of multitenancy");
                 aPage.getSidebar().goToPage(PAGES.JMS_MONITORING);
 
@@ -860,16 +853,24 @@ public class AuditPgTest extends BaseTest {
         mPage.waitForTitle();
         mPage.grid().waitForRowsToLoad();
         log.info("uploading pmode");
-        rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", null);
         String user = Generator.randomAlphaNumeric(10);
-
+        String userr = Generator.randomAlphaNumeric(10);
+        rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", mPage.getDomainFromTitle());
         log.info("Create plugin user");
-        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), mPage.getDomainFromTitle());
         log.info("send message ");
         messageSender.sendMessage(user, data.defaultPass(), null, null);
-        AuditPage aPage = new AuditPage(driver);
 
+        AuditPage aPage = new AuditPage(driver);
         do {
+
+            if(data.isMultiDomain()){
+                if(mPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))){
+                    log.info("Create plugin user");
+                    rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), mPage.getDomainFromTitle());
+                    log.info("send message ");
+                    messageSender.sendMessage(userr, data.defaultPass(), null, null);
+                }}
             mPage.refreshPage();
 
             log.info("Wait for grid row to load");
@@ -915,16 +916,6 @@ public class AuditPgTest extends BaseTest {
             }
             log.info("Change domain");
             aPage.getDomainSelector().selectOptionByIndex(1);
-
-            log.info("uploading pmode for second domain");
-            rest.uploadPMode("pmodes/Edelivery-secDomain-NoRetry.xml", rest.getDomainNames().get(1));
-            String userr = Generator.randomAlphaNumeric(10);
-
-            log.info("Create plugin user for second domain");
-            rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), rest.getDomainNames().get(1));
-
-            log.info("send message to second domain");
-            messageSender.sendMessage(userr, data.defaultPass(), null, null);
 
             log.info("Navigate to Message page");
             aPage.getSidebar().goToPage(PAGES.MESSAGES);

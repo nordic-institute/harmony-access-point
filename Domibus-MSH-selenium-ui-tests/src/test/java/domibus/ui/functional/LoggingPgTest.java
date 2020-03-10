@@ -26,7 +26,7 @@ public class LoggingPgTest extends BaseTest {
         LoginPage loginPage = new LoginPage(driver);
         LoggingPage lPage = new LoggingPage(driver);
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             log.info("If Multitenancy is yes, verify logging page presence for Super user");
 
             login(data.getAdminUser()).getSidebar().goToPage(PAGES.LOGGING);

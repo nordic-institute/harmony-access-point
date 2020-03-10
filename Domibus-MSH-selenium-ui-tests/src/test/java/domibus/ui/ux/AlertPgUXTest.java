@@ -3,14 +3,12 @@ package domibus.ui.ux;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DWait;
 import ddsl.enums.PAGES;
-import javafx.scene.control.Alert;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertPage;
-import pages.errorLog.ErrorLogPage;
 import utils.BaseUXTest;
 import utils.DFileUtils;
 import utils.TestUtils;
@@ -78,7 +76,7 @@ public class AlertPgUXTest extends BaseUXTest {
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
             }
-            if (data.isIsMultiDomain()) {
+            if (data.isMultiDomain()) {
                 log.info("chnage domain");
                 page.getDomainSelector().selectOptionByIndex(1);
             }

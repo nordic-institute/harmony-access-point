@@ -87,7 +87,13 @@ public class AlertFilters extends FilterArea {
 
 	public DInput getAlertId() { return new DInput(driver,alertIdInput);}
 
-	public MultiSelect getProcessedContainer() { return new MultiSelect(driver, ProcessedContainer);}
+	public MultiSelect getProcessedSelect() { return new MultiSelect(driver, ProcessedContainer);}
+
+	public MultiSelect getAlertTypeSelect() { return new MultiSelect(driver,alertTypeContainer);}
+
+	public MultiSelect getAlertStatusSelect(){ return new MultiSelect(driver,alertStatusContainer);}
+
+	public MultiSelect getAlertLevelSelect() { return new MultiSelect(driver,alertLevelContainer);}
 
 	public void basicFilterBy(String processedStatus, String alertType, String alertStatus, String alertLevel, String creationFromDate, String creationToDate) throws Exception {
 		log.debug("processedStatus = " + processedStatus);
@@ -166,23 +172,23 @@ public class AlertFilters extends FilterArea {
 
 		if(fieldLabel.equals("Processed")){
 			log.info("Verify Processed filter has all default options present");
-			soft.assertTrue(CollectionUtils.isEqualCollection(processedFilterData,texts));
+			soft.assertTrue(CollectionUtils.isEqualCollection(processedFilterData,texts),"Comparing default value of Processed filter with available option on admin console");
 			clickVoidSpace();
 
 		}
 		 if(fieldLabel.equals("Alert Type")){
 		 	log.info("Verify Alert Type filter has all default options present");
-			 soft.assertTrue(CollectionUtils.isEqualCollection(alertTypeFilterData,texts));
+			 soft.assertTrue(CollectionUtils.isEqualCollection(alertTypeFilterData,texts),"Comparing default value of alert type with available option on admin console");
 			 clickVoidSpace();
 
 		} if(fieldLabel.equals("Alert Status")){
 		 	log.info("Verify Alert Status filter has all default options present ");
-			soft.assertTrue(CollectionUtils.isEqualCollection(alertStatusFilterData,texts));
+			soft.assertTrue(CollectionUtils.isEqualCollection(alertStatusFilterData,texts),"Comparing default value of Alert status with available option on admin console");
 			clickVoidSpace();
 
 		} if(fieldLabel.equals("Alert Level")){
 		 	log.info("Verify Alert Level filter has all default options present");
-			soft.assertTrue(CollectionUtils.isEqualCollection(alertLevelFilterData,texts));
+			soft.assertTrue(CollectionUtils.isEqualCollection(alertLevelFilterData,texts),"Comparing default value of Alert level with available option on admin console");
 			clickVoidSpace();
 		 }
 

@@ -147,7 +147,7 @@ public class UsersPgTest extends BaseTest {
 		log.info("closing user modal");
 		page.clickVoidSpace();
 
-		if(data.isIsMultiDomain()) {
+		if(data.isMultiDomain()) {
 			logout();
 			String superUser = getUser(null, DRoles.SUPER, true, false, true).getString("userName");
 			log.info("checking for super admin " +superUser);

@@ -634,10 +634,11 @@ public class DomibusRestClient {
         params.put("domainAlerts", domainAlert);
         params.put("page", "0");
         params.put("pageSize", "10000");
+        params.put("processed","false");
 
         ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.ALERTS_LOG), params);
         if (clientResponse.getStatus() != 200) {
-            return new JSONArray();
+            throw new RuntimeException("Could not get Alert");
         }
         return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("alertsEntries");
     }

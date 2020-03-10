@@ -5,7 +5,6 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import pages.jms.JMSSelect;
 import utils.BaseTest;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -14,10 +13,8 @@ import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
 import utils.Generator;
-import utils.TestRunData;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -260,33 +257,32 @@ public class JMSMessPgTest extends BaseTest {
         String currentDate = dateFormat.format(new Date());
 
         log.info("Current date is :" + currentDate.split(" ")[1]);
-        if (data.isIsMultiDomain()) {
-            do {
-                log.info("Current domain is" + jmsPage.getDomainSelector().getSelectedValue());
+        do {
+            log.info("Current domain is" + jmsPage.getDomainFromTitle());
 
 
-                log.info("Extract Received Upto field default data");
-                String defaultDate = jmsPage.receivedDateField.get(1).getAttribute("value");
+            log.info("Extract Received Upto field default data");
+            String defaultDate = jmsPage.receivedDateField.get(1).getAttribute("value");
 
-                log.info("Default value of Received upto field : " + defaultDate);
+            log.info("Default value of Received upto field : " + defaultDate);
 
-                String defaultReceivedUpto[] = defaultDate.split(" ");
+            String defaultReceivedUpto[] = defaultDate.split(" ");
 
-                log.info(defaultReceivedUpto[0] + " : Date from Received upto field for domain " + jmsPage.getDomainSelector().getSelectedValue());
-                log.info(defaultReceivedUpto[1] + " : Time from Received upto field for domain " + jmsPage.getDomainSelector().getSelectedValue());
+            log.info(defaultReceivedUpto[0] + " : Date from Received upto field for domain " + jmsPage.getDomainFromTitle());
+            log.info(defaultReceivedUpto[1] + " : Time from Received upto field for domain " + jmsPage.getDomainFromTitle());
 
-                soft.assertTrue(defaultReceivedUpto[0].equals(currentDate.split(" ")[1]), "Dates are same");
-                soft.assertTrue(defaultReceivedUpto[1].equals("23:59"), "Time matches 23:59");
-                if (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainSelector().getSelectedValue().equals(rest.getDomainNames().get(1))) {
-                    break;
-                }
+            soft.assertTrue(defaultReceivedUpto[0].equals(currentDate.split(" ")[1]), "Dates are same");
+            soft.assertTrue(defaultReceivedUpto[1].equals("23:59"), "Time matches 23:59");
+            if (jmsPage.getDomainFromTitle() == null || jmsPage.getDomainSelector().getSelectedValue().equals(rest.getDomainNames().get(1))) {
+                break;
+            }
 
-                if (data.isIsMultiDomain()) {
-                    log.info("Change domain");
-                    jmsPage.getDomainSelector().selectOptionByIndex(1);
-                }
-            } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
-        }
+            if (data.isMultiDomain()) {
+                log.info("Change domain");
+                jmsPage.getDomainSelector().selectOptionByIndex(1);
+            }
+        } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        //}
         soft.assertAll();
 
     }
@@ -341,10 +337,12 @@ public class JMSMessPgTest extends BaseTest {
                     log.info("Verify queue message count as 1 less than before");
                     soft.assertTrue(jmsPage.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
                 } else {
-                    throw new SkipException("Not enough messages in any of the queues to run test");                }
+                    throw new SkipException("Not enough messages in any of the queues to run test");
+                }
             }
         } else {
-            throw new SkipException("Not enough messages in any of the queues to run test");        }
+            throw new SkipException("Not enough messages in any of the queues to run test");
+        }
         soft.assertAll();
 
     }
@@ -355,7 +353,7 @@ public class JMSMessPgTest extends BaseTest {
 
         JMSMonitoringPage jmsPage = new JMSMonitoringPage(driver);
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             log.info("Create Admin user for default domain");
             String user = Generator.randomAlphaNumeric(10);
             rest.createUser(user, DRoles.ADMIN, data.defaultPass(), "default");
@@ -438,13 +436,13 @@ public class JMSMessPgTest extends BaseTest {
             if (jmsPage.grid().getPagination().getTotalItems() > 0) {
                 jmsPage.grid().selectRow(0);
             } else {
-                if (data.isIsMultiDomain()) {
+                if (data.isMultiDomain()) {
                     log.info("Select queue [internal] domibus.notification.webservice ");
                     jmsPage.filters().getJmsQueueSelect().selectOptionByText("[internal] domibus.notification.webservice");
 
                 } else {
                     log.info("Select queue other than dlq ");
-                    if(jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ()==0){
+                    if (jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ() == 0) {
                         throw new SkipException("Not enough messages in any of the queues to run test");
                     }
 
@@ -464,7 +462,7 @@ public class JMSMessPgTest extends BaseTest {
             JMSMoveMessageModal jmsModel = new JMSMoveMessageModal(driver);
 
             if ((jmsModel.getQueueSelect().getSelectedValue() != null)) {
-                if (data.isIsMultiDomain()) {
+                if (data.isMultiDomain()) {
 
                     soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null);
                 } else {
@@ -482,7 +480,7 @@ public class JMSMessPgTest extends BaseTest {
 
                     log.info("Extract name of selected queue name");
                     String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
-                    if (data.isIsMultiDomain()) {
+                    if (data.isMultiDomain()) {
                         log.info("Verify presence of no count in selected queue name");
                         soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
                     } else {
@@ -501,7 +499,7 @@ public class JMSMessPgTest extends BaseTest {
                 break;
             }
 
-            if (data.isIsMultiDomain()) {
+            if (data.isMultiDomain()) {
                 log.info("Logout from application");
                 logout();
                 log.info("Create Admin user for second domain ");
@@ -591,7 +589,7 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("Click on Move button");
                 jmsPage.getMoveButton().click();
 
-                if (data.isIsMultiDomain()) {
+                if (data.isMultiDomain()) {
                     log.info("Open destination drop down");
 
                     new JMSMoveMessageModal(driver).destinationArrows.get(3).click();

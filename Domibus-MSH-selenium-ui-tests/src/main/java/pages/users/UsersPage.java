@@ -118,30 +118,4 @@ public class UsersPage extends DomibusPage {
 		modal.fillData("", email, role, password, confirmation);
 		modal.getOkBtn().click();
 	}
-	public String getUserRoleWithName(String columnName, String value) throws Exception {
-		ArrayList<String> columnNames = grid().getColumnNames();
-		if (!columnNames.contains(columnName)) {
-			throw new Exception("Selected column name '" + columnName + "' is not visible in the present grid");
-		}
-
-		int columnIndex = -1;
-		for (int i = 0; i < columnNames.size(); i++) {
-			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
-				columnIndex = i;
-			}
-		}
-
-		Pagination pagination = grid().getPagination();
-		pagination.skipToFirstPage();
-		int index = grid().getIndexOf(columnIndex, value);
-
-		while (index < 0 && pagination.hasNextPage()) {
-			pagination.goToNextPage();
-			index = grid().getIndexOf(columnIndex, value);
-		}
-
-		return grid().getRowSpecificColumnVal(index,"Role");
-	}
-
-
 }
