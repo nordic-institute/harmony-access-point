@@ -28,6 +28,7 @@ public interface DomibusPropertyMetadataManager {
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
     String DOMIBUS_UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
+    String DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY = "domibus.ui.replication.queue.concurency";
     String DOMIBUS_UI_SUPPORT_TEAM_NAME = "domibus.ui.support.team.name";
     String DOMIBUS_UI_SUPPORT_TEAM_EMAIL = "domibus.ui.support.team.email";
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
@@ -282,6 +283,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
+    String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
+    String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
 
     /**
      * Get all the properties metadata that support changing at runtime

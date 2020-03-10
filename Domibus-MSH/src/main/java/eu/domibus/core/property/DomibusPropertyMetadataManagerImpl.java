@@ -67,6 +67,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY), //move the use=age from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT),  //move the use=age from xml ?
@@ -175,6 +176,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_PASSWORD),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME),
 
             new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, DomibusPropertyMetadata.Usage.DOMAIN, true), //there is still one call from xml!!!
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE),

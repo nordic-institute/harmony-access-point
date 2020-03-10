@@ -18,9 +18,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * @since 4.0
  */
 @Configuration
-public class DomibusDatasourceConfiguration {
+public class TomcatDatasourceConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusDatasourceConfiguration.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatDatasourceConfiguration.class);
 
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
