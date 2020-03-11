@@ -29,8 +29,6 @@ import java.util.List;
 @Service("EncryptionServiceImpl")
 public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
-    public static final String ENCRYPTION_LOCK = "encryption.lock";
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
 
     @Autowired
