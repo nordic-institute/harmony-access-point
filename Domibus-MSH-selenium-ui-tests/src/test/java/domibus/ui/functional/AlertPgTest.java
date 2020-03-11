@@ -409,10 +409,10 @@ public class AlertPgTest extends BaseTest {
 
         if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
             log.info("Set count as 10, if total count >10");
-            totalCount = 10;
+            totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
         }
         for (int j = 0; j < totalCount; j++) {
-            page.compareParamData(j, totalUsers,totalMessages, userList,messageList);
+            page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
         }
         soft.assertAll();
     }
@@ -447,13 +447,13 @@ public class AlertPgTest extends BaseTest {
 
         if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
             log.info("Set grid count=10 if total count>10");
-            totalCount = Math.min(10,page.grid().getPagination().getTotalItems());
+            totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
         }
         JSONArray userList = rest.getUsers(page.getDomainFromTitle());
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
         for (int j = 0; j < totalCount; j++) {
 
-            page.compareParamData(j, totalUsers,totalMessages, userList,messageList);
+            page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
 
         }
         soft.assertAll();
@@ -512,19 +512,14 @@ public class AlertPgTest extends BaseTest {
 
         soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
         soft.assertFalse(aFilter.getShowDomainCheckbox().isChecked(), "Check Box is not checked");
-        int gridRowCount = page.grid().getPagination().getTotalItems();
+        int gridRowCount = Math.min(10, page.grid().getPagination().getTotalItems());
 
-        if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 10) {
+        for (int i = 0; i < gridRowCount; i++) {
 
-            gridRowCount = Math.min(10, page.grid().getPagination().getTotalItems());
+            String userNameStr = page.grid().getRowSpecificColumnVal(i, "Parameters").split(",")[0];
+            log.info("Extract all user names available in parameters fields ");
+            userName.add(userNameStr);
         }
-
-            for (int i = 0; i < gridRowCount; i++) {
-
-                String userNameStr = page.grid().getRowSpecificColumnVal(i, "Parameters").split(",")[0];
-                log.info("Extract all user names available in parameters fields ");
-                userName.add(userNameStr);
-            }
 
         log.info("Remove all duplicate username");
         List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
@@ -683,7 +678,7 @@ public class AlertPgTest extends BaseTest {
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
-                page.compareParamData(j, totalUsers,totalMessages, userList, messageList);
+                page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain is null or second domain in case of multitenancy");
@@ -739,7 +734,7 @@ public class AlertPgTest extends BaseTest {
 
 
             for (int j = 0; j < recordCount; j++) {
-               page.compareParamData(j,totalUsers,0,  userList, null);
+                page.compareParamData(j, totalUsers, 0, userList, null);
 
             }
             log.info("Remove all duplicate username");
