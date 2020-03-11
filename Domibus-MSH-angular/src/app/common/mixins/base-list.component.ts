@@ -90,8 +90,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       result = await this.getDataAndSetResults();
     } catch (error) {
       this.isLoading = false;
-      this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
-      error.handled = true;
+      this.onLoadDataError(error);
       return Promise.reject(error);
     }
 
@@ -103,6 +102,11 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     }
 
     return result;
+  }
+
+  protected onLoadDataError(error) {
+    this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+    error.handled = true;
   }
 
   public get csvUrl(): string {

@@ -7,15 +7,17 @@ import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.delegate.mapper.MonitoringMapper;
 import eu.domibus.ext.domain.*;
-import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -114,6 +116,36 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         if (typeOfT == ValidationIssueDTO.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.pModeIssueToPModeIssueDTO((ValidationIssue) source);
+        }
+
+        if (typeOfT == PartyDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.partyToPartyDTO((Party) source);
+        }
+
+        if (typeOfT == Party.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.partyDTOToParty((PartyDTO) source);
+        }
+
+        if (typeOfT == TrustStoreDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.trustStoreEntryToTrustStoreDTO((TrustStoreEntry) source);
+        }
+
+        if (typeOfT == TrustStoreEntry.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.trustStoreDTOToTrustStoreEntry((TrustStoreDTO) source);
+        }
+
+        if (typeOfT == ProcessDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.processToProcessDTO((Process) source);
+        }
+
+        if (typeOfT == Process.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) domibusExtMapper.processDTOToProcess((ProcessDTO) source);
         }
 
         String errorMsg = String.format("Ext type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());

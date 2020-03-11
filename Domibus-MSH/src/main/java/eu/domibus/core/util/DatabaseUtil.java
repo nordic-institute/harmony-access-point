@@ -1,9 +1,12 @@
 package eu.domibus.core.util;
 
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +20,7 @@ import java.sql.SQLException;
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
+@DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
 @Service
 public class DatabaseUtil {
 
@@ -24,7 +28,7 @@ public class DatabaseUtil {
 
     private String databaseUserName;
 
-    @Qualifier("domibusJDBC-XADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     @Autowired
     private DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 

@@ -75,9 +75,6 @@ public class DomibusPropertiesService {
         display.append(" Build-Name [");
         display.append(getArtifactName());
         display.append("]");
-        display.append(" Build-Time [");
-        display.append(getBuiltTime());
-        display.append("]");
         return display.toString();
 
     }

@@ -26,6 +26,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <scope>provided</scope>
@@ -43,6 +48,11 @@
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -2,12 +2,14 @@ package eu.domibus.plugin.routing;
 
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.model.UserMessage;
+import org.springframework.stereotype.Service;
 
 /**
  * To criteria for user messages
  *
  * @author Christian Walczac
  */
+@Service
 public class ToRoutingCriteriaFactory implements CriteriaFactory {
 
     private static final String NAME = "TO";

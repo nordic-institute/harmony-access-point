@@ -312,8 +312,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingANDOperationWithFromAndActionMatching(@Injectable final BackendFilter filter,
                                                                                  @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                                  @Injectable final UserMessage userMessage,
-                                                                                 @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                                 @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                                 @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                                 @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                  @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                  @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 
@@ -367,8 +367,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingANDOperationWithFromMatchingAndActionNotMatching(@Injectable final BackendFilter filter,
                                                                                             @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                                             @Injectable final UserMessage userMessage,
-                                                                                            @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                                            @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                                            @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                                            @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                             @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                             @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 
@@ -421,8 +421,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingANDOperationWithFromNotMatching(@Injectable final BackendFilter filter,
                                                                            @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                            @Injectable final UserMessage userMessage,
-                                                                           @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                           @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                           @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                           @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                            @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                            @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 
@@ -470,8 +470,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingWithFromMatchingAndActionNotMatching(@Injectable final BackendFilter filter,
                                                                                 @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                                 @Injectable final UserMessage userMessage,
-                                                                                @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                                @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                                @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                                @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                 @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                 @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 
@@ -519,8 +519,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingWithNoRoutingCriteriaDefined(@Injectable final BackendFilter filter,
                                                                         @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                         @Injectable final UserMessage userMessage,
-                                                                        @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                        @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                        @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                        @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                         @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                         @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 
@@ -542,8 +542,8 @@ public class BackendNotificationServiceTest {
     public void testIsBackendFilterMatchingANDOperationWithFromNotMatchingAndActionMatching(@Injectable final BackendFilter filter,
                                                                                             @Injectable final Map<String, IRoutingCriteria> criteriaMap,
                                                                                             @Injectable final UserMessage userMessage,
-                                                                                            @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
-                                                                                            @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration, //configured in the domibus-plugins.xml
+                                                                                            @Injectable final IRoutingCriteria fromRoutingCriteriaConfiguration,
+                                                                                            @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                             @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                             @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
 

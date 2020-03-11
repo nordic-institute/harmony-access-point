@@ -14,7 +14,7 @@ import java.util.Properties;
 import static org.junit.Assert.*;
 
 /**
- * @author Federico Martini, soumya
+ * @author Federico Martini
  */
 @RunWith(JMockit.class)
 public class DomibusPropertiesServiceTest {
@@ -55,20 +55,15 @@ public class DomibusPropertiesServiceTest {
     public void testGetBuildDetails() {
 
         String artifactName = "domibus-MSH";
-        String buildTime = "2020-02-26 13:21|Central European Time";
 
         new Expectations(service) {{
             service.getArtifactName();
             result = artifactName;
-
-            service.getBuiltTime();
-            result = buildTime;
         }};
 
         String buildDetails = service.getBuildDetails();
 
         assertTrue(buildDetails.contains(artifactName));
-        assertTrue(buildDetails.contains(buildTime));
-    }
 
+    }
 }
