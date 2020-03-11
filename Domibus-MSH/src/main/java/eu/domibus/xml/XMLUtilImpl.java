@@ -3,7 +3,7 @@ package eu.domibus.xml;
 import eu.domibus.api.util.xml.DefaultUnmarshallerResult;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.common.validators.XmlValidationEventHandler;
+import eu.domibus.plugin.validation.XmlValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;

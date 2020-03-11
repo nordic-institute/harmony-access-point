@@ -1,9 +1,6 @@
-package eu.domibus.submission.validation;
+package eu.domibus.plugin.validation;
 
-import eu.domibus.common.validators.XmlValidationEventHandler;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.validation.SubmissionValidationException;
-import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.io.Resource;

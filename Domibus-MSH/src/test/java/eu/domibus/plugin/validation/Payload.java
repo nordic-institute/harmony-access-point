@@ -1,5 +1,5 @@
 
-package eu.domibus.submission.validation;
+package eu.domibus.plugin.validation;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

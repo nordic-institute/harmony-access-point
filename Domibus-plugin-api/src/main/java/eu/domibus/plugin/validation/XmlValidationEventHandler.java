@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.plugin.validation;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

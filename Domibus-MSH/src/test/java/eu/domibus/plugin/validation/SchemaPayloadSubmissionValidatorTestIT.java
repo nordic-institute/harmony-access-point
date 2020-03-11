@@ -1,7 +1,6 @@
-package eu.domibus.submission.validation;
+package eu.domibus.plugin.validation;
 
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.validation.SubmissionValidationException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
@@ -23,17 +22,17 @@ public class SchemaPayloadSubmissionValidatorTestIT {
 
     @Before
     public void init() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.submission.validation");
+        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.plugin.validation");
         schemaPayloadSubmissionValidator = new SchemaPayloadSubmissionValidator();
         schemaPayloadSubmissionValidator.setJaxbContext(jaxbContext);
-        schemaPayloadSubmissionValidator.setSchema(new ClassPathResource("eu/domibus/submission/validation/payload.xsd"));
+        schemaPayloadSubmissionValidator.setSchema(new ClassPathResource("eu/domibus/plugin/validation/payload.xsd"));
     }
 
     @Test
     public void testValidatePayloadWithValidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/submission/validation/validPayload.xml").getInputStream());
+            returns(new ClassPathResource("eu/domibus/plugin/validation/validPayload.xml").getInputStream());
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);
@@ -43,7 +42,7 @@ public class SchemaPayloadSubmissionValidatorTestIT {
     public void testValidatePayloadWithValidInvalidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/submission/validation/invalidPayload.xml").getInputStream());
+            returns(new ClassPathResource("eu/domibus/plugin/validation/invalidPayload.xml").getInputStream());
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);
