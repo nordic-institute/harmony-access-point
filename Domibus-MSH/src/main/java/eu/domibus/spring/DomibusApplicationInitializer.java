@@ -123,7 +123,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
             //we need to initialize the logging before Spring is being initialized
             LogbackLoggingConfigurator logbackLoggingConfigurator = new LogbackLoggingConfigurator(domibusConfigLocation);
             logbackLoggingConfigurator.configureLogging();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             //logging configuration problems should not prevent the application to startup
             LOG.warn("Error occurred while configuring logging", e);
         }
