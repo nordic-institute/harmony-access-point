@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -123,31 +122,6 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
         LOG.debug("Finished getting the decrypt cipher for payload");
 
         return decryptCipher;
-    }
-
-    protected boolean isAnyEncryptionActive() {
-        final boolean generalPasswordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive();
-        if (generalPasswordEncryptionActive) {
-            LOG.debug("General password encryption is active");
-            return true;
-        }
-
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            final Boolean payloadEncryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
-            if (payloadEncryptionActive) {
-                LOG.debug("Payload encryption is active for domain [{}]", domain);
-                return true;
-            }
-
-            final boolean passwordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive(domain);
-            if (passwordEncryptionActive) {
-                LOG.debug("Password encryption is active for domain [{}]", domain);
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }
