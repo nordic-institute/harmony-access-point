@@ -49,7 +49,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
-        LOG.debug("Using [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
 
         configureLogging(domibusConfigLocation);
 

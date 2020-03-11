@@ -13,9 +13,11 @@ import javax.xml.bind.JAXBException;
 @Configuration
 public class PModeBeanConfiguration {
 
+    public static final String COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH = "eu.domibus.common.model.configuration";
+
     @Bean("jaxbContextConfig")
     public JAXBContext jaxbContextConfig() throws JAXBException {
-        return JAXBContext.newInstance("eu.domibus.common.model.configuration");
+        return JAXBContext.newInstance(COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
     }
 
 }

@@ -1,5 +1,6 @@
 package eu.domibus.messaging;
 
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.pull.PullReceiptListener;
@@ -34,6 +35,7 @@ public class MessageListenerContainerConfiguration {
     public static final String PROPERTY_LARGE_FILES_CONCURRENCY = DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY;
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
     private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;
+
 
 
     @Autowired
@@ -84,7 +86,7 @@ public class MessageListenerContainerConfiguration {
     PullMessageSender pullMessageListener;
 
     @Autowired
-    @Qualifier("domibusJMS-XAConnectionFactory")
+    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

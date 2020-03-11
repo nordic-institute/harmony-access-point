@@ -267,6 +267,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_ALERT_QUEUE_CONCURRENCY = "domibus.alert.queue.concurrency";
     String MESSAGE_FACTORY_CLASS = "messageFactoryClass";
     String COMPRESSION_BLACKLIST = "compressionBlacklist";
+    String DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY = "domibus.jms.internal.command.concurrency";
     String DOMIBUS_INTERNAL_QUEUE_CONCURENCY = "domibus.internal.queue.concurency";
     String DOMIBUS_METRICS_JMX_REPORTER_ENABLE = "domibus.metrics.jmx.reporter.enable";
     String DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE = "domibus.metrics.sl4j.reporter.enable";

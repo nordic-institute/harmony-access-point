@@ -111,7 +111,7 @@
         </dependency>
         <!-- End ActiveMQ -->
 
-        <!-- Atokimos Library for distributed transactions -->
+        <!-- Atomikos Library for distributed transactions -->
         <dependency>
             <groupId>com.atomikos</groupId>
             <artifactId>transactions-jta</artifactId>
@@ -128,7 +128,7 @@
             <groupId>com.atomikos</groupId>
             <artifactId>transactions-hibernate4</artifactId>
         </dependency>
-        <!-- End Atokimos Library for distributed transactions -->
+        <!-- End Atomikos Library for distributed transactions -->
 
         <!-- Test dependencies -->
         <dependency>

@@ -2,6 +2,7 @@ package eu.domibus.xml;
 
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -67,7 +68,7 @@ public class XMLUtilImplTest {
     protected UnmarshallerResult unmarshalPmode(String resourceName, boolean ignoreWhiteSpaces) throws JAXBException, SAXException, ParserConfigurationException, XMLStreamException {
         InputStream xsdStream = getClass().getClassLoader().getResourceAsStream(PModeProvider.SCHEMAS_DIR + PModeProvider.DOMIBUS_PMODE_XSD);
         InputStream xmlStream = getClass().getClassLoader().getResourceAsStream(resourceName);
-        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.common.model.configuration");
+        JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         UnmarshallerResult unmarshal = xmlUtil.unmarshal(ignoreWhiteSpaces, jaxbContext, xmlStream, xsdStream);
         assertNotNull(unmarshal.getResult());
         assertTrue(unmarshal.getResult() instanceof Configuration);

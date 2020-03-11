@@ -1,5 +1,6 @@
 package eu.domibus.jms.wildfly;
 
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class DomibusJMSWildflyQueueConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWildflyQueueConfiguration.class);
 
-    @Bean("domibusJMS-XAConnectionFactory")
+    @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
     public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");

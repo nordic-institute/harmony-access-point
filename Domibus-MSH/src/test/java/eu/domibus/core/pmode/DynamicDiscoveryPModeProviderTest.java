@@ -133,7 +133,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
         InputStream xmlStream = new FileInputStream(new File(RESOURCE_PATH + resourceXML));
-        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.common.model.configuration");
+        JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         XMLUtil xmlUtil = new XMLUtilImpl();
 
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(false, jaxbContext, xmlStream, null);

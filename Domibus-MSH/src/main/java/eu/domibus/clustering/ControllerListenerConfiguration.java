@@ -1,5 +1,7 @@
 package eu.domibus.clustering;
 
+import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,18 +17,17 @@ import javax.jms.Topic;
 import java.util.Optional;
 
 /**
+ * JMS listener responsible of executing internal commands
+ *
  * @author Cosmin Baciu
  * @since 4.2
  */
 @Configuration
 public class ControllerListenerConfiguration {
-
-    private static final String CONTROLLER_LISTENER_CONCURRENCY = "1-1";
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
 
     @Bean("controllerListener")
-    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier("domibusJMS-XAConnectionFactory") ConnectionFactory connectionFactory,
+    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier("clusterCommandTopic") Topic destination,
                                                                                  ControllerListenerService messageListener,
                                                                                  PlatformTransactionManager transactionManager,
@@ -38,8 +39,10 @@ public class ControllerListenerConfiguration {
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
 
-        final String concurrency = CONTROLLER_LISTENER_CONCURRENCY;
-        messageListenerContainer.setConcurrency(CONTROLLER_LISTENER_CONCURRENCY);
+        String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
+        LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);
+
+        messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
         messageListenerContainer.setPubSubDomain(true);
