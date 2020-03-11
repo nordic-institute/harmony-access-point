@@ -7,6 +7,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 public class PrefixedProperties extends Properties {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrefixedProperties.class);

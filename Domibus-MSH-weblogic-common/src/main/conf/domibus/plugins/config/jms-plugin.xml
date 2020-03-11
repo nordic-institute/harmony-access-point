@@ -9,8 +9,7 @@
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
     <jee:jndi-lookup id="notifyBackendJmsQueue"
-                     jndi-name="${jmsplugin.queue.notification}"
-                     environment-ref="contextEnvironment">
+                     jndi-name="${jmsplugin.queue.notification}">
     </jee:jndi-lookup>
 
 	<bean id="backendJms" class="eu.domibus.plugin.jms.BackendJMSImpl">

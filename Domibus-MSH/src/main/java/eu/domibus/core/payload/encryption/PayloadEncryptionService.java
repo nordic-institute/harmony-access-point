@@ -3,7 +3,6 @@ package eu.domibus.core.payload.encryption;
 import eu.domibus.api.multitenancy.Domain;
 
 import javax.crypto.Cipher;
-import java.io.File;
 
 /**
  * @author Cosmin Baciu
@@ -24,8 +23,4 @@ public interface PayloadEncryptionService {
     Cipher getEncryptCipherForPayload();
 
     Cipher getDecryptCipherForPayload();
-
-    boolean useLockForEncryption();
-
-    File getLockFileLocation();
 }

@@ -34,13 +34,6 @@ public class DomibusJPAConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Qualifier("domibusJDBC-XADataSource")
-    @Autowired
-    protected DataSource dataSource;
-
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
@@ -48,8 +41,11 @@ public class DomibusJPAConfiguration {
 
     @Bean
     @Primary
-    @DependsOn("transactionManager")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
+    @DependsOn({"transactionManager", "domibusJDBC-XADataSource"})
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("domibusJDBC-XADataSource") DataSource dataSource,
+                                                                       DomibusPropertyProvider domibusPropertyProvider,
+                                                                       @Qualifier("jpaProperties") PrefixedProperties jpaProperties,
+                                                                       Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
@@ -61,7 +57,6 @@ public class DomibusJPAConfiguration {
         }
         result.setJtaDataSource(dataSource);
         result.setJpaVendorAdapter(jpaVendorAdapter());
-        final PrefixedProperties jpaProperties = jpaProperties();
 
         if (singleTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for single-tenancy");
@@ -79,8 +74,8 @@ public class DomibusJPAConfiguration {
         return result;
     }
 
-    @Bean
-    public PrefixedProperties jpaProperties() {
+    @Bean("jpaProperties")
+    public PrefixedProperties jpaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         PrefixedProperties result = new PrefixedProperties(domibusPropertyProvider, "domibus.entityManagerFactory.jpaProperty.");
         return result;
     }

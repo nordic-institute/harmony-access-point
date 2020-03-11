@@ -14,6 +14,10 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Topic;
 import java.util.Optional;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration
 public class ControllerListenerConfiguration {
 

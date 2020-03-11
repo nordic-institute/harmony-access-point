@@ -9,6 +9,10 @@ import org.springframework.core.env.MutablePropertySources;
 
 import java.io.IOException;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 public class PropertyOverrideContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override

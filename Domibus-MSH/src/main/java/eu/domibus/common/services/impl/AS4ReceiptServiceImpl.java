@@ -119,7 +119,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
 
-
     @Override
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,

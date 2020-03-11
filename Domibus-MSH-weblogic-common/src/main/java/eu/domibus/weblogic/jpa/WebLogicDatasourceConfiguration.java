@@ -20,22 +20,24 @@ public class WebLogicDatasourceConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WebLogicDatasourceConfiguration.class);
 
     @Bean("domibusJDBC-XADataSource")
-    public DataSource xaDatasource(DomibusPropertyProvider domibusPropertyProvider) {
+    public JndiObjectFactoryBean xaDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setExpectedType(DataSource.class);
         String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
 
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
         jndiObjectFactoryBean.setJndiName(jndiName);
-        return (DataSource) jndiObjectFactoryBean.getObject();
+        return jndiObjectFactoryBean;
     }
 
     @Bean("domibusJDBC-nonXADataSource")
-    public DataSource quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
+    public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setExpectedType(DataSource.class);
         String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
 
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME, jndiName);
         jndiObjectFactoryBean.setJndiName(jndiName);
-        return (DataSource) jndiObjectFactoryBean.getObject();
+        return jndiObjectFactoryBean;
     }
 }

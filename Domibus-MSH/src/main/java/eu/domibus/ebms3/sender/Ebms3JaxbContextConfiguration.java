@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration
 public class Ebms3JaxbContextConfiguration {
 

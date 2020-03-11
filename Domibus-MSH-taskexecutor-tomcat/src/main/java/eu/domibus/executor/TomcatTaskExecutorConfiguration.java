@@ -8,6 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration
 public class TomcatTaskExecutorConfiguration {
 

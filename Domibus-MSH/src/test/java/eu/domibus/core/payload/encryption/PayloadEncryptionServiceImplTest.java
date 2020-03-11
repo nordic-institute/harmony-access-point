@@ -44,31 +44,6 @@ public class PayloadEncryptionServiceImplTest {
     @Tested
     PayloadEncryptionServiceImpl payloadEncryptionService;
 
-    @Test
-    public void useLockForEncryption() {
-        new Expectations(payloadEncryptionService) {{
-            domibusConfigurationService.isClusterDeployment();
-            result = true;
-
-            payloadEncryptionService.isAnyEncryptionActive();
-            result = true;
-        }};
-
-        assertTrue(payloadEncryptionService.useLockForEncryption());
-    }
-
-    @Test
-    public void useLockForEncryptionNoCluster() {
-        new Expectations(payloadEncryptionService) {{
-            domibusConfigurationService.isClusterDeployment();
-            result = false;
-
-            payloadEncryptionService.isAnyEncryptionActive();
-            result = true;
-        }};
-
-        assertFalse(payloadEncryptionService.useLockForEncryption());
-    }
 
     @Test
     public void isAnyEncryptionActiveWithGeneralEncryptionActive() {
@@ -78,20 +53,6 @@ public class PayloadEncryptionServiceImplTest {
         }};
 
         assertTrue(payloadEncryptionService.isAnyEncryptionActive());
-    }
-
-    @Test
-    public void getLockFile() {
-        String configLocation  = "home";
-
-        new Expectations() {{
-            domibusConfigurationService.getConfigLocation();
-            result = configLocation;
-        }};
-
-        final File lockFile = payloadEncryptionService.getLockFileLocation();
-        assertEquals(configLocation, lockFile.getParent());
-        assertEquals(PayloadEncryptionServiceImpl.ENCRYPTION_LOCK, lockFile.getName());
     }
 
     @Test

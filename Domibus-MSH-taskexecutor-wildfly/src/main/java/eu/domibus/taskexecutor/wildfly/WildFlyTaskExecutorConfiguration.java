@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration
 public class WildFlyTaskExecutorConfiguration {
 

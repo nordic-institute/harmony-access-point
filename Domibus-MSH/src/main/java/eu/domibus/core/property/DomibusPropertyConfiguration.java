@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration("domibusPropertyConfiguration")
 public class DomibusPropertyConfiguration {
 

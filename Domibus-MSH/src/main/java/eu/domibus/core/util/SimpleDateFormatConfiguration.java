@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.text.SimpleDateFormat;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Configuration
 public class SimpleDateFormatConfiguration {
 

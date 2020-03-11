@@ -127,23 +127,6 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
         return decryptCipher;
     }
 
-    @Override
-    public boolean useLockForEncryption() {
-        final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
-        LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-
-        final boolean anyEncryptionActive = isAnyEncryptionActive();
-        LOG.debug("isAnyEncryptionActive? [{}]", anyEncryptionActive);
-
-        return clusterDeployment && isAnyEncryptionActive();
-    }
-
-    @Override
-    public File getLockFileLocation() {
-        return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
-    }
-
-
     protected boolean isAnyEncryptionActive() {
         final boolean generalPasswordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive();
         if (generalPasswordEncryptionActive) {

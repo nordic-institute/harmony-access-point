@@ -21,87 +21,100 @@ public class DomibusJMSWildflyQueueConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWildflyQueueConfiguration.class);
 
     @Bean("domibusJMS-XAConnectionFactory")
-    public ConnectionFactory connectionFactory() {
+    public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
-        return (ConnectionFactory) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setLookupOnStartup(false);
+        jndiObjectFactoryBean.setExpectedType(ConnectionFactory.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("sendMessageQueue")
-    public Queue sendMessageQueue() {
+    public JndiObjectFactoryBean sendMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.dispatch.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("sendLargeMessageQueue")
-    public Queue sendLargeMessageQueue() {
+    public JndiObjectFactoryBean sendLargeMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.largeMessage.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("splitAndJoinQueue")
-    public Queue splitAndJoinQueue() {
+    public JndiObjectFactoryBean splitAndJoinQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.splitAndJoin.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("pullMessageQueue")
-    public Queue pullMessageQueue() {
+    public JndiObjectFactoryBean pullMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.pull.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("sendPullReceiptQueue")
-    public Queue sendPullReceiptQueue() {
+    public JndiObjectFactoryBean sendPullReceiptQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.pull.receipt.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("retentionMessageQueue")
-    public Queue retentionMessageQueue() {
+    public JndiObjectFactoryBean retentionMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.retentionMessage.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("alertMessageQueue")
-    public Queue alertMessageQueue() {
+    public JndiObjectFactoryBean alertMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.alert.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("uiReplicationQueue")
-    public Queue uiReplicationQueue() {
+    public JndiObjectFactoryBean uiReplicationQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.ui.replication.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("notifyBackendQueue")
-    public Queue notifyBackendQueue() {
+    public JndiObjectFactoryBean notifyBackendQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.notification.queue");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("unknownReceiverQueue")
-    public Queue unknownReceiverQueue() {
+    public JndiObjectFactoryBean unknownReceiverQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.notification.unknown");
-        return (Queue) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("clusterCommandTopic")
-    public Topic clusterCommandTopic() {
+    public JndiObjectFactoryBean clusterCommandTopic() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.command");
-        return (Topic) jndiObjectFactoryBean.getObject();
+        jndiObjectFactoryBean.setExpectedType(Topic.class);
+        return jndiObjectFactoryBean;
     }
 
     @Bean("internalDestinationResolver")
