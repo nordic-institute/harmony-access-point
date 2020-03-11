@@ -2,6 +2,7 @@ package eu.domibus.wildfly.jpa;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ public class WildFlyDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WildFlyDatasourceConfiguration.class);
 
-    @Bean("domibusJDBC-XADataSource")
+    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     public DataSource xaDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
@@ -29,7 +30,7 @@ public class WildFlyDatasourceConfiguration {
         return (DataSource) jndiObjectFactoryBean.getObject();
     }
 
-    @Bean("domibusJDBC-nonXADataSource")
+    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     public DataSource quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);

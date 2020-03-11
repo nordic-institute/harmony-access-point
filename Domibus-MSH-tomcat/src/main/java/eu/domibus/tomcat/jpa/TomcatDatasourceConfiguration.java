@@ -3,6 +3,7 @@ package eu.domibus.tomcat.jpa;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.property.PrefixedProperties;
@@ -24,7 +25,7 @@ public class TomcatDatasourceConfiguration {
 
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
-    @Bean(name = "domibusJDBC-XADataSource", initMethod = "init", destroyMethod = "close")
+    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     @DependsOn("userTransactionService")
     public AtomikosDataSourceBean domibusXADatasource(DomibusPropertyProvider domibusPropertyProvider,
                                                       @Qualifier("xaProperties") PrefixedProperties xaProperties) {
@@ -62,7 +63,7 @@ public class TomcatDatasourceConfiguration {
     }
 
 
-    @Bean(name = "domibusJDBC-nonXADataSource", initMethod = "init", destroyMethod = "close")
+    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean domibusNonXADatasource(DomibusPropertyProvider domibusPropertyProvider) {
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
         dataSource.setUniqueResourceName("domibusNonXADataSource");

@@ -1,5 +1,6 @@
 package eu.domibus;
 
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +20,13 @@ public class DomibusTestDatasourceConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestDatasourceConfiguration.class);
 
     @Primary
-    @Bean(name = "domibusJDBC-XADataSource")
+    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     public DataSource xaDatasource() {
         return createDatasource();
     }
 
     @Primary
-    @Bean("domibusJDBC-nonXADataSource")
+    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     public DataSource nonXADatasource() {
         return createDatasource();
     }

@@ -32,7 +32,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMultiTenantConnectionProvider.class);
 
-    @Qualifier("domibusJDBC-XADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 

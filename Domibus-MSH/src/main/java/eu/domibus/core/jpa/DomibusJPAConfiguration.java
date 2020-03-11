@@ -34,6 +34,10 @@ public class DomibusJPAConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
+    public static final String DOMIBUS_JDBC_XA_DATA_SOURCE = "domibusJDBC-XADataSource";
+    public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
+
+
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
@@ -41,8 +45,8 @@ public class DomibusJPAConfiguration {
 
     @Bean
     @Primary
-    @DependsOn({"transactionManager", "domibusJDBC-XADataSource"})
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("domibusJDBC-XADataSource") DataSource dataSource,
+    @DependsOn({"transactionManager", DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE})
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_XA_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier("jpaProperties") PrefixedProperties jpaProperties,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,

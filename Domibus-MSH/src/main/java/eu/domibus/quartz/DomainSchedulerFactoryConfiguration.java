@@ -11,6 +11,7 @@ import eu.domibus.core.alerts.job.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
@@ -72,11 +73,11 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Qualifier("domibusJDBC-XADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource;
 
-    @Qualifier("domibusJDBC-nonXADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     @Autowired
     protected DataSource nonTransactionalDataSource;
 
