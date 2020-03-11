@@ -87,6 +87,11 @@ public class DomibusPage extends DComponent {
 		wait.forElementToBeVisible(getSandwichMenu().expandButton);
 	}
 
+	public void waitForPageTitle() throws Exception {
+		wait.forElementToBeVisible(pageTitle);
+	}
+
+
 	public boolean hasOpenDialog(){
 		log.info("checking for any opened dialogs");
 		try{

@@ -41,11 +41,16 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);;
 
 		AuditPage page = new AuditPage(driver);
+		page.grid().waitForRowsToLoad();
+
 		page.getFilters().setFilterData("table", "User");
 		log.info("Select logged in user username in User input filter");
 		page.getFilters().setFilterData("user", user);
 		log.info("Click on Search button");
 		page.getFilters().getSearchButton().click();
+
+		page.grid().waitForRowsToLoad();
+
 		log.info("Search result count:" + page.getFilters().getPagination().getTotalItems());
 		log.info("Validate no data presence for this user on audit page");
 		soft.assertTrue(page.getFilters().getPagination().getTotalItems() == 0, "Search has no data");
@@ -81,7 +86,7 @@ public class AuditPgTest extends BaseTest {
 
 		log.info("Total search record is :" + page.grid().getPagination().getTotalItems());
 		page.refreshPage();
-		page.wait.forElementToBeVisible(page.auditPageHeader);
+		page.waitForPageTitle();
 		page.grid().waitForRowsToLoad();
 
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == prevCount, "Page shows all records after deletion of all selected filter values");
@@ -109,6 +114,8 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action Field data");
 		page.filters().getActionFilter().selectOptionByText("Downloaded");
 		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(page.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Deleted");
@@ -572,6 +579,8 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action in filter");
 		auditPage.getFilters().setFilterData("Action", "Created");
 		auditPage.getFilters().getSearchButton().click();
+		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Created");
@@ -602,6 +611,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action in filter");
 		auditPage.getFilters().setFilterData("Action", "Modified");
 		auditPage.getFilters().getSearchButton().click();
+		auditPage.grid().waitForRowsToLoad();
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Modified");
@@ -629,6 +639,8 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action in filter");
 		auditPage.getFilters().setFilterData("Action", "Modified");
 		auditPage.getFilters().getSearchButton().click();
+		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Modified");
@@ -655,6 +667,8 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action Field data");
 		auditPage.getFilters().setFilterData("Action", "Created");
 		auditPage.getFilters().getSearchButton().click();
+		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Created");
@@ -682,6 +696,8 @@ public class AuditPgTest extends BaseTest {
 		log.info("Select Created as Action Field data");
 		auditPage.getFilters().setFilterData("Action", "Deleted");
 		auditPage.getFilters().getSearchButton().click();
+		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Deleted");

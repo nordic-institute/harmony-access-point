@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -117,7 +118,14 @@ public class DGrid extends DComponent {
     public void waitForRowsToLoad() {
         try {
             wait.forElementToBe(progressBar);
-            wait.forElementToBeGone(progressBar);
+            int bars = 1;
+            int waits = 0;
+            while(bars>0 && waits<30){
+                Object tmp = ((JavascriptExecutor) driver).executeScript("return document.querySelectorAll('datatable-progress').length;");
+                bars = Integer.valueOf(tmp.toString());
+                waits++;
+                wait.forXMillis(500);
+            }
             wait.forXMillis(500);
         } catch (Exception e) {
 

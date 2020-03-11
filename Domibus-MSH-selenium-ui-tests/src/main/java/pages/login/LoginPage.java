@@ -1,5 +1,6 @@
 package pages.login;
 
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -58,33 +59,11 @@ public class LoginPage extends DomibusPage {
 		return true;
 	}
 
-	public <T extends DomibusPage> T login(String user, String pass, Class<T> expect) {
-		log.debug("Login started");
-		username.clear();
-		username.sendKeys(user);
-		password.clear();
-		password.sendKeys(pass);
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.debug("Login action done");
-
-		return PageFactory.initElements(driver, expect);
-	}
-
-	public void login(String user, String pass) {
-		log.debug("Login started");
-		username.clear();
-		username.sendKeys(user);
-		password.clear();
-		password.sendKeys(pass);
-		loginBtn.click();
-
-		wait.defaultWait.until(ExpectedConditions.or(
-				ExpectedConditions.visibilityOf(pageTitle),
-				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
-		));
-
-		log.debug("Login action done");
+	public void login(String user, String pass) throws Exception{
+		HashMap<String, String> usr = new HashMap<>();
+		usr.put("username", user);
+		usr.put("pass", pass);
+		login(usr);
 	}
 
 	public void login(String userRole) throws Exception {
@@ -95,10 +74,15 @@ public class LoginPage extends DomibusPage {
 	public void login(HashMap<String, String> user) throws Exception {
 
 		log.debug("Login started " + user.get("username") + " / " + user.get("pass"));
-		new DInput(driver, username).fill(user.get("username"));
-		new DInput(driver, password).fill(user.get("pass"));
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
+		weToDInput(username).fill(user.get("username"));
+		weToDInput(password).fill(user.get("pass"));
+		weToDButton(loginBtn).click();
+
+		wait.defaultWait.until(ExpectedConditions.or(
+				ExpectedConditions.visibilityOf(pageTitle),
+				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
+		));
+
 		log.debug("Login action done");
 	}
 
