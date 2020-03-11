@@ -34,19 +34,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 	@BeforeMethod(alwaysRun = true)
 	private void login() throws Exception {
-		new LoginPage(driver)
-				.login(data.getAdminUser());
-		log.info("logged in");
 		new DomibusPage(driver).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
-
-		try {
-			MessageFilterPage page = new MessageFilterPage(driver);
-			log.info("checking if this is the first time we open the page and if default filters need to be persisted");
-			if (page.getAlertArea().isError()) {
-				page.saveAndConfirmChanges();
-			}
-		} catch (Exception e) {
-		}
 	}
 
 	/* Login as super admin and open Messages Filter page */
@@ -503,7 +491,7 @@ public class MessageFilterPgTest extends BaseTest {
 		index = page.grid().scrollTo("Action", actionName);
 		soft.assertTrue(index == -1, "Filter not found in grid after delete");
 
-		log.info("saving chnages");
+		log.info("saving changes");
 		page.saveAndConfirmChanges();
 
 		log.info("checking that row is still removed from the list after save");
@@ -682,7 +670,7 @@ public class MessageFilterPgTest extends BaseTest {
 	}
 
 	/* Perform two action and press cancel */
-	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void twoActionsAndCancel() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -748,6 +736,7 @@ public class MessageFilterPgTest extends BaseTest {
 			MessageFilterModal modal = new MessageFilterModal(driver);
 			pluginName = modal.getPluginSelect().getSelectedValue();
 			modal.clickOK();
+			page.saveAndConfirmChanges();
 		}
 
 

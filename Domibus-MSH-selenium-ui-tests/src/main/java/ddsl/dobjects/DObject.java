@@ -32,7 +32,7 @@ public class DObject {
 	public boolean isPresent() {
 		try {
 			wait.forElementToBe(element);
-			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+			scrollIntoView();
 		} catch (Exception e) {
 			return false;
 		}
@@ -42,6 +42,7 @@ public class DObject {
 	public boolean isEnabled() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
+			wait.forXMillis(100);
 			return element.isEnabled();
 		}
 		throw new DObjectNotPresentException();
@@ -67,9 +68,13 @@ public class DObject {
 		if (!isPresent()) {
 			throw new DObjectNotPresentException();
 		}
-		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+		scrollIntoView();
 		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].innerText;", element).toString();
 		return text.trim();
+	}
+
+	public void scrollIntoView() {
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
 	}
 
 	public void click() throws Exception {

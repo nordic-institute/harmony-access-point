@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 
-public class ErrorLogPgUXTest extends BaseUXTest {
+public class ErrorLogPgUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ERROR_LOG);
 
@@ -51,8 +51,8 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-	/* Doubleclik on one error */
-	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"})
+	/* Double click on one error */
+	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleClickErr() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -70,6 +70,10 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 
 		log.info("double click row 0");
 		page.grid().doubleClickRow(0);
+
+		if(!page.hasOpenDialog()){
+			log.warn("Error details dialog might not be opened");
+		}
 
 		log.info("get info from modal");
 		HashMap<String, String> modalInfo = new ErrorModal(driver).getListedInfo();
@@ -215,7 +219,7 @@ public class ErrorLogPgUXTest extends BaseUXTest {
 	}
 
 	/* Download list of errors */
-	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);

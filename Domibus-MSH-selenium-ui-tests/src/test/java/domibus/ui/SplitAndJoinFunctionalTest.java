@@ -76,7 +76,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             log.info("Compare before & after total message count");
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 log.info("Message count is different from earlier count");
@@ -87,7 +87,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(1000);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             Mpage.grid().waitForRowsToLoad();
             log.info("Calculate actual fragment count");
             int actualFragCount = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount - 1;
@@ -137,7 +137,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             log.info("Compare before message count to current count");
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 log.info("Message count is different from earlier count");
@@ -147,7 +147,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         log.info("verify presence of  all fragments and source message availability on Admin console at sender side.");
         Thread.sleep(1000);
         Mpage.refreshPage();
-        Mpage.waitForTitle();
+        Mpage.waitForPageToLoad();
         Mpage.grid().waitForRowsToLoad();
         int addtionalMsg = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount;
         if (addtionalMsg == expectedFragCount + 1) {
@@ -203,7 +203,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             log.info("Compare before message count with current count");
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 log.info("Message count is different from earlier count");
@@ -213,7 +213,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         log.info(" getting all fragments and source message availability on Admin console at sender side");
         Thread.sleep(1000);
         Mpage.refreshPage();
-        Mpage.waitForTitle();
+        Mpage.waitForPageToLoad();
         Mpage.grid().waitForRowsToLoad();
         int addtionalMsg = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount;
         if (addtionalMsg == expectedFragCount + 1) {
@@ -268,7 +268,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 log.info("Message count is different from earlier count");
                 break;
@@ -277,7 +277,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         log.info("verify presence of all fragments and source message availability on Admin console at sender side");
         Thread.sleep(1000);
         Mpage.refreshPage();
-        Mpage.waitForTitle();
+        Mpage.waitForPageToLoad();
         Mpage.grid().waitForRowsToLoad();
         int addtionalMsg = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount;
         if (addtionalMsg == expectedFragCount + 1) {
@@ -326,7 +326,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 log.info("Message count is different from earlier count");
                 break;
@@ -335,7 +335,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         log.info("Verify presence of all fragments and source message availability on Admin console at sender side");
         Thread.sleep(1000);
         Mpage.refreshPage();
-        Mpage.waitForTitle();
+        Mpage.waitForPageToLoad();
         Mpage.grid().waitForRowsToLoad();
         int addtionalMsg = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount;
         if (addtionalMsg == expectedFragCount + 1) {
@@ -386,7 +386,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 break;
             }
@@ -395,7 +395,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(1000);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             Mpage.grid().waitForRowsToLoad();
             int actualFragCount = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount - 1;
             log.info("Actual Fragment count in case of file size smaller than configured fragment size :" + actualFragCount);
@@ -441,7 +441,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(100);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             if (beforeMsgCount != Mpage.grid().getPagination().getTotalItems()) {
                 break;
             }
@@ -450,7 +450,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
         for (; ; ) {
             Thread.sleep(1000);
             Mpage.refreshPage();
-            Mpage.waitForTitle();
+            Mpage.waitForPageToLoad();
             Mpage.grid().waitForRowsToLoad();
             int actualFragCount = Mpage.grid().getPagination().getTotalItems() - beforeMsgCount - 1;
             if (actualFragCount == expectedFragCount) {

@@ -123,6 +123,18 @@ public class DomibusRestClient {
 		return null;
 	}
 
+	public boolean login(String username, String pass) {
+		HashMap<String, String> params = new HashMap<>();
+		params.put("username", username);
+		params.put("password", pass);
+
+		ClientResponse response = resource.path(RestServicePaths.LOGIN)
+				.type(MediaType.APPLICATION_JSON_TYPE)
+				.post(ClientResponse.class, new JSONObject(params).toString());
+
+		return (response.getStatus() == 200);
+	}
+
 	public void switchDomain(String domainCode) {
 		if (StringUtils.isEmpty(domainCode)) {
 			domainCode = "default";
@@ -139,6 +151,11 @@ public class DomibusRestClient {
 
 	//	---------------------------------------Default request methods -------------------------------------------------
 	private ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
 		if (params != null) {
 			for (Map.Entry<String, String> param : params.entrySet()) {
 				resource = resource.queryParam(param.getKey(), param.getValue());
@@ -150,6 +167,10 @@ public class DomibusRestClient {
 	}
 
 	private ClientResponse requestPOSTFile(WebResource resource, String filePath, HashMap<String, String> fields) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
 
 		WebResource.Builder builder = decorateBuilder(resource);
 
@@ -170,14 +191,23 @@ public class DomibusRestClient {
 
 	private ClientResponse requestPUT(WebResource resource, String params) {
 
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
 		WebResource.Builder builder = decorateBuilder(resource);
 
 		return builder
 				.type(MediaType.APPLICATION_JSON)
 				.put(ClientResponse.class, params);
 	}
+
 	//Method is applicable when Media type is TEXT_PLAIN
 	private ClientResponse requesttPUT(WebResource resource, String params) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
 
 		WebResource.Builder builder = decorateBuilder(resource);
 
@@ -209,7 +239,7 @@ public class DomibusRestClient {
 		JSONArray users = getUsers(domain);
 		int adminNo = 0;
 		for (int i = 0; i < users.length(); i++) {
-			if(DRoles.ADMIN.equalsIgnoreCase(users.getJSONObject(i).getJSONArray("authorities").getString(0))){
+			if (DRoles.ADMIN.equalsIgnoreCase(users.getJSONObject(i).getJSONArray("authorities").getString(0))) {
 				adminNo++;
 			}
 		}
@@ -328,11 +358,16 @@ public class DomibusRestClient {
 
 		JSONArray pusers = new JSONObject(sanitizeResponse(getResponse)).getJSONArray("entries");
 		JSONArray toDelete = new JSONArray();
+
+
 		for (int i = 0; i < pusers.length(); i++) {
-			if (StringUtils.equalsIgnoreCase(pusers.getJSONObject(i).getString("userName"), username)) {
-				JSONObject tmpUser = pusers.getJSONObject(i);
-				tmpUser.put("status", "REMOVED");
-				toDelete.put(tmpUser);
+			JSONObject puser = pusers.getJSONObject(i);
+			if (!puser.has("userName") || puser.isNull("userName")) {
+				continue;
+			}
+			if (StringUtils.equalsIgnoreCase(puser.getString("userName"), username)) {
+				puser.put("status", "REMOVED");
+				toDelete.put(puser);
 			}
 		}
 
@@ -519,14 +554,20 @@ public class DomibusRestClient {
 		return entries.length() > 0;
 	}
 
-	private JSONArray getPmodesList(String domain) throws Exception{
+	private JSONArray getPmodesList(String domain) throws Exception {
 		switchDomain(domain);
 		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
-		JSONArray entries = new JSONArray(sanitizeResponse(getResponse));
+
+		JSONArray entries = new JSONArray();
+		try {
+			entries = new JSONArray(sanitizeResponse(getResponse));
+		} catch (JSONException e) {
+		}
+
 		return entries;
 	}
 
-	public Integer getLatestPModeID(String domain) throws Exception{
+	public Integer getLatestPModeID(String domain) throws Exception {
 		switchDomain(domain);
 
 		JSONArray entries = getPmodesList(domain);
@@ -537,7 +578,7 @@ public class DomibusRestClient {
 		return pmodeID;
 	}
 
-	public String downloadPmode(String domain, Integer pmodeID) throws Exception{
+	public String downloadPmode(String domain, Integer pmodeID) throws Exception {
 		switchDomain(domain);
 
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
@@ -549,8 +590,6 @@ public class DomibusRestClient {
 		in.close();
 		return file.getAbsolutePath();
 	}
-
-
 
 
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
@@ -591,6 +630,21 @@ public class DomibusRestClient {
 		return file.getAbsolutePath();
 	}
 
+	public boolean resendMessage(String id, String domain) throws Exception {
+		switchDomain(domain);
+
+		ClientResponse response = requestPUT(resource.path(
+				String.format(RestServicePaths.MESSAGE_LOG_RESEND, id)),
+				"{}");
+
+		if (response.getStatus() == 200) {
+			return true;
+		}
+
+		log.error("Resending of message failed with status: " + response.getStatus());
+		return false;
+	}
+
 	public JSONArray getListOfMessages(String domain) throws Exception {
 		switchDomain(domain);
 		HashMap<String, String> par = new HashMap<>();
@@ -603,6 +657,8 @@ public class DomibusRestClient {
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
 	}
 
+
+	// -------------------------------------------- UI Replication -----------------------------------------------------------
 	public void syncRecord() {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
 		if (response.getStatus() != 200) {
@@ -612,6 +668,7 @@ public class DomibusRestClient {
 		}
 	}
 
+	// -------------------------------------------- Domibus Properties -----------------------------------------------------------
 	public JSONArray getDomibusPropertyDetail(HashMap<String, String> params) throws Exception {
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		if (clientResponse.getStatus() != 200) {
@@ -621,15 +678,55 @@ public class DomibusRestClient {
 
 	}
 
+	public void updateDomibusProperty(String propertyName, HashMap<String, String> params, String payload) throws Exception {
 
-	public void updateDomibusProperty(String propertyName, HashMap<String, String> params,String payload) throws Exception {
-
-		String RestServicePathForPropertyUpdate=RestServicePaths.DOMIBUS_PROPERTIES+"/"+propertyName;
-		ClientResponse clientResponse =requesttPUT(resource.path(RestServicePathForPropertyUpdate),payload);
-		if(clientResponse.getStatus()!=200){
-			throw new RuntimeException("Could not update "+ propertyName +" property");
+		String RestServicePathForPropertyUpdate = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
+		ClientResponse clientResponse = requesttPUT(resource.path(RestServicePathForPropertyUpdate), payload);
+		if (clientResponse.getStatus() != 200) {
+			throw new RuntimeException("Could not update " + propertyName + " property");
 		}
 	}
+
+	// -------------------------------------------- PMODE PARTIES -----------------------------------------------------------
+
+	public void deleteParty(String name) throws Exception{
+		HashMap<String, String> params = new HashMap<>();
+		params.put("pageSize", "0");
+		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.GET_PARTIES), params);
+		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
+
+		for (int i = 0; i < parties.length(); i++) {
+			JSONObject party = parties.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(name, party.getString("name"))){
+				parties.remove(i);
+				break;
+			}
+		}
+
+		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
+
+		if(updatePartiesResp.getStatus() != 200){
+			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
+		}
+	}
+
+	// -------------------------------------------- CONNECTION MONITORING -----------------------------------------------------------
+
+	public JSONArray getConnectionMonitoringParties() throws Exception{
+		HashMap<String, String> params = new HashMap<>();
+		params.put("pageSize", "0");
+		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.CON_MON_PARTIES), params);
+
+		if(getPartiesResp.getStatus() != 200){
+			throw new Exception("get connection monitoring parties failed with status " + getPartiesResp.getStatus() );
+		}
+
+		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
+		return parties;
+	}
+
+
+
 }
 
 

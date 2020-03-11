@@ -21,10 +21,18 @@ public class RestServicePaths {
 	public static final String MESSAGE_FILTERS = "/rest/messagefilters";
 	public static final String SESSION_DOMAIN = "/rest/security/user/domain";
 
+	public static final String UPDATE_PARTIES = "/rest/party/update";
+	public static final String GET_PARTIES = "/rest/party/list";
+
+
+	public static final String CON_MON_PARTIES = "/rest/testservice/parties";
+
 
 	public static final String MESSAGE_LOG_CSV = "/rest/messagelog/csv";
 	public static final String MESSAGE_LOG_MESSAGE = "/rest/message/download";
 	public static final String MESSAGE_LOG_MESSAGES = "rest/messagelog";
+	public static final String MESSAGE_LOG_RESEND = "/rest/message/restore?messageId=%s";
+
 	public static final String MESSAGE_FILTERS_CSV = "/rest/messagefilters/csv";
 	public static final String ERROR_LOG_CSV = "/rest/errorlogs/csv";
 	public static final String PMODE_CURRENT_DOWNLOAD = "/rest/pmode/";

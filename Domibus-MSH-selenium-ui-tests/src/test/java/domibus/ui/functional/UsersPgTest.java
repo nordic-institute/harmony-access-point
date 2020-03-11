@@ -44,12 +44,9 @@ public class UsersPgTest extends BaseTest {
 
 
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
-		LoginPage loginPage = new LoginPage(driver);
-		log.info("Login with user" + user);
-		loginPage.login(user);
 
-		log.info("Open Users page");
-		loginPage.getSidebar().goToPage(PAGES.USERS);
+		log.info("Login with user" + user);
+		login(user).getSidebar().goToPage(PAGES.USERS);
 		return new UsersPage(driver);
 	}
 
@@ -334,6 +331,7 @@ public class UsersPgTest extends BaseTest {
 		modal.clickOK();
 
 		page.saveAndConfirm();
+		log.info(page.getAlertArea().getAlertMessage());
 
 		log.info("logging out");
 		page.getSandwichMenu().logout();
@@ -358,6 +356,7 @@ public class UsersPgTest extends BaseTest {
 		modal.clickOK();
 
 		page.saveAndConfirm();
+		log.info(page.getAlertArea().getAlertMessage());
 
 		log.info("logging out");
 		page.getSandwichMenu().logout();
@@ -463,10 +462,9 @@ public class UsersPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 
 		log.info("login with username " + username);
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.defaultPass());
+		login(username, data.defaultPass());
 
-		soft.assertEquals(loginPage.getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
+		soft.assertEquals(new DomibusPage(driver).getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
 
 		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
 		soft.assertAll();

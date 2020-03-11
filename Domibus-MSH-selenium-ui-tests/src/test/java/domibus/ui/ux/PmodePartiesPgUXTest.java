@@ -1,7 +1,7 @@
 package domibus.ui.ux;
 
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;
@@ -9,7 +9,7 @@ import pages.pmode.parties.PModePartiesPage;
 import java.util.HashMap;
 import java.util.List;
 
-public class PmodePartiesPgUXTest  extends BaseUXTest{
+public class PmodePartiesPgUXTest  extends BaseTest{
 
     @Test(description = "PMP-1", groups = {"multiTenancy", "singleTenancy"})
     public void openPModePartiesPage() throws Exception {

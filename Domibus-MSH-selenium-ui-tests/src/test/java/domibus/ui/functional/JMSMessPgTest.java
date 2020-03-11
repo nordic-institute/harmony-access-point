@@ -30,7 +30,12 @@ public class JMSMessPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 
-		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		int noOfMessages;
+		try {
+			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		} catch (Exception e) {
+			throw new SkipException(e.getMessage());
+		}
 		if (noOfMessages > 0) {
 			log.info("deleting first message listed");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
@@ -48,6 +53,7 @@ public class JMSMessPgTest extends BaseTest {
 			page.getDeleteButton().click();
 			log.info("saving ");
 			page.getSaveButton().click();
+			new Dialog(driver).confirm();
 
 			log.info("check message is deleted from grid");
 			soft.assertTrue(page.grid().scrollTo("ID", rowInfo2.get("ID")) < 0, "Message NOT present in the grid after delete operation");
@@ -68,7 +74,12 @@ public class JMSMessPgTest extends BaseTest {
 		page.grid().waitForRowsToLoad();
 		int noOfMessInDQL = page.grid().getPagination().getTotalItems();
 
-		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+		int noOfMessages;
+		try {
+			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
+		} catch (Exception e) {
+			throw new SkipException(e.getMessage());
+		}
 		page.grid().waitForRowsToLoad();
 
 		String queuename = page.filters().getJmsQueueSelect().getSelectedValue();

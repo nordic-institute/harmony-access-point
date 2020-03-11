@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,7 +21,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class MessagesPgUXTest extends BaseUXTest {
+public class MessagesPgUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
@@ -46,7 +46,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		soft.assertTrue(page.grid().getPagination().getPageSizeSelect().getSelectedValue().equals("10"), "10 is selected by default in the page size select");
 
-		testButonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
+		testButtonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
 
 		soft.assertAll();
 	}

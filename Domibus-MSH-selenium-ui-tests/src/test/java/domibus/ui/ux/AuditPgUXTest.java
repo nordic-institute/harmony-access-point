@@ -2,7 +2,10 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -11,8 +14,12 @@ import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import rest.RestServicePaths;
 import utils.Generator;
+import utils.Order;
 import utils.TestUtils;
 
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +28,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class AuditPgUXTest extends BaseUXTest {
+public class AuditPgUXTest extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 
@@ -134,14 +141,11 @@ public class AuditPgUXTest extends BaseUXTest {
 
 		log.info("downloaded audit logs to file :" + fileName);
 		System.out.println(auditPage.grid().getRowsNo());
-		if (auditPage.grid().getRowsNo() >= 10) {
-			log.info("comparing any random row data from downloaded csv and grid");
-			auditPage.grid().checkCSVvsGridDataForSpecificRow(fileName, soft, Generator.randomNumber(10));
-			auditPage.grid().checkCSVvsGridDataForSpecificRow(fileName, soft, Generator.randomNumber(10));
-		} else {
-			log.info("comparing all data from grid row and downloaded csv");
-			auditPage.grid().checkCSVvsGridInfo(fileName, soft);
-		}
+
+		log.info("comparing any random row data from downloaded csv and grid");
+		csvCheck(fileName, auditPage.grid(), soft);
+
+
 		soft.assertAll();
 	}
 
@@ -309,6 +313,33 @@ public class AuditPgUXTest extends BaseUXTest {
 	}
 
 
+	private void csvCheck(String filename, DGrid grid, SoftAssert soft) throws Exception {
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+
+		log.info("Checking csv file vs grid order");
+
+		log.info("checking number of records");
+
+		List<HashMap<String, String>> gridInfo = new ArrayList<>();
+		for (int i = 0; i < grid.getRowsNo(); i++) {
+			gridInfo.add(grid.getRowInfo(i));
+		}
+
+		log.info("checking individual records");
+		for (HashMap<String, String> gridRow : gridInfo) {
+			boolean found = false;
+			for (CSVRecord record : records) {
+				if(grid.csvRowVsGridRow(record, gridRow)){
+					found = true;
+					break;
+				}
+			}
+			soft.assertTrue(found, "Row has been identified in CSV file");
+		}
+	}
 
 
 }

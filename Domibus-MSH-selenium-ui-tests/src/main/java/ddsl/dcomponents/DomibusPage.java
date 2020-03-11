@@ -49,7 +49,7 @@ public class DomibusPage extends DComponent {
 		driver.navigate().refresh();
 		try {
 			wait.forXMillis(300);
-			waitForTitle();
+			waitForPageToLoad();
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
@@ -83,8 +83,8 @@ public class DomibusPage extends DComponent {
 		return new DomainSelector(driver, element);
 	}
 
-	public void waitForTitle(){
-		wait.forElementToHaveText(pageTitle);
+	public void waitForPageToLoad() throws Exception {
+		wait.forElementToBeVisible(getSandwichMenu().expandButton);
 	}
 
 	public boolean hasOpenDialog(){

@@ -4,6 +4,9 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import pages.pmode.parties.modal.PPartyModal;
 import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
@@ -39,7 +42,7 @@ public class PmodePartiesPgTest extends BaseTest {
     private static String defaultPartyId="domibus-blue";
     private static String defaultPartyName="blue-gw";
 
-    @Test(priority=1,description = "PMP-2", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=1,description = "PMP-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void filterParties() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -92,7 +95,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=3,description = "PMP-4", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=3,description = "PMP-4", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void deleteParty() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -126,37 +129,43 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=4,description = "PMP-5", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=4,description = "PMP-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void createParty() throws Exception {
         log.info("Upload pmode");
-        rest.uploadPMode("pmodes/multipleParties.xml", null);
+        rest.uploadPMode("pmodes/pmode-red.xml", null);
+
         String newPatyName = Generator.randomAlphaNumeric(5);
         SoftAssert soft = new SoftAssert();
+
         log.info("login into application and navigate to Pmode parties page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage page = new PModePartiesPage(driver);
-        log.info("Validate new button is enabled");
-        soft.assertTrue(page.getNewButton().isEnabled(), "New button is enabled");
+
         log.info("Click on New button");
         page.getNewButton().click();
+
         PartyModal modal = new PartyModal(driver);
         log.info("Fill new party info");
         modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
+
         log.info("Click ok button");
         modal.clickOK();
-        page.wait.forXMillis(500);
+
+        log.info("Save and confirm");
         page.getSaveButton().click();
         new Dialog(driver).confirm();
-        page.wait.forXMillis(3000);
+
         log.info("validate presence of success message");
         soft.assertFalse(page.getAlertArea().isError(), "page shows success message");
         soft.assertTrue(StringUtils.equalsIgnoreCase(page.getAlertArea().getAlertMessage(),
                 DMessages.PMODE_PARTIES_UPDATE_SUCCESS), "page shows correct success message");
+
         soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
+
         soft.assertAll();
     }
 
-    @Test(priority=5,description = "PMP-6", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=5,description = "PMP-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void editParty() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -189,7 +198,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=6,description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=6,description = "PMP-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void editPartyAndCancel() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -219,7 +228,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=7,description = "PMP-8", groups = {"multiTenancy"})
+    @Test(priority=7,description = "PMP-8", groups = {"multiTenancy"}, enabled = false)
     public void domainSegregation() throws Exception {
         String domainName = getNonDefaultDomain();
         String domainCode = rest.getDomainCodeForName(domainName);
@@ -242,16 +251,17 @@ public class PmodePartiesPgTest extends BaseTest {
     }
 
 
-    @Test(priority=8,description = "PMP-21", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=8,description = "PMP-21", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void partyAdditionCurrentPmode() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
 
         log.info("Navigate to Pmode current page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        DomibusPage page = new DomibusPage(driver);
-        SoftAssert soft = new SoftAssert();
-        PModePartiesPage pPage = new PModePartiesPage(driver);
+        new DomibusPage(driver).getSidebar().goToPage(PAGES.PMODE_PARTIES);
+
+        PModePartiesPage page = new PModePartiesPage(driver);
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
         Document doc = docBuilder.parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
@@ -283,7 +293,7 @@ public class PmodePartiesPgTest extends BaseTest {
         PModeCurrentPage PCpage = new PModeCurrentPage(driver);
         String updatedpmode = pmPage.printPmode(doc).replaceAll("\\t", " ");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        pmPage.waitForTitle();
+        pmPage.waitForPageToLoad();
         log.info("Edit current text");
         PCpage.getTextArea().fill(updatedpmode);
         log.info("Click on save button");
@@ -293,14 +303,15 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.getDescriptionTextArea().fill("Red party is deleted");
         log.info("Click on Ok button");
         modal.clickOK();
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains(oldPartyId), "Domibus-red party is deleted");
-        soft.assertTrue(pPage.getPage().getTextArea().getText().contains(newPartyId), "black party still exists");
+        soft.assertFalse(page.getPage().getTextArea().getText().contains(oldPartyId), "Domibus-red party is deleted");
+        soft.assertTrue(page.getPage().getTextArea().getText().contains(newPartyId), "black party still exists");
         page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-        soft.assertTrue(pPage.grid().getIndexOf(0, oldPartyName) < 0, "Red_gw party is not available");
+        soft.assertTrue(page.grid().getIndexOf(0, oldPartyName) < 0, "Red_gw party is not available");
+
         TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
+        log.info("Navigate to Connections Monitoring page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate absence of Domibus-red");
@@ -309,63 +320,34 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority=9,description = "PMP-22", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=9,description = "PMP-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void partyRemovalCurrentPmode() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
 
-        log.info("Navigate to Pmode current page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        DomibusPage page = new DomibusPage(driver);
-        SoftAssert soft = new SoftAssert();
-        PModePartiesPage pPage = new PModePartiesPage(driver);
+        log.info("delete party");
+        rest.deleteParty("red_gw");
 
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
-        NodeList nodes = doc.getElementsByTagName("parties");
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Element partyId = (Element) nodes.item(i);
-            Element name = (Element) partyId.getElementsByTagName("party").item(0);
-            System.out.println(name.getAttribute("name"));
-            if (name.getAttribute("name").equals(oldPartyName)) {
-                name.getParentNode().removeChild(name);
-            }
-        }
-        doc.normalize();
-        NodeList nodes1 = doc.getElementsByTagName("party");
-        log.info("Party count :" + nodes.getLength());
-        PModePartiesPage pmPage = new PModePartiesPage(driver);
-        PModeCurrentPage PCpage = new PModeCurrentPage(driver);
-        log.info("Pmode after red_gw party deletion:" + pmPage.printPmode(doc));
-        String updatedpmode = pmPage.printPmode(doc).replaceAll("\\t", " ");
-        page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        pmPage.waitForTitle();
-        log.info("Edit current text");
-        PCpage.getTextArea().fill(updatedpmode);
-        log.info("Click on save button");
-        PCpage.getSaveBtn().click();
-        PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-        log.info("Enter comment");
-        modal.getDescriptionTextArea().fill("Red party is deleted");
-        log.info("Click on Ok button");
-        modal.clickOK();
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains(oldPartyId), "Domibus-red party is deleted");
-        soft.assertTrue(pPage.getPage().getTextArea().getText().contains("domibus-blue"), "Blue party still exists");
+        PModePartiesPage page = new PModePartiesPage(driver);
         page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-        soft.assertTrue(pPage.grid().getIndexOf(0, oldPartyName) < 0, "Red_gw party is not available");
+        page.grid().waitForRowsToLoad();
+
+        soft.assertTrue(page.grid().scrollTo("Party Name", oldPartyName) < 0, "Red_gw party is not available");
+
         TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
+        log.info("Navigate to Connections Monitoring page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
-        log.info("Validate absence of Domibus-red");
+        log.info("Validate absence of domibus-red");
         soft.assertFalse(options.contains(oldPartyId), "Red party is not present");
         soft.assertAll();
     }
 
-    @Test(priority=10,description = "PMP-23", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=10,description = "PMP-23", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void partyAdditionOnPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -400,7 +382,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertTrue(pPage.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
         log.info("Navigate to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        page.waitForTitle();
+        page.waitForPageToLoad();
         soft.assertTrue(Apage.getPage().getTextArea().isPresent(), "Current pmode is available");
         String UpdatedPmode = Apage.getPage().getTextArea().getText();
         log.info("Current Pmode is :" + UpdatedPmode);
@@ -411,7 +393,7 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority=11,description = "PMP-24", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=11,description = "PMP-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void partyRemovalFromPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
@@ -444,7 +426,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info(page.getAlertArea().getAlertMessage());
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        page.waitForTitle();
+        page.waitForPageToLoad();
         soft.assertTrue(Apage.getPage().getTextArea().isPresent(), "Current pmode is available");
         String UpdatedPmode = Apage.getPage().getTextArea().getText();
         log.info("Current Pmode is :" + UpdatedPmode);
@@ -454,7 +436,7 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
-    @Test(priority=12,description = "PMP-25", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=12,description = "PMP-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void responderInitiatorRemovalFromPartiesPage() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -481,20 +463,20 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getSaveButton().click();
         new Dialog(driver).confirm();
         System.out.println(pPage.getAlertArea().getAlertMessage());
-        page.waitForTitle();
+        page.waitForPageToLoad();
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         PModeCurrentPage Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is not present in pmode");
         log.info("Validate absence of red_gw as Responder party");
         soft.assertFalse(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is not present in pmode");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        log.info("Navigating to Test Service page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+        log.info("Navigating to Connections Monitoring page");
         TestServicePage tPage = new TestServicePage(driver);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -504,7 +486,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=13,description = "PMP-26", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=13,description = "PMP-26", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void responderInitiatorAdditionOnPartiesPage() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/NoResponderInitiator.xml", null);
@@ -514,7 +496,7 @@ public class PmodePartiesPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         SoftAssert soft = new SoftAssert();
         PModeCurrentPage Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String defaultPmode = Cpage.getTextArea().getText();
         log.info("Validate absence of red_gw as Initiator party");
         soft.assertFalse(defaultPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is present in pmode");
@@ -524,7 +506,7 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Navigate to Pmode Parties page");
         page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage pPage = new PModePartiesPage(driver);
-        pPage.waitForTitle();
+        pPage.waitForPageToLoad();
         log.info("Find row number for party with name red_gw and select it");
         pPage.grid().selectRow(pPage.grid().getIndexOf(0, oldPartyName));
         log.info("Click on Edit button");
@@ -539,20 +521,20 @@ public class PmodePartiesPgTest extends BaseTest {
         pPage.getSaveButton().click();
         new Dialog(driver).confirm();
         log.info(pPage.getAlertArea().getAlertMessage());
-        page.waitForTitle();
+        page.waitForPageToLoad();
         log.info("Navigate to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
         Cpage = new PModeCurrentPage(driver);
-        Cpage.waitForTitle();
+        Cpage.waitForPageToLoad();
         String updatedPmode = Cpage.getTextArea().getText();
         log.info("Validate presence of red_gw as Initiator party ");
         soft.assertTrue(updatedPmode.contains("<initiatorParty name=\"red_gw\"/>"), "red_gw initiator party is  present in pmode");
         log.info("Validate presence of red_gw as responder party");
         soft.assertTrue(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is  present in pmode");
-        log.info("Navigating to Test Service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
+        log.info("Navigating to Connections Monitoring page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
         TestServicePage tPage = new TestServicePage(driver);
-        tPage.waitForTitle();
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -562,7 +544,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=14,description = "PMP-27", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=14,description = "PMP-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void initiatorResponderRemovalCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -604,9 +586,9 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertFalse(pmPage.getCheckboxStatus("Responder"), "Responder checkbox is unchecked");
         page.refreshPage();
         TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
+        log.info("Navigate to Connections Monitoring page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+        tPage.waitForPageToLoad();
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -616,39 +598,32 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=15,description = "PMP-28", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=15,description = "PMP-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void IRRemovalCurrentPmode() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
 
-        log.info("Navigate to Pmode Current page");
-        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
-        DomibusPage page = new DomibusPage(driver);
-        SoftAssert soft = new SoftAssert();
-        PModePartiesPage pPage = new PModePartiesPage(driver);
-        PModeCurrentPage PCpage = new PModeCurrentPage(driver);
-        String defaultPmode = pPage.getPage().getTextArea().getText();
-        log.info("Replace initiator from red to green");
-        String updatedPmodeInit = defaultPmode.replaceAll("\\t", " ").replaceAll("<initiatorParty name=\"red_gw\"/>", "<initiatorParty name=\"green_gw\"/>")
-                .replaceAll("<responderParty name=\"red_gw\"/>", "<responderParty name=\"green_gw\"/>");
-        log.info("Edit current text");
-        PCpage.getTextArea().fill(updatedPmodeInit);
-        log.info("Click on save button");
-        PCpage.getSaveBtn().click();
-        PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-        log.info("Enter comment");
-        modal.getDescriptionTextArea().fill("Initiator And Responder  party name are updated");
-        log.info("Click on Ok button");
+        log.info("Navigate to Pmode Parties page");
+        PModePartiesPage page = new PModePartiesPage(driver);
+        page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+
+        page.grid().waitForRowsToLoad();
+        page.grid().scrollToAndDoubleClick("Party Name" , "red_gw");
+
+        PPartyModal modal = new PPartyModal(driver);
+
+        modal.processSection.editForProcess("tc1Process", false, false);
         modal.clickOK();
-        log.info("Validate non presence of red_gw");
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains("<initiatorParty name=\"red_gw\"/>"));
-        log.info("Validate non presence of responder red_gw");
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains("<responderParty name=\"red_gw\"/>"), "red_gw is not present as Responder");
-        log.info("Navigate to Pmode parties");
+
+        page.getSaveButton().click();
+        new Dialog(driver).confirm();
+
         TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
+        log.info("Navigate to Connections Monitoring page");
+        page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+
         log.info("Get all options from Responder drop down");
         List<String> options = tPage.getPartySelector().getOptionsTexts();
         log.info("Validate presence of Domibus-blue");
@@ -658,7 +633,7 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(priority=16,description = "PMP-29", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=16,description = "PMP-29", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void initiatorResponderAdditionCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -681,15 +656,10 @@ public class PmodePartiesPgTest extends BaseTest {
         modal.getDescriptionTextArea().fill("Initiator and responder  party name and party id are updated");
         log.info("Click on Ok button");
         modal.clickOK();
-        log.info("Validate non presence of red_gw");
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains("<initiatorParty name=\"red_gw\"/>"));
-        soft.assertFalse(pPage.getPage().getTextArea().getText().contains("<responderParty name=\"red_gw\"/>"));
-        soft.assertTrue(pPage.getPage().getTextArea().getText().contains("<initiatorParty name=\"black_gw\"/>"));
-        soft.assertTrue(pPage.getPage().getTextArea().getText().contains("<responderParty name=\"black_gw\"/>"));
-        soft.assertTrue(pPage.getPage().getTextArea().getText().contains(newPartyId));
+
         log.info("navigate to Pmode parties page");
         page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-        page.waitForTitle();
+
         log.info("Get index of row  with party detail green_gw");
         log.info("Select row other than blue_gw");
         for (int i = 0; i < pPage.grid().getRowsNo(); i++) {
@@ -704,20 +674,13 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertFalse(pmPage.getCheckboxStatus("Initiator"), "Initiator Checkbox is unchecked");
         soft.assertFalse(pmPage.getCheckboxStatus("Responder"), "Responder Checkbox is unchecked");
         pPage.refreshPage();
-        TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
-        log.info("Get all options from Responder drop down");
-        List<String> options = tPage.getPartySelector().getOptionsTexts();
-        log.info("Validate presence of Domibus-blue");
-        soft.assertTrue(options.contains(defaultPartyId), "Blue party is present");
-        log.info("Validate absence of Domibus-black");
-        soft.assertTrue(options.contains(newPartyId), "Black party is  present");
+
+        log.info("Validate presence of Domibus-black");
+        soft.assertTrue(isPartyPresentInConMon(newPartyName), "Black party is  present");
         soft.assertAll();
     }
 
-    @Test(priority=17,description = "PMP-30", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=17,description = "PMP-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void IRAdditionCurrentPmode() throws Exception {
         log.info("upload Pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -747,19 +710,32 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertTrue(pPage.getPage().getTextArea().getText().contains("<initiatorParty name=\"black_gw\"/>"));
         soft.assertTrue(pPage.getPage().getTextArea().getText().contains("<responderParty name=\"black_gw\"/>"));
         soft.assertTrue(pPage.getPage().getTextArea().getText().contains(newPartyId));
-        log.info("navigate to Pmode parties page");
-        TestServicePage tPage = new TestServicePage(driver);
-        log.info("Navigate to Test service page");
-        page.getSidebar().goToPage(PAGES.TEST_SERVICE);
-        tPage.waitForTitle();
-        log.info("Get all options from Responder drop down");
-        List<String> options = tPage.getPartySelector().getOptionsTexts();
-        log.info("Validate presence of Domibus-blue");
-        soft.assertTrue(options.contains(defaultPartyId), "Blue party is present");
-        log.info("Validate absence of Domibus-black");
-        soft.assertTrue(options.contains(newPartyId), "Black party is  present");
+
+        log.info("Check parties on Connection Monitoring page");
+        soft.assertTrue(isPartyPresentInConMon(newPartyName), "New party is present in Connection Monitoring page");
+        soft.assertFalse(isPartyPresentInConMon(oldPartyName), "Old party is NOT present in Connection Monitoring page");
+
+
         soft.assertAll();
     }
+
+    private boolean isPartyPresentInConMon(String partyName) throws Exception{
+        log.info("Searching for party with name" + partyName);
+        JSONArray parties = rest.getConnectionMonitoringParties();
+
+        for (int i = 0; i < parties.length(); i++) {
+            JSONObject party = parties.getJSONObject(i);
+            if(StringUtils.equalsIgnoreCase(party.getString("name"), partyName)){
+                log.info("Party found!");
+                return true;
+            }
+        }
+        log.info("Party not found!");
+        return false;
+    }
+
+
+
 }
 
 

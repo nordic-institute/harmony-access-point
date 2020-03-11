@@ -22,6 +22,8 @@ public class LoginPgTest extends BaseTest {
 
 
 	private void checkUserLogin(String role, SoftAssert soft) throws Exception {
+		logout();
+
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, role, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, role));
@@ -36,6 +38,7 @@ public class LoginPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 
 		log.info("Deleted user: " + username);
+		rest.deleteUser(username, null);
 	}
 
 	/**Checks whether login as system admin works*/
@@ -56,6 +59,8 @@ public class LoginPgTest extends BaseTest {
 	/**Login using invalid username*/
 	@Test(description = "LGN-2", groups = {"multiTenancy", "singleTenancy"})
 	public void invalidUsername() throws Exception {
+		logout();
+
 		log.info("Testing login using invalid username");
 		SoftAssert soft = new SoftAssert();
 
@@ -84,6 +89,9 @@ public class LoginPgTest extends BaseTest {
 	/**Login using invalid password but valid username*/
 	@Test(description = "LGN-3", groups = {"multiTenancy", "singleTenancy"})
 	public void invalidPassword() throws Exception {
+
+		logout();
+
 		log.info("Testing login using invalid password");
 		SoftAssert soft = new SoftAssert();
 
@@ -111,6 +119,9 @@ public class LoginPgTest extends BaseTest {
 	/**Try to login with valid username and invalid password more than 5 times*/
 	@Test(description = "LGN-4", groups = {"multiTenancy", "singleTenancy"})
 	public void blockUserAccountTest() throws Exception {
+
+		logout();
+
 		log.info("Try to login with valid username and invalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
@@ -164,6 +175,9 @@ public class LoginPgTest extends BaseTest {
 	/**Admin unlocks account and user tries to login with valid username and password*/
 	@Test(description = "LGN-5", groups = {"multiTenancy", "singleTenancy"})
 	public void unblockedAccountCanLogin() throws Exception {
+
+		logout();
+
 		log.info("Admin unlocks account and user tries to login with valid username and password");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
