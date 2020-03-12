@@ -56,7 +56,7 @@
     "columnsControls": true,
     "rowsControls": true,
     "exportCSV": true,
-    "defaultSort": "Timestamp",
+    "defaultSort": "Creation Time",
     "columns": [
       {
         "name": "Alert Id",
