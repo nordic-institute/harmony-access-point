@@ -68,7 +68,7 @@
 							<value>${allDomainsProperties}</value>
 							<value>multitenancyModeC2=0</value>
 							<value>multitenancyModeC3=0</value>
-                            <value>updateReport=false</value>
+                            <value>updateReport=true</value>
                             <value>thirdGateway=false</value>
                             <value>pdfAttachment=${soapui.root.folder}/resources/fileSmall.pdf</value>
                             <value>defaultPModesPath=${soapui.root.folder}/resources/PModesandKeystoresDefault</value>
