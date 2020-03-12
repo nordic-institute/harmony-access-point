@@ -1,4 +1,4 @@
-package eu.domibus.clustering;
+package eu.domibus.core.clustering;
 
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;

@@ -11,7 +11,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
-import eu.domibus.clustering.CommandEntity;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.common.model.audit.Audit;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.logging.ErrorLogEntry;

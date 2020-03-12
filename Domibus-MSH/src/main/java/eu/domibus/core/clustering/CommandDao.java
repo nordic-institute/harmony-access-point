@@ -1,4 +1,4 @@
-package eu.domibus.clustering;
+package eu.domibus.core.clustering;
 
 import eu.domibus.common.dao.BasicDao;
 import org.springframework.stereotype.Repository;

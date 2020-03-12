@@ -1,11 +1,10 @@
-package eu.domibus.clustering;
+package eu.domibus.core.clustering;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

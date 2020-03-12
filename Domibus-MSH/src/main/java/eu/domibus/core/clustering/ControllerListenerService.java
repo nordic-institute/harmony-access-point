@@ -1,4 +1,4 @@
-package eu.domibus.clustering;
+package eu.domibus.core.clustering;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandService;

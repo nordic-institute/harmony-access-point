@@ -1,4 +1,4 @@
-package eu.domibus.clustering;
+package eu.domibus.core.clustering;
 
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
