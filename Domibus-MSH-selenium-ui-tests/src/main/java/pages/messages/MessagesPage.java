@@ -87,7 +87,8 @@ public class MessagesPage extends DomibusPage {
         List<String> msgIds = grid().getValuesOnColumn("Message Id");
         getDomainSelector().selectOptionByIndex(1);
         log.info("Domain name is " + getDomainFromTitle());
-
+        waitForTitle();
+        grid().waitForRowsToLoad();
         int secondDomainGridRowCount = grid().getPagination().getTotalItems();
         int secDomainActivePg=grid().getPagination().getActivePage();
 
