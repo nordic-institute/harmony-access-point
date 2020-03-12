@@ -1,4 +1,4 @@
-package eu.domibus.common.model.audit;
+package eu.domibus.core.audit.model;
 
 import eu.domibus.common.model.common.ModificationType;
 import eu.domibus.common.model.common.RevisionLogicalName;
@@ -9,21 +9,21 @@ import java.util.Date;
 
 
 /**
- * @author Thomas Dussart
+ * @author Joze Rihtarsic
  * @since 4.0
  *
- * Entity used to track actions on the Admin console Message log page.
+ * Entity used to track actions on the Pmode download actions
  */
 @Entity
-@DiscriminatorValue("Message")
-@RevisionLogicalName("Message")
-public class MessageAudit extends AbstractGenericAudit {
+@DiscriminatorValue("Pmode")
+@RevisionLogicalName("Pmode")
+public class PModeAudit extends AbstractGenericAudit {
 
 
-    public MessageAudit() {
+    public PModeAudit() {
     }
 
-    public MessageAudit(
+    public PModeAudit(
             final String id,
             final String userName,
             final Date revisionDate,

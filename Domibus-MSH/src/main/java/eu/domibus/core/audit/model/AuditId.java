@@ -1,4 +1,4 @@
-package eu.domibus.common.model.audit;
+package eu.domibus.core.audit.model;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

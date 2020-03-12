@@ -1,8 +1,8 @@
 package eu.domibus.common.util;
 
-import eu.domibus.common.model.audit.JmsMessageAudit;
-import eu.domibus.common.model.audit.MessageAudit;
-import eu.domibus.common.model.audit.PModeAudit;
+import eu.domibus.core.audit.model.JmsMessageAudit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.common.model.common.RevisionLogicalName;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;

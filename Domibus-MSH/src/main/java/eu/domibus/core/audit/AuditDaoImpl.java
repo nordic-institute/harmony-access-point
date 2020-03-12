@@ -1,9 +1,9 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.audit;
 
-import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.audit.JmsMessageAudit;
-import eu.domibus.common.model.audit.MessageAudit;
-import eu.domibus.common.model.audit.PModeAudit;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.JmsMessageAudit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;

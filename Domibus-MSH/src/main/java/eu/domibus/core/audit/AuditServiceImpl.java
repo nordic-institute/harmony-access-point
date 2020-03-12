@@ -1,16 +1,14 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.dao.AuditDao;
-import eu.domibus.common.model.audit.JmsMessageAudit;
-import eu.domibus.common.model.audit.MessageAudit;
-import eu.domibus.common.model.audit.PModeAudit;
+import eu.domibus.core.audit.model.JmsMessageAudit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.common.model.common.ModificationType;
 import eu.domibus.common.model.common.RevisionLogicalName;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
-import eu.domibus.common.services.AuditService;
 import eu.domibus.common.util.AnnotationsUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import org.reflections.Reflections;

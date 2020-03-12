@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.PModeProvider;

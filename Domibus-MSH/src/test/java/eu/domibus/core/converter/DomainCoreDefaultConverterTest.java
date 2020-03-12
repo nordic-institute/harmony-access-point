@@ -15,7 +15,7 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.common.model.audit.Audit;
+import eu.domibus.core.audit.model.Audit;
 import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;

@@ -1,4 +1,4 @@
-package eu.domibus.common.model.audit;
+package eu.domibus.core.audit.model;
 
 import org.hibernate.annotations.Immutable;
 

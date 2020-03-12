@@ -1,4 +1,4 @@
-package eu.domibus.common.model.audit;
+package eu.domibus.core.audit.model;
 
 import eu.domibus.common.model.common.ModificationType;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
