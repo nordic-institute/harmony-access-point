@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.security.PluginUserPasswordPolicyAlertJob;
+import eu.domibus.core.user.plugin.PluginUserPasswordPolicyAlertJob;
 import eu.domibus.security.SuperUserPasswordPolicyAlertJob;
 import eu.domibus.security.UserPasswordPolicyAlertJob;
 import org.springframework.beans.factory.annotation.Autowired;

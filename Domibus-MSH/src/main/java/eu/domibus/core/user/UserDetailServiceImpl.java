@@ -1,10 +1,6 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.user.UserDao;
-import eu.domibus.core.user.User;
-import eu.domibus.core.user.UserDetail;
-import eu.domibus.core.user.UserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

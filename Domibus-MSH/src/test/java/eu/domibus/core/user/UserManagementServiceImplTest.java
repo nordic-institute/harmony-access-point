@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;

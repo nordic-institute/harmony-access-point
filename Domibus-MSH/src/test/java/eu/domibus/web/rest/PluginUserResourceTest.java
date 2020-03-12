@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.services.PluginUserService;
+import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationEntity;

@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -7,11 +7,9 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.User;
+import eu.domibus.core.user.*;
 import eu.domibus.core.user.converters.UserConverter;
-import eu.domibus.core.user.ConsoleUserPasswordHistoryDao;
-import eu.domibus.core.user.UserDao;
-import eu.domibus.core.user.UserRoleDao;
-import eu.domibus.core.user.UserPersistenceService;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
 import eu.domibus.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.EventService;

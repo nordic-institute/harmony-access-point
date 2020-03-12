@@ -1,8 +1,9 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.core.user.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

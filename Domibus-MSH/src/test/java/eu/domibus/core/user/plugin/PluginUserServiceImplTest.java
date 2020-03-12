@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -10,10 +10,6 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.user.plugin.AuthenticationDAO;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.core.user.plugin.PluginUserPasswordHistoryDao;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

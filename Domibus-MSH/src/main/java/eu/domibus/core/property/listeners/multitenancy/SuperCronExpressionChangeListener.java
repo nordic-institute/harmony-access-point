@@ -1,4 +1,4 @@
-package eu.domibus.core.property.listeners;
+package eu.domibus.core.property.listeners.multitenancy;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;

@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserDaoBase;
@@ -9,6 +9,7 @@ import eu.domibus.core.alerts.service.UserAlertsService;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.PluginUserPasswordHistoryDao;
+import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

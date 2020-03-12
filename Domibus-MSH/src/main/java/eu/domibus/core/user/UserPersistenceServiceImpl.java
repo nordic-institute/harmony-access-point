@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user;
 
 import com.google.common.collect.Collections2;
 import eu.domibus.api.multitenancy.UserDomainService;
@@ -7,11 +7,6 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.user.UserDao;
-import eu.domibus.core.user.UserRoleDao;
-import eu.domibus.core.user.User;
-import eu.domibus.core.user.UserRole;
-import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

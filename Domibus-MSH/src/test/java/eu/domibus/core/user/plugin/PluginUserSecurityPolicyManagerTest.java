@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainService;
@@ -10,6 +10,7 @@ import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.PluginUserPasswordHistoryDao;
+import eu.domibus.core.user.plugin.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -17,8 +18,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import static eu.domibus.security.PluginUserSecurityPolicyManager.LOGIN_SUSPENSION_TIME;
-import static eu.domibus.security.PluginUserSecurityPolicyManager.MAXIMUM_LOGIN_ATTEMPT;
+import static eu.domibus.core.user.plugin.PluginUserSecurityPolicyManager.LOGIN_SUSPENSION_TIME;
+import static eu.domibus.core.user.plugin.PluginUserSecurityPolicyManager.MAXIMUM_LOGIN_ATTEMPT;
 
 /**
  * @author Ion Perpegel

@@ -1,7 +1,6 @@
-package eu.domibus.security;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.common.services.PluginUserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.quartz.DomibusQuartzJobBean;

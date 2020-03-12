@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -7,14 +7,9 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.common.services.PluginUserService;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.user.plugin.AuthenticationDAO;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.core.user.plugin.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

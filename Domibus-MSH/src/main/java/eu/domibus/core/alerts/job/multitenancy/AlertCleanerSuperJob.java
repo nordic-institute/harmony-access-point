@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.job;
+package eu.domibus.core.alerts.job.multitenancy;
 
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.quartz.GeneralQuartzJobBean;
@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 4.0.1
  */
 @DisallowConcurrentExecution
-public class AlertRetrySuperJob extends GeneralQuartzJobBean {
+public class AlertCleanerSuperJob extends GeneralQuartzJobBean {
 
     @Autowired
     private AlertService alertService;
 
     @Override
-    protected void executeJob(JobExecutionContext context){
-        alertService.retrieveAndResendFailedAlerts();
+    protected void executeJob(JobExecutionContext context) {
+        alertService.cleanAlerts();
     }
 }
