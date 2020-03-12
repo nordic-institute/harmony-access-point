@@ -123,7 +123,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 });
             }
         } catch (IllegalArgumentException ex) {
-            LOG.error("Could not set property [{}].", name);
+            LOG.error("Could not set property [{}].", name, ex);
         }
     }
 

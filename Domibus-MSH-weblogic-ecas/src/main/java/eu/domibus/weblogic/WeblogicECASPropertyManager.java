@@ -2,6 +2,7 @@ package eu.domibus.weblogic;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.ext.domain.Module;
+import eu.domibus.weblogic.property.WeblogicCommonPropertyManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

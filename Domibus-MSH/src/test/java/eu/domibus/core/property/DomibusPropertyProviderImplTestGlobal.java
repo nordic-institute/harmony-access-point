@@ -14,11 +14,12 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -50,6 +51,9 @@ public class DomibusPropertyProviderImplTestGlobal {
 
     @Injectable
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Injectable
+    ConfigurableEnvironment environment;
 
     @Tested
     DomibusPropertyProviderImpl domibusPropertyProvider;
@@ -345,12 +349,14 @@ public class DomibusPropertyProviderImplTestGlobal {
         new Expectations(domibusPropertyProvider) {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty(propertyName, propertyValue);
+            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -364,12 +370,14 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = true;
             domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
+            domibusPropertyProvider.setValueInDomibusPropertySource(domain.getCode() + "." + propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -402,12 +410,14 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = true;
             domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
         domibusPropertyProvider.setPropertyValue(null, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty("super." + propertyName, propertyValue);
+            domibusPropertyProvider.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -421,12 +431,14 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = true;
             domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
         domibusPropertyProvider.setPropertyValue(null, propertyName, propertyValue);
 
         new Verifications() {{
-            domibusProperties.setProperty(propertyName, propertyValue);
+            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
             times = 1;
         }};
     }
@@ -503,15 +515,23 @@ public class DomibusPropertyProviderImplTestGlobal {
     }
 
     @Test()
-    public void filterPropertiesName() {
+    public void filterPropertiesName(@Injectable PropertySource propertySource,
+                                     @Injectable Predicate<String> predicate) {
+        MutablePropertySources propertySources = new MutablePropertySources();
+        propertySources.addFirst(propertySource);
+
         new Expectations(domibusPropertyProvider) {{
-            domibusProperties.propertyNames();
-            result = Collections.enumeration(Arrays.asList("alert.email", "cron.expression"));
+            environment.getPropertySources();
+            result = propertySources;
+
+            domibusPropertyProvider.filterPropertySource((Predicate<String>) any, (PropertySource) any);
         }};
 
-        Set<String> res = domibusPropertyProvider.getPropertyNames(s -> s.startsWith("alert"));
+        domibusPropertyProvider.filterPropertiesName(predicate);
 
-        assertEquals("alert.email", res.toArray()[0]);
+        new Verifications() {{
+            domibusPropertyProvider.filterPropertySource(predicate, propertySource);
+        }};
     }
 
     @Test()

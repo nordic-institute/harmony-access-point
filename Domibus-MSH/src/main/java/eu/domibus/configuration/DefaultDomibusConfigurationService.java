@@ -4,6 +4,7 @@ import eu.domibus.api.configuration.DataBaseEngine;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -37,7 +38,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public String getConfigLocation() {
-        return System.getProperty(DOMIBUS_CONFIG_LOCATION);
+        return domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
     }
 
     @Cacheable("multitenantCache")

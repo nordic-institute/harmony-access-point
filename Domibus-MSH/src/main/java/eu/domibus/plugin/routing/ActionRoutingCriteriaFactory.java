@@ -1,12 +1,13 @@
 package eu.domibus.plugin.routing;
 
 import eu.domibus.ebms3.common.model.UserMessage;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Christian Walczac
  */
 
-
+@Service
 public class ActionRoutingCriteriaFactory implements CriteriaFactory {
 
     private static final String NAME = "ACTION";

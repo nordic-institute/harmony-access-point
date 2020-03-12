@@ -20,11 +20,16 @@ public class LogbackLoggingConfiguratorTest {
     @Mocked
     LoggerFactory LOG;
 
-    @Tested
-    LogbackLoggingConfigurator logbackLoggingConfigurator;
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    String domibusConfigLocation = File.separator + "user";
+
+    @Tested
+    LogbackLoggingConfigurator logbackLoggingConfigurator;
+
 
     @Test
     public void testConfigureLoggingWithCustomFile(@Mocked System mock) throws Exception {
@@ -112,30 +117,15 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    public void testGetDefaultLogbackConfigurationFileWithConfiguredDomibusLocation(@Mocked System mock) throws Exception {
-        new Expectations(logbackLoggingConfigurator) {{
-            domibusConfigurationService.getConfigLocation();
-            result = "/user/mylogback.xml";
-        }};
+    public void testGetDefaultLogbackConfigurationFileWithConfiguredDomibusLocation() throws Exception {
+        String defaultLogbackConfigurationFile = logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
 
-        logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
-
-        new Verifications() {{
-            String fileLocation = null;
-            logbackLoggingConfigurator.getLogFileLocation(fileLocation = withCapture(), anyString);
-            times = 1;
-
-            Assert.assertEquals("/user/mylogback.xml", fileLocation);
-        }};
+        Assert.assertEquals(File.separator + "user" + File.separator + "logback.xml", defaultLogbackConfigurationFile);
     }
 
     @Test
     public void testGetDefaultLogbackFilePathWithMissingDomibusLocation(@Mocked System mock, final @Capturing Logger log) throws Exception {
-        new Expectations(logbackLoggingConfigurator) {{
-            domibusConfigurationService.getConfigLocation();
-            result = null;
-        }};
-
+        logbackLoggingConfigurator.domibusConfigLocation = null;
         logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
 
         new Verifications() {{

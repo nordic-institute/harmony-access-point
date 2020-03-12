@@ -28,6 +28,7 @@ public interface DomibusPropertyMetadataManager {
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
     String DOMIBUS_UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
+    String DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY = "domibus.ui.replication.queue.concurency";
     String DOMIBUS_UI_SUPPORT_TEAM_NAME = "domibus.ui.support.team.name";
     String DOMIBUS_UI_SUPPORT_TEAM_EMAIL = "domibus.ui.support.team.email";
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
@@ -207,6 +208,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
     String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
+    String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
     String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
@@ -249,6 +251,7 @@ public interface DomibusPropertyMetadataManager {
     String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
     String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";
     String COM_ATOMIKOS_ICATCH_MAX_TIMEOUT = "com.atomikos.icatch.max_timeout";
+    String COM_ATOMIKOS_ICATCH_MAX_ACTIVES = "com.atomikos.icatch.max_actives";
     String ACTIVE_MQ_BROKER_HOST = "activeMQ.broker.host";
     String ACTIVE_MQ_BROKER_NAME = "activeMQ.brokerName";
     String ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE = "activeMQ.embedded.configurationFile";
@@ -260,9 +263,11 @@ public interface DomibusPropertyMetadataManager {
     String ACTIVE_MQ_PERSISTENT = "activeMQ.persistent";
     String ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT = "activeMQ.connection.closeTimeout";
     String ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT = "activeMQ.connection.connectResponseTimeout";
+    String ACTIVE_MQ_ARTEMIS_BROKER = "domibus.jms.activemq.artemis.broker";
     String DOMIBUS_ALERT_QUEUE_CONCURRENCY = "domibus.alert.queue.concurrency";
     String MESSAGE_FACTORY_CLASS = "messageFactoryClass";
     String COMPRESSION_BLACKLIST = "compressionBlacklist";
+    String DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY = "domibus.jms.internal.command.concurrency";
     String DOMIBUS_INTERNAL_QUEUE_CONCURENCY = "domibus.internal.queue.concurency";
     String DOMIBUS_METRICS_JMX_REPORTER_ENABLE = "domibus.metrics.jmx.reporter.enable";
     String DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE = "domibus.metrics.sl4j.reporter.enable";
@@ -279,6 +284,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
+    String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
+    String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
 
     /**
      * Get all the properties metadata that support changing at runtime

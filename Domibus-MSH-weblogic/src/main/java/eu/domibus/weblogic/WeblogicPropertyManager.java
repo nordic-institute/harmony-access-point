@@ -1,6 +1,7 @@
 package eu.domibus.weblogic;
 
 import eu.domibus.ext.domain.Module;
+import eu.domibus.weblogic.property.WeblogicCommonPropertyManager;
 import org.springframework.stereotype.Service;
 
 /**
