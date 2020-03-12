@@ -96,19 +96,19 @@
       },
       {
         "name": "Sent Attempts",
-        "type": "text",
+        "type": "number",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Max Attempts",
-        "type": "text",
+        "type": "number",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Next Attempt",
-        "type": "text",
+        "type": "datetime",
         "sortable": true,
         "visibleByDefault": false
       },
