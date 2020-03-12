@@ -10,7 +10,6 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.LogbackLoggingConfigurator;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

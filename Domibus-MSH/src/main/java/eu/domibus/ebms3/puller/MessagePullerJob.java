@@ -7,7 +7,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.quartz.DomibusQuartzJobBean;
+import eu.domibus.core.quartz.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

@@ -1,4 +1,4 @@
-package eu.domibus.quartz;
+package eu.domibus.core.quartz;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

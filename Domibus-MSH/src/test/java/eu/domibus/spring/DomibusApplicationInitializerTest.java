@@ -4,7 +4,7 @@ import com.codahale.metrics.servlets.AdminServlet;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
-import eu.domibus.logging.LogbackLoggingConfigurator;
+import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.plugin.classloader.PluginClassLoader;
 import mockit.*;
 import org.junit.Assert;

@@ -1,4 +1,4 @@
-package eu.domibus.quartz;
+package eu.domibus.core.quartz;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;

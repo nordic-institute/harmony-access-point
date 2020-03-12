@@ -9,7 +9,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.logging.LogbackLoggingConfigurator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;

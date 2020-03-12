@@ -1,4 +1,4 @@
-package eu.domibus.quartz;
+package eu.domibus.core.quartz;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
@@ -21,9 +21,9 @@ import eu.domibus.ebms3.common.quartz.AutowiringSpringBeanJobFactory;
 import eu.domibus.ebms3.puller.MessagePullerJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.security.ActivateSuspendedPluginUsersJob;
-import eu.domibus.security.ActivateSuspendedSuperUsersJob;
-import eu.domibus.security.ActivateSuspendedUsersJob;
+import eu.domibus.core.user.plugin.ActivateSuspendedPluginUsersJob;
+import eu.domibus.core.multitenancy.ActivateSuspendedSuperUsersJob;
+import eu.domibus.core.user.ActivateSuspendedUsersJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;

@@ -1,4 +1,4 @@
-package eu.domibus.logging;
+package eu.domibus.core.logging;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;

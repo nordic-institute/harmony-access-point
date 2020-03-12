@@ -1,4 +1,4 @@
-package eu.domibus.logging;
+package eu.domibus.core.logging;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;

@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ebms3.sender.RetryService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.quartz.DomibusQuartzJobBean;
+import eu.domibus.core.quartz.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

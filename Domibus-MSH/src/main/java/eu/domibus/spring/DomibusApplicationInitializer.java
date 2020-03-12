@@ -10,7 +10,7 @@ import eu.domibus.core.metrics.MetricsServletContextListener;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.LogbackLoggingConfigurator;
+import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;

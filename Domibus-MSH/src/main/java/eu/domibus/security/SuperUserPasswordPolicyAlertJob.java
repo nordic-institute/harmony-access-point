@@ -3,7 +3,7 @@ package eu.domibus.security;
 import eu.domibus.core.user.UserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.quartz.GeneralQuartzJobBean;
+import eu.domibus.core.quartz.GeneralQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;

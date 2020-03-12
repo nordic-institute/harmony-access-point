@@ -1,15 +1,12 @@
-package eu.domibus.quartz;
+package eu.domibus.core.quartz;
 
 import eu.domibus.spring.SpringContextProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
-
-import java.util.concurrent.FutureTask;
 
 /**
  * @author baciu

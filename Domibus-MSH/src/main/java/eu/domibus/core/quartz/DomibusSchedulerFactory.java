@@ -1,4 +1,4 @@
-package eu.domibus.quartz;
+package eu.domibus.core.quartz;
 
 import eu.domibus.api.multitenancy.Domain;
 import org.quartz.Scheduler;
