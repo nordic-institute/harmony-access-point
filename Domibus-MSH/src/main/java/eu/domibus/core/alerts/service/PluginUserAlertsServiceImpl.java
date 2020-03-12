@@ -6,7 +6,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
-import eu.domibus.core.security.AuthenticationDAO;
+import eu.domibus.core.user.plugin.AuthenticationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

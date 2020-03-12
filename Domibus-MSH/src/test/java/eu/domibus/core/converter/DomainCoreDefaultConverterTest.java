@@ -30,7 +30,7 @@ import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;

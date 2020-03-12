@@ -1,4 +1,4 @@
-package eu.domibus.configuration.passwordPolicy;
+package eu.domibus.core.user;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;

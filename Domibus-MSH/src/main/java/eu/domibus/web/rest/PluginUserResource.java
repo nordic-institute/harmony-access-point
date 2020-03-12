@@ -9,7 +9,7 @@ import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

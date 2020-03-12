@@ -1,4 +1,4 @@
-package eu.domibus.core.security;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.core.user.UserPasswordHistoryDaoImpl;
 import org.springframework.stereotype.Repository;

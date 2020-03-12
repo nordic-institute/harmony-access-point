@@ -6,7 +6,7 @@ import eu.domibus.api.user.UserState;
 import eu.domibus.common.services.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;

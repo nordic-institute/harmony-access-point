@@ -1,4 +1,4 @@
-package eu.domibus.core.security;
+package eu.domibus.core.user.plugin;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.security.UserEntityBase;

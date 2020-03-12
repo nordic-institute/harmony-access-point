@@ -2,7 +2,7 @@ package eu.domibus.common.services;
 
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 
 import java.util.List;
 

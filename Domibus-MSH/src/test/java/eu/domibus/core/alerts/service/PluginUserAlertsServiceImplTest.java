@@ -5,7 +5,7 @@ import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
-import eu.domibus.core.security.AuthenticationDAO;
+import eu.domibus.core.user.plugin.AuthenticationDAO;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
