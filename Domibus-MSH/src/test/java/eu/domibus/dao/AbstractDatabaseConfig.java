@@ -1,6 +1,6 @@
 package eu.domibus.dao;
 
-import eu.domibus.core.multitenancy.DomibusConnectionProvider;
+import eu.domibus.core.jpa.DomibusConnectionProvider;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.Deencapsulation;
 import org.hibernate.cfg.Environment;

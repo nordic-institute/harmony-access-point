@@ -20,7 +20,7 @@ import eu.domibus.ebms3.common.AttachmentCleanupService;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.TimestampDateFormatter;
+import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;

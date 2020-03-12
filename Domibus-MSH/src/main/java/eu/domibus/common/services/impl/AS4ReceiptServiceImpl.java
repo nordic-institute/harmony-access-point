@@ -22,6 +22,7 @@ import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -116,7 +117,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         return generateReceipt(request, messaging, ReplyPattern.RESPONSE, nonRepudiation, false, false);
     }
-
 
 
     @Override

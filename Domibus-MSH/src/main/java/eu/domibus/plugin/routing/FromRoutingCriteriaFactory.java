@@ -2,6 +2,7 @@ package eu.domibus.plugin.routing;
 
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.model.UserMessage;
+import org.springframework.stereotype.Service;
 
 /**
  * From criteria for user messages
@@ -9,6 +10,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
  * @author Christian Walczac
  */
 
+@Service
 public class FromRoutingCriteriaFactory implements CriteriaFactory {
 
 

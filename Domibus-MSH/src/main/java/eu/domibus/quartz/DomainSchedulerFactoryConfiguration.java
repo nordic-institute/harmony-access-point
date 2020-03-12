@@ -11,6 +11,7 @@ import eu.domibus.core.alerts.job.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
@@ -72,11 +73,11 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Qualifier("domibusJDBC-XADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource;
 
-    @Qualifier("domibusJDBC-nonXADataSource")
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     @Autowired
     protected DataSource nonTransactionalDataSource;
 
@@ -514,7 +515,7 @@ public class DomainSchedulerFactoryConfiguration {
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
-        properties.setProperty("org.quartz.scheduler.jmx.export", "true");
+        properties.setProperty("org.quartz.scheduler.jmx.export", "false");
         properties.setProperty("org.quartz.threadExecutor.class", DomibusQuartzThreadExecutor.class.getCanonicalName());
 
         properties.setProperty("org.quartz.scheduler.instanceName", "general");

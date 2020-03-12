@@ -3,6 +3,7 @@ package eu.domibus.ebms3.common.model;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -17,5 +18,10 @@ public class DateTimeFormatterConfiguration {
     @Bean
     public DateTimeFormatter dateTimeFormatter() {
         return DateTimeFormatter.ofPattern(DATE_FORMAT);
+    }
+
+    @Bean("xmlDateTimeFormat")
+    public SimpleDateFormat simpleDateFormat() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 }

@@ -3,6 +3,7 @@ package pages.Alert;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
+import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -18,7 +19,7 @@ public class AlertFilters extends FilterArea {
 
 	//-----------------Basic Filters---------------------
 	@FindBy(id = "processed_id")
-	public WebElement ProcessedContainer;
+	public WebElement processedContainer;
 	@FindBy(id = "alerttype_id")
 	public WebElement alertTypeContainer;
 	@FindBy(id = "alertstatus_id")
@@ -76,7 +77,7 @@ public class AlertFilters extends FilterArea {
 		log.debug("CreationFromDate = " + creationFromDate);
 		log.debug("CreationToDate = " + creationToDate);
 
-		weToSelect(ProcessedContainer).selectOptionByText(processedStatus);
+		weToSelect(processedContainer).selectOptionByText(processedStatus);
 		weToSelect(alertTypeContainer).selectOptionByText(alertType);
 		weToSelect(alertStatusContainer).selectOptionByText(alertStatus);
 		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
@@ -124,5 +125,9 @@ public class AlertFilters extends FilterArea {
 	    log.info("switching to domain alerts");
 		getShowDomainCheckbox().check();
 		getSearchButton().click();
+	}
+
+	public DInput getMsgIdInput() {
+		return weToDInput(msgIdInput);
 	}
 }
