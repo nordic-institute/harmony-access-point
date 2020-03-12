@@ -7,6 +7,9 @@ import ddsl.dcomponents.grid.Pagination;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.json.JSONArray;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -15,6 +18,10 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlertPage extends DomibusPage {
@@ -98,6 +105,22 @@ public class AlertPage extends DomibusPage {
 
             }
         }
+    }
+
+    public List<String> getCSVSpecificColumnData(String filename, String columnName) throws Exception {
+
+        Reader reader = Files.newBufferedReader(Paths.get(filename));
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+                .withTrim());
+        List<CSVRecord> records = csvParser.getRecords();
+        List<String> columnValue= new ArrayList<>();
+
+        for (int i = 0; i < records.size(); i++) {
+            columnValue.add(records.get(i).get(columnName));
+        }
+
+        return columnValue;
+
     }
 }
 

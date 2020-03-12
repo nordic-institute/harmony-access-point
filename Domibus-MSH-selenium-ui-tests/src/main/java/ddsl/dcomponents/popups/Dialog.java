@@ -61,7 +61,8 @@ public class Dialog extends DComponent {
 		return new DObject(driver, dialogMessage).getText();
 	}
 
-	public boolean isPresent(){
+	public boolean isPresent() throws Exception{
+		weToDobject(confirmationPopUp).isVisible();
 		return confirmationPopUp.isDisplayed();
 	}
 

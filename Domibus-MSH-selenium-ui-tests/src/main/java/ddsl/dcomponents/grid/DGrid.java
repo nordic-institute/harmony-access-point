@@ -575,19 +575,4 @@ public class DGrid extends DComponent {
 
     }
 
-    public List<String> getCSVSpecificColumnData(String filename, SoftAssert soft, int size, String columnName) throws Exception {
-
-        Reader reader = Files.newBufferedReader(Paths.get(filename));
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
-                .withTrim());
-        List<CSVRecord> records = csvParser.getRecords();
-        List<String> columnValue= new ArrayList<>();
-
-        for (int i = 0; i < size; i++) {
-            columnValue.add(records.get(i).get(columnName));
-        }
-
-        return columnValue;
-
-    }
 }
