@@ -43,13 +43,13 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
 
-    private static final String PLUGINS_LOCATION = "/plugins/lib";
-    private static final String EXTENSIONS_LOCATION = "/extensions/lib";
+    public static final String PLUGINS_LOCATION = "/plugins/lib";
+    public static final String EXTENSIONS_LOCATION = "/extensions/lib";
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
-        LOG.debug("Using [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
 
         configureLogging(domibusConfigLocation);
 
@@ -123,7 +123,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
             //we need to initialize the logging before Spring is being initialized
             LogbackLoggingConfigurator logbackLoggingConfigurator = new LogbackLoggingConfigurator(domibusConfigLocation);
             logbackLoggingConfigurator.configureLogging();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             //logging configuration problems should not prevent the application to startup
             LOG.warn("Error occurred while configuring logging", e);
         }

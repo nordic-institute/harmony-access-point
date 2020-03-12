@@ -3,6 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.util.Properties;
 import java.util.Set;
@@ -21,6 +22,10 @@ public class PrefixedProperties extends Properties {
 
         for (String propertyName : propertyNames) {
             String key = propertyName.substring(prefix.length());
+            if (StringUtils.isEmpty(key)) {
+                LOG.warn("Empty key detected for prefix [{}]", prefix);
+                continue;
+            }
             String resolved = domibusPropertyProvider.getProperty(propertyName);
             LOG.trace("Adding property [{}]", key);
             this.setProperty(key, (String) resolved);

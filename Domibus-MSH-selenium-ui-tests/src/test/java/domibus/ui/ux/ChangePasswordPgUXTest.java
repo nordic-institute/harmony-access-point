@@ -3,7 +3,7 @@ package domibus.ui.ux;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
@@ -15,7 +15,7 @@ import pages.errorLog.ErrorLogPage;
  * @version 4.1
  */
 
-public class ChangePasswordPgUXTest extends BaseUXTest {
+public class ChangePasswordPgUXTest extends BaseTest {
 
 	/**
 	 * Checks whether changePassword page exists and it is opened successfully
@@ -72,7 +72,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		log.info("Navigate to error log page without changing password ");
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-		page.waitForTitle();
+		page.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();
@@ -103,7 +103,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 		log.info("Navigate to Error log page");
 		cpage.getSidebar().goToPage(PAGES.ERROR_LOG);
 		ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-		cpage.waitForTitle();
+		cpage.waitForPageToLoad();
 
 		log.info("logout from application");
 		logout();

@@ -14,6 +14,7 @@ import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
+import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
@@ -117,7 +118,7 @@ public class PModeValidationServiceImplIT {
 
         @Bean
         public JAXBContext jaxbContextConfig() throws JAXBException {
-            return JAXBContext.newInstance("eu.domibus.common.model.configuration");
+            return JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         }
 
         @Bean

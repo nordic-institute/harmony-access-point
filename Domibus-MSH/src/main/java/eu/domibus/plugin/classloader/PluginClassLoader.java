@@ -22,8 +22,11 @@ public class PluginClassLoader extends URLClassLoader {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginClassLoader.class);
 
+    protected Set<File> files;
+
     public PluginClassLoader(Set<File> files, ClassLoader parent) throws MalformedURLException {
         super(discoverPlugins(files), parent);
+        this.files = files;
     }
 
     /**
@@ -51,5 +54,9 @@ public class PluginClassLoader extends URLClassLoader {
             LOG.info("Adding the following plugin/extension to the classpath:[{}] ", urls[i]);
         }
         return urls;
+    }
+
+    public Set<File> getFiles() {
+        return files;
     }
 }

@@ -80,6 +80,11 @@ public class DGrid extends DComponent {
         return columnNames;
     }
 
+    public WebElement getRowElement(int index){
+        if(index > gridRows.size()-1){return null;}
+        return gridRows.get(index);
+    }
+
     public void selectRow(int rowNumber) throws Exception {
         log.debug("selecting row with number ... " + rowNumber);
         if (rowNumber < gridRows.size()) {
@@ -113,7 +118,7 @@ public class DGrid extends DComponent {
         try {
             wait.forElementToBe(progressBar);
             wait.forElementToBeGone(progressBar);
-            wait.forXMillis(100);
+            wait.forXMillis(500);
         } catch (Exception e) {
 
         }
@@ -192,6 +197,7 @@ public class DGrid extends DComponent {
         for (int i = 0; i < gridHeaders.size(); i++) {
             DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
             if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
+                column.scrollIntoView();
                 column.click();
                 wait.forAttributeNotEmpty(gridHeaders.get(i), "class");
                 try {
@@ -528,6 +534,9 @@ public class DGrid extends DComponent {
         log.info("checking listed data for  data row" + i);
         HashMap<String, String> gridRecord = gridInfo;
         CSVRecord record = records.get(i);
+
+        log.debug(String.format("Comparing grid record %s with CSV record %s", gridInfo, record.toMap().toString()));
+
         soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
     }
 

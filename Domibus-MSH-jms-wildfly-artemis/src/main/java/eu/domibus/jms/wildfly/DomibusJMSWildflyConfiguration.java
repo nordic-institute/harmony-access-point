@@ -1,5 +1,6 @@
 package eu.domibus.jms.wildfly;
 
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -50,7 +51,7 @@ public class DomibusJMSWildflyConfiguration {
     }
 
     @Bean("jmsSender")
-    public JmsTemplate jmsSender(@Qualifier("domibusJMS-XAConnectionFactory") ConnectionFactory connectionFactory) {
+    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         JmsTemplate result = new JmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

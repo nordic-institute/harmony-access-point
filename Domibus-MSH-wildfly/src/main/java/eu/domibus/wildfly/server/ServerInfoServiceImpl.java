@@ -15,8 +15,8 @@ public class ServerInfoServiceImpl implements ServerInfoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInfoServiceImpl.class);
 
-    private static final String SERVER_NAME = "jboss.server.name";
-    private static final String NODE_NAME = "jboss.node.name";
+    public static final String SERVER_NAME = "jboss.server.name";
+    public static final String NODE_NAME = "jboss.node.name";
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;

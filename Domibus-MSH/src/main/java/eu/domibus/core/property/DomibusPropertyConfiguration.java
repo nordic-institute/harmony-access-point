@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Class responsible for configuring Domibus property sources in a specific order
+ *
  * @author Cosmin Baciu
  * @since 4.2
  */

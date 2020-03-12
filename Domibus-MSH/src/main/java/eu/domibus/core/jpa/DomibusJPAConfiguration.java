@@ -36,6 +36,7 @@ public class DomibusJPAConfiguration {
 
     public static final String DOMIBUS_JDBC_XA_DATA_SOURCE = "domibusJDBC-XADataSource";
     public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
+    public static final String JPA_PROPERTIES = "jpaProperties";
 
 
     @Bean
@@ -48,7 +49,7 @@ public class DomibusJPAConfiguration {
     @DependsOn({"transactionManager", DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE})
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_XA_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
-                                                                       @Qualifier("jpaProperties") PrefixedProperties jpaProperties,
+                                                                       @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
@@ -78,7 +79,7 @@ public class DomibusJPAConfiguration {
         return result;
     }
 
-    @Bean("jpaProperties")
+    @Bean(JPA_PROPERTIES)
     public PrefixedProperties jpaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         PrefixedProperties result = new PrefixedProperties(domibusPropertyProvider, "domibus.entityManagerFactory.jpaProperty.");
         return result;

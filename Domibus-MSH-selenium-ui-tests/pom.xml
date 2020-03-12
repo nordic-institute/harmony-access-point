@@ -6,20 +6,19 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!--	<parent>-->
-	<!--		<groupId>eu.domibus</groupId>-->
-	<!--		<artifactId>domibus</artifactId>-->
-	<!--		<version>4.1-SNAPSHOT</version>-->
-	<!--	</parent>-->
+	<parent>
+		<groupId>eu.domibus</groupId>
+		<artifactId>domibus</artifactId>
+		<version>4.2-SNAPSHOT</version>
+	</parent>
 
 	<artifactId>domibus-selenium-tests</artifactId>
 	<name>Domibus MSH Selenium UI Tests</name>
-	<groupId>selenium-test</groupId>
-	<version>0-SNAPSHOT</version>
+
 
 	<properties>
 		<junit_version>1.1.0</junit_version>
-		<slf4j_version>1.7.25</slf4j_version>
+		<slf4j_version>2.0.0-alpha0</slf4j_version>
 		<commons-csv_version>1.5</commons-csv_version>
 		<selenium-chrome-driver_version>3.141.59</selenium-chrome-driver_version>
 		<selenium-java_version>3.141.59</selenium-java_version>
@@ -28,7 +27,7 @@
 		<reflections_version>0.9.11</reflections_version>
 		<jersey-client_version>1.19.4</jersey-client_version>
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
-		<json_version>20080701</json_version>
+		<json_version>20190722</json_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
 		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
@@ -44,7 +43,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>2.0.0-alpha0</version>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
 		</dependency>
 
 		<!--**************************************-->
@@ -83,7 +87,8 @@
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
-			<version>${reflections_version}</version>
+<!--			<version>${reflections_version}</version>-->
+			<version>0.9.12</version>
 		</dependency>
 
 		<dependency>
@@ -96,6 +101,7 @@
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-multipart</artifactId>
 			<version>${jersey-multipart_version}</version>
+<!--			<version>1.19.4</version>-->
 		</dependency>
 
 		<dependency>
@@ -113,41 +119,35 @@
 		<dependency>
 			<groupId>eu.domibus</groupId>
 			<artifactId>domibus-ws-stubs</artifactId>
-			<version>4.1.1-SNAPSHOT</version>
+			<version>${domibus-ws-stubs_version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
-			<version>4.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
-			<version>1.10</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.19</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
 		<dependency>
 			<groupId>xmlunit</groupId>
 			<artifactId>xmlunit</artifactId>
 			<version>1.6</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -156,11 +156,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -176,11 +171,12 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
 							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
+								<suiteXmlFile>testng_f.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
@@ -206,52 +202,15 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>bamboo</id>
-			<build>
-				<plugins>
 
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<failIfNoTests>true</failIfNoTests>
-							<groups>singleTenancy</groups>
-							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
-							</suiteXmlFiles>
-							<environmentVariables>
-								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
-							</environmentVariables>
-							<properties>
-								<property>
-									<name>usedefaultlisteners</name>
-									<value>true</value>
-								</property>
-							</properties>
-
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<compilerVersion>1.8</compilerVersion>
-							<target>1.8</target>
-						</configuration>
-
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 
 		<profile>
 			<id>bamboo-remote</id>
 			<build>
 				<plugins>
-
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<groups>singleTenancy</groups>
@@ -276,15 +235,12 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<configuration>
 							<compilerVersion>1.8</compilerVersion>
-							<target>1.8</target>
 						</configuration>
 
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
-
-
 	</profiles>
 
 </project>

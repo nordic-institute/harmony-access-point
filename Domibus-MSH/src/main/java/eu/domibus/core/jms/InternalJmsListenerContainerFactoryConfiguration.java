@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -17,6 +18,8 @@ import javax.jms.Session;
 import java.util.Optional;
 
 /**
+ * Class responsible for configuring the internal JMS factory
+ *
  * @author Cosmin Baciu
  * @since 4.2
  */
@@ -26,7 +29,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(InternalJmsListenerContainerFactoryConfiguration.class);
 
     @Bean("internalJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier("domibusJMS-XAConnectionFactory") ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                PlatformTransactionManager transactionManager,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,

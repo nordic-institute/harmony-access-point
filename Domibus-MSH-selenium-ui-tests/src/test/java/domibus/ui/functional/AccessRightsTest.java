@@ -26,8 +26,7 @@ public class AccessRightsTest extends BaseTest {
 		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.defaultPass());
+		login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
 
 
@@ -45,8 +44,7 @@ public class AccessRightsTest extends BaseTest {
 		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.defaultPass());
+		login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
 
 		log.info("Checking domain selector for: " + username);
@@ -67,8 +65,7 @@ public class AccessRightsTest extends BaseTest {
 		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.defaultPass());
+		login(username, data.defaultPass());
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
@@ -85,8 +82,7 @@ public class AccessRightsTest extends BaseTest {
 		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, data.defaultPass());
+		login(username, data.defaultPass());
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
@@ -103,8 +99,8 @@ public class AccessRightsTest extends BaseTest {
 	@Test(description = "RGT-5", groups = {"multiTenancy"})
 	public void superAdminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(data.getAdminUser());
+
+		login(data.getAdminUser());
 		log.info("Logged in with super admin");
 
 		DomibusPage page = new DomibusPage(driver);

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * Class responsible for configuring Domibus properties sources
+ *
  * @author Cosmin Baciu
  * @since 4.2
  */

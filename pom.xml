@@ -637,7 +637,7 @@
                 <version>${tika.version}</version>
             </dependency>
 
-            <!-- Atokimos Library for distributed transactions -->
+            <!-- Atomikos Library for distributed transactions -->
             <dependency>
                 <groupId>com.atomikos</groupId>
                 <artifactId>transactions-jta</artifactId>
@@ -664,7 +664,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- End Atokimos Library for distributed transactions -->
+            <!-- End Atomikos Library for distributed transactions -->
 
             <!-- Metrics -->
             <dependency>

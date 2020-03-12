@@ -84,7 +84,7 @@
         </dependency>
 
 
-        <!-- Atokimos Library for distributed transactions -->
+        <!-- Atomikos Library for distributed transactions -->
         <dependency>
             <groupId>com.atomikos</groupId>
             <artifactId>transactions-jta</artifactId>
@@ -105,7 +105,7 @@
             <artifactId>transactions-hibernate4</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- End Atokimos Library for distributed transactions -->
+        <!-- End Atomikos Library for distributed transactions -->
 
         <dependency>
             <groupId>junit</groupId>

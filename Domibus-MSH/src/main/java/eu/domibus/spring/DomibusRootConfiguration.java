@@ -30,7 +30,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableCaching
 public class DomibusRootConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusRootConfiguration.class);
-
-
 }
