@@ -1,6 +1,6 @@
 package eu.domibus.common.model.security;
 
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

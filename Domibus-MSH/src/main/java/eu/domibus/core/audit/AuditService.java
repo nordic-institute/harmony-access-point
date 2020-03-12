@@ -1,6 +1,7 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 
 import java.util.Date;
 import java.util.List;
@@ -51,7 +52,7 @@ public interface AuditService {
                     Date to);
 
     /**
-     * Entities targeted by the auditing system have a logical name.{@link eu.domibus.common.model.common.RevisionLogicalName}
+     * Entities targeted by the auditing system have a logical name.{@link RevisionLogicalName}
      *
      * @return the logical names.
      */

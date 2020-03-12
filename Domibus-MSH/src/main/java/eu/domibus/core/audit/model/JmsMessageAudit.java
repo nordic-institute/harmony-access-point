@@ -1,7 +1,7 @@
 package eu.domibus.core.audit.model;
 
-import eu.domibus.common.model.common.ModificationType;
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;

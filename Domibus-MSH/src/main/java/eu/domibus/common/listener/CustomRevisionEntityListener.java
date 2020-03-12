@@ -1,8 +1,8 @@
 package eu.domibus.common.listener;
 
-import eu.domibus.common.model.common.ModificationType;
-import eu.domibus.common.model.common.RevisionLog;
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.audit.envers.RevisionLog;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

@@ -3,7 +3,7 @@ package eu.domibus.common.util;
 import eu.domibus.core.audit.model.JmsMessageAudit;
 import eu.domibus.core.audit.model.MessageAudit;
 import eu.domibus.core.audit.model.PModeAudit;
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;

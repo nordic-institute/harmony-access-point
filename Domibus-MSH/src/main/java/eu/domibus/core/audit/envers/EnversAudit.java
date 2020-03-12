@@ -1,4 +1,4 @@
-package eu.domibus.common.model.common;
+package eu.domibus.core.audit.envers;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.hibernate.envers.RevisionType;

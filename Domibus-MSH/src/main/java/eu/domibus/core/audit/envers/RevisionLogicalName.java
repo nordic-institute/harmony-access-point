@@ -1,4 +1,4 @@
-package eu.domibus.common.model.common;
+package eu.domibus.core.audit.envers;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

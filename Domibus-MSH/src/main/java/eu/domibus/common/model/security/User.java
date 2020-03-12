@@ -1,7 +1,7 @@
 package eu.domibus.common.model.security;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 

@@ -1,5 +1,8 @@
 package eu.domibus.common.model.common;
 
+import eu.domibus.core.audit.envers.EnversAudit;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.audit.envers.RevisionLog;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

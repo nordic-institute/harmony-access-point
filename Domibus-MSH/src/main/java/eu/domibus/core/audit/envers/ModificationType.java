@@ -1,4 +1,4 @@
-package eu.domibus.common.model.common;
+package eu.domibus.core.audit.envers;
 
 /**
  * @author Thomas Dussart

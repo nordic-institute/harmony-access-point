@@ -1,4 +1,4 @@
-package eu.domibus.common.model.common;
+package eu.domibus.core.audit.envers;
 
 import eu.domibus.common.listener.CustomRevisionEntityListener;
 import eu.domibus.logging.DomibusLogger;

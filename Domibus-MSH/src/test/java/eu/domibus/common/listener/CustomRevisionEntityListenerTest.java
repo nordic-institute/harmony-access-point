@@ -1,7 +1,7 @@
 package eu.domibus.common.listener;
 
-import eu.domibus.common.model.common.ModificationType;
-import eu.domibus.common.model.common.RevisionLog;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.common.model.configuration.Configuration;
 import mockit.Expectations;
 import mockit.Mocked;

@@ -1,6 +1,6 @@
 package eu.domibus.core.security;
 
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.common.model.security.UserEntityBaseImpl;
 import org.apache.commons.lang3.StringUtils;

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.model.common.ModificationType;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.common.util.AnnotationsUtil;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.JmsMessageAudit;
