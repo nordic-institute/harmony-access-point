@@ -2,9 +2,6 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.certificate.Certificate;
-import eu.domibus.common.model.certificate.CertificateStatus;
-import eu.domibus.common.model.certificate.CertificateType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

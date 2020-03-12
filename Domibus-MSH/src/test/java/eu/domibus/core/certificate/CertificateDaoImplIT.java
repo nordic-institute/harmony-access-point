@@ -1,9 +1,6 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.model.certificate.Certificate;
-import eu.domibus.common.model.certificate.CertificateStatus;
-import eu.domibus.common.model.certificate.CertificateType;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.dao.InMemoryDataBaseConfig;
 import eu.domibus.logging.DomibusLogger;

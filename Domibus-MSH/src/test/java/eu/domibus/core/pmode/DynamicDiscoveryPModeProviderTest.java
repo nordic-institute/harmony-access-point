@@ -25,7 +25,7 @@ import eu.domibus.ebms3.common.model.Service;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.pki.CertificateServiceImpl;
+import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.xml.XMLUtilImpl;
 import eu.europa.ec.dynamicdiscovery.model.Endpoint;
 import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;

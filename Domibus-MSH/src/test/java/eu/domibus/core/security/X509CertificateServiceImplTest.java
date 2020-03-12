@@ -4,7 +4,7 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.CRLService;
-import eu.domibus.pki.CertificateServiceImpl;
+import eu.domibus.core.certificate.CertificateServiceImpl;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;

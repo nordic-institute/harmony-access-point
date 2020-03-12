@@ -2,14 +2,14 @@ package eu.domibus.security;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.user.ConsoleUserPasswordHistoryDao;
-import eu.domibus.core.user.UserDao;
-import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserPasswordHistoryDao;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
+import eu.domibus.core.user.ConsoleUserPasswordHistoryDao;
+import eu.domibus.core.user.UserDao;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserPasswordHistoryDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

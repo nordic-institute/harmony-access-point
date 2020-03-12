@@ -1,4 +1,4 @@
-package eu.domibus.pki;
+package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
@@ -7,8 +7,6 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.common.model.certificate.CertificateStatus;
-import eu.domibus.common.model.certificate.CertificateType;
 import eu.domibus.core.alerts.model.service.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
@@ -18,6 +16,7 @@ import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.pki.CRLService;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -88,8 +87,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     @Transactional(noRollbackFor = DomibusCertificateException.class)
-    public boolean isCertificateChainValid(List<? extends Certificate> certificateChain) {
-        for (Certificate certificate : certificateChain) {
+    public boolean isCertificateChainValid(List<? extends java.security.cert.Certificate> certificateChain) {
+        for (java.security.cert.Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate) certificate);
             if (!certificateValid) {
                 LOG.warn("Sender certificate not valid [{}]", certificate);
@@ -125,7 +124,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected X509Certificate[] getCertificateChain(KeyStore trustStore, String alias) throws KeyStoreException {
         //TODO get the certificate chain manually based on the issued by info from the original certificate
-        final Certificate[] certificateChain = trustStore.getCertificateChain(alias);
+        final java.security.cert.Certificate[] certificateChain = trustStore.getCertificateChain(alias);
         if (certificateChain == null) {
             X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
             return new X509Certificate[]{certificate};
@@ -294,9 +293,9 @@ public class CertificateServiceImpl implements CertificateService {
      * @param keyStore   the key store
      */
     protected void saveCertificateData(KeyStore trustStore, KeyStore keyStore) {
-        List<eu.domibus.common.model.certificate.Certificate> certificates = groupAllKeystoreCertificates(trustStore, keyStore);
+        List<eu.domibus.core.certificate.Certificate> certificates = groupAllKeystoreCertificates(trustStore, keyStore);
         certificateDao.removeUnusedCertificates(certificates);
-        for (eu.domibus.common.model.certificate.Certificate certificate : certificates) {
+        for (eu.domibus.core.certificate.Certificate certificate : certificates) {
             certificateDao.saveOrUpdate(certificate);
         }
     }
@@ -306,14 +305,14 @@ public class CertificateServiceImpl implements CertificateService {
      * notified it for the day.
      */
     protected void logCertificateRevocationWarning() {
-        List<eu.domibus.common.model.certificate.Certificate> unNotifiedSoonRevoked = certificateDao.getUnNotifiedSoonRevoked();
-        for (eu.domibus.common.model.certificate.Certificate certificate : unNotifiedSoonRevoked) {
+        List<eu.domibus.core.certificate.Certificate> unNotifiedSoonRevoked = certificateDao.getUnNotifiedSoonRevoked();
+        for (eu.domibus.core.certificate.Certificate certificate : unNotifiedSoonRevoked) {
             LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
 
-        List<eu.domibus.common.model.certificate.Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
-        for (eu.domibus.common.model.certificate.Certificate certificate : unNotifiedRevoked) {
+        List<eu.domibus.core.certificate.Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
+        for (eu.domibus.core.certificate.Certificate certificate : unNotifiedRevoked) {
             LOG.securityError(SEC_CERTIFICATE_REVOKED, certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
@@ -326,8 +325,8 @@ public class CertificateServiceImpl implements CertificateService {
      * @param keyStore   the key store
      * @return a list of certificate.
      */
-    protected List<eu.domibus.common.model.certificate.Certificate> groupAllKeystoreCertificates(KeyStore trustStore, KeyStore keyStore) {
-        List<eu.domibus.common.model.certificate.Certificate> allCertificates = new ArrayList<>();
+    protected List<eu.domibus.core.certificate.Certificate> groupAllKeystoreCertificates(KeyStore trustStore, KeyStore keyStore) {
+        List<eu.domibus.core.certificate.Certificate> allCertificates = new ArrayList<>();
         allCertificates.addAll(loadAndEnrichCertificateFromKeystore(trustStore, CertificateType.PUBLIC));
         allCertificates.addAll(loadAndEnrichCertificateFromKeystore(keyStore, CertificateType.PRIVATE));
         return Collections.unmodifiableList(allCertificates);
@@ -340,12 +339,12 @@ public class CertificateServiceImpl implements CertificateService {
      * @param certificateType the type of the certificate (Public/Private)
      * @return the list of certificates.
      */
-    private List<eu.domibus.common.model.certificate.Certificate> loadAndEnrichCertificateFromKeystore(KeyStore keyStore, CertificateType certificateType) {
-        List<eu.domibus.common.model.certificate.Certificate> certificates = new ArrayList<>();
+    private List<eu.domibus.core.certificate.Certificate> loadAndEnrichCertificateFromKeystore(KeyStore keyStore, CertificateType certificateType) {
+        List<eu.domibus.core.certificate.Certificate> certificates = new ArrayList<>();
         if (keyStore != null) {
             certificates = extractCertificateFromKeyStore(
                     keyStore);
-            for (eu.domibus.common.model.certificate.Certificate certificate : certificates) {
+            for (eu.domibus.core.certificate.Certificate certificate : certificates) {
                 certificate.setCertificateType(certificateType);
                 CertificateStatus certificateStatus = getCertificateStatus(certificate.getNotAfter());
                 certificate.setCertificateStatus(certificateStatus);
@@ -375,14 +374,14 @@ public class CertificateServiceImpl implements CertificateService {
         return CertificateStatus.OK;
     }
 
-    protected List<eu.domibus.common.model.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
-        List<eu.domibus.common.model.certificate.Certificate> certificates = new ArrayList<>();
+    protected List<eu.domibus.core.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
+        List<eu.domibus.core.certificate.Certificate> certificates = new ArrayList<>();
         try {
             final Enumeration<String> aliases = trustStore.aliases();
             while (aliases.hasMoreElements()) {
                 final String alias = aliases.nextElement();
                 final X509Certificate x509Certificate = (X509Certificate) trustStore.getCertificate(alias);
-                eu.domibus.common.model.certificate.Certificate certificate = new eu.domibus.common.model.certificate.Certificate();
+                eu.domibus.core.certificate.Certificate certificate = new eu.domibus.core.certificate.Certificate();
                 certificate.setAlias(alias);
                 certificate.setNotAfter(x509Certificate.getNotAfter());
                 certificate.setNotBefore(x509Certificate.getNotBefore());
@@ -429,9 +428,9 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
-    public String serializeCertificateChainIntoPemFormat(List<? extends Certificate> certificates) {
+    public String serializeCertificateChainIntoPemFormat(List<? extends java.security.cert.Certificate> certificates) {
         StringWriter sw = new StringWriter();
-        for (Certificate certificate : certificates) {
+        for (java.security.cert.Certificate certificate : certificates) {
             try (PemWriter pw = new PemWriter(sw)) {
                 PemObjectGenerator gen = new JcaMiscPEMGenerator(certificate);
                 pw.writeObject(gen);
@@ -456,7 +455,7 @@ public class CertificateServiceImpl implements CertificateService {
             PemObject o;
             while ((o = reader.readPemObject()) != null) {
                 if (o.getType().equals("CERTIFICATE")) {
-                    Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
+                    java.security.cert.Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
                     final X509Certificate certificate = (X509Certificate) c;
                     LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
                     certificates.add(certificate);
@@ -475,16 +474,16 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
-    public Certificate extractLeafCertificateFromChain(List<? extends Certificate> certificates) {
+    public java.security.cert.Certificate extractLeafCertificateFromChain(List<? extends java.security.cert.Certificate> certificates) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Extracting leaf certificate from chain");
-            for (Certificate certificate : certificates) {
+            for (java.security.cert.Certificate certificate : certificates) {
                 LOG.trace("Certificate:[{}]", certificate);
             }
         }
         Set<String> issuerSet = new HashSet<>();
         Map<String, X509Certificate> subjectMap = new HashMap<>();
-        for (Certificate certificate : certificates) {
+        for (java.security.cert.Certificate certificate : certificates) {
             X509Certificate x509Certificate = (X509Certificate) certificate;
             final String subjectName = x509Certificate.getSubjectDN().getName();
             subjectMap.put(subjectName, x509Certificate);

@@ -1,4 +1,4 @@
-package eu.domibus.common.model.certificate;
+package eu.domibus.core.certificate;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 

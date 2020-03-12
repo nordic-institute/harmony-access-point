@@ -1,4 +1,4 @@
-package eu.domibus.common.model.certificate;
+package eu.domibus.core.certificate;
 
 /**
  * @author Thomas Dussart
