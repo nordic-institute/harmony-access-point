@@ -71,42 +71,6 @@ public class AlertPage extends DomibusPage {
         return driver.findElement(By.id("processed" + rowNumber + "_id"));
     }
 
-    public void compareParamData(int j, int totalUsers, int totalMessages, JSONArray userList, JSONArray messageList) throws Exception {
-
-        if (grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")) {
-            log.info("Check Alert type is USER_LOGIN_FAILURE");
-
-            String user = grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
-            log.info("Extract userName from Parameters ");
-            for (int k = 0; k < totalUsers; k++) {
-                if (userList.getJSONObject(k).getString("userName").equals(user)) {
-                    log.info("Shown user is from current domain");
-                }
-
-            }
-        } else if (grid().getRowInfo(j).containsValue("MSG_STATUS_CHANGED")) {
-            log.info("Check if Alert Type is MSG_STATUS_CHANGED");
-            String messageId = grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
-            log.info("Extract message id from parameters field");
-
-            for (int k = 0; k < totalMessages; k++) {
-                if (messageList.equals(messageId)) {
-                    log.info("Message belongs to current domain");
-                }
-            }
-        } else if (grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
-            log.info("Check if Alert type is USER_ACCOUNT_DISABLED");
-            String user = grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
-            log.info("Extract userName from parameters page");
-            for (int k = 0; k < totalUsers; k++) {
-                if (userList.getJSONObject(k).getString("userName").equals(user)) {
-                    log.info("Shown disabled user is from current domain");
-                }
-
-            }
-        }
-    }
-
     public List<String> getCSVSpecificColumnData(String filename, String columnName) throws Exception {
 
         Reader reader = Files.newBufferedReader(Paths.get(filename));

@@ -6,6 +6,7 @@ import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.json.JSONArray;
 import org.testng.SkipException;
+import pages.Audit.AuditPage;
 import pages.users.UsersPage;
 import utils.BaseTest;
 import org.testng.annotations.Test;
@@ -398,10 +399,6 @@ public class AlertPgTest extends BaseTest {
         aFilter.getSearchButton().click();
         page.grid().waitForRowsToLoad();
 
-        log.info("Extract total number of users from Users page");
-        int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
-        log.info("Extract total number of messages from Messages page");
-        int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
         log.info("Extract total number of records from Alerts page");
         int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
         JSONArray userList = rest.getUsers(page.getDomainFromTitle());
@@ -412,7 +409,7 @@ public class AlertPgTest extends BaseTest {
             totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
         }
         for (int j = 0; j < totalCount; j++) {
-            page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
+            compareParamData(j, userList, messageList,page);
         }
         soft.assertAll();
     }
@@ -438,10 +435,6 @@ public class AlertPgTest extends BaseTest {
         aFilter.getSearchButton().click();
         page.grid().waitForRowsToLoad();
 
-        log.info("Extract total user");
-        int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
-        log.info("Extract total number of messages");
-        int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
         log.info("Extract total record from Alerts page");
         int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
 
@@ -453,7 +446,7 @@ public class AlertPgTest extends BaseTest {
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
         for (int j = 0; j < totalCount; j++) {
 
-            page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
+            compareParamData(j, userList, messageList,page);
 
         }
         soft.assertAll();
@@ -662,18 +655,12 @@ public class AlertPgTest extends BaseTest {
             log.info("Check absence of Show Domain Alert check box");
             soft.assertFalse(aFilter.getShowDomainCheckbox().isPresent(), "Checkbox is not present for Admin user");
 
-            log.info("Extract total number of users");
-            int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
-
-            log.info("Extract total number of messages");
-            int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
-
             log.info("If total count >10 ,set count value is 10");
             int totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
-                page.compareParamData(j, totalUsers, totalMessages, userList, messageList);
+                compareParamData(j, userList, messageList,page);
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain is null or second domain in case of multitenancy");
@@ -721,15 +708,15 @@ public class AlertPgTest extends BaseTest {
 
             log.info("if total alert count >10 then set count as 10");
             int recordCount = Math.min(10, page.grid().getPagination().getTotalItems());
-            System.out.println(recordCount);
-
-
-            JSONArray userList = rest.getUsers(page.getDomainFromTitle());
-
 
             for (int j = 0; j < recordCount; j++) {
-                page.compareParamData(j, totalUsers, 0, userList, null);
+                if (page.grid().getRowInfo(j).containsValue("USER_LOGIN_FAILURE")
+                        || page.grid().getRowInfo(j).containsValue("USER_ACCOUNT_DISABLED")) {
 
+                    String userNameStr = page.grid().getRowSpecificColumnVal(j, "Parameters").split(",")[0];
+                    log.info("Extract all user names available in parameters fields ");
+                    userName.add(userNameStr);
+                }
             }
             log.info("Remove all duplicate username");
             List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
@@ -957,6 +944,32 @@ public class AlertPgTest extends BaseTest {
                 page.grid().waitForRowsToLoad();
             }
         } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+    }
+
+    private void compareParamData(int rowNumber, JSONArray userList, JSONArray messageList,AlertPage page) throws Exception {
+        if (page.grid().getRowInfo(rowNumber).containsValue("USER_LOGIN_FAILURE") || page.grid().getRowInfo(rowNumber).containsValue("USER_ACCOUNT_DISABLED")) {
+            log.info("Check Alert type is USER_LOGIN_FAILURE or USER_ACCOUNT_DISABLED");
+
+            String user = page.grid().getRowSpecificColumnVal(rowNumber, "Parameters").split(",")[0];
+            log.info("Extract userName from Parameters ");
+            for (int k = 0; k < userList.length(); k++) {
+                if (userList.getJSONObject(k).getString("userName").equals(user)) {
+                    log.info("Shown user is from current domain");
+                }
+
+            }
+        } else if (page.grid().getRowInfo(rowNumber).containsValue("MSG_STATUS_CHANGED")) {
+            log.info("Check if Alert Type is MSG_STATUS_CHANGED");
+            String messageId = page.grid().getRowSpecificColumnVal(rowNumber, "Parameters").split(",")[0];
+            log.info("Extract message id from parameters field");
+
+            for (int k = 0; k < messageList.length(); k++) {
+                if (messageList.getJSONObject(k).getString("messageId").equals(messageId)) {
+                    log.info("Message belongs to current domain");
+                }
+            }
+
+        }
     }
 
 }
