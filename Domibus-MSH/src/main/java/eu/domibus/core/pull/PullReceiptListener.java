@@ -6,11 +6,11 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
@@ -34,7 +34,7 @@ import javax.jms.MessageListener;
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
 
-import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
+import static eu.domibus.core.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
 
 /**
  * @author idragusa

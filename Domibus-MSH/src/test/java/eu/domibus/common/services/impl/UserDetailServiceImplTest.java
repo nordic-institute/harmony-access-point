@@ -1,10 +1,10 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.dao.security.UserDao;
+import eu.domibus.core.user.UserDao;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.services.UserService;
+import eu.domibus.core.user.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 

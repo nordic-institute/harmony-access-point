@@ -2,7 +2,7 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.common.dao.ListDao;
-import eu.domibus.common.dao.security.UserDaoBase;
+import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.common.model.security.UserEntityBase;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;

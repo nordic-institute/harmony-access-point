@@ -1,4 +1,4 @@
-package eu.domibus.common.converters;
+package eu.domibus.core.user.converters;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

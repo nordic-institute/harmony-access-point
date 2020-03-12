@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.common.model.security.UserRole;
+import eu.domibus.core.user.UserDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -15,7 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 

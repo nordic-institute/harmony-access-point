@@ -2,7 +2,7 @@ package eu.domibus.security;
 
 import eu.domibus.common.model.security.UserDetail;
 import eu.domibus.common.model.security.UserLoginErrorReason;
-import eu.domibus.common.services.UserService;
+import eu.domibus.core.user.UserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

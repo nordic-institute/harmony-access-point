@@ -1,4 +1,4 @@
-package eu.domibus.common.dao.security;
+package eu.domibus.core.user;
 
 
 import eu.domibus.common.dao.BasicDao;

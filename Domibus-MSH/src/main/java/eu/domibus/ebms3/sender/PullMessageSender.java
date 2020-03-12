@@ -8,12 +8,12 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.impl.PullContext;
-import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
@@ -45,7 +45,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import static eu.domibus.common.metrics.MetricNames.OUTGOING_PULL_REQUEST;
+import static eu.domibus.core.metrics.MetricNames.OUTGOING_PULL_REQUEST;
 
 /**
  * @author Thomas Dussart

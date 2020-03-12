@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.message;
 
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.exception.EbMS3Exception;

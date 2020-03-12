@@ -1,4 +1,4 @@
-package eu.domibus.common.metrics;
+package eu.domibus.core.metrics;
 
 import com.codahale.metrics.Metric;
 import eu.domibus.api.jms.JMSDestination;

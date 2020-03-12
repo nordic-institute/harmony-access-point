@@ -20,6 +20,7 @@ import eu.domibus.common.model.logging.SignalMessageLogBuilder;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;

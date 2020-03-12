@@ -1,4 +1,4 @@
-package eu.domibus.common.services;
+package eu.domibus.core.user;
 
 import java.util.List;
 

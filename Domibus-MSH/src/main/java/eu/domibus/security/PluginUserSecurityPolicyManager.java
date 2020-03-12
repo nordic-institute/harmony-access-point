@@ -1,15 +1,14 @@
 package eu.domibus.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.dao.security.UserDaoBase;
-import eu.domibus.common.dao.security.UserPasswordHistoryDao;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserPasswordHistoryDao;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
 import eu.domibus.core.security.AuthenticationDAO;
 import eu.domibus.core.security.AuthenticationEntity;
 import eu.domibus.core.security.PluginUserPasswordHistoryDao;
-import eu.domibus.security.UserSecurityPolicyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

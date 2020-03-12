@@ -8,8 +8,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.metrics.Counter;
-import eu.domibus.common.metrics.Timer;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.UserMessageLog;
@@ -41,7 +41,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 
-import static eu.domibus.common.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
+import static eu.domibus.core.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
 
 /**
  * Handles the incoming AS4 pull receipt

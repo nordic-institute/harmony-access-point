@@ -1,10 +1,8 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.common.model.security.UserRole;
-import eu.domibus.web.rest.ro.UserRO;
+import eu.domibus.core.user.UserRoleDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -12,11 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;

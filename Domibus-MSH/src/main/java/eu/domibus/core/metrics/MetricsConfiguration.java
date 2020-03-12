@@ -1,4 +1,4 @@
-package eu.domibus.common.metrics;
+package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
@@ -20,8 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
  * @author Thomas Dussart

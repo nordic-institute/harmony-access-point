@@ -1,6 +1,6 @@
 package eu.domibus.security;
 
-import eu.domibus.common.services.UserService;
+import eu.domibus.core.user.UserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.quartz.GeneralQuartzJobBean;

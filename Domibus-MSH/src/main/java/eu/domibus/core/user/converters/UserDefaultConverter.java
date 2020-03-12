@@ -1,4 +1,4 @@
-package eu.domibus.common.converters;
+package eu.domibus.core.user.converters;
 
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserState;

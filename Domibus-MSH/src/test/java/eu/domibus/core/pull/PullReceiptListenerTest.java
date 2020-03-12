@@ -5,7 +5,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.services.impl.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.ebms3.common.model.Receipt;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -18,7 +18,6 @@ import org.apache.neethi.Policy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.xml.soap.SOAPMessage;
