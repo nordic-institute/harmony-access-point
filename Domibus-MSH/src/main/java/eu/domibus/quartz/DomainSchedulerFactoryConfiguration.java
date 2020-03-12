@@ -43,6 +43,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -100,10 +101,15 @@ public class DomainSchedulerFactoryConfiguration {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Bean
-    //@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    @Scope(BeanDefinition.SCOPE_SINGLETON)
-    public SchedulerFactoryBean schedulerFactory(Domain domain) {
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public SchedulerFactoryBean schedulerFactory(Optional<Domain> optionalDomain) {
+
+        // We don't need the bean when domain is not present. Spring tried to creat it and throws.
+        if(!optionalDomain.isPresent()) {
+            return null;
+        }
         // General schema
+        Domain domain = optionalDomain.get();
         if (domain == null) {
             return schedulerFactoryGeneral();
         }
