@@ -668,13 +668,10 @@ public class AlertPgTest extends BaseTest {
             log.info("Extract total number of messages");
             int totalMessages = rest.getListOfMessages(page.getDomainFromTitle()).length();
 
-            log.info("Extract total count from Alerts page");
-            int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+            log.info("If total count >10 ,set count value is 10");
+            int totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
+            System.out.println(totalCount);
 
-            if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 10) {
-                log.info("If total count >10 ,set count value is 10");
-                totalCount = 10;
-            }
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
@@ -738,7 +735,7 @@ public class AlertPgTest extends BaseTest {
             }
             log.info("Remove all duplicate username");
             List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
-            JSONArray userNames=rest.getUsers(page.getDomainFromTitle());
+            JSONArray userNames = rest.getUsers(page.getDomainFromTitle());
             log.info("Navigate to users page");
             page.getSidebar().goToPage(PAGES.USERS);
             UsersPage uPage = new UsersPage(driver);
