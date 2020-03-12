@@ -25,6 +25,7 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -707,26 +708,33 @@ public class AuditPgTest extends BaseTest {
         log.info("Check total number of records for default domain");
         int defaultDomainGridCount = aPage.grid().getPagination().getTotalItems();
 
-        log.info("Extract all row info ");
-        List<HashMap<String, String>> defaultRowInfos = aPage.grid().getAllRowInfo();
+        log.info("Extract row info ");
+        int defaultGridCount=Math.min(10,aPage.grid().getPagination().getTotalItems());
+        List<HashMap<String, String>> defaultDomainData= new ArrayList<>();
 
+        for(int i=0;i<defaultGridCount;i++){
+            defaultDomainData.add(aPage.grid().getRowInfo(i));
+        }
         log.info("Change domain");
         aPage.getDomainSelector().selectOptionByIndex(1);
 
         log.info("Extract total number of items for second domain");
         int secondGridCount = aPage.grid().getPagination().getTotalItems();
 
-        log.info("Extract all row infos");
-        List<HashMap<String, String>> secondRowInfos = aPage.grid().getAllRowInfo();
-
+        log.info("Extract  row infos");
+        int gridRowCount=Math.min(10,aPage.grid().getPagination().getTotalItems());
+        List<HashMap<String, String>> secDomainData= new ArrayList<>();
+        for(int i=0;i<gridRowCount;i++){
+            secDomainData.add(aPage.grid().getRowInfo(i));
+        }
         log.info("Verify grid row data for both domains");
         if (defaultDomainGridCount == 0 && secondGridCount == 0) {
             log.info("Both domains have no data on this page");
         } else if (defaultDomainGridCount != secondGridCount) {
             log.info("Both domains have different number of data");
-        } else if (defaultRowInfos == secondRowInfos) {
+        } else if (defaultDomainData == secDomainData) {
             log.info("Both domains have same number of data but all are different");
-            soft.assertFalse(defaultRowInfos.equals(secondRowInfos), "compare both domains grid row data");
+            soft.assertFalse(defaultDomainData.equals(secDomainData), "compare both domains grid row data");
         } else {
             log.info("Something went wrong on this page");
         }
