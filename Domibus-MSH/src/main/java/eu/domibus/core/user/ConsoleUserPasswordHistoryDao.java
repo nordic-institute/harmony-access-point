@@ -1,7 +1,5 @@
 package eu.domibus.core.user;
 
-import eu.domibus.common.model.security.User;
-
 /**
  * @author Ion Perpegel
  * @since 4.1

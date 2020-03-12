@@ -1,7 +1,5 @@
 package eu.domibus.core.user;
 
-import eu.domibus.common.model.security.ConsoleUserPasswordHistory;
-import eu.domibus.common.model.security.User;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

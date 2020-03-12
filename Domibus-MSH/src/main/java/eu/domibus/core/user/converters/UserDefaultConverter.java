@@ -2,7 +2,7 @@ package eu.domibus.core.user.converters;
 
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.model.security.UserRole;
+import eu.domibus.core.user.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
 public class UserDefaultConverter implements UserConverter {
 
     @Override
-    public User convert(eu.domibus.common.model.security.User userEntity) {
+    public User convert(eu.domibus.core.user.User userEntity) {
         List<String> authorities = new ArrayList<>();
         Collection<UserRole> roles = userEntity.getRoles();
         for (UserRole role : roles) {
@@ -34,12 +34,12 @@ public class UserDefaultConverter implements UserConverter {
     }
 
     @Override
-    public List<User> convert(List<eu.domibus.common.model.security.User> sourceList) {
+    public List<User> convert(List<eu.domibus.core.user.User> sourceList) {
         if (sourceList == null) {
             return null;
         }
         List<User> result = new ArrayList<>();
-        for (eu.domibus.common.model.security.User sourceObject : sourceList) {
+        for (eu.domibus.core.user.User sourceObject : sourceList) {
             result.add(convert(sourceObject));
         }
         return result;

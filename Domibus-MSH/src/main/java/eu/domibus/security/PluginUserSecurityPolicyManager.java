@@ -3,7 +3,7 @@ package eu.domibus.security;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserPasswordHistoryDao;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
 import eu.domibus.core.user.plugin.AuthenticationDAO;

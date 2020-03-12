@@ -96,8 +96,8 @@ public class UserDomainServiceMultiDomainImplTest {
 
     @Test
     public void testGetSuperUsers() throws Exception {
-        eu.domibus.common.model.security.User userEntity = new eu.domibus.common.model.security.User();
-        List<eu.domibus.common.model.security.User> userEntities = Arrays.asList(userEntity);
+        eu.domibus.core.user.User userEntity = new eu.domibus.core.user.User();
+        List<eu.domibus.core.user.User> userEntities = Arrays.asList(userEntity);
         User user = new User();
         List<User> users = Arrays.asList(user);
 

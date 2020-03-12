@@ -2,8 +2,8 @@ package eu.domibus.common.services.impl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserDao;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserDetail;
+import eu.domibus.core.user.User;
+import eu.domibus.core.user.UserDetail;
 import eu.domibus.core.user.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;

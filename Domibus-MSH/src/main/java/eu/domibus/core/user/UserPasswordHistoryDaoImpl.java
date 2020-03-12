@@ -1,8 +1,6 @@
 package eu.domibus.core.user;
 
 import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.security.UserEntityBase;
-import eu.domibus.common.model.security.UserPasswordHistory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;

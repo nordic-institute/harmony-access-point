@@ -1,7 +1,6 @@
 package eu.domibus.core.user;
 
 import eu.domibus.api.user.User;
-import eu.domibus.common.model.security.UserLoginErrorReason;
 
 import java.util.List;
 

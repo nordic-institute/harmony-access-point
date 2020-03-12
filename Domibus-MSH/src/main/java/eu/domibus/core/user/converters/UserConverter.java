@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface UserConverter {
 
-    User convert(eu.domibus.common.model.security.User source);
+    User convert(eu.domibus.core.user.User source);
 
-    List<User> convert(List<eu.domibus.common.model.security.User> sourceList);
+    List<User> convert(List<eu.domibus.core.user.User> sourceList);
 }
 

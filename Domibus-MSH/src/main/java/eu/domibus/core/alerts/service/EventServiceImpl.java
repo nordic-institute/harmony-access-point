@@ -8,7 +8,7 @@ import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Event;

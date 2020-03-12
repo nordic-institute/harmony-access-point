@@ -1,4 +1,4 @@
-package eu.domibus.common.model.security;
+package eu.domibus.core.user;
 
 /**
  * @author Thomas Dussart

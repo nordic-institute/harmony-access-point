@@ -1,4 +1,4 @@
-package eu.domibus.common.model.security;
+package eu.domibus.core.user;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 

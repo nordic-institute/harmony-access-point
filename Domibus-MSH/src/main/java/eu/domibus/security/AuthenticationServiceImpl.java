@@ -1,7 +1,7 @@
 package eu.domibus.security;
 
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.model.security.UserLoginErrorReason;
+import eu.domibus.core.user.UserDetail;
+import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

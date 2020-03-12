@@ -1,6 +1,6 @@
 package eu.domibus.audit;
 
-import eu.domibus.common.model.security.User;
+import eu.domibus.core.user.User;
 import eu.domibus.dao.InMemoryDataBaseConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

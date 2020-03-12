@@ -8,12 +8,9 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.core.user.*;
 import eu.domibus.core.user.converters.UserConverter;
-import eu.domibus.core.user.ConsoleUserPasswordHistoryDao;
-import eu.domibus.core.user.UserDao;
-import eu.domibus.core.user.UserRoleDao;
-import eu.domibus.common.model.security.User;
-import eu.domibus.core.user.UserPersistenceService;
+import eu.domibus.core.user.User;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.security.ConsoleUserSecurityPolicyManager;
 import mockit.*;
@@ -74,8 +71,8 @@ public class UserManagementServiceImplTest {
 
     @Test
     public void findUsersTest() throws Exception {
-        eu.domibus.common.model.security.User userEntity = new eu.domibus.common.model.security.User();
-        List<eu.domibus.common.model.security.User> userEntities = Arrays.asList(userEntity);
+        User userEntity = new User();
+        List<User> userEntities = Arrays.asList(userEntity);
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
         List<eu.domibus.api.user.User> users = Arrays.asList(user);
 
@@ -96,8 +93,8 @@ public class UserManagementServiceImplTest {
 
     @Test
     public void findUserRoles() throws Exception {
-        eu.domibus.common.model.security.UserRole userEntity = new eu.domibus.common.model.security.UserRole("userRole1");
-        List<eu.domibus.common.model.security.UserRole> userEntities = Arrays.asList(userEntity);
+        UserRole userEntity = new UserRole("userRole1");
+        List<UserRole> userEntities = Arrays.asList(userEntity);
 
         new Expectations() {{
             userRoleDao.listRoles();

@@ -1,8 +1,5 @@
 package eu.domibus.core.user;
 
-import eu.domibus.common.model.security.UserEntityBase;
-import eu.domibus.common.model.security.UserPasswordHistory;
-
 import java.time.LocalDateTime;
 import java.util.List;
 

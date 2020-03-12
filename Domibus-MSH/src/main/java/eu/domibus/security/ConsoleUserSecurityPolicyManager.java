@@ -2,8 +2,8 @@ package eu.domibus.security;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.user.User;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
 import eu.domibus.core.user.ConsoleUserPasswordHistoryDao;

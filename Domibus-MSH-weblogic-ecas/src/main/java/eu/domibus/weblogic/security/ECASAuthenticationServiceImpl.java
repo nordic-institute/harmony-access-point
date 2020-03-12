@@ -1,6 +1,6 @@
 package eu.domibus.weblogic.security;
 
-import eu.domibus.common.model.security.UserDetail;
+import eu.domibus.core.user.UserDetail;
 import eu.domibus.security.AuthenticationService;
 import eu.domibus.security.AuthenticationServiceBase;
 

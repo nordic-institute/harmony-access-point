@@ -1,9 +1,9 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserEntityBase;
-import eu.domibus.common.model.security.UserRole;
+import eu.domibus.core.user.User;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.UserRole;
 import eu.domibus.core.user.UserDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

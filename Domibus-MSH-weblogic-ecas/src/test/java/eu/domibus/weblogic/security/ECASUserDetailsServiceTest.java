@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.common.model.security.UserDetail;
+import eu.domibus.core.user.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

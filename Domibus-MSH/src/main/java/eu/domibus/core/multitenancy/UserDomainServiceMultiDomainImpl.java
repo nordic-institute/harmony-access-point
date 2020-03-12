@@ -90,7 +90,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     public List<User> getSuperUsers() {
         LOG.debug("Searching for super users");
         return domainTaskExecutor.submit(() -> {
-            List<eu.domibus.common.model.security.User> userEntities = userDao.listUsers();
+            List<eu.domibus.core.user.User> userEntities = userDao.listUsers();
             List<User> users = userConverter.convert(userEntities);
 
             // fill in preferred domain

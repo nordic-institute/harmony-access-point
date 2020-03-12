@@ -244,7 +244,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertUser() throws Exception {
         User toConvert = (User) objectService.createInstance(User.class);
-        final eu.domibus.common.model.security.User converted = domainCoreConverter.convert(toConvert, eu.domibus.common.model.security.User.class);
+        final eu.domibus.core.user.User converted = domainCoreConverter.convert(toConvert, eu.domibus.core.user.User.class);
         final User convertedBack = domainCoreConverter.convert(converted, User.class);
         convertedBack.setDomain(toConvert.getDomain());
         convertedBack.setStatus(toConvert.getStatus());

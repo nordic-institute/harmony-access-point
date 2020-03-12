@@ -1,7 +1,5 @@
 package eu.domibus.core.user;
 
-import eu.domibus.common.model.security.UserRole;
-
 import java.util.List;
 
 /**

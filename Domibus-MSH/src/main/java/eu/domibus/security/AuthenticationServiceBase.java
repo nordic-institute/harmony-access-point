@@ -2,7 +2,7 @@ package eu.domibus.security;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.model.security.UserDetail;
+import eu.domibus.core.user.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

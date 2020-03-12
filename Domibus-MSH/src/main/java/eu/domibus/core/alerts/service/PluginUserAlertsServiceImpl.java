@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;

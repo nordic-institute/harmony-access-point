@@ -1,4 +1,4 @@
-package eu.domibus.common.model.security;
+package eu.domibus.core.user;
 
 import com.google.common.collect.Lists;
 import org.springframework.security.core.GrantedAuthority;
