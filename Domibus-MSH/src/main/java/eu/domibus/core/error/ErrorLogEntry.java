@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.error;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;

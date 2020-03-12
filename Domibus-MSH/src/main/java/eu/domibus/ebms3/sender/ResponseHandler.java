@@ -6,7 +6,7 @@ import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.SignalMessageLogDefaultService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;

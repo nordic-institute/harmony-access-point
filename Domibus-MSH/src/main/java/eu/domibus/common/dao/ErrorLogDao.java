@@ -1,6 +1,6 @@
 package eu.domibus.common.dao;
 
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.util.ErrorLogEntryTruncateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

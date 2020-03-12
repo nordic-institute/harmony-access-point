@@ -1,6 +1,6 @@
 package eu.domibus.common.util;
 
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

@@ -18,7 +18,7 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;
@@ -52,7 +52,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

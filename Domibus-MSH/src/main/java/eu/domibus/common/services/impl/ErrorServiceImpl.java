@@ -1,8 +1,8 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.model.logging.ErrorLogEntry;
-import eu.domibus.common.services.ErrorService;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

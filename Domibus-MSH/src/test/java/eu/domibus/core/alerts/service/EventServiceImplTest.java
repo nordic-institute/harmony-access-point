@@ -7,7 +7,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.model.security.User;
 import eu.domibus.common.model.security.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -26,7 +26,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 import java.text.ParseException;

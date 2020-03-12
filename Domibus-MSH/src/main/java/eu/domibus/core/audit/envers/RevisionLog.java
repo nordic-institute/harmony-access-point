@@ -1,6 +1,6 @@
 package eu.domibus.core.audit.envers;
 
-import eu.domibus.common.listener.CustomRevisionEntityListener;
+import eu.domibus.core.audit.CustomRevisionEntityListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

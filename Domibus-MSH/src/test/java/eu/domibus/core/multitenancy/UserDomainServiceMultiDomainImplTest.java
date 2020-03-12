@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.user.User;
 import eu.domibus.core.user.converters.UserConverter;
 import eu.domibus.core.user.UserDao;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import mockit.Expectations;

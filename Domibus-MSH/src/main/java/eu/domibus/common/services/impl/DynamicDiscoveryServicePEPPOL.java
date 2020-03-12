@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /**
  * Service to query the SMP to extract the required information about the unknown receiver AP.

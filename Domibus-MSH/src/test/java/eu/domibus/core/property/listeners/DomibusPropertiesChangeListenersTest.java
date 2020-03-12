@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.common.validators.GatewayConfigurationValidator;
 import eu.domibus.core.alerts.MailSender;
 import eu.domibus.core.alerts.model.common.AlertType;

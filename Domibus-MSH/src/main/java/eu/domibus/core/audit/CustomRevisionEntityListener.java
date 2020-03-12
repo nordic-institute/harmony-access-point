@@ -1,4 +1,4 @@
-package eu.domibus.common.listener;
+package eu.domibus.core.audit;
 
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;

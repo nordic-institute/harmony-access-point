@@ -34,7 +34,7 @@ import java.security.KeyStore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /**
  * Service to query a compliant eDelivery SMP profile based on the OASIS BDX Service Metadata Publishers

@@ -7,7 +7,7 @@ import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;

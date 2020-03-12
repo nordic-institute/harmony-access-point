@@ -9,7 +9,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;

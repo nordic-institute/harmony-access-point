@@ -1,4 +1,4 @@
-package eu.domibus.common.services;
+package eu.domibus.core.cache;
 
 /**
  * @author Thomas Dussart

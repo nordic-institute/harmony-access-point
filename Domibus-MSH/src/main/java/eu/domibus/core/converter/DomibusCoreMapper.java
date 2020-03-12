@@ -14,7 +14,7 @@ import eu.domibus.api.user.User;
 import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;

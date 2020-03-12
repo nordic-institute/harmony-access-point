@@ -1,6 +1,4 @@
-package eu.domibus.common.services;
-
-import eu.domibus.common.model.logging.ErrorLogEntry;
+package eu.domibus.core.error;
 
 /**
  * @author Thomas Dussart
