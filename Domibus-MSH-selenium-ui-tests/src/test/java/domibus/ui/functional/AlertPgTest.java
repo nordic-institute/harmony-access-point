@@ -670,8 +670,6 @@ public class AlertPgTest extends BaseTest {
 
             log.info("If total count >10 ,set count value is 10");
             int totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
-            System.out.println(totalCount);
-
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
