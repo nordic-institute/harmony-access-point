@@ -1,27 +1,15 @@
 package pages.users;
 
-import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.grid.Pagination;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.testng.asserts.SoftAssert;
-import rest.DomibusRestClient;
-import utils.TestRunData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 /**
