@@ -1,4 +1,4 @@
-package eu.domibus.configuration.security;
+package eu.domibus.web.security.configuration;
 
 import eu.domibus.web.filter.SetDomainFilter;
 import eu.domibus.web.matcher.URLCsrfMatcher;

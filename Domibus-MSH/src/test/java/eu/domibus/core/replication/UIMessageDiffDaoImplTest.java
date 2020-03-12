@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.configuration.DataBaseEngine;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

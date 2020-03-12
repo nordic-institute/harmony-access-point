@@ -1,4 +1,4 @@
-package eu.domibus.api.configuration;
+package eu.domibus.api.property;
 
 import eu.domibus.api.multitenancy.Domain;
 

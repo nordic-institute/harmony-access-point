@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.DomibusPropertyException;
 import eu.domibus.api.multitenancy.DomainContextProvider;

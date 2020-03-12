@@ -1,6 +1,6 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.security.User;

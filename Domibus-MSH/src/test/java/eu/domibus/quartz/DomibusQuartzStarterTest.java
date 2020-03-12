@@ -1,11 +1,10 @@
 package eu.domibus.quartz;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.scheduler.DomibusSchedulerException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

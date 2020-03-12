@@ -1,6 +1,6 @@
 package eu.domibus.pki;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
@@ -17,9 +17,6 @@ import org.apache.neethi.Policy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.constraints.AssertTrue;
 
 /**
  * @author Arun Raj

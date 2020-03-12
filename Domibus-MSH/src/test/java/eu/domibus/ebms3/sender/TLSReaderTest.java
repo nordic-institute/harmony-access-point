@@ -1,6 +1,6 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.Deencapsulation;
 import mockit.Expectations;
 import mockit.Injectable;

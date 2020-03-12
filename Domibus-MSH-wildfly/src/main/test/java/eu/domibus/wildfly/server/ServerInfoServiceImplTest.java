@@ -1,6 +1,6 @@
 package eu.domibus.wildfly.server;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

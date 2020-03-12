@@ -1,6 +1,6 @@
 package eu.domibus.logging;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.multitenant;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import org.springframework.beans.factory.annotation.Autowired;

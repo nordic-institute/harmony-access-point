@@ -1,4 +1,4 @@
-package eu.domibus.api.configuration;
+package eu.domibus.api.property;
 
 import org.apache.commons.lang3.StringUtils;
 

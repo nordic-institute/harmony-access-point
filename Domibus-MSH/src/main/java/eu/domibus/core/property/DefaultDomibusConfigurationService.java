@@ -1,7 +1,7 @@
-package eu.domibus.configuration;
+package eu.domibus.core.property;
 
-import eu.domibus.api.configuration.DataBaseEngine;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
@@ -116,7 +116,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return propertyFileName;
     }
 
-    protected String getDomainConfigurationFileName(Domain domain) {
+    public String getDomainConfigurationFileName(Domain domain) {
         return domain.getCode() + "-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 

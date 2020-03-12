@@ -1,9 +1,10 @@
 package eu.domibus.configuration;
 
-import eu.domibus.api.configuration.DataBaseEngine;
+import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -17,7 +18,7 @@ import org.slf4j.ext.LoggerWrapper;
 
 import java.io.File;
 
-import static eu.domibus.api.configuration.DomibusConfigurationService.PASSWORD_ENCRYPTION_ACTIVE_PROPERTY;
+import static eu.domibus.api.property.DomibusConfigurationService.PASSWORD_ENCRYPTION_ACTIVE_PROPERTY;
 
 /**
  * @author Cosmin Baciu

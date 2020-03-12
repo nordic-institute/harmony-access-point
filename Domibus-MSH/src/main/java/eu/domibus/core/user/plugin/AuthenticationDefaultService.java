@@ -24,9 +24,9 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationDefaultService.class);
 
-    protected static final String BASIC_HEADER_KEY = "Authorization";
-    protected static final String CLIENT_CERT_ATTRIBUTE_KEY = "javax.servlet.request.X509Certificate";
-    protected static final String CLIENT_CERT_HEADER_KEY = "Client-Cert";
+    public static final String BASIC_HEADER_KEY = "Authorization";
+    public static final String CLIENT_CERT_ATTRIBUTE_KEY = "javax.servlet.request.X509Certificate";
+    public static final String CLIENT_CERT_HEADER_KEY = "Client-Cert";
 
     @Autowired
     protected AuthUtils authUtils;
