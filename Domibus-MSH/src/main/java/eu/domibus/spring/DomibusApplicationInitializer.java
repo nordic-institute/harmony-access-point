@@ -43,8 +43,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
 
-    private static final String PLUGINS_LOCATION = "/plugins/lib";
-    private static final String EXTENSIONS_LOCATION = "/extensions/lib";
+    public static final String PLUGINS_LOCATION = "/plugins/lib";
+    public static final String EXTENSIONS_LOCATION = "/extensions/lib";
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
