@@ -4,6 +4,9 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.json.JSONArray;
 import org.testng.SkipException;
 import pages.Audit.AuditPage;
@@ -19,6 +22,9 @@ import pages.messages.MessagesPage;
 import utils.Generator;
 
 import java.io.File;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -970,6 +976,22 @@ public class AlertPgTest extends BaseTest {
             }
 
         }
+    }
+
+    public List<String> getCSVSpecificColumnData(String filename, String columnName) throws Exception {
+
+        Reader reader = Files.newBufferedReader(Paths.get(filename));
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+                .withTrim());
+        List<CSVRecord> records = csvParser.getRecords();
+        List<String> columnValue= new ArrayList<>();
+
+        for (int i = 0; i < records.size(); i++) {
+            columnValue.add(records.get(i).get(columnName));
+        }
+
+        return columnValue;
+
     }
 
 }
