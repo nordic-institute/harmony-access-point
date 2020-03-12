@@ -725,10 +725,9 @@ public class AlertPgTest extends BaseTest {
             soft.assertFalse(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
 
             log.info("if total alert count >10 then set count as 10");
-            int recordCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
-            if (recordCount > 10) {
-                recordCount = 10;
-            }
+            int recordCount = Math.min(10, page.grid().getPagination().getTotalItems());
+            System.out.println(recordCount);
+
 
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
 
@@ -739,7 +738,7 @@ public class AlertPgTest extends BaseTest {
             }
             log.info("Remove all duplicate username");
             List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
-
+            JSONArray userNames=rest.getUsers(page.getDomainFromTitle());
             log.info("Navigate to users page");
             page.getSidebar().goToPage(PAGES.USERS);
             UsersPage uPage = new UsersPage(driver);
@@ -748,7 +747,7 @@ public class AlertPgTest extends BaseTest {
 
                 soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER));
                 for (int k = 0; k < totalUsers; k++) {
-                    if (rest.getUsers(page.getDomainFromTitle()).getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
+                    if (userNames.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
                         log.info("Shown user is from current domain");
                     }
                 }
