@@ -68,6 +68,7 @@ public class JMSMonitoringPage extends DomibusPage {
         return new DButton(driver, deleteButton);
     }
 
+
     public boolean isLoaded() throws Exception {
         return (grid().isPresent()
                 && filters().isLoaded()
@@ -79,12 +80,12 @@ public class JMSMonitoringPage extends DomibusPage {
     }
 
     public String getCountFromQueueName(String queueName) {
-        String queueStr[] = queueName.split(" ");
-        if (queueStr.length == 2) {
+        if(queueName.lastIndexOf("(")<0){
             return null;
         } else {
-            return queueStr[2];
-
+            int startIndex = queueName.lastIndexOf("(");
+            int endIndex = queueName.lastIndexOf(")");
+            return queueName.substring(startIndex + 1, endIndex);
         }
     }
 
