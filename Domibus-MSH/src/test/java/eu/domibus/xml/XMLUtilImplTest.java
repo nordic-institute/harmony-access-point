@@ -3,7 +3,7 @@ package eu.domibus.xml;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Tested;

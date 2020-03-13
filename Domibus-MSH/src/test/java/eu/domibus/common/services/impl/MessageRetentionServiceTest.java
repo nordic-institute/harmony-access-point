@@ -5,7 +5,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;

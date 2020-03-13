@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.provider;
 
 
 import eu.domibus.api.multitenancy.Domain;

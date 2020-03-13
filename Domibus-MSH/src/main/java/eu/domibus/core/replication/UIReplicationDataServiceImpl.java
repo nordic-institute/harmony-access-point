@@ -7,7 +7,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;

@@ -23,7 +23,7 @@ import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.util.MessageUtil;

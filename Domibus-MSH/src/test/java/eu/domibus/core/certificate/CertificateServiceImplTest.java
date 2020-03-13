@@ -11,7 +11,7 @@ import eu.domibus.core.alerts.model.service.ImminentExpirationCertificateModuleC
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.pki.CRLService;
 import eu.domibus.pki.PKIUtil;

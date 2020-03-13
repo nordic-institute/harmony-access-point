@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.mpc.MpcService;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;

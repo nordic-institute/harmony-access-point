@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -16,6 +16,8 @@ import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
 import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
+import eu.domibus.core.pmode.DynamicDiscoveryClientSpecification;
+import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.ebms3.common.model.*;

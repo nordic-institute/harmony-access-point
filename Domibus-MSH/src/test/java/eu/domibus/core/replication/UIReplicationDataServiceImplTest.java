@@ -11,7 +11,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.ebms3.common.UserMessageDefaultServiceHelper;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;

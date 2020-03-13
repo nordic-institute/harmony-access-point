@@ -6,7 +6,7 @@ import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.ReliabilityService;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.message.fragment.MessageGroupEntity;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.pki.PolicyService;
 import mockit.Expectations;

@@ -1,5 +1,5 @@
 
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
@@ -139,7 +139,7 @@ public abstract class PModeProvider {
         return this.configurationRawDAO.getDetailedConfigurationRaw();
     }
 
-    protected UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
+    public UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
         //unmarshall the PMode with whitespaces ignored
         UnmarshallerResult unmarshalledConfigurationWithWhiteSpacesIgnored = unmarshall(bytes, true);
 
@@ -213,7 +213,7 @@ public abstract class PModeProvider {
     }
 
 
-    protected UnmarshallerResult unmarshall(byte[] bytes, boolean ignoreWhitespaces) throws XmlProcessingException {
+    public UnmarshallerResult unmarshall(byte[] bytes, boolean ignoreWhitespaces) throws XmlProcessingException {
         Configuration configuration = null;
         UnmarshallerResult unmarshallerResult = null;
 
@@ -348,19 +348,19 @@ public abstract class PModeProvider {
 
     public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
 
-    protected abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception;
+    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception;
 
-    protected abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception;
+    public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception;
 
-    protected abstract String findActionName(String action) throws EbMS3Exception;
+    public abstract String findActionName(String action) throws EbMS3Exception;
 
-    protected abstract Mpc findMpc(final String mpcValue) throws EbMS3Exception;
+    public abstract Mpc findMpc(final String mpcValue) throws EbMS3Exception;
 
-    protected abstract String findServiceName(eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception;
+    public abstract String findServiceName(eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception;
 
-    protected abstract String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception;
+    public abstract String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception;
 
-    protected abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
+    public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
@@ -419,7 +419,7 @@ public abstract class PModeProvider {
 
     public abstract Role getBusinessProcessRole(String roleValue);
 
-    protected String getSenderPartyNameFromPModeKey(final String pModeKey) {
+    public String getSenderPartyNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[0];
     }
 
@@ -427,19 +427,19 @@ public abstract class PModeProvider {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[1];
     }
 
-    protected String getServiceNameFromPModeKey(final String pModeKey) {
+    public String getServiceNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[2];
     }
 
-    protected String getActionNameFromPModeKey(final String pModeKey) {
+    public String getActionNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[3];
     }
 
-    protected String getAgreementRefNameFromPModeKey(final String pModeKey) {
+    public String getAgreementRefNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[4];
     }
 
-    protected String getLegConfigurationNameFromPModeKey(final String pModeKey) {
+    public String getLegConfigurationNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[5];
     }
 

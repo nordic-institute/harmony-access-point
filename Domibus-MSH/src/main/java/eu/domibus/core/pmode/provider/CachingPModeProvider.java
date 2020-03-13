@@ -1,5 +1,5 @@
 
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
@@ -10,6 +10,8 @@ import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
+import eu.domibus.core.pmode.ProcessTypePartyExtractor;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.AgreementRef;
@@ -209,7 +211,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findPullLegName(final String agreementName, final String senderParty,
+    public String findPullLegName(final String agreementName, final String senderParty,
                                      final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(
@@ -247,7 +249,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     //FIXME: only works for the first leg, as sender=initiator
-    protected String findLegName(final String agreementName, final String senderParty, final String receiverParty,
+    public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
                                  final String service, final String action) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         //TODO Refactor the nested for loop and conditions
@@ -287,7 +289,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findActionName(final String action) throws EbMS3Exception {
+    public String findActionName(final String action) throws EbMS3Exception {
         for (final Action action1 : this.getConfiguration().getBusinessProcesses().getActions()) {
             if (StringUtils.equalsIgnoreCase(action1.getValue(), action)) {
                 return action1.getName();
@@ -297,7 +299,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected Mpc findMpc(final String mpcValue) throws EbMS3Exception {
+    public Mpc findMpc(final String mpcValue) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
             if (StringUtils.equalsIgnoreCase(mpc.getQualifiedName(), mpcValue)) {
                 return mpc;
@@ -307,7 +309,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+    public String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
         if (service == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
         }
@@ -322,7 +324,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
+    public String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
         String partyIdType = StringUtils.EMPTY;
         String partyIdEx = StringUtils.EMPTY;
         final EbMS3Exception ex;
@@ -357,7 +359,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
+    public String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
             return OPTIONAL_AND_EMPTY; // AgreementRef is optional
         }

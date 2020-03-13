@@ -13,7 +13,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.AttachmentCleanupService;

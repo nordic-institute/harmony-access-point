@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common;
+package eu.domibus.core.message;
 
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.model.Property;

@@ -12,7 +12,7 @@ import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
 import mockit.Expectations;
 import mockit.Injectable;

@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -10,6 +10,8 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Service;
@@ -94,32 +96,32 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
         return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action);
     }
 
     @Override
-    protected String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception {
+    public String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception {
         return getCurrentPModeProvider().findPullLegName(agreementRef, senderParty, receiverParty, service, action, mpc);
     }
 
     @Override
-    protected String findActionName(String action) throws EbMS3Exception {
+    public String findActionName(String action) throws EbMS3Exception {
         return getCurrentPModeProvider().findActionName(action);
     }
 
     @Override
-    protected Mpc findMpc(String mpcValue) throws EbMS3Exception {
+    public Mpc findMpc(String mpcValue) throws EbMS3Exception {
         return getCurrentPModeProvider().findMpc(mpcValue);
     }
 
     @Override
-    protected String findServiceName(Service service) throws EbMS3Exception {
+    public String findServiceName(Service service) throws EbMS3Exception {
         return getCurrentPModeProvider().findServiceName(service);
     }
 
     @Override
-    protected String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception {
+    public String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception {
         return getCurrentPModeProvider().findPartyName(partyId);
     }
 
@@ -134,7 +136,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String findAgreement(AgreementRef agreementRef) throws EbMS3Exception {
+    public String findAgreement(AgreementRef agreementRef) throws EbMS3Exception {
         return getCurrentPModeProvider().findAgreement(agreementRef);
     }
 
@@ -287,7 +289,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
+    public UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
         return getCurrentPModeProvider().parsePMode(bytes);
     }
 
@@ -302,7 +304,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected UnmarshallerResult unmarshall(byte[] bytes, boolean ignoreWhitespaces) throws XmlProcessingException {
+    public UnmarshallerResult unmarshall(byte[] bytes, boolean ignoreWhitespaces) throws XmlProcessingException {
         return getCurrentPModeProvider().unmarshall(bytes, ignoreWhitespaces);
     }
 
@@ -312,7 +314,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String getSenderPartyNameFromPModeKey(String pModeKey) {
+    public String getSenderPartyNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getSenderPartyNameFromPModeKey(pModeKey);
     }
 
@@ -322,22 +324,22 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    protected String getServiceNameFromPModeKey(String pModeKey) {
+    public String getServiceNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getServiceNameFromPModeKey(pModeKey);
     }
 
     @Override
-    protected String getActionNameFromPModeKey(String pModeKey) {
+    public String getActionNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getActionNameFromPModeKey(pModeKey);
     }
 
     @Override
-    protected String getAgreementRefNameFromPModeKey(String pModeKey) {
+    public String getAgreementRefNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getAgreementRefNameFromPModeKey(pModeKey);
     }
 
     @Override
-    protected String getLegConfigurationNameFromPModeKey(String pModeKey) {
+    public String getLegConfigurationNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getLegConfigurationNameFromPModeKey(pModeKey);
     }
 }

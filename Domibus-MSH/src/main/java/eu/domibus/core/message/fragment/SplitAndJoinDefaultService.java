@@ -25,7 +25,7 @@ import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;

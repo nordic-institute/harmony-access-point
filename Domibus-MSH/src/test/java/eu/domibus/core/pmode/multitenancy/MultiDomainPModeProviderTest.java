@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.multitenancy;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
@@ -8,6 +8,8 @@ import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ConfigurationRawDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import mockit.Expectations;
 import mockit.Injectable;

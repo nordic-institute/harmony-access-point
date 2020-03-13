@@ -15,7 +15,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.impl.PullContext;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;

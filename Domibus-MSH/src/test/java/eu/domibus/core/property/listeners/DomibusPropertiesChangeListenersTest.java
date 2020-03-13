@@ -16,7 +16,7 @@ import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.messaging.MessageListenerContainerInitializer;

@@ -8,7 +8,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;

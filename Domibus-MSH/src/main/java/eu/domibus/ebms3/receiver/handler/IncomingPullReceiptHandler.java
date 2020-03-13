@@ -14,7 +14,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.pull.PullRequestResult;
 import eu.domibus.core.util.MessageUtil;

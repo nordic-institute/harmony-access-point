@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common;
 
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.PartyId;
