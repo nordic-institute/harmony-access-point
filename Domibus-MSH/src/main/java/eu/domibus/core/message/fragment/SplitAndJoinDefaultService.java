@@ -20,6 +20,8 @@ import eu.domibus.core.error.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.*;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;

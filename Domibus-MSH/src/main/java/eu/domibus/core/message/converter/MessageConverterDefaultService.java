@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.converter;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.messaging.MessagingException;

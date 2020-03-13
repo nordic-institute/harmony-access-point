@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.message.receipt;
 
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.ReplyPattern;

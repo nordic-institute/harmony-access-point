@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.message.receipt;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
@@ -17,6 +17,7 @@ import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.model.logging.SignalMessageLogBuilder;
+import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.message.fragment.MessageGroupDao;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;

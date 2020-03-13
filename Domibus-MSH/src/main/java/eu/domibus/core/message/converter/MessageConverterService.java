@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.converter;
 
 import eu.domibus.ebms3.common.model.Messaging;
 

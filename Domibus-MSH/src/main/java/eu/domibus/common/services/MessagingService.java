@@ -2,7 +2,7 @@ package eu.domibus.common.services;
 
 
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.exception.CompressionException;
+import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.Messaging;
 

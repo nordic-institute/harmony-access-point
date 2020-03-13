@@ -1,4 +1,4 @@
-package eu.domibus.common.exception;
+package eu.domibus.core.message.compression;
 
 /**
  * Created by idragusa on 10/27/16.

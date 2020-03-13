@@ -8,7 +8,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.ReliabilityService;
-import eu.domibus.common.services.impl.CompressionService;
+import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.common.validators.PayloadProfileValidator;

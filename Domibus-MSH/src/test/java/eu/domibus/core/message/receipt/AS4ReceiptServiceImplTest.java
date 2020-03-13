@@ -1,4 +1,4 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.message.receipt;
 
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -9,6 +9,8 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.common.model.logging.SignalMessageLog;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.fragment.MessageGroupDao;

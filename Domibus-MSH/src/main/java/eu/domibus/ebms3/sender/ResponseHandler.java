@@ -8,7 +8,7 @@ import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.services.ReliabilityService;
-import eu.domibus.core.message.SignalMessageLogDefaultService;
+import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;

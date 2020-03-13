@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.model;
+package eu.domibus.core.message.compression;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
