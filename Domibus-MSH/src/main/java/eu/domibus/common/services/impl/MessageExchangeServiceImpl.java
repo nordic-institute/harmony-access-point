@@ -31,7 +31,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.puller.PullFrequencyHelper;
+import eu.domibus.core.pull.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.PolicyService;

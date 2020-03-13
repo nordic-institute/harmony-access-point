@@ -3,6 +3,8 @@ package eu.domibus.ebms3.puller;
 import com.google.common.collect.Sets;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.pull.DomainPullFrequencyHelper;
+import eu.domibus.core.pull.MpcPullFrequency;
 import mockit.Deencapsulation;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -16,7 +18,7 @@ import org.junit.runner.RunWith;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
-import static eu.domibus.ebms3.puller.DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX;
+import static eu.domibus.core.pull.DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX;
 
 /**
  * @author Sebastian-Ion TINCU

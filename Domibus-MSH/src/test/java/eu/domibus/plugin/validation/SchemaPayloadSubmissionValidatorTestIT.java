@@ -22,7 +22,7 @@ public class SchemaPayloadSubmissionValidatorTestIT {
 
     @Before
     public void init() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.plugin.validation");
+        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.core.plugin.validation");
         schemaPayloadSubmissionValidator = new SchemaPayloadSubmissionValidator();
         schemaPayloadSubmissionValidator.setJaxbContext(jaxbContext);
         schemaPayloadSubmissionValidator.setSchema(new ClassPathResource("eu/domibus/plugin/validation/payload.xsd"));

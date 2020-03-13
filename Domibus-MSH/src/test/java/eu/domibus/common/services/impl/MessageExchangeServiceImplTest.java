@@ -29,7 +29,7 @@ import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.MessagePullDto;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.puller.PullFrequencyHelper;
+import eu.domibus.core.pull.PullFrequencyHelper;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.apache.commons.lang3.Validate;
