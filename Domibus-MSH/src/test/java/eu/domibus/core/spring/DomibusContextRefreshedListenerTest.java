@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
 import mockit.Expectations;

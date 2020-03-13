@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
 import org.junit.Assert;
 import org.junit.Test;

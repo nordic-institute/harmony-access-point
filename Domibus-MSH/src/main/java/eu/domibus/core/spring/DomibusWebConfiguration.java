@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;

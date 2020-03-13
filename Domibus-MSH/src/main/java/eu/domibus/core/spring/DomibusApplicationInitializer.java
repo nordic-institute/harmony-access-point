@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
 import com.codahale.metrics.servlets.AdminServlet;
 import com.google.common.collect.Sets;

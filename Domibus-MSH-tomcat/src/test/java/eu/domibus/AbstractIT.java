@@ -17,7 +17,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.spring.DomibusRootConfiguration;
+import eu.domibus.core.spring.DomibusRootConfiguration;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

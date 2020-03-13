@@ -1,4 +1,4 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

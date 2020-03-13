@@ -1,7 +1,5 @@
-package eu.domibus.spring;
+package eu.domibus.core.spring;
 
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
