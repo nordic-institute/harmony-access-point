@@ -1,9 +1,12 @@
 package eu.domibus.ebms3.receiver;
 
 import eu.domibus.ebms3.common.model.*;
+import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
@@ -13,6 +16,8 @@ import static org.junit.Assert.*;
  * @since 3.3
  */
 
+@Ignore
+@RunWith(JMockit.class)
 public class UserMessageLegConfigurationFactoryTest {
 
     @Test
