@@ -1,6 +1,7 @@
 package pages.jms;
 
 import ddsl.dobjects.Select;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -19,6 +20,9 @@ public class JMSSelect extends Select {
 
 	public int selectQueueWithMessages() throws Exception{
 		String qName = getQueueNameWithMessages("");
+		if(StringUtils.isEmpty(qName)){
+			return 0;
+		}
 		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
 		return getListedNoOfMessInQName(qName);

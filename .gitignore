@@ -15,6 +15,9 @@ Domibus-MSH-soapui-tests/src/main/soapui/cookie.txt
 ## Maven output folder ##
 target/
 
+#temporary output of the cargo plugin
+cargo
+
 ## Compiled java classes ##
 *.class
 *.jar

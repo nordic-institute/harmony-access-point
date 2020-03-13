@@ -36,6 +36,7 @@ public class TomcatPropertyManager extends DomibusPropertyServiceDelegateAbstrac
             COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, //move the usage from xml ?
             COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, //move the usage from xml ?
             COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, //move the usage from xml ?
+            COM_ATOMIKOS_ICATCH_MAX_ACTIVES,
 
             ACTIVE_MQ_BROKER_HOST, //cannot find the usage
             ACTIVE_MQ_BROKER_NAME, //move the usage from xml ?

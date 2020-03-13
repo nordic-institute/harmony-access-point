@@ -17,6 +17,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.spring.DomibusRootConfiguration;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,8 +43,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -67,18 +68,19 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_CONNECTOR_PORT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 import static org.awaitility.Awaitility.with;
 
 /**
  * Created by feriaad on 02/02/2016.
  */
+@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:spring-context.xml")
+@ContextConfiguration(initializers = PropertyOverrideContextInitializer.class, classes = {DomibusRootConfiguration.class, DomibusTestDatasourceConfiguration.class})
 @DirtiesContext
 @Rollback
-@TestPropertySource("classpath:domibus.properties")
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -268,7 +270,7 @@ public abstract class AbstractIT {
                 "red_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "testService1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "tc1Action" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +  "pushTestcase1tc1Action";
+                "" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
 
         message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         return message;

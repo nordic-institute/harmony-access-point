@@ -1,88 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:jms="http://www.springframework.org/schema/jms"
-       xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
-                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
-                           http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-
-<!--    Filter out the scanning of web and ext sub-packages, as their beans are scanner in the context of their mvc-dispatch applications-->
-    <context:component-scan base-package="eu.domibus">
-        <context:exclude-filter type="regex" expression="eu\.domibus\.web\..*"/>
-        <context:exclude-filter type="regex" expression="eu\.domibus\.ext\.rest\..*"/>
-    </context:component-scan>
-    <context:annotation-config/>
-
-    <util:properties id="domibusDefaultProperties" ignore-resource-not-found="true"
-                     location="classpath:config/application.properties,
-                     classpath:config/domibus-default.properties,classpath:config/domibus.properties,
-                     classpath*:config/*-plugin-default.properties"/>
-
-
-    <util:properties id="domibusProperties" ignore-resource-not-found="true"
-                     location="classpath:config/application.properties,
-                     classpath:config/domibus-default.properties,classpath:config/domibus.properties, file:///${domibus.config.location}/domibus.properties,
-                     file:///${domibus.config.location}/*-domibus.properties,
-                     classpath*:config/*-plugin-default.properties,file:///${domibus.config.location}/plugins/config/*-plugin.properties,file:///${domibus.config.location}/extensions/config/*-extension.properties"/>
-
-    <context:property-placeholder properties-ref="domibusProperties" ignore-resource-not-found="true" ignore-unresolvable="true"/>
-
-    <import resource="classpath*:config/*-domibusContext.xml"/>
-
-    <jms:annotation-driven/>
-    <tx:annotation-driven proxy-target-class="true"/>
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
-    <cache:annotation-driven/>
-
-    <import resource="classpath*:config/*-jms-context.xml"/>
-    <import resource="classpath*:config/*-taskexecutor-context.xml"/>
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <import resource="classpath*:config/*-plugin.xml"/>
-    <import resource="file:///${domibus.config.location}/plugins/config/*-plugin.xml" />
+    <import resource="file:///${domibus.config.location}/plugins/config/*-plugin.xml"/>
 
-    <import resource="domibus-plugins.xml"/>
-    <import resource="classpath*:config/domibus-transactions.xml"/>
-    <import resource="classpath*:config/domibus-datasources.xml"/>
-    <import resource="jpa-config.xml"/>
     <import resource="cxf-endpoint.xml"/>
-
-
-    <!-- JAXB Context for mapping of ebMS3 schema -->
-    <bean id="jaxbContextEBMS" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
-        <constructor-arg type="java.lang.String" value="eu.domibus.ebms3.common.model"/>
-    </bean>
-    <bean id="jaxbContextMessageFragment" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
-        <constructor-arg type="java.lang.String" value="eu.domibus.ebms3.common.model.mf"/>
-    </bean>
-
-    <!-- JAXB context for mapping of pMode XML configuration -->
-    <bean id="jaxbContextConfig" class="javax.xml.bind.JAXBContext" factory-method="newInstance">
-        <constructor-arg type="java.lang.String"
-                         value="eu.domibus.common.model.configuration"/>
-    </bean>
-
-    <bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilderFactory" factory-method="newInstance" scope="prototype"/>
-
-    <bean id="transformerFactory" class="javax.xml.transform.TransformerFactory" factory-method="newInstance"/>
-
-    <!-- Factory for creating requests and responses-->
-    <bean id="messageFactory" class="${messageFactoryClass}"/>
-
-    <!-- datetimeformat to be used inside the ebXML message -->
-    <bean id="xmlDateTimeFormat" class="java.text.SimpleDateFormat">
-        <constructor-arg value="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"/>
-    </bean>
-    <bean id="dateFormatter" class="eu.domibus.ebms3.common.model.TimestampDateFormatter"/>
-    <bean id="messageIdGenerator"
-          class="eu.domibus.common.services.impl.MessageIdGenerator">
-    </bean>
 
 </beans>

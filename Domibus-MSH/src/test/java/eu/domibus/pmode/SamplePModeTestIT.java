@@ -5,6 +5,7 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Mpcs;
+import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.xml.XMLUtilImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,7 +50,7 @@ public class SamplePModeTestIT {
 
         @Bean
         public JAXBContext createJaxbContent() throws JAXBException {
-            return JAXBContext.newInstance("eu.domibus.common.model.configuration");
+            return JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         }
     }
 

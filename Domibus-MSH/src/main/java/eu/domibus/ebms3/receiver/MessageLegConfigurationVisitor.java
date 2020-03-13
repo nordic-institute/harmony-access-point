@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @since 3.3
  */
 @Component
-class MessageLegConfigurationVisitor {
+public class MessageLegConfigurationVisitor {
     @Autowired
     private PModeProvider pModeProvider;
     @Autowired

@@ -9,7 +9,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
  *
  * @author Christian Walczac
  */
-
+@org.springframework.stereotype.Service
 public class ServiceRoutingCriteriaFactory implements CriteriaFactory {
 
     private static final String NAME = "SERVICE";

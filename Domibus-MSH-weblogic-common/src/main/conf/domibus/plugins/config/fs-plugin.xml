@@ -22,7 +22,7 @@
                      jndi-name="jms/domibus.notification.filesystem"
                      cache="true"
                      resource-ref="true"
-                     lookup-on-startup="true" environment-ref="contextEnvironment">
+                     lookup-on-startup="true">
     </jee:jndi-lookup>
 
     <bean id="fsPluginSendQueue" class="org.springframework.jndi.JndiObjectFactoryBean">

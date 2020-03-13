@@ -4,6 +4,7 @@ package eu.domibus.common.services.impl;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH
 /**
  * @author Christian Koch, Stefan Mueller
  */
+@Service("messageIdGenerator")
 public class MessageIdGenerator {
     private static final String MESSAGE_ID_SUFFIX_PROPERTY = DOMIBUS_MSH_MESSAGEID_SUFFIX;
 

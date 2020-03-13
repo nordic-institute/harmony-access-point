@@ -10,8 +10,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  */
 public interface DomibusConfigurationService {
 
-    String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
-
     String FOURCORNERMODEL_ENABLED_KEY = DOMIBUS_FOURCORNERMODEL_ENABLED;
     String CLUSTER_DEPLOYMENT = DOMIBUS_DEPLOYMENT_CLUSTERED;
     String EXTERNAL_AUTH_PROVIDER = DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED;

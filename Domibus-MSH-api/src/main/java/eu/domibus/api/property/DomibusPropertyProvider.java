@@ -40,7 +40,7 @@ public interface DomibusPropertyProvider {
      * @param predicate the predicate to filter with
      * @return A set of property names
      */
-    Set<String> getPropertyNames(Predicate<String> predicate);
+    Set<String> filterPropertiesName(Predicate<String> predicate);
 
     /**
      * <p>Reads a property value and parses it safely as an {@code Integer} before returning it.</p><br />

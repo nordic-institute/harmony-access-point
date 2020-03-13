@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import utils.BaseTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +22,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class TruststorePgUXTests extends BaseUXTest {
+public class TruststorePgUXTests extends BaseTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORE);
 

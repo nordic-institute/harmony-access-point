@@ -67,7 +67,7 @@
         <h2.version>1.4.178</h2.version>
         <liquibase.version>3.5.3</liquibase.version>
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
-        <wiremock.version>2.0.8-beta</wiremock.version>
+        <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.0.3</dropwizard.metrics.version>
         <!-- do not upgrade to 5.2.x as Liquibase will fail to generate DDL scripts -->
         <dependency.check.version>5.1.1</dependency.check.version>
@@ -120,6 +120,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
+        <atomikos.version>4.0.6</atomikos.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -659,6 +660,35 @@
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
             </dependency>
+
+            <!-- Atomikos Library for distributed transactions -->
+            <dependency>
+                <groupId>com.atomikos</groupId>
+                <artifactId>transactions-jta</artifactId>
+                <version>${atomikos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atomikos</groupId>
+                <artifactId>transactions-jdbc</artifactId>
+                <version>${atomikos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atomikos</groupId>
+                <artifactId>transactions-jms</artifactId>
+                <version>${atomikos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atomikos</groupId>
+                <artifactId>transactions-hibernate4</artifactId>
+                <version>${atomikos.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hibernate</artifactId>
+                        <groupId>org.hibernate</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- End Atomikos Library for distributed transactions -->
 
             <!-- Metrics -->
             <dependency>
