@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.XStream;
 
 import eu.domibus.common.dao.ErrorLogDao;
 import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
+import eu.domibus.core.pull.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;

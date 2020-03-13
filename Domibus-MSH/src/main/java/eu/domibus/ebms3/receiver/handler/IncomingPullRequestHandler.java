@@ -5,7 +5,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.services.MessageExchangeService;
-import eu.domibus.common.services.impl.PullContext;
+import eu.domibus.core.pull.PullContext;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;

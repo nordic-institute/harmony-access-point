@@ -12,7 +12,8 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
-import eu.domibus.core.message.fragment.SplitAndJoinExpirationWorker;
+import eu.domibus.core.message.retention.RetentionWorker;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.pull.PullRetryWorker;
@@ -21,7 +22,7 @@ import eu.domibus.core.pull.MessagePullerJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
-import eu.domibus.core.multitenancy.ActivateSuspendedSuperUsersJob;
+import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
 import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
@@ -114,7 +115,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     public JobDetailFactoryBean retentionWorkerJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(eu.domibus.common.services.impl.RetentionWorker.class);
+        obj.setJobClass(RetentionWorker.class);
         obj.setDurability(true);
         return obj;
     }

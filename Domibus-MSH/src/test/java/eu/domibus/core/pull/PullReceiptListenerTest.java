@@ -2,7 +2,6 @@ package eu.domibus.core.pull;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.dao.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageHandlerService;

@@ -7,7 +7,7 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mep;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.services.impl.PullProcessStatus;
+import eu.domibus.core.pull.PullProcessStatus;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static eu.domibus.common.services.impl.PullProcessStatus.*;
+import static eu.domibus.core.pull.PullProcessStatus.*;
 
 /**
  * @author Thomas Dussart

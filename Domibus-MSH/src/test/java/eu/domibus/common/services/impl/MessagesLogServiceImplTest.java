@@ -1,8 +1,7 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.common.dao.SignalMessageLogDao;
+import eu.domibus.core.pull.SignalMessageLogDao;
 import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.model.MessageType;

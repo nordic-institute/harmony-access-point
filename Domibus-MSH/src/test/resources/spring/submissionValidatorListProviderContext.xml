@@ -7,24 +7,25 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
 
+    <context:component-scan base-package="eu.domibus.plugin.validation"/>
     <context:component-scan base-package="eu.domibus.core.plugin.validation"/>
     <context:component-scan base-package="eu.domibus.submission"/>
 
-    <bean id="wsPluginSubmissionValidatorList" class="eu.domibus.core.plugin.validation.DefaultSubmissionValidatorList">
+    <bean id="wsPluginSubmissionValidatorList" class="eu.domibus.plugin.validation.DefaultSubmissionValidatorList">
         <property name="submissionValidators">
             <list>
                 <ref bean="onePayloadSubmissionValidator"/>
             </list>
         </property>
     </bean>
-    <bean id="jms1PluginSubmissionValidatorList" class="eu.domibus.core.plugin.validation.DefaultSubmissionValidatorList">
+    <bean id="jms1PluginSubmissionValidatorList" class="eu.domibus.plugin.validation.DefaultSubmissionValidatorList">
         <property name="submissionValidators">
             <list>
                 <ref bean="onePayloadSubmissionValidator"/>
             </list>
         </property>
     </bean>
-    <bean id="jms2PluginSubmissionValidatorList" class="eu.domibus.core.plugin.validation.DefaultSubmissionValidatorList">
+    <bean id="jms2PluginSubmissionValidatorList" class="eu.domibus.plugin.validation.DefaultSubmissionValidatorList">
         <property name="submissionValidators">
             <list>
                 <ref bean="onePayloadSubmissionValidator"/>

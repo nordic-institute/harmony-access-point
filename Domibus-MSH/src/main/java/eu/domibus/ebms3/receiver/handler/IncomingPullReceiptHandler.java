@@ -25,7 +25,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.ebms3.sender.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
 import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;

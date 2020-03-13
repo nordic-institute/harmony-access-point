@@ -28,6 +28,7 @@ import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pull.PullContext;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -56,8 +57,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_REC
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
-import static eu.domibus.common.services.impl.PullContext.MPC;
-import static eu.domibus.common.services.impl.PullContext.PMODE_KEY;
+import static eu.domibus.core.pull.PullContext.MPC;
+import static eu.domibus.core.pull.PullContext.PMODE_KEY;
 
 /**
  * @author Thomas Dussart

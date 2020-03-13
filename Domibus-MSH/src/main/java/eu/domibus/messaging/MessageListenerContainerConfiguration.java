@@ -3,6 +3,8 @@ package eu.domibus.messaging;
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
+import eu.domibus.core.pull.PullMessageSender;
 import eu.domibus.core.pull.PullReceiptListener;
 import eu.domibus.ebms3.sender.*;
 import eu.domibus.logging.DomibusLogger;

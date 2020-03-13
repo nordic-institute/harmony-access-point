@@ -2,7 +2,7 @@ package eu.domibus.ebms3.common.matcher;
 
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.ebms3.sender.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 

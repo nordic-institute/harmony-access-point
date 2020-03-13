@@ -13,7 +13,7 @@ import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;
-import eu.domibus.common.services.impl.PullContext;
+import eu.domibus.core.pull.PullContext;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -21,7 +21,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
-import eu.domibus.ebms3.sender.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -32,8 +32,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import java.sql.Timestamp;
 
-import static eu.domibus.ebms3.sender.ReliabilityChecker.CheckResult.ABORT;
-import static eu.domibus.ebms3.sender.ReliabilityChecker.CheckResult.WAITING_FOR_CALLBACK;
+import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.ABORT;
+import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.WAITING_FOR_CALLBACK;
 
 /**
  * @author Thomas Dussart

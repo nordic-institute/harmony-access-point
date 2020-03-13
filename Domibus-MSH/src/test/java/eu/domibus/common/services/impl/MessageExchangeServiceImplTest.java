@@ -24,6 +24,7 @@ import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pull.PullContext;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.MessagePullDto;

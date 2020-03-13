@@ -2,11 +2,10 @@ package eu.domibus.ebms3.receiver;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.sender.MSHDispatcher;

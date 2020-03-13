@@ -11,7 +11,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistence;

@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.fragment.MessageGroupEntity;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.ebms3.common.model.UserMessage;
 
 /**

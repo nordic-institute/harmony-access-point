@@ -1,9 +1,9 @@
 package eu.domibus.core.message;
 
 import eu.domibus.common.AutoCloseFileDataSource;
-import eu.domibus.core.message.fragment.MessageFragmentEntity;
-import eu.domibus.core.message.fragment.MessageGroupEntity;
-import eu.domibus.core.message.fragment.SplitAndJoinDefaultService;
+import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService;
 import eu.domibus.ebms3.common.model.*;
 import org.springframework.stereotype.Service;
 

@@ -3,7 +3,7 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;

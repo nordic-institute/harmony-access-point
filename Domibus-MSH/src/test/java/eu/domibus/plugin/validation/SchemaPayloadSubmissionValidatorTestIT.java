@@ -25,14 +25,14 @@ public class SchemaPayloadSubmissionValidatorTestIT {
         JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.core.plugin.validation");
         schemaPayloadSubmissionValidator = new SchemaPayloadSubmissionValidator();
         schemaPayloadSubmissionValidator.setJaxbContext(jaxbContext);
-        schemaPayloadSubmissionValidator.setSchema(new ClassPathResource("eu/domibus/plugin/validation/payload.xsd"));
+        schemaPayloadSubmissionValidator.setSchema(new ClassPathResource("eu/domibus/core/plugin/validation/payload.xsd"));
     }
 
     @Test
     public void testValidatePayloadWithValidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/plugin/validation/validPayload.xml").getInputStream());
+            returns(new ClassPathResource("eu/domibus/core/plugin/validation/validPayload.xml").getInputStream());
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);
@@ -42,7 +42,7 @@ public class SchemaPayloadSubmissionValidatorTestIT {
     public void testValidatePayloadWithValidInvalidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/plugin/validation/invalidPayload.xml").getInputStream());
+            returns(new ClassPathResource("eu/domibus/core/plugin/validation/invalidPayload.xml").getInputStream());
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);

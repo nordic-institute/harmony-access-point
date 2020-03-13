@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.core.message.fragment.SplitAndJoinService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Error;

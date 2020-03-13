@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.common.matcher;
 
 import eu.domibus.common.model.configuration.Reliability;
-import eu.domibus.ebms3.sender.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
 
 /**
  * @author Thomas Dussart

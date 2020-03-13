@@ -1,9 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.common.AutoCloseFileDataSource;
-import eu.domibus.core.message.UserMessageDefaultFactory;
-import eu.domibus.core.message.fragment.MessageFragmentEntity;
-import eu.domibus.core.message.fragment.MessageGroupEntity;
+import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.ebms3.common.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

@@ -4,7 +4,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.dao.MessagingDao;
 import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.ebms3.common.model.Messaging;
