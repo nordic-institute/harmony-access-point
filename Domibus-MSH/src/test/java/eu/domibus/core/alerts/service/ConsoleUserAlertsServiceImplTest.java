@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.user.UserDao;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;

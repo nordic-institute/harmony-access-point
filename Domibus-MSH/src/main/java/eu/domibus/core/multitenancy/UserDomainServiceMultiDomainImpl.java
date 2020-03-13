@@ -5,8 +5,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.converters.UserConverter;
-import eu.domibus.core.user.UserDao;
+import eu.domibus.core.user.ui.converters.UserConverter;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
@@ -90,7 +90,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     public List<User> getSuperUsers() {
         LOG.debug("Searching for super users");
         return domainTaskExecutor.submit(() -> {
-            List<eu.domibus.core.user.User> userEntities = userDao.listUsers();
+            List<eu.domibus.core.user.ui.User> userEntities = userDao.listUsers();
             List<User> users = userConverter.convert(userEntities);
 
             // fill in preferred domain

@@ -8,6 +8,8 @@ import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
+import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
+import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

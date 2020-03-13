@@ -167,9 +167,9 @@ public interface DomibusCoreMapper {
 
     User userResponseROToUser(UserResponseRO user);
 
-    eu.domibus.core.user.User userApiToUserSecurity(User user);
+    eu.domibus.core.user.ui.User userApiToUserSecurity(User user);
 
-    User userSecurityToUserApi(eu.domibus.core.user.User user);
+    User userSecurityToUserApi(eu.domibus.core.user.ui.User user);
 
     Audit auditLogToAudit(AuditLog auditLog);
 

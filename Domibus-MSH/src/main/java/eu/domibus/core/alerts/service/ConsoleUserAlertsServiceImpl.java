@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.user.UserDao;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;

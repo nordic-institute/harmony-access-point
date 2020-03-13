@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.user.UserDetail;
+import eu.domibus.security.UserDetail;
 import eu.domibus.core.user.UserService;
 import eu.domibus.common.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;

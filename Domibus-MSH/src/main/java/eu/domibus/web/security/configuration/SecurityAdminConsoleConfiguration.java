@@ -1,7 +1,7 @@
 package eu.domibus.web.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.core.user.UserDetailServiceImpl;
+import eu.domibus.security.UserDetailServiceImpl;
 import eu.domibus.security.AuthenticationService;
 import eu.domibus.security.AuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

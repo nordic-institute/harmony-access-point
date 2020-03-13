@@ -4,8 +4,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.converters.UserConverter;
-import eu.domibus.core.user.UserDao;
+import eu.domibus.core.user.ui.converters.UserConverter;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
@@ -96,8 +96,8 @@ public class UserDomainServiceMultiDomainImplTest {
 
     @Test
     public void testGetSuperUsers() throws Exception {
-        eu.domibus.core.user.User userEntity = new eu.domibus.core.user.User();
-        List<eu.domibus.core.user.User> userEntities = Arrays.asList(userEntity);
+        eu.domibus.core.user.ui.User userEntity = new eu.domibus.core.user.ui.User();
+        List<eu.domibus.core.user.ui.User> userEntities = Arrays.asList(userEntity);
         User user = new User();
         List<User> users = Arrays.asList(user);
 

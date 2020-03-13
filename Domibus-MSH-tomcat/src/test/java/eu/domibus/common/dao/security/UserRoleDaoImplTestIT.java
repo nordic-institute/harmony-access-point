@@ -1,8 +1,8 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.core.user.UserRole;
-import eu.domibus.core.user.UserRoleDao;
+import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.core.user.ui.UserRoleDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;

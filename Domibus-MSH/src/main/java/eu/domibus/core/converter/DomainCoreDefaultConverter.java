@@ -206,13 +206,13 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userResponseROToUser((UserResponseRO) source);
         }
 
-        if (typeOfT == eu.domibus.core.user.User.class) {
+        if (typeOfT == eu.domibus.core.user.ui.User.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.userApiToUserSecurity((User) source);
         }
-        if (typeOfT == User.class && source.getClass() == eu.domibus.core.user.User.class) {
+        if (typeOfT == User.class && source.getClass() == eu.domibus.core.user.ui.User.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.userSecurityToUserApi((eu.domibus.core.user.User) source);
+            return (T) domibusCoreMapper.userSecurityToUserApi((eu.domibus.core.user.ui.User) source);
         }
 
         if (typeOfT == AuditLog.class && source.getClass() == Audit.class) {

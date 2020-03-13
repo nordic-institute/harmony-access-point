@@ -5,7 +5,7 @@ import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.core.user.plugin.PluginUserSecurityPolicyManager;
+import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

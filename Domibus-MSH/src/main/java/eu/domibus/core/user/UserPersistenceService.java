@@ -10,5 +10,6 @@ import java.util.List;
  */
 public interface UserPersistenceService {
     void updateUsers(List<eu.domibus.api.user.User> users);
+
     void changePassword(String userName, String currentPassword, String newPassword);
 }

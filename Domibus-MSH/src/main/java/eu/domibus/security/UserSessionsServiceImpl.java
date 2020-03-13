@@ -2,7 +2,6 @@ package eu.domibus.security;
 
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.user.UserDetail;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

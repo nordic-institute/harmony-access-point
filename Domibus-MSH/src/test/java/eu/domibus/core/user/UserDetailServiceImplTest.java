@@ -1,7 +1,10 @@
 package eu.domibus.core.user;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.user.*;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.security.UserDetail;
+import eu.domibus.security.UserDetailServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

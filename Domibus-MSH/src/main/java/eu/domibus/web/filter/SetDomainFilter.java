@@ -3,7 +3,7 @@ package eu.domibus.web.filter;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.user.UserDetail;
+import eu.domibus.security.UserDetail;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,5 @@
 package eu.domibus.security;
 
-import eu.domibus.core.user.UserDetail;
-
 /**
  * @author Catalin Enache
  * @since 4.1

@@ -7,7 +7,7 @@ import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.user.User;
+import eu.domibus.core.user.ui.User;
 import eu.domibus.plugin.routing.BackendFilterEntity;
 import org.junit.Test;
 

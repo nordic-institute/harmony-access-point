@@ -40,6 +40,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -77,6 +79,8 @@ import static org.awaitility.Awaitility.with;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class, classes = {DomibusRootConfiguration.class, DomibusTestDatasourceConfiguration.class})
+@DirtiesContext
+@Rollback
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
