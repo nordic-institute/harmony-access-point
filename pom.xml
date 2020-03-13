@@ -113,7 +113,7 @@
         <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <!--Please keep those two dependencies version aligned with transitive dependency-->
         <json-smart.version>2.3</json-smart.version>
-        <ehcache.version>2.10.5</ehcache.version>
+        <ehcache.version>2.10.6</ehcache.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
         <java.version>8</java.version>
