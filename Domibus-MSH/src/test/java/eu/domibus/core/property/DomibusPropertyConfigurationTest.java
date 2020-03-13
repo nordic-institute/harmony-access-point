@@ -9,6 +9,7 @@ import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -49,7 +50,7 @@ public class DomibusPropertyConfigurationTest {
             Assert.assertEquals("application.properties", locations[0].getFilename());
             Assert.assertEquals("domibus-default.properties", locations[1].getFilename());
             Assert.assertEquals("domibus.properties", locations[2].getFilename());
-            Assert.assertEquals("/" + domibusConfigLocation + "/domibus.properties", locations[3].getFile().getPath());
+            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + "domibus.properties", locations[3].getFile().getPath());
         }};
     }
 
