@@ -156,14 +156,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-<<<<<<< HEAD
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
-=======
->>>>>>> development
 			</plugin>
 		</plugins>
 	</build>
@@ -211,43 +203,6 @@
 				</plugins>
 			</build>
 		</profile>
-<<<<<<< HEAD
-		<profile>
-			<id>bamboo</id>
-			<build>
-				<plugins>
-
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<failIfNoTests>true</failIfNoTests>
-							<groups>singleTenancy</groups>
-							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
-							</suiteXmlFiles>
-							<environmentVariables>
-								<propertiesFile>./src/main/resources/bambooDocker.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
-							</environmentVariables>
-							<properties>
-								<property>
-									<name>usedefaultlisteners</name>
-									<value>true</value>
-								</property>
-							</properties>
-
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<compilerVersion>1.8</compilerVersion>
-							<source>${maven.compiler.source}</source>
-							<target>${maven.compiler.target}</target>
-						</configuration>
-=======
->>>>>>> development
 
 
 		<profile>
@@ -281,11 +236,8 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<configuration>
 							<compilerVersion>1.8</compilerVersion>
-<<<<<<< HEAD
 							<source>${maven.compiler.source}</source>
 							<target>${maven.compiler.target}</target>
-=======
->>>>>>> development
 						</configuration>
 
 					</plugin>
