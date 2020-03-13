@@ -5,7 +5,7 @@ import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
-import eu.domibus.plugin.classloader.PluginClassLoader;
+import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import mockit.*;
 import org.junit.Assert;
 import org.junit.Test;

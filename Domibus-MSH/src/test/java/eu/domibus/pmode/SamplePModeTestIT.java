@@ -6,7 +6,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Mpcs;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
-import eu.domibus.xml.XMLUtilImpl;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

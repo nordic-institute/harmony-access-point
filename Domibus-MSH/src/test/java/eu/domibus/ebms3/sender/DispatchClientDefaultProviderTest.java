@@ -1,8 +1,8 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.proxy.DomibusProxy;
-import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxy;
+import eu.domibus.core.proxy.DomibusProxyService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

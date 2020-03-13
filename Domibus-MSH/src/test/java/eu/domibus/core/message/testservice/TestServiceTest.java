@@ -14,7 +14,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

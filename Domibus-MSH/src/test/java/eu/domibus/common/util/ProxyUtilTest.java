@@ -1,7 +1,7 @@
 package eu.domibus.common.util;
 
-import eu.domibus.proxy.DomibusProxy;
-import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxy;
+import eu.domibus.core.proxy.DomibusProxyService;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

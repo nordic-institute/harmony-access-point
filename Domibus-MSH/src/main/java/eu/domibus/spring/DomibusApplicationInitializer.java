@@ -11,7 +11,7 @@ import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
-import eu.domibus.plugin.classloader.PluginClassLoader;
+import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
 import org.apache.commons.lang3.StringUtils;

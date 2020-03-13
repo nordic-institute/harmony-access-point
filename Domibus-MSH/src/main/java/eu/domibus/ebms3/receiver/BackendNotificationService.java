@@ -41,7 +41,7 @@ import eu.domibus.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
-import eu.domibus.submission.SubmissionValidatorListProvider;
+import eu.domibus.plugin.validation.SubmissionValidatorListProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

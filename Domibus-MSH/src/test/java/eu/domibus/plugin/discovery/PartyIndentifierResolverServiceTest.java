@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.common.dao.PartyDao;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.Identifier;
+import eu.domibus.core.party.PartyIndentifierResolverService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

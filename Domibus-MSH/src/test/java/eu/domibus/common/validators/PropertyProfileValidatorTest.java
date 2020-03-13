@@ -11,7 +11,7 @@ import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.xml.XMLUtilImpl;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

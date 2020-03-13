@@ -39,7 +39,7 @@ import eu.domibus.plugin.transformer.impl.SubmissionAS4Transformer;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
-import eu.domibus.submission.SubmissionValidatorListProvider;
+import eu.domibus.plugin.validation.SubmissionValidatorListProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

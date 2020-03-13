@@ -21,7 +21,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

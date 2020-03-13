@@ -2,6 +2,7 @@ package eu.domibus.submission;
 
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
+import eu.domibus.plugin.validation.SubmissionValidatorListProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

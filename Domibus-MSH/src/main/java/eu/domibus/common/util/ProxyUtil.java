@@ -2,9 +2,8 @@ package eu.domibus.common.util;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.proxy.DomibusProxy;
-import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.proxy.DomibusProxyServiceImpl;
+import eu.domibus.core.proxy.DomibusProxy;
+import eu.domibus.core.proxy.DomibusProxyService;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;

@@ -20,7 +20,7 @@ import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.xml.XMLUtilImpl;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;

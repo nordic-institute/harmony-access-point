@@ -2,7 +2,7 @@ package eu.domibus.spring;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.classloader.PluginClassLoader;
+import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 

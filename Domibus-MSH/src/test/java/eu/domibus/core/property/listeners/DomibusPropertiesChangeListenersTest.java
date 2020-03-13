@@ -20,7 +20,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.ebms3.puller.PullFrequencyHelper;
 import eu.domibus.messaging.MessageListenerContainerInitializer;
-import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.quartz.DomibusQuartzStarter;
 import eu.domibus.common.validators.BaseBlacklistValidator;
 import mockit.*;

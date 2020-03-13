@@ -6,7 +6,7 @@ import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import mockit.Expectations;
