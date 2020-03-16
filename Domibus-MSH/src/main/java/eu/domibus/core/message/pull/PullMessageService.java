@@ -3,10 +3,9 @@ package eu.domibus.core.message.pull;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
 
 public interface PullMessageService {
 

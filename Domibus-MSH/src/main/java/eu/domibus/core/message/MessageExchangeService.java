@@ -6,7 +6,6 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullContext;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 
 /**

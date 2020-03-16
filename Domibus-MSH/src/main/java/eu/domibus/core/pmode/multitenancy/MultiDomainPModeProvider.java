@@ -12,7 +12,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.Service;
 import eu.domibus.logging.DomibusLogger;

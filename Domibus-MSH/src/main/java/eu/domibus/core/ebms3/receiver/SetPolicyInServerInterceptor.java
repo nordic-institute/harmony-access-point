@@ -5,7 +5,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

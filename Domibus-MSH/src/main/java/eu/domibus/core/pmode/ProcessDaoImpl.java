@@ -2,7 +2,7 @@ package eu.domibus.core.pmode;
 
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Repository;
 

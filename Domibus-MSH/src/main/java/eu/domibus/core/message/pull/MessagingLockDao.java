@@ -1,7 +1,5 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.ebms3.common.model.MessagingLock;
-
 import java.util.List;
 
 /**

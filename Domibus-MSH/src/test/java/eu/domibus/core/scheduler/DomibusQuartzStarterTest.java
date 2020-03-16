@@ -76,7 +76,7 @@ public class DomibusQuartzStarterTest {
 
             jobDetail.getJobClass();
             times = 1;
-            result = Class.forName("eu.domibus.ebms3.sender.retry.SendRetryWorker");
+            result = Class.forName("eu.domibus.core.ebms3.sender.retry.SendRetryWorker");
 
             scheduler.getSchedulerName();
             times = 1;
@@ -108,7 +108,7 @@ public class DomibusQuartzStarterTest {
 
             jobDetail.getJobClass();
             times = 1;
-            result = new SchedulerException(new ClassNotFoundException("required class was not found: eu.domibus.ebms3.sender.retry.SendRetryWorker"));
+            result = new SchedulerException(new ClassNotFoundException("required class was not found: eu.domibus.core.ebms3.sender.retry.SendRetryWorker"));
 
             scheduler.getSchedulerName();
             times = 1;

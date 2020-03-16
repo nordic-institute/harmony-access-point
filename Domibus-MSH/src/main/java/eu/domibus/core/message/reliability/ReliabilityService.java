@@ -4,7 +4,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.sender.ResponseResult;
+import eu.domibus.core.ebms3.sender.ResponseResult;
 
 import javax.xml.soap.SOAPMessage;
 

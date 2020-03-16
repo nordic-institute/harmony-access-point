@@ -1,6 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.ebms3.sender.AbstractMessageSenderListener;
+import eu.domibus.core.ebms3.sender.AbstractMessageSenderListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;

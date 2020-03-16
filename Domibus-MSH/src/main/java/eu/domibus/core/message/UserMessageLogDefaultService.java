@@ -7,7 +7,7 @@ import eu.domibus.common.NotificationStatus;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.plugin.notification.BackendNotificationService;

@@ -28,7 +28,6 @@ import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;

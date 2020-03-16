@@ -47,10 +47,10 @@
     </bean>
 
     <bean id="setSignatureAlgorithmInInterceptor"
-          class="eu.domibus.ebms3.sender.SetSignatureAlgorithmInInterceptor"/>
+          class="eu.domibus.core.ebms3.sender.SetSignatureAlgorithmInInterceptor"/>
 
     <bean id="propertyValueExchangeInterceptor" class="eu.domibus.core.ebms3.receiver.PropertyValueExchangeInterceptor"/>
-    <bean id="setPolicyOutInterceptor" class="eu.domibus.ebms3.sender.SetPolicyOutInterceptor"/>
+    <bean id="setPolicyOutInterceptor" class="eu.domibus.core.ebms3.sender.SetPolicyOutInterceptor"/>
 
     <bean id="setPolicyOutInterceptorServer" class="eu.domibus.core.ebms3.receiver.SetPolicyOutInterceptorServer"/>
     <bean id="saveRawPulledMessageInterceptor" class="eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor"/>
@@ -121,7 +121,7 @@
             <ref bean="setPolicyInInterceptorClient"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
-            <bean class="eu.domibus.ebms3.sender.FaultOutHandler"/>
+            <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
         </jaxws:handlers>
 
         <jaxws:properties>
@@ -152,7 +152,7 @@
             <ref bean="domibusPrepareAttachmentInInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
-            <bean class="eu.domibus.ebms3.sender.FaultOutHandler"/>
+            <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
         </jaxws:handlers>
 
         <jaxws:properties>

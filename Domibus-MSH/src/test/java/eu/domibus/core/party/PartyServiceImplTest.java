@@ -21,7 +21,7 @@ import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;

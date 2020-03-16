@@ -9,7 +9,7 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Receipt;
 import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.core.policy.PolicyService;
 import mockit.*;

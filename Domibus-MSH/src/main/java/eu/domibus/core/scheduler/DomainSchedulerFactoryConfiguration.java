@@ -19,7 +19,7 @@ import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.replication.UIReplicationJob;
 import eu.domibus.core.message.pull.MessagePullerJob;
-import eu.domibus.ebms3.sender.retry.SendRetryWorker;
+import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;

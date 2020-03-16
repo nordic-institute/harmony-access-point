@@ -3,7 +3,7 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.sender.AbstractUserMessageSender;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

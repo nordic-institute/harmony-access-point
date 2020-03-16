@@ -7,7 +7,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;

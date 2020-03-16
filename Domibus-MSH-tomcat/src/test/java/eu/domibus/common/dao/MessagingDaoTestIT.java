@@ -10,7 +10,7 @@ import eu.domibus.core.message.UserMessageLogEntityBuilder;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.party.PartyDao;
 import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessagePullDto;
+import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Test;

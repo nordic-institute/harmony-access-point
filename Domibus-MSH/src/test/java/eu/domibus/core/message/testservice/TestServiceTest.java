@@ -9,7 +9,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;

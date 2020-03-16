@@ -2,7 +2,7 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.ebms3.sender.retry.RetryService;
+import eu.domibus.core.ebms3.sender.retry.RetryService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;

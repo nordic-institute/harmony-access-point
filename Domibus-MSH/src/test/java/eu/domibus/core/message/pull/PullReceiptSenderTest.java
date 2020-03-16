@@ -9,7 +9,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.sender.MSHDispatcher;
+import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;

@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.sender.MSHDispatcher;
-import eu.domibus.ebms3.sender.SetPolicyOutInterceptor;
+import eu.domibus.core.ebms3.sender.MSHDispatcher;
+import eu.domibus.core.ebms3.sender.SetPolicyOutInterceptor;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.ebms3.sender.DispatchClientDefaultProvider.*;
+import static eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider.*;
 
 /**
  * @author Ion Perpegel

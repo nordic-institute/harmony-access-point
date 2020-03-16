@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.exception.EbMS3Exception;

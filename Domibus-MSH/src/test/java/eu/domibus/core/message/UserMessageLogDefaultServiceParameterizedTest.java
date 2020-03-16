@@ -6,7 +6,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.Injectable;
 import mockit.Tested;

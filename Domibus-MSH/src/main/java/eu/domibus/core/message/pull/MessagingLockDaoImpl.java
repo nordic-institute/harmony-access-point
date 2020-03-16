@@ -1,7 +1,6 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.ebms3.common.model.MessageState;
-import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;

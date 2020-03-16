@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.pmode.ProcessDao;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;

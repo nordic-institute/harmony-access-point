@@ -8,7 +8,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.sender.MSHDispatcher;
+import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.neethi.Policy;
 import org.slf4j.Logger;
