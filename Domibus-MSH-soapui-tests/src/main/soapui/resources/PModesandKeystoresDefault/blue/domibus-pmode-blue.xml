@@ -14,8 +14,8 @@
 		<mpc name="defaultMpcFive" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCFive" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="600"/>
 		<mpc name="defaultMpcSeven" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 		<mpc name="defaultMpcEight" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcEight" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
-
-  	</mpcs>
+		<mpc name="defaultMpcRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcRetention" enabled="true" default="true" retention_downloaded="1" retention_undownloaded="2"/>
+	</mpcs>
 	<businessProcesses>
 		<roles>
 			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
@@ -69,11 +69,13 @@
 		<payloadProfiles>
 			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml" inBody="false"/>
 			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf" inBody="false"/>
+			<payload name="textbusinessContentAttachment" cid="cid:txtattachment" required="false" mimeType="text/plain" inBody="false"/>
 			<payload name="businessContentPayloadInBody" cid="cid:dummy" required="true" mimeType="text/xml" inBody="true"/>
 			<payload name="businessContentPayloadInBodyTwo" cid="cid:dummy2" required="true" mimeType="application/xml" inBody="true"/>
 			<payloadProfile name="MessageProfile" maxSize="40894464">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
+				<attachment name="textbusinessContentAttachment"/>
 			</payloadProfile>
 			<payloadProfile name="MessageProfilePayloadInBody" maxSize="40894464">
 				<attachment name="businessContentPayloadInBody"/>
@@ -139,7 +141,9 @@
 			<service name="testService26" value="bdx:noprocess" type="tc26"/>
 			<service name="connectivityservice" value="http://ec.europa.eu/e-delivery/services/connectivity-service" type="edelivery"/>			
 			<service name="InboxBundleTransmissionService" value="InboxBundleTransmissionService" type="eDeliverySecond"/>
-			<service name="testService27" value="bdx:noprocess" type="tc27"/>			
+			<service name="testService27" value="bdx:noprocess" type="tc27"/>	
+			<service name="testService28" value="bdx:noprocess" type="tc28"/>
+			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
 		</services>
 		<actions>
 			<action name="tc1Action" value="TC1Leg1"/>
@@ -170,7 +174,9 @@
 			<action name="tc26Action" value="TC26Leg1"/>
 			<action name="submitMessage" value="submitMessage"/>			
             <action name="ackInboxBundleNotification" value="AckInboxBundleNotification"/>			
-			<action name="tc27Action" value="TC27Leg1"/>			
+			<action name="tc27Action" value="TC27Leg1"/>
+			<action name="tc28Action" value="TC28Leg1"/>
+			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -208,6 +214,8 @@
 			<!-- backendToNodeAckBundleTxResponse is missing payloadProfile part -->
 			<legConfiguration name="backendToNodeAckBundleTxResponse" service="InboxBundleTransmissionService" action="ackInboxBundleNotification" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"               errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>	
 			<legConfiguration name="pushTestcase27tc27Action" service="testService27" action="tc27Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadOptionalAttachment" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="testServiceCase" service="testService" action="testAction" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase28tc28Action" service="testService28" action="tc28Action" defaultMpc="defaultMpcRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			</legConfigurations>
 
 			
@@ -588,6 +596,29 @@
 				<leg name="pushTestcase27tc27Action"/>
 			</legs>
 		</process>
-		
+		<process name="testServiceProcess" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="testServiceCase"/>
+			</legs>
+		</process>
+		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase28tc28Action"/>
+			</legs>
+		</process>
 	</businessProcesses>
 </db:configuration>
