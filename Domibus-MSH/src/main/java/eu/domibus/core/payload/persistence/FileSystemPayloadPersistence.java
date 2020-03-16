@@ -8,7 +8,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;

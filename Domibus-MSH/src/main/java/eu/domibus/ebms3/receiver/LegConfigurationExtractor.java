@@ -11,5 +11,5 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 public interface LegConfigurationExtractor {
     LegConfiguration extractMessageConfiguration() throws EbMS3Exception;
 
-    void accept(MessageLegConfigurationVisitor visitor);
+    public void accept(MessageLegConfigurationVisitor visitor);
 }

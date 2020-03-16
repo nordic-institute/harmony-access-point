@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

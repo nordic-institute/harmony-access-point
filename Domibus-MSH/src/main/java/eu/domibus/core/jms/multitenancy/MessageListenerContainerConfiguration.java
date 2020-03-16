@@ -3,6 +3,7 @@ package eu.domibus.core.jms.multitenancy;
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.retention.RetentionListener;
 import eu.domibus.core.message.splitandjoin.LargeMessageSenderListener;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
 import eu.domibus.core.message.pull.PullMessageSender;

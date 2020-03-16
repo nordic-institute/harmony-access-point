@@ -12,7 +12,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
  * @since 3.3
  */
 public abstract class AbstractSignalLegConfigurationExtractor extends AbstractLegConfigurationExtractor {
-    AbstractSignalLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
+    public AbstractSignalLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
         super(message, messaging);
     }
 
@@ -22,5 +22,5 @@ public abstract class AbstractSignalLegConfigurationExtractor extends AbstractLe
         return process();
     }
 
-    abstract LegConfiguration process() throws EbMS3Exception;
+    public abstract LegConfiguration process() throws EbMS3Exception;
 }

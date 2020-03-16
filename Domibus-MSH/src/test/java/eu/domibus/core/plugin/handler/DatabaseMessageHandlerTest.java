@@ -27,8 +27,8 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.pull.SignalMessageDao;
-import eu.domibus.core.message.pull.SignalMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.ObjectFactory;

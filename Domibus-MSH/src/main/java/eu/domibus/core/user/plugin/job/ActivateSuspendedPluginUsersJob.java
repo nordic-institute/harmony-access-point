@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.user.plugin.PluginUserServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.quartz.DomibusQuartzJobBean;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

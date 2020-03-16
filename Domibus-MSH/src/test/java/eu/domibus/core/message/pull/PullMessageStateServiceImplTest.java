@@ -7,7 +7,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

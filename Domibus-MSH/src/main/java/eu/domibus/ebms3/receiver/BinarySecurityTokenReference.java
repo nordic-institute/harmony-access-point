@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class BinarySecurityTokenReference implements TokenReference{
+public class BinarySecurityTokenReference implements TokenReference {
 
     private static final Logger LOG = LoggerFactory.getLogger(BinarySecurityTokenReference.class);
 

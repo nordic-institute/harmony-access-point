@@ -13,7 +13,7 @@ import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.CertificateExchangeType;
+import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;

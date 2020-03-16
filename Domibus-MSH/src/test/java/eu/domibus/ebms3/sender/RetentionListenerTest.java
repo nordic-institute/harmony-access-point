@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.retention.RetentionListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;

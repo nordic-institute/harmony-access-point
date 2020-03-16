@@ -1,6 +1,7 @@
 
 package eu.domibus.ebms3.receiver;
 
+import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

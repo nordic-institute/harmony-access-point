@@ -5,6 +5,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Receipt;
 import eu.domibus.ebms3.common.model.SignalMessage;

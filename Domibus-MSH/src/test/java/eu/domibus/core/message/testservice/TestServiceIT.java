@@ -2,7 +2,7 @@ package eu.domibus.core.message.testservice;
 
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.pull.SignalMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;

@@ -9,7 +9,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.pull.SignalMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.exception.EbMS3Exception;

@@ -29,7 +29,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.AttachmentCleanupService;
+import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;

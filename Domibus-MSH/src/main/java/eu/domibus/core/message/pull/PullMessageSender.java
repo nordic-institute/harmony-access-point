@@ -18,7 +18,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;

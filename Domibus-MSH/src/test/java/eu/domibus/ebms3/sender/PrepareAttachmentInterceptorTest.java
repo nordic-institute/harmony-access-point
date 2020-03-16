@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import eu.domibus.core.ebms3.ws.attachment.PrepareAttachmentInterceptor;
 import eu.domibus.ebms3.SoapInterceptorTest;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

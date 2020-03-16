@@ -6,6 +6,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.MessageInfo;

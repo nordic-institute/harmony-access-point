@@ -21,7 +21,7 @@ import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.core.quartz.DomibusQuartzStarter;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.common.validators.BaseBlacklistValidator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

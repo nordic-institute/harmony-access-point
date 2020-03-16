@@ -6,7 +6,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;

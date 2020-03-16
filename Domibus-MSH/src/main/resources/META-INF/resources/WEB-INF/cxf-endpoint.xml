@@ -8,7 +8,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
 
     <bean id="mshWebservice" class="eu.domibus.ebms3.receiver.MSHWebservice"/>
-    <bean id="mshWebserviceSerializer" class="eu.domibus.ebms3.receiver.MSHSourceMessageWebservice"/>
+    <bean id="mshWebserviceSerializer" class="eu.domibus.core.message.splitandjoin.MSHSourceMessageWebservice"/>
 
     <cxf:bus>
         <cxf:outInterceptors>
@@ -55,17 +55,17 @@
     <bean id="setPolicyOutInterceptorServer" class="eu.domibus.ebms3.receiver.SetPolicyOutInterceptorServer"/>
     <bean id="saveRawPulledMessageInterceptor" class="eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor"/>
 
-    <bean id="attachmentCleanupInterceptor" class="eu.domibus.ebms3.common.AttachmentCleanupInterceptor"/>
+    <bean id="attachmentCleanupInterceptor" class="eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor"/>
 
     <!-- DomibusAlgorithmSuiteLoader -->
-    <bean id="algorithmSuiteLoader" class="eu.domibus.ebms3.security.custom.DomibusAlgorithmSuiteLoader">
+    <bean id="algorithmSuiteLoader" class="eu.domibus.core.ebms3.algorithm.DomibusAlgorithmSuiteLoader">
         <constructor-arg ref="cxf"/>
     </bean>
 
     <bean id="Wss4JMultiDomainCryptoProvider" class="eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider"/>
 
     <!-- Passwordcallback for private key access -->
-    <bean id="keystorePasswordCallback" class="eu.domibus.ebms3.security.SimpleKeystorePasswordCallback"/>
+    <bean id="keystorePasswordCallback" class="eu.domibus.core.ebms3.pki.SimpleKeystorePasswordCallback"/>
 
     <!--MSH Webservice endpoint-->
     <jaxws:endpoint id="msh" address="/msh">
@@ -139,14 +139,14 @@
 
     <bean id="domibusPrepareAttachmentInInterceptor"
           class="eu.domibus.ebms3.receiver.DomibusPrepareAttachmentInInterceptor"/>
-    <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.ebms3.sender.DomibusPrepareAttachmentInterceptor"/>
+    <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.core.ebms3.ws.attachment.DomibusPrepareAttachmentInterceptor"/>
     <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch"
                   createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="domibusPrepareAttachmentInterceptor"/>
             <bean id="domibusAttachmentOutInterceptorRemoval"
-                  class="eu.domibus.ebms3.sender.DomibusAttachmentOutInterceptorRemoval"/>
-            <bean id="domibusAttachmentOutInterceptor" class="eu.domibus.ebms3.sender.DomibusAttachmentOutInterceptor"/>
+                  class="eu.domibus.core.ebms3.ws.attachment.DomibusAttachmentOutInterceptorRemoval"/>
+            <bean id="domibusAttachmentOutInterceptor" class="eu.domibus.core.message.splitandjoin.DomibusAttachmentOutInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="domibusPrepareAttachmentInInterceptor"/>

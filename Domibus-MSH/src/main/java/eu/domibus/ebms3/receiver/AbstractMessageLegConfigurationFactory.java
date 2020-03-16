@@ -43,7 +43,7 @@ public abstract class AbstractMessageLegConfigurationFactory implements MessageL
     }
 
     @Autowired
-    void setMessageLegConfigurationVisitor(MessageLegConfigurationVisitor messageLegConfigurationVisitor) {
+    public void setMessageLegConfigurationVisitor(MessageLegConfigurationVisitor messageLegConfigurationVisitor) {
         this.messageLegConfigurationVisitor = messageLegConfigurationVisitor;
     }
 }

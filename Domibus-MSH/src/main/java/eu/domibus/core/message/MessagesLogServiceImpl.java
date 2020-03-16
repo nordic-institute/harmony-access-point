@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.pull.SignalMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;

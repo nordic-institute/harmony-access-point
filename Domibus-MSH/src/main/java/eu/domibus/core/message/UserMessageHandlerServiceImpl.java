@@ -25,7 +25,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

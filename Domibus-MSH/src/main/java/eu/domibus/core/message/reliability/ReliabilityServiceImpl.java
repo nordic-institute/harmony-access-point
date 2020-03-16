@@ -12,7 +12,7 @@ import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.sender.ResponseHandler;
 import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
