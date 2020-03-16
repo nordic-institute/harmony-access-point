@@ -102,7 +102,7 @@ public class MessagesPage extends DomibusPage {
         } else if (firstDomainGridRowCount == secondDomainGridRowCount) {
             log.info("Compare data for both grid");
             for (int i = 0; i < msgIds.size(); i++) {
-                soft.assertFalse(msgIds.get(i).equalsIgnoreCase(msgIdsSecDomain.get(i)), "Both domain have same data for row" + i);
+                soft.assertFalse(msgIds.get(i).equalsIgnoreCase(msgIdsSecDomain.get(i)), "Both domain should not have same data for row" + i);
 
             }
         } else {
