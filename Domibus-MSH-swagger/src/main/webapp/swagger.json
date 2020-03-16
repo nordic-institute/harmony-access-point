@@ -427,6 +427,9 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
+        "filename" : {
+          "type" : "string"
+        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -443,9 +446,6 @@
         "uri" : {
           "type" : "string",
           "format" : "uri"
-        },
-        "filename" : {
-          "type" : "string"
         }
       }
     },
