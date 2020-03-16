@@ -3,7 +3,7 @@ package eu.domibus.core.pull;
 import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.MessageLogDao;
+import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.MessageLogInfoFilter;
 import eu.domibus.common.model.logging.SignalMessageLog;

@@ -1,6 +1,7 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.party.PartyDao;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

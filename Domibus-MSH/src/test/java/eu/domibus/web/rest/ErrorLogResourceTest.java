@@ -4,7 +4,7 @@ import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.ErrorLogCsvServiceImpl;

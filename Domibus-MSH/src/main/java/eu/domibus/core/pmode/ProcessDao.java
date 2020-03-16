@@ -1,4 +1,4 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.pmode;
 
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;

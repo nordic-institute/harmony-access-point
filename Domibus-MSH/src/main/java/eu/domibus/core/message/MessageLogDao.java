@@ -1,8 +1,9 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.dao.ListDao;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.MessageLogInfo;
 import eu.domibus.common.model.logging.MessageLogInfoFilter;

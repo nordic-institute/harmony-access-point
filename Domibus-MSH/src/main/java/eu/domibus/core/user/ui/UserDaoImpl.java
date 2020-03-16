@@ -1,7 +1,7 @@
 package eu.domibus.core.user.ui;
 
 
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.user.UserEntityBase;
 import org.springframework.stereotype.Repository;
 

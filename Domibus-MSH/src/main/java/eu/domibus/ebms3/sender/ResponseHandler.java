@@ -2,8 +2,8 @@ package eu.domibus.ebms3.sender;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;

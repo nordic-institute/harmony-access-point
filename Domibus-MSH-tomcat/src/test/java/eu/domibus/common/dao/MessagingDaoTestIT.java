@@ -7,6 +7,8 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.common.model.logging.UserMessageLogEntityBuilder;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.party.PartyDao;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessagePullDto;
 import eu.domibus.ebms3.common.model.Messaging;

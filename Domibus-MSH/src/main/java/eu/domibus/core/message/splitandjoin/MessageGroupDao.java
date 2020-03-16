@@ -2,7 +2,7 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;

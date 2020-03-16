@@ -2,7 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.dao.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.quartz.DomibusQuartzJobBean;

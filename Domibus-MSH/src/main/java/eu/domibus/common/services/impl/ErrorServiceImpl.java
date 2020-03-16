@@ -1,6 +1,6 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.common.dao.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
 import org.springframework.beans.factory.annotation.Autowired;

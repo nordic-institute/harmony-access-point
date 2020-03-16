@@ -1,4 +1,4 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.message;
 
 import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;

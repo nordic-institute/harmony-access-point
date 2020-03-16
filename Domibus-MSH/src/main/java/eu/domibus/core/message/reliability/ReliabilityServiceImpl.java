@@ -2,8 +2,8 @@ package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;

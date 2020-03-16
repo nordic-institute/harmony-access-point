@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.ebms3.common.handler.AbstractFaultHandler;
 import eu.domibus.ebms3.common.model.Messaging;

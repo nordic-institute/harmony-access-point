@@ -1,7 +1,8 @@
 
-package eu.domibus.common.dao;
+package eu.domibus.core.pmode;
 
 
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
 import org.springframework.stereotype.Repository;

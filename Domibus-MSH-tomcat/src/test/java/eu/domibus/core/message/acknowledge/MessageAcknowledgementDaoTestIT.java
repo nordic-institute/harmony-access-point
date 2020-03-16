@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
 import eu.domibus.common.model.logging.MessageLogInfo;

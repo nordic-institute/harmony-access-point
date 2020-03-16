@@ -6,7 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.common.NotificationType;
-import eu.domibus.common.dao.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.common.services.MessagingService;

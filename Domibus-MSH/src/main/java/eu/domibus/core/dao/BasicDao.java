@@ -1,4 +1,4 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.dao;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.springframework.transaction.annotation.Propagation;

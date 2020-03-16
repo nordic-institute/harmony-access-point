@@ -3,7 +3,7 @@ package eu.domibus.ebms3.receiver;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeException;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;

@@ -3,6 +3,7 @@ package eu.domibus.common.dao;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.party.PartyDao;
 import eu.domibus.dao.InMemoryDataBaseConfig;
 import org.junit.Assert;
 import org.junit.Before;

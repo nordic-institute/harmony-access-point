@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.message.attempt.MessageAttemptService;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;

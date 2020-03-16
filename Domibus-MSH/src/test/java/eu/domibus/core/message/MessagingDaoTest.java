@@ -1,5 +1,6 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.message;
 
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;

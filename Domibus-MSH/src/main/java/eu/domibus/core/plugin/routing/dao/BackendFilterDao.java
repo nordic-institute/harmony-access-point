@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.routing.dao;
 
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

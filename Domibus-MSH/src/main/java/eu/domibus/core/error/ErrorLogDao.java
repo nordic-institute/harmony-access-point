@@ -1,5 +1,6 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.error;
 
+import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.util.ErrorLogEntryTruncateUtil;
 import org.springframework.beans.factory.annotation.Autowired;

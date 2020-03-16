@@ -2,10 +2,10 @@ package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
 
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.pmode.provider.PModeProvider;

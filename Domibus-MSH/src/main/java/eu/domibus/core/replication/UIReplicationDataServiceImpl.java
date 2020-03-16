@@ -1,9 +1,9 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.dao.MessagingDao;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;

@@ -1,11 +1,13 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.common.dao.*;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.common.services.impl.MessageIdGenerator;

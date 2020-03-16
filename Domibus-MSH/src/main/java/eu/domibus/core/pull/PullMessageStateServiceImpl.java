@@ -1,9 +1,9 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.RawEnvelopeLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;

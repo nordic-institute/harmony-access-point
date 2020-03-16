@@ -1,9 +1,8 @@
 package eu.domibus.common.dao;
 
+import eu.domibus.core.party.PartyDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.persistence.PersistenceContext;
 
 /**
  * @author Thomas Dussart

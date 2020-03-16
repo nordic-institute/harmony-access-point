@@ -1,6 +1,7 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.pmode;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.logging.DomibusLogger;

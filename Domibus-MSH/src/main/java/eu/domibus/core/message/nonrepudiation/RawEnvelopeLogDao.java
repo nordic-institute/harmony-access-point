@@ -1,7 +1,8 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.RawEnvelopeLog;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;

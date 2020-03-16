@@ -1,4 +1,4 @@
-package eu.domibus.common.dao;
+package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.message.MessageSubtype;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.common.dao.UserMessageLogDao.STR_MESSAGE_ID;
+import static eu.domibus.core.message.UserMessageLogDao.STR_MESSAGE_ID;
 
 /**
  * @author Sebastian-Ion TINCU
