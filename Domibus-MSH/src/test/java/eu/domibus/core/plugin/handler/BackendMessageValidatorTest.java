@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
