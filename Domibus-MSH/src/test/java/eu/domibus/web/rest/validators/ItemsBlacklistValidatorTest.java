@@ -1,7 +1,6 @@
-package eu.domibus.common.validators;
+package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.web.rest.validators.ItemsWhiteListed;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

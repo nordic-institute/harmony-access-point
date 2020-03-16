@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;

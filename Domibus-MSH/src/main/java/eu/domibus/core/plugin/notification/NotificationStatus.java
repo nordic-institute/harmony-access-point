@@ -1,5 +1,5 @@
 
-package eu.domibus.common;
+package eu.domibus.core.plugin.notification;
 
 /**
  * @author Christian Koch, Stefan Mueller

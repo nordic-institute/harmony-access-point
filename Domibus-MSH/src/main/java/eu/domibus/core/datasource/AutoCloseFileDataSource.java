@@ -1,4 +1,4 @@
-package eu.domibus.common;
+package eu.domibus.core.datasource;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
 

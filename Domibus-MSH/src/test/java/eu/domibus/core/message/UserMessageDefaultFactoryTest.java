@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.AutoCloseFileDataSource;
+import eu.domibus.core.datasource.AutoCloseFileDataSource;
 import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.ebms3.common.model.*;

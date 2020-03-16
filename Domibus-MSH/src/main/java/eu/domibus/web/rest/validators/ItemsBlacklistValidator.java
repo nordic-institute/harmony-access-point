@@ -1,14 +1,12 @@
-package eu.domibus.common.validators;
+package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.validators.ItemsWhiteListed;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
