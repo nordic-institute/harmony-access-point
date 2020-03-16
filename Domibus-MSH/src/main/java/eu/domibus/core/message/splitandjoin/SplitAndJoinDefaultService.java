@@ -40,7 +40,7 @@ import eu.domibus.ebms3.sender.*;
 import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

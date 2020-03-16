@@ -21,7 +21,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;

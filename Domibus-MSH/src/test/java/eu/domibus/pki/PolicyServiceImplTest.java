@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
+import eu.domibus.core.policy.PolicyServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;

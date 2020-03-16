@@ -4,7 +4,7 @@ import eu.domibus.core.message.SoapService;
 import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.endpoint.Endpoint;

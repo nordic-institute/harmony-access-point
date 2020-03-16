@@ -33,7 +33,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;

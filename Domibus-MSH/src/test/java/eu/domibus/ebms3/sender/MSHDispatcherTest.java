@@ -12,7 +12,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

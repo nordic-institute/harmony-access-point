@@ -1,5 +1,5 @@
 
-package eu.domibus.pki;
+package eu.domibus.core.policy;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.exception.ConfigurationException;

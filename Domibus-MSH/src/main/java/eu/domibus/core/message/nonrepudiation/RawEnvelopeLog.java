@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_RAWENVELOPE_LOG")
 @NamedQueries({
-        @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.common.model.logging.RawEnvelopeDto(l.entityId,l.rawXML) FROM RawEnvelopeLog l where l.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.core.message.nonrepudiation.RawEnvelopeDto(l.entityId,l.rawXML) FROM RawEnvelopeLog l where l.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "Raw.findByMessageId", query = "SELECT l FROM RawEnvelopeLog l where l.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "Raw.deleteByMessageID",
                 query = "DELETE FROM RawEnvelopeLog r where r.messageId=:MESSAGE_ID")

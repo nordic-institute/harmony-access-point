@@ -21,7 +21,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.pki.PolicyService;
+import eu.domibus.core.policy.PolicyService;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.neethi.Policy;
