@@ -1,5 +1,5 @@
 
-package eu.domibus.common.exception;
+package eu.domibus.core.exception;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.messaging.MessagingProcessingException;

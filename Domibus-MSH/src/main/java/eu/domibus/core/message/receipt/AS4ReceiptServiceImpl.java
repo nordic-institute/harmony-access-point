@@ -12,7 +12,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.common.model.logging.RawEnvelopeDto;
 import eu.domibus.common.model.logging.SignalMessageLog;

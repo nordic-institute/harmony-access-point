@@ -3,7 +3,7 @@ package eu.domibus.core.error;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;

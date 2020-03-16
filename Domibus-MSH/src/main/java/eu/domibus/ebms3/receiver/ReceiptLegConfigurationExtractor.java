@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeException;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.pmode.provider.PModeProvider;

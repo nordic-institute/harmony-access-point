@@ -15,7 +15,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;

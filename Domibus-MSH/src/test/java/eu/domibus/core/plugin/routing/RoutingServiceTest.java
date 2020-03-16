@@ -2,7 +2,7 @@ package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;

@@ -1,7 +1,7 @@
 package eu.domibus.common.validators;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;

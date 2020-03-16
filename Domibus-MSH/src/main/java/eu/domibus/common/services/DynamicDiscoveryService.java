@@ -1,6 +1,6 @@
 package eu.domibus.common.services;
 
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.util.EndpointInfo;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;

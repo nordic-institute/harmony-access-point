@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.api.pmode.PModeException;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.services.MessageExchangeService;

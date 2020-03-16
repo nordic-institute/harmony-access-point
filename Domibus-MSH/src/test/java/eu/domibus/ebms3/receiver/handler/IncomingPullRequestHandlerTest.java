@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;

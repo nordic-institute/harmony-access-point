@@ -17,7 +17,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.logging.UserMessageLog;

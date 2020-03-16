@@ -1,6 +1,7 @@
 package eu.domibus.common.exception;
 
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.exception.EbMS3Exception;
 import org.junit.Before;
 import org.junit.Test;
 

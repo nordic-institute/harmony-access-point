@@ -2,7 +2,7 @@ package eu.domibus.core.pull;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;

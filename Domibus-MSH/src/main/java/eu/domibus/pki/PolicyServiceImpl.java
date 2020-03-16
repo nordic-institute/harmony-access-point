@@ -2,7 +2,7 @@
 package eu.domibus.pki;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

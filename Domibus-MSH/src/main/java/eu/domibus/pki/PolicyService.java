@@ -1,10 +1,9 @@
 
 package eu.domibus.pki;
 
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import org.apache.neethi.Policy;
-import org.springframework.cache.annotation.Cacheable;
 
 /**
  * @author Arun Raj

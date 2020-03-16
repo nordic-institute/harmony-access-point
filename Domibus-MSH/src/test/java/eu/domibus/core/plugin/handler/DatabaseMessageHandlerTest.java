@@ -11,7 +11,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.common.model.logging.UserMessageLog;

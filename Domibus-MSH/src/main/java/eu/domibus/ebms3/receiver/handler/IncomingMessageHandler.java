@@ -1,6 +1,6 @@
 package eu.domibus.ebms3.receiver.handler;
 
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.ebms3.common.model.Messaging;
 
 import javax.xml.soap.SOAPMessage;

@@ -1,6 +1,6 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import org.w3c.dom.Node;
 
 import java.util.List;

@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -243,7 +243,7 @@ public class ReliabilityChecker {
     /**
      * This method is responsible for the ebMS3 error handling (creation of errorlogs and marking message as sent)
      *
-     * @param exceptionToHandle the exception {@link eu.domibus.common.exception.EbMS3Exception} that needs to be handled
+     * @param exceptionToHandle the exception {@link EbMS3Exception} that needs to be handled
      * @param messageId         id of the message the exception belongs to
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -1,7 +1,7 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.services.SoapService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;

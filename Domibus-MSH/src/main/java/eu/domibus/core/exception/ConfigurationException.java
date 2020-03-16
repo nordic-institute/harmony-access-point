@@ -1,5 +1,5 @@
 
-package eu.domibus.common.exception;
+package eu.domibus.core.exception;
 
 /**
  * Exception for configuration issues of the Domibus gateway
