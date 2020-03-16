@@ -8,7 +8,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.exception.EbMS3Exception;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.UserMessage;

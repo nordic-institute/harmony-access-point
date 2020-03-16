@@ -63,7 +63,7 @@ public class CachingPModeProvider extends PModeProvider {
         this.domain = domain;
     }
 
-    protected Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         if (this.configuration == null) {
             synchronized (configurationLock) {
                 if (this.configuration == null) {

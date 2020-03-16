@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.web.security.UserDetail;
 import eu.domibus.core.user.UserService;
-import eu.domibus.common.util.WarningUtil;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;

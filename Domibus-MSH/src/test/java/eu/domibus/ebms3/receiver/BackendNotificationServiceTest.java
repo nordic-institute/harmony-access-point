@@ -17,7 +17,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;

@@ -12,7 +12,7 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.MessagingService;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.UserMessageLogDefaultService;

@@ -6,7 +6,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.common.services.MessagesLogService;
+import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.csv.CsvCustomColumns;
 import eu.domibus.core.csv.CsvExcludedItems;
 import eu.domibus.core.csv.CsvService;

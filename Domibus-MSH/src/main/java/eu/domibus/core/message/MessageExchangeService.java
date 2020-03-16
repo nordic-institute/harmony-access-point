@@ -1,4 +1,4 @@
-package eu.domibus.common.services;
+package eu.domibus.core.message;
 
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;

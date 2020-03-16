@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode.provider;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -12,9 +12,6 @@ import eu.domibus.core.pmode.ProcessDao;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.services.DynamicDiscoveryService;
-import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
-import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.core.pmode.DynamicDiscoveryClientSpecification;
 import eu.domibus.core.pmode.PModeBeanConfiguration;

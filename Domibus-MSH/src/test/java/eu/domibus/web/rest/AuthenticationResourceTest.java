@@ -7,7 +7,7 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.web.security.UserDetail;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
-import eu.domibus.common.util.WarningUtil;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.web.security.AuthenticationService;

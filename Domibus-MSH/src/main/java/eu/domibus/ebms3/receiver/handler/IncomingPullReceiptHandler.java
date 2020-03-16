@@ -13,7 +13,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pull.PullMessageService;
 import eu.domibus.core.pull.PullRequestResult;

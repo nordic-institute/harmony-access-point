@@ -17,7 +17,7 @@ import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
-import eu.domibus.common.services.impl.MessageIdGenerator;
+import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.replication.UIReplicationSignalService;

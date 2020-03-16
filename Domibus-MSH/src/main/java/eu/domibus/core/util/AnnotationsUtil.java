@@ -1,4 +1,4 @@
-package eu.domibus.common.util;
+package eu.domibus.core.util;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;

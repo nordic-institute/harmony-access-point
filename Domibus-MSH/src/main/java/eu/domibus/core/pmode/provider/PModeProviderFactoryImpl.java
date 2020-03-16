@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.provider;
 
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

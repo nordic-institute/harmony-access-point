@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.util.AnnotationsUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -1,5 +1,5 @@
 
-package eu.domibus.common.services.impl;
+package eu.domibus.core.generator.id;
 
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;

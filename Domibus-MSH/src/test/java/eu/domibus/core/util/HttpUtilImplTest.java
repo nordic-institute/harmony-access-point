@@ -2,7 +2,6 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.util.ProxyUtil;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.proxy.DomibusProxyService;
 import mockit.Injectable;

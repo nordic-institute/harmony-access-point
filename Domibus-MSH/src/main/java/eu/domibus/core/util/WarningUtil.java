@@ -1,4 +1,4 @@
-package eu.domibus.common.util;
+package eu.domibus.core.util;
 
 /**
  * @author Thomas Dussart

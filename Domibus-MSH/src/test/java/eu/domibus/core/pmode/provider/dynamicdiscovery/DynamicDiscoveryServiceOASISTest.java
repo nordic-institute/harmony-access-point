@@ -1,13 +1,14 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.common.services.DynamicDiscoveryService;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServiceOASIS;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;

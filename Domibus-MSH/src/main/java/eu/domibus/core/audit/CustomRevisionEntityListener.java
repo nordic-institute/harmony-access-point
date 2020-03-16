@@ -3,7 +3,7 @@ package eu.domibus.core.audit;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.common.util.AnnotationsUtil;
+import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.EntityTrackingRevisionListener;

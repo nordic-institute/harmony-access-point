@@ -15,7 +15,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.error.ErrorService;
-import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.message.UserMessageHandlerService;

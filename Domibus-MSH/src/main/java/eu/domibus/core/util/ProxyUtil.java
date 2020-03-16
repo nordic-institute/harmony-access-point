@@ -1,4 +1,4 @@
-package eu.domibus.common.util;
+package eu.domibus.core.util;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

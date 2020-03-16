@@ -23,7 +23,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.mpc.MpcService;

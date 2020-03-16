@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.transformer;
 
-import eu.domibus.common.services.impl.MessageIdGenerator;
+import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.io.FilenameUtils;

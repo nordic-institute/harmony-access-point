@@ -14,7 +14,7 @@ import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.common.services.MessagesLogService;
+import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.common.validators.BlacklistValidator;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.message.testservice.TestService;

@@ -9,7 +9,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;

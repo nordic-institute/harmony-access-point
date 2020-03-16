@@ -9,7 +9,7 @@ import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
-import eu.domibus.common.util.AnnotationsUtil;
+import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,12 +1,13 @@
-package eu.domibus.common.services.impl;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.common.services.DynamicDiscoveryService;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.common.util.ProxyUtil;
+import eu.domibus.core.util.ProxyUtil;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOL;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;

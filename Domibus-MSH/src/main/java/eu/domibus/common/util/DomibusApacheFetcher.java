@@ -1,6 +1,7 @@
 package eu.domibus.common.util;
 
 import com.google.common.io.ByteStreams;
+import eu.domibus.core.util.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import no.difi.vefa.peppol.lookup.api.FetcherResponse;

@@ -1,4 +1,4 @@
-package eu.domibus.common.services;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.util.EndpointInfo;

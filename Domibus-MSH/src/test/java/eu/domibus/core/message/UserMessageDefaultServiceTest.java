@@ -11,7 +11,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
