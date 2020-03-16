@@ -370,41 +370,25 @@ public class AuditPgTest extends BaseTest {
 	/*  AU-23 - Login as domain admin, go to page Parties and Edit parties  */
 	@Test(description = "AU-23", groups = {"multiTenancy", "singleTenancy"})
 	public void editParty() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
-		String newPartyName = Generator.randomAlphaNumeric(5);
-		SoftAssert soft = new SoftAssert();
-		log.info("Login and navigate to pmode parties page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		PModePartiesPage pPage = new PModePartiesPage(driver);
-		log.info("select row 0");
-		pPage.grid().selectRow(0);
-		log.info("Click edit button");
-		pPage.getEditButton().click();
-		PartyModal modal = new PartyModal(driver);
-		log.info("Fill new party info");
-		modal.getNameInput().fill(newPartyName);
-		log.info("Fill endpoint value");
-		modal.getEndpointInput().fill("http://" + newPartyName.toLowerCase() + ".com");
-		log.info("Click ok button");
-		modal.clickOK();
-		pPage.wait.forXMillis(500);
-		pPage.getSaveButton().click();
-		new Dialog(driver).confirm();
-		pPage.wait.forXMillis(3000);
 
-		DomibusPage page = new DomibusPage(driver);
-		page.getSidebar().goToPage(PAGES.AUDIT);
-		AuditPage auditPage = new AuditPage(driver);
+		rest.updatePartyURL("blue_gw");
+
+		new DomibusPage(driver).getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage page = new AuditPage(driver);
+		page.grid().waitForRowsToLoad();
 
 		log.info("Set all search filter data");
-		auditPage.getFilters().setFilterData("table", "Pmode");
+		page.getFilters().setFilterData("table", "Pmode");
 		log.info("Click on search button");
-		auditPage.getFilters().getSearchButton().click();
-		auditPage.grid().waitForRowsToLoad();
+		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 		log.info("Validate data on Audit page");
-		soft.assertTrue(auditPage.grid().getRowInfo(0).get("Action") != null, "Proper action is logged");
-		soft.assertTrue(auditPage.grid().getRowInfo(1).get("Action") != null, "Proper action is logged");
+		soft.assertTrue(page.grid().getRowInfo(0).get("Action") != null, "Proper action is logged");
+		soft.assertTrue(page.grid().getRowInfo(1).get("Action") != null, "Proper action is logged");
 		soft.assertAll();
 	}
 
