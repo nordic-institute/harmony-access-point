@@ -5,7 +5,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.Map;
 
-import static eu.domibus.core.pull.PullContext.*;
+import static eu.domibus.core.message.pull.PullContext.*;
 
 /**
  * @author Thomas Dussart

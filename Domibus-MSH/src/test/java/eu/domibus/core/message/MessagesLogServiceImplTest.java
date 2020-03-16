@@ -1,9 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.MessagesLogServiceImpl;
-import eu.domibus.core.pull.SignalMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.pull.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.web.rest.ro.MessageLogResultRO;

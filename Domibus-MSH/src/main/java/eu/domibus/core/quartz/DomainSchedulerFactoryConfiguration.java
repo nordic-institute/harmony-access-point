@@ -16,9 +16,10 @@ import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
-import eu.domibus.core.pull.PullRetryWorker;
+import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.replication.UIReplicationJob;
-import eu.domibus.core.pull.MessagePullerJob;
+import eu.domibus.core.message.pull.MessagePullerJob;
+import eu.domibus.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
@@ -137,7 +138,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     public JobDetailFactoryBean retryWorkerJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(eu.domibus.ebms3.sender.SendRetryWorker.class);
+        obj.setJobClass(SendRetryWorker.class);
         obj.setDurability(true);
         return obj;
     }

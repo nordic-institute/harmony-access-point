@@ -34,7 +34,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
-import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
+import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.pki.PolicyService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

@@ -15,7 +15,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import eu.domibus.ebms3.sender.ResponseHandler;
 import eu.domibus.ebms3.sender.ResponseResult;
-import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
+import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

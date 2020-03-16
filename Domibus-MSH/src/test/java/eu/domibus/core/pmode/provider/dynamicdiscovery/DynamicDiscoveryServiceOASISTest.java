@@ -193,7 +193,7 @@ public class DynamicDiscoveryServiceOASISTest {
 
     private ServiceMetadata buildServiceMetadata() throws Exception {
 
-        InputStream inputStream = getClass().getResourceAsStream("../SignedServiceMetadataResponseOASIS.xml");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("eu/domibus/core/pmode/provider/dynamicdiscovery/provider/SignedServiceMetadataResponseOASIS.xml");
         FetcherResponse fetcherResponse = new FetcherResponse(inputStream);
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);

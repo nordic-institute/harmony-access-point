@@ -24,13 +24,13 @@ import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
 import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.pull.MpcService;
+import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pull.PullContext;
-import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.core.message.pull.PullContext;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.pull.PullFrequencyHelper;
+import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.PolicyService;
@@ -55,8 +55,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_REC
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.MessageStatus.READY_TO_PULL;
 import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
-import static eu.domibus.core.pull.PullContext.MPC;
-import static eu.domibus.core.pull.PullContext.PMODE_KEY;
+import static eu.domibus.core.message.pull.PullContext.MPC;
+import static eu.domibus.core.message.pull.PullContext.PMODE_KEY;
 
 /**
  * @author Thomas Dussart

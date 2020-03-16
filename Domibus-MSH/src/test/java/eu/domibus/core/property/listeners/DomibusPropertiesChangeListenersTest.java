@@ -18,7 +18,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
-import eu.domibus.core.pull.PullFrequencyHelper;
+import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.quartz.DomibusQuartzStarter;

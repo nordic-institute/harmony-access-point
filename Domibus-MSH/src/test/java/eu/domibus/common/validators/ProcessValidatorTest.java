@@ -7,8 +7,8 @@ import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Security;
-import eu.domibus.core.pull.PullProcessStatus;
-import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.core.message.pull.PullProcessStatus;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Assert;
 import mockit.Injectable;
@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static eu.domibus.core.pull.PullProcessStatus.*;
+import static eu.domibus.core.message.pull.PullProcessStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

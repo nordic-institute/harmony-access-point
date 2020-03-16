@@ -11,7 +11,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.sender.NonRepudiationChecker;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

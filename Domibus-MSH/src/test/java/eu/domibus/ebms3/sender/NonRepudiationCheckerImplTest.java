@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.sender;
 
+import eu.domibus.core.message.nonrepudiation.NonRepudiationCheckerImpl;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.NonRepudiationConstants;
 import mockit.integration.junit4.JMockit;

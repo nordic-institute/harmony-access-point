@@ -9,7 +9,7 @@ import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.pull.PullContext;
+import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;

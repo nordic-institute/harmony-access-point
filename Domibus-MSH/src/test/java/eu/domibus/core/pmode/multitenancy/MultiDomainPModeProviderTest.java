@@ -7,7 +7,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.ProcessDao;
-import eu.domibus.core.pull.MpcService;
+import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.pmode.validation.PModeValidationService;

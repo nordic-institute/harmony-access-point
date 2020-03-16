@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.receiver.handler;
 
-import eu.domibus.core.pull.IncomingPullReceiptHandler;
-import eu.domibus.core.pull.IncomingPullRequestHandler;
+import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
+import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;

@@ -37,6 +37,7 @@ import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.ebms3.sender.*;
+import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.PolicyService;

@@ -19,7 +19,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.ebms3.sender.UpdateRetryLoggingService;
+import eu.domibus.ebms3.sender.retry.UpdateRetryLoggingService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

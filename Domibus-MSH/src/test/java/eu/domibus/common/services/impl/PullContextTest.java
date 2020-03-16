@@ -3,7 +3,7 @@ package eu.domibus.common.services.impl;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.pull.PullContext;
+import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Test;
 
