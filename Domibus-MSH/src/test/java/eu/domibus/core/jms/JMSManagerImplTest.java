@@ -1,4 +1,4 @@
-package eu.domibus.messaging.jms;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
@@ -8,6 +8,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.jms.JMSDestinationMapper;
+import eu.domibus.core.jms.JMSManagerImpl;
+import eu.domibus.core.jms.JMSMessageMapper;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;

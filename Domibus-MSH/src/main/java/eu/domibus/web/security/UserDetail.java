@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
 import eu.domibus.core.user.ui.UserRole;

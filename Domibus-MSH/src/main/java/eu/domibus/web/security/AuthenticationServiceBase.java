@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;

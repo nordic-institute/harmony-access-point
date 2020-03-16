@@ -3,6 +3,8 @@ package eu.domibus.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.web.security.AuthenticationServiceBase;
+import eu.domibus.web.security.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;

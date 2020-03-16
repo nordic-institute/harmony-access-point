@@ -13,7 +13,7 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.messaging.NotifyMessageCreator;
+import eu.domibus.core.jms.NotifyMessageCreator;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.generated.*;

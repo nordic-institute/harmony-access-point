@@ -2,6 +2,8 @@ package eu.domibus.security;
 
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserState;
+import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.UserSessionsServiceImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

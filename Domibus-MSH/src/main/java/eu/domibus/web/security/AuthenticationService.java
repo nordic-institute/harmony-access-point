@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 /**
  * @author Catalin Enache

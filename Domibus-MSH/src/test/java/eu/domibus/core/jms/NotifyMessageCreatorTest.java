@@ -1,7 +1,9 @@
-package eu.domibus.messaging;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
+import eu.domibus.core.jms.NotifyMessageCreator;
+import eu.domibus.messaging.MessageConstants;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;

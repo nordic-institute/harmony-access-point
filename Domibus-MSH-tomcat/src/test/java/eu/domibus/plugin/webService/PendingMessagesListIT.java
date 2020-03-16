@@ -4,7 +4,7 @@ import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
-import eu.domibus.messaging.NotifyMessageCreator;
+import eu.domibus.core.jms.NotifyMessageCreator;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
 import org.junit.Assert;
 import org.junit.Test;

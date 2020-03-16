@@ -1,4 +1,4 @@
-package eu.domibus.messaging;
+package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;

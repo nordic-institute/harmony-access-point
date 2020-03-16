@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserService;

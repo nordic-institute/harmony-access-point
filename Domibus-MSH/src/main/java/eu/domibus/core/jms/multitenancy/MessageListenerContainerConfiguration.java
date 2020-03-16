@@ -1,4 +1,4 @@
-package eu.domibus.messaging;
+package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
@@ -9,6 +9,7 @@ import eu.domibus.core.pull.PullReceiptListener;
 import eu.domibus.ebms3.sender.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;

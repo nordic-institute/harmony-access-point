@@ -1,4 +1,4 @@
-package eu.domibus.messaging;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JmsMessage;
 

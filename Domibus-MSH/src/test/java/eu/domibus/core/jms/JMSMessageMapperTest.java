@@ -1,6 +1,7 @@
-package eu.domibus.messaging.jms;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.core.jms.JMSMessageMapper;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import mockit.Expectations;
 import mockit.Tested;

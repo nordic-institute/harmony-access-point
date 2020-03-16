@@ -1,6 +1,6 @@
 package eu.domibus.core.quartz;
 
-import eu.domibus.spring.SpringContextProvider;
+import eu.domibus.core.spring.SpringContextProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

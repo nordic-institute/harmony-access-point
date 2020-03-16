@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;

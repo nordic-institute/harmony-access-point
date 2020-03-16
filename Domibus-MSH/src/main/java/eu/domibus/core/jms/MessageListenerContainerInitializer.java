@@ -1,4 +1,4 @@
-package eu.domibus.messaging;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
@@ -6,6 +6,9 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.PluginMessageListenerContainer;
+import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
+import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.listener.AbstractJmsListeningContainer;

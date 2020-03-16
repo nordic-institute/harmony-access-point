@@ -1,4 +1,4 @@
-package eu.domibus.messaging.jms;
+package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.jms.spi.InternalJMSDestination;

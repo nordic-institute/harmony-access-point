@@ -1,5 +1,6 @@
 package eu.domibus.security;
 
+import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;

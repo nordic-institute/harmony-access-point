@@ -1,4 +1,4 @@
-package eu.domibus.security;
+package eu.domibus.web.security;
 
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
