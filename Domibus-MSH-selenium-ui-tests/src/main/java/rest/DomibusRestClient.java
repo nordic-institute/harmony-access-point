@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.Generator;
 import utils.TestRunData;
 
 import javax.ws.rs.core.Cookie;
@@ -690,10 +691,7 @@ public class DomibusRestClient {
 	// -------------------------------------------- PMODE PARTIES -----------------------------------------------------------
 
 	public void deleteParty(String name) throws Exception{
-		HashMap<String, String> params = new HashMap<>();
-		params.put("pageSize", "0");
-		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.GET_PARTIES), params);
-		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
+		JSONArray parties = getParties();
 
 		for (int i = 0; i < parties.length(); i++) {
 			JSONObject party = parties.getJSONObject(i);
@@ -709,6 +707,39 @@ public class DomibusRestClient {
 			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
 		}
 	}
+
+	public JSONArray getParties() throws Exception{
+		HashMap<String, String> params = new HashMap<>();
+		params.put("pageSize", "0");
+		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.GET_PARTIES), params);
+
+		if(getPartiesResp.getStatus() != 200){
+			throw new Exception("delete party failed with status " + getPartiesResp.getStatus() );
+		}
+		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
+		return parties;
+	}
+
+	public void updatePartyURL(String name) throws Exception{
+		JSONArray parties = getParties();
+		String generatedURL = String.format("http://testhost.com/%s", Generator.randomAlphaNumeric(10));
+
+		for (int i = 0; i < parties.length(); i++) {
+			JSONObject party = parties.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(name, party.getString("name"))){
+				parties.getJSONObject(i).put("endpoint", generatedURL);
+				break;
+			}
+		}
+
+		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
+
+		if(updatePartiesResp.getStatus() != 200){
+			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
+		}
+	}
+
+
 
 	// -------------------------------------------- CONNECTION MONITORING -----------------------------------------------------------
 
