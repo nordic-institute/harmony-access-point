@@ -1,14 +1,13 @@
 
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.ebms3.receiver.SetPolicyOutInterceptorServer;
+import eu.domibus.core.ebms3.receiver.SetPolicyOutInterceptorServer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.ws.policy.PolicyInInterceptor;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;

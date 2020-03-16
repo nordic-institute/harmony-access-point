@@ -22,7 +22,7 @@ import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.MessagingLock;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;

@@ -1,8 +1,8 @@
 package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.ebms3.receiver.MessageLegConfigurationFactory;
-import eu.domibus.ebms3.receiver.SetPolicyInInterceptor;
+import eu.domibus.core.ebms3.receiver.MessageLegConfigurationFactory;
+import eu.domibus.core.ebms3.receiver.SetPolicyInInterceptor;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;

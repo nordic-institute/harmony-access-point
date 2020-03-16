@@ -8,7 +8,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

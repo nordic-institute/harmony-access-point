@@ -7,7 +7,7 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
 
-    <bean id="mshWebservice" class="eu.domibus.ebms3.receiver.MSHWebservice"/>
+    <bean id="mshWebservice" class="eu.domibus.core.ebms3.receiver.MSHWebservice"/>
     <bean id="mshWebserviceSerializer" class="eu.domibus.core.message.splitandjoin.MSHSourceMessageWebservice"/>
 
     <cxf:bus>
@@ -29,30 +29,30 @@
     </bean>
 
     <!-- interceptors -->
-    <bean id="domibusReadyInterceptor" class="eu.domibus.ebms3.receiver.DomibusReadyInterceptor">
-        <property name="before" value="eu.domibus.ebms3.receiver.SetPolicyInInterceptor"/>
+    <bean id="domibusReadyInterceptor" class="eu.domibus.core.ebms3.receiver.DomibusReadyInterceptor">
+        <property name="before" value="eu.domibus.core.ebms3.receiver.SetPolicyInInterceptor"/>
     </bean>
-    <bean id="trustSenderInterceptor" class="eu.domibus.ebms3.receiver.TrustSenderInterceptor">
+    <bean id="trustSenderInterceptor" class="eu.domibus.core.ebms3.receiver.TrustSenderInterceptor">
         <property name="crypto" ref="Wss4JMultiDomainCryptoProvider"/>
     </bean>
 
-    <bean id="setDomainInInterceptor" class="eu.domibus.ebms3.receiver.SetDomainInInterceptor"/>
+    <bean id="setDomainInInterceptor" class="eu.domibus.core.ebms3.receiver.SetDomainInInterceptor"/>
 
     <!--Interceptors to enable SwA encryption for Dispatch/WebServiceProvider implementations-->
-    <bean id="setPolicyInInterceptorServer" class="eu.domibus.ebms3.receiver.SetPolicyInServerInterceptor">
+    <bean id="setPolicyInInterceptorServer" class="eu.domibus.core.ebms3.receiver.SetPolicyInServerInterceptor">
         <property name="messageLegConfigurationFactory" ref="serverInMessageLegConfigurationFactory"/>
     </bean>
-    <bean id="setPolicyInInterceptorClient" class="eu.domibus.ebms3.receiver.SetPolicyInClientInterceptor">
+    <bean id="setPolicyInInterceptorClient" class="eu.domibus.core.ebms3.receiver.SetPolicyInClientInterceptor">
         <property name="messageLegConfigurationFactory" ref="clientInMessageLegConfigurationFactory"/>
     </bean>
 
     <bean id="setSignatureAlgorithmInInterceptor"
           class="eu.domibus.ebms3.sender.SetSignatureAlgorithmInInterceptor"/>
 
-    <bean id="propertyValueExchangeInterceptor" class="eu.domibus.ebms3.receiver.PropertyValueExchangeInterceptor"/>
+    <bean id="propertyValueExchangeInterceptor" class="eu.domibus.core.ebms3.receiver.PropertyValueExchangeInterceptor"/>
     <bean id="setPolicyOutInterceptor" class="eu.domibus.ebms3.sender.SetPolicyOutInterceptor"/>
 
-    <bean id="setPolicyOutInterceptorServer" class="eu.domibus.ebms3.receiver.SetPolicyOutInterceptorServer"/>
+    <bean id="setPolicyOutInterceptorServer" class="eu.domibus.core.ebms3.receiver.SetPolicyOutInterceptorServer"/>
     <bean id="saveRawPulledMessageInterceptor" class="eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor"/>
 
     <bean id="attachmentCleanupInterceptor" class="eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor"/>
@@ -65,7 +65,7 @@
     <bean id="Wss4JMultiDomainCryptoProvider" class="eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider"/>
 
     <!-- Passwordcallback for private key access -->
-    <bean id="keystorePasswordCallback" class="eu.domibus.core.ebms3.pki.SimpleKeystorePasswordCallback"/>
+    <bean id="keystorePasswordCallback" class="eu.domibus.core.ebms3.receiver.SimpleKeystorePasswordCallback"/>
 
     <!--MSH Webservice endpoint-->
     <jaxws:endpoint id="msh" address="/msh">
@@ -103,7 +103,7 @@
         </jaxws:outFaultInterceptors>
 
         <jaxws:handlers>
-            <bean class="eu.domibus.ebms3.receiver.FaultInHandler"/>
+            <bean class="eu.domibus.core.ebms3.receiver.FaultInHandler"/>
         </jaxws:handlers>
 
         <jaxws:features>
@@ -138,7 +138,7 @@
     </jaxws:client>
 
     <bean id="domibusPrepareAttachmentInInterceptor"
-          class="eu.domibus.ebms3.receiver.DomibusPrepareAttachmentInInterceptor"/>
+          class="eu.domibus.core.ebms3.receiver.DomibusPrepareAttachmentInInterceptor"/>
     <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.core.ebms3.ws.attachment.DomibusPrepareAttachmentInterceptor"/>
     <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch"
                   createdFromAPI="true">

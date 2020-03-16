@@ -17,7 +17,7 @@ import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.receiver.MessageTestUtility;
+import eu.domibus.core.ebms3.receiver.MessageTestUtility;
 import eu.domibus.ebms3.sender.*;
 import eu.domibus.ebms3.sender.retry.RetryService;
 import mockit.*;

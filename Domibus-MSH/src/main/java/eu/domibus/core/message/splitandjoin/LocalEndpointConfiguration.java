@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.receiver.CheckEBMSHeaderInterceptor;
+import eu.domibus.core.ebms3.receiver.CheckEBMSHeaderInterceptor;
 import eu.domibus.ebms3.sender.MSHDispatcher;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.EndpointImpl;

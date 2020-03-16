@@ -30,7 +30,7 @@ import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.ebms3.receiver.handler.IncomingMessageHandlerFactory;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseHandler;
