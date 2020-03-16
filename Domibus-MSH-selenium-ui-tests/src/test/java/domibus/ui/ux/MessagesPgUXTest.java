@@ -93,8 +93,7 @@ public class MessagesPgUXTest extends BaseTest {
 		grid.scrollToAndSelect("Message Id", messID1);
 
 		log.info("selecting mess with id " +messID2);
-		int index2 = grid.scrollTo("Message Id", messID2);
-		grid.selectRow(index2);
+		int index2 = grid.scrollToAndSelect("Message Id", messID2);
 
 		log.info("checking selected message");
 		int selectedRow = grid.getSelectedRowIndex();

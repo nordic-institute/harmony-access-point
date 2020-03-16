@@ -164,8 +164,6 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		log.info("checking description");
 		String currentPmodeDescription = page.grid().getRowInfo(0).get("Description");
-//		soft.assertEquals(currentPmodeDescription,
-//				"[CURRENT]: Restored version of "+configDate, "Description is updated correctly");
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);

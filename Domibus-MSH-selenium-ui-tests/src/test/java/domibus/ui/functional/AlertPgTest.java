@@ -260,6 +260,9 @@ public class AlertPgTest extends BaseTest {
 			log.info("Click on search button");
 			apage.filters().getSearchButton().click();
 		}
+
+		apage.grid().waitForRowsToLoad();
+
 		log.info("Validate top row for user account disabled alert type for given user");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
 		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Disable account alert is of High level");
