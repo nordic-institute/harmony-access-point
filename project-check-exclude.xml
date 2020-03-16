@@ -141,18 +141,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jackson-databind-2.9.10.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <!-- We don't have the commons-dbcp (1.4) jar in the classpath -->
-        <cve>CVE-2019-16942</cve>
-        <!-- We don't have the p6spy (3.8.6) jar in the classpath -->
-        <cve>CVE-2019-16943</cve>
-        <!-- Domibus doesn't have apache-log4j-extra (version 1.2.x) jar in the classpath -->
-        <cve>CVE-2019-17531</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
       file name: quartz-2.3.2.jar
       ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
