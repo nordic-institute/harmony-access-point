@@ -1,4 +1,4 @@
-package eu.domibus.ebms3.common.matcher;
+package eu.domibus.core.pull;
 
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
@@ -12,17 +12,13 @@ import org.springframework.stereotype.Component;
  * @since 3.3
  */
 
-@Component()
-@Qualifier("pushMatcher")
-public class PushMatcher implements ReliabilityMatcher {
+@Component
+@Qualifier("pullReceiptMatcher")
+public class PullReceiptMatcher implements ReliabilityMatcher {
 
     @Override
     public boolean matchReliableCallBack(Reliability reliability) {
-        if (reliability == null) {
-            return false;
-        }
-
-        return ReplyPattern.CALLBACK.equals(reliability.getReplyPattern());
+        return false;
     }
 
     @Override
@@ -30,12 +26,12 @@ public class PushMatcher implements ReliabilityMatcher {
         if (reliability == null) {
             return false;
         }
-
-        return ReplyPattern.RESPONSE.equals(reliability.getReplyPattern());
+        return (ReplyPattern.RESPONSE.equals(reliability.getReplyPattern())
+                || ReplyPattern.CALLBACK.equals(reliability.getReplyPattern()));
     }
 
     @Override
     public ReliabilityChecker.CheckResult fails() {
-        return ReliabilityChecker.CheckResult.SEND_FAIL;
+        return ReliabilityChecker.CheckResult.PULL_FAILED;
     }
 }

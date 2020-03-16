@@ -4,6 +4,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
+import eu.domibus.core.pull.MpcService;
 import eu.domibus.core.pull.PullContext;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -88,22 +89,22 @@ public interface MessageExchangeService {
     void verifySenderCertificate(LegConfiguration legConfiguration, String receiverName);
 
     /**
-     * See {@link eu.domibus.core.mpc.MpcService#forcePullOnMpc(String)}
+     * See {@link MpcService#forcePullOnMpc(String)}
      */
     boolean forcePullOnMpc(String mpc);
 
     /**
-     * See {@link eu.domibus.core.mpc.MpcService#forcePullOnMpc(UserMessage)}
+     * See {@link MpcService#forcePullOnMpc(UserMessage)}
      */
     boolean forcePullOnMpc(UserMessage userMessage);
 
     /**
-     * See {@link eu.domibus.core.mpc.MpcService#extractInitiator(String)}
+     * See {@link MpcService#extractInitiator(String)}
      */
     String extractInitiator(String mpc);
 
     /**
-     * See {@link eu.domibus.core.mpc.MpcService#extractBaseMpc(String)}
+     * See {@link MpcService#extractBaseMpc(String)}
      */
     String extractBaseMpc(String mpc);
 }

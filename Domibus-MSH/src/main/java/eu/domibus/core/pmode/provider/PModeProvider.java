@@ -20,7 +20,7 @@ import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
-import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pull.MpcService;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.*;

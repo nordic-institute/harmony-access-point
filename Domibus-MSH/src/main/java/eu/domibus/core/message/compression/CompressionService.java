@@ -1,6 +1,5 @@
 package eu.domibus.core.message.compression;
 
-import eu.domibus.common.DecompressionDataSource;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.exception.EbMS3Exception;

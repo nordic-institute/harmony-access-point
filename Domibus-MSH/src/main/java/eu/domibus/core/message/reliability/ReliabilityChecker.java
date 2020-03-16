@@ -10,7 +10,6 @@ import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.matcher.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.sender.NonRepudiationChecker;
 import eu.domibus.ebms3.sender.ResponseResult;

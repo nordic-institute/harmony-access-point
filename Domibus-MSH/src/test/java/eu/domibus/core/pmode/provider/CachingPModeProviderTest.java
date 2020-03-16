@@ -18,7 +18,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.mpc.MpcService;
+import eu.domibus.core.pull.MpcService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
 import eu.domibus.core.pmode.PullProcessPartyExtractor;

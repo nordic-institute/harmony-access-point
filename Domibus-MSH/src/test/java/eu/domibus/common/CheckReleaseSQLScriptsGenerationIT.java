@@ -1,6 +1,6 @@
 package eu.domibus.common;
 
-import eu.domibus.common.util.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

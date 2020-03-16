@@ -1,7 +1,7 @@
 package eu.domibus.ebms3.receiver;
 
-import eu.domibus.common.services.SoapService;
-import eu.domibus.common.util.DomibusPropertiesService;
+import eu.domibus.core.message.SoapService;
+import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.pki.PolicyService;

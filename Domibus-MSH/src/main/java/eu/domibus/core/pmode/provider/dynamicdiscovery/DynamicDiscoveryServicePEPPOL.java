@@ -2,9 +2,6 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.common.util.DomibusApacheFetcher;
-import eu.domibus.common.util.DomibusCertificateValidator;
-import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.core.util.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

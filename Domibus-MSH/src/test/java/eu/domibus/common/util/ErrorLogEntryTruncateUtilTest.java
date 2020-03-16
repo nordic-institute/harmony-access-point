@@ -1,6 +1,7 @@
 package eu.domibus.common.util;
 
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.error.ErrorLogEntryTruncateUtil;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import org.junit.Test;

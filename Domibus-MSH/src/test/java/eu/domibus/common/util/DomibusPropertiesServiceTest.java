@@ -1,5 +1,6 @@
 package eu.domibus.common.util;
 
+import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;

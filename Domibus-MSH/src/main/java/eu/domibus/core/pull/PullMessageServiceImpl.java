@@ -13,7 +13,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;

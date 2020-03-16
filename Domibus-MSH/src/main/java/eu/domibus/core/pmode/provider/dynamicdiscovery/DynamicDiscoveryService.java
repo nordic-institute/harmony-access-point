@@ -1,7 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.exception.EbMS3Exception;
-import eu.domibus.common.util.EndpointInfo;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
