@@ -16,7 +16,7 @@ import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;

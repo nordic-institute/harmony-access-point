@@ -15,13 +15,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
-public class DomibusInitializationHelperTest {
+public class DomibusStatusServiceTest {
 
     @Injectable
     private Bus bus;
 
     @Tested
-    private DomibusInitializationHelper domibusInitializationHelper;
+    private DomibusStatusService domibusStatusService;
 
     @Test
     public void testReady(@Mocked final org.apache.neethi.PolicyBuilder policyBuilder,
@@ -32,7 +32,7 @@ public class DomibusInitializationHelperTest {
             policyBuilder.getAssertionBuilderFactory();
             result = assertionBuilderFactory;
         }};
-        assertFalse(domibusInitializationHelper.isNotReady());
+        assertFalse(domibusStatusService.isNotReady());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class DomibusInitializationHelperTest {
             policyBuilder.getAssertionBuilderFactory();
             result = null;
         }};
-        assertTrue(domibusInitializationHelper.isNotReady());
+        assertTrue(domibusStatusService.isNotReady());
     }
 
 }

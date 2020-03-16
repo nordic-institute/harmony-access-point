@@ -7,7 +7,7 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;

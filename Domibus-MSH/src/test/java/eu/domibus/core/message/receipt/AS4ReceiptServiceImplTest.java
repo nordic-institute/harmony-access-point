@@ -3,7 +3,7 @@ package eu.domibus.core.message.receipt;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.message.signal.SignalMessageLog;

@@ -3,11 +3,11 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.common.DomibusInitializationHelper;
+import eu.domibus.common.DomibusStatusService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -84,7 +84,7 @@ public class PullMessageSender {
     private PolicyService policyService;
 
     @Autowired
-    private DomibusInitializationHelper domibusInitializationHelper;
+    private DomibusStatusService domibusStatusService;
 
     @Autowired
     private UserMessageDefaultService userMessageDefaultService;
@@ -105,7 +105,7 @@ public class PullMessageSender {
     @Timer(OUTGOING_PULL_REQUEST)
     @Counter(OUTGOING_PULL_REQUEST)
     public void processPullRequest(final Message map) {
-        if (domibusInitializationHelper.isNotReady()) {
+        if (domibusStatusService.isNotReady()) {
             return;
         }
         LOG.clearCustomKeys();

@@ -1,4 +1,4 @@
-package eu.domibus.core.exception;
+package eu.domibus.core.ebms3;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;

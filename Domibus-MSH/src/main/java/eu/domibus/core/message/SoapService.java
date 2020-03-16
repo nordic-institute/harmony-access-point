@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 

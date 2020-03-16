@@ -1,6 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import org.w3c.dom.Node;
 
 import java.util.List;

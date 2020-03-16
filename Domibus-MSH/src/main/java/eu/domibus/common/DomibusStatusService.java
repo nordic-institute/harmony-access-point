@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class DomibusInitializationHelper {
+public class DomibusStatusService {
 
     private boolean cxfInitiated;
 

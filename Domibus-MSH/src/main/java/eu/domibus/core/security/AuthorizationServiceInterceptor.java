@@ -1,7 +1,7 @@
 package eu.domibus.core.security;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.logging.DomibusLogger;

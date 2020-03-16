@@ -1,7 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingService;

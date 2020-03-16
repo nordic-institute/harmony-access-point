@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;

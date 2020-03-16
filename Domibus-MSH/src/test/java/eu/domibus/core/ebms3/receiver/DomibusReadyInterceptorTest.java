@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver;
 
-import eu.domibus.common.DomibusInitializationHelper;
+import eu.domibus.common.DomibusStatusService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 public class DomibusReadyInterceptorTest {
 
     @Injectable
-    private DomibusInitializationHelper domibusInitializationHelper;
+    private DomibusStatusService domibusStatusService;
 
     @Tested
     private DomibusReadyInterceptor domibusReadyInterceptor;
@@ -23,7 +23,7 @@ public class DomibusReadyInterceptorTest {
     @Test(expected = Fault.class)
     public void isReady(@Mocked final Message message){
         new Expectations(){{
-            domibusInitializationHelper.isNotReady();
+            domibusStatusService.isNotReady();
             result=true;
         }};
         domibusReadyInterceptor.handleMessage(message);

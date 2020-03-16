@@ -2,6 +2,7 @@
 package eu.domibus.core.exception;
 
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;

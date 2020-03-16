@@ -1,6 +1,6 @@
 package eu.domibus.mock;
 
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;

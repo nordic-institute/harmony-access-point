@@ -9,7 +9,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.UserMessageLog;
