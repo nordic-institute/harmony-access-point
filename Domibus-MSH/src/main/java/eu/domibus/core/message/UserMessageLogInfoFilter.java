@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
-        String query = "select new eu.domibus.common.model.logging.MessageLogInfo(" +
+        String query = "select new eu.domibus.core.message.MessageLogInfo(" +
                 "log.messageId," +
                 "log.messageStatus," +
                 "log.notificationStatus," +

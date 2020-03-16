@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.model.logging.MessageLog;
-import eu.domibus.common.model.logging.UserMessageLogInfoFilter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

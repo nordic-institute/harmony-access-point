@@ -12,7 +12,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;

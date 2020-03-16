@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message.signal;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;

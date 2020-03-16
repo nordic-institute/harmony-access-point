@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.Injectable;
 import mockit.Tested;

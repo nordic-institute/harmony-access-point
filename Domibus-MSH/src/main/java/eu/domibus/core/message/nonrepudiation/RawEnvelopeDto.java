@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message.nonrepudiation;
 
 /**
  * @author Thomas Dussart

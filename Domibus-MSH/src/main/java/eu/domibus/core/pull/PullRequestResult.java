@@ -1,7 +1,7 @@
 package eu.domibus.core.pull;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 
 import java.util.Date;
 

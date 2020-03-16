@@ -1,8 +1,12 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationStatus;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogEntityBuilder;
+import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.ebms3.common.model.MessageType;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

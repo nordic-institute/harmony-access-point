@@ -1,5 +1,5 @@
 
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.ebms3.common.model.SignalMessage;

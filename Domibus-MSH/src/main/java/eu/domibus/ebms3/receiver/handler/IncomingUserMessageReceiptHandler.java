@@ -11,7 +11,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;

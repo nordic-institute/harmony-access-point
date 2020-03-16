@@ -6,7 +6,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.exception.EbMS3Exception;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pull.MessagingLockDao;
 import eu.domibus.core.pull.PullMessageService;

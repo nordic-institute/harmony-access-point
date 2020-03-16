@@ -1,6 +1,8 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfoFilter;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;

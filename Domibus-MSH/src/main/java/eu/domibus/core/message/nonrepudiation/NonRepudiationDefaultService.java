@@ -1,7 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.logging.RawEnvelopeLog;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;

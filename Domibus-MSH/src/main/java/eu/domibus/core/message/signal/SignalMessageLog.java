@@ -1,5 +1,6 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message.signal;
 
+import eu.domibus.core.message.MessageLog;
 import eu.domibus.ebms3.common.model.MessageType;
 
 import javax.persistence.*;

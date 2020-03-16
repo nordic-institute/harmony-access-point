@@ -12,7 +12,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;

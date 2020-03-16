@@ -20,7 +20,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.common.validators.ProcessValidator;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;

@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;

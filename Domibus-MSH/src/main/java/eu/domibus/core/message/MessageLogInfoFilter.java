@@ -1,4 +1,4 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -141,7 +141,7 @@ public class MessageLogInfoFilter {
      *
      * @return true by default
      */
-    protected boolean isFourCornerModel() {
+    public boolean isFourCornerModel() {
         return domibusPropertyProvider.getBooleanProperty(DomibusConfigurationService.FOURCORNERMODEL_ENABLED_KEY);
     }
 

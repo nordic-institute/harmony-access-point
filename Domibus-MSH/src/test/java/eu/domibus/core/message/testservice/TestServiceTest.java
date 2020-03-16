@@ -7,7 +7,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Ebms3Constants;
 import eu.domibus.ebms3.common.model.Messaging;

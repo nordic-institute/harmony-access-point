@@ -13,7 +13,7 @@ import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.error.ErrorService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;

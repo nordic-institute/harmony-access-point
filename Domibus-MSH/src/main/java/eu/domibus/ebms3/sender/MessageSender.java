@@ -1,6 +1,6 @@
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.ebms3.common.model.Messaging;
 
 /**

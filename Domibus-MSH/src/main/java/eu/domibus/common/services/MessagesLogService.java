@@ -1,6 +1,6 @@
 package eu.domibus.common.services;
 
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 

@@ -6,7 +6,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.common.model.logging.SignalMessageLog;
+import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;

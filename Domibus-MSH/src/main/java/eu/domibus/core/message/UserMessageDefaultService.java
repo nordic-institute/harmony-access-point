@@ -17,7 +17,6 @@ import eu.domibus.core.pull.SignalMessageDao;
 import eu.domibus.core.pull.SignalMessageLogDao;
 import eu.domibus.core.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;

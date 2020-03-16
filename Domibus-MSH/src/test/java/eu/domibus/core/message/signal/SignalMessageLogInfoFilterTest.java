@@ -1,6 +1,7 @@
-package eu.domibus.common.model.logging;
+package eu.domibus.core.message.signal;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.MessageLogInfoFilterTest;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -17,10 +18,13 @@ import java.util.HashMap;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class UserMessageLogInfoFilterTest {
+public class SignalMessageLogInfoFilterTest {
 
-    private static final String QUERY = "select new eu.domibus.common.model.logging.MessageLogInfo(log, message.collaborationInfo.conversationId, partyFrom.value, partyTo.value, propsFrom.value, propsTo.value, info.refToMessageId) from UserMessageLog log, " +
-            "UserMessage message " +
+    @Injectable
+    private DomibusPropertyProvider domibusProperties;
+
+    public static final String QUERY = "select new eu.domibus.core.message.MessageLogInfo(log, partyFrom.value, partyTo.value, propsFrom.value, propsTo.value, info.refToMessageId) from SignalMessageLog log, " +
+            "SignalMessage message " +
             "left join log.messageInfo info " +
             "left join message.messageProperties.property propsFrom " +
             "left join message.messageProperties.property propsTo " +
@@ -29,11 +33,8 @@ public class UserMessageLogInfoFilterTest {
             "where message.messageInfo = info and propsFrom.name = 'originalSender'" +
             "and propsTo.name = 'finalRecipient'";
 
-    @Injectable
-    private DomibusPropertyProvider domibusProperties;
-
     @Tested
-    UserMessageLogInfoFilter userMessageLogInfoFilter;
+    SignalMessageLogInfoFilter signalMessageLogInfoFilter;
 
     private static HashMap<String, Object> filters = new HashMap<>();
 
@@ -43,34 +44,36 @@ public class UserMessageLogInfoFilterTest {
     }
 
     @Test
-    public void createUserMessageLogInfoFilter() {
-        new Expectations(userMessageLogInfoFilter) {{
-            userMessageLogInfoFilter.filterQuery(anyString,anyString,anyBoolean,filters);
+    public void createSignalMessageLogInfoFilter() {
+
+        new Expectations(signalMessageLogInfoFilter) {{
+            signalMessageLogInfoFilter.filterQuery(anyString,anyString,anyBoolean,filters);
             result = QUERY;
 
-            userMessageLogInfoFilter.isFourCornerModel();
+            signalMessageLogInfoFilter.isFourCornerModel();
             result = true;
         }};
 
-        String query = userMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);
+        String query = signalMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);
 
         Assert.assertEquals(QUERY, query);
     }
 
     @Test
     public void testGetHQLKeyConversationId() {
-        Assert.assertEquals("message.collaborationInfo.conversationId", userMessageLogInfoFilter.getHQLKey("conversationId"));
+        Assert.assertEquals("", signalMessageLogInfoFilter.getHQLKey("conversationId"));
     }
 
     @Test
     public void testGetHQLKeyMessageId() {
-        Assert.assertEquals("log.messageStatus", userMessageLogInfoFilter.getHQLKey("messageStatus"));
+        Assert.assertEquals("log.messageId", signalMessageLogInfoFilter.getHQLKey("messageId"));
     }
 
     @Test
     public void testFilterQuery() {
-        StringBuilder resultQuery = userMessageLogInfoFilter.filterQuery("select * from table where column = ''","messageId", true, filters);
+        StringBuilder resultQuery = signalMessageLogInfoFilter.filterQuery("select * from table where column = ''","messageId", true, filters);
         String resultQueryString = resultQuery.toString();
+
         Assert.assertTrue(resultQueryString.contains("log.notificationStatus = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
@@ -89,7 +92,8 @@ public class UserMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.mshRole = :mshRole"));
         Assert.assertTrue(resultQueryString.contains("order by log.messageId asc"));
+
+        Assert.assertFalse(resultQueryString.contains("conversationId"));
+        Assert.assertFalse(resultQueryString.contains("message.collaborationInfo.conversationId"));
     }
-
-
 }

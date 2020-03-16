@@ -2,9 +2,8 @@ package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.ebms3.sender.ResponseResult;
 
 import javax.xml.soap.SOAPMessage;
