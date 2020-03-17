@@ -60,11 +60,26 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitTestResponse submitTestMessage(SubmitTestRequest submitTestRequest,  Messaging ebMSHeaderInfo) {
+        return submitTestMessageInternal("", submitTestRequest, ebMSHeaderInfo);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public SubmitTestResponse submitTestMessageTransactional(SubmitTestTransactionalRequest submitTestRequest,  Messaging ebMSHeaderInfo) {
+        return submitTestMessageInternal("TRANSACTIONAL", submitTestRequest, ebMSHeaderInfo);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
+    public SubmitTestResponse submitTestMessageTransactionalWithTimeout(SubmitTestTransactionalWithTimeoutRequest submitTestRequest, Messaging ebMSHeaderInfo) {
+        return submitTestMessageInternal("TRANSACTIONAL_TIMEOUT", submitTestRequest, ebMSHeaderInfo);
+    }
+
+    private SubmitTestResponse submitTestMessageInternal(String operation, SubmitTestRequestType submitTestRequest,  Messaging ebMSHeaderInfo) {
         long start = System.currentTimeMillis();
         long currentRunCount = submitTestRequest.getCurrentRunCount();
-        LOG.info("[] Received TEST message from backend", currentRunCount);
+        LOG.info("[{}] Received [{}] TEST message from backend", currentRunCount, operation);
 
         if (submitTestRequest.getSleepTimeInMillis() > 0) {
             LOG.info("[{}] Going to sleep for [{}] milliseconds...", currentRunCount, submitTestRequest.getSleepTimeInMillis());
@@ -78,7 +93,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         final SubmitTestResponse response = WEBSERVICE_OF.createSubmitTestResponse();
         response.getMessageID().add("TEST-" + currentRunCount + "@domibus.eu");
 
-        LOG.info("[{}] Finished in seconds [{}]", currentRunCount, (System.currentTimeMillis() - start) / 1000);
+        LOG.info("[{}] Finished in milliseconds [{}]", currentRunCount, (System.currentTimeMillis() - start));
         return response;
     }
 

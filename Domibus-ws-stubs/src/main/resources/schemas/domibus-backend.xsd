@@ -71,16 +71,39 @@
         </xsd:complexType>
     </xsd:element>
 
+    <xsd:complexType name="submitTestRequestType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" nillable="true" type="tns:LargePayloadType"/>
+            <xsd:element name="sleepTimeInMillis" type="tns:nonNegativeLong" />
+            <xsd:element name="currentRunCount" type="tns:nonNegativeLong" />
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:element name="submitTestRequest">
         <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" nillable="true" type="tns:LargePayloadType"/>
-                <xsd:element name="sleepTimeInMillis" type="tns:nonNegativeLong" />
-                <xsd:element name="currentRunCount" type="tns:nonNegativeLong" />
-            </xsd:sequence>
+            <xsd:complexContent>
+                <xsd:extension base="tns:submitTestRequestType" />
+            </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
+
+    <xsd:element name="submitTestTransactionalRequest">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="tns:submitTestRequestType" />
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="submitTestTransactionalWithTimeoutRequest">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="tns:submitTestRequestType" />
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
     <xsd:element name="submitTestResponse">
         <xsd:complexType>
             <xsd:sequence>
