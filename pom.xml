@@ -123,7 +123,7 @@
         <junit.version>4.12</junit.version>
         <jmockit.version>1.22</jmockit.version>
         <log4j.version>1.2.17</log4j.version>
-        <atomikos.version>4.0.6</atomikos.version>
+        <atomikos.version>5.0.6</atomikos.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
