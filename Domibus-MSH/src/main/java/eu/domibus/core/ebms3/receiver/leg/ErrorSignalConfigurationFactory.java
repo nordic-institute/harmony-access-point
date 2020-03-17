@@ -1,8 +1,5 @@
-package eu.domibus.core.ebms3.receiver;
+package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.core.ebms3.receiver.leg.AbstractMessageLegConfigurationFactory;
-import eu.domibus.core.ebms3.receiver.leg.ErrorSignalLegConfigurationExtractor;
-import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import org.apache.commons.collections.CollectionUtils;

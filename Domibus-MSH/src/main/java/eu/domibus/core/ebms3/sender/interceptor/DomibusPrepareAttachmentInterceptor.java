@@ -1,4 +1,4 @@
-package eu.domibus.core.ebms3.ws.attachment;
+package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

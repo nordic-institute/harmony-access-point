@@ -139,13 +139,13 @@
 
     <bean id="domibusPrepareAttachmentInInterceptor"
           class="eu.domibus.core.ebms3.receiver.interceptor.DomibusPrepareAttachmentInInterceptor"/>
-    <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.core.ebms3.ws.attachment.DomibusPrepareAttachmentInterceptor"/>
+    <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.core.ebms3.sender.interceptor.DomibusPrepareAttachmentInterceptor"/>
     <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch"
                   createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="domibusPrepareAttachmentInterceptor"/>
             <bean id="domibusAttachmentOutInterceptorRemoval"
-                  class="eu.domibus.core.ebms3.ws.attachment.DomibusAttachmentOutInterceptorRemoval"/>
+                  class="eu.domibus.core.ebms3.sender.interceptor.DomibusAttachmentOutInterceptorRemoval"/>
             <bean id="domibusAttachmentOutInterceptor" class="eu.domibus.core.message.splitandjoin.DomibusAttachmentOutInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>

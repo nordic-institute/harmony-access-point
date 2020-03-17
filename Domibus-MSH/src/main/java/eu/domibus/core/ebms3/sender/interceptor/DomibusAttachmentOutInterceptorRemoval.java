@@ -1,4 +1,4 @@
-package eu.domibus.core.ebms3.ws.attachment;
+package eu.domibus.core.ebms3.sender.interceptor;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;

@@ -1,6 +1,5 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.core.ebms3.receiver.ErrorSignalConfigurationFactory;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
