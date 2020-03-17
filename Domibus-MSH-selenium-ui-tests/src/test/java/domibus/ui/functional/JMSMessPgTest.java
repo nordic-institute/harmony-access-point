@@ -372,12 +372,12 @@ public class JMSMessPgTest extends BaseTest {
                 log.info("Wait for grid row to load");
                 jmsPage.grid().waitForRowsToLoad();
 
-                log.info("Queue name is : " + jmsPage.multiSelectInputField.get(0).getText());
+                log.info("Queue name is : " + jmsPage.sourceFieldQueueName.get(0).getText());
 
                 log.info("check if no count is shown for admin user of :" + jmsPage.getDomainFromTitle());
-                log.info("Count shown in queue name :" + jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()));
+                log.info("Count shown in queue name :" + jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()));
 
-                soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()) == null, "Message count is not shown for Admin user for Multi Tenancy");
+                soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()) == null, "Message count is not shown for Admin user for Multi Tenancy");
                 log.info("Break from loop if current domain name is second domain");
                 if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                     break;
@@ -403,9 +403,9 @@ public class JMSMessPgTest extends BaseTest {
             log.info("Wait for grid row to load");
             jmsPage.grid().waitForRowsToLoad();
 
-            log.info("Queue name is : " + jmsPage.multiSelectInputField.get(0).getText());
-            soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()) != null, "Message count is  shown for Admin user for Single Tenancy");
-            log.info("Count shown in queue name " + jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(0).getText()));
+            log.info("Queue name is : " + jmsPage.sourceFieldQueueName.get(0).getText());
+            soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()) != null, "Message count is  shown for Admin user for Single Tenancy");
+            log.info("Count shown in queue name " + jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()));
         }
         soft.assertAll();
     }
@@ -529,11 +529,11 @@ public class JMSMessPgTest extends BaseTest {
             log.info("Wait for grid row to load");
             jmsPage.grid().waitForRowsToLoad();
 
-            log.info("Queue name is : " + jmsPage.multiSelectInputField.get(1).getText());
+            log.info("Queue name is : " + jmsPage.sourceFieldQueueName.get(0).getText());
 
             log.info("check if count is shown for Super admin user for domain :" + jmsPage.getDomainFromTitle());
-            soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(1).getText()) != null, "Message count is not shown for Admin user for Multi Tenancy");
-            log.info("Count shown in queue name is : " + jmsPage.getCountFromQueueName(jmsPage.multiSelectInputField.get(1).getText()));
+            soft.assertTrue(jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()) != null, "Message count is not shown for Admin user for Multi Tenancy");
+            log.info("Count shown in queue name is : " + jmsPage.getCountFromQueueName(jmsPage.sourceFieldQueueName.get(0).getText()));
 
             log.info("Get domain name from page title");
             if (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {

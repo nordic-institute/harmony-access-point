@@ -41,8 +41,8 @@ public class JMSMonitoringPage extends DomibusPage {
     @FindBy(css = "input[class=md2-datepicker-value]:nth-child(2)")
     public List<WebElement> receivedDateField;
 
-    @FindBy(css = "span[class=mat-select-value-text] ")
-    public List<WebElement> multiSelectInputField;
+    @FindBy(css = "div[class=selectionCriteria] span[class=mat-select-value-text]")
+    public List<WebElement> sourceFieldQueueName;
 
     public DGrid grid() {
         return new DGrid(driver, messagesTableGrid);
@@ -69,6 +69,8 @@ public class JMSMonitoringPage extends DomibusPage {
     }
 
 
+
+
     public boolean isLoaded() throws Exception {
         return (grid().isPresent()
                 && filters().isLoaded()
@@ -88,6 +90,7 @@ public class JMSMonitoringPage extends DomibusPage {
             return queueName.substring(startIndex + 1, endIndex);
         }
     }
+
 
 
 }
