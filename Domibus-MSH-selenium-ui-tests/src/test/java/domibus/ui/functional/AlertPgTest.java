@@ -409,7 +409,7 @@ public class AlertPgTest extends BaseTest {
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
 
         log.info("Set count as 10, if total count >10");
-        int  totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
+        int totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
 
         for (int j = 0; j < totalCount; j++) {
             compareParamData(page.grid().getRowInfo(j), userList, messageList, soft);
@@ -441,10 +441,8 @@ public class AlertPgTest extends BaseTest {
         log.info("Extract total record from Alerts page");
         int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
 
-        if (totalCount>0) {
-            log.info("Set grid count=10 if total count>10");
-            totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
-        }
+        log.info("Set grid count=10 if total count>10");
+        totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
         JSONArray userList = rest.getUsers(page.getDomainFromTitle());
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
         for (int j = 0; j < totalCount; j++) {
