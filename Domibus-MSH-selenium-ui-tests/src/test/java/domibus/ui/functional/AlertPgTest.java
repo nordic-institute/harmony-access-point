@@ -723,15 +723,17 @@ public class AlertPgTest extends BaseTest {
             log.info("Navigate to users page");
             page.getSidebar().goToPage(PAGES.USERS);
             UsersPage uPage = new UsersPage(driver);
-
+            Boolean isUserPresent=false;
             for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
 
                 soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER), "Check available user is other than super user");
                 for (int k = 0; k < userInfo.getJSONObject(k).getString("userName").length(); k++) {
                     if (userInfo.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
                         log.info("Shown user is from current domain");
+                        isUserPresent=true;
                     }
                 }
+                soft.assertTrue(isUserPresent,"User is present on Domain specific user lists");
             }
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
