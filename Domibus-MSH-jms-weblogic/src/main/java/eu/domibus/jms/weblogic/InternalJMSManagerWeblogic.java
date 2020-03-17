@@ -335,7 +335,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     public Destination lookupDestination(String destJndiName) throws NamingException {
-        LOG.debug("Retrieving lookup destination with JNDI name [{}] ", destJndiName);
+        LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
         return jmsDestinationCache.getByJndiName(destJndiName);
     }
 
