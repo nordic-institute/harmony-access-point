@@ -907,10 +907,11 @@ public class AlertPgTest extends BaseTest {
 
         page.waitForTitle();
         page.grid().waitForRowsToLoad();
+        int alertCountWithShowDomain=rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
         do {
             log.info("Check alert count when showDomain alert is true");
-            if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 0) {
-                int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+            if (alertCountWithShowDomain > 0) {
+                int alertCountWithoutShowDomain=rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
                 HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
                 log.info("Verify disabled status of save and cancel button");
                 soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(), "Check status of save and cancel button");
@@ -920,20 +921,24 @@ public class AlertPgTest extends BaseTest {
                 log.info("Click on save button and then ok from confirmation pop up");
                 page.getSaveButton().click();
                 page.confirmationPopup().confirm();
+                int currentAlertCount=rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
                 log.info("Check total count as 1 less than before");
-                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1, "Check alert size as 1 less than before");
+                soft.assertTrue(currentAlertCount == alertCountWithoutShowDomain - 1, "Check alert size as 1 less than before");
 
                 log.info("Select processed in search filter ");
                 aFilter.getProcessedSelect().selectOptionByIndex(1);
                 log.info("Click on search button");
                 aFilter.getSearchButton().click();
                 page.grid().waitForRowsToLoad();
+                Boolean isProcessedDataPresent=false;
                 List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
                 for (int i = 0; i < allRowInfo.size(); i++) {
                     if (allRowInfo.get(i).equals(rowInfo)) {
                         log.info("Row is present ");
+                        isProcessedDataPresent=true;
                     }
                 }
+                soft.assertEquals(isProcessedDataPresent,"Processed data is present");
             } else {
                 log.info("There is no data present to verify this feature");
             }
