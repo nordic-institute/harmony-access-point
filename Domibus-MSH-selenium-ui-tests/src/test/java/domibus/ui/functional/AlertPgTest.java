@@ -406,7 +406,7 @@ public class AlertPgTest extends BaseTest {
         page.grid().waitForRowsToLoad();
 
         log.info("Extract total number of records from Alerts page");
-        int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
+        int totalCount = page.grid().getPagination().getTotalItems();
         JSONArray userList = rest.getUsers(page.getDomainFromTitle());
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
 
