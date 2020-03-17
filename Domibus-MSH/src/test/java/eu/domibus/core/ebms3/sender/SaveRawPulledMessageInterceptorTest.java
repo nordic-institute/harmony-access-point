@@ -1,12 +1,13 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
+import eu.domibus.core.spring.SpringContextProvider;
 import eu.domibus.ebms3.SoapInterceptorTest;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.spring.SpringContextProvider;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;

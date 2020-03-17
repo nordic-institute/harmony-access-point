@@ -29,36 +29,36 @@
     </bean>
 
     <!-- interceptors -->
-    <bean id="domibusReadyInterceptor" class="eu.domibus.core.ebms3.receiver.DomibusReadyInterceptor">
-        <property name="before" value="eu.domibus.core.ebms3.receiver.SetPolicyInInterceptor"/>
+    <bean id="domibusReadyInterceptor" class="eu.domibus.core.ebms3.receiver.interceptor.DomibusReadyInterceptor">
+        <property name="before" value="eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor"/>
     </bean>
-    <bean id="trustSenderInterceptor" class="eu.domibus.core.ebms3.receiver.TrustSenderInterceptor">
+    <bean id="trustSenderInterceptor" class="eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor">
         <property name="crypto" ref="Wss4JMultiDomainCryptoProvider"/>
     </bean>
 
-    <bean id="setDomainInInterceptor" class="eu.domibus.core.ebms3.receiver.SetDomainInInterceptor"/>
+    <bean id="setDomainInInterceptor" class="eu.domibus.core.ebms3.receiver.interceptor.SetDomainInInterceptor"/>
 
     <!--Interceptors to enable SwA encryption for Dispatch/WebServiceProvider implementations-->
-    <bean id="setPolicyInInterceptorServer" class="eu.domibus.core.ebms3.receiver.SetPolicyInServerInterceptor">
+    <bean id="setPolicyInInterceptorServer" class="eu.domibus.core.ebms3.receiver.policy.SetPolicyInServerInterceptor">
         <property name="messageLegConfigurationFactory" ref="serverInMessageLegConfigurationFactory"/>
     </bean>
-    <bean id="setPolicyInInterceptorClient" class="eu.domibus.core.ebms3.receiver.SetPolicyInClientInterceptor">
+    <bean id="setPolicyInInterceptorClient" class="eu.domibus.core.ebms3.receiver.policy.SetPolicyInClientInterceptor">
         <property name="messageLegConfigurationFactory" ref="clientInMessageLegConfigurationFactory"/>
     </bean>
 
     <bean id="setSignatureAlgorithmInInterceptor"
-          class="eu.domibus.core.ebms3.sender.SetSignatureAlgorithmInInterceptor"/>
+          class="eu.domibus.core.ebms3.sender.interceptor.SetSignatureAlgorithmInInterceptor"/>
 
-    <bean id="propertyValueExchangeInterceptor" class="eu.domibus.core.ebms3.receiver.PropertyValueExchangeInterceptor"/>
-    <bean id="setPolicyOutInterceptor" class="eu.domibus.core.ebms3.sender.SetPolicyOutInterceptor"/>
+    <bean id="propertyValueExchangeInterceptor" class="eu.domibus.core.ebms3.receiver.interceptor.PropertyValueExchangeInterceptor"/>
+    <bean id="setPolicyOutInterceptor" class="eu.domibus.core.ebms3.sender.interceptor.SetPolicyOutInterceptor"/>
 
-    <bean id="setPolicyOutInterceptorServer" class="eu.domibus.core.ebms3.receiver.SetPolicyOutInterceptorServer"/>
+    <bean id="setPolicyOutInterceptorServer" class="eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer"/>
     <bean id="saveRawPulledMessageInterceptor" class="eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor"/>
 
     <bean id="attachmentCleanupInterceptor" class="eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor"/>
 
     <!-- DomibusAlgorithmSuiteLoader -->
-    <bean id="algorithmSuiteLoader" class="eu.domibus.core.ebms3.algorithm.DomibusAlgorithmSuiteLoader">
+    <bean id="algorithmSuiteLoader" class="eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader">
         <constructor-arg ref="cxf"/>
     </bean>
 
@@ -138,7 +138,7 @@
     </jaxws:client>
 
     <bean id="domibusPrepareAttachmentInInterceptor"
-          class="eu.domibus.core.ebms3.receiver.DomibusPrepareAttachmentInInterceptor"/>
+          class="eu.domibus.core.ebms3.receiver.interceptor.DomibusPrepareAttachmentInInterceptor"/>
     <bean id="domibusPrepareAttachmentInterceptor" class="eu.domibus.core.ebms3.ws.attachment.DomibusPrepareAttachmentInterceptor"/>
     <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch"
                   createdFromAPI="true">

@@ -1,11 +1,11 @@
 package eu.domibus.ebms3;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;

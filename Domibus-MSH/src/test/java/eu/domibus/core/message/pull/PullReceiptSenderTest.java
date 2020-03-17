@@ -2,14 +2,14 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;

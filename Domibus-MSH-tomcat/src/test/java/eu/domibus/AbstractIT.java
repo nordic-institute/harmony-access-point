@@ -11,7 +11,7 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;

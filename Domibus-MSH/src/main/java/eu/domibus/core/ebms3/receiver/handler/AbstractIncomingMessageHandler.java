@@ -1,14 +1,14 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

@@ -1,10 +1,10 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.core.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;

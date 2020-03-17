@@ -1,10 +1,10 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.core.ebms3.receiver.leg.AbstractMessageLegConfigurationFactory;
+import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.core.ebms3.receiver.AbstractMessageLegConfigurationFactory;
-import eu.domibus.core.ebms3.receiver.LegConfigurationExtractor;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
