@@ -897,7 +897,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will verify Processed feature for Domain specific data
-    @Test(description = "ALRT-33", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "ALRT-33", groups = {"multiTenancy"})
     public void checkProcessedForDomainData() throws Exception {
 
         SoftAssert soft = new SoftAssert();
