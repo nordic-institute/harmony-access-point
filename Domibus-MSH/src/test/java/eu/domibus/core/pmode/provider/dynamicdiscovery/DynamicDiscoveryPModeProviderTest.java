@@ -7,23 +7,22 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ProcessDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.certificate.CertificateServiceImpl;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.core.certificate.CertificateServiceImpl;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.europa.ec.dynamicdiscovery.model.Endpoint;
 import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;
 import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
@@ -95,9 +94,6 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Mock
     private DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL;
-
-    @Mock
-    private ProcessDao processDao;
 
     @Mock
     private DynamicDiscoveryServiceOASIS dynamicDiscoveryServiceOASIS;

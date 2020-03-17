@@ -19,7 +19,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.core.policy.PolicyService;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;

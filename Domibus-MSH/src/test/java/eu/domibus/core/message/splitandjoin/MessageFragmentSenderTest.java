@@ -10,7 +10,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.policy.PolicyService;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

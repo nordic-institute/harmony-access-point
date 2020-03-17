@@ -1,4 +1,4 @@
-package eu.domibus.common;
+package eu.domibus.core.status;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;

@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver;
 
-import eu.domibus.common.DomibusStatusService;
+import eu.domibus.core.status.DomibusStatusService;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;

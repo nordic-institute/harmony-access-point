@@ -1,4 +1,4 @@
-package eu.domibus.core.jms;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;

@@ -11,7 +11,7 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.validators.PayloadProfileValidator;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;

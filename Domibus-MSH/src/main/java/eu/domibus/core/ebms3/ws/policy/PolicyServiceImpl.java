@@ -1,5 +1,5 @@
 
-package eu.domibus.core.policy;
+package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.exception.ConfigurationException;

@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver;
 
-import eu.domibus.common.DomibusStatusService;
+import eu.domibus.core.status.DomibusStatusService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

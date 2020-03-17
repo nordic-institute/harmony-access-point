@@ -35,7 +35,7 @@ import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
-import eu.domibus.core.policy.PolicyService;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;

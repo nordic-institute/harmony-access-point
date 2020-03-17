@@ -12,7 +12,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.common.validators.PayloadProfileValidator;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;

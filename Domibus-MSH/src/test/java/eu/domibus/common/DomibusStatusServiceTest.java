@@ -1,5 +1,6 @@
 package eu.domibus.common;
 
+import eu.domibus.core.status.DomibusStatusService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

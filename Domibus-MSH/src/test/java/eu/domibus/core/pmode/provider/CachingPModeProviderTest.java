@@ -11,22 +11,17 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ConfigurationRawDAO;
-import eu.domibus.core.pmode.ProcessDao;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.message.pull.MpcService;
-import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
-import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.core.pmode.PullProcessPartyExtractor;
-import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.AgreementRef;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.pull.MpcService;
+import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.pmode.*;
+import eu.domibus.core.pmode.validation.PModeValidationService;
+import eu.domibus.ebms3.common.model.AgreementRef;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
@@ -99,9 +94,6 @@ public class CachingPModeProviderTest {
 
     @Injectable
     ProcessPartyExtractorProvider processPartyExtractorProvider;
-
-    @Injectable
-    ProcessDao processDao;
 
     @Injectable
     Topic clusterCommandTopic;

@@ -11,7 +11,7 @@ import eu.domibus.ebms3.common.model.Receipt;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.core.policy.PolicyService;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;

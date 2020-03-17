@@ -5,25 +5,24 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.ebms3.Ebms3Constants;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ConfigurationRawDAO;
-import eu.domibus.core.pmode.ProcessDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
-import eu.domibus.core.message.pull.MpcService;
-import eu.domibus.core.pmode.validation.PModeValidationService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.pull.MpcService;
+import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationRawDAO;
+import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -92,9 +91,6 @@ public abstract class PModeProvider {
 
     @Autowired
     PModeValidationService pModeValidationService;
-
-    @Autowired
-    protected ProcessDao processDao;
 
     protected abstract void init();
 

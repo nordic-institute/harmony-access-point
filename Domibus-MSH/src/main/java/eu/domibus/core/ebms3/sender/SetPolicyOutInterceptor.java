@@ -11,7 +11,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.core.policy.PolicyService;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;

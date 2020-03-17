@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.core.payload;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;

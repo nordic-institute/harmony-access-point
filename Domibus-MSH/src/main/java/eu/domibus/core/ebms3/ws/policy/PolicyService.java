@@ -1,5 +1,5 @@
 
-package eu.domibus.core.policy;
+package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
