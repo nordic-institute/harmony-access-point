@@ -167,6 +167,7 @@ public class JMSMessPgTest extends BaseTest {
         soft.assertAll();
     }
 
+    /* This method will verify scenario of changing domain after row selection*/
     @Test(description = "JMS-10", groups = {"multiTenancy"})
     public void changeDomainAfterSelection() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -209,6 +210,7 @@ public class JMSMessPgTest extends BaseTest {
         soft.assertAll();
     }
 
+    /* This method will verify scenario of changing domain from second page of default domain*/
     @Test(description = "JMS-11", groups = {"multiTenancy"})
     public void changeDomainFromSecondPage() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -223,8 +225,7 @@ public class JMSMessPgTest extends BaseTest {
         int noOfMsgs = jmsPage.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
         if (noOfMsgs > 10) {
             jmsPage.grid().getPagination().goToPage(2);
-        }
-        else{
+        } else {
             throw new SkipException("Not enough messages in any of the queues to run test");
         }
         soft.assertTrue(jmsPage.grid().getPagination().getActivePage() == 2, "Selected page is 2");
@@ -245,6 +246,7 @@ public class JMSMessPgTest extends BaseTest {
 
     }
 
+    /* This method will verify data of Received Upto field*/
     @Test(description = "JMS-21", groups = {"multiTenancy", "singleTenancy"})
     public void checkReceivedUpTo() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -289,6 +291,7 @@ public class JMSMessPgTest extends BaseTest {
 
     }
 
+    /* This method will verify scenario of jms message deletion on domain change*/
     @Test(description = "JMS-12", groups = {"multiTenancy"})
     public void jmsMsgDelOnDomainChange() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -349,6 +352,7 @@ public class JMSMessPgTest extends BaseTest {
 
     }
 
+    /* This method will verify jms message queue count on Input filter*/
     @Test(description = "JMS-23", groups = {"multiTenancy", "singleTenancy"})
     public void queueMsgCountOnInputFilter() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -410,6 +414,7 @@ public class JMSMessPgTest extends BaseTest {
         soft.assertAll();
     }
 
+    /* This method will verify jms message count in queue on Move pop up*/
     @Test(description = "JMS-24", groups = {"multiTenancy", "singleTenancy"})
     public void queueMsgCountOnMovePopUp() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -472,22 +477,22 @@ public class JMSMessPgTest extends BaseTest {
 
                 }
             } else {
-                    log.info("Click on arrow to open destination fields on Move pop up");
-                    jmsModel.destinationArrows.get(2).click();
+                log.info("Click on arrow to open destination fields on Move pop up");
+                jmsModel.destinationArrows.get(2).click();
 
-                    log.info("Select first queue");
-                    jmsModel.getQueueSelect().selectOptionByIndex(0);
+                log.info("Select first queue");
+                jmsModel.getQueueSelect().selectOptionByIndex(0);
 
-                    log.info("Extract name of selected queue name");
-                    String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
-                    if (data.isMultiDomain()) {
-                        log.info("Verify presence of no count in selected queue name");
-                        soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
-                    } else {
-                        log.info("Verify present of count in case of single tenancy");
-                        soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) != null, "Count is  shown for queue on Move pop up for Single tenant Admin user");
+                log.info("Extract name of selected queue name");
+                String selectedQueuee = jmsModel.getQueueSelect().getSelectedValue();
+                if (data.isMultiDomain()) {
+                    log.info("Verify presence of no count in selected queue name");
+                    soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) == null, "Count is not shown for queue on Move pop up for Multi tenant Admin user");
+                } else {
+                    log.info("Verify present of count in case of single tenancy");
+                    soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) != null, "Count is  shown for queue on Move pop up for Single tenant Admin user");
 
-                    }
+                }
             }
 
             jmsPage.refreshPage();
@@ -516,6 +521,7 @@ public class JMSMessPgTest extends BaseTest {
 
     }
 
+    /* This method will verify jms message count on queue in case of super admin*/
     @Test(description = "JMS-25", groups = {"multiTenancy"})
     public void queueMsgCountForSuperAdmin() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -548,7 +554,7 @@ public class JMSMessPgTest extends BaseTest {
         soft.assertAll();
     }
 
-
+    /* This method will verify message count on move pop up in case of super admin */
     @Test(description = "JMS-26", groups = {"multiTenancy"})
     public void msgCountOnMoveForSuperAdmin() throws Exception {
         SoftAssert soft = new SoftAssert();
