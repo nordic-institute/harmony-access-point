@@ -723,17 +723,17 @@ public class AlertPgTest extends BaseTest {
             log.info("Navigate to users page");
             page.getSidebar().goToPage(PAGES.USERS);
             UsersPage uPage = new UsersPage(driver);
-            Boolean isUserPresent=false;
+            Boolean isUserPresent = false;
             for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
 
                 soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER), "Check available user is other than super user");
                 for (int k = 0; k < userInfo.getJSONObject(k).getString("userName").length(); k++) {
                     if (userInfo.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
                         log.info("Shown user is from current domain");
-                        isUserPresent=true;
+                        isUserPresent = true;
                     }
                 }
-                soft.assertTrue(isUserPresent,"User is present on Domain specific user lists");
+                soft.assertTrue(isUserPresent, "User is present on Domain specific user lists");
             }
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
@@ -863,7 +863,7 @@ public class AlertPgTest extends BaseTest {
                 page.getSaveButton().click();
                 page.confirmationPopup().confirm();
                 log.info("Check total count as 1 less than before");
-                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1, "Check all alert size 1 less than before");
+                soft.assertTrue(page.grid().getPagination().getTotalItems() == totalCount - 1, "Check all alert size 1 less than before");
 
                 log.info("Select processed in search filter ");
                 aFilter.getProcessedSelect().selectOptionByIndex(1);
@@ -876,9 +876,14 @@ public class AlertPgTest extends BaseTest {
                     if (allRowInfo.get(i).equals(rowInfo)) {
                         log.info("Row is present ");
                         processedDataPresence = true;
-                        soft.assertTrue(processedDataPresence, "Processed record is present after event completion");
+                        break;
                     }
                 }
+                soft.assertTrue(processedDataPresence, "Processed record is present after event completion");
+
+            }
+            else{
+                throw new SkipException("Not enough record");
             }
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
@@ -907,11 +912,10 @@ public class AlertPgTest extends BaseTest {
 
         page.waitForTitle();
         page.grid().waitForRowsToLoad();
-        int alertCountWithShowDomain=rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
+        int oldCount = page.grid().getPagination().getTotalItems();
         do {
             log.info("Check alert count when showDomain alert is true");
-            if (alertCountWithShowDomain > 0) {
-                int alertCountWithoutShowDomain=rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+            if (oldCount > 0) {
                 HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
                 log.info("Verify disabled status of save and cancel button");
                 soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(), "Check status of save and cancel button");
@@ -921,26 +925,27 @@ public class AlertPgTest extends BaseTest {
                 log.info("Click on save button and then ok from confirmation pop up");
                 page.getSaveButton().click();
                 page.confirmationPopup().confirm();
-                int currentAlertCount=rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
                 log.info("Check total count as 1 less than before");
-                soft.assertTrue(currentAlertCount == alertCountWithoutShowDomain - 1, "Check alert size as 1 less than before");
+                soft.assertTrue(page.grid().getPagination().getTotalItems() == oldCount - 1, "Check alert size as 1 less than before");
 
                 log.info("Select processed in search filter ");
                 aFilter.getProcessedSelect().selectOptionByIndex(1);
                 log.info("Click on search button");
                 aFilter.getSearchButton().click();
                 page.grid().waitForRowsToLoad();
-                Boolean isProcessedDataPresent=false;
+                Boolean isProcessedDataPresent = false;
                 List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
                 for (int i = 0; i < allRowInfo.size(); i++) {
                     if (allRowInfo.get(i).equals(rowInfo)) {
                         log.info("Row is present ");
-                        isProcessedDataPresent=true;
+                        isProcessedDataPresent = true;
+                        break;
                     }
                 }
-                soft.assertEquals(isProcessedDataPresent,"Processed data is present");
+                soft.assertEquals(isProcessedDataPresent, "Processed data is present");
             } else {
-                log.info("There is no data present to verify this feature");
+
+                throw new SkipException("not enough record to proceed");
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 break;
@@ -949,6 +954,10 @@ public class AlertPgTest extends BaseTest {
                 log.info("Change domain");
                 page.getDomainSelector().selectOptionByIndex(1);
                 page.grid().waitForRowsToLoad();
+                aFilter.getShowDomainCheckbox().click();
+                aFilter.getSearchButton().click();
+                page.grid().waitForRowsToLoad();
+
             }
         } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
     }
