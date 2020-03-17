@@ -509,11 +509,7 @@ public class DGrid extends DComponent {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
                 .withTrim());
         List<CSVRecord> records = csvParser.getRecords();
-
-        int gridCount=getPagination().getTotalItems();
         int csvRowCount=records.size();
-
-        soft.assertTrue(gridCount==csvRowCount,"Csv and grid has same no of records");
         Boolean isdataPresent=false;
 
         log.info("verifying presence of grid row data for  row " + i + "in csv");
