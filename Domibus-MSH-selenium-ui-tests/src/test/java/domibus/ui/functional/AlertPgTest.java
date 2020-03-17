@@ -852,8 +852,9 @@ public class AlertPgTest extends BaseTest {
         AlertFilters aFilter = new AlertFilters(driver);
         do {
             log.info("Check alert count when showDomain alert is false");
-            if (rest.getAllAlerts(page.getDomainFromTitle(), "false").length() > 0) {
-                int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+            int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
+
+            if (totalCount > 0) {
                 HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
                 log.info("Verify disabled status of save and cancel button");
                 soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(),"Check save button is enabled and cancel button is disabled");
@@ -871,14 +872,15 @@ public class AlertPgTest extends BaseTest {
                 log.info("Click on search button");
                 aFilter.getSearchButton().click();
                 page.grid().waitForRowsToLoad();
+                Boolean processedDataPresence= false;
                 List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
                 for (int i = 0; i < allRowInfo.size(); i++) {
                     if (allRowInfo.get(i).equals(rowInfo)) {
                         log.info("Row is present ");
+                        processedDataPresence=true;
+                        soft.assertTrue(processedDataPresence,"Processed record is present after event completion");
                     }
                 }
-            } else {
-                log.info("There is no record on page to  verify this feature");
             }
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
