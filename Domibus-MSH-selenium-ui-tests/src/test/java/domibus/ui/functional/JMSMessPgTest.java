@@ -224,6 +224,9 @@ public class JMSMessPgTest extends BaseTest {
         if (noOfMsgs > 10) {
             jmsPage.grid().getPagination().goToPage(2);
         }
+        else{
+            throw new SkipException("Not enough messages in any of the queues to run test");
+        }
         soft.assertTrue(jmsPage.grid().getPagination().getActivePage() == 2, "Selected page is 2");
         log.info("Change domain");
         jmsPage.getDomainSelector().selectOptionByIndex(1);
@@ -231,12 +234,11 @@ public class JMSMessPgTest extends BaseTest {
         log.info("Wait for grid row to load");
         jmsPage.grid().waitForRowsToLoad();
 
-        log.info("Check active page is different from 2 i.e earlier selected one");
-        soft.assertTrue(jmsPage.grid().getPagination().getActivePage() != 2, "Active page number in not 2");
+        log.info("Check active page is 1 i.e different from 2 which was selected before domain change");
+        soft.assertTrue(jmsPage.grid().getPagination().getActivePage() == 1, "Active page number is 1");
 
         log.info("Check current number of messages");
         int currentNoOfMsgs = jmsPage.grid().getPagination().getTotalItems();
-
         log.info("Total number of message count before and after domain change is different");
         soft.assertTrue(currentNoOfMsgs != noOfMsgs, " Total number of messages are different");
         soft.assertAll();
