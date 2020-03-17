@@ -171,5 +171,7 @@
         <cve>CVE-2020-9547</cve>
         <!-- we don't use anteros-core library-->
         <cve>CVE-2020-9548</cve>
+        <!-- we are not using xbean-reflect libraries -->
+        <cve>CVE-2020-8840</cve>
     </suppress>
 </suppressions>
