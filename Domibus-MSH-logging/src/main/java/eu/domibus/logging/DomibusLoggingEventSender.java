@@ -7,6 +7,9 @@ import org.apache.cxf.ext.logging.event.LogMessageFormatter;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Map;
 
 /**
  * This class extends the default {@code Slf4jEventSender} implemented by Apache CXF
@@ -22,6 +25,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
 
     static final String CONTENT_TYPE = "Content-Type:";
     private static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
+    public static final String HEADERS_AUTHORIZATION = "Authorization";
 
     private boolean printPayload;
 
@@ -36,12 +40,16 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
         boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
         LOG.debug("[{}] set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
 
-        if (isCxfLoggingInfoEnabled && !printPayload) {
-            try {
-                stripPayload(event);
-            } catch (RuntimeException e) {
-                LOG.error("Exception while stripping the payload: ", e);
+        try {
+            if (isCxfLoggingInfoEnabled ) {
+                stripHeaders(event);
+                if (!printPayload) {
+                    stripPayload(event);
+                }
+
             }
+        } catch (RuntimeException e) {
+            LOG.error("Exception while stripping the payload: ", e);
         }
 
         return LogMessageFormatter.format(event);
@@ -67,6 +75,16 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
                 }
             }
         }
+    }
+
+    protected void stripHeaders(LogEvent event) {
+        Map<String, String> headers = event.getHeaders();
+        if (CollectionUtils.isEmpty(headers)) {
+            LOG.debug("no apache cxf headers to strip");
+            return;
+        }
+        headers.entrySet()
+                .removeIf(e -> HEADERS_AUTHORIZATION.equalsIgnoreCase(e.getKey()));
     }
 
 }
