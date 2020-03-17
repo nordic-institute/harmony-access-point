@@ -412,7 +412,7 @@ public class AlertPgTest extends BaseTest {
         int  totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
 
         for (int j = 0; j < totalCount; j++) {
-            compareParamData(j, userList, messageList, page);
+            compareParamData(page.grid().getRowInfo(j), userList, messageList, soft);
         }
         soft.assertAll();
     }
@@ -449,7 +449,7 @@ public class AlertPgTest extends BaseTest {
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
         for (int j = 0; j < totalCount; j++) {
 
-            compareParamData(j, userList, messageList, page);
+            compareParamData(page.grid().getRowInfo(j), userList, messageList, soft);
 
         }
         soft.assertAll();
@@ -663,7 +663,7 @@ public class AlertPgTest extends BaseTest {
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
-                compareParamData(j, userList, messageList, page);
+                compareParamData(page.grid().getRowInfo(j), userList, messageList, soft);
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain is null or second domain in case of multitenancy");
@@ -947,31 +947,38 @@ public class AlertPgTest extends BaseTest {
         } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
     }
 
-    private void compareParamData(int rowNumber, JSONArray userList, JSONArray messageList, AlertPage page) throws Exception {
-        if (page.grid().getRowInfo(rowNumber).containsValue("USER_LOGIN_FAILURE") || page.grid().getRowInfo(rowNumber).containsValue("USER_ACCOUNT_DISABLED")) {
-            log.info("Check Alert type is USER_LOGIN_FAILURE or USER_ACCOUNT_DISABLED");
+    private void compareParamData(HashMap<String, String> rowInfo, JSONArray userList, JSONArray messageList, SoftAssert soft) throws Exception {
 
-            String user = page.grid().getRowSpecificColumnVal(rowNumber, "Parameters").split(",")[0];
-            log.info("Extract userName from Parameters ");
+        log.info("Extract first entity from parameters field");
+        String entityId = rowInfo.get("Parameters").split(",")[0];
+        boolean foundInList = false;
+
+        if (rowInfo.containsValue("USER_LOGIN_FAILURE") || rowInfo.containsValue("USER_ACCOUNT_DISABLED")) {
+
+            log.info("Check Alert type is USER_LOGIN_FAILURE or USER_ACCOUNT_DISABLED");
             for (int k = 0; k < userList.length(); k++) {
-                if (userList.getJSONObject(k).getString("userName").equals(user)) {
+                if (userList.getJSONObject(k).getString("userName").equals(entityId)) {
                     log.info("Shown user is from current domain");
+                    foundInList = true;
+                    break;
                 }
 
             }
-        } else if (page.grid().getRowInfo(rowNumber).containsValue("MSG_STATUS_CHANGED")) {
+        } else if (rowInfo.containsValue("MSG_STATUS_CHANGED")) {
             log.info("Check if Alert Type is MSG_STATUS_CHANGED");
-            String messageId = page.grid().getRowSpecificColumnVal(rowNumber, "Parameters").split(",")[0];
-            log.info("Extract message id from parameters field");
 
             for (int k = 0; k < messageList.length(); k++) {
-                if (messageList.getJSONObject(k).getString("messageId").equals(messageId)) {
+                if (messageList.getJSONObject(k).getString("messageId").equals(entityId)) {
                     log.info("Message belongs to current domain");
+                    foundInList = true;
+                    break;
                 }
             }
-
         }
+
+        soft.assertTrue(foundInList, "ID was found in appropriate list of entities");
     }
+
 
     public List<String> getCSVSpecificColumnData(String filename, String columnName) throws Exception {
 
