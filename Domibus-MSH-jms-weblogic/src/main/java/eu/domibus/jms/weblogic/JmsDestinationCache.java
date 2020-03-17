@@ -8,7 +8,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 @Component
-public class DestinationCache {
+public class JmsDestinationCache {
 
     @Cacheable(value = "jmsDestinations")
     public Destination getByJndiName(final String destinationJndi) throws NamingException {
