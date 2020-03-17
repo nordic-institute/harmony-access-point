@@ -709,10 +709,10 @@ public class AuditPgTest extends BaseTest {
         int defaultDomainGridCount = aPage.grid().getPagination().getTotalItems();
 
         log.info("Extract row info ");
-        int defaultGridCount=Math.min(10,aPage.grid().getPagination().getTotalItems());
-        List<HashMap<String, String>> defaultDomainData= new ArrayList<>();
+        int defaultGridCount = Math.min(10, aPage.grid().getPagination().getTotalItems());
+        List<HashMap<String, String>> defaultDomainData = new ArrayList<>();
 
-        for(int i=0;i<defaultGridCount;i++){
+        for (int i = 0; i < defaultGridCount; i++) {
             defaultDomainData.add(aPage.grid().getRowInfo(i));
         }
         log.info("Change domain");
@@ -722,9 +722,9 @@ public class AuditPgTest extends BaseTest {
         int secondGridCount = aPage.grid().getPagination().getTotalItems();
 
         log.info("Extract  row infos");
-        int gridRowCount=Math.min(10,aPage.grid().getPagination().getTotalItems());
-        List<HashMap<String, String>> secDomainData= new ArrayList<>();
-        for(int i=0;i<gridRowCount;i++){
+        int gridRowCount = Math.min(10, aPage.grid().getPagination().getTotalItems());
+        List<HashMap<String, String>> secDomainData = new ArrayList<>();
+        for (int i = 0; i < gridRowCount; i++) {
             secDomainData.add(aPage.grid().getRowInfo(i));
         }
         log.info("Verify grid row data for both domains");
@@ -792,16 +792,15 @@ public class AuditPgTest extends BaseTest {
 
             log.info("Wait for grid row to load");
             jmsPage.grid().waitForRowsToLoad();
-           if(count>0) {
+            if (count > 0) {
                 log.info("Select jms queue with some messages ");
 
 
                 log.info("Select first row");
                 jmsPage.grid().selectRow(0);
+            } else {
+                throw new SkipException("Not enough rows");
             }
-           else{
-               throw new SkipException("Not enough rows");
-           }
 
             log.info("Extract first row data");
             HashMap<String, String> firstRowData = jmsPage.grid().getRowInfo(0);
@@ -820,13 +819,13 @@ public class AuditPgTest extends BaseTest {
             jmsPage.getSidebar().goToPage(PAGES.AUDIT);
 
             log.info("Verify first row Action column data as Deleted");
-            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Deleted"));
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Deleted"), "Row contains Deleted action");
 
             log.info("Verify first row Table column data as Jms Message");
-            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Jms message"));
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Jms message"), "Row contains Jms message");
 
             log.info("Verify first row ID column data as ID shown for Message on Jms monitoring page");
-            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue(jmsMsgId));
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue(jmsMsgId), "Row contains jms message id");
 
             log.info("Break from loop if domain name is same as second domain code for multitenancy or null for single tenancy");
             if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
@@ -872,13 +871,14 @@ public class AuditPgTest extends BaseTest {
         AuditPage aPage = new AuditPage(driver);
         do {
 
-            if(data.isMultiDomain()){
-                if(mPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))){
+            if (data.isMultiDomain()) {
+                if (mPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                     log.info("Create plugin user");
                     rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), mPage.getDomainFromTitle());
                     log.info("send message ");
                     messageSender.sendMessage(userr, data.defaultPass(), null, null);
-                }}
+                }
+            }
             mPage.refreshPage();
 
             log.info("Wait for grid row to load");
@@ -913,10 +913,10 @@ public class AuditPgTest extends BaseTest {
             aPage.grid().waitForRowsToLoad();
 
             log.info("Check ID as message id , Action as resent Table as Message and User as Super(for multitenancy) or Admin(for Singletenancy) log on audit page");
-            soft.assertTrue(aPage.grid().getRowInfo(0).get("Id").equals(msgId) &&
-                    aPage.grid().getRowInfo(0).containsValue("Resent") &&
-                    aPage.grid().getRowInfo(0).containsValue("Message") &&
-                    (aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin")));
+            soft.assertTrue(aPage.grid().getRowInfo(0).get("Id").equals(msgId), "Row info contains message id");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Resent"), "Row info contain Resent action");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Message"), "Row info contains Message table name");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin"), "Row info contains user as super or admin");
 
             if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break loop if domain title is same as second domain code or null");
@@ -957,9 +957,9 @@ public class AuditPgTest extends BaseTest {
             aPage.grid().waitForRowsToLoad();
 
             log.info("Verify value for column table, action and user on audit page for first row");
-            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Pmode"),"verify table name as pmode");
-            soft.assertTrue( aPage.grid().getRowInfo(0).containsValue("Downloaded"),"verify action name as downloaded");
-            soft.assertTrue (aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin"),"Verify username as Admin for singleTenancy or Super admin for multitenancy");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Pmode"), "verify table name as pmode");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Downloaded"), "verify action name as downloaded");
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin"), "Verify username as Admin for singleTenancy or Super admin for multitenancy");
 
             if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain name is null (for single tenancy) and second domain  for multitenancy");
