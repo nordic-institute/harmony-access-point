@@ -1,4 +1,4 @@
-package eu.domibus.executor;
+package eu.domibus.executor.tomcat;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
