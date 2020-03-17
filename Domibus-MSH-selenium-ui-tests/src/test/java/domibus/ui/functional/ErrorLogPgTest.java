@@ -72,8 +72,7 @@ public class ErrorLogPgTest extends BaseUXTest {
             log.info("Wait for grid row to load");
             mPage.grid().waitForRowsToLoad();
 
-            log.info("Check Message status for first row");
-            soft.assertTrue(mPage.grid().getRowInfo(0).containsValue(messageID));
+            soft.assertTrue(mPage.grid().getRowInfo(0).containsValue(messageID), "Check presence of message id ");
             DWait wait = new DWait(driver);
 
             for (; ; ) {
