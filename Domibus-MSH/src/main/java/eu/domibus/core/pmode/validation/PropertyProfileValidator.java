@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;

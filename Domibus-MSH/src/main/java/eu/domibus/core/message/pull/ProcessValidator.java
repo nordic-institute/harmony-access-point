@@ -1,4 +1,4 @@
-package eu.domibus.common.validators;
+package eu.domibus.core.message.pull;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -7,8 +7,6 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mep;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.message.pull.PullProcessStatus;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;

@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.PropertySet;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.core.util.xml.XMLUtilImpl;
