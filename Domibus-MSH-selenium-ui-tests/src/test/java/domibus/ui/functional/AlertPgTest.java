@@ -441,7 +441,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Extract total record from Alerts page");
         int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "true").length();
 
-        if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
+        if (totalCount>0) {
             log.info("Set grid count=10 if total count>10");
             totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
         }
