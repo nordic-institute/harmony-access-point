@@ -286,7 +286,7 @@ public class JMSMessPgTest extends BaseTest {
                 jmsPage.getDomainSelector().selectOptionByIndex(1);
             }
         } while (jmsPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
-        //}
+
         soft.assertAll();
 
     }
@@ -471,9 +471,9 @@ public class JMSMessPgTest extends BaseTest {
             if ((jmsModel.getQueueSelect().getSelectedValue() != null)) {
                 if (data.isMultiDomain()) {
 
-                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null);
+                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) == null,"verify queue count as null");
                 } else {
-                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) != null);
+                    soft.assertTrue(jmsPage.getCountFromQueueName(jmsModel.getQueueSelect().getSelectedValue()) != null,"verify queue count as not null");
 
                 }
             } else {
