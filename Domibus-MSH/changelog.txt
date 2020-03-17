@@ -1,5 +1,5 @@
 Domibus 4.1.4
-- Added cache to jmx destination iteration.
+- Remove unecessary jmx looping when looking up destination in weblogic jms manager
 Domibus 4.1.3
 - Remove unnecessary RMI port usage from ActiveMQ on Tomcat
 - Fixed payload encryption at start up of WebLogic cluster
