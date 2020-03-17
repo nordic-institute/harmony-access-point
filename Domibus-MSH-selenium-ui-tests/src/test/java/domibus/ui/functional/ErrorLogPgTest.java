@@ -169,7 +169,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("verify message id for all rows logged after retry");
             for (int j = 0; j < retryCount; j++) {
-                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID));
+                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID),"Check row info has message id present");
             }
         }
         soft.assertAll();
@@ -235,7 +235,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Find timestamp for each retry event");
             for (int j = 0; j <= retryCount; j++) {
-                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID));
+                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID),"Check row info has message id present");
                 String str[] = page.grid().getRowInfo(j).get("Timestamp").split("GMT");
                 String str1[] = str[0].split(" ");
                 dateStr.add(str1[1]);
