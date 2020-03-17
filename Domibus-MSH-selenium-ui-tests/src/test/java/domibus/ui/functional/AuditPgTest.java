@@ -953,12 +953,13 @@ public class AuditPgTest extends BaseTest {
             soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
             log.info("Navigate to Audit page");
             pcPage.getSidebar().goToPage(PAGES.AUDIT);
+            aPage.waitForTitle();
+            aPage.grid().waitForRowsToLoad();
 
             log.info("Verify value for column table, action and user on audit page for first row");
-            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Pmode")
-                    && aPage.grid().getRowInfo(0).containsValue("Downloaded") &&
-                    (aPage.grid().getRowInfo(0).containsValue("super")
-                            || aPage.grid().getRowInfo(0).containsValue("admin")));
+            soft.assertTrue(aPage.grid().getRowInfo(0).containsValue("Pmode"),"verify table name as pmode");
+            soft.assertTrue( aPage.grid().getRowInfo(0).containsValue("Downloaded"),"verify action name as downloaded");
+            soft.assertTrue (aPage.grid().getRowInfo(0).containsValue("super") || aPage.grid().getRowInfo(0).containsValue("admin"),"Verify username as Admin for singleTenancy or Super admin for multitenancy");
 
             if (aPage.getDomainFromTitle() == null || aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain name is null (for single tenancy) and second domain  for multitenancy");
