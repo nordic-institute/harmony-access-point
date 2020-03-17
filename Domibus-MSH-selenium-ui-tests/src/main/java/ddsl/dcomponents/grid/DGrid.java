@@ -2,6 +2,7 @@ package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DObject;
+import javafx.beans.binding.BooleanExpression;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -508,13 +509,24 @@ public class DGrid extends DComponent {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
                 .withTrim());
         List<CSVRecord> records = csvParser.getRecords();
-        HashMap<String, String> gridInfo = getRowInfo(i);
+
+        int gridCount=getPagination().getTotalItems();
+        int csvRowCount=records.size();
+
+        soft.assertTrue(gridCount==csvRowCount,"Csv and grid has same no of records");
+        Boolean isdataPresent=false;
+
+        log.info("verifying presence of grid row data for  row " + i + "in csv");
+        for(int j=0;j<csvRowCount;j++) {
+            CSVRecord record = records.get(j);
+            HashMap<String, String> gridInfo = getRowInfo(i);
+            if (csvRowVsGridRow(record, gridInfo)) {
+                isdataPresent = true;
+            }
+        }
+            soft.assertTrue(isdataPresent, "Grid row data is present in csv irrespective of row order");
 
 
-        log.info("checking listed data for  data row" + i);
-        HashMap<String, String> gridRecord = gridInfo;
-        CSVRecord record = records.get(i);
-        soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
     }
 
     public String getRowSpecificColumnVal(int rowNumber, String columnName) throws Exception {

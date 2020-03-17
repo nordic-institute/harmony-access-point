@@ -616,6 +616,7 @@ public class AlertPgTest extends BaseTest {
                 page.grid().checkCSVvsGridHeaders(completeFilePathh, soft);
 
                 int maxAlertt = page.grid().getRowsNo();
+                System.out.println(maxAlert);
 
                 log.info("Check csv data and grid row data for specifc row");
                 page.grid().checkCSVvsGridDataForSpecificRow(completeFilePath, soft, Generator.randomNumber(maxAlertt));
