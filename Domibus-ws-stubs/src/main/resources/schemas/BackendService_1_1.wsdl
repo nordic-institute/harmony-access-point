@@ -79,6 +79,18 @@
         <wsdl:part element="tns:submitTestResponse" name="submitTestResponse">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="submitTestMessageTransactional">
+        <wsdl:part element="tns:submitTestTransactionalRequest" name="submitTestTransactionalRequest">
+        </wsdl:part>
+        <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="submitTestMessageTransactionalWithTimeout">
+        <wsdl:part element="tns:submitTestTransactionalWithTimeoutRequest" name="submitTestTransactionalWithTimeoutRequest">
+        </wsdl:part>
+        <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="submitMessage">
         <wsdl:part element="tns:submitRequest" name="submitRequest">
         </wsdl:part>
@@ -102,6 +114,18 @@
             <wsdl:input message="tns:submitTestMessage" name="submitTestMessage">
             </wsdl:input>
             <wsdl:output message="tns:submitTestMessageResponse" name="submitTestMessageResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="submitTestMessageTransactional">
+            <wsdl:input message="tns:submitTestMessageTransactional" name="submitTestMessageTransactional">
+            </wsdl:input>
+            <wsdl:output message="tns:submitTestMessageResponse" name="submitTestMessageTransactionalResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="submitTestMessageTransactionalWithTimeout">
+            <wsdl:input message="tns:submitTestMessageTransactionalWithTimeout" name="submitTestMessageTransactionalWithTimeout">
+            </wsdl:input>
+            <wsdl:output message="tns:submitTestMessageResponse" name="submitTestMessageTransactionalWithTimeoutResponse">
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="submitMessage">
@@ -149,6 +173,26 @@
             <wsdl:input name="submitTestMessage">
                 <soap12:header message="tns:submitTestMessage" part="ebMSHeaderInfo" use="literal"/>
                 <soap12:body parts="submitTestRequest" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="submitTestMessageResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="submitTestMessageTransactional">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="submitTestMessageTransactional">
+                <soap12:header message="tns:submitTestMessageTransactional" part="ebMSHeaderInfo" use="literal"/>
+                <soap12:body parts="submitTestTransactionalRequest" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="submitTestMessageResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="submitTestMessageTransactionalWithTimeout">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="submitTestMessageTransactionalWithTimeout">
+                <soap12:header message="tns:submitTestMessageTransactionalWithTimeout" part="ebMSHeaderInfo" use="literal"/>
+                <soap12:body parts="submitTestTransactionalWithTimeoutRequest" use="literal"/>
             </wsdl:input>
             <wsdl:output name="submitTestMessageResponse">
                 <soap12:body use="literal"/>
