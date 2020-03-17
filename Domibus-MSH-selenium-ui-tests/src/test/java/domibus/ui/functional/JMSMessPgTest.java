@@ -472,8 +472,6 @@ public class JMSMessPgTest extends BaseTest {
 
                 }
             } else {
-                if (jmsModel.getQueueSelect().getSelectedValue() == null) {
-
                     log.info("Click on arrow to open destination fields on Move pop up");
                     jmsModel.destinationArrows.get(2).click();
 
@@ -490,7 +488,6 @@ public class JMSMessPgTest extends BaseTest {
                         soft.assertTrue(jmsPage.getCountFromQueueName(selectedQueuee) != null, "Count is  shown for queue on Move pop up for Single tenant Admin user");
 
                     }
-                }
             }
 
             jmsPage.refreshPage();
