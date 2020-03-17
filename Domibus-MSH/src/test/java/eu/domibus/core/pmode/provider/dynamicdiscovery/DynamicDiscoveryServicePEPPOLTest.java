@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.ProxyUtil;
+import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;

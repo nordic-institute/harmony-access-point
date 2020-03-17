@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.HttpUtil;
+import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.proxy.DomibusProxyService;

@@ -2,7 +2,7 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
-import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDataBaseConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;

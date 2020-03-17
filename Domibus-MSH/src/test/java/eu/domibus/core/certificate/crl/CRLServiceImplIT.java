@@ -5,7 +5,7 @@ import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.PKIUtil;
+import eu.domibus.core.pki.PKIUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;

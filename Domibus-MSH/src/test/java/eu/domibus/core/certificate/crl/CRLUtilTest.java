@@ -1,9 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.core.certificate.crl.CRLUtil;
-import eu.domibus.core.certificate.crl.DomibusCRLException;
-import eu.domibus.pki.PKIUtil;
+import eu.domibus.core.pki.PKIUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

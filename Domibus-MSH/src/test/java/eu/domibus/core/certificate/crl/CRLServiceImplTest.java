@@ -1,11 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.certificate.crl.CRLServiceImpl;
-import eu.domibus.core.certificate.crl.CRLUrlType;
-import eu.domibus.core.certificate.crl.CRLUtil;
-import eu.domibus.core.certificate.crl.DomibusCRLException;
-import eu.domibus.pki.PKIUtil;
+import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;

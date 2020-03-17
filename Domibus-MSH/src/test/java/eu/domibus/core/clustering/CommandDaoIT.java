@@ -1,6 +1,6 @@
 package eu.domibus.core.clustering;
 
-import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDataBaseConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;

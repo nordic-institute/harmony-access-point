@@ -9,7 +9,6 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.common.model.configuration.RetryStrategy;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;

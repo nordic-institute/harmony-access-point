@@ -14,7 +14,7 @@ import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.pki.PKIUtil;
+import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;

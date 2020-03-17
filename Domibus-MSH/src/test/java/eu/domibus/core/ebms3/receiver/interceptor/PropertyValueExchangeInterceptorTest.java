@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.spring.SpringContextProvider;
-import eu.domibus.ebms3.SoapInterceptorTest;
+import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

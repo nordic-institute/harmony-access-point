@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.ProxyUtil;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
