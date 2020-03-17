@@ -705,9 +705,6 @@ public class AlertPgTest extends BaseTest {
         log.info("Login with created user and naviagte to Alerts page");
         login(user, data.defaultPass()).getSidebar().goToPage(PAGES.ALERTS);
         do {
-            log.info("Extract total number of users");
-            int totalUsers = rest.getUsers(page.getDomainFromTitle()).length();
-
             List<String> userName = new ArrayList<>();
 
             soft.assertFalse(aFilter.getShowDomainCheckbox().isPresent(), "Check Box is present");
@@ -726,7 +723,7 @@ public class AlertPgTest extends BaseTest {
             }
             log.info("Remove all duplicate username");
             List<String> userNameWithoutDuplicates = userName.stream().distinct().collect(Collectors.toList());
-            JSONArray userNames = rest.getUsers(page.getDomainFromTitle());
+            JSONArray userInfo = rest.getUsers(page.getDomainFromTitle());
             log.info("Navigate to users page");
             page.getSidebar().goToPage(PAGES.USERS);
             UsersPage uPage = new UsersPage(driver);
@@ -734,8 +731,8 @@ public class AlertPgTest extends BaseTest {
             for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
 
                 soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER),"Check available user is other than super user");
-                for (int k = 0; k < totalUsers; k++) {
-                    if (userNames.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
+                for (int k = 0; k < userInfo.getJSONObject(k).getString("userName").length(); k++) {
+                    if (userInfo.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
                         log.info("Shown user is from current domain");
                     }
                 }
@@ -743,7 +740,6 @@ public class AlertPgTest extends BaseTest {
 
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain is null for Single tenancy or equal to second domain");
-
                 break;
             }
             if (data.isMultiDomain()) {
