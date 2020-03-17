@@ -1,6 +1,5 @@
 package eu.domibus.jms.weblogic;
 
-import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
@@ -19,8 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
-import javax.jms.Destination;
-import javax.jms.Topic;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
@@ -75,7 +72,7 @@ public class JMSManagerWeblogicTest {
     private ServerInfoService serverInfoService;
 
     @Injectable
-    private DestinationCache destinationCache;
+    private JmsDestinationCache jmsDestinationCache;
 
     @Test
     public void testGetQueueName() throws Exception {
@@ -558,63 +555,11 @@ public class JMSManagerWeblogicTest {
     }
 
     @Test
-    public void jndiMatch() {
-        String queueName = "DomibusBusinessMessageInQueue";
-
-        Map<String,String> jndiMap=new HashMap<>();
-        jndiMap.put("DomibusBusinessMessageInQueue","jndiName");
-
-        jndiMap.put("DomibusXXXX","jndiName_DomibusBusinessMessageInQueueYYYY");
-
-        String found = jmsManagerWeblogic.jndiMatch(queueName, jndiMap);
-        assertEquals("jndiName", found);
-
-         found = jmsManagerWeblogic.jndiMatch("DomibusBusinessMessageInQueueYYYY", jndiMap);
-        assertEquals("jndiName_DomibusBusinessMessageInQueueYYYY", found);
-    }
-
-    @Test
-    public void getJndiName(final @Injectable InternalJMSDestination firstDestination, final @Injectable InternalJMSDestination secondDestination){
-
-
-        final String firstDestinationName = "firstDestination";
-        final String firstDestinationJndiName = "firstDestinationJndiName";
-        final String secondDestinationName = "secondDestination";
-        final String secondDestinationJndiName = "secondDestinationJndiName";
-
-        new Expectations(jmsManagerWeblogic){{
-
-            Map<String, InternalJMSDestination> internalJMSDestinationMap=new HashMap<>();
-            internalJMSDestinationMap.put(firstDestinationName,firstDestination);
-            internalJMSDestinationMap.put(secondDestinationName,secondDestination);
-
-            firstDestination.getProperty(PROPERTY_JNDI_NAME);result= firstDestinationJndiName;
-            secondDestination.getProperty(PROPERTY_JNDI_NAME);result= secondDestinationJndiName;
-
-            jmsManagerWeblogic.findDestinationsGroupedByFQName();times=2; //Called on first invocation to initiate and on third because destination name is incorrect.
-            result=internalJMSDestinationMap;
-        }};
-        assertEquals(firstDestinationJndiName,jmsManagerWeblogic.getJndiName(firstDestinationName));
-        assertEquals(secondDestinationJndiName,jmsManagerWeblogic.getJndiName(secondDestinationName));
-        try {
-             jmsManagerWeblogic.getJndiName("wrongDestination");
-            fail("Exception should be triggered");
-        }catch (InternalJMSException e){
-
-        }
-    }
-
-    @Test
     public void lookupDestination() throws NamingException {
-        final String destinationName = "destinationName";
-        final String jndiName=destinationName+"_jndi";
-        new Expectations(jmsManagerWeblogic){{
-            jmsManagerWeblogic.getJndiName(destinationName);
-            result=jndiName;
-        }};
-        jmsManagerWeblogic.lookupDestination(destinationName);
+        final String jndiName="destinationJndiName";
+        jmsManagerWeblogic.lookupDestination(jndiName);
         new Verifications(){{
-            destinationCache.getByJndiName(jndiName);
+            jmsDestinationCache.getByJndiName(jndiName);
         }};
     }
 }

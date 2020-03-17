@@ -63,6 +63,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected volatile Map<String, String> jndiMap = new HashMap<>();
 
+    protected final Object lock = new Object();
+
     protected List<String> managedServerNames;
 
     @Autowired
@@ -96,7 +98,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     private ServerInfoService serverInfoService;
 
     @Autowired
-    private DestinationCache destinationCache;
+    private JmsDestinationCache jmsDestinationCache;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -332,52 +334,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return (Topic) lookupDestination(topicName);
     }
 
-
-    protected String getJndiName(String destName) {
-        String jndiName = jndiMatch(destName, jndiMap);
-        if (jndiName != null) {
-            return jndiName;
-        } else {
-            synchronized (this) {
-                // It is enough to get the first destination object also in case of clustered destinations because then a JNDI look up is performed.
-                Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
-                for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
-                    final String destinationName = entry.getKey();
-                    InternalJMSDestination value = entry.getValue();
-                    LOG.trace("Jms destination, key:[{}], fullyQualifiedName:[{}] ", destinationName, value.getFullyQualifiedName());
-                    // the key is not always the same as the jndi name so we try them both
-                    String destinationJndi = value.getProperty(PROPERTY_JNDI_NAME);
-                    LOG.debug("Found JNDI [{}] for destination [{}]", destinationJndi, destinationName);
-                    jndiMap.put(destinationName, destinationJndi);
-                }
-                jndiName = jndiMatch(destName, jndiMap);
-                if (jndiName == null) {
-                    throw new InternalJMSException(String.format("Destination [%s] does not exists", destName));
-                }
-                return jndiName;
-            }
-        }
-    }
-
-    protected Destination lookupDestination(String destName) throws NamingException {
-        String destinationJndiName = getJndiName(destName);
-        LOG.debug("Found JNDI [{}] for destination [{}]", destinationJndiName, destName);
-        return destinationCache.getByJndiName(destinationJndiName);
-    }
-
-    protected String jndiMatch(String destName, Map<String, String> jndiMap) {
-        final String jndiName = jndiMap.get(destName);
-        if (jndiName != null) {
-            return jndiName;
-        }
-        final Iterator<String> iterator = jndiMap.values().iterator();
-        while (iterator.hasNext()) {
-            final String next = iterator.next();
-            if (next.contains(destName)) {
-                return next;
-            }
-        }
-        return null;
+    protected Destination lookupDestination(String destJndiName) throws NamingException {
+        LOG.debug("Retrieving lookup destination with JNDI name [{}] ", destJndiName);
+        return jmsDestinationCache.getByJndiName(destJndiName);
     }
 
     @Override
