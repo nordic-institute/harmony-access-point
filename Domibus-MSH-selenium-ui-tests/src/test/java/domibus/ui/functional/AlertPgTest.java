@@ -405,17 +405,14 @@ public class AlertPgTest extends BaseTest {
         aFilter.getSearchButton().click();
         page.grid().waitForRowsToLoad();
 
-        log.info("Extract total number of records from Alerts page");
-        int totalCount = page.grid().getPagination().getTotalItems();
         JSONArray userList = rest.getUsers(page.getDomainFromTitle());
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
 
-        if (rest.getAllAlerts(page.getDomainFromTitle(), "true").length() > 10) {
-            log.info("Set count as 10, if total count >10");
-            totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
-        }
+        log.info("Set count as 10, if total count >10");
+        int  totalCount = Math.min(10, page.grid().getPagination().getTotalItems());
+
         for (int j = 0; j < totalCount; j++) {
-            compareParamData(j, userList, messageList,page);
+            compareParamData(j, userList, messageList, page);
         }
         soft.assertAll();
     }
@@ -452,7 +449,7 @@ public class AlertPgTest extends BaseTest {
         JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
         for (int j = 0; j < totalCount; j++) {
 
-            compareParamData(j, userList, messageList,page);
+            compareParamData(j, userList, messageList, page);
 
         }
         soft.assertAll();
@@ -529,7 +526,7 @@ public class AlertPgTest extends BaseTest {
 
         for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
             log.info("Verify role of all users as ROLE_AP_ROLE");
-            soft.assertTrue(uPage.grid().getRowInfo("Username", userNameWithoutDuplicates.get(j)).get("Role").equals(DRoles.SUPER),"Compare role of available users are same as super user");
+            soft.assertTrue(uPage.grid().getRowInfo("Username", userNameWithoutDuplicates.get(j)).get("Role").equals(DRoles.SUPER), "Compare role of available users are same as super user");
         }
         log.info("Navigate to Alerts page");
         uPage.getSidebar().goToPage(PAGES.ALERTS);
@@ -572,7 +569,7 @@ public class AlertPgTest extends BaseTest {
         do {
             if (data.isMultiDomain()) {
                 log.info("Check presence of Show domain alert and checkbox is not checked");
-                soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent() && !aFilter.getShowDomainCheckbox().isChecked(),"Check presence of Show domain alert and checkbox is not checked");
+                soft.assertTrue(aFilter.getShowDomainCheckbox().isPresent() && !aFilter.getShowDomainCheckbox().isChecked(), "Check presence of Show domain alert and checkbox is not checked");
             }
 
             log.info("Click on download csv button");
@@ -666,7 +663,7 @@ public class AlertPgTest extends BaseTest {
             JSONArray userList = rest.getUsers(page.getDomainFromTitle());
             JSONArray messageList = rest.getListOfMessages(page.getDomainFromTitle());
             for (int j = 0; j < totalCount; j++) {
-                compareParamData(j, userList, messageList,page);
+                compareParamData(j, userList, messageList, page);
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("Break from loop if current domain is null or second domain in case of multitenancy");
@@ -730,7 +727,7 @@ public class AlertPgTest extends BaseTest {
 
             for (int j = 0; j < userNameWithoutDuplicates.size(); j++) {
 
-                soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER),"Check available user is other than super user");
+                soft.assertFalse(uPage.grid().getRowInfo("Username", userName.get(j)).get("Role").equals(DRoles.SUPER), "Check available user is other than super user");
                 for (int k = 0; k < userInfo.getJSONObject(k).getString("userName").length(); k++) {
                     if (userInfo.getJSONObject(k).getString("userName").equals(userNameWithoutDuplicates.get(j))) {
                         log.info("Shown user is from current domain");
@@ -821,7 +818,7 @@ public class AlertPgTest extends BaseTest {
                 log.info("Pass incorrect value :" + incorrectDataArray.get(i));
                 aFilter.getAlertId().fill(incorrectDataArray.get(i));
                 log.info("Verify presence of validation message under alert id field");
-                soft.assertTrue(aFilter.alertIdValidation.isDisplayed(),"Check presence of validation uder alert id field");
+                soft.assertTrue(aFilter.alertIdValidation.isDisplayed(), "Check presence of validation uder alert id field");
                 log.info("Validation message is : " + aFilter.alertIdValidation.getText());
                 log.info("Verify status of Search button as Disabled ");
                 soft.assertFalse(aFilter.getSearchButton().isEnabled(), "Button is not enabled");
@@ -857,7 +854,7 @@ public class AlertPgTest extends BaseTest {
             if (totalCount > 0) {
                 HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
                 log.info("Verify disabled status of save and cancel button");
-                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(),"Check save button is enabled and cancel button is disabled");
+                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(), "Check save button is enabled and cancel button is disabled");
                 log.info("Check processed checkbox for first row");
                 page.getCssForProcessedCheckBox(0).click();
 
@@ -865,20 +862,20 @@ public class AlertPgTest extends BaseTest {
                 page.getSaveButton().click();
                 page.confirmationPopup().confirm();
                 log.info("Check total count as 1 less than before");
-                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1,"Check all alert size 1 less than before");
+                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1, "Check all alert size 1 less than before");
 
                 log.info("Select processed in search filter ");
                 aFilter.getProcessedSelect().selectOptionByIndex(1);
                 log.info("Click on search button");
                 aFilter.getSearchButton().click();
                 page.grid().waitForRowsToLoad();
-                Boolean processedDataPresence= false;
+                Boolean processedDataPresence = false;
                 List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
                 for (int i = 0; i < allRowInfo.size(); i++) {
                     if (allRowInfo.get(i).equals(rowInfo)) {
                         log.info("Row is present ");
-                        processedDataPresence=true;
-                        soft.assertTrue(processedDataPresence,"Processed record is present after event completion");
+                        processedDataPresence = true;
+                        soft.assertTrue(processedDataPresence, "Processed record is present after event completion");
                     }
                 }
             }
@@ -915,7 +912,7 @@ public class AlertPgTest extends BaseTest {
                 int totalCount = rest.getAllAlerts(page.getDomainFromTitle(), "false").length();
                 HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
                 log.info("Verify disabled status of save and cancel button");
-                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(),"Check status of save and cancel button");
+                soft.assertTrue(page.getSaveButton().isEnabled() && page.getCancelButton().isEnabled(), "Check status of save and cancel button");
                 log.info("Check processed checkbox for first row");
                 page.getCssForProcessedCheckBox(0).click();
 
@@ -923,7 +920,7 @@ public class AlertPgTest extends BaseTest {
                 page.getSaveButton().click();
                 page.confirmationPopup().confirm();
                 log.info("Check total count as 1 less than before");
-                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1,"Check alert size as 1 less than before");
+                soft.assertTrue(rest.getAllAlerts(page.getDomainFromTitle(), "false").length() == totalCount - 1, "Check alert size as 1 less than before");
 
                 log.info("Select processed in search filter ");
                 aFilter.getProcessedSelect().selectOptionByIndex(1);
@@ -950,7 +947,7 @@ public class AlertPgTest extends BaseTest {
         } while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
     }
 
-    private void compareParamData(int rowNumber, JSONArray userList, JSONArray messageList,AlertPage page) throws Exception {
+    private void compareParamData(int rowNumber, JSONArray userList, JSONArray messageList, AlertPage page) throws Exception {
         if (page.grid().getRowInfo(rowNumber).containsValue("USER_LOGIN_FAILURE") || page.grid().getRowInfo(rowNumber).containsValue("USER_ACCOUNT_DISABLED")) {
             log.info("Check Alert type is USER_LOGIN_FAILURE or USER_ACCOUNT_DISABLED");
 
@@ -982,7 +979,7 @@ public class AlertPgTest extends BaseTest {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
                 .withTrim());
         List<CSVRecord> records = csvParser.getRecords();
-        List<String> columnValue= new ArrayList<>();
+        List<String> columnValue = new ArrayList<>();
 
         for (int i = 0; i < records.size(); i++) {
             columnValue.add(records.get(i).get(columnName));
