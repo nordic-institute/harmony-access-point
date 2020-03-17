@@ -1,4 +1,4 @@
-package eu.domibus.ext.delegate.services.multitenant;
+package eu.domibus.ext.delegate.services.property;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;

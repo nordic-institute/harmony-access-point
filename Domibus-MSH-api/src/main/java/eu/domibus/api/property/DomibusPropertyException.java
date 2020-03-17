@@ -1,4 +1,4 @@
-package eu.domibus.api.exceptions;
+package eu.domibus.api.property;
 
 /**
  * @author Ion Perpegel

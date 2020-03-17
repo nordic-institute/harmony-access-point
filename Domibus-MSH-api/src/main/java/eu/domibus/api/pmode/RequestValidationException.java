@@ -1,4 +1,7 @@
-package eu.domibus.api.exceptions;
+package eu.domibus.api.pmode;
+
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 
 /**
  * @author Ion Perpegel
