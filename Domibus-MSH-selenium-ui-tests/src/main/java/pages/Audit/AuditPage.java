@@ -27,15 +27,10 @@ public class AuditPage extends DomibusPage {
 
     @FindBy(id = "pageGridId")
     public WebElement gridContainer;
-    @FindBy(id = "auditHeader_id")
-    public WebElement auditPageHeader;
-    @FindBy(css = "datatable-row-wrapper > datatable-body-row")
-    List<WebElement> gridRows;
 
     public DGrid grid() {
         return new DGrid(driver, gridContainer);
     }
-
 
     public AuditSearchFilters getFilters() {
         return new AuditSearchFilters(driver);
