@@ -121,7 +121,7 @@
       {
         "name": "Parameters",
         "type": "text",
-        "sortable": true,
+        "sortable": false,
         "visibleByDefault": true
       }
     ],

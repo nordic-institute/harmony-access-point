@@ -64,8 +64,8 @@ public class AlertPgUXTest extends BaseUXTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         do {
             DGrid grid = page.grid();
-            log.info("Change page selector value to 100");
-            grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+            log.info("Change page selector value to 25");
+            grid.getPagination().getPageSizeSelect().selectOptionByText("25");
 
             for (int i = 0; i < colDescs.length(); i++) {
                 JSONObject colDesc = colDescs.getJSONObject(i);
