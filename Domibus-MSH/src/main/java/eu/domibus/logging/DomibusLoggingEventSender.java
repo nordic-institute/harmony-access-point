@@ -1,12 +1,11 @@
 package eu.domibus.logging;
 
-import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.apache.cxf.ext.logging.event.LogEventSender;
 import org.apache.cxf.ext.logging.event.LogMessageFormatter;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
@@ -19,11 +18,9 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 4.1.1
  */
-public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEventSender {
+public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
-
-    static final String CONTENT_TYPE = "Content-Type:";
     private static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
     public static final String HEADERS_AUTHORIZATION = "Authorization";
 
@@ -33,8 +30,17 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
         this.printPayload = printPayload;
     }
 
+    @Autowired
+    DomibusLoggingEventHelper domibusLoggingEventHelper;
+
     @Override
     protected String getLogMessage(LogEvent event) {
+        if (checkIfStripPayloadPossible()) {
+            try {
+                domibusLoggingEventHelper.stripPayload(event);
+            } catch (RuntimeException e) {
+                LOG.error("Exception while stripping the payload: ", e);
+            }
         LOG.debug("printPayload=[{}]", printPayload);
 
         boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
@@ -51,30 +57,21 @@ public class DomibusLoggingEventSender extends Slf4jEventSender implements LogEv
         } catch (RuntimeException e) {
             LOG.error("Exception while stripping the payload: ", e);
         }
-
         return LogMessageFormatter.format(event);
     }
 
-    /**
-     * It removes some parts of the payload info
-     *
-     * @param event
-     */
-    protected void stripPayload(LogEvent event) {
-        final String payload = event.getPayload();
 
-        //C2 -> C3
-        if (payload.contains(CONTENT_TYPE)) {
-            //if it's multipart and we want to strip the AS4 payload
-            if (event.isMultipartContent()) {
-
-                String[] payloadSplits = payload.split(CONTENT_TYPE);
-                //keeping only first 2 Content-Type elements
-                if (payloadSplits.length >= 2) {
-                    event.setPayload(payloadSplits[0] + CONTENT_TYPE + payloadSplits[1] + AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
-                }
-            }
+    protected boolean checkIfStripPayloadPossible() {
+        LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
+        if (printPayload) {
+            return false;
         }
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        if (isCxfLoggingInfoEnabled) {
+            LOG.debug("[{}] is set to at least INFO level", ORG_APACHE_CXF_CATEGORY);
+        }
+
+        return isCxfLoggingInfoEnabled;
     }
 
     protected void stripHeaders(LogEvent event) {
