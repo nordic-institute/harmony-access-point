@@ -1,7 +1,7 @@
 package eu.domibus.core.jpa;
 
-import eu.domibus.api.configuration.DataBaseEngine;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;

@@ -1,10 +1,10 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.services.AuditService;
-import eu.domibus.core.message.MessageConverterService;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.ebms3.common.model.*;
 import mockit.Expectations;
 import mockit.Injectable;

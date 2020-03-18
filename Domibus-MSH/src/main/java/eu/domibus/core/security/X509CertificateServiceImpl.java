@@ -5,8 +5,8 @@ import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.pki.CRLService;
-import eu.domibus.pki.DomibusCRLException;
+import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.certificate.crl.DomibusCRLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

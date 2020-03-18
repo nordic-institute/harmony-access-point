@@ -14,12 +14,12 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
-import eu.domibus.clustering.CommandEntity;
-import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.logging.ErrorLogEntry;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLog;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.clustering.CommandEntity;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
@@ -32,7 +32,7 @@ import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -41,8 +41,8 @@ import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.routing.BackendFilterEntity;
-import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -206,13 +206,13 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.userResponseROToUser((UserResponseRO) source);
         }
 
-        if (typeOfT == eu.domibus.common.model.security.User.class) {
+        if (typeOfT == eu.domibus.core.user.ui.User.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.userApiToUserSecurity((User) source);
         }
-        if (typeOfT == User.class && source.getClass() == eu.domibus.common.model.security.User.class) {
+        if (typeOfT == User.class && source.getClass() == eu.domibus.core.user.ui.User.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
-            return (T) domibusCoreMapper.userSecurityToUserApi((eu.domibus.common.model.security.User) source);
+            return (T) domibusCoreMapper.userSecurityToUserApi((eu.domibus.core.user.ui.User) source);
         }
 
         if (typeOfT == AuditLog.class && source.getClass() == Audit.class) {

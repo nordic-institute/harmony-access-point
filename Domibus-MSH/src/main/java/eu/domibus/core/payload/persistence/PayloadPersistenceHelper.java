@@ -1,6 +1,6 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -23,7 +23,7 @@ public class PayloadPersistenceHelper {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    boolean isPayloadEncryptionActive(UserMessage userMessage) {
+    public boolean isPayloadEncryptionActive(UserMessage userMessage) {
         //EDELIVERY-4749 - SplitAndJoin limitation
         final boolean isPayloadEncryptionActive = !userMessage.isSplitAndJoin() && domibusConfigurationService.isPayloadEncryptionActive(domainContextProvider.getCurrentDomain());
         LOG.debug("Is payload encryption active? [{}]", isPayloadEncryptionActive);

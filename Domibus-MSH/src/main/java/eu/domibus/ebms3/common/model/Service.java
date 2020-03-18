@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;

@@ -2,6 +2,7 @@ package eu.domibus.executor;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.executor.tomcat.TomcatTaskExecutorConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

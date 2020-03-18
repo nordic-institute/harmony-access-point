@@ -1,12 +1,11 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pmode.RequestValidationException;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

@@ -6,7 +6,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
-import eu.domibus.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
 import mockit.Expectations;

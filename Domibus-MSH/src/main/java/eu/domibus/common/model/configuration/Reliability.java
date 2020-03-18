@@ -1,6 +1,5 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.common.xmladapter.ReplyPatternAdapter;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.*;

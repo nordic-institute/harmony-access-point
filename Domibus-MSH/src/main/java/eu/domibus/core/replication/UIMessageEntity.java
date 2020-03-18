@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.ebms3.common.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
