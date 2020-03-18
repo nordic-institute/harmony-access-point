@@ -70,7 +70,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -87,6 +87,9 @@ public class DomainCoreDefaultConverterTest {
 
     @Injectable
     EventMapper eventMapper;
+
+    @Injectable
+    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;
@@ -261,6 +264,9 @@ public class DomainCoreDefaultConverterTest {
         objectService.assertObjects(convertedBack.getUser(), toConvert.getUser());
         objectService.assertObjects(convertedBack.getChanged(), toConvert.getChanged());
         objectService.assertObjects(convertedBack.getId(), toConvert.getId());
+        objectService.assertObjects(convertedBack.getAction(), toConvert.getAction());
+        objectService.assertObjects(convertedBack.getRevisionId(), toConvert.getRevisionId());
+        objectService.assertObjects(convertedBack.getAuditTargetName(), toConvert.getAuditTargetName());
     }
 
     @Test

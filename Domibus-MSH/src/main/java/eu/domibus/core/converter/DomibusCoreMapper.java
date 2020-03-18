@@ -43,7 +43,7 @@ import org.mapstruct.Mapping;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(uses = EventMapper.class, componentModel = "spring")
+@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     @Mapping(source = "id", target = "entityId")
@@ -170,8 +170,6 @@ public interface DomibusCoreMapper {
     eu.domibus.core.user.ui.User userApiToUserSecurity(User user);
 
     User userSecurityToUserApi(eu.domibus.core.user.ui.User user);
-
-    Audit auditLogToAudit(AuditLog auditLog);
 
     AuditLog auditToAuditLog(Audit audit);
 

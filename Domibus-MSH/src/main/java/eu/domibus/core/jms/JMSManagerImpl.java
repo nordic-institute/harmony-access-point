@@ -84,7 +84,7 @@ public class JMSManagerImpl implements JMSManager {
     public SortedMap<String, JMSDestination> getDestinations() {
         Map<String, InternalJMSDestination> destinations = internalJmsManager.findDestinationsGroupedByFQName();
         Map<String, InternalJMSDestination> result = new HashMap<>();
-
+        LOG.debug("JMS Messages Source Queues are [{}]", destinations);
         for (Map.Entry<String, InternalJMSDestination> mapEntry : destinations.entrySet()) {
             final String internalQueueName = mapEntry.getValue().getName();
             if (StringUtils.indexOfAny(internalQueueName, SKIP_QUEUE_NAMES) == -1 &&
@@ -99,13 +99,14 @@ public class JMSManagerImpl implements JMSManager {
 
     /**
      * in case of cluster environments, we reverse the name of the queue with the cluster name so that
-     *  the ordering shows all logical queues grouped:
+     * the ordering shows all logical queues grouped:
+     * <p>
+     * Cluster1@inQueueX
+     * Cluster2@inQueueX
+     * Cluster1@inQueueY
+     * Cluster2@inQueueY
+     * in any case, we sort them by key = logicalName
      *
-     *         Cluster1@inQueueX
-     *         Cluster2@inQueueX
-     *         Cluster1@inQueueY
-     *         Cluster2@inQueueY
-     *         in any case, we sort them by key = logicalName
      * @param destinations map of {@code <String, JMSDestination>}
      * @return Sorted map of {@code <String, JMSDestination>}
      */
@@ -139,6 +140,7 @@ public class JMSManagerImpl implements JMSManager {
     public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector) {
 
         List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
+        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
         return jmsMessageMapper.convert(messagesSPI);
     }
 
@@ -251,12 +253,14 @@ public class JMSManagerImpl implements JMSManager {
     @Override
     public void deleteMessages(String source, String[] messageIds) {
         internalJmsManager.deleteMessages(source, messageIds);
+        LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
         internalJmsManager.moveMessages(source, destination, messageIds);
+        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
     }
 
