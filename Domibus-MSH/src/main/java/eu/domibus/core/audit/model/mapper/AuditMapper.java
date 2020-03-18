@@ -1,8 +1,8 @@
-package eu.domibus.common.model.audit.mapper;
+package eu.domibus.core.audit.model.mapper;
 
 import eu.domibus.api.audit.AuditLog;
-import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.audit.AuditId;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.AuditId;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
