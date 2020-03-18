@@ -14,20 +14,23 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.core.audit.model.Audit;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.signal.SignalMessageLog;
-import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
@@ -40,8 +43,6 @@ import eu.domibus.ext.domain.PartPropertiesDTO;
 import eu.domibus.ext.domain.PropertyDTO;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
@@ -70,7 +71,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -87,6 +88,9 @@ public class DomainCoreDefaultConverterTest {
 
     @Injectable
     EventMapper eventMapper;
+
+    @Injectable
+    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;
@@ -261,6 +265,9 @@ public class DomainCoreDefaultConverterTest {
         objectService.assertObjects(convertedBack.getUser(), toConvert.getUser());
         objectService.assertObjects(convertedBack.getChanged(), toConvert.getChanged());
         objectService.assertObjects(convertedBack.getId(), toConvert.getId());
+        objectService.assertObjects(convertedBack.getAction(), toConvert.getAction());
+        objectService.assertObjects(convertedBack.getRevisionId(), toConvert.getRevisionId());
+        objectService.assertObjects(convertedBack.getAuditTargetName(), toConvert.getAuditTargetName());
     }
 
     @Test

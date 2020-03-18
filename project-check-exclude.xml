@@ -71,18 +71,8 @@
         <!-- Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker -->
         <cve>CVE-2019-20444</cve>
         <cve>CVE-2019-20445</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-databind-2.9.10.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <!-- We don't have the commons-dbcp (1.4) jar in the classpath -->
-        <cve>CVE-2019-16942</cve>
-        <!-- We don't have the p6spy (3.8.6) jar in the classpath -->
-        <cve>CVE-2019-16943</cve>
-        <!-- Domibus doesn't have apache-log4j-extra (version 1.2.x) jar in the classpath -->
-        <cve>CVE-2019-17531</cve>
+        <!-- we are not using WSO2 transport-http -->
+        <vulnerabilityName>CVE-2019-10797</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -102,5 +92,19 @@
         <cve>CVE-2019-12423</cve>
         <!-- Minimum impact since we don't use mobile browsers platforms -->
         <cve>CVE-2019-17573</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.9.10.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <!-- we don't use hikari-config library -->
+        <cve>CVE-2020-9546</cve>
+        <!-- we don't use ibatis-sqlmap library -->
+        <cve>CVE-2020-9547</cve>
+        <!-- we don't use anteros-core library-->
+        <cve>CVE-2020-9548</cve>
+        <!-- we are not using xbean-reflect libraries -->
+        <cve>CVE-2020-8840</cve>
     </suppress>
 </suppressions>
