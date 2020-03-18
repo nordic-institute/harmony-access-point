@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @Service
 public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventSender.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
 
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";
