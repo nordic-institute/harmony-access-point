@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.common.model;
 
-import eu.domibus.core.message.fragment.MessageFragmentEntity;
+import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;

@@ -2,7 +2,7 @@ package eu.domibus.plugin.webService;
 
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.receiver.MSHWebservice;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;

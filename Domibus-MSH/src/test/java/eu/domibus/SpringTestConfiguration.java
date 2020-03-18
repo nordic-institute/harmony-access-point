@@ -1,15 +1,15 @@
 package eu.domibus;
 
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.common.services.DomibusCacheService;
-import eu.domibus.common.util.ProxyUtil;
-import eu.domibus.configuration.DefaultDomibusConfigurationService;
+import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.proxy.ProxyUtil;
+import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.crypto.DomainCryptoServiceFactoryImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
@@ -22,9 +22,9 @@ import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.core.util.HttpUtilImpl;
-import eu.domibus.pki.DomibusX509TrustManager;
-import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.proxy.DomibusProxyServiceImpl;
+import eu.domibus.core.util.DomibusX509TrustManager;
+import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxyServiceImpl;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

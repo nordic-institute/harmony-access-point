@@ -1,8 +1,8 @@
 package eu.domibus.weblogic.security;
 
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.security.AuthenticationService;
-import eu.domibus.security.AuthenticationServiceBase;
+import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.AuthenticationServiceBase;
 
 /**
  * Implementation for ECAS of {@link AuthenticationService}

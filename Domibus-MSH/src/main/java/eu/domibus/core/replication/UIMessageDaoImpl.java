@@ -1,8 +1,8 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.dao.ListDao;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

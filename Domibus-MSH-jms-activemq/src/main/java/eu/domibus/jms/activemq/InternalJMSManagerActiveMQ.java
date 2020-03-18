@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
 import eu.domibus.api.cluster.CommandProperty;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;

@@ -2,7 +2,7 @@ package eu.domibus.ebms3.common.model;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.xml.XMLUtilImpl;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
