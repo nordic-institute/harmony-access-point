@@ -11,6 +11,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Catalin Enache
  * @since 4.1.1
@@ -42,5 +45,23 @@ public class DomibusLoggingEventSenderTest {
             Assert.assertNotNull(payloadActual);
             Assert.assertTrue(payloadActual.split(DomibusLoggingEventSender.CONTENT_TYPE).length == 2);
         }};
+    }
+
+    @Test
+    public void test_stripHeaders(final @Mocked LogEvent event) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(DomibusLoggingEventSender.HEADERS_AUTHORIZATION, "Basic test 123");
+        headers.put("host", "localhost:8080");
+        headers.put("content-type", "application/soap+xml;charset=UTF-8");
+
+        new Expectations() {{
+            event.getHeaders();
+            result = headers;
+        }};
+
+        //tested method
+        domibusLoggingEventSender.stripHeaders(event);
+        Assert.assertNotNull(event.getHeaders());
+        Assert.assertNull(event.getHeaders().get(DomibusLoggingEventSender.HEADERS_AUTHORIZATION));
     }
 }
