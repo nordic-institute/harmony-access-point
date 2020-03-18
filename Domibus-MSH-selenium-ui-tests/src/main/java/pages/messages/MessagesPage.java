@@ -82,37 +82,32 @@ public class MessagesPage extends DomibusPage {
         return iconElement.isEnabled();
     }
 
-    public void compareGridData(SoftAssert soft, String columnName) throws Exception {
+    public void compareMsgIDsOfDomains(SoftAssert soft) throws Exception {
         int firstDomainGridRowCount = grid().getPagination().getTotalItems();
-        List<String> msgIds = grid().getValuesOnColumn(columnName);
-
+        List<String> msgIds = grid().getValuesOnColumn("Message Id");
         getDomainSelector().selectOptionByIndex(1);
-        log.info("Domain name is " + getDomainSelector().selectOptionByIndex(1));
-
+        log.info("Domain name is " + getDomainFromTitle());
+        waitForTitle();
+        grid().waitForRowsToLoad();
         int secondDomainGridRowCount = grid().getPagination().getTotalItems();
-        List<String> msgIdsSecDomain = grid().getValuesOnColumn(columnName);
-        int secDomainActivePg=grid().getPagination().getActivePage();
+        int secDomainActivePg = grid().getPagination().getActivePage();
 
         log.info("Active page for new Domain is " + secDomainActivePg);
-        soft.assertTrue(secDomainActivePg==1,"After navigation user is at Pg 1");
+        soft.assertTrue(secDomainActivePg == 1, "After navigation user is at Pg 1");
+        List<String> msgIdsSecDomain = grid().getValuesOnColumn("Message Id");
 
 
         if (firstDomainGridRowCount == 0 && secondDomainGridRowCount == 0) {
             log.info("No need of comparison as both domain have empty grid");
         } else if (firstDomainGridRowCount == secondDomainGridRowCount) {
-            log.info("Check data difference for both grid");
+            log.info("Compare data for both grid");
             for (int i = 0; i < msgIds.size(); i++) {
-                if (msgIds.get(i).equals(msgIdsSecDomain.get(i))) {
+                soft.assertFalse(msgIds.get(i).equalsIgnoreCase(msgIdsSecDomain.get(i)), "Both domain should not have same data for row" + i);
 
-                    log.info("Both domains have record with same column value for column : " +columnName+" row : " + i);
-                    break;
-                }
             }
-            log.info("All data are different");
-
-
         } else {
-            log.info("No need to check data as both have diff grid count");
+            soft.assertTrue(firstDomainGridRowCount != secondDomainGridRowCount, "Both domains have different number of records");
+            log.info("both domains have different number of records so comparison needed");
 
         }
     }

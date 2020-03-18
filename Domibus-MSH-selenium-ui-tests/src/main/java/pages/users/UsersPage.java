@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
+
 
 
 /**
@@ -106,6 +106,4 @@ public class UsersPage extends DomibusPage {
 		modal.fillData("", email, role, password, confirmation);
 		modal.getOkBtn().click();
 	}
-
-
 }

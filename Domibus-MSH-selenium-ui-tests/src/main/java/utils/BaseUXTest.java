@@ -56,7 +56,7 @@ public class BaseUXTest extends BaseTest {
 	@AfterMethod(alwaysRun = true)
 	public void refresh() throws Exception {
 		try {
-			if (data.isIsMultiDomain()) {
+			if (data.isMultiDomain()) {
 				DomainSelector ds = new DomibusPage(driver).getDomainSelector();
 				log.info("reseting to default domain");
 				if(!StringUtils.equals(ds.getSelectedValue(), "Default")){

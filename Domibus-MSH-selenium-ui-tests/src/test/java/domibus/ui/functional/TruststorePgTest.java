@@ -32,7 +32,7 @@ public class TruststorePgTest extends BaseTest {
         log.info("Validate presence of Error in alert message");
         soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("Error"), "There is an error while uploading truststore.");
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             page.waitForTitle();
 
@@ -66,7 +66,7 @@ public class TruststorePgTest extends BaseTest {
         log.info("Validate presence of successfully keyword in Alert message for default domain");
         soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("successfully"), "Truststore file has been successfully replaced.");
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             page.waitForTitle();
             String pathForOtherDomain = DFileUtils.getAbsolutePath("truststore/gateway_truststoreDomain1.jks");
@@ -102,7 +102,7 @@ public class TruststorePgTest extends BaseTest {
         log.info("Validate presence of successfully keyword in Alert message");
         soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("successfully"), "Truststore file has been successfully replaced.");
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             page.waitForTitle();
             log.info("Try uploading truststore with no password for alias for domain: " + getNonDefaultDomain());
@@ -138,7 +138,7 @@ public class TruststorePgTest extends BaseTest {
 
         soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("successfully"), "Truststore file has been successfully replaced.");
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             page.waitForTitle();
             log.info("Try uploading truststore with password protected alias for domain :" + getNonDefaultDomain());
@@ -171,7 +171,7 @@ public class TruststorePgTest extends BaseTest {
         tPage.uploadFile(path, "", soft);
         page.refreshPage();
         page.waitForTitle();
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             page.waitForTitle();
             log.info("try uploading valid file without any password for domain :" + getNonDefaultDomain());
@@ -198,10 +198,10 @@ public class TruststorePgTest extends BaseTest {
 
         tPage.uploadFile(path, "test123", soft);
         log.info(tPage.getAlertArea().getAlertMessage());
-        soft.assertFalse(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
+        soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
 
 
-        if (data.isIsMultiDomain()) {
+        if (data.isMultiDomain()) {
             page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
             log.info("Try uploading expired certificate for domain :" + getNonDefaultDomain());
             String pathForOtherDomain = DFileUtils.getAbsolutePath("truststore/expiredDomain1.jks");
@@ -209,7 +209,7 @@ public class TruststorePgTest extends BaseTest {
 
             log.info(tPage.getAlertArea().getAlertMessage());
             log.info("Validate  presence of Error in alert message ");
-            soft.assertFalse(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
+            soft.assertTrue(tPage.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
 
         }
         soft.assertAll();

@@ -1,16 +1,13 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dobjects.DWait;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
-import pages.pmode.current.PModeCurrentPage;
 import utils.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;
 import utils.DFileUtils;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -74,8 +71,6 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
     public void downloadParties() throws Exception {
         SoftAssert soft = new SoftAssert();
 
-        /*TODO: also check the info in the CSV file against the grid*/
-
         log.info("Navigate to Pmode parties page");
         new DomibusPage(driver).getSidebar().goToPage(PAGES.PMODE_PARTIES);
 
@@ -115,16 +110,15 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
 
         log.info("Compare grid row from Pmode parties page and downloaded file grid row");
         soft.assertTrue(csvFileRowCount - 1 == gridRowCount, "Grid row Count matches with csvFileRow Count excluding headers");
+        page.grid().checkCSVvsGridInfo(completeFilePath, soft);
 
         soft.assertAll();
     }
 
     /* column Process from CSV doesn't match Process (I=Initiator, R=Responder, IR=Both) in grid */
-    @Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"})
     public void downloadAllList() throws Exception {
         SoftAssert soft = new SoftAssert();
-
-        /*TODO: also check the info in the CSV file against the grid*/
 
         log.info("Navigate to Pmode parties page");
         new DomibusPage(driver).getSidebar().goToPage(PAGES.PMODE_PARTIES);
