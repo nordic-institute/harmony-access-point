@@ -6,9 +6,6 @@ import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Map;
 
 /**
  * This class extends the default {@code Slf4jEventSender} implemented by Apache CXF
@@ -22,7 +19,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomibusLoggingEventSender.class);
     private static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
-    public static final String HEADERS_AUTHORIZATION = "Authorization";
 
     private boolean printPayload;
 
@@ -41,25 +37,9 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
             } catch (RuntimeException e) {
                 LOG.error("Exception while stripping the payload: ", e);
             }
-        LOG.debug("printPayload=[{}]", printPayload);
-
-        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
-        LOG.debug("[{}] set to INFO=[{}]", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled);
-
-        try {
-            if (isCxfLoggingInfoEnabled ) {
-                stripHeaders(event);
-                if (!printPayload) {
-                    stripPayload(event);
-                }
-
-            }
-        } catch (RuntimeException e) {
-            LOG.error("Exception while stripping the payload: ", e);
         }
         return LogMessageFormatter.format(event);
     }
-
 
     protected boolean checkIfStripPayloadPossible() {
         LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
@@ -72,16 +52,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
         }
 
         return isCxfLoggingInfoEnabled;
-    }
-
-    protected void stripHeaders(LogEvent event) {
-        Map<String, String> headers = event.getHeaders();
-        if (CollectionUtils.isEmpty(headers)) {
-            LOG.debug("no apache cxf headers to strip");
-            return;
-        }
-        headers.entrySet()
-                .removeIf(e -> HEADERS_AUTHORIZATION.equalsIgnoreCase(e.getKey()));
     }
 
 }
