@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
@@ -8,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.UUID;
 
 /**
  * This REQUIRED element

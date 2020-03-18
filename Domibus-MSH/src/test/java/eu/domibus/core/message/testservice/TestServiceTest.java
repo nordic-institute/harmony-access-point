@@ -2,19 +2,19 @@ package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
 
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

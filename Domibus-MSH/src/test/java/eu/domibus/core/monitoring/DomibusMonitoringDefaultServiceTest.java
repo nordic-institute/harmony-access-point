@@ -3,7 +3,7 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.common.services.UserService;
+import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.Expectations;
 import mockit.Injectable;

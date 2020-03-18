@@ -1,5 +1,6 @@
 package eu.domibus.common.model.configuration;
 
+import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.*;

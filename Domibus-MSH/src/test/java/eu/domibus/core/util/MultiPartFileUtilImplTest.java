@@ -1,6 +1,6 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pmode.RequestValidationException;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;

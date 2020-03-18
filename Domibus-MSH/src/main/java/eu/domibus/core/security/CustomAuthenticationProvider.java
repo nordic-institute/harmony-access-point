@@ -1,7 +1,9 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.*;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
+import eu.domibus.core.user.plugin.AuthenticationDAO;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

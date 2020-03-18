@@ -1,0 +1,48 @@
+package eu.domibus.core.jms;
+
+import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.jms.spi.InternalJmsMessage;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * // TODO Documentation
+ * @author Cosmin Baciu
+ * @since 3.2
+ */
+@Component
+public class JMSMessageMapper {
+
+    public InternalJmsMessage convert(JmsMessage message) {
+        InternalJmsMessage result = new InternalJmsMessage();
+        result.setId(message.getId());
+        result.setJmsCorrelationId(message.getJmsCorrelationId());
+        result.setContent(message.getContent());
+        result.setTimestamp(message.getTimestamp());
+        result.setType(message.getType());
+        result.setProperties(message.getProperties());
+        return result;
+    }
+
+    public JmsMessage convert(InternalJmsMessage message) {
+        if (message == null) return null;
+        JmsMessage result = new JmsMessage();
+        result.setId(message.getId());
+        result.setJmsCorrelationId(message.getJmsCorrelationId());
+        result.setContent(message.getContent());
+        result.setTimestamp(message.getTimestamp());
+        result.setType(message.getType());
+        result.setProperties(message.getProperties());
+        return result;
+    }
+
+    public List<JmsMessage> convert(List<InternalJmsMessage> messagesSPI) {
+        List<JmsMessage> result = new ArrayList<>();
+        for (InternalJmsMessage internalJmsMessage : messagesSPI) {
+            result.add(convert(internalJmsMessage));
+        }
+        return result;
+    }
+}

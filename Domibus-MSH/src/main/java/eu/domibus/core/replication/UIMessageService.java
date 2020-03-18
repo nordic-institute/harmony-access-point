@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 
 import java.util.List;
 import java.util.Map;

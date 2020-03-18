@@ -1,6 +1,8 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryPModeProvider;
+import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;

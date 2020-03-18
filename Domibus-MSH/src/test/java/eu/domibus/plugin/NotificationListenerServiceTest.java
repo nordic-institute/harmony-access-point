@@ -10,7 +10,7 @@ import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.delegate.BackendConnectorDelegate;
+import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

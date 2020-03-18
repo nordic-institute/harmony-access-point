@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.common.dao.security.UserDao;
-import eu.domibus.common.model.security.User;
+import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.User;
 import eu.domibus.core.alerts.MailSender;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
