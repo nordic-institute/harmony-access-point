@@ -85,7 +85,7 @@
 
                    <!-- 4.2.0 starts here -->
                    <execution>
-                       <id>generate-mysql-script-data-4.2</id>
+                       <id>generate-mysql-script-data</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -103,7 +103,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-multi-tenancy-4.2</id>
+                       <id>generate-mysql-script-multi-tenancy</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -121,7 +121,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-full-4.2</id>
+                       <id>generate-mysql-script-full</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -139,7 +139,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-data-4.2</id>
+                       <id>generate-oracle-script-data</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -157,7 +157,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-multi-tenancy-4.2</id>
+                       <id>generate-oracle-script-multi-tenancy</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -175,7 +175,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-full-4.2</id>
+                       <id>generate-oracle-script-full</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
