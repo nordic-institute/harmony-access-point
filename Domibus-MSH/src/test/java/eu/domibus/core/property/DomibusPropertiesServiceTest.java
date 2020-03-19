@@ -59,11 +59,11 @@ public class DomibusPropertiesServiceTest {
         new Expectations(service) {{
             service.getArtifactName();
             result = artifactName;
+
         }};
 
         String buildDetails = service.getBuildDetails();
 
         assertTrue(buildDetails.contains(artifactName));
-
     }
 }
