@@ -112,7 +112,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}-data.xml
+                                src/main/resources/db/changelog-data.xml
                             </changeLogFile>
                             <url>
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data.mysql
@@ -130,7 +130,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}-multi-tenancy.xml
+                                src/main/resources/db/changelog-multi-tenancy.xml
                             </changeLogFile>
                             <url>
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy.mysql
@@ -148,7 +148,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}.xml
+                                src/main/resources/db/changelog.xml
                             </changeLogFile>
                             <url>
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}.mysql
@@ -166,7 +166,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}-data.xml
+                                src/main/resources/db/changelog-data.xml
                             </changeLogFile>
                             <url>
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data.oracle
@@ -184,7 +184,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}-multi-tenancy.xml
+                                src/main/resources/db/changelog-multi-tenancy.xml
                             </changeLogFile>
                             <url>
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy.oracle
@@ -202,7 +202,7 @@
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-${project.version}.xml
+                                src/main/resources/db/changelog.xml
                             </changeLogFile>
                             <url>
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}.oracle
