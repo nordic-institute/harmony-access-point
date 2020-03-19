@@ -39,6 +39,7 @@ public class JMSMessageTransformerTest {
     private static final String UNREGISTERED_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     private static final String ORIGINAL_SENDER = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
     private static final String FINAL_RECIPIENT = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+    private static final String FINAL_RECIPIENT_TYPE = "iso6523-actorid-upis";
     private static final String ACTION_TC1LEG1 = "TC1Leg1";
     private static final String PROTOCOL_AS4 = "AS4";
     private static final String SERVICE_NOPROCESS = "bdx:noprocess";
@@ -77,7 +78,7 @@ public class JMSMessageTransformerTest {
         submissionObj.setToRole(RESPONDER_ROLE);
         submissionObj.addMessageProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
         submissionObj.addMessageProperty(PROPERTY_ENDPOINT, "http://localhost:8080/domibus/domibus-blue");
-        submissionObj.addMessageProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
+        submissionObj.addMessageProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT, FINAL_RECIPIENT_TYPE);
         submissionObj.setAgreementRef("12345");
         submissionObj.setRefToMessageId("123456");
 
@@ -144,6 +145,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.TO_ROLE, RESPONDER_ROLE);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
+        messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, "customAgreement");
         messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
@@ -180,6 +182,7 @@ public class JMSMessageTransformerTest {
             }
             if (PROPERTY_FINAL_RECIPIENT.equalsIgnoreCase(objTypedProperty.getKey())) {
                 Assert.assertEquals(FINAL_RECIPIENT, objTypedProperty.getValue());
+                Assert.assertEquals(FINAL_RECIPIENT_TYPE, objTypedProperty.getType());
             }
         }
 
@@ -288,6 +291,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, "submitMessage");
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
+        messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);
 
         messageMap.setJMSCorrelationID("12345");
