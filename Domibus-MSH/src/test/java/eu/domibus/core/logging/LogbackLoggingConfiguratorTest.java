@@ -35,7 +35,7 @@ public class LogbackLoggingConfiguratorTest {
     public void testConfigureLoggingWithCustomFile(@Mocked System mock) throws Exception {
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
-            result = "/user/logback-test.xml";
+            result = "/user/logback.xml";
 
             System.getProperty(anyString);
             result = "/user/mylogback.xml";
@@ -56,7 +56,7 @@ public class LogbackLoggingConfiguratorTest {
     public void testConfigureLoggingWithTheDefaultLogbackConfigurationFile(@Mocked System mock) throws Exception {
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
-            result = "/user/logback-test.xml";
+            result = "/user/logback.xml";
 
             System.getProperty(anyString);
             result = null;
@@ -69,7 +69,7 @@ public class LogbackLoggingConfiguratorTest {
             logbackLoggingConfigurator.configureLogging(fileLocation = withCapture());
             times = 1;
 
-            Assert.assertEquals("/user/logback-test.xml", fileLocation);
+            Assert.assertEquals("/user/logback.xml", fileLocation);
         }};
     }
 
@@ -90,7 +90,7 @@ public class LogbackLoggingConfiguratorTest {
             result = false;
         }};
 
-        logbackLoggingConfigurator.configureLogging("/user/logback-test.xml");
+        logbackLoggingConfigurator.configureLogging("/user/logback.xml");
 
         new Verifications() {{
             logbackLoggingConfigurator.configureLogback(anyString);
@@ -108,7 +108,7 @@ public class LogbackLoggingConfiguratorTest {
             result = null;
         }};
 
-        logbackLoggingConfigurator.configureLogging("/user/logback-test.xml");
+        logbackLoggingConfigurator.configureLogging("/user/logback.xml");
 
         new Verifications() {{
             logbackLoggingConfigurator.configureLogback(anyString);
