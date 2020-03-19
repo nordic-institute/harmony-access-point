@@ -31,6 +31,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -127,6 +128,12 @@ public abstract class AbstractIT {
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
+
+    @After
+    public void cleanTransactionsLog() throws IOException {
+        FileUtils.deleteDirectory(new File("target/test-classes/work"));
+    }
+
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
