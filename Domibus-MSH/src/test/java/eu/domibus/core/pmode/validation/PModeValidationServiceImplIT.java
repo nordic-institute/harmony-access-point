@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -9,7 +9,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.configuration.DefaultDomibusConfigurationService;
+import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -20,7 +20,7 @@ import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.xml.XMLUtilImpl;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;

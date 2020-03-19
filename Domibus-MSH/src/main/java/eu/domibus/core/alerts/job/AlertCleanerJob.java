@@ -3,12 +3,10 @@ package eu.domibus.core.alerts.job;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.quartz.DomibusQuartzJobBean;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

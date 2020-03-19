@@ -2,7 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.crypto.spi.DomibusCertificateSpiException;
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;

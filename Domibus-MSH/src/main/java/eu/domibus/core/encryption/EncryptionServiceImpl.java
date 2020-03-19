@@ -1,6 +1,6 @@
 package eu.domibus.core.encryption;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;

@@ -1,6 +1,6 @@
 package eu.domibus;
 
-import eu.domibus.spring.DomibusApplicationInitializer;
+import eu.domibus.core.spring.DomibusApplicationInitializer;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

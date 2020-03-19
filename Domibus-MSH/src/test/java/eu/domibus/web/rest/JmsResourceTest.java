@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;

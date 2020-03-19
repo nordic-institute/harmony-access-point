@@ -1,11 +1,11 @@
 package eu.domibus.ebms3.common.model;
 
-import eu.domibus.common.AutoCloseFileDataSource;
+import eu.domibus.core.datasource.AutoCloseFileDataSource;
 import eu.domibus.core.encryption.DecryptDataSource;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

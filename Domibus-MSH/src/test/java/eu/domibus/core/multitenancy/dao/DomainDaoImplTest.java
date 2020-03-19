@@ -1,6 +1,6 @@
 package eu.domibus.core.multitenancy.dao;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
@@ -10,7 +10,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
 
 import java.io.File;
 import java.util.Arrays;

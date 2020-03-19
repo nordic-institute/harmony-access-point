@@ -1,12 +1,12 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.util.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;

@@ -1,11 +1,10 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.common.util.ProxyUtil;
+import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.pki.DomibusX509TrustManager;
-import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxyService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;

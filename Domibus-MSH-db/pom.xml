@@ -339,7 +339,29 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 4.1.2 ends here -->
+                   <!-- end of delta 4.1.1 - 4.1.2 -->
+
+
+                   <!-- delta 4.1.3 - 4.1.4 starts here -->
+                   <execution>
+                       <id>generate-mysql-script-delta-4.1.4</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.1.4-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.3-to-4.1.4-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- end of delta 4.1.3 - 4.1.4 -->
 
                    <execution>
                        <id>generate-mysql-script-delta-4.1</id>
