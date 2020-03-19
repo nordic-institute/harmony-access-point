@@ -33,6 +33,9 @@ public class CertificateDaoImpl extends BasicDao<Certificate> implements Certifi
         Certificate byAliasAndType = getByAliasAndType(certificate.getAlias(), certificate.getCertificateType());
         if (byAliasAndType != null) {
             LOG.debug("Updating certificate [{}]", certificate);
+            if (certificate.getCertificateStatus() != null) {
+                byAliasAndType.setCertificateStatus(certificate.getCertificateStatus());
+            }
             if (certificate.getLastNotification() != null) {
                 byAliasAndType.setLastNotification(certificate.getLastNotification());
             }
@@ -48,7 +51,12 @@ public class CertificateDaoImpl extends BasicDao<Certificate> implements Certifi
             if (certificate.getCreationTime() != null) {
                 byAliasAndType.setCreationTime(certificate.getCreationTime());
             }
-            LOG.debug("Updating certificate [{}]", byAliasAndType);
+            if (certificate.getNotBefore() != null) {
+                byAliasAndType.setNotBefore(certificate.getNotBefore());
+            }
+            if (certificate.getNotAfter() != null) {
+                byAliasAndType.setNotAfter(certificate.getNotAfter());
+            }
             return;
         }
         LOG.debug("Saving certificate [{}]", certificate);
