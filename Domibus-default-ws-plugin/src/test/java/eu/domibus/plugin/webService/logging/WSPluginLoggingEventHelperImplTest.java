@@ -247,8 +247,10 @@ public class WSPluginLoggingEventHelperImplTest {
     public void test_stripHeaders(final @Mocked LogEvent event) {
         Map<String, String> headers = new HashMap<>();
         headers.put(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION, "Basic test 123");
-        headers.put("host", "localhost:8080");
-        headers.put("content-type", "application/soap+xml;charset=UTF-8");
+        String HOST_KEY = "host";
+        headers.put(HOST_KEY, "localhost:8080");
+        String CONTENT_TYPE_KEY = "content-type";
+        headers.put(CONTENT_TYPE_KEY, "application/soap+xml;charset=UTF-8");
 
         new Expectations() {{
             event.getHeaders();
@@ -259,6 +261,8 @@ public class WSPluginLoggingEventHelperImplTest {
         wsPluginLoggingEventHelper.stripHeaders(event);
         Assert.assertNotNull(event.getHeaders());
         Assert.assertNull(event.getHeaders().get(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION));
+        Assert.assertNotNull(event.getHeaders().get(HOST_KEY));
+        Assert.assertNotNull(event.getHeaders().get(CONTENT_TYPE_KEY));
     }
 
     private String readPayload(final String payloadName) throws Exception {
