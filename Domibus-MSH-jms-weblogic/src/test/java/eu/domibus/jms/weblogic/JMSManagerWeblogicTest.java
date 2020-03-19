@@ -1,6 +1,5 @@
 package eu.domibus.jms.weblogic;
 
-import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
@@ -8,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
+import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
@@ -18,17 +18,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
-import javax.jms.Topic;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.jms.weblogic.InternalJMSManagerWeblogic.PROPERTY_JNDI_NAME;
 import static org.junit.Assert.*;
 
 /**
@@ -69,6 +70,9 @@ public class JMSManagerWeblogicTest {
 
     @Injectable
     private ServerInfoService serverInfoService;
+
+    @Injectable
+    private JmsDestinationCache jmsDestinationCache;
 
     @Test
     public void testGetQueueName() throws Exception {
@@ -551,25 +555,11 @@ public class JMSManagerWeblogicTest {
     }
 
     @Test
-    public void matchesQueueTest(final @Injectable Map.Entry<String, InternalJMSDestination> entry) {
-        String queueName = "DomibusBusinessMessageInQueue";
-
-        new Expectations() {{
-            entry.getKey();
-            returns(queueName, "non-matching-key");
-
-            entry.getValue().<String>getProperty("Jndi");
-            returns(null, queueName);
+    public void lookupDestination() throws NamingException {
+        final String jndiName="destinationJndiName";
+        jmsManagerWeblogic.lookupDestination(jndiName);
+        new Verifications(){{
+            jmsDestinationCache.getByJndiName(jndiName);
         }};
-
-        boolean found = jmsManagerWeblogic.matchesQueue(queueName, entry);
-        assertEquals(true, found);
-
-        boolean found2 = jmsManagerWeblogic.matchesQueue(queueName, entry);
-        assertEquals(false, found2);
-
-        boolean found3 = jmsManagerWeblogic.matchesQueue(queueName, entry);
-        assertEquals(true, found3);
-
     }
 }
