@@ -813,7 +813,6 @@
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="BACKEND" type="VARCHAR(255)"/>
             <column name="ENDPOINT" type="VARCHAR(255)"/>
-            <column name="CREATED_BY" type="VARCHAR(255)"/>
             <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
