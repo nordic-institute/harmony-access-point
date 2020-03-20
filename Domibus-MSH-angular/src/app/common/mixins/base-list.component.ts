@@ -30,7 +30,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
 
-  constructor(private alertService: AlertService, private http: HttpClient) {
+  constructor(protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 

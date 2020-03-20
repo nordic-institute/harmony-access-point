@@ -1,10 +1,8 @@
 <div style="margin-bottom:10px">
   <a class="domibusLink hide-show-column" href="#" *ngIf="!columnSelection" (click)="toggleColumnSelection()"
-     id="columnslinkoff_id" click-stop-propagation>Show
-    columns</a>
+     id="columnslinkoff_id" click-stop-propagation>Show columns</a>
   <a class="domibusLink hide-show-column" href="#" *ngIf="columnSelection" (click)="toggleColumnSelection()"
-     id="columnslinkon_id" click-stop-propagation>Hide
-    columns</a>
+     id="columnslinkon_id" click-stop-propagation>Hide columns</a>
 </div>
 
 <div *ngIf="columnSelection" style="margin-bottom: 10px;">
