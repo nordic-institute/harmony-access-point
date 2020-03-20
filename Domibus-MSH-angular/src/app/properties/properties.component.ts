@@ -1,8 +1,12 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
-import {PropertiesService} from './properties.service';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
+import {PropertiesService, PropertyListModel} from './properties.service';
 import {SecurityService} from '../security/security.service';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/mixins/base-list.component';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   moduleId: module.id,
@@ -11,111 +15,157 @@ import {SecurityService} from '../security/security.service';
   providers: [PropertiesService]
 })
 
-export class PropertiesComponent implements OnInit {
+export class PropertiesComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerPageableListMixin) implements OnInit {
 
-  filter: { propertyName: string, showDomainProperties: boolean };
   showGlobalPropertiesControl: boolean;
 
-  loading: boolean = false;
-  rows = [];
-  count: number = 0;
-  offset: number = 0;
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-
+  @ViewChild('propertyUsageTpl', {static: false}) propertyUsageTpl: TemplateRef<any>;
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
-  columns: any[] = [];
-
-  constructor(private propertiesService: PropertiesService, private alertService: AlertService,
-              private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
-    this.filter = {propertyName: '', showDomainProperties: true};
+  constructor (private http: HttpClient, private propertiesService: PropertiesService, private alertService: AlertService,
+               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
-  async ngOnInit() {
+  async ngOnInit () {
+    super.ngOnInit();
+
+    super.filter = {propertyName: '', showDomain: true};
     this.showGlobalPropertiesControl = this.securityService.isCurrentUserSuperAdmin();
 
-    this.rows = [];
-
-    this.page();
+    this.filterData();
   }
 
-  ngAfterViewInit() {
-    this.columns = [
+  public get name (): string {
+    return 'Domibus Properties';
+  }
+
+  protected get GETUrl (): string {
+    return PropertiesService.PROPERTIES_URL;
+  }
+
+  ngAfterViewInit () {
+    this.columnPicker.allColumns = [
       {
         name: 'Property Name',
-        prop: 'metadata.name'
+        prop: 'name',
+        showInitially: true
+      },
+      {
+        name: 'Type',
+        prop: 'type',
+        width: 25
+      },
+      {
+        name: 'Description',
+        prop: 'description',
+        width: 25
+      },
+      {
+        name: 'Module',
+        prop: 'module',
+        width: 25
+      },
+      {
+        name: 'Section',
+        prop: 'section',
+        width: 25
+      },
+      {
+        cellTemplate: this.propertyUsageTpl,
+        name: 'Usage',
+        showInitially: true,
+        width: 25
+      },
+      {
+        name: 'With Fallback',
+        prop: 'withFallback',
+        width: 25
+      },
+      {
+        name: 'Is Writable',
+        prop: 'writable',
+        width: 25
+      },
+      {
+        name: 'Is Encrypted',
+        prop: 'encrypted',
+        width: 25
+      },
+      {
+        name: 'Is Composable',
+        prop: 'composable',
+        width: 25
       },
       {
         cellTemplate: this.propertyValueTpl,
-        name: 'Property Value'
-      }
+        name: 'Property Value',
+        showInitially: true,
+        width: 155
+      },
+
     ];
+
+    this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => col.showInitially);
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked () {
     this.changeDetector.detectChanges();
   }
 
-  onPropertyNameChanged() {
-    this.page();
+  public setServerResults (result: PropertyListModel) {
+    super.count = result.count;
+    super.rows = result.items;
   }
 
-  onPage(event) {
-    this.offset = event.offset;
-    this.page();
-  }
-
-  onChangePageSize(newPageLimit: number) {
-    this.offset = 0;
-    this.rowLimiter.pageSize = newPageLimit;
-    this.page();
-  }
-
-  onPropertyValueFocus(row) {
+  onPropertyValueFocus (row) {
+    row.currentValueSet = true;
     row.currentValue = row.value;
+    this.alertService.clearAlert();
   }
 
-  onPropertyValueBlur(row) {
+  onPropertyValueBlur (row) {
     setTimeout(() => this.revertProperty(row), 1500);
   }
 
-  canUpdate(row): boolean {
-    return row && row.currentValue && row.currentValue != row.value;
-  }
-
-  private async page() {
-    this.loading = true;
-    try {
-      var result = await this.propertiesService.getProperties(this.filter.propertyName, this.filter.showDomainProperties,
-        this.rowLimiter.pageSize, this.offset);
-      this.count = result.count;
-      this.rows = result.items;
-    } catch (ex) {
-      this.alertService.exception('Could not load properties ', ex);
+  canUpdate (row): boolean {
+    if (row && !row.currentValueSet) {
+      return false;
     }
-    this.loading = false;
+    return row && row.currentValue != row.value;
   }
 
-  refresh() {
-    this.offset = 0;
-    this.page();
-  }
-
-  private async updateProperty(row) {
+  private async updateProperty (row) {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
-      await this.propertiesService.updateProperty(row.metadata.name, this.filter.showDomainProperties, row.value);
+      await this.propertiesService.updateProperty(row, this.filter.showDomain);
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
       if (!ex.handled)
-        this.alertService.exception('Could not update property ', ex);
+        this.alertService.exception('Could not update property: ', ex);
     }
   }
 
-  private revertProperty(row) {
+  private revertProperty (row) {
     row.value = row.currentValue;
   }
 
+  // usages = {
+  //   '1': 'Global',
+  //   '2': 'Domain',
+  //   '3': 'Global and Domain',
+  //   '4': 'Super',
+  //   '6': 'Domain and Super'
+  // };
+
+  // getUsage (usage: number): string {
+  //   return this.usages[usage.toString()];
+  // }
+
+  get csvUrl(): string {
+    return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
+  }
 }
