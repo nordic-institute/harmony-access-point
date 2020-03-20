@@ -2,11 +2,15 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.core.csv.CsvService;
+import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,14 +24,21 @@ public abstract class BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BaseResource.class);
 
+    @Autowired
+    CsvServiceImpl csvServiceImpl;
+
+    protected int getMaxNumberRowsToExport() {
+        return csvServiceImpl.getMaxNumberRowsToExport();
+    }
 
     /**
      * exports to CSV
-     * @param list
-     * @param tClass
-     * @param customColumnNames
-     * @param excludedColumns
-     * @param moduleName
+     *
+     * @param list              the lsit of objects to export
+     * @param tClass            the class of the object instances, used to determine the columns
+     * @param customColumnNames needed in case different column titles than the attribute name
+     * @param excludedColumns   the list of excluded columns from the final export
+     * @param moduleName        the seed of the name of the generated file
      * @return
      */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass,
@@ -36,8 +47,7 @@ public abstract class BaseResource {
                                                  final String moduleName) {
         String resultText;
         try {
-            resultText = getCsvService().exportToCSV(list, tClass,
-                    customColumnNames, excludedColumns);
+            resultText = getCsvService().exportToCSV(list, tClass, customColumnNames, excludedColumns);
         } catch (CsvException e) {
             LOG.error("Exception caught during export to CSV", e);
             return ResponseEntity.noContent().build();
@@ -45,9 +55,25 @@ public abstract class BaseResource {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName)+"\"")
+                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName) + "\"")
                 .body(resultText);
     }
 
-    public abstract CsvService getCsvService();
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final String moduleName) {
+        return exportToCSV(list, tClass, new HashMap<>(), new ArrayList<>(), moduleName);
+    }
+
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final Map<String, String> customColumnNames,
+                                                 final String moduleName) {
+        return exportToCSV(list, tClass, customColumnNames, new ArrayList<>(), moduleName);
+    }
+
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, List<String> excludedColumns,
+                                                 final String moduleName) {
+        return exportToCSV(list, tClass, new HashMap<>(), excludedColumns, moduleName);
+    }
+
+    public CsvService getCsvService() {
+        return csvServiceImpl;
+    }
 }
