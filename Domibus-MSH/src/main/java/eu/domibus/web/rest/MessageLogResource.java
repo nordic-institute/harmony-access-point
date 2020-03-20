@@ -3,10 +3,8 @@ package eu.domibus.web.rest;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
+
+
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
@@ -29,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +51,6 @@ public class MessageLogResource extends BaseResource {
 
     @Autowired
     private DateUtil dateUtil;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private UIMessageService uiMessageService;
@@ -143,7 +139,7 @@ public class MessageLogResource extends BaseResource {
         filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
         filters.put("messageType", request.getMessageType());
 
-        int maxNumberRowsToExport = csvServiceImpl.getMaxNumberRowsToExport();
+        int maxNumberRowsToExport = getMaxNumberRowsToExport();
 
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {
@@ -155,8 +151,12 @@ public class MessageLogResource extends BaseResource {
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,
-                CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems(),
+                new HashMap<String, String>() {{
+                    put("mshRole".toUpperCase(), "AP Role");
+                }},
+//                CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(),
+                Arrays.asList("sourceMessage", "messageFragment"),
+//                CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems(),
                 "messages");
     }
 
@@ -204,8 +204,4 @@ public class MessageLogResource extends BaseResource {
         return filters;
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

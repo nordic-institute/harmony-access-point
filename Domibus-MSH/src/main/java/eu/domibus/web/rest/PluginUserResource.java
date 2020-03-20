@@ -5,10 +5,8 @@ import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
+
+
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
@@ -26,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,9 +45,6 @@ public class PluginUserResource extends BaseResource {
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
@@ -99,20 +96,20 @@ public class PluginUserResource extends BaseResource {
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
 
         request.setPageStart(0);
-        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        request.setPageSize(getMaxNumberRowsToExport());
         // get list of users
         final PluginUserResultRO pluginUserROList = findUsers(request);
 
         return exportToCSV(pluginUserROList.getEntries(),
                 PluginUserRO.class,
-                CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems(),
+                new HashMap<String, String>() {{
+                    put("UserName".toUpperCase(), "Username");
+                    put("authRoles".toUpperCase(), "Role");
+                }},
+                Arrays.asList("entityId", "status", "password", "domain"),
+//                CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(),
+//                CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems(),
                 "pluginusers");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
     }
 
     /**

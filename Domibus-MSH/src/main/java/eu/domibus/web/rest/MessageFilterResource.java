@@ -74,12 +74,7 @@ public class MessageFilterResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-
-        return exportToCSV(getBackendFiltersInformation().getKey(),
-                MessageFilterRO.class,
-                null,
-                null,
-                "message-filter");
+        return exportToCSV(getBackendFiltersInformation().getKey(), MessageFilterRO.class, "message-filter");
     }
 
     @Override

@@ -8,9 +8,7 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
+
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
@@ -39,9 +37,6 @@ public class AlertResource extends BaseResource {
 
     @Autowired
     private DateUtil dateUtil;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private AuthUtils authUtils;
@@ -119,7 +114,7 @@ public class AlertResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
         request.setPage(0);
-        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        request.setPageSize(getMaxNumberRowsToExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
@@ -130,7 +125,10 @@ public class AlertResource extends BaseResource {
 
         return exportToCSV(alertRoList,
                 AlertRo.class,
-                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
+                new HashMap<String, String>() {{
+                    put("entityId".toUpperCase(), "Alert Id");
+                }},
+//                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
                 new ArrayList<>(),
                 "alerts");
 
@@ -244,8 +242,4 @@ public class AlertResource extends BaseResource {
         return alertRo;
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }
