@@ -105,6 +105,11 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
+        try {
+            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
+        } catch (IOException exc) {
+            LOG.info("No tmplog.lck to delete");
+        }
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
@@ -131,7 +136,11 @@ public abstract class AbstractIT {
 
     @After
     public void cleanTransactionsLog() throws IOException {
-        FileUtils.deleteDirectory(new File("target/test-classes/work"));
+        try {
+            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
+        } catch (IOException exc) {
+            LOG.info("No tmplog.lck to delete");
+        }
     }
 
 

@@ -25,7 +25,8 @@ public class TomcatTransactionConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTransactionConfiguration.class);
 
-    @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownWait")
+    @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownForce")
+//    @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownWait")
     public UserTransactionServiceImp userTransactionServiceImp(DomibusPropertyProvider domibusPropertyProvider) {
 
         Properties properties = new Properties();
