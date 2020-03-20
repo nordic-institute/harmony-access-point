@@ -1,8 +1,9 @@
-<mat-sidenav-container>
+<mat-sidenav-container class="full-height">
   <mat-sidenav mode="side" opened="true" ngClass="{{menuClass}}" [disableClose]="true">
     <!-- sidenav content -->
     <div id="topLogo">
-      <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'" [attr.width]="fullMenu ? '74px' : '40px'"/>
+      <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'"
+           [attr.width]="fullMenu ? '74px' : '40px'"/>
       <div id="topLogoText" *ngIf="fullMenu">
         <h1>Domibus <span>Administration <br>Console</span></h1>
       </div>
@@ -12,7 +13,8 @@
       <mat-icon mat-tooltip="Messages">message</mat-icon>
       <span>Messages</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()" id="messagefilter_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()"
+            id="messagefilter_id">
       <mat-icon mat-tooltip="Message Filter">filter_list
       </mat-icon>
       <span>Message Filter</span>
@@ -52,11 +54,13 @@
       <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
       <span>Truststore</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']"
+            *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
       <mat-icon mat-tooltip="Users">people</mat-icon>
       <span>Users</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="plugin_user_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()"
+            id="plugin_user_id">
       <mat-icon mat-tooltip="Plugin Users">people_outline</mat-icon>
       <span>Plugin Users</span>
     </button>
@@ -68,7 +72,8 @@
       <mat-icon mat-tooltip="Alerts">add_alert</mat-icon>
       <span>Alerts</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" *ngIf="isAdmin()" id="connectionmonitoring_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" *ngIf="isAdmin()"
+            id="connectionmonitoring_id">
       <mat-icon mat-tooltip="Connection Monitoring">import_export</mat-icon>
       <span *ngIf="fullMenu">Connection Monitoring</span>
     </button>
@@ -76,10 +81,11 @@
       <mat-icon mat-tooltip="Logging">list_alt</mat-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin() && false" id="properties_id">
-      <mat-icon mat-tooltip="Properties">settings</mat-icon>
-      <span>Properties</span>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
+      <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
+      <span>Domibus Properties</span>
     </button>
+
     <div class="collapse-button">
       <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
         <mat-icon mat-tooltip="Collapse">chevron_left</mat-icon>
@@ -108,11 +114,12 @@
   </mat-sidenav>
 
   <!-- primary content -->
-  <div id=".my-content" style="overflow-x: hidden">
+  <div id=".my-content" class="full-height" style="overflow-y: auto;">
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="outlet && outlet.isActivated ? outlet.component : null"></domain-selector>
+      <domain-selector *ngIf="currentUser"
+                       [currentComponent]="outlet && outlet.isActivated ? outlet.component : null"></domain-selector>
 
       <div class="helpMenu">
         <page-helper></page-helper>
@@ -145,7 +152,8 @@
 
           </div>
 
-          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;" id="settingsmenu_expanded_id">
+          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;"
+               id="settingsmenu_expanded_id">
             <button mat-menu-item disabled="true">
               <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
@@ -155,9 +163,10 @@
         </mat-menu>
       </div>
     </div>
-    <div id="routerHolder">
-      <div style="margin:15px">
-        <router-outlet></router-outlet>
+
+    <div id="routerHolder" style="height: calc(100% - 40px);">
+      <div style="margin:15px;height: 100%;">
+        <router-outlet class="full-height"></router-outlet>
       </div>
     </div>
   </div>
