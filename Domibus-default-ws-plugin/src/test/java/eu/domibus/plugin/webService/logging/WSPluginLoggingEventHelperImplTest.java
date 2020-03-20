@@ -13,6 +13,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RunWith(JMockit.class)
 public class WSPluginLoggingEventHelperImplTest {
     private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImplTest.class);
@@ -238,6 +241,28 @@ public class WSPluginLoggingEventHelperImplTest {
                 wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
         Assert.assertEquals(WSPluginLoggingEventHelperImpl.RETRIEVE_MESSAGE_RESPONSE,
                 wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+    }
+
+    @Test
+    public void test_stripHeaders(final @Mocked LogEvent event) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION, "Basic test 123");
+        String HOST_KEY = "host";
+        headers.put(HOST_KEY, "localhost:8080");
+        String CONTENT_TYPE_KEY = "content-type";
+        headers.put(CONTENT_TYPE_KEY, "application/soap+xml;charset=UTF-8");
+
+        new Expectations() {{
+            event.getHeaders();
+            result = headers;
+        }};
+
+        //tested method
+        wsPluginLoggingEventHelper.stripHeaders(event);
+        Assert.assertNotNull(event.getHeaders());
+        Assert.assertNull(event.getHeaders().get(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION));
+        Assert.assertNotNull(event.getHeaders().get(HOST_KEY));
+        Assert.assertNotNull(event.getHeaders().get(CONTENT_TYPE_KEY));
     }
 
     private String readPayload(final String payloadName) throws Exception {
