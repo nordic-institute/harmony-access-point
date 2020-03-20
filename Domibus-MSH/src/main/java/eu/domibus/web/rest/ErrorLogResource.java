@@ -4,11 +4,11 @@ import com.google.common.primitives.Ints;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvService;
+
 import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -92,8 +92,12 @@ public class ErrorLogResource extends BaseResource {
 
         return exportToCSV(errorLogROList,
                 ErrorLogRO.class,
-                CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(),
-                new ArrayList<>(),
+                new HashMap<String, String>() {{
+                    put("ErrorSignalMessageId".toUpperCase(), "Signal Message Id");
+                    put("MshRole".toUpperCase(), "AP Role");
+                    put("MessageInErrorId".toUpperCase(), "Message Id");
+                }},
+//                CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(),
                 "errorlog");
     }
 

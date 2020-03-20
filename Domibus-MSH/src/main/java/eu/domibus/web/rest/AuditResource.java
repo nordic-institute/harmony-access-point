@@ -6,10 +6,8 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
+
+
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
@@ -20,10 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,9 +45,6 @@ public class AuditResource extends BaseResource {
 
     @Autowired
     DateUtil dateUtil;
-
-    @Autowired
-    CsvServiceImpl csvServiceImpl;
 
     /**
      * Entry point of the Audit rest service to list the system audit logs.
@@ -137,18 +129,18 @@ public class AuditResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         auditCriteria.setStart(0);
-        auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());
+        auditCriteria.setMax(getMaxNumberRowsToExport());
         final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
 
         return exportToCSV(auditResponseRos,
                 AuditResponseRo.class,
-                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
+                new HashMap<String, String>() {{
+                    put("AuditTargetName".toUpperCase(), "Table");
+                }},
+//                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
+                Arrays.asList("revisionId"),
+//                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
                 "audit");
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }
