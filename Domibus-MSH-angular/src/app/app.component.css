@@ -100,3 +100,6 @@ router-outlet {
   box-shadow: none;
 }
 
+.sideNavSubmenu {
+  margin-bottom: -16px;
+}
