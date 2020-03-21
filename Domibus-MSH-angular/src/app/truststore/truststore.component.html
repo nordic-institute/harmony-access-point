@@ -1,33 +1,34 @@
-<page-header id="truststoreheader_id">Truststore</page-header>
-<div class="panel">
-  <div class="selectionCriteria">
-    <mat-card>
-      <mat-card-content>
-        <grid-header [parent]="this"></grid-header>
+<div style="height: calc(100% - 15px);">
+  <page-header id="truststoreheader_id">Truststore</page-header>
 
-        <page-grid [parent]="this" [selectionType]="'single'" [sortedColumns]="[{prop: 'alias', dir: 'desc'}]"></page-grid>
+  <div class="panel" style="height: calc(100% - 40px);">
+    <grid-header [parent]="this"></grid-header>
 
-      <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-      </ng-template>
+    <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'single'"
+                 [sortedColumns]="[{prop: 'alias', dir: 'desc'}]"></page-grid>
+    </div>
 
-        <table class="group-action-button">
-          <tr>
-            <td>
-              <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id" button-click-behaviour>
-                <mat-icon>file_upload</mat-icon>
-                <span>Upload</span>
-              </button>
-              <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()" [disabled]="!canDownload()" id="downloadbutton_id"
-                      button-click-behaviour>
-                <mat-icon>file_download</mat-icon>
-                <span>Download</span>
-              </button>
-            </td>
-          </tr>
-        </table>
-      </mat-card-content>
-    </mat-card>
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value | domibusDate: dateFormat}}</span>
+    </ng-template>
+
+    <table class="group-action-button">
+      <tr>
+        <td>
+          <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id"
+                  button-click-behaviour>
+            <mat-icon>file_upload</mat-icon>
+            <span>Upload</span>
+          </button>
+          <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()"
+                  [disabled]="!canDownload()" id="downloadbutton_id"
+                  button-click-behaviour>
+            <mat-icon>file_download</mat-icon>
+            <span>Download</span>
+          </button>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
-
