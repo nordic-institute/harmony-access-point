@@ -10,7 +10,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
+          <input #user_name matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
             <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">You should type an username</div>
           </span>
