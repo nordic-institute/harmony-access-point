@@ -107,8 +107,6 @@ public class PluginUserResource extends BaseResource {
                     put("authRoles".toUpperCase(), "Role");
                 }},
                 Arrays.asList("entityId", "status", "password", "domain"),
-//                CsvCustomColumns.PLUGIN_USER_RESOURCE.getCustomColumns(),
-//                CsvExcludedItems.PLUGIN_USER_RESOURCE.getExcludedItems(),
                 "pluginusers");
     }
 

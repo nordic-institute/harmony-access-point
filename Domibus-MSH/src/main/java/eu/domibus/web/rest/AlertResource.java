@@ -128,7 +128,6 @@ public class AlertResource extends BaseResource {
                 new HashMap<String, String>() {{
                     put("entityId".toUpperCase(), "Alert Id");
                 }},
-//                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
                 new ArrayList<>(),
                 "alerts");
 

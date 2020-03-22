@@ -174,7 +174,6 @@ public class PModeResource extends BaseResource {
         return exportToCSV(pModeResponseROList,
                 PModeResponseRO.class,
                 Arrays.asList("id"),
-//                CsvExcludedItems.PMODE_RESOURCE.getExcludedItems(),
                 "pmodearchive");
     }
 }

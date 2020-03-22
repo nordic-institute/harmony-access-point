@@ -111,9 +111,7 @@ public class JmsResource extends BaseResource {
                     put("CustomProperties".toUpperCase(), "Custom prop");
                     put("Properties".toUpperCase(), "JMS prop");
                 }},
-//                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(),
                 Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId"),
-//                CsvExcludedItems.JMS_RESOURCE.getExcludedItems(),
                 "jmsmonitoring");
 
     }
