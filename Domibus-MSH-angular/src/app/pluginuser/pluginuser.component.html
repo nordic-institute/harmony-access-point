@@ -1,87 +1,93 @@
-<page-header id="pluginusersheader_id">Plugin Users</page-header>
-<div class="selectionCriteria">
-  <mat-card>
-    <mat-card-content>
-      <div class="panel">
+<div style="height: calc(100% - 15px);">
+  <page-header id="pluginusersheader_id">Plugin Users</page-header>
 
-        <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType" (selectionChange)="changeAuthType($event.value)" id="authType_id">
-          <mat-option *ngFor="let t of authenticationTypes" [value]="t">
-            {{t}}
-          </mat-option>
-        </mat-select>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
 
-        <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id">
-          <mat-option [value]=""></mat-option>
-          <mat-option *ngFor="let t of userRoles" [value]="t">
-            {{t}}
-          </mat-option>
-        </mat-select>
+          <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType"
+                      (selectionChange)="changeAuthType($event.value)" id="authType_id">
+            <mat-option *ngFor="let t of authenticationTypes" [value]="t">
+              {{t}}
+            </mat-option>
+          </mat-select>
 
-        <mat-form-field>
-          <input matInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id">
-        </mat-form-field>
+          <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id">
+            <mat-option [value]=""></mat-option>
+            <mat-option *ngFor="let t of userRoles" [value]="t">
+              {{t}}
+            </mat-option>
+          </mat-select>
 
-        <mat-form-field *ngIf="inBasicMode()">
-          <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id">
-        </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id">
+          </mat-form-field>
 
-        <div class="searchArea">
-          <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()"
-                  button-click-behaviour>
-            <mat-icon>search</mat-icon>
-            <span>Search</span>
-          </button>
+          <mat-form-field *ngIf="inBasicMode()">
+            <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id">
+          </mat-form-field>
+
+          <div class="searchArea">
+            <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()"
+                    button-click-behaviour>
+              <mat-icon>search</mat-icon>
+              <span>Search</span>
+            </button>
+          </div>
+
         </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+  <div class="panel" style="height: calc(100% - 130px);">
+    <grid-header [parent]="this"></grid-header>
 
-<div class="panel">
-  <grid-header [parent]="this"></grid-header>
+    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+      <ngx-datatable
+        id="pageGridId"
+        class="material striped"
+        [rows]="displayedUsers"
+        [columns]="columnPicker.selectedColumns"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [scrollbarH]="true"
+        [externalPaging]="false"
+        [externalSorting]="false"
+        [loadingIndicator]="isLoading"
+        [selected]="selected"
+        [selectionType]="'single'"
+        [limit]="rowLimiter.pageSize"
+        [count]="count"
+        [offset]="offset"
+        (activate)="onActivate($event)"
+        (page)="onPage($event)"
+        (sort)="onSort()"
+      ></ngx-datatable>
+    </div>
 
-  <ngx-datatable
-    id="pageGridId"
-    class="material striped"
-    [rows]="displayedUsers"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="false"
-    [externalSorting]="false"
-    [loadingIndicator]="isLoading"
-    [selected]="selected"
-    [selectionType]="'single'"
-    [limit]="rowLimiter.pageSize"
-    [count]="count"
-    [offset]="offset"
-    (activate)="onActivate($event)"
-    (page)="onPage($event)"
-    (sort)="onSort()"
-  ></ngx-datatable>
+    <ng-template #activeTpl let-row="row" ngx-datatable-cell-template>
+      <mat-checkbox [checked]="row.active" disabled></mat-checkbox>
+      <ng-container *ngIf="row['suspended']">
+        <span>(Suspended)</span>
+      </ng-container>
+    </ng-template>
 
-  <ng-template #activeTpl let-row="row" ngx-datatable-cell-template>
-    <mat-checkbox [checked]="row.active" disabled></mat-checkbox>
-    <ng-container *ngIf="row['suspended']">
-      <span>(Suspended)</span>
-    </ng-container>
-  </ng-template>
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button mat-icon-button (click)="edit(row)"
+              color="primary" tooltip="Edit" button-click-behaviour>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="delete(row)" color="primary"
+              tooltip="Delete" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-template>
 
-  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button mat-icon-button (click)="edit(row)"
-            color="primary" tooltip="Edit" button-click-behaviour>
-      <mat-icon>edit</mat-icon>
-    </button>
-    <button mat-icon-button (click)="delete(row)" color="primary"
-            tooltip="Delete" button-click-behaviour>
-      <mat-icon>delete</mat-icon>
-    </button>
-  </ng-template>
+    <page-footer [parent]="this"></page-footer>
 
-  <page-footer [parent]="this"></page-footer>
-
+  </div>
 </div>
