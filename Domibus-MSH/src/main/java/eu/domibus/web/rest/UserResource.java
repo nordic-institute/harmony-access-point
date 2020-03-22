@@ -162,12 +162,9 @@ public class UserResource extends BaseResource {
                     put("UserName".toUpperCase(), "Username");
                     put("Roles".toUpperCase(), "Role");
                 }},
-//                CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
                 domibusConfigurationService.isMultiTenantAware() ?
                         Arrays.asList("authorities", "status", "password", "suspended"):
                         Arrays.asList("entityId", "status", "password", "domain"),
-//                        CsvExcludedItems.USER_RESOURCE_MULTI.getExcludedItems() :
-//                        CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
                 "users");
     }
 

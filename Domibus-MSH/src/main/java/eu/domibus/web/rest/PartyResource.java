@@ -109,8 +109,6 @@ public class PartyResource extends BaseResource {
                     put("JoinedProcesses".toUpperCase(), "Process");
                 }},
                 Arrays.asList("entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"),
-//                CsvCustomColumns.PARTY_RESOURCE.getCustomColumns(),
-//                CsvExcludedItems.PARTY_RESOURCE.getExcludedItems(),
                 "pmodeparties");
     }
 

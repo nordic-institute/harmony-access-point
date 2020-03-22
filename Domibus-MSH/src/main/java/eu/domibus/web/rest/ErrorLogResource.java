@@ -97,7 +97,6 @@ public class ErrorLogResource extends BaseResource {
                     put("MshRole".toUpperCase(), "AP Role");
                     put("MessageInErrorId".toUpperCase(), "Message Id");
                 }},
-//                CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(),
                 "errorlog");
     }
 

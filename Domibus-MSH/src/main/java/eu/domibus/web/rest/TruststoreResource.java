@@ -120,8 +120,6 @@ public class TruststoreResource extends BaseResource {
                     put("ValidUntil".toUpperCase(), "Valid until");
                 }},
                 Arrays.asList("fingerprints"),
-//                CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
-//                CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
                 "truststore");
 
     }

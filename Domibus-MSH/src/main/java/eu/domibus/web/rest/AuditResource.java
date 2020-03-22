@@ -137,9 +137,7 @@ public class AuditResource extends BaseResource {
                 new HashMap<String, String>() {{
                     put("AuditTargetName".toUpperCase(), "Table");
                 }},
-//                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
                 Arrays.asList("revisionId"),
-//                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
                 "audit");
     }
 

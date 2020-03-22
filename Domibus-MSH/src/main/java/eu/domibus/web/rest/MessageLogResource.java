@@ -154,9 +154,7 @@ public class MessageLogResource extends BaseResource {
                 new HashMap<String, String>() {{
                     put("mshRole".toUpperCase(), "AP Role");
                 }},
-//                CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(),
                 Arrays.asList("sourceMessage", "messageFragment"),
-//                CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems(),
                 "messages");
     }
 
