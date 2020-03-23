@@ -1,4 +1,4 @@
-package eu.domibus.tomcat.transaction;
+package eu.domibus;
 
 import com.atomikos.icatch.config.UserTransactionServiceImp;
 import com.atomikos.icatch.jta.J2eeUserTransaction;
@@ -12,20 +12,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 import java.util.Properties;
 
 /**
- * @author Cosmin Baciu
+ * @author Ioana Dragusanu
  * @since 4.2
  */
 @Configuration
-public class TomcatTransactionConfiguration {
+public class DomibusTestTransactionConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTransactionConfiguration.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusTestTransactionConfiguration.class);
 
-    @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownWait")
+    @Primary
+    @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownForce")
     public UserTransactionServiceImp userTransactionServiceImp(DomibusPropertyProvider domibusPropertyProvider) {
 
         Properties properties = new Properties();
@@ -54,6 +56,7 @@ public class TomcatTransactionConfiguration {
         return result;
     }
 
+    @Primary
     @DependsOn("userTransactionService")
     @Bean(value = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
     public UserTransactionManager userTransactionManager() {
@@ -63,12 +66,14 @@ public class TomcatTransactionConfiguration {
         return result;
     }
 
+    @Primary
     @DependsOn("userTransactionService")
     @Bean("atomikosUserTransaction")
     public J2eeUserTransaction j2eeUserTransaction() {
         return new J2eeUserTransaction();
     }
 
+    @Primary
     @DependsOn({"atomikosTransactionManager", "atomikosUserTransaction"})
     @Bean("transactionManager")
     public JtaTransactionManager jtaTransactionManager(@Qualifier("atomikosTransactionManager") UserTransactionManager userTransactionManager,
