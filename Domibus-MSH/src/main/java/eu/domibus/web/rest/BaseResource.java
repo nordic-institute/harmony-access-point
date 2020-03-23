@@ -34,7 +34,7 @@ public abstract class BaseResource {
     /**
      * exports to CSV
      *
-     * @param list              the lsit of objects to export
+     * @param list              the list of objects to export
      * @param tClass            the class of the object instances, used to determine the columns
      * @param customColumnNames needed in case different column titles than the attribute name
      * @param excludedColumns   the list of excluded columns from the final export
