@@ -141,7 +141,6 @@ export class PropertiesComponent extends mix(BaseListComponent)
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
       await this.propertiesService.updateProperty(row, this.filter.showDomain);
-      this.alertService.success('Successfully updated the property ' + row.name);
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
