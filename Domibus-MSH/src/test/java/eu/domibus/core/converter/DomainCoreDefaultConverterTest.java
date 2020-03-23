@@ -86,10 +86,10 @@ public class DomainCoreDefaultConverterTest {
     @Autowired
     DomainCoreConverter domainCoreConverter;
 
-    @Injectable
+    @Autowired
     EventMapper eventMapper;
 
-    @Injectable
+    @Autowired
     AuditMapper auditMapper;
 
     @Autowired
