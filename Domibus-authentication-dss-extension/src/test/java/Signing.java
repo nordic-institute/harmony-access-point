@@ -12,12 +12,14 @@ import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -25,7 +27,38 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Xml sign. I took xml cust from UUM&DS. Removed the signature. Added our own root CA and sign again.
+ */
 public class Signing {
+
+    public static void main(String[] args) {
+        try {
+            new Signing();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (MarshalException e) {
+            e.printStackTrace();
+        } catch (XMLSignatureException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
     public Signing() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, KeyStoreException, IOException, UnrecoverableEntryException, CertificateException, ParserConfigurationException, SAXException, MarshalException, XMLSignatureException, TransformerException {
         // Create a DOM XMLSignatureFactory that will be used to
 // generate the enveloped signature.
@@ -36,7 +69,7 @@ public class Signing {
 // that, and also specify the SHA1 digest algorithm and
 // the ENVELOPED Transform.
         Reference ref = fac.newReference
-                ("", fac.newDigestMethod(DigestMethod.SHA1, null),
+                ("", fac.newDigestMethod(DigestMethod.SHA256, null),
                         Collections.singletonList
                                 (fac.newTransform
                                         (Transform.ENVELOPED, (TransformParameterSpec) null)),
@@ -51,10 +84,10 @@ public class Signing {
                         Collections.singletonList(ref));
         // Load the KeyStore and get the signing key and certificate.
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("mykeystore.jks"), "changeit".toCharArray());
+        ks.load(new FileInputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\gateway_keystore.jks"), "test123".toCharArray());
         KeyStore.PrivateKeyEntry keyEntry =
                 (KeyStore.PrivateKeyEntry) ks.getEntry
-                        ("mykey", new KeyStore.PasswordProtection("changeit".toCharArray()));
+                        ("red_gw", new KeyStore.PasswordProtection("test123".toCharArray()));
         X509Certificate cert = (X509Certificate) keyEntry.getCertificate();
 
 // Create the KeyInfo containing the X509Data.
@@ -69,7 +102,7 @@ public class Signing {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         Document doc = dbf.newDocumentBuilder().parse
-                (new FileInputStream("purchaseOrder.xml"));
+                (new FileInputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL_unsigned.xml"));
 
 // Create a DOMSignContext and specify the RSA PrivateKey and
 // location of the resulting XMLSignature's parent element.
@@ -83,7 +116,7 @@ public class Signing {
         signature.sign(dsc);
 
         // Output the resulting document.
-        OutputStream os = new FileOutputStream("signedPurchaseOrder.xml");
+        OutputStream os = new FileOutputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL.xml");
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(doc), new StreamResult(os));

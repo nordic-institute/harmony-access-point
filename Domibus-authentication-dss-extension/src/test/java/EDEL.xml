@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><TrustServiceStatusList xmlns="http://uri.etsi.org/02231/v2#" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" TSLTag="http://uri.etsi.org/19612/TSLTag">
+    <SchemeInformation>
+        <TSLVersionIdentifier>5</TSLVersionIdentifier>
+        <TSLSequenceNumber>1</TSLSequenceNumber>
+        <TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric</TSLType>
+        <SchemeOperatorName>
+            <Name xml:lang="en">European Commission</Name>
+            <Name xml:lang="fr">Commission européenne</Name>
+            <Name xml:lang="nl">Europese Commissie</Name>
+            <Name xml:lang="de">Europäische Kommission</Name>
+        </SchemeOperatorName>
+        <SchemeOperatorAddress>
+            <PostalAddresses>
+                <PostalAddress xml:lang="fr">
+                    <StreetAddress>Rue de la Loi 200</StreetAddress>
+                    <Locality>Bruxelles</Locality>
+                    <PostalCode>1049</PostalCode>
+                    <CountryName>BE</CountryName>
+                </PostalAddress>
+                <PostalAddress xml:lang="en">
+                    <StreetAddress>Rue de la Loi/Wetstraat 200</StreetAddress>
+                    <Locality>Brussels</Locality>
+                    <PostalCode>1049</PostalCode>
+                    <CountryName>BE</CountryName>
+                </PostalAddress>
+                <PostalAddress xml:lang="nl">
+                    <StreetAddress>Wetstraat 200</StreetAddress>
+                    <Locality>Brussel</Locality>
+                    <PostalCode>1049</PostalCode>
+                    <CountryName>BE</CountryName>
+                </PostalAddress>
+            </PostalAddresses>
+            <ElectronicAddress>
+                <URI xml:lang="en">mailto:support@itsmtaxud.europa.eu</URI>
+                <URI xml:lang="en">https://customs.ec.europa.eu/taxud/uumds/cas/uumds-wayf/legalNotice.jsp</URI>
+            </ElectronicAddress>
+        </SchemeOperatorAddress>
+        <SchemeName>
+            <Name xml:lang="en">EU:DG TAXUD UUM&amp;DS list of alternate national certificate authorities recognised by
+                Customs &amp; Taxation and EU and National level by national laws.
+            </Name>
+        </SchemeName>
+        <SchemeInformationURI>
+            <URI xml:lang="en">https://customs.ec.europa.eu/taxud/uumds/cas/uumds-wayf/legalNotice.jsp</URI>
+        </SchemeInformationURI>
+        <StatusDeterminationApproach>http://uri.etsi.org/TrstSvc/TrustedList/StatusDetn/EUappropriate
+        </StatusDeterminationApproach>
+        <SchemeTypeCommunityRules>
+            <URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EUcommon</URI>
+        </SchemeTypeCommunityRules>
+        <SchemeTerritory>EDEL</SchemeTerritory>
+        <PolicyOrLegalNotice>
+            <TSLPolicy xml:lang="en">https://customs.ec.europa.eu/taxud/uumds/cas/uumds-wayf/legalNotice.jsp</TSLPolicy>
+        </PolicyOrLegalNotice>
+        <HistoricalInformationPeriod>65535</HistoricalInformationPeriod>
+        <ListIssueDateTime>2019-09-04T14:28:33.284+02:00</ListIssueDateTime>
+        <NextUpdate>
+            <dateTime>2020-03-04T14:28:33.284+01:00</dateTime>
+        </NextUpdate>
+    </SchemeInformation>
+    <TrustServiceProviderList>
+        <TrustServiceProvider>
+            <TSPInformation>
+                <TSPName>
+                    <Name xml:lang="en">dvmh353</Name>
+                </TSPName>
+                <TSPTradeName>
+                    <Name xml:lang="en">dvmh353</Name>
+                </TSPTradeName>
+                <TSPAddress>
+                    <PostalAddresses>
+                        <PostalAddress xml:lang="en">
+                            <StreetAddress>B26</StreetAddress>
+                            <Locality>Brussels</Locality>
+                            <StateOrProvince>Brussels</StateOrProvince>
+                            <PostalCode>1000</PostalCode>
+                            <CountryName>BE</CountryName>
+                        </PostalAddress>
+                    </PostalAddresses>
+                    <ElectronicAddress>
+                        <URI xml:lang="en">cust@cert-auth-host.be</URI>
+                        <URI xml:lang="en">https://dvmh353.itsmtaxud.priv:7162/taxud/uumds/ca</URI>
+                    </ElectronicAddress>
+                </TSPAddress>
+                <TSPInformationURI>
+                    <URI xml:lang="en">https://dvmh353.itsmtaxud.priv:7162/taxud/uumds/ca</URI>
+                </TSPInformationURI>
+            </TSPInformation>
+            <TSPServices>
+                <TSPService>
+                    <ServiceInformation>
+                        <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/TSA</ServiceTypeIdentifier>
+                        <ServiceName>
+                            <Name xml:lang="en">dvmh353</Name>
+                        </ServiceName>
+                        <ServiceDigitalIdentity>
+                            <DigitalId>
+                                <X509Certificate>
+                                    MIIDwzCCAqugAwIBAgIBATANBgkqhkiG9w0BAQsFADCBgjELMAkGA1UEBhMCREUxKzApBgNVBAoMIlQtU3lzdGVtcyBFbnRlcnByaXNlIFNlcnZpY2VzIEdtYkgxHzAdBgNVBAsMFlQtU3lzdGVtcyBUcnVzdCBDZW50ZXIxJTAjBgNVBAMMHFQtVGVsZVNlYyBHbG9iYWxSb290IENsYXNzIDIwHhcNMDgxMDAxMTA0MDE0WhcNMzMxMDAxMjM1OTU5WjCBgjELMAkGA1UEBhMCREUxKzApBgNVBAoMIlQtU3lzdGVtcyBFbnRlcnByaXNlIFNlcnZpY2VzIEdtYkgxHzAdBgNVBAsMFlQtU3lzdGVtcyBUcnVzdCBDZW50ZXIxJTAjBgNVBAMMHFQtVGVsZVNlYyBHbG9iYWxSb290IENsYXNzIDIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCqX9obX+hzkeXaXPSi5kfl82hVYAUdAqSzm1nzHoqvNK38DcLZSBnuaY/JIPwhqgcZ7bBcrGXHX+0CfHt8LRvWurmAwhiCFoT6ZrAIxlQjgeTNuUk/9k9uN0goOA/FvudocP05l03Sx5iRUKrERLMjfTlH6VJi1hKTXrcxlkIF+3anHqP1wvzpesVsqXFP6st4vGCvx9702cu+fjOlbpSD8DT6IavqjnKgP6TeMFvvhk1qlVtDRKgQFRzlAVfFmPHmBiiRqiDFt1MmUUOyCxGVWOHAD3bZwI18gfNycJ5v/hqO2V81xrJvNHy+SE/iWjnX2J14np+GPgNeGYtEotXHAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBS/WSA2AHmgoCJrjNXyYdK4LMuCSjANBgkqhkiG9w0BAQsFAAOCAQEAMQOiYQsfdOhyNsZt+U2e+iKo4YFWz827n+qrkRk4r6p8FU3ztqONpfSO9kSpp+ghla0+AGIWiPACuvxhI+YzmzB6azZie60EI4RYZeLbK4rnJVM3YlNfvNoBYimipidx5joifsFvHZVwIEoHNN/q/xWA5brXethbdXwFeilHfkCoMRN3zUA7tFFHei4R40cR3p1m0IvVVGb6g1XqfMIpiRvpb7PO4gWEyS8+eIVibslfwXhjdFjASBgMmTnrpMwatXlajRWc2BQN9noHV8cigwUtPJslJj0Ys6lDfMjIq2SPDqO/nBudMNva0Bkuqjzx+zOAduTNrRlPBSeOE6Fuwg==
+                                </X509Certificate>
+                            </DigitalId>
+                            <DigitalId>
+                                <X509SKI>BBS/WSA2AHmgoCJrjNXyYdK4LMuCSg==</X509SKI>
+                            </DigitalId>
+                            <DigitalId>
+                                <X509SubjectName>CN=T-TeleSec GlobalRoot Class 2,OU=T-Systems Trust Center,O=T-Systems Enterprise Services GmbH,C=DE
+                                </X509SubjectName>
+                            </DigitalId>
+                        </ServiceDigitalIdentity>
+                        <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+                        <StatusStartingTime>2019-04-11T02:00:00.000+02:00</StatusStartingTime>
+                        <SchemeServiceDefinitionURI>
+                            <URI xml:lang="en">https://dvmh353.itsmtaxud.priv:7162/taxud/uumds/ca</URI>
+                        </SchemeServiceDefinitionURI>
+                        <ServiceSupplyPoints>
+                            <ServiceSupplyPoint>https://dvmh353.itsmtaxud.priv:7162/taxud/uumds/ca</ServiceSupplyPoint>
+                        </ServiceSupplyPoints>
+                        <TSPServiceDefinitionURI>
+                            <URI xml:lang="en">https://dvmh353.itsmtaxud.priv:7162/taxud/uumds/ca</URI>
+                        </TSPServiceDefinitionURI>
+                    </ServiceInformation>
+                </TSPService>
+            </TSPServices>
+        </TrustServiceProvider>
+    </TrustServiceProviderList>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>nj5g4/c4Mv4sDnT3s5fegUeH23kILt6VIlQDcghUt/U=</DigestValue></Reference></SignedInfo><SignatureValue>LfJjQ8HW4wEzjnGNldpj8lLzKE+0c/gbIsY7z5gIQoMq8crVpzw1cLIXyqMeNn0xtOvSQX1ltJX5
+rZLPHpSYx5F7FwBENYFgB1ZqQ/cC9/s+Njkee5fbTD4UsCLeb7lcrXWcIYwO86+ze/vwj/VH+iPS
+VWRG36PT6VeNCJmKW8y5WbqeEpPRk5CfXMC7ot8BHcgSkn4OjGVSZOrN+2rLKb5kvFZ1Vmpvuqke
+4rtqTzCoBW/9m9+1V6gZBxMLlekbrqzFkPYWo7INQHsGG5hMowXwKhTK9jdYvYxXzwGFQgmHpN7W
+ouCfltmbPTnUjqYYbkBn9f/Kclw2GyNGIYysGg==</SignatureValue><KeyInfo><X509Data><X509SubjectName>2.5.4.5=#130131,1.2.840.113549.1.9.1=#16224345462d4544454c49564552592d535550504f52544065632e6575726f70612e6575,CN=GRP:GENERALERDS_AP_TEST_TESTINGTEAM4,OU=AP_TEST-GTC_OID-1.3.130.0.2018.1918059,OU=generalERDS,OU=CEF_eDelivery.europa.eu,O=European Commission,C=BE</X509SubjectName><X509Certificate>MIIG+TCCBeGgAwIBAgIIWeExhouWN1swDQYJKoZIhvcNAQELBQAwdTELMAkGA1UEBhMCREUxJTAj
+BgNVBAoTHFQtU3lzdGVtcyBJbnRlcm5hdGlvbmFsIEdtYkgxHzAdBgNVBAsTFlQtU3lzdGVtcyBU
+cnVzdCBDZW50ZXIxHjAcBgNVBAMTFVRlbGVTZWMgQnVzaW5lc3MgQ0EgMTAeFw0xOTA1MTMxMzIy
+MTJaFw0yMTA1MTMyMzU5NTlaMIIBAjELMAkGA1UEBhMCQkUxHDAaBgNVBAoTE0V1cm9wZWFuIENv
+bW1pc3Npb24xIDAeBgNVBAsMF0NFRl9lRGVsaXZlcnkuZXVyb3BhLmV1MRQwEgYDVQQLEwtnZW5l
+cmFsRVJEUzEvMC0GA1UECwwmQVBfVEVTVC1HVENfT0lELTEuMy4xMzAuMC4yMDE4LjE5MTgwNTkx
+LTArBgNVBAMMJEdSUDpHRU5FUkFMRVJEU19BUF9URVNUX1RFU1RJTkdURUFNNDExMC8GCSqGSIb3
+DQEJARYiQ0VGLUVERUxJVkVSWS1TVVBQT1JUQGVjLmV1cm9wYS5ldTEKMAgGA1UEBRMBMTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK20iybl1SwssmHyyrO5kWUKa+Ixyduh9rUTGoQL
+xD68j0qGCIsJNN/oQFP7sYDg8wNJ+wjRGhTEETRwDxrJJ0S2UhN9LbUt2/6vgoI6+O5ypwu5OSCt
+dd+gCT2U4G6mMBcRx7MaY/m1DyKMHfcXk4YslUVmhWFbW2eMlS1YrA9rKdXK2IUc1pU+lUxRuXaX
+ba2IZq5CXPY1KIrqhV5ZsqAiXmYEawYpwgNJVnkeLariKyCUU43bdUqroMB/VEbSwlGaKPUvrvR9
+2Wkeey2od7hgGjKz1dcNLwLmifBZ4nbjrfC10XopTZoHur6Jppq3gS027XlJAe0dIOPOlTR84hUC
+AwEAAaOCAvwwggL4MB8GA1UdIwQYMBaAFIaIkx+L61WWZdVHAb03jHzNqMejMB0GA1UdDgQWBBQj
+EAFIKbwz1Ufs9KttqqIQahdHNzAOBgNVHQ8BAf8EBAMCBaAwTgYDVR0gBEcwRTBDBgkrBgEEAb1H
+DRkwNjA0BggrBgEFBQcCARYoaHR0cDovL3NiY2EudGVsZXNlYy5kZS9kb3dubG9hZC9jcHMyLnBk
+ZjAJBgNVHRMEAjAAMIHwBgNVHR8EgegwgeUwPaA7oDmGN2h0dHA6Ly9jcmwuc2JjYS50ZWxlc2Vj
+LmRlL3JsL1RlbGVTZWNfQnVzaW5lc3NfQ0FfMS5jcmwwgaOggaCggZ2GgZpsZGFwOi8vbGRhcC5z
+YmNhLnRlbGVzZWMuZGUvQ049VGVsZVNlYyUyMEJ1c2luZXNzJTIwQ0ElMjAxLE9VPVQtU3lzdGVt
+cyUyMFRydXN0JTIwQ2VudGVyLE89VC1TeXN0ZW1zJTIwSW50ZXJuYXRpb25hbCUyMEdtYkgsQz1E
+RT9DZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0MIIBJwYIKwYBBQUHAQEEggEZMIIBFTAvBggrBgEF
+BQcwAYYjaHR0cDovL29jc3AwMy5zYmNhLnRlbGVzZWMuZGUvb2NzcHIwRAYIKwYBBQUHMAKGOGh0
+dHA6Ly9jcnQuc2JjYS50ZWxlc2VjLmRlL2NydC9UZWxlU2VjX0J1c2luZXNzX0NBXzEuY3J0MIGb
+BggrBgEFBQcwAoaBjmxkYXA6Ly9sZGFwLnNiY2EudGVsZXNlYy5kZS9jbj1UZWxlU2VjJTIwQnVz
+aW5lc3MlMjBDQSUyMDEsb3U9VC1TeXN0ZW1zJTIwVHJ1c3QlMjBDZW50ZXIsbz1ULVN5c3RlbXMl
+MjBJbnRlcm5hdGlvbmFsJTIwR21iSCxjPWRlP2NBQ2VydGlmaWNhdGUwLQYDVR0RBCYwJIEiQ0VG
+LUVERUxJVkVSWS1TVVBQT1JUQGVjLmV1cm9wYS5ldTANBgkqhkiG9w0BAQsFAAOCAQEAE7DtrrhP
+ekMSnX0d3WD+vcWoL2LqF6ENJ5z9x0XeTRQWZIH4ckVyRtfXx5CoviGsO+eoUwsZScv1uh7Nebz6
+fyuhBREwLsqhI+3gJfYSG8PidKZWfdAw7rcUJL89Q4gd3kokOrvBlyLI1+J5xCaQc8a0bc3EX1wD
+bJ0MJyA+sNzchDG1dhlSj1HGpTWK/pd8SV1w9Nk9UyP+p/X4vPq9Qq5lXuB4Vqz7V153Ay8jM3YN
+FRoZuBfd+rhYx+qWoEsSh9ZHRdnZ8kFsAmsw4FEb/WKvLKD+NxKYchgaR/Mckm8RpyMiBJHDWibP
+sFt59A3QWUyXyL2X3PW61VWdAze0tw==</X509Certificate></X509Data></KeyInfo></Signature></TrustServiceStatusList>
