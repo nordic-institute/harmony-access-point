@@ -8,8 +8,6 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-
-
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;

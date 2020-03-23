@@ -3,8 +3,6 @@ package eu.domibus.web.rest;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-
-
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;

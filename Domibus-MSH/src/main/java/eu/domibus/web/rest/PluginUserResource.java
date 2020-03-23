@@ -5,8 +5,6 @@ import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
-
-
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;

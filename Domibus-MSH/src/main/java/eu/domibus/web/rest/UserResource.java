@@ -13,7 +13,6 @@ import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -163,7 +162,7 @@ public class UserResource extends BaseResource {
                     put("Roles".toUpperCase(), "Role");
                 }},
                 domibusConfigurationService.isMultiTenantAware() ?
-                        Arrays.asList("authorities", "status", "password", "suspended"):
+                        Arrays.asList("authorities", "status", "password", "suspended") :
                         Arrays.asList("entityId", "status", "password", "domain"),
                 "users");
     }

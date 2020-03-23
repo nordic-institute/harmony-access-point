@@ -6,8 +6,6 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-
-
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
