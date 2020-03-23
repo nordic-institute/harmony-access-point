@@ -8,7 +8,6 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
-
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;

@@ -10,6 +10,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -31,9 +32,10 @@ public class BaseResourceTest {
     @Injectable
     CsvServiceImpl csvServiceImpl;
 
-    private static final Map<String, String> jmsCustomColumns;
+    private static Map<String, String> jmsCustomColumns;
 
-    static {
+    @BeforeClass
+    public static void setUp() {
         jmsCustomColumns = new HashMap<>();
         jmsCustomColumns.put("id".toUpperCase(), "ID");
         jmsCustomColumns.put("type".toUpperCase(), "JMS Type");
@@ -41,6 +43,7 @@ public class BaseResourceTest {
         jmsCustomColumns.put("CustomProperties".toUpperCase(), "Custom prop");
         jmsCustomColumns.put("Properties".toUpperCase(), "JMS prop");
     }
+
 
     private static List<String> jmsExcludedColumns = Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId");
 
