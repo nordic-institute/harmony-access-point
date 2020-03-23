@@ -153,6 +153,18 @@ export class PropertiesComponent extends mix(BaseListComponent)
     row.value = row.currentValue;
   }
 
+  // usages = {
+  //   '1': 'Global',
+  //   '2': 'Domain',
+  //   '3': 'Global and Domain',
+  //   '4': 'Super',
+  //   '6': 'Domain and Super'
+  // };
+
+  // getUsage (usage: number): string {
+  //   return this.usages[usage.toString()];
+  // }
+  
   get csvUrl (): string {
     return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
   }
