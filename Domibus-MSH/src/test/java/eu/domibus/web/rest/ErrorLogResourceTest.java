@@ -4,6 +4,7 @@ import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -46,6 +47,9 @@ public class ErrorLogResourceTest {
 
     @Injectable
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
+
+    @Injectable
+    private CsvServiceImpl csvServiceImpl;
 
     @Test
     public void testGetErrorLog() {

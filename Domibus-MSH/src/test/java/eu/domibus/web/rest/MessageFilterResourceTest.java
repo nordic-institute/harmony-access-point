@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
@@ -42,6 +43,9 @@ public class MessageFilterResourceTest {
 
     @Injectable
     MessageFilterCsvServiceImpl csvService;
+
+    @Injectable
+    private CsvServiceImpl csvServiceImpl;
 
     @Test
     public void testGetMessageFilterPersisted() {
