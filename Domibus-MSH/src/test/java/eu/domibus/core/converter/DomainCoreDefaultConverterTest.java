@@ -81,6 +81,9 @@ public class DomainCoreDefaultConverterTest {
         public DateUtil dateUtil() {
             return new DateUtilImpl();
         }
+
+        @Autowired
+        EventMapper eventMapper;
     }
 
     @Autowired

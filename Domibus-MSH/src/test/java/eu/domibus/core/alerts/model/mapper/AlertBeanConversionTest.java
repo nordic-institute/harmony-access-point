@@ -36,12 +36,15 @@ public class AlertBeanConversionTest {
     private EventMapper eventMapper;
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapperImpl.class})
+    @ComponentScan(basePackageClasses = {EventMapper.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
 
     static class ContextConfiguration {
+        @Autowired
+        EventMapper eventMapper;
+
     }
 
     @Test
