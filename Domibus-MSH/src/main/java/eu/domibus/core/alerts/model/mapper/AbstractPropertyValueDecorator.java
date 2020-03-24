@@ -9,6 +9,8 @@ import eu.domibus.core.alerts.model.service.DatePropertyValue;
 import eu.domibus.core.alerts.model.service.StringPropertyValue;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -21,7 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
- public abstract class AbstractPropertyValueDecorator implements EventMapper {
+ public class AbstractPropertyValueDecorator implements EventMapper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractPropertyValueDecorator.class);
 
@@ -69,4 +71,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
         LOG.warn("Invalid type for AbstractPropertyValue: [{}]", eventProperty.getClass());
         return null;
     }
+
+    @Override
+    public StringEventProperty stringPropertyValueToStringEventProperty(StringPropertyValue propertyValue){return null;}
+
+    @Override
+    public StringPropertyValue stringEventPropertyToStringPropertyValue(StringEventProperty eventProperty){return null;}
+
+    @Override
+    public DateEventProperty datePropertyValueToDateEventProperty(DatePropertyValue propertyValue){return null;}
+
+    @Override
+    public DatePropertyValue dateEventPropertyToDatePropertyValue(DateEventProperty eventProperty){return null;}
 }
