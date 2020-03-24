@@ -7,13 +7,16 @@ import org.apache.cxf.ext.logging.event.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Map;
 
 /**
  * {@inheritDoc}
  */
 @Service
 public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventSender.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
 
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";
@@ -24,6 +27,7 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String SUBMIT_REQUEST = "submitRequest";
     static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
     static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
+    static final String HEADERS_AUTHORIZATION = "Authorization";
 
     @Override
     public void stripPayload(LogEvent event) {
@@ -49,6 +53,17 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
         // finally set the payload back
         event.setPayload(payload);
+    }
+
+    @Override
+    public void stripHeaders(LogEvent event) {
+        Map<String, String> headers = event.getHeaders();
+        if (CollectionUtils.isEmpty(headers)) {
+            LOG.debug("no apache cxf headers to strip");
+            return;
+        }
+        headers.entrySet()
+                .removeIf(e -> HEADERS_AUTHORIZATION.equalsIgnoreCase(e.getKey()));
     }
 
     @Override
