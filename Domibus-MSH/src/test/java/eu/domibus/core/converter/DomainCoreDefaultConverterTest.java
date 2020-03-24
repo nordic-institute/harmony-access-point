@@ -15,6 +15,8 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.mapper.AuditMapper;
 import eu.domibus.core.clustering.CommandEntity;
@@ -50,6 +52,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -73,7 +76,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -83,10 +86,24 @@ public class DomainCoreDefaultConverterTest {
         public DateUtil dateUtil() {
             return new DateUtilImpl();
         }
+
+        @Bean
+        @Qualifier("delegate")
+        public EventMapper eventMapper() {
+            EventMapperImpl eventMapper = new EventMapperImpl();
+            eventMapper.setDelegate(new EventMapperImpl_());
+            return eventMapper;
+        }
     }
 
     @Autowired
     DomainCoreConverter domainCoreConverter;
+
+    @Autowired
+    DomibusCoreMapper domibusCoreMapper;
+
+    @Autowired
+    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;

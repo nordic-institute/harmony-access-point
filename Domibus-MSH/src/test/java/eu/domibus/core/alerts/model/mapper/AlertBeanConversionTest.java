@@ -30,8 +30,15 @@ import java.util.Date;
  * @since 4.0
  */
 
-@RunWith(JMockit.class)
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AlertBeanConversionTest {
+
+    @Configuration
+    static class ContextConfiguration {
+
+    }
 
     @Test
     public void testConversion() throws ParseException {
