@@ -27,6 +27,7 @@ public class Select extends DComponent {
     public Select(WebDriver driver, WebElement container) {
         super(driver);
         log.debug("initialize select");
+        wait.forXMillis(100);
         PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
 
         this.selectContainer = container;
