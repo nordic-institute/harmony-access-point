@@ -4,7 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-view.component.html',
-  styleUrls: ['../../pmode.component.css']
+  styleUrls: ['../../support/pmode.component.css']
 })
 export class PmodeViewComponent implements OnInit {
 
