@@ -19,6 +19,8 @@ import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.audit.model.mapper.AuditMapperImpl;
+import eu.domibus.core.audit.model.mapper.AuditMapperImpl_;
 import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
@@ -94,6 +96,12 @@ public class DomainCoreDefaultConverterTest {
             eventMapper.setDelegate(new EventMapperImpl_());
             return eventMapper;
         }
+
+        @Bean
+        public AuditMapper auditMapper() {
+            AuditMapperImpl auditMapper = new AuditMapperImpl();
+            return auditMapper;
+        }
     }
 
     @Autowired
@@ -101,9 +109,6 @@ public class DomainCoreDefaultConverterTest {
 
     @Autowired
     DomibusCoreMapper domibusCoreMapper;
-
-    @Autowired
-    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;
