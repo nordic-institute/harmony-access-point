@@ -151,7 +151,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will validate presence of show domain alert check box in case of super admin only
-    @Test(description = "ALRT-11", groups = {"multiTenancy"})
+    @Test(description = "ALRT-11", groups = {"multiTenancy"} , enabled = false)
     public void showDomainAlert() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with super admin credentials and navigate to Alerts page");
@@ -272,7 +272,7 @@ public class AlertPgTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertPage apage = new AlertPage(driver);
         log.info("Search by basic filter for alert type : user account disabled");
-        apage.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
+        apage.filters().basicFilterBy("UNPROCESSED", "USER_ACCOUNT_DISABLED", "SUCCESS", "HIGH", null, null);
         log.info("Check if multi domain exists");
         if (data.isMultiDomain()) {
             log.info("Check show domain alert checkbox");
@@ -335,7 +335,7 @@ public class AlertPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    @Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"})
     public void pluginUserDisabled() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -388,7 +388,7 @@ public class AlertPgTest extends BaseTest {
 
 
     //This method will verfiy data after clicking show domain alerts checkbox for default domain
-    @Test(description = "ALRT-2", groups = {"multiTenancy"})
+    @Test(description = "ALRT-2", groups = {"multiTenancy"} , enabled = false)
     public void showDomainAlertChecked() throws Exception {
         SoftAssert soft = new SoftAssert();
         AlertPage page = new AlertPage(driver);
@@ -418,7 +418,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will verify Alert page data for second domain with show domain alerts checked
-    @Test(description = "ALRT-3", groups = {"multiTenancy"})
+    @Test(description = "ALRT-3", groups = {"multiTenancy"} , enabled = false)
     public void showDomainAlertCheckedForSecDomain() throws Exception {
         SoftAssert soft = new SoftAssert();
         AlertPage page = new AlertPage(driver);
@@ -494,7 +494,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will verify data of Alerts page after changing domains
-    @Test(description = "ALRT-9", groups = {"multiTenancy"})
+    @Test(description = "ALRT-9", groups = {"multiTenancy"} , enabled = false)
     public void changeDomain() throws Exception {
         SoftAssert soft = new SoftAssert();
         AlertPage page = new AlertPage(driver);
@@ -687,7 +687,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will verify absence of super admin records and present record belongs to current domain
-    @Test(description = "ALRT-13", groups = {"multiTenancy"})
+    @Test(description = "ALRT-13", groups = {"multiTenancy"} , enabled = false)
     public void superAdminrecordAbsenceForAdmin() throws Exception {
 
         SoftAssert soft = new SoftAssert();
@@ -898,7 +898,7 @@ public class AlertPgTest extends BaseTest {
     }
 
     //This method will verify Processed feature for Domain specific data
-    @Test(description = "ALRT-33", groups = {"multiTenancy"})
+    @Test(description = "ALRT-33", groups = {"multiTenancy"} , enabled = false)
     public void checkProcessedForDomainData() throws Exception {
 
         SoftAssert soft = new SoftAssert();
