@@ -7,10 +7,13 @@ import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -27,18 +30,8 @@ import java.util.Date;
  * @since 4.0
  */
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@RunWith(JMockit.class)
 public class AlertBeanConversionTest {
-
-    @Autowired
-    private EventMapper eventMapper;
-
-    @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class})
-    static class ContextConfiguration {
-    }
 
     @Test
     public void testConversion() throws ParseException {
@@ -59,7 +52,8 @@ public class AlertBeanConversionTest {
         event.addStringKeyValue(AuthenticationEvent.USER.name(), user);
         event.addStringKeyValue(AuthenticationEvent.ACCOUNT_DISABLED.name(), accountDisabled);
 
-
+        EventMapperImpl eventMapper = new EventMapperImpl();
+        eventMapper.setDelegate(new EventMapperImpl_());
         final eu.domibus.core.alerts.model.persist.Event persistEvent = eventMapper.eventServiceToEventPersist(event);
         Assert.assertEquals(1, persistEvent.getEntityId());
         Assert.assertEquals(EventType.USER_LOGIN_FAILURE, persistEvent.getType());

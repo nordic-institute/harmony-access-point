@@ -27,11 +27,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractPropertyValueDecorator.class);
 
+
     @Autowired
     @Qualifier("delegate")
     protected EventMapper delegate;
 
     public AbstractPropertyValueDecorator() {
+    }
+
+
+    public void setDelegate(EventMapper delegate) {
+        this.delegate = delegate;
     }
 
     @Override
