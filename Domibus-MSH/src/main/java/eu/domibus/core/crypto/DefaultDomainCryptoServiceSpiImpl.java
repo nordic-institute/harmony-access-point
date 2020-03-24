@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.util.backup.BackupService;

@@ -4,7 +4,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.monitoring.DomibusMonitoringService;
-import eu.domibus.common.services.UserService;
+import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

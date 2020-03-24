@@ -80,4 +80,8 @@ public class DomibusExecutorServiceFactory implements FactoryBean<ManagedExecuto
     public void setExecutorServiceJndiName(String executorServiceJndiName) {
         this.executorServiceJndiName = executorServiceJndiName;
     }
+
+    public String getExecutorServiceJndiName() {
+        return executorServiceJndiName;
+    }
 }

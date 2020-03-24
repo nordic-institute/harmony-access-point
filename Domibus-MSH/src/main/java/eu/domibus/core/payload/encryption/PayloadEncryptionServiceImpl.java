@@ -1,6 +1,6 @@
 package eu.domibus.core.payload.encryption;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -123,4 +123,5 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
         return decryptCipher;
     }
+
 }

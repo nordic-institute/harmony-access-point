@@ -4,12 +4,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.logging.LogbackLoggingConfigurator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
@@ -158,9 +157,13 @@ public class LoggingServiceImplTest {
     public void testResetLogging(final @Mocked LogbackLoggingConfigurator logbackLoggingConfigurator) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        String domibusConfigLocation = "/home";//TODO
 
         new Expectations(loggingService) {{
-            new LogbackLoggingConfigurator(domibusConfigurationService);
+            domibusConfigurationService.getConfigLocation();
+            result = domibusConfigLocation;
+
+            new LogbackLoggingConfigurator(domibusConfigLocation);
             result = logbackLoggingConfigurator;
 
             logbackLoggingConfigurator.getLoggingConfigurationFile();

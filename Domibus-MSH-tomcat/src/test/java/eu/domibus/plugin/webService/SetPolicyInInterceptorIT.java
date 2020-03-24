@@ -1,8 +1,8 @@
 package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.ebms3.receiver.MessageLegConfigurationFactory;
-import eu.domibus.ebms3.receiver.SetPolicyInInterceptor;
+import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
+import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -81,7 +81,6 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
             Assert.assertTrue(reply.contains("domibus-MSH"));
-            Assert.assertTrue(reply.contains("Build-Time"));
 
         } catch (UnsupportedEncodingException e) {
             Assert.fail();

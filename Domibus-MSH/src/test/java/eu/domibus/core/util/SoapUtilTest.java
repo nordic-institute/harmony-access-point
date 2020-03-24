@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;

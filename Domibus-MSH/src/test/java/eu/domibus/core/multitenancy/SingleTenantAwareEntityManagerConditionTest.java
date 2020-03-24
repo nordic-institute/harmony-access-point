@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.jpa.SingleTenantAwareEntityManagerCondition;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

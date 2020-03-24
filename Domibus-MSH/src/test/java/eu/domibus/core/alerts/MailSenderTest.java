@@ -81,7 +81,7 @@ public class MailSenderTest {
             result = true;
             javaMailSender.getJavaMailProperties();
             result = javaMailProperties;
-            domibusPropertyProvider.getPropertyNames(withAny(predicate));
+            domibusPropertyProvider.filterPropertiesName(withAny(predicate));
             result = dynamicPropertySet;
             domibusPropertyProvider.getProperty(dynamicPropertyName);
             result = dynamicSmtpPort;

@@ -7,10 +7,9 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.LogbackLoggingConfigurator;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -110,7 +109,7 @@ public class LoggingServiceImpl implements LoggingService {
     @Override
     public void resetLogging() {
         //we are re-using the same service used at context initialization
-        final String logbackConfigurationFile = new LogbackLoggingConfigurator(domibusConfigurationService).getLoggingConfigurationFile();
+        final String logbackConfigurationFile = new LogbackLoggingConfigurator(domibusConfigurationService.getConfigLocation()).getLoggingConfigurationFile();
 
         // assume SLF4J is bound to logback in the current environment
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();

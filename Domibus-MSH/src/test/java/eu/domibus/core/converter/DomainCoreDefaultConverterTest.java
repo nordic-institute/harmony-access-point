@@ -14,23 +14,26 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.clustering.CommandEntity;
-import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.logging.ErrorLogEntry;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLog;
-import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
@@ -40,8 +43,6 @@ import eu.domibus.ext.domain.PartPropertiesDTO;
 import eu.domibus.ext.domain.PropertyDTO;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.plugin.routing.BackendFilterEntity;
-import eu.domibus.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
@@ -70,7 +71,7 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -87,6 +88,9 @@ public class DomainCoreDefaultConverterTest {
 
     @Injectable
     EventMapper eventMapper;
+
+    @Injectable
+    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;
@@ -244,7 +248,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertUser() throws Exception {
         User toConvert = (User) objectService.createInstance(User.class);
-        final eu.domibus.common.model.security.User converted = domainCoreConverter.convert(toConvert, eu.domibus.common.model.security.User.class);
+        final eu.domibus.core.user.ui.User converted = domainCoreConverter.convert(toConvert, eu.domibus.core.user.ui.User.class);
         final User convertedBack = domainCoreConverter.convert(converted, User.class);
         convertedBack.setDomain(toConvert.getDomain());
         convertedBack.setStatus(toConvert.getStatus());
@@ -261,6 +265,9 @@ public class DomainCoreDefaultConverterTest {
         objectService.assertObjects(convertedBack.getUser(), toConvert.getUser());
         objectService.assertObjects(convertedBack.getChanged(), toConvert.getChanged());
         objectService.assertObjects(convertedBack.getId(), toConvert.getId());
+        objectService.assertObjects(convertedBack.getAction(), toConvert.getAction());
+        objectService.assertObjects(convertedBack.getRevisionId(), toConvert.getRevisionId());
+        objectService.assertObjects(convertedBack.getAuditTargetName(), toConvert.getAuditTargetName());
     }
 
     @Test

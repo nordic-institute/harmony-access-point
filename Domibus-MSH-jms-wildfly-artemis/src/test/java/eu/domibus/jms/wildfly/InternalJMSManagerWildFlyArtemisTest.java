@@ -1,6 +1,6 @@
 package eu.domibus.jms.wildfly;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static eu.domibus.jms.wildfly.InternalJMSManagerWildFlyArtemis.JMS_BROKER_PROPERTY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 import static org.junit.Assert.assertEquals;
 
@@ -142,7 +142,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         };
 
         new Expectations(jmsManager) {{
-            domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY);
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
             result = "localhost";
             activeMQServerControl.getAddressNames();
             result = addressNames;
@@ -204,7 +204,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         };
 
         new Expectations(jmsManager) {{
-            domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY);
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
             result = "localhost";
             activeMQServerControl.getAddressNames();
             result = addressNames;
@@ -263,7 +263,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         };
 
         new Expectations(jmsManager) {{
-            domibusPropertyProvider.getProperty(JMS_BROKER_PROPERTY);
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
             result = "localhost";
             activeMQServerControl.getAddressNames();
             result = addressNames;

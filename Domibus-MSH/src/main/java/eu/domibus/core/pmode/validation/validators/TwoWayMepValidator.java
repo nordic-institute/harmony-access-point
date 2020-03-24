@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.domibus.ebms3.common.model.Ebms3Constants.TWOWAY_MEP_VALUE;
+import static eu.domibus.core.ebms3.Ebms3Constants.TWOWAY_MEP_VALUE;
 
 /**
  * @author Ion Perpegel

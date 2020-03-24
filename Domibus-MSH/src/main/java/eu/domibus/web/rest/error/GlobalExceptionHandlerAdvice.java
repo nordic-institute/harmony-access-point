@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.error;
 
-import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pmode.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -62,6 +62,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler({ValidationException.class})
     public ResponseEntity<ErrorRO> handleValidationException(ValidationException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorRO> handleRuntimeException(RuntimeException ex) {
+        return errorHandlerService.createResponse(ex);
     }
 
     @ExceptionHandler({Exception.class})

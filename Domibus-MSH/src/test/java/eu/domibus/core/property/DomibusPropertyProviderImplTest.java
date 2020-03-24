@@ -29,7 +29,6 @@ public class DomibusPropertyProviderImplTest {
 
     @Before
     public void setUp() {
-        Deencapsulation.setField(domibusPropertyProvider, "domibusProperties", domibusProperties);
         Deencapsulation.setField(domibusPropertyProvider, "domibusDefaultProperties", domibusDefaultProperties);
     }
 
