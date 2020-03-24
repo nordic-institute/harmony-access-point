@@ -77,7 +77,6 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -100,6 +99,18 @@ public class DomainCoreDefaultConverterTest {
         public AuditMapper auditMapper() {
             AuditMapperImpl auditMapper = new AuditMapperImpl();
             return auditMapper;
+        }
+
+        @Bean
+        public DomainCoreConverter domainCoreConverter() {
+            DomainCoreConverter domainCoreConverter = new DomainCoreDefaultConverter();
+            return domainCoreConverter;
+        }
+
+        @Bean
+        public DomibusCoreMapper domibusCoreMapper() {
+            DomibusCoreMapper domibusCoreMapper = new DomibusCoreMapperImpl();
+            return domibusCoreMapper;
         }
     }
 
