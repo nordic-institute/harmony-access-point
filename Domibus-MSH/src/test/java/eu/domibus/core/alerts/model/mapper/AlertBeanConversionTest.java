@@ -10,15 +10,12 @@ import eu.domibus.core.alerts.model.mapper.EventMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.text.ParseException;
@@ -31,7 +28,7 @@ import java.util.Date;
  */
 
 
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AlertBeanConversionTest {
 
@@ -40,16 +37,7 @@ public class AlertBeanConversionTest {
 
     @Configuration
     @ComponentScan(basePackageClasses = {EventMapper.class})
-    @ImportResource({
-            "classpath:config/commonsTestContext.xml"
-    })
-
     static class ContextConfiguration {
-
-        @Bean
-        public EventMapper eventMapper() {
-            return Mappers.getMapper(EventMapper.class);
-        }
     }
 
     @Test

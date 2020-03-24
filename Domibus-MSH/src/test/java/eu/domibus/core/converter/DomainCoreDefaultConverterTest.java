@@ -83,21 +83,10 @@ public class DomainCoreDefaultConverterTest {
         public DateUtil dateUtil() {
             return new DateUtilImpl();
         }
-
-        @Bean
-        public EventMapper eventMapper() {
-            return Mappers.getMapper(EventMapper.class);
-        }
     }
 
     @Autowired
     DomainCoreConverter domainCoreConverter;
-
-    @Autowired
-    EventMapper eventMapper;
-
-    @Autowired
-    AuditMapper auditMapper;
 
     @Autowired
     ObjectService objectService;
