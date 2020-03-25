@@ -41,7 +41,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
         return LogMessageFormatter.format(event);
     }
 
-
     protected boolean checkIfStripPayloadPossible() {
         LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
         if (printPayload) {

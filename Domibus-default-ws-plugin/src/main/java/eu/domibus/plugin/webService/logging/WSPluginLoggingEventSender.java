@@ -31,27 +31,29 @@ public class WSPluginLoggingEventSender extends Slf4jEventSender {
 
     @Override
     protected String getLogMessage(LogEvent event) {
-        if (checkIfStripPayloadPossible()) {
-            try {
-                wsPluginLoggingEventHelper.stripPayload(event);
-            } catch (RuntimeException e) {
-                LOG.error("Exception while stripping the payload: ", e);
+        try {
+            if (checkIfApacheCxfLoggingInfoEnabled()) {
+                wsPluginLoggingEventHelper.stripHeaders(event);
+                if (checkIfStripPayloadPossible()) {
+                    wsPluginLoggingEventHelper.stripPayload(event);
+                }
             }
+        } catch (RuntimeException e) {
+            LOG.error("Exception while stripping the payload: ", e);
         }
         return LogMessageFormatter.format(event);
     }
 
-
     protected boolean checkIfStripPayloadPossible() {
         LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
-        if (printPayload) {
-            return false;
-        }
+        return !printPayload;
+    }
+
+    protected boolean checkIfApacheCxfLoggingInfoEnabled() {
         boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
         if (isCxfLoggingInfoEnabled) {
             LOG.debug("[{}] is set to at least INFO level", ORG_APACHE_CXF_CATEGORY);
         }
-
         return isCxfLoggingInfoEnabled;
     }
 

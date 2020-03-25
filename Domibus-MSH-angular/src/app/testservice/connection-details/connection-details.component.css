@@ -17,3 +17,24 @@
   margin: 16px 0;
   display: block;
 }
+
+.closebtn {
+  right: -12px;
+  top: -22px;
+  z-index: 1001;
+  position: absolute;
+  color: gray;
+  font-weight: bold;
+  font-size: 22px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+
+.scroll-div {
+  height: 80vh;
+  overflow-y: auto;
+}

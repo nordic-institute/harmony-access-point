@@ -31,8 +31,9 @@ public class SandwichMenu extends DComponent {
 	@FindBy(id = "settingsmenu_expanded_id")
 	WebElement menuContainer;
 
-	@FindBy(id = "currentuser_id")
-	WebElement currentuser;
+//	@FindBy(css = "#currentuser_id span")
+//	WebElement currentuser;
+	By currentuser = By.cssSelector("#currentuser_id span");
 
 	@FindBy(id = "changePassword_id")
 	WebElement changePassLnk;
@@ -55,18 +56,20 @@ public class SandwichMenu extends DComponent {
 
 		weToDButton(expandButton).click();
 		wait.forElementToBeVisible(menuContainer);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
 	}
 
 
 	public String getCurrentUserID() throws Exception {
 		expandMenu();
-
+		wait.forXMillis(100);
 		String currentUserId = "";
 		try {
-			currentUserId = weToDButton(currentuser).getText();
+			currentUserId = wait.forElementToBeVisible(driver.findElement(currentuser)).getText().trim();
 		} catch (Exception e) {	}
 
-		return "";
+		return currentUserId;
 	}
 
 	private void contractMenu() throws Exception {

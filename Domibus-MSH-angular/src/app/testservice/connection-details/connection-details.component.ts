@@ -31,7 +31,8 @@ export class ConnectionDetailsComponent implements OnInit {
   messageInfoReceived: MessageLogEntry;
 
 
-  constructor(private connectionsMonitorService: ConnectionsMonitorService, private http: HttpClient, private alertService: AlertService, public dialogRef: MatDialogRef<ConnectionDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private connectionsMonitorService: ConnectionsMonitorService, private http: HttpClient, private alertService: AlertService,
+              public dialogRef: MatDialogRef<ConnectionDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.partyId = data.partyId;
   }
 

@@ -210,6 +210,8 @@ public class ErrorLogPgUXTest extends BaseTest {
 //		until I can fix this we will refresh the page
 		log.info("reset search");
 		page.refreshPage();
+		grid.waitForRowsToLoad();
+
 
 		log.info("check that the same number of rows is shown");
 		soft.assertTrue(grid.getRowsNo() == gridRows, "Grid shows the same number of rows as before");
