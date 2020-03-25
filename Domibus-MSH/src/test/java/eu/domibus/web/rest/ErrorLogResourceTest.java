@@ -49,7 +49,7 @@ public class ErrorLogResourceTest {
     ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
     @Injectable
-    private CsvServiceImpl csvServiceImpl;
+    CsvServiceImpl csvServiceImpl;
 
     @Test
     public void testGetErrorLog() {

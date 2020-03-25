@@ -153,7 +153,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
   private revertProperty (row) {
     row.value = row.currentValue;
   }
-
+  
   get csvUrl(): string {
     return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
   }

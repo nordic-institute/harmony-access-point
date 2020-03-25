@@ -7,10 +7,6 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -55,9 +53,6 @@ public class TruststoreResource extends BaseResource {
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
@@ -116,15 +111,15 @@ public class TruststoreResource extends BaseResource {
     public ResponseEntity<String> getCsv() {
         final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
 
-        return exportToCSV(trustStoreROS, TrustStoreRO.class,
-                CsvCustomColumns.TRUSTSTORE_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.TRUSTSTORE_RESOURCE.getExcludedItems(),
+        return exportToCSV(trustStoreROS,
+                TrustStoreRO.class,
+                new HashMap<String, String>() {{
+                    put("ValidFrom".toUpperCase(), "Valid from");
+                    put("ValidUntil".toUpperCase(), "Valid until");
+                }},
+                Arrays.asList("fingerprints"),
                 "truststore");
 
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

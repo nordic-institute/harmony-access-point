@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public class MessageFilterResourceTest {
     DomainCoreConverter coreConverter;
 
     @Injectable
-    MessageFilterCsvServiceImpl csvService;
+    MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -94,7 +95,7 @@ public class MessageFilterResourceTest {
         new Expectations(messageFilterResource){{
             messageFilterResource.getBackendFiltersInformation();
             result = new ImmutablePair<>(messageFilterResultROS, true);
-            csvService.exportToCSV(messageFilterResultROS, MessageFilterRO.class,null,null);
+            messageFilterCsvServiceImpl.exportToCSV(messageFilterResultROS, MessageFilterRO.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
         }};
 
@@ -112,7 +113,7 @@ public class MessageFilterResourceTest {
     public void testGetMessageFilterCsv_Exception() throws CsvException {
         // Given
         new Expectations() {{
-            csvService.exportToCSV((List<?>) any, null, null, null);
+            messageFilterCsvServiceImpl.exportToCSV((List<?>) any, null, null, null);
             result = new CsvException(DomibusCoreErrorCode.DOM_001, "Exception", new Exception());
         }};
 

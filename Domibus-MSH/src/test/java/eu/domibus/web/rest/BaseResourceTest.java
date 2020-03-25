@@ -1,8 +1,8 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
+
+
 import eu.domibus.core.csv.CsvServiceImpl;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -10,16 +10,14 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Catalin Enache
@@ -33,6 +31,21 @@ public class BaseResourceTest {
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
+
+    private static Map<String, String> jmsCustomColumns;
+
+    @BeforeClass
+    public static void setUp() {
+        jmsCustomColumns = new HashMap<>();
+        jmsCustomColumns.put("id".toUpperCase(), "ID");
+        jmsCustomColumns.put("type".toUpperCase(), "JMS Type");
+        jmsCustomColumns.put("Timestamp".toUpperCase(), "Time");
+        jmsCustomColumns.put("CustomProperties".toUpperCase(), "Custom prop");
+        jmsCustomColumns.put("Properties".toUpperCase(), "JMS prop");
+    }
+
+
+    private static List<String> jmsExcludedColumns = Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId");
 
     @Test
     public void testExportToCSV_JMS() {
@@ -49,7 +62,7 @@ public class BaseResourceTest {
 
         //tested method
         final ResponseEntity<String> responseEntity = baseResource.exportToCSV(jmsMessageList, JmsMessage.class,
-                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems(), moduleName);
+                jmsCustomColumns, jmsExcludedColumns, moduleName);
 
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -57,7 +70,7 @@ public class BaseResourceTest {
 
         new FullVerifications() {{
             csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,
-                    CsvCustomColumns.JMS_RESOURCE.getCustomColumns(), CsvExcludedItems.JMS_RESOURCE.getExcludedItems());
+                    jmsCustomColumns, jmsExcludedColumns);
         }};
     }
 
