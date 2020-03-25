@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -100,28 +102,21 @@ public class PropertyProfileValidatorTest {
     }
 
     @Test
-    public void validateDuplicatePropertyTest(@Injectable Messaging messaging,
-                                              @Injectable MessageProperties messageProperties,
-                                              @Injectable Property profiledProperty,
-                                              @Injectable eu.domibus.ebms3.common.model.Property messageProperty,
-                                              @Injectable eu.domibus.ebms3.common.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+    public void checkDuplicateMessagePropertiesTest(@Injectable Messaging messaging,
+                                                    @Injectable MessageProperties messageProperties,
+                                                    @Injectable Property profiledProperty,
+                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty,
+                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
         Set<Property> properties = new HashSet<>();
+        final List<Property> modifiablePropertyList = new ArrayList<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
         Set<eu.domibus.ebms3.common.model.Property> messagePropertiesSet = new HashSet<>();
         String duplicateMessageProperty = "originalSender";
         messagePropertiesSet.add(messageProperty);
         messagePropertiesSet.add(messageProperty1);
+        modifiablePropertyList.addAll(properties);
 
-        new Expectations(legConfiguration, propertySet) {{
-            legConfiguration.getPropertySet();
-            result = propertySet;
-
-            propertySet.getProperties();
-            result = properties;
-
-            messaging.getUserMessage().getMessageProperties();
-            result = messageProperties;
-
+        new Expectations() {{
             messageProperty.getName();
             result = duplicateMessageProperty;
 
@@ -133,7 +128,7 @@ public class PropertyProfileValidatorTest {
         }};
 
         try {
-            propertyProfileValidator.validate(messaging, "anyKey");
+            propertyProfileValidator.checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getErrorCode());
             Assert.assertEquals("Duplicate Message property found for property name [originalSender]", e.getMessage());

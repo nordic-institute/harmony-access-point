@@ -59,13 +59,7 @@ public class PropertyProfileValidator {
         eu.domibus.ebms3.common.model.MessageProperties messageProperties = new MessageProperties();
         if (messaging.getUserMessage().getMessageProperties() != null) {
             messageProperties = messaging.getUserMessage().getMessageProperties();
-            for (final Property profiledProperty : modifiablePropertyList) {
-                int duplicateMessagePropertiesCount = (int) messageProperties.getProperty().stream().filter(string -> string.getName().equalsIgnoreCase(profiledProperty.getKey())).count();
-                if (duplicateMessagePropertiesCount > 1) {
-                    LOG.businessError(DomibusMessageCode.BUS_PROPERTY_DUPLICATE, profiledProperty.getKey());
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Duplicate Message property found for property name [" + profiledProperty.getKey() + "]", null, null);
-                }
-            }
+            checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
         }
 
         for (final eu.domibus.ebms3.common.model.Property property : messageProperties.getProperty()) {
@@ -111,5 +105,15 @@ public class PropertyProfileValidator {
         }
 
         LOG.businessInfo(DomibusMessageCode.BUS_PROPERTY_PROFILE_VALIDATION, propSet.getName());
+    }
+
+    protected void checkDuplicateMessageProperties(List<Property> modifiablePropertyList, MessageProperties messageProperties) throws EbMS3Exception {
+        for (final Property profiledProperty : modifiablePropertyList) {
+            int duplicateMessagePropertiesCount = (int) messageProperties.getProperty().stream().filter(string -> string.getName().equalsIgnoreCase(profiledProperty.getKey())).count();
+            if (duplicateMessagePropertiesCount > 1) {
+                LOG.businessError(DomibusMessageCode.BUS_PROPERTY_DUPLICATE, profiledProperty.getKey());
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Duplicate Message property found for property name [" + profiledProperty.getKey() + "]", null, null);
+            }
+        }
     }
 }
