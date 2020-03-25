@@ -2,12 +2,12 @@ package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Property;
 import eu.domibus.common.model.configuration.PropertySet;
-import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -57,8 +57,15 @@ public class PropertyProfileValidator {
 
         modifiablePropertyList.addAll(profile);
         eu.domibus.ebms3.common.model.MessageProperties messageProperties = new MessageProperties();
-        if(messaging.getUserMessage().getMessageProperties() != null) {
+        if (messaging.getUserMessage().getMessageProperties() != null) {
             messageProperties = messaging.getUserMessage().getMessageProperties();
+            for (final Property profiledProperty : modifiablePropertyList) {
+                int duplicateMessagePropertiesCount = (int) messageProperties.getProperty().stream().filter(string -> string.getName().equalsIgnoreCase(profiledProperty.getKey())).count();
+                if (duplicateMessagePropertiesCount > 1) {
+                    LOG.businessError(DomibusMessageCode.BUS_PROPERTY_DUPLICATE, profiledProperty.getKey());
+                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Duplicate Message property found for property name [" + profiledProperty.getKey() + "]", null, null);
+                }
+            }
         }
 
         for (final eu.domibus.ebms3.common.model.Property property : messageProperties.getProperty()) {
