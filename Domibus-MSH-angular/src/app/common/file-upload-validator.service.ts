@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {PropertiesService} from '../properties/properties.service';
+import {PropertiesService} from '../properties/support/properties.service';
 
 @Injectable()
 export class FileUploadValidatorService {

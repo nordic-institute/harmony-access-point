@@ -83,6 +83,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_TEST_MESSAGE_SEND_FAILURE("BUS-072", "Test message sending from [{}] to [{}] failed"),
     BUS_RECEIVER_PARTY_ID_FOUND("BUS-073", "Receiver Party id [{}] found for value [{}]"),
     BUS_RECEIVER_PARTY_ID_NOT_FOUND("BUS-074", "Receiver Party id not found for value [{}]"),
+    BUS_PROPERTY_DUPLICATE("BUS-075", "Duplicate Message Property found for property name [{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

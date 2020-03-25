@@ -50,6 +50,7 @@ public class DomibusPage extends DComponent {
 		try {
 			wait.forXMillis(300);
 			waitForPageToLoad();
+			wait.forXMillis(300);
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}

@@ -67,6 +67,11 @@ public class ConfigurationPropertyResource extends BaseResource {
         configurationPropertyService.setPropertyValue(propertyName, isDomain, propertyValue);
     }
 
+    /**
+     * Exports to CSV
+     * @param request
+     * @return
+     */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
         List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isShowDomain());

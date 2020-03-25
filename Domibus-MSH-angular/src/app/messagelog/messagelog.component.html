@@ -104,11 +104,11 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 130px);">
+  <div class="panel" style="height: calc(100% - 140px);">
 
     <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+    <div style="height: calc(100% - 130px); overflow-y: auto; overflow-x: hidden;">
       <page-grid [parent]="this" [selectionType]="'single'"
                  [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
     </div>
