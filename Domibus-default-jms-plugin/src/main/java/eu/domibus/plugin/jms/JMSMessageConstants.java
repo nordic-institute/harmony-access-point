@@ -26,6 +26,7 @@ public class JMSMessageConstants {
     public static final String TO_ROLE = "toRole";
     public static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
     public static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    public static final String PROPERTY_FINAL_RECIPIENT_TYPE = "finalRecipientType";
     public static final String PROPERTY_ENDPOINT = "endPointAddress";
     public static final String PROTOCOL = "protocol";
     public static final String TOTAL_NUMBER_OF_PAYLOADS = "totalNumberOfPayloads";
