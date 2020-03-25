@@ -53,6 +53,7 @@ export let ClientPageableListMixin = (superclass: Constructable) => class extend
   }
 
   setPage(offset: number): void {
+    this.alertService.clearAlert();
     super.offset = offset;
   }
 };
@@ -87,6 +88,8 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   public changePageSize(newPageLimit: number) {
+    this.alertService.clearAlert();
+
     this.offset = 0;
     this.rowLimiter.pageSize = newPageLimit;
 
@@ -97,6 +100,8 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   public async onPage(event) {
+    this.alertService.clearAlert();
+
     this.loadPage(event.offset);
   }
 

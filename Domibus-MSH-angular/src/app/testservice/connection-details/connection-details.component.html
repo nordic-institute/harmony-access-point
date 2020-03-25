@@ -1,6 +1,4 @@
-<div style="position:relative;">
-  <div class="closebtn" (click)="dialogRef.close()">&times;</div>
-
+<mat-dialog-content style="min-width: 50vw;">
   <div class="scroll-div">
     <div class="selectionCriteria">
       <mat-card>
@@ -102,11 +100,13 @@
       </mat-card>
     </div>
   </div>
-  
-  <mat-dialog-actions>
-    <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})" style="margin-top:10px">
-      <mat-icon>close</mat-icon>
-      <span>Close</span>
-    </button>
-  </mat-dialog-actions>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})"
+          style="margin-top:10px">
+    <mat-icon>close</mat-icon>
+    <span>Close</span>
+  </button>
+</mat-dialog-actions>
+

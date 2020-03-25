@@ -84,7 +84,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     Object.keys(this.activeFilter).forEach((key: string) => {
       let value = this.activeFilter[key];
-      if (value) {
+      if (typeof value === "boolean") {
+        filterParams = filterParams.append(key, value.toString());
+      } else if (value) {
         if (value instanceof Date) {
           filterParams = filterParams.append(key, value.toISOString());
         } else if (value instanceof Array) {

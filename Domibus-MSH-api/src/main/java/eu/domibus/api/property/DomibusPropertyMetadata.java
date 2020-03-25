@@ -41,8 +41,8 @@ public class DomibusPropertyMetadata {
     private String name;
 
     /**
-     *  The technical type of the property which dictates the way it is handled at runtime
-     *  ex:  numeric, cron expr, regexp, string, concurrency
+     * The technical type of the property which dictates the way it is handled at runtime
+     * ex:  numeric, cron expr, regexp, string, concurrency
      */
     private String type;
 
@@ -217,6 +217,23 @@ public class DomibusPropertyMetadata {
 
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
+    }
+
+    public String getUsageText() {
+        switch (usage) {
+            case 1:
+                return "Global";
+            case 2:
+                return "Domain";
+            case 3:
+                return "Global and Domain";
+            case 4:
+                return "Super";
+            case 6:
+                return "Domain and Super";
+            default:
+                return null;
+        }
     }
 
     @Override

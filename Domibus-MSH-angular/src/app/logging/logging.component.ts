@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {LoggingLevelResult} from './logginglevelresult';
+import {LoggingLevelResult} from './support/logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';

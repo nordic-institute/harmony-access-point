@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {PropertiesService} from '../properties/properties.service';
+import {PropertiesService} from '../properties/support/properties.service';
 
 @Injectable()
 export class FileUploadValidatorService {
@@ -19,7 +19,7 @@ export class FileUploadValidatorService {
   }
 
   private async getUploadSizeLimit(): Promise<number> {
-    const res = await this.propertiesService.getProperties('domibus.file.upload.maxSize', false, 1, 0)
+    const res = await this.propertiesService.getProperties('domibus.file.upload.maxSize', false);
     return +res.items[0].value;
   }
 

@@ -14,6 +14,9 @@ export class FilterAreaFooterComponent {
   @Input()
   parent: BaseListComponent<any> & IFilterableList;
 
+  @Input()
+  isAdvancedVisible: boolean = true;
+
   toggleAdvancedSearch() {
     this.parent.advancedSearch = true;
     return false; // to prevent default navigation
