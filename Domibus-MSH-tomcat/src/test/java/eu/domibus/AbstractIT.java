@@ -108,7 +108,7 @@ public abstract class AbstractIT {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
-            LOG.info("No tmplog.lck to delete");
+            LOG.info("No tmlog.lck to delete");
         }
 
         FileUtils.deleteDirectory(new File("target/temp"));
@@ -139,7 +139,7 @@ public abstract class AbstractIT {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
-            LOG.info("No tmplog.lck to delete");
+            LOG.info("No tmlog.lck to delete");
         }
     }
 

@@ -105,7 +105,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SchedulerFactoryBean schedulerFactory(Optional<Domain> optionalDomain) {
 
-        // We don't need the bean when domain is not present. Spring tried to creat it and throws.
+        // We don't need the bean when domain is not present. Latest spring version tries to creat it and throws.
         if(!optionalDomain.isPresent()) {
             return null;
         }

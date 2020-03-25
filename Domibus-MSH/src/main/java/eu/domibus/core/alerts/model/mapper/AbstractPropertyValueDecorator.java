@@ -9,8 +9,6 @@ import eu.domibus.core.alerts.model.service.DatePropertyValue;
 import eu.domibus.core.alerts.model.service.StringPropertyValue;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.mapstruct.InheritInverseConfiguration;
-import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -26,7 +24,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
  public abstract class AbstractPropertyValueDecorator implements EventMapper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractPropertyValueDecorator.class);
-
 
     @Autowired
     @Qualifier("delegate")
