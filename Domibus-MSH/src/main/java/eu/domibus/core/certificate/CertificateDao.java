@@ -1,7 +1,5 @@
 package eu.domibus.core.certificate;
 
-import eu.domibus.common.model.certificate.Certificate;
-
 import java.util.Date;
 import java.util.List;
 

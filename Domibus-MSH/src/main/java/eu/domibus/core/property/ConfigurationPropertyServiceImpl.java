@@ -1,8 +1,8 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.exceptions.DomibusPropertyException;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusProperty;
@@ -123,7 +123,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 });
             }
         } catch (IllegalArgumentException ex) {
-            LOG.error("Could not set property [{}].", name);
+            LOG.error("Could not set property [{}].", name, ex);
         }
     }
 

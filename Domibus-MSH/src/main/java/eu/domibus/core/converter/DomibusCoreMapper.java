@@ -11,13 +11,14 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
-import eu.domibus.clustering.CommandEntity;
-import eu.domibus.common.model.audit.Audit;
+import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.clustering.CommandEntity;
+import eu.domibus.core.audit.model.Audit;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.logging.ErrorLogEntry;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLog;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.crypto.api.CertificateEntry;
@@ -29,11 +30,11 @@ import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ext.domain.*;
-import eu.domibus.plugin.routing.BackendFilterEntity;
-import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -43,7 +44,7 @@ import org.mapstruct.Mapping;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(uses = EventMapper.class, componentModel = "spring")
+@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     @Mapping(source = "id", target = "entityId")
@@ -167,11 +168,9 @@ public interface DomibusCoreMapper {
 
     User userResponseROToUser(UserResponseRO user);
 
-    eu.domibus.common.model.security.User userApiToUserSecurity(User user);
+    eu.domibus.core.user.ui.User userApiToUserSecurity(User user);
 
-    User userSecurityToUserApi(eu.domibus.common.model.security.User user);
-
-    Audit auditLogToAudit(AuditLog auditLog);
+    User userSecurityToUserApi(eu.domibus.core.user.ui.User user);
 
     AuditLog auditToAuditLog(Audit audit);
 

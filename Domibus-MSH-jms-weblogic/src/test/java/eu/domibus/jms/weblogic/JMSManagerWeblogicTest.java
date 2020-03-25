@@ -1,8 +1,7 @@
 package eu.domibus.jms.weblogic;
 
-import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
-import javax.jms.Topic;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;

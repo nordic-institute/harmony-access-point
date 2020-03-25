@@ -1,7 +1,7 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.exceptions.DomibusPropertyException;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -11,14 +11,14 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -28,22 +28,14 @@ import java.util.function.Predicate;
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
-@Service
-@Transactional(propagation = Propagation.SUPPORTS)
+@Service("domibusPropertyProvider")
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     @Autowired
-    @Qualifier("domibusProperties")
-    protected Properties domibusProperties;
-
-    @Autowired
     @Qualifier("domibusDefaultProperties")
     protected Properties domibusDefaultProperties;
-
-    @Autowired
-    protected PropertyResolver propertyResolver;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -56,6 +48,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
+    @Autowired
+    protected ConfigurableEnvironment environment;
 
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.
@@ -167,10 +162,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             propertyKey = propertyName;
         }
 
-        domibusProperties.setProperty(propertyKey, propertyValue);
+        setValueInDomibusPropertySource(propertyKey, propertyValue);
     }
 
-    private String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
+    protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
+        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+    }
+
+    protected String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
@@ -206,12 +207,27 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
-    public Set<String> getPropertyNames(Predicate<String> predicate) {
+    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+        Set<String> result = new HashSet<>();
+        for (PropertySource propertySource : environment.getPropertySources()) {
+            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
+            result.addAll(propertySourceNames);
+        }
+        return result;
+    }
+
+    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
         Set<String> filteredPropertyNames = new HashSet<>();
-        final Enumeration<?> enumeration = domibusProperties.propertyNames();
-        while (enumeration.hasMoreElements()) {
-            final String propertyName = (String) enumeration.nextElement();
+        if (!(propertySource instanceof EnumerablePropertySource)) {
+            LOGGER.trace("PropertySource [{}] has been skipped", propertySource.getName());
+            return filteredPropertyNames;
+        }
+        LOGGER.trace("Filtering properties from propertySource [{}]", propertySource.getName());
+
+        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
+        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
             if (predicate.test(propertyName)) {
+                LOGGER.trace("Predicate matched property [{}]", propertyName);
                 filteredPropertyNames.add(propertyName);
             }
         }
@@ -224,9 +240,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
         final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = domibusProperties.containsKey(domainPropertyName);
+        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = domibusProperties.containsKey(propertyName);
+            domainPropertyKeyFound = environment.containsProperty(propertyName);
         }
         return domainPropertyKeyFound;
     }
@@ -236,7 +252,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public boolean containsPropertyKey(String propertyName) {
-        return domibusProperties.containsKey(propertyName);
+        return environment.containsProperty(propertyName);
     }
 
 
@@ -250,22 +266,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
     protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = System.getenv(propertyName);
-        if (StringUtils.isEmpty(result)) {
-            result = System.getProperty(propertyName);
-        }
-        if (StringUtils.isEmpty(result)) {
-            result = domibusProperties.getProperty(propertyName);
+        String result = environment.getProperty(propertyName);
 
-            // There is no need to retrieve the default Domibus property value here since the Domibus properties above will contain it, unless overwritten by users.
-            // For String property values, if users have overwritten their original default Domibus property values, it is their responsibility to ensure they are valid.
-            // For all the other Boolean and Integer property values, if users have overwritten their original default Domibus property values, they are defaulted back to their
-            // original default Domibus values when invalid (please check the #getInteger..(..) and #getBoolean..(..) methods below).
-        }
-        if (StringUtils.contains(result, "${")) {
-            LOGGER.debug("Resolving property [{}]", propertyName);
-            result = propertyResolver.getResolvedValue(result, domibusProperties, true);
-        }
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOGGER.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);

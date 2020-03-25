@@ -1,8 +1,8 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.dao.security.UserDao;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
@@ -13,8 +13,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Date;
 
 /**
  * @author Thomas Dussart

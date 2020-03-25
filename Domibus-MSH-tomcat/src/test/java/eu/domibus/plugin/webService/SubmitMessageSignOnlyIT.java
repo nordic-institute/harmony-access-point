@@ -2,8 +2,8 @@ package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.ebms3.sender.NonRepudiationChecker;
-import eu.domibus.ebms3.sender.ReliabilityChecker;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.SubmitMessageFault;
 import eu.domibus.plugin.webService.generated.SubmitRequest;

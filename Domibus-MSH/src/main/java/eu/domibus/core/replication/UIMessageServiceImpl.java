@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

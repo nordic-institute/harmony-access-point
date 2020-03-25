@@ -3,7 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;

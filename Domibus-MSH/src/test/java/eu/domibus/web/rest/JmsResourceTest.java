@@ -3,12 +3,14 @@ package eu.domibus.web.rest;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.jms.spi.InternalJMSException;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -38,6 +40,9 @@ public class JmsResourceTest {
     @Injectable
     private CsvServiceImpl csvServiceImpl;
 
+    @Injectable
+    private ErrorHandlerService errorHandlerService;
+
     @Test
     public void testDestinations() {
         // Given
@@ -52,8 +57,7 @@ public class JmsResourceTest {
         }};
 
         // When
-        ResponseEntity<DestinationsResponseRO> responseEntity = jmsResource.destinations();
-        DestinationsResponseRO destinations = responseEntity.getBody();
+        DestinationsResponseRO destinations = jmsResource.destinations();
 
         // Then
         Assert.assertNotNull(destinations);
@@ -83,14 +87,14 @@ public class JmsResourceTest {
         }};
 
         // When
-        ResponseEntity<MessagesResponseRO> messages = jmsResource.messages(requestRO);
+        MessagesResponseRO messages = jmsResource.messages(requestRO);
 
         // Then
         Assert.assertNotNull(messages);
-        Assert.assertEquals(jmsMessageList, messages.getBody().getMessages());
+        Assert.assertEquals(jmsMessageList, messages.getMessages());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testActionMoveNoValidParam() {
         // Given
         SortedMap<String, JMSDestination> dests = new TreeMap<>();
@@ -110,10 +114,7 @@ public class JmsResourceTest {
         request.setSelectedMessages(selectedMessages);
 
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
-
-        // Then
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        MessagesActionResponseRO responseEntity = jmsResource.action(request);
     }
 
     @Test
@@ -147,30 +148,25 @@ public class JmsResourceTest {
         request.setSelectedMessages(selectedMessages);
 
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
+        MessagesActionResponseRO responseEntity = jmsResource.action(request);
 
         // Then
         Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertEquals("Success", responseEntity.getBody().getOutcome());
+        Assert.assertEquals("Success", responseEntity.getOutcome());
     }
 
-    @Test
-    public void testActionException() {
+    @Test(expected = InternalJMSException.class)
+    public void testActionException(@Mocked MessagesActionRequestRO request) {
         // Given
-        //TODO Use Mocking instead of real Instances
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setSelectedMessages(null); // force runtime exception
+        new Expectations(jmsResource) {{
+            request.getAction();
+            result =  MessagesActionRequestRO.Action.REMOVE;
+            jmsManager.deleteMessages(request.getSource(), (String[])any);
+            result = new InternalJMSException();
+        }};
 
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
-
-        // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertNull(responseEntity.getBody().getOutcome());
+        MessagesActionResponseRO responseEntity = jmsResource.action(request);
     }
 
     @Test

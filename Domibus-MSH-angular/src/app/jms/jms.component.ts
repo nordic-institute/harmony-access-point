@@ -229,6 +229,12 @@ export class JmsComponent extends mix(BaseListComponent)
     this.currentSearchSelectedSource = this.selectedSource;
   }
 
+  protected onLoadDataError(error) {
+    this.alertService.error('An error occurred while loading the JMS messages. In case you are using the Selector / JMS Type, please follow the rules for Selector / JMS Type according to Help Page / Admin Guide');
+    console.log('Error: ', error.status, error.error);
+    error.handled = true;
+  }
+
   public setServerResults(res) {
     super.rows = res.messages;
     super.count = res.messages.length;

@@ -3,7 +3,7 @@ package eu.domibus.core.property.listeners;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.messaging.MessageListenerContainerInitializer;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

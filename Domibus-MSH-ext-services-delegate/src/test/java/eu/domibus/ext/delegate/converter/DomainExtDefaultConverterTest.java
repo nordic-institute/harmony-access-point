@@ -32,7 +32,6 @@ public class DomainExtDefaultConverterTest {
     @Configuration
     @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class,  MonitoringMapperDecorator.class})
     @ImportResource({
-            "classpath:config/ext-services-delegate-domibusContext.xml",
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {

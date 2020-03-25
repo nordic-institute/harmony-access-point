@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.proxy.DomibusProxyService;
+import eu.domibus.core.proxy.DomibusProxyService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

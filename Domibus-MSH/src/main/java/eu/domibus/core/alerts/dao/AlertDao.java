@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.dao;
 
 import com.google.common.collect.Lists;
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.persist.*;
 import eu.domibus.logging.DomibusLoggerFactory;

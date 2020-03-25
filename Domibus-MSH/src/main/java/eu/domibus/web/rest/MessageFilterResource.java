@@ -5,7 +5,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
 import org.apache.commons.lang3.tuple.ImmutablePair;

@@ -1,8 +1,6 @@
 package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.services.impl.UserDetailServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
