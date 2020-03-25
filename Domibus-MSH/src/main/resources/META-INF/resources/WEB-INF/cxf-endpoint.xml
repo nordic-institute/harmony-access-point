@@ -67,6 +67,9 @@
     <!-- Passwordcallback for private key access -->
     <bean id="keystorePasswordCallback" class="eu.domibus.core.ebms3.receiver.SimpleKeystorePasswordCallback"/>
 
+    <bean id="httpHeaderOutInterceptor" class="eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor"/>
+    <bean id="httpHeaderInInterceptor" class="eu.domibus.core.ebms3.sender.interceptor.HttpHeaderInInterceptor"/>
+
     <!--MSH Webservice endpoint-->
     <jaxws:endpoint id="msh" address="/msh">
         <jaxws:implementor>
@@ -89,12 +92,14 @@
             <ref bean="trustSenderInterceptor"/>
             <ref bean="setPolicyInInterceptorServer"/>
             <ref bean="propertyValueExchangeInterceptor"/>
+            <ref bean="httpHeaderInInterceptor"/>
         </jaxws:inInterceptors>
 
         <jaxws:outInterceptors>
             <ref bean="clearMDCInterceptor"/>
             <ref bean="setPolicyOutInterceptorServer"/>
             <ref bean="saveRawPulledMessageInterceptor"/>
+            <ref bean="httpHeaderOutInterceptor"/>
         </jaxws:outInterceptors>
 
         <jaxws:outFaultInterceptors>
