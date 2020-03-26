@@ -369,7 +369,7 @@ public class AlertPgTest extends BaseTest {
 
         AlertPage page = new AlertPage(driver);
         log.info("Search data using basic filter for plugin_user_account_disabled alert type");
-        page.filters().basicFilterBy(null, "PLUGIN_USER_ACCOUNT_DISABLED", null, null, null, null);
+        page.filters().basicFilterBy("UNPROCESSED", "PLUGIN_USER_ACCOUNT_DISABLED", "SUCCESS", "HIGH", null, null);
 
         log.info("Check if multidomain exists");
         if (data.isMultiDomain()) {
