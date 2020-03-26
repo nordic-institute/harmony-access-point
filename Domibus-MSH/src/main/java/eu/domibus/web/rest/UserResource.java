@@ -163,7 +163,7 @@ public class UserResource extends BaseResource {
                 }},
                 domibusConfigurationService.isMultiTenantAware() ?
                         Arrays.asList("authorities", "status", "password", "suspended") :
-                        Arrays.asList("entityId", "status", "password", "domain"),
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain"),
                 "users");
     }
 
