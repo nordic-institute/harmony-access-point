@@ -12,6 +12,7 @@ import org.apache.cxf.phase.Phase;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * It will remove user-agent entry from Http headers if contains Apache CXF version
@@ -52,10 +53,18 @@ public class HttpHeaderOutInterceptor extends AbstractPhaseInterceptor<Message> 
         getLogger().debug("httpHeader=[{}] {}", USER_AGENT_HTTP_HEADER_KEY, (removed ? " was successfully removed" : " not present or value not removed"));
 
         //logging of the remaining headers
-        headers.forEach((key, value) -> getLogger().debug("httpHeader=[{}] value=[{}]", key, Arrays.deepToString(value.toArray())));
+        getLogger().debug("httpHeaders are: {}", httpHeadersToString(headers));
     }
 
-    protected DomibusLogger getLogger(){
+
+    protected DomibusLogger getLogger() {
         return DomibusLoggerFactory.getLogger(HttpHeaderOutInterceptor.class);
+    }
+
+    private String httpHeadersToString(Map<String, List<String>> headers) {
+        return headers.keySet().stream()
+                .map(key -> key + "=" + Arrays.deepToString(headers.get(key).toArray()))
+                .collect(Collectors.joining(", ", "{", "}"));
+
     }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
 public class HttpHeaderOutInterceptorTest {
 
@@ -22,7 +22,7 @@ public class HttpHeaderOutInterceptorTest {
     HttpHeaderInInterceptor httpHeaderInInterceptor;
 
     @Test
-    public void test_handleMessage(final @Mocked Message message) {
+    public void test_handleMessage_UserAgentPresentApache(final @Mocked Message message) {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("user-agent", Collections.singletonList("Apache-CXF/3.2"));
         headers.put("cache-control", Collections.singletonList("no-cache"));
@@ -39,5 +39,24 @@ public class HttpHeaderOutInterceptorTest {
 
         Assert.assertNull(headers.get("user-agent"));
         Assert.assertNotNull(headers.get("cache-control"));
+    }
+
+    @Test
+    public void test_handleMessage_UserAgentNotPresent(final @Mocked Message message) {
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("accept", Collections.singletonList("*/*"));
+        headers.put("connection", Collections.singletonList("keep-alive"));
+
+        new Expectations() {{
+            message.get(Message.PROTOCOL_HEADERS);
+            result = headers;
+        }};
+
+        //tested method
+        httpHeaderInInterceptor.handleMessage(message);
+
+        Assert.assertTrue(headers != null && headers.size() == 2);
+        Assert.assertNotNull(headers.get("connection"));
+
     }
 }

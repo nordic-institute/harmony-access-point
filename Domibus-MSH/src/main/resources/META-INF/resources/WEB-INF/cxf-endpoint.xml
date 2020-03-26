@@ -120,10 +120,12 @@
     <jaxws:client id="{http://domibus.eu}msh-dispatch" name="{http://domibus.eu}msh-dispatch" createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="setPolicyOutInterceptor"/>
+            <ref bean="httpHeaderOutInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="setSignatureAlgorithmInInterceptor"/>
             <ref bean="setPolicyInInterceptorClient"/>
+            <ref bean="httpHeaderInInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
             <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
