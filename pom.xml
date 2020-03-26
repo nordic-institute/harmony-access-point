@@ -107,9 +107,6 @@
         <dss.version>5.5</dss.version>
         <!--Uumds properties-->
         <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
-        <!--Please keep those two dependencies version aligned with transitive dependency-->
-        <json-smart.version>2.3</json-smart.version>
-        <ehcache.version>2.10.6</ehcache.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>3.2.0</java-uuid-generator.version>
         <guava.version>28.0-jre</guava.version>
@@ -122,6 +119,7 @@
         <jmockit.version>1.22</jmockit.version>
         <log4j.version>1.2.17</log4j.version>
         <atomikos.version>4.0.6</atomikos.version>
+        <org.reflections.version>0.9.11</org.reflections.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -740,17 +738,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>${json-smart.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${ehcache.version}</version>
-            </dependency>
             <!-- Test dependencies -->
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -817,6 +804,11 @@
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${org.reflections.version}</version>
             </dependency>
             <!-- End Test dependencies -->
         </dependencies>
