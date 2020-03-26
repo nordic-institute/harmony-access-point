@@ -3357,7 +3357,7 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 	static final def REPORT_FAIL_STRING = "FAIL"
 	static final def COLUMN_LIST = ["TC_ID_COLUMN", "TC_PROJECT", "TC_TEST_SUITE_COLUMN", "TC_NAME_COLUMN", "TC_DISABLED_COLUMN", "TC_RESULT_COLUMN", "TC_TIME_COLUMN", "TC_EXEC_TIME_COLUMN", "TC_COMMENT_COLUMN"]
 	static final def CSV_DELIMETER = ','
-	static final def newLine = System.getProperty("line.separator") 
+	static final def newLine = " || " //System.getProperty("line.separator") 
 
 	static def reportTestCaseCsv(testRunner, log) {
 		// check update report property is not true or '1' 
@@ -3434,7 +3434,7 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		row.add(tcStatus)
 		row.add(startTime)
 		row.add(timeTaken)
-		row.add('"' + comment + '"')
+		row.add('"' + comment.replaceAll("\r\n|\n\r|\n|\r"," | ") + '"')
 		
 		// new row debug values 
 		//showResultRow(row, log)
