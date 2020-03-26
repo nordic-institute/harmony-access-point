@@ -108,10 +108,14 @@ public class DomainSchedulerFactoryConfiguration {
         // Regardless of SCOPE_PROTOTYPE, Spring tries to create this bean without a Domain during singleton creation.
         // Spring 5.x throws when the argument is not present.
         // The solution is to make the argument optional and in case it is not present, the bean will not be created.
-        if(!optionalDomain.isPresent()) {
+        if (!optionalDomain.isPresent()) {
+            // General schema
+            if (domibusConfigurationService.isMultiTenantAware()) {
+                return schedulerFactoryGeneral();
+            }
             return null;
         }
-        // General schema
+
         Domain domain = optionalDomain.get();
         if (domain == null) {
             return schedulerFactoryGeneral();
