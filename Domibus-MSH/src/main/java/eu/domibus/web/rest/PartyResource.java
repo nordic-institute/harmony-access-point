@@ -8,10 +8,6 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -48,9 +44,6 @@ public class PartyResource extends BaseResource {
 
     @Autowired
     private PartyService partyService;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private CertificateService certificateService;
@@ -102,13 +95,18 @@ public class PartyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        request.setPageSize(getMaxNumberRowsToExport());
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,
-                CsvCustomColumns.PARTY_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.PARTY_RESOURCE.getExcludedItems(),
+                new HashMap<String, String>() {{
+                    put("Name".toUpperCase(), "Party name");
+                    put("EndPoint".toUpperCase(), "End point");
+                    put("JoinedIdentifiers".toUpperCase(), "Party id");
+                    put("JoinedProcesses".toUpperCase(), "Process");
+                }},
+                Arrays.asList("entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"),
                 "pmodeparties");
     }
 
@@ -261,8 +259,4 @@ public class PartyResource extends BaseResource {
         return domainConverter.convert(cert, TrustStoreRO.class);
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

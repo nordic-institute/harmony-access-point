@@ -77,12 +77,27 @@ public class CsvServiceImpl implements CsvService {
         }
 
         final List<String> excludedCols = excludedColumns == null ? new ArrayList<>() : excludedColumns;
-        Field[] fields = clazz.getDeclaredFields();
-        List<Field> activeFields = Arrays.stream(fields)
+        List<Field> fields = getAllFields(clazz);
+        List<Field> activeFields = fields.stream()
                 .filter(field -> !excludedCols.contains(field.getName()))
                 .collect(Collectors.toList());
 
         return activeFields;
+    }
+
+    public List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
+    }
+
+    private List<Field> getAllFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<>();
+        return getAllFields(fields, clazz);
     }
 
     protected void writeCSVRow(CSVWriter csvBuilder, List<String> values) {

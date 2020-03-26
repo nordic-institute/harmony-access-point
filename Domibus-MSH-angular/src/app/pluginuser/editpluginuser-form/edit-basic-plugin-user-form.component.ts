@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {SecurityService} from '../../security/security.service';
 import {EditPluginUserFormBaseComponent} from './edit-plugin-user-form-base.component';
@@ -14,6 +14,8 @@ export class EditBasicPluginUserFormComponent extends EditPluginUserFormBaseComp
   public passwordPattern: string;
   public passwordValidationMessage: string;
 
+  @ViewChild('user_name', {static: false}) user_name: ElementRef;
+
   constructor(public dialogRef: MatDialogRef<EditBasicPluginUserFormComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               private securityService: SecurityService) {
@@ -27,6 +29,8 @@ export class EditBasicPluginUserFormComponent extends EditPluginUserFormBaseComp
     const passwordPolicy = await this.securityService.getPluginPasswordPolicy();
     this.passwordPattern = passwordPolicy.pattern;
     this.passwordValidationMessage = passwordPolicy.validationMessage;
+
+    setTimeout(() => this.user_name.nativeElement.focus(), 1000);
   }
 
 }

@@ -4,7 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 @Component({
   selector: 'app-action-dirty-dialog',
   templateUrl: './action-dirty-dialog.component.html',
-  styleUrls: ['../pmode.component.css']
+  styleUrls: ['../support/pmode.component.css']
 })
 export class ActionDirtyDialogComponent implements OnInit {
 

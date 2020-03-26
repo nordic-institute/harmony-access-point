@@ -98,7 +98,7 @@ import {UserCrossFieldValidatorsDirective} from './common/directive/user-cross-f
 import {EditPluginUserFormBaseComponent} from './pluginuser/editpluginuser-form/edit-plugin-user-form-base.component';
 import {EditPopupFooterComponent} from './common/popup-edit-footer/edit-popup-footer.component';
 import {EditPopupBaseComponent} from './common/edit-popup-base.component';
-import {PropertiesService} from './properties/properties.service';
+import {PropertiesService} from './properties/support/properties.service';
 import {FileUploadValidatorService} from './common/file-upload-validator.service';
 import {ConnectionsComponent} from './testservice/connections.component';
 import {ConnectionDetailsComponent} from './testservice/connection-details/connection-details.component';
