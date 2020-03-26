@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
-import {TrustStoreService} from '../trustore.service';
+import {TrustStoreService} from '../support/trustore.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {FileUploadValidatorService} from '../../common/file-upload-validator.service';

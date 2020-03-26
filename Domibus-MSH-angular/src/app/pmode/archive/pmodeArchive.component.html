@@ -1,9 +1,12 @@
-﻿<page-header id="pmodeheader_id" style="margin: 0px;">PMode - Archive</page-header>
-<div class="selectionCriteria">
-  <div class="panel">
+﻿<div style="height: calc(100% - 15px);">
+  <page-header id="pmodeheader_id" style="margin: 0px;">PMode - Archive</page-header>
+
+  <div class="panel full-height">
     <grid-header [parent]="this"></grid-header>
 
-    <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+    <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+    </div>
 
     <ng-template #descriptionTpl let-row="row" let-value="value" ngx-datatable-cell-template>
       <span class="text-select">{{value}}</span>
@@ -31,12 +34,14 @@
     <page-footer [parent]="this" [isAddVisible]="false" [isEditVisible]="false"></page-footer>
 
     <div class="group-action-button">
-      <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id" [disabled]="disabledDownload"
+      <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id"
+              [disabled]="disabledDownload"
               button-click-behaviour>
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
-      <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id" [disabled]="disabledRestore"
+      <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id"
+              [disabled]="disabledRestore"
               button-click-behaviour>
         <mat-icon>settings_backup_restore</mat-icon>
         <span>Restore</span>

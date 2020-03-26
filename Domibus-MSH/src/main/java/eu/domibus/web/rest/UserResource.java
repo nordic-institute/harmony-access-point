@@ -13,10 +13,6 @@ import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,10 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Thomas Dussart
@@ -60,9 +53,6 @@ public class UserResource extends BaseResource {
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private AuthUtils authUtils;
@@ -165,18 +155,16 @@ public class UserResource extends BaseResource {
         // get list of users
         final List<UserResponseRO> userResponseROList = users();
 
-        return exportToCSV(userResponseROList, UserResponseRO.class,
-                CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
+        return exportToCSV(userResponseROList,
+                UserResponseRO.class,
+                new HashMap<String, String>() {{
+                    put("UserName".toUpperCase(), "Username");
+                    put("Roles".toUpperCase(), "Role");
+                }},
                 domibusConfigurationService.isMultiTenantAware() ?
-                        CsvExcludedItems.USER_RESOURCE_MULTI.getExcludedItems() :
-                        CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
+                        Arrays.asList("authorities", "status", "password", "suspended") :
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain"),
                 "users");
-    }
-
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
     }
 
     /**

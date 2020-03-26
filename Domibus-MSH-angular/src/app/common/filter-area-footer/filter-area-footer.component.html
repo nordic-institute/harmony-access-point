@@ -3,6 +3,6 @@
     <mat-icon>search</mat-icon>
     <span>Search</span>
   </button>
-  <a href="#" *ngIf="!parent.advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
+  <a href="#" *ngIf="isAdvancedVisible && !parent.advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
   <a href="#" *ngIf="parent.advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>
 </div>

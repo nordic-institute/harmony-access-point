@@ -1,93 +1,98 @@
-﻿<page-header id="errorlogheader_id">Error Log</page-header>
-<div class="selectionCriteria">
-  <mat-card>
-    <mat-card-content>
-      <div class="panel">
-        <form name="filterForm" #filterForm="ngForm">
-          <mat-form-field>
-            <input matInput placeholder="Signal Message Id" name="errorSignalMessageId"
-                   [(ngModel)]="filter.errorSignalMessageId" #errorSignalMessageId="ngModel" id="signalmessageid_id"
-                   width="40px">
-          </mat-form-field>
+﻿<div style="height: calc(100% - 15px);">
+  <page-header id="errorlogheader_id">Error Log</page-header>
 
-          <mat-form-field>
-            <input matInput placeholder="Message Id" name="messageInErrorId" [(ngModel)]="filter.messageInErrorId"
-                   #messageInErrorId="ngModel" id="messageid_id">
-          </mat-form-field>
-          <md2-datepicker placeholder="Error From:" appClearInvalid
-                          [(ngModel)]="filter.timestampFrom"
-                          name="fromTimestmap"
-                          [type]="'datetime'"
-                          [max]="timestampFromMaxDate"
-                          (change)='onTimestampFromChange($event)'
-                          id="fromtimestamp_id"></md2-datepicker>
-          <md2-datepicker placeholder="Error To:" appClearInvalid
-                          [(ngModel)]="filter.timestampTo"
-                          name="toTimestmap"
-                          [min]="timestampToMinDate"
-                          [max]="timestampToMaxDate"
-                          (change)='onTimestampToChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm">
+            <mat-form-field>
+              <input matInput placeholder="Signal Message Id" name="errorSignalMessageId"
+                     [(ngModel)]="filter.errorSignalMessageId" #errorSignalMessageId="ngModel" id="signalmessageid_id"
+                     width="40px">
+            </mat-form-field>
 
-          <mat-form-field *ngIf="advancedSearch" >
-            <input matInput placeholder="Error Detail" name="errorDetail" [(ngModel)]="filter.errorDetail"
-                   #errorDetail="ngModel" id="errordetail_id" advanced-filter-behaviour [parent]="this">
-          </mat-form-field>
-          <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
-                     id="aprole_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
-            <mat-option [value]="''">
-            </mat-option>
-            <mat-option *ngFor="let role of mshRoles" [value]="role">
-              {{role}}
-            </mat-option>
-          </mat-select>
+            <mat-form-field>
+              <input matInput placeholder="Message Id" name="messageInErrorId" [(ngModel)]="filter.messageInErrorId"
+                     #messageInErrorId="ngModel" id="messageid_id">
+            </mat-form-field>
+            <md2-datepicker placeholder="Error From:" appClearInvalid
+                            [(ngModel)]="filter.timestampFrom"
+                            name="fromTimestmap"
+                            [type]="'datetime'"
+                            [max]="timestampFromMaxDate"
+                            (change)='onTimestampFromChange($event)'
+                            id="fromtimestamp_id"></md2-datepicker>
+            <md2-datepicker placeholder="Error To:" appClearInvalid
+                            [(ngModel)]="filter.timestampTo"
+                            name="toTimestmap"
+                            [min]="timestampToMinDate"
+                            [max]="timestampToMaxDate"
+                            (change)='onTimestampToChange($event)'
+                            [type]="'datetime'"
+                            #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
 
-          <mat-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
-                     id="errorcode_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
-            <mat-option [value]="''">
-            </mat-option>
-            <mat-option *ngFor="let code of errorCodes" [value]="code">
-              {{code}}
-            </mat-option>
-          </mat-select>
+            <mat-form-field *ngIf="advancedSearch">
+              <input matInput placeholder="Error Detail" name="errorDetail" [(ngModel)]="filter.errorDetail"
+                     #errorDetail="ngModel" id="errordetail_id" advanced-filter-behaviour [parent]="this">
+            </mat-form-field>
+            <mat-select placeholder="AP Role" [(ngModel)]="filter.mshRole" name="mshRole" class="optionField"
+                        id="aprole_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+              <mat-option [value]="''">
+              </mat-option>
+              <mat-option *ngFor="let role of mshRoles" [value]="role">
+                {{role}}
+              </mat-option>
+            </mat-select>
+
+            <mat-select placeholder="Error Code" [(ngModel)]="filter.errorCode" name="errorCode" class="optionField"
+                        id="errorcode_id" *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+              <mat-option [value]="''">
+              </mat-option>
+              <mat-option *ngFor="let code of errorCodes" [value]="code">
+                {{code}}
+              </mat-option>
+            </mat-select>
 
 
-          <md2-datepicker placeholder="Notified From:" appClearInvalid
-                          [(ngModel)]="filter.notifiedFrom"
-                          name="notifiedFrom"
-                          [type]="'datetime'"
-                          [max]="notifiedFromMaxDate"
-                          (change)='onNotifiedFromChange($event)'
-                          #timestampControl="ngModel" id="notifiedfrom_id"
-                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
-          </md2-datepicker>
-          <md2-datepicker placeholder="Notified To:" appClearInvalid
-                          [(ngModel)]="filter.notifiedTo"
-                          name="notifiedTo"
-                          [type]="'datetime'"
-                          [min]="notifiedToMinDate"
-                          [max]="notifiedToMaxDate"
-                          (change)='onNotifiedToChange($event)'
-                          #timestampControl="ngModel" id="notifiedto_id"
-                          *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
-          </md2-datepicker>
+            <md2-datepicker placeholder="Notified From:" appClearInvalid
+                            [(ngModel)]="filter.notifiedFrom"
+                            name="notifiedFrom"
+                            [type]="'datetime'"
+                            [max]="notifiedFromMaxDate"
+                            (change)='onNotifiedFromChange($event)'
+                            #timestampControl="ngModel" id="notifiedfrom_id"
+                            *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
+            <md2-datepicker placeholder="Notified To:" appClearInvalid
+                            [(ngModel)]="filter.notifiedTo"
+                            name="notifiedTo"
+                            [type]="'datetime'"
+                            [min]="notifiedToMinDate"
+                            [max]="notifiedToMaxDate"
+                            (change)='onNotifiedToChange($event)'
+                            #timestampControl="ngModel" id="notifiedto_id"
+                            *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
 
-          <filter-area-footer [parent]="this"></filter-area-footer>
+            <filter-area-footer [parent]="this"></filter-area-footer>
 
-        </form>
-      </div>
+          </form>
+        </div>
 
-    </mat-card-content>
-  </mat-card>
-</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-<div class="panel">
-  <grid-header [parent]="this"></grid-header>
+  <div class="panel" style="height: calc(100% - 150px);">
+    <grid-header [parent]="this"></grid-header>
 
-  <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+    <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+    </div>
 
-  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-  </ng-template>
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value | domibusDate: dateFormat}}</span>
+    </ng-template>
+  </div>
 </div>

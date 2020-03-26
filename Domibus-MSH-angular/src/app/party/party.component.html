@@ -1,55 +1,63 @@
-<page-header id="partyHeader_id">PMode - Parties</page-header>
-<div class="selectionCriteria">
-  <mat-card>
-    <mat-card-content>
-      <form (submit)="tryFilter()">
-        <div class="panel">
-          <mat-form-field>
-            <input matInput placeholder="Name" [(ngModel)]="filter.name" name="name" id="name_id">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="End Point" [(ngModel)]="filter.endPoint" name="endPoint" id="endPoint_id">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Party Id" [(ngModel)]="filter.partyID" name="partyID" id="partyID_id">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Process" [(ngModel)]="filter.process" name="process" id="process_id">
-          </mat-form-field>
-          <mat-select placeholder="Process Role" [(ngModel)]="filter.process_role" name="process_role" id="process_role_id" style="width:120px;margin-right: 0;">
-            <mat-option [value]="''"></mat-option>
-            <mat-option [value]="'(I)'">I</mat-option>
-            <mat-option [value]="'(R)'">R</mat-option>
-            <mat-option [value]="'(IR)'">IR</mat-option>
-          </mat-select>
+<div style="height: calc(100% - 15px);">
+  <page-header id="partyHeader_id">PMode - Parties</page-header>
 
-          <div class="searchArea">
-            <button mat-raised-button color="primary" id="searchbutton_id" button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <form (submit)="tryFilter()">
+          <div class="panel">
+            <mat-form-field>
+              <input matInput placeholder="Name" [(ngModel)]="filter.name" name="name" id="name_id">
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="End Point" [(ngModel)]="filter.endPoint" name="endPoint" id="endPoint_id">
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Party Id" [(ngModel)]="filter.partyID" name="partyID" id="partyID_id">
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Process" [(ngModel)]="filter.process" name="process" id="process_id">
+            </mat-form-field>
+            <mat-select placeholder="Process Role" [(ngModel)]="filter.process_role" name="process_role"
+                        id="process_role_id" style="width:120px;margin-right: 0;">
+              <mat-option [value]="''"></mat-option>
+              <mat-option [value]="'(I)'">I</mat-option>
+              <mat-option [value]="'(R)'">R</mat-option>
+              <mat-option [value]="'(IR)'">IR</mat-option>
+            </mat-select>
+
+            <div class="searchArea">
+              <button mat-raised-button color="primary" id="searchbutton_id" button-click-behaviour>
+                <mat-icon>search</mat-icon>
+                <span>Search</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div style="height: calc(100% - 180px);">
+    <div class="panel">
+      <grid-header [parent]="this"></grid-header>
+    </div>
+
+    <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'single'"></page-grid>
+    </div>
+
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button mat-icon-button (click)="edit(row)"
+              color="primary" tooltip="Edit" button-click-behaviour>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteRow(row)" color="primary"
+              tooltip="Delete" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-template>
+
+    <page-footer [parent]="this"></page-footer>
+  </div>
 </div>
-
-<div class="panel">
-  <grid-header [parent]="this"></grid-header>
-</div>
-
-<page-grid [parent]="this" [selectionType]="'single'" ></page-grid>
-
-<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-  <button mat-icon-button (click)="edit(row)"
-          color="primary" tooltip="Edit" button-click-behaviour>
-    <mat-icon>edit</mat-icon>
-  </button>
-  <button mat-icon-button (click)="deleteRow(row)" color="primary"
-          tooltip="Delete" button-click-behaviour>
-    <mat-icon>delete</mat-icon>
-  </button>
-</ng-template>
-
-<page-footer [parent]="this"></page-footer>

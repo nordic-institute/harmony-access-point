@@ -1,12 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output, SimpleChanges} from '@angular/core';
 import {isNullOrUndefined} from 'util';
+import {AlertService} from '../alert/alert.service';
 
 @Component({
   selector: 'app-column-picker',
   templateUrl: './column-picker.component.html',
   styleUrls: ['./column-picker.component.css']
 })
-export class ColumnPickerComponent implements OnInit {
+export class ColumnPickerComponent {
 
   columnSelection: boolean;
 
@@ -19,18 +20,16 @@ export class ColumnPickerComponent implements OnInit {
   @Output()
   onSelectedColumnsChanged = new EventEmitter<Array<any>>();
 
-  constructor() {
+  constructor(private alertService: AlertService) {
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.allColumns.forEach(col => col.isSelected = this.isChecked(col));
   }
 
-  ngOnInit() {
-  }
-
   toggleColumnSelection() {
-    this.columnSelection = !this.columnSelection
+    this.columnSelection = !this.columnSelection;
+    this.alertService.clearAlert();
   }
 
   /*
@@ -41,16 +40,19 @@ export class ColumnPickerComponent implements OnInit {
       this.selectedColumns = this.allColumns.filter(col => col.isSelected);
       this.onSelectedColumnsChanged.emit(this.selectedColumns);
     });
+    this.alertService.clearAlert();
   }
 
   selectAllColumns() {
     this.selectedColumns = [...this.allColumns];
     this.onSelectedColumnsChanged.emit(this.selectedColumns);
+    this.alertService.clearAlert();
   }
 
   selectNoColumns() {
     this.selectedColumns = [];
     this.onSelectedColumnsChanged.emit(this.selectedColumns);
+    this.alertService.clearAlert();
   }
 
   isChecked(col) {

@@ -11,19 +11,19 @@ public class DomibusProperty {
 
     private DomibusPropertyMetadata metadata;
 
-    public DomibusPropertyMetadata getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(DomibusPropertyMetadata metadata) {
-        this.metadata = metadata;
-    }
-
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public DomibusPropertyMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(DomibusPropertyMetadata metadata) {
+        this.metadata = metadata;
     }
 }

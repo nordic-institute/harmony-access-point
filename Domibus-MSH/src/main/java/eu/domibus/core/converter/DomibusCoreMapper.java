@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -39,6 +40,7 @@ import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -248,7 +250,14 @@ public interface DomibusCoreMapper {
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
-    DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty property);
+    default DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty entity) {
+        DomibusPropertyRO res = propertyMetadataApiToPropertyRO(entity.getMetadata());
+        res.setValue(entity.getValue());
+        return res;
+    }
+
+    @Mapping(target = "usageText", expression = "java( meta.getUsageText() )")
+    DomibusPropertyRO propertyMetadataApiToPropertyRO(DomibusPropertyMetadata meta);
 
     @Mapping(target = "properties", ignore = true)
     PartProperties partPropertiesApiToPartProperties(eu.domibus.api.usermessage.domain.PartProperties partProperties);
