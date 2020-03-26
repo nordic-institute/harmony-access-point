@@ -20,7 +20,7 @@ public class AlertPgUXTest extends BaseUXTest {
     JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 
     /* disabled because EDELIVERY-4186 */
-    @Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"})
     public void verifyHeaders() throws Exception {
         SoftAssert soft = new SoftAssert();
         AlertPage page = new AlertPage(driver);
