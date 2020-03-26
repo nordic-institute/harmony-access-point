@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -25,6 +27,7 @@ public class DomibusSchedulerFactoryImpl implements DomibusSchedulerFactory {
     public Scheduler createScheduler(Domain domain) {
         LOG.debug("Creating the scheduler for domain [{}]", domain);
 
-        return applicationContext.getBean(SchedulerFactoryBean.class, domain).getScheduler();
+        Optional<Domain> optionalDomain = Optional.ofNullable(domain);
+        return applicationContext.getBean(SchedulerFactoryBean.class, optionalDomain).getScheduler();
     }
 }

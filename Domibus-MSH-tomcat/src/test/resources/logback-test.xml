@@ -7,7 +7,7 @@
         </encoder>
     </appender>
     <logger name="eu.domibus" level="INFO"/>
-    <logger name="com.atomikos" level="ERROR"/>
+    <logger name="com.atomikos" level="WARN"/>
     <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>

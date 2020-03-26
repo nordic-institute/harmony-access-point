@@ -31,6 +31,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -78,7 +79,7 @@ import static org.awaitility.Awaitility.with;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(initializers = PropertyOverrideContextInitializer.class, classes = {DomibusRootConfiguration.class, DomibusTestDatasourceConfiguration.class})
+@ContextConfiguration(initializers = PropertyOverrideContextInitializer.class, classes = {DomibusRootConfiguration.class, DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
@@ -104,6 +105,7 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
+        deleteTransactionLock();
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
@@ -126,6 +128,19 @@ public abstract class AbstractIT {
     @Before
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+    }
+
+    @After
+    public void cleanTransactionsLog()  {
+        deleteTransactionLock();
+    }
+
+    public static void deleteTransactionLock() {
+        try {
+            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
+        } catch (IOException exc) {
+            LOG.info("No tmlog.lck to delete");
+        }
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {

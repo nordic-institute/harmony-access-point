@@ -224,8 +224,8 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
         </dependency>
+        <!-- End CXF -->
 
-        <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
@@ -234,7 +234,6 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
-        <!-- End CXF -->
 
         <!-- Hibernate -->
         <dependency>
@@ -261,10 +260,6 @@
         </dependency>
 
         <!-- Difi libraries -->
-        <dependency>
-            <groupId>no.difi.vefa</groupId>
-            <artifactId>peppol-sbdh</artifactId>
-        </dependency>
         <dependency>
             <groupId>no.difi.vefa</groupId>
             <artifactId>peppol-lookup</artifactId>
@@ -481,6 +476,11 @@
                             <version>${hibernate.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>
+                            -Amapstruct.defaultComponentModel=spring
+                        </compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

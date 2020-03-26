@@ -15,8 +15,11 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.audit.model.mapper.AuditMapperImpl;
 import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
@@ -45,12 +48,11 @@ import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import mockit.Injectable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
@@ -71,7 +73,6 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -81,16 +82,39 @@ public class DomainCoreDefaultConverterTest {
         public DateUtil dateUtil() {
             return new DateUtilImpl();
         }
+
+        @Bean
+        @Qualifier("delegate")
+        public EventMapper eventMapper() {
+            EventMapperImpl eventMapper = new EventMapperImpl();
+            eventMapper.setDelegate(new EventMapperImpl_());
+            return eventMapper;
+        }
+
+        @Bean
+        public AuditMapper auditMapper() {
+            AuditMapperImpl auditMapper = new AuditMapperImpl();
+            return auditMapper;
+        }
+
+        @Bean
+        public DomainCoreConverter domainCoreConverter() {
+            DomainCoreConverter domainCoreConverter = new DomainCoreDefaultConverter();
+            return domainCoreConverter;
+        }
+
+        @Bean
+        public DomibusCoreMapper domibusCoreMapper() {
+            DomibusCoreMapper domibusCoreMapper = new DomibusCoreMapperImpl();
+            return domibusCoreMapper;
+        }
     }
 
     @Autowired
     DomainCoreConverter domainCoreConverter;
 
-    @Injectable
-    EventMapper eventMapper;
-
-    @Injectable
-    AuditMapper auditMapper;
+    @Autowired
+    DomibusCoreMapper domibusCoreMapper;
 
     @Autowired
     ObjectService objectService;
