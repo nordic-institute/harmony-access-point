@@ -188,7 +188,7 @@ public class MessagesPgTest extends BaseTest {
 		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
 
 		log.info("filtering so that grid shows 0 results");
-		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.getFilters().basicFilterBy("invalidMessageId", "SEND_FAILURE", "domibus-blue", "domibus-blue");
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
@@ -205,7 +205,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Download message */
-	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -261,7 +261,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Resend message */
-	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
@@ -306,7 +306,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Domain admin logs in and views messages */
-	@Test(description = "MSG-13", groups = {"multiTenancy"})
+	@Test(description = "MSG-13", groups = {"multiTenancy"} , enabled = false)
 	public void messagesSegregatedByDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -365,7 +365,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain */
-	@Test(description = "MSG-14", groups = {"multiTenancy"})
+	@Test(description = "MSG-14", groups = {"multiTenancy"} , enabled = false)
 	public void superSelectMessageChangeDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -502,7 +502,7 @@ public class MessagesPgTest extends BaseTest {
     /* This method will verify domain specific messages on each domain by changing domain through domain
      selector by Super user */
 
-	@Test(description = "MSG-15", groups = {"multiTenancy"})
+	@Test(description = "MSG-15", groups = {"multiTenancy"} , enabled = false)
 	public void verifyDomainSpecificMsgs() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -515,7 +515,7 @@ public class MessagesPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-16", groups = {"multiTenancy"})
+	@Test(description = "MSG-16", groups = {"multiTenancy"} ,enabled = false)
 	public void downloadMsgs() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
