@@ -105,7 +105,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SchedulerFactoryBean schedulerFactory(Optional<Domain> optionalDomain) {
 
-        // We don't need the bean when domain is not present. Latest spring version tries to creat it and throws.
+        // Regardless of SCOPE_PROTOTYPE, Spring tries to create this bean without a Domain during singleton creation.
+        // NSpring 5.x throws when the argument is not present.
+        // The solution is to make the argument optional and in case it is not present, the bean will not be created.
         if(!optionalDomain.isPresent()) {
             return null;
         }

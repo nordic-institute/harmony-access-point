@@ -105,11 +105,7 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
-        try {
-            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
-        } catch (IOException exc) {
-            LOG.info("No tmlog.lck to delete");
-        }
+        deleteTransactionLock();
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
@@ -135,14 +131,17 @@ public abstract class AbstractIT {
     }
 
     @After
-    public void cleanTransactionsLog() throws IOException {
+    public void cleanTransactionsLog()  {
+        deleteTransactionLock();
+    }
+
+    public static void deleteTransactionLock() {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
             LOG.info("No tmlog.lck to delete");
         }
     }
-
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
