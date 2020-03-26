@@ -32,7 +32,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 	/* This method will verify domain specific error messages on each domain by changing domain through domain
      selector by Super user */
 
-    @Test(description = "ERR-8", groups = {"multiTenancy"})
+    @Test(description = "ERR-8", groups = {"multiTenancy"} , enabled = false)
     public void openErrorLogPage() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -166,6 +166,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to error log");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
+            page.grid().waitForRowsToLoad();
 
             log.info("verify message id for all rows logged after retry");
             for (int j = 0; j < retryCount; j++) {
