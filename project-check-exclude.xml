@@ -1,110 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress>
-        <notes><![CDATA[
-                This suppresses the checks for any file named: domibus-ext-services-delegate-*.jar
-                ]]>
-        </notes>
-        <gav regex="true">^eu\.domibus:domibus-ext-services-delegate:.*$</gav>
-        <cpe>cpe:/a:delegate:delegate</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-security-core-5.1.5.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
-        <!-- Affects Spring Framework 5.0.5 -->
-        <cve>CVE-2018-1258</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: activemq-jaas-5.15.8.jar
-   ]]></notes>
-        <gav regex="true">^org\.apache\.activemq:.*$</gav>
-        <!-- jolokia API not used -->
-        <cve>CVE-2015-5182</cve>
-        <!-- Hawtio console not used -->
-        <cve>CVE-2015-5183</cve>
-        <cve>CVE-2015-5184</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: activemq-protobuf-1.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
-        <!-- we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries -->
-        <cpe>cpe:/a:apache:activemq:1.1</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: logback-elasticsearch-appender-1.6.jar
-   ]]></notes>
-        <gav regex="true">^com\.internetitem:logback-elasticsearch-appender:.*$</gav>
-        <!-- Cve when sending log events directly from Logback to Elasticsearch.
-             In Domibus, we do not send logs directly from logback to Elasticsearch. For example, Taxud uses the logs filtered by logstash before sending to ES. -->
-        <cve>CVE-2015-5531</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: commons-collections-3.2.jar
-   ]]></notes>
-        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
-        <!-- Affected users should update the system Apache commons-collections library to at least version 3.2.2.
-             In Domibus, we have version 3.2.2-->
-        <cve>CVE-2015-6420</cve>
-        <!-- In Apache Synapse, by default no authentication is required for Java Remote Method Invocation (RMI).
-             To mitigate the issue, we need to limit RMI access to trusted users only.
-             In Domibus, RMI is not used. -->
-        <cve>CVE-2017-15708</cve>
-        <!-- Transitive dependency from OpenCSV - Export CSV feature is only available to logged in users -->
-        <vulnerabilityName>Remote code execution</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: netty-all-4.1.5.Final.jar
-   ]]></notes>
-        <gav regex="true">^io\.netty:netty-all:.*$</gav>
-        <!-- Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus -->
-        <cve>CVE-2018-12056</cve>
-        <!-- Included by artemis client which is used internally by Domibus to access the activeMQ broker -->
-        <cve>CVE-2019-16869</cve>
-        <!-- Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker -->
-        <cve>CVE-2019-20444</cve>
-        <cve>CVE-2019-20445</cve>
-        <!-- we are not using WSO2 transport-http -->
-        <vulnerabilityName>CVE-2019-10797</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-      file name: quartz-2.3.2.jar
-      ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
-        <!-- CVE in initDocumentParser used to parse job description passed to quartz.
-        In Domibus, Quartz is used with predefined jobs (not user input) -->
-        <cve>CVE-2019-13990</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-core-3.2.11.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf.*@.*$</packageUrl>
-        <!-- We don't store public/private keys in JWK format as opposed to the default JKS/PKCS12 formats -->
-        <cve>CVE-2019-12423</cve>
-        <!-- Minimum impact since we don't use mobile browsers platforms -->
-        <cve>CVE-2019-17573</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-databind-2.9.10.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <!-- we don't use hikari-config library -->
-        <cve>CVE-2020-9546</cve>
-        <!-- we don't use ibatis-sqlmap library -->
-        <cve>CVE-2020-9547</cve>
-        <!-- we don't use anteros-core library-->
-        <cve>CVE-2020-9548</cve>
-        <!-- we are not using xbean-reflect libraries -->
-        <cve>CVE-2020-8840</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--                This suppresses the checks for any file named: domibus-ext-services-delegate-*.jar-->
+<!--                ]]>-->
+<!--        </notes>-->
+<!--        <gav regex="true">^eu\.domibus:domibus-ext-services-delegate:.*$</gav>-->
+<!--        <cpe>cpe:/a:delegate:delegate</cpe>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-security-core-5.1.5.RELEASE.jar-->
+<!--   ]]></notes>-->
+<!--        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>-->
+<!--        &lt;!&ndash; Affects Spring Framework 5.0.5 &ndash;&gt;-->
+<!--        <cve>CVE-2018-1258</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: activemq-jaas-5.15.8.jar-->
+<!--   ]]></notes>-->
+<!--        <gav regex="true">^org\.apache\.activemq:.*$</gav>-->
+<!--        &lt;!&ndash; jolokia API not used &ndash;&gt;-->
+<!--        <cve>CVE-2015-5182</cve>-->
+<!--        &lt;!&ndash; Hawtio console not used &ndash;&gt;-->
+<!--        <cve>CVE-2015-5183</cve>-->
+<!--        <cve>CVE-2015-5184</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: activemq-protobuf-1.1.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>-->
+<!--        &lt;!&ndash; we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries &ndash;&gt;-->
+<!--        <cpe>cpe:/a:apache:activemq:1.1</cpe>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: logback-elasticsearch-appender-1.6.jar-->
+<!--   ]]></notes>-->
+<!--        <gav regex="true">^com\.internetitem:logback-elasticsearch-appender:.*$</gav>-->
+<!--        &lt;!&ndash; Cve when sending log events directly from Logback to Elasticsearch.-->
+<!--             In Domibus, we do not send logs directly from logback to Elasticsearch. For example, Taxud uses the logs filtered by logstash before sending to ES. &ndash;&gt;-->
+<!--        <cve>CVE-2015-5531</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: commons-collections-3.2.jar-->
+<!--   ]]></notes>-->
+<!--        <gav regex="true">^commons-collections:commons-collections:.*$</gav>-->
+<!--        &lt;!&ndash; Affected users should update the system Apache commons-collections library to at least version 3.2.2.-->
+<!--             In Domibus, we have version 3.2.2&ndash;&gt;-->
+<!--        <cve>CVE-2015-6420</cve>-->
+<!--        &lt;!&ndash; In Apache Synapse, by default no authentication is required for Java Remote Method Invocation (RMI).-->
+<!--             To mitigate the issue, we need to limit RMI access to trusted users only.-->
+<!--             In Domibus, RMI is not used. &ndash;&gt;-->
+<!--        <cve>CVE-2017-15708</cve>-->
+<!--        &lt;!&ndash; Transitive dependency from OpenCSV - Export CSV feature is only available to logged in users &ndash;&gt;-->
+<!--        <vulnerabilityName>Remote code execution</vulnerabilityName>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: netty-all-4.1.5.Final.jar-->
+<!--   ]]></notes>-->
+<!--        <gav regex="true">^io\.netty:netty-all:.*$</gav>-->
+<!--        &lt;!&ndash; Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus &ndash;&gt;-->
+<!--        <cve>CVE-2018-12056</cve>-->
+<!--        &lt;!&ndash; Included by artemis client which is used internally by Domibus to access the activeMQ broker &ndash;&gt;-->
+<!--        <cve>CVE-2019-16869</cve>-->
+<!--        &lt;!&ndash; Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker &ndash;&gt;-->
+<!--        <cve>CVE-2019-20444</cve>-->
+<!--        <cve>CVE-2019-20445</cve>-->
+<!--        &lt;!&ndash; we are not using WSO2 transport-http &ndash;&gt;-->
+<!--        <vulnerabilityName>CVE-2019-10797</vulnerabilityName>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--      file name: quartz-2.3.2.jar-->
+<!--      ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>-->
+<!--        &lt;!&ndash; CVE in initDocumentParser used to parse job description passed to quartz.-->
+<!--        In Domibus, Quartz is used with predefined jobs (not user input) &ndash;&gt;-->
+<!--        <cve>CVE-2019-13990</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: cxf-core-3.2.11.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf.*@.*$</packageUrl>-->
+<!--        &lt;!&ndash; We don't store public/private keys in JWK format as opposed to the default JKS/PKCS12 formats &ndash;&gt;-->
+<!--        <cve>CVE-2019-12423</cve>-->
+<!--        &lt;!&ndash; Minimum impact since we don't use mobile browsers platforms &ndash;&gt;-->
+<!--        <cve>CVE-2019-17573</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jackson-databind-2.9.10.3.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>-->
+<!--        &lt;!&ndash; we don't use hikari-config library &ndash;&gt;-->
+<!--        <cve>CVE-2020-9546</cve>-->
+<!--        &lt;!&ndash; we don't use ibatis-sqlmap library &ndash;&gt;-->
+<!--        <cve>CVE-2020-9547</cve>-->
+<!--        &lt;!&ndash; we don't use anteros-core library&ndash;&gt;-->
+<!--        <cve>CVE-2020-9548</cve>-->
+<!--        &lt;!&ndash; we are not using xbean-reflect libraries &ndash;&gt;-->
+<!--        <cve>CVE-2020-8840</cve>-->
+<!--    </suppress>-->
 </suppressions>
