@@ -132,7 +132,7 @@ public class AlertPgTest extends BaseTest {
         log.info("Search using basic filter");
         int prevCount = apage.grid().getPagination().getTotalItems();
         log.info("Previous count of grid rows:" + prevCount);
-        apage.filters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
+        apage.filters().basicFilterBy("UNPROCESSED", "CERT_EXPIRED", "SUCCESS", "HIGH", null, null);
         log.info("Validate Grid row count as zero ");
         soft.assertTrue(apage.grid().getPagination().getTotalItems() < prevCount, "No search result exist");
         log.info("Refresh page");
