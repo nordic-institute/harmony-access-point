@@ -2,13 +2,13 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
-import {PropertiesService} from '../../properties/properties.service';
+import {PropertiesService} from '../../properties/support/properties.service';
 import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-upload.component.html',
-  styleUrls: ['../pmode.component.css']
+  styleUrls: ['../support/pmode.component.css']
 })
 export class PmodeUploadComponent implements OnInit {
 

@@ -96,7 +96,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -174,12 +173,6 @@
                             </includes>
                         </resource>
                     </webResources>
-                    <archive>
-                        <!-- https://github.com/spring-projects/spring-framework/issues/21528 -->
-                        <manifestEntries>
-                            <Dependencies>jdk.unsupported</Dependencies>
-                        </manifestEntries>
-                    </archive>
                 </configuration>
             </plugin>
             <plugin>

@@ -20,11 +20,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.security.wss4j.CXFRequestData;
@@ -59,6 +59,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -209,7 +210,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             return null;
         }
 
-        return StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
+        return Arrays.asList(StringUtils.splitByWholeSeparator(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR));
     }
 
     protected List<? extends Certificate> getSenderCertificateChain(SoapMessage msg) {

@@ -8,7 +8,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [disabled]="editMode"
+          <input #user_name matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [disabled]="editMode"
                  input-debounce #userName="ngModel" maxlength="255" required>
           <span class="help-block" *ngIf="shouldShowErrors(userName)">
             <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">You should type an username</div>

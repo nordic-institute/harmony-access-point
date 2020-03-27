@@ -1,5 +1,5 @@
 import {Component, Inject} from "@angular/core";
-import {TrustStoreEntry} from "../trustore.model";
+import {TrustStoreEntry} from "../support/trustore.model";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 
 /**

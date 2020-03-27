@@ -44,6 +44,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -102,8 +103,20 @@ public class DomainSchedulerFactoryConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SchedulerFactoryBean schedulerFactory(Domain domain) {
-        // General schema
+    public SchedulerFactoryBean schedulerFactory(Optional<Domain> optionalDomain) {
+
+        // Regardless of SCOPE_PROTOTYPE, Spring tries to create this bean without a Domain during singleton creation.
+        // Spring 5.x throws when the argument is not present.
+        // The solution is to make the argument optional and in case it is not present, the bean will not be created.
+        if (!optionalDomain.isPresent()) {
+            // General schema
+            if (domibusConfigurationService.isMultiTenantAware()) {
+                return schedulerFactoryGeneral();
+            }
+            return null;
+        }
+
+        Domain domain = optionalDomain.get();
         if (domain == null) {
             return schedulerFactoryGeneral();
         }

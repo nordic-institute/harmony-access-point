@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
-import {TrustStoreService} from './trustore.service';
+import {TrustStoreService} from './support/trustore.service';
 import {TruststoreDialogComponent} from './truststore-dialog/truststore-dialog.component';
 import {MatDialog} from '@angular/material';
 import {TrustStoreUploadComponent} from './truststore-upload/truststore-upload.component';

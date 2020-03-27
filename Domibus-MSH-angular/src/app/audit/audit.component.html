@@ -1,48 +1,51 @@
-<page-header id="auditHeader_id">Audit</page-header>
+<div style="height: calc(100% - 15px);">
+  <page-header id="auditHeader_id">Audit</page-header>
 
-<div class="selectionCriteria">
-  <mat-card>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <mat-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTargetName">
+            <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
+          </mat-select>
+          <mat-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.user">
+            <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
+          </mat-select>
+          <mat-select matInput placeholder="Action" id="action_id" multiple [(ngModel)]="filter.action">
+            <mat-option *ngFor="let item of existingActions" [value]="item">{{item}}</mat-option>
+          </mat-select>
+          <md2-datepicker placeholder="Changed from:" appClearInvalid
+                          [(ngModel)]="filter.from" name="from" [type]="'datetime'"
+                          [max]="timestampFromMaxDate"
+                          (change)='onTimestampFromChange($event)'
+                          #timestampControl="ngModel" id="from_id" *ngIf="advancedSearch"
+                          advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
+          <md2-datepicker placeholder=" Changed to:" appClearInvalid
+                          [(ngModel)]="filter.to" name="to" [type]="'datetime'"
+                          [min]="timestampToMinDate"
+                          [max]="timestampToMaxDate"
+                          (change)='onTimestampToChange($event)'
+                          #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch"
+                          advanced-filter-behaviour [parent]="this">
+          </md2-datepicker>
 
-    <mat-card-content>
-      <div class="panel">
-        <mat-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTargetName">
-          <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
-        </mat-select>
-        <mat-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.user">
-          <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
-        </mat-select>
-        <mat-select matInput placeholder="Action" id="action_id" multiple [(ngModel)]="filter.action">
-          <mat-option *ngFor="let item of existingActions" [value]="item">{{item}}</mat-option>
-        </mat-select>
-        <md2-datepicker placeholder="Changed from:" appClearInvalid
-                        [(ngModel)]="filter.from" name="from" [type]="'datetime'"
-                        [max]="timestampFromMaxDate"
-                        (change)='onTimestampFromChange($event)'
-                        #timestampControl="ngModel" id="from_id" *ngIf="advancedSearch"
-                        advanced-filter-behaviour [parent]="this">
-        </md2-datepicker>
-        <md2-datepicker placeholder=" Changed to:" appClearInvalid
-                        [(ngModel)]="filter.to" name="to" [type]="'datetime'"
-                        [min]="timestampToMinDate"
-                        [max]="timestampToMaxDate"
-                        (change)='onTimestampToChange($event)'
-                        #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch"
-                        advanced-filter-behaviour [parent]="this">
-        </md2-datepicker>
+          <filter-area-footer [parent]="this"></filter-area-footer>
 
-        <filter-area-footer [parent]="this"></filter-area-footer>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <div class="panel">
+    <grid-header [parent]="this"></grid-header>
+  </div>
+
+  <div style="height: calc(100% - 190px); overflow-y: auto; overflow-x: hidden;">
+    <page-grid [parent]="this"></page-grid>
+  </div>
+
+  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value | domibusDate: dateFormat}}</span>
+  </ng-template>
 </div>
-
-<div class="panel">
-  <grid-header [parent]="this"></grid-header>
-</div>
-
-<page-grid [parent]="this"></page-grid>
-
-<ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-  <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-</ng-template>

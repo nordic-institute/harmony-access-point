@@ -225,11 +225,9 @@ a:hover {
     [PANEL]
 ----------------------------------------------------*/
 .panel {
-  margin-bottom: 20px;
   padding: 0px 20px;
   background: #FFF;
   /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);*/
-  /*padding-top: 0 !important;*/
 }
 
 mat-card {
@@ -300,7 +298,7 @@ mat-card {
 
 /* --- GROUP BUTTON ACTION ---*/
 .group-action-button {
-  margin-top: 20px;
+  margin-top: 10px;
   display: inline-block;
 }
 
@@ -396,4 +394,14 @@ mat-select .mat-select {
 .mat-simple-snackbar {
   color: white !important;
   font-size: 16px !important;
+}
+
+html, body, app-root, ng-component {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.full-height {
+  height: 100%;
+  overflow-y: hidden;
 }

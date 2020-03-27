@@ -1,9 +1,9 @@
 .textarea {
   margin: 0;
   padding: 5px;
-  height: 40vw;
   width: 100%;
   font-family: 'Open Sans', sans-serif;
+  resize: none;
 }
 
 .pModeInfo {

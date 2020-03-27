@@ -9,9 +9,6 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -57,9 +54,6 @@ public class PModeResource extends BaseResource {
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private AuditService auditService;
@@ -177,13 +171,7 @@ public class PModeResource extends BaseResource {
 
         return exportToCSV(pModeResponseROList,
                 PModeResponseRO.class,
-                new HashMap<>(),
-                CsvExcludedItems.PMODE_RESOURCE.getExcludedItems(),
+                Arrays.asList("id"),
                 "pmodearchive");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
     }
 }

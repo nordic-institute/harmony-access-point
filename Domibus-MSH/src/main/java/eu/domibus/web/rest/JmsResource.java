@@ -3,10 +3,6 @@ package eu.domibus.web.rest;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLogger;
@@ -21,10 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,9 +31,6 @@ public class JmsResource extends BaseResource {
 
     @Autowired
     protected JMSManager jmsManager;
-
-    @Autowired
-    protected CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
@@ -111,15 +101,16 @@ public class JmsResource extends BaseResource {
         customizeJMSProperties(jmsMessageList);
 
         return exportToCSV(jmsMessageList, JmsMessage.class,
-                CsvCustomColumns.JMS_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.JMS_RESOURCE.getExcludedItems(),
+                new HashMap<String, String>() {{
+                    put("id".toUpperCase(), "ID");
+                    put("type".toUpperCase(), "JMS Type");
+                    put("Timestamp".toUpperCase(), "Time");
+                    put("CustomProperties".toUpperCase(), "Custom prop");
+                    put("Properties".toUpperCase(), "JMS prop");
+                }},
+                Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId"),
                 "jmsmonitoring");
 
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
     }
 
     private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {

@@ -10,11 +10,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: xbean-spring-4.2.jar
+   file name: spring-security-core-5.1.5.RELEASE.jar
    ]]></notes>
-        <gav regex="true">^org\.apache\.xbean:xbean-spring:.*$</gav>
-        <!-- Local users obtain access to unspecified files or directories -->
-        <cve>CVE-2008-0732</cve>
+        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
+        <!-- Affects Spring Framework 5.0.5 -->
+        <cve>CVE-2018-1258</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -26,12 +26,6 @@
         <!-- Hawtio console not used -->
         <cve>CVE-2015-5183</cve>
         <cve>CVE-2015-5184</cve>
-        <!-- Apache ActiveMQ Client before 5.15.6 - client vulnerable to a MITM attack between a Java application using the ActiveMQ client and the ActiveMQ server.
-             In Domibus, activemq.version is 5.15.9. -->
-        <cve>CVE-2018-11775</cve>
-        <!-- Unmarshalling corrupt MQTT frame can lead to broker Out of Memory.
-             In Domibus, MQTT transport protocol is not enabled. No transport connector defined (activemq.xml, standalone-full.xml).       -->
-        <cve>CVE-2019-0222</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -43,73 +37,12 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: spring-security-core-4.2.6.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
-        <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
-        <cve>CVE-2018-1258</cve>
-        <!-- Cve when using SecureRandomFactoryBean#setSeed to configure a SecureRandom instance.
-             In Domibus we do not use SecureRandomFactoryBean#setSeed -->
-        <cve>CVE-2019-3795</cve>
-        <!-- This cve applies if an application has a pre-existing XSS vulnerability.
-             Domibus already tacled the XSS vulnerabilities, Jira tasks to secure against XSS: EDELIVERY-4489, EDELIVERY-4488, EDELIVERY-4507 -->
-        <cve>CVE-2018-11039</cve>
-        <!-- This cve is for apps that support plain text passwords using PlaintextPasswordEncoder, not used in Domibus -->
-        <cve>CVE-2019-11272</cve>
-        <!-- Domibus generates a new sessionId for every authentication.
-             The requests to guess the XSRF token are impossible to be made without knowing the sessionId -->
-        <vulnerabilityName>BREACH attack possible in CSRF tokens</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-core-4.3.17.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework:spring-.*:.*$</gav>
-        <!-- This cve allows web applications to enable cross-domain requests via JSONP (JSON with Padding) through AbstractJsonpResponseBodyAdvice for REST controllers and
-             MappingJackson2JsonView for browser requests. Both are not enabled by default in Spring Framework nor Spring Boot, however, when MappingJackson2JsonView is configured in an application, JSONP support
-             is automatically ready to use through the "jsonp" and "callback" JSONP parameters, enabling cross-domain requests.
-             In Domibus, MappingJackson2JsonView is not configured. No bean  with class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" -->
-        <cve>CVE-2018-11040</cve>
-        <!-- Cve when serving static resources through the ResourceHttpRequestHandler.
-             In Domibus, the static resources are registered here in the mvc-dispatcher-servlet.xml
-             <mvc:resources mapping="/**" location="/"/>
-             ResourceHttpRequestHandler is not configured in the code. -->
-        <cve>CVE-2018-15756</cve>
-        <cve>CVE-2018-11039</cve> <!-- duplicate -->
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: logback-elasticsearch-appender-1.6.jar
    ]]></notes>
         <gav regex="true">^com\.internetitem:logback-elasticsearch-appender:.*$</gav>
         <!-- Cve when sending log events directly from Logback to Elasticsearch.
              In Domibus, we do not send logs directly from logback to Elasticsearch. For example, Taxud uses the logs filtered by logstash before sending to ES. -->
         <cve>CVE-2015-5531</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: slf4j-ext-1.7.25.jar
-   ]]></notes>
-        <gav regex="true">^org\.slf4j:slf4j-ext:.*$</gav>
-        <!-- Vulnerability in slf4j extension API when org.slf4j.ext.EventData used.
-             EventData is not used in Domibus. -->
-        <cve>CVE-2018-8088</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: bcprov-jdk15on-1.58.jar
-   ]]></notes>
-        <gav regex="true">^org\.bouncycastle:bcprov-jdk15on:.*$</gav>
-        <!-- Cve when any TLS cipher suite using RSA key exchange is negotiated.
-        The TLS RSA cyphers were disabled in the clientauthentication.xml file. -->
-        <cve>CVE-2017-13098</cve>
-        <!-- A flaw in the Low-level interface to RSA key pair generator, specifically RSA Key Pairs generated.
-             In Domibus, we do not use the RsaKeyPairGenerator (RsaKeyPairGenerator::getNumberOfIterations()).
-             Domibus does not generate the RSA Key Pairs, it uses the provided key pair. -->
-        <cve>CVE-2018-1000180</cve>
-        <!-- Vulnerability in XMSS/XMSS^MT private key deserialization that can result in Deserializing an XMSS/XMSS^MT private key can result in the execution of unexpected code.
-             In Domibus we do not use XMSSUtil.deserialize. -->
-        <cve>CVE-2018-1000613</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -131,24 +64,10 @@
    file name: netty-all-4.1.5.Final.jar
    ]]></notes>
         <gav regex="true">^io\.netty:netty-all:.*$</gav>
-        <!-- Cve in All For One, an Ethereum gambling game: attackers can get rewards by predicting the random number - not relevant to Domibus -->
-        <cve>CVE-2018-12056</cve>
         <!-- Included by artemis client which is used internally by Domibus to access the activeMQ broker -->
         <cve>CVE-2019-16869</cve>
         <!-- Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker -->
-        <cve>CVE-2019-20444</cve>
         <cve>CVE-2019-20445</cve>
-        <!-- we are not using WSO2 transport-http -->
-        <vulnerabilityName>CVE-2019-10797</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-      file name: quartz-2.3.2.jar
-      ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
-        <!-- CVE in initDocumentParser used to parse job description passed to quartz.
-        In Domibus, Quartz is used with predefined jobs (not user input) -->
-        <cve>CVE-2019-13990</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
