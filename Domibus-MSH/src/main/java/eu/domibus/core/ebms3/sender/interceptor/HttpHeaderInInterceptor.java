@@ -8,10 +8,10 @@ import org.apache.cxf.phase.Phase;
 /**
  * In Interceptor for Apache CXF Http headers
  *
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
-public class HttpHeaderInInterceptor extends HttpHeaderOutInterceptor {
+public class HttpHeaderInInterceptor extends HttpHeaderAbstractInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderInInterceptor.class);
 
     public HttpHeaderInInterceptor() {
@@ -20,7 +20,7 @@ public class HttpHeaderInInterceptor extends HttpHeaderOutInterceptor {
     }
 
     @Override
-    protected DomibusLogger getLogger(){
+    protected DomibusLogger getLogger() {
         return LOG;
     }
 }
