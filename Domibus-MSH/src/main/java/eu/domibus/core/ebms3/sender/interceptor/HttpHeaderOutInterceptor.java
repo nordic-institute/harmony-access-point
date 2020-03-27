@@ -15,15 +15,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Out Interceptor - it will remove user-agent entry from Http headers if contains Apache CXF version
+ * Out Interceptor for Apache CXF Http headers
+ *
  *
  * @author Catalin Enache
  * @since 4.2
  */
 public class HttpHeaderOutInterceptor extends AbstractPhaseInterceptor<Message> {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderOutInterceptor.class);
 
-    public static final String USER_AGENT_HTTP_HEADER_KEY = "user-agent";
-    public static final String USER_AGENT_HTTP_HEADER_VALUE_APACHE_CXF = "Apache-CXF";
+    static final String USER_AGENT_HTTP_HEADER_KEY = "user-agent";
+    static final String USER_AGENT_HTTP_HEADER_VALUE_APACHE_CXF = "Apache-CXF";
 
 
     public HttpHeaderOutInterceptor() {
@@ -35,6 +37,12 @@ public class HttpHeaderOutInterceptor extends AbstractPhaseInterceptor<Message> 
         super(phase);
     }
 
+    /**
+     * It removes the user-agent header if contains Apache-CXF information
+     *
+     * @param message
+     * @throws Fault
+     */
     @Override
     public void handleMessage(Message message) throws Fault {
         //get the headers
@@ -58,7 +66,7 @@ public class HttpHeaderOutInterceptor extends AbstractPhaseInterceptor<Message> 
 
 
     protected DomibusLogger getLogger() {
-        return DomibusLoggerFactory.getLogger(HttpHeaderOutInterceptor.class);
+        return LOG;
     }
 
     private String httpHeadersToString(Map<String, List<String>> headers) {

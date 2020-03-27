@@ -6,12 +6,13 @@ import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.phase.Phase;
 
 /**
- * In Interceptor - it will remove user-agent entry from Http headers if contains Apache CXF version
+ * In Interceptor for Apache CXF Http headers
  *
  * @since 4.2
  * @author Catalin Enache
  */
 public class HttpHeaderInInterceptor extends HttpHeaderOutInterceptor {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderInInterceptor.class);
 
     public HttpHeaderInInterceptor() {
         super(Phase.PRE_INVOKE);
@@ -20,6 +21,6 @@ public class HttpHeaderInInterceptor extends HttpHeaderOutInterceptor {
 
     @Override
     protected DomibusLogger getLogger(){
-        return DomibusLoggerFactory.getLogger(HttpHeaderInInterceptor.class);
+        return LOG;
     }
 }
