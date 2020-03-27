@@ -146,9 +146,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
                     doMessageStatusChange(message);
                     break;
             }
-        } catch (Exception Ex) { //NOSONAR To catch every exceptions thrown by all plugins.
-            LOG.error("Error occurred during the plugin notification process of the message", Ex);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", Ex.getCause());
+        } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
+            LOG.error("Error occurred during the plugin notification process of the message", ex);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
         }
     }
 
