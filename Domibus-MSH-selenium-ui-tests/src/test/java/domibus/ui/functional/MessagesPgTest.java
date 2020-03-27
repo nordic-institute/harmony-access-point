@@ -41,7 +41,7 @@ public class MessagesPgTest extends BaseTest {
 	public void doubleclickMessageRow() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String messID = getMessageIDs(null, 1, false).get(0);
+		String messID = restUtils.getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -69,7 +69,7 @@ public class MessagesPgTest extends BaseTest {
 	public void filterUsingBasicFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		List<String> messageIDs = getMessageIDs(null, 5, false);
+		List<String> messageIDs = restUtils.getMessageIDs(null, 5, false);
 
 		log.info("Login with admin");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -100,7 +100,7 @@ public class MessagesPgTest extends BaseTest {
 	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessagesAdvancedFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		List<String> messageIDs = getMessageIDs(null, 5, false);
+		List<String> messageIDs = restUtils.getMessageIDs(null, 5, false);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -206,7 +206,7 @@ public class MessagesPgTest extends BaseTest {
 	public void downloadMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String pluginUsername = getPluginUser(null, DRoles.ADMIN, true, true).getString("userName");
+		String pluginUsername = restUtils.getPluginUser(null, DRoles.ADMIN, true, true).getString("userName");
 		String messageID = messageSender.sendMessage(pluginUsername, data.defaultPass(), Generator.randomAlphaNumeric(10), Generator.randomAlphaNumeric(10));
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -303,7 +303,7 @@ public class MessagesPgTest extends BaseTest {
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 		log.info(String.format("Domain name = %s", domainName));
 
@@ -362,11 +362,11 @@ public class MessagesPgTest extends BaseTest {
 	public void superSelectMessageChangeDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 
-		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);
-		String messageIDDefault =  getMessageIDs(null, 1, false).get(0);
+		String messageIDDomain =  restUtils.getMessageIDs(domain, 1, false).get(0);
+		String messageIDDefault =  restUtils.getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");

@@ -99,7 +99,7 @@ public class AuditPgTest extends BaseTest {
 	public void messageDownloadedLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String messID = getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
+		String messID = restUtils.getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
 		log.info("Download message");
 		rest.downloadMessage(messID, null);
 

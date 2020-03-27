@@ -118,7 +118,7 @@ public class PModeCurrentPgTests extends BaseTest {
 	@Test(description = "PMC-7", groups = {"multiTenancy"})
 	public void domainSegregationPMode() throws Exception{
 
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		String domaincode = rest.getDomainCodeForName(domainName);
 
 		log.info("uploading different pmodes on 2 different domains");

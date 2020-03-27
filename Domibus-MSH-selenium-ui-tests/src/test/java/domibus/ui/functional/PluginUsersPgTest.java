@@ -109,7 +109,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-16 - Admin changes a user role	*/
 	@Test(description = "PU-16", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRole() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -147,7 +147,7 @@ public class PluginUsersPgTest extends BaseTest {
 	public void editAndCancel() throws Exception {
 
 		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -193,7 +193,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "PU-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
 		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -235,7 +235,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-8 - Admin deletes user and presses Cancel	*/
 	@Test(description = "PU-8", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndCancel() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -265,7 +265,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-9 - Admin deletes user and presses Save	*/
 	@Test(description = "PU-9", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndSave() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -363,12 +363,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*PU-18 - Admin tries to create users with the same username on multiple domains*/
 	@Test(description = "PU-18", groups = {"multiTenancy"})
 	public void duplicatePluginUsersDifferentDomain() throws Exception {
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = getPluginUser(domainCode, DRoles.USER, true, false).getString("userName");
+		String username = restUtils.getPluginUser(domainCode, DRoles.USER, true, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -395,7 +395,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/* PU-19 - Admin tries to create plugin user with the same name as a normal user from his domain */
 	@Test(description = "PU-19", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnSameDomain() throws Exception {
-		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+		String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -422,12 +422,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-20 - Admin tries to create plugin user with the same name as a normal user from another domain	*/
 	@Test(description = "PU-20", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnDifferentDomain() throws Exception {
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = getUser(domainCode, DRoles.USER, true, false, false).getString("userName");
+		String username = restUtils.getUser(domainCode, DRoles.USER, true, false, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -522,7 +522,7 @@ public class PluginUsersPgTest extends BaseTest {
 	public void domainVisibility() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
 		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
 		log.debug("Plugin user created: " + username);

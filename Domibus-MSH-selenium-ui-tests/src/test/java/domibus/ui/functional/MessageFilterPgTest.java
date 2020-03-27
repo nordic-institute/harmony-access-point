@@ -12,7 +12,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
@@ -527,7 +526,7 @@ public class MessageFilterPgTest extends BaseTest {
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
 
 		log.info("changing domain to 1");
-		page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+		page.getDomainSelector().selectOptionByText(restUtils.getNonDefaultDomain());
 
 		log.info("check if filter is NOT present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid on other domains then default");
@@ -545,7 +544,7 @@ public class MessageFilterPgTest extends BaseTest {
 		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
 		rest.createMessageFilter(actionName, null);
 		log.debug("filter with action "+actionName+" created");
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);

@@ -18,6 +18,7 @@ public class RestServicePaths {
 	public static final String USERS = "/rest/user/users";
 	public static final String PLUGIN_USERS = "/rest/plugin/users";
 	public static final String DOMAINS = "/rest/application/domains";
+	public static final String IS_MULTITENANCY = "/rest/application/multitenancy";
 	public static final String MESSAGE_FILTERS = "/rest/messagefilters";
 	public static final String SESSION_DOMAIN = "/rest/security/user/domain";
 

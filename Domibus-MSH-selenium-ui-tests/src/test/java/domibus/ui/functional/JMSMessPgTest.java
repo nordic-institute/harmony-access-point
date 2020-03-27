@@ -146,10 +146,10 @@ public class JMSMessPgTest extends BaseTest {
 	@Test(description = "JMS-9", groups = {"multiTenancy"})
 	public void adminOpenJMSMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String domainName = getNonDefaultDomain();
+		String domainName = restUtils.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
 		log.info("checking for domain " + domainCode);
-		JSONObject user = getUser(domainCode, DRoles.ADMIN, true, false, false);
+		JSONObject user = restUtils.getUser(domainCode, DRoles.ADMIN, true, false, false);
 
 		login(user.getString("userName"), data.defaultPass());
 		log.info("logging in with admin " + user.getString("userName"));
