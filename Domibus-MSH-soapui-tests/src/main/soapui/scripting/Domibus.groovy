@@ -3357,7 +3357,7 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 	static final def REPORT_FAIL_STRING = "FAIL"
 	static final def COLUMN_LIST = ["TC_ID_COLUMN", "TC_PROJECT", "TC_TEST_SUITE_COLUMN", "TC_NAME_COLUMN", "TC_DISABLED_COLUMN", "TC_RESULT_COLUMN", "TC_TIME_COLUMN", "TC_EXEC_TIME_COLUMN", "TC_COMMENT_COLUMN"]
 	static final def CSV_DELIMETER = ','
-	static final def newLine = " || " //System.getProperty("line.separator") 
+	static final def newLine = System.getProperty("line.separator") 
 
 	static def reportTestCaseCsv(testRunner, log) {
 		// check update report property is not true or '1' 
@@ -3405,14 +3405,14 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			log.debug "Check status of step " + stepNum + " - " + stepName + " --> " + stepStatus
 
 			if (!(stepStatus == "OK" || comment == "")) {
-				comment += newLine
+			comment += " || "
 			}
 
 			if (stepStatus == "FAILED")
 			{
 				log.debug "Found test step with FAILED status try extract error messages"
 				def messages = ""
-				t.getMessages().each() { msg -> messages += newLine + " |" + msg + "| " }
+				t.getMessages().each() { msg -> messages += " || " + " |" + msg + "| " }
 
 				comment += executionStart + ": Test case FAILED on step " + stepNum + ": " + stepName + "|| Returned error message[s]: " + messages
 			}
