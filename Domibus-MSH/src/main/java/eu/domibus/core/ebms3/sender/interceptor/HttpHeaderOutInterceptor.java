@@ -20,14 +20,8 @@ public class HttpHeaderOutInterceptor extends HttpHeaderAbstractInterceptor {
         addBefore(LoggingOutInterceptor.class.getName());
     }
 
-    public HttpHeaderOutInterceptor(String phase) {
-        super(phase);
-    }
-
-
     @Override
     protected DomibusLogger getLogger() {
         return LOG;
     }
-
 }
