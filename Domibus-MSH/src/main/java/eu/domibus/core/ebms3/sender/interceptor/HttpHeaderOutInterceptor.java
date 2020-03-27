@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * It will remove user-agent entry from Http headers if contains Apache CXF version
+ * Out Interceptor - it will remove user-agent entry from Http headers if contains Apache CXF version
  *
  * @author Catalin Enache
  * @since 4.2

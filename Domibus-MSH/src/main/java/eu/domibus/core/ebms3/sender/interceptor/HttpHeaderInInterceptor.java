@@ -6,7 +6,7 @@ import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.phase.Phase;
 
 /**
- * It will remove user-agent entry from Http headers if contains Apache CXF version
+ * In Interceptor - it will remove user-agent entry from Http headers if contains Apache CXF version
  *
  * @since 4.2
  * @author Catalin Enache
