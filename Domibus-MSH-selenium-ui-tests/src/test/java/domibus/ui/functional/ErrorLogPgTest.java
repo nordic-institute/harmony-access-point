@@ -76,6 +76,8 @@ public class ErrorLogPgTest extends BaseUXTest {
             DWait wait = new DWait(driver);
 
             for (; ; ) {
+                mPage.refreshPage();
+                mPage.grid().waitForRowsToLoad();
                 if (mPage.grid().getRowInfo(0).containsValue("SEND_ENQUEUED")) {
                     log.info("Wait for some time");
                     wait.forXMillis(100);
@@ -232,6 +234,8 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to Error log page");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
+            page.grid().waitForRowsToLoad();
+
             ArrayList<String> dateStr = new ArrayList<String>();
 
             log.info("Find timestamp for each retry event");
