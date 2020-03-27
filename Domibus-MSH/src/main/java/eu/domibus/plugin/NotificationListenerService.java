@@ -146,6 +146,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
                     doMessageStatusChange(message);
                     break;
             }
+        } catch (JMSException jmsEx) {
+            LOG.error("Error getting the property from JMS message", jmsEx);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
         } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
