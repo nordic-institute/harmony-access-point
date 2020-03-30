@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw_dom1">
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_dom1_gw">
 	<mpcs>
 		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
 		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
@@ -22,19 +22,19 @@
 			<party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=default" allowChunking="false">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="red_gw_dom1" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Dom1" allowChunking="false">
+			<party name="red_dom1_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Dom1" allowChunking="false">
 				<identifier partyId="domibus-red-dom1" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="red_gw_dom2" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Dom2" allowChunking="false">
+			<party name="red_dom2_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Dom2" allowChunking="false">
 				<identifier partyId="domibus-red-dom2" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="red_gw_domvoid" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Domvoid" allowChunking="false">
+			<party name="red_domvoid_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_C3Domvoid" allowChunking="false">
 				<identifier partyId="domibus-red-domvoid" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw_dom1" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
+			<party name="blue_dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
 				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw_dom2" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom2" allowChunking="false">
+			<party name="blue_dom2_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom2" allowChunking="false">
 				<identifier partyId="domibus-blue-dom2" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -128,11 +128,11 @@
 			</legConfigurations>
 		<process name="tc2Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
+				<initiatorParty name="blue_dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -141,12 +141,12 @@
 		</process>
 		<process name="tc3Process" agreement="domain1-domain2" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_dom2"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_dom2"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_dom2_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain2"/>
@@ -154,11 +154,11 @@
 		</process>
 		<process name="tc7Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
+				<initiatorParty name="blue_dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -167,12 +167,12 @@
 		</process>		
 		<process name="tc8Process" agreement="domain1-domain2" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_dom2"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_dom2"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_dom2_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain2fs"/>
@@ -180,12 +180,12 @@
 		</process>
 		<process name="tc11Process" agreement="domain1-domain2-self" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="blue_gw_dom2"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="blue_dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="blue_gw_dom2"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="blue_dom2_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain2Self"/>
@@ -193,12 +193,12 @@
 		</process>	
 		<process name="tc13Process" agreement="domain1-domainvoid" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_domvoid"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_domvoid_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_domvoid"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_domvoid_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1DomainVoid"/>
@@ -206,12 +206,12 @@
 		</process>
 		<process name="tc14Process" agreement="domain1-domain1" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_dom1"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_dom1_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_dom1_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain1"/>
@@ -219,10 +219,10 @@
 		</process>	
 		<process name="tc15Process" agreement="domain1-domain2-pull" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="red_gw_dom2"/>
+				<initiatorParty name="red_dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pullDomain1Domain2"/>
@@ -230,12 +230,12 @@
 		</process>	
 		<process name="tc16Process" agreement="domain1-domainvoid" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_domvoid"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_domvoid_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_domvoid"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_domvoid_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1DomainVoidfs"/>
@@ -243,12 +243,12 @@
 		</process>
 		<process name="tc17Process" agreement="domain1-domain1" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
-				<initiatorParty name="red_gw_dom1"/>
+				<initiatorParty name="blue_dom1_gw"/>
+				<initiatorParty name="red_dom1_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
-				<responderParty name="red_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
+				<responderParty name="red_dom1_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain1fs"/>
@@ -256,10 +256,10 @@
 		</process>	
 		<process name="tc18Process" agreement="domain1-domain2-pull" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="red_gw_dom2"/>
+				<initiatorParty name="red_dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="blue_dom1_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pullDomain1Domain2fs"/>
