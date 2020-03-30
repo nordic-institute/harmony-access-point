@@ -34,7 +34,6 @@ export class UserComponent extends mix(BaseListComponent)
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
 
-  @ViewChild('passwordTpl', {static: false}) passwordTpl: TemplateRef<any>;
   @ViewChild('editableTpl', {static: false}) editableTpl: TemplateRef<any>;
   @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
   @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
@@ -93,14 +92,6 @@ export class UserComponent extends mix(BaseListComponent)
         name: 'Email',
         prop: 'email',
         canAutoResize: true
-      },
-      {
-        cellTemplate: this.passwordTpl,
-        name: 'Password',
-        prop: 'password',
-        canAutoResize: true,
-        sortable: false,
-        width: 25
       },
       {
         cellTemplate: this.checkBoxTpl,

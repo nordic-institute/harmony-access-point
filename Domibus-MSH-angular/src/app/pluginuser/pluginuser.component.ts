@@ -29,7 +29,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
-  @ViewChild('passwordTpl', {static: false}) passwordTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
@@ -74,7 +73,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
   private initColumns () {
     this.columnPickerBasic.allColumns = [
       {name: 'User Name', prop: 'userName', width: 20},
-      {name: 'Password', prop: 'password', cellTemplate: this.passwordTpl, width: 20, sortable: false},
       {name: 'Role', prop: 'authRoles', width: 10},
       {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25},
       {name: 'Original User', prop: 'originalUser', width: 240},
@@ -99,7 +97,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
       }
     ];
 
-    this.columnPickerBasic.selectedColumns = this.columnPickerBasic.allColumns.filter(col => col.prop != 'password');
+    this.columnPickerBasic.selectedColumns = this.columnPickerBasic.allColumns.filter(col => true);
     this.columnPickerCert.selectedColumns = this.columnPickerCert.allColumns.filter(col => true);
 
     this.setColumnPicker();
