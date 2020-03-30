@@ -145,20 +145,35 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         checkMessageAuthorization(messageId);
 
+        long start = System.currentTimeMillis();
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        LOG.debug("Found message having identifier [{}] in [{}] milliseconds", messageId, System.currentTimeMillis() - start);
 
+        start = System.currentTimeMillis();
         userMessageLogService.setMessageAsDownloaded(messageId);
+        LOG.debug("Message set as DOWNLOADED [{}] in [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
         if (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem()) {
+            start = System.currentTimeMillis();
             messagingDao.clearPayloadData(messageId);
+            LOG.info("Cleared payloads for [{}] in [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
             List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
             if (!signalMessages.isEmpty()) {
                 for (SignalMessage signalMessage : signalMessages) {
                     signalMessageDao.clear(signalMessage);
                 }
             }
+            LOG.debug("Cleared signal messages in [{}] milliseconds", System.currentTimeMillis() - start);
+
             // Sets the message log status to DELETED
+            start = System.currentTimeMillis();
             userMessageLogService.setMessageAsDeleted(messageId);
+            LOG.debug("Message set as DELETED [{}] in [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
             // Sets the log status to deleted also for the signal messages (if present).
             List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
             if (!signalMessageIds.isEmpty()) {
@@ -167,6 +182,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     LOG.info("SignalMessage [{}] was set as DELETED.", signalMessageId);
                 }
             }
+            LOG.debug("Signal messages set as DELETED in [{}] milliseconds", System.currentTimeMillis() - start);
         }
         return transformer.transformFromMessaging(userMessage);
     }
@@ -349,7 +365,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private void prepareForPushOrPull(UserMessage userMessage, String messageId, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
+            long start = System.currentTimeMillis();
             userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
+            LOG.info("Scheduling sending message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
         } else {
             final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
@@ -446,6 +464,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
 
+            long start = System.currentTimeMillis();
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
@@ -453,20 +472,30 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
+            } finally {
+                LOG.info("Storing message took [{}] milliseconds", System.currentTimeMillis() - start);
             }
+
             if (messageStatus == null) {
+                start = System.currentTimeMillis();
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+                LOG.info("Retrieving message status took [{}] milliseconds", System.currentTimeMillis() - start);
             }
+
+            start = System.currentTimeMillis();
             final boolean sourceMessage = userMessage.isSourceMessage();
             userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
+            LOG.info("Saving message to database took [{}] milliseconds", System.currentTimeMillis() - start);
 
             if (!sourceMessage) {
                 prepareForPushOrPull(userMessage, messageId, pModeKey, to, messageStatus);
             }
 
+            start = System.currentTimeMillis();
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
+            LOG.info("UI Replication took [{}] milliseconds", System.currentTimeMillis() - start);
 
             LOG.info("Message submitted");
             return userMessage.getMessageInfo().getMessageId();

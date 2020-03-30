@@ -88,29 +88,41 @@ public class MessagingDao extends BasicDao<Messaging> {
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
+
+        long start = System.currentTimeMillis();
         Query payloadsQuery = em.createNamedQuery("Messaging.findPartInfosForMessage");
         payloadsQuery.setParameter(MESSAGE_ID, messageId);
+        LOG.info("Find parts for [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
         List<PartInfo> results = payloadsQuery.getResultList();
         if (results.isEmpty()) {
             return;
         }
-        List<PartInfo> databasePayloads = new ArrayList<>();
 
+        LOG.info("Start clear file and database payloads");
+        List<PartInfo> databasePayloads = new ArrayList<>();
         for (PartInfo result : results) {
             if (hasLength(result.getFileName())) {
                 try {
+                    start = System.currentTimeMillis();
                     Files.delete(Paths.get(result.getFileName()));
+                    LOG.info("Deleting file [{}] for message [{}] took [{}] milliseconds", result.getFileName(), messageId, System.currentTimeMillis() - start);
                 } catch (IOException e) {
-                    LOG.debug("Problem deleting payload data files", e);
+                    LOG.error("Problem deleting payload data files", e);
                 }
             } else {
                 databasePayloads.add(result);
             }
         }
+
+        LOG.info("Empyting database payloads took [{}] milliseconds", System.currentTimeMillis() - start);
+
         if (!databasePayloads.isEmpty()) {
+            start = System.currentTimeMillis();
             final Query emptyQuery = em.createNamedQuery("Messaging.emptyPayloads");
             emptyQuery.setParameter("PARTINFOS", databasePayloads);
             emptyQuery.executeUpdate();
+            LOG.info("Emptying database payloads took [{}] milliseconds", System.currentTimeMillis() - start);
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }

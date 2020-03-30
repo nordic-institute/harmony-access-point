@@ -77,6 +77,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     }
 
     protected long saveIncomingFileToDisk(File file, InputStream is, final Boolean encryptionActive) throws IOException {
+        long start = System.currentTimeMillis();
+
         OutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(file);//NOSONAR the stream is closed in the finally block
@@ -92,6 +94,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             LOG.debug("Done writing file [{}]. Written [{}] bytes.", file.getName(), total);
             return total;
         } finally {
+            LOG.info("Writing incoming file [{}] to disk took [{}] milliseconds", file.getName(), System.currentTimeMillis() - start);
             if (outputStream != null) {
                 outputStream.flush();
                 outputStream.close();
@@ -131,6 +134,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     }
 
     protected long saveOutgoingFileToDisk(File file, PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {
+        long start = System.currentTimeMillis();
+
         boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
         LOG.debug("Compression for message with id: [{}] applied: [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
 
@@ -153,6 +158,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             LOG.debug("Done writing file [{}]. Written [{}] bytes.", file.getName(), total);
             return total;
         } finally {
+            LOG.info("Writing outgoing file [{}] to disk took [{}] milliseconds", file.getName(), System.currentTimeMillis() - start);
             if (outputStream != null) {
                 outputStream.flush();
                 outputStream.close();

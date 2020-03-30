@@ -66,7 +66,9 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             return;
         }
 
+        long start = System.currentTimeMillis();
         sendUserMessage(messageId, retryCount);
+        LOG.info("Sending for user message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
 
         LOG.debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
     }

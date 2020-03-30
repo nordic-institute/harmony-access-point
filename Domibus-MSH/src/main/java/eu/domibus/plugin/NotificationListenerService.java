@@ -222,9 +222,20 @@ public class NotificationListenerService implements MessageListener, JmsListener
         selector = jmsManager.getDomainSelector(selector);
 
         List<JmsMessage> messages;
+        long start = System.currentTimeMillis();
         try {
-            messages = jmsManager.browseClusterMessages(backendNotificationQueue.getQueueName(), selector);
-            LOG.info("[{}] messages selected from [{}] with selector [{}]", (messages != null ? messages.size() : 0), backendNotificationQueue.getQueueName(), selector);
+            String queueName = backendNotificationQueue.getQueueName();
+            LOG.info("Get backend notification queue took [{}] milliseconds", System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
+            messages = jmsManager.browseClusterMessages(queueName, selector);
+            LOG.info("Browse cluster messages took [{}] milliseconds", System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
+            String queueNameDuplication = backendNotificationQueue.getQueueName();
+            LOG.info("Get backend notification queue AGAIN took [{}] milliseconds", System.currentTimeMillis() - start);
+
+            LOG.info("[{}] messages selected from [{}] with selector [{}]", (messages != null ? messages.size() : 0), queueNameDuplication, selector);
         } catch (JMSException jmsEx) {
             LOG.error("Error trying to read the queue name", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
@@ -232,7 +243,10 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
         int countOfMessagesIncluded = 0;
         for (JmsMessage message : messages) {
+            start = System.currentTimeMillis();
             String messageId = message.getCustomStringProperty(MessageConstants.MESSAGE_ID);
+            LOG.info("Reading message identifier from JMS message for [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
             result.add(messageId);
             countOfMessagesIncluded++;
             LOG.debug("Added MessageId [" + messageId + "]");
@@ -249,9 +263,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void removeFromPending(final String messageId) throws MessageNotFoundException {
-
-        if (!authUtils.isUnsecureLoginAllowed())
+        if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
+        }
 
         if (this.mode == BackendConnector.Mode.PUSH) {
             LOG.debug("No messages will be removed because this a PUSH consumer");
@@ -263,23 +277,27 @@ public class NotificationListenerService implements MessageListener, JmsListener
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
+        long start = System.currentTimeMillis();
         String queueName;
         try {
             queueName = backendNotificationQueue.getQueueName();
+            LOG.info("Finding queueName [{}] took [{}] milliseconds", queueName, System.currentTimeMillis() - start);
         } catch (JMSException jmsEx) {
+            LOG.info("Finding queueName took [{}] milliseconds", System.currentTimeMillis() - start);
             LOG.error("Error trying to get the queue name", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
         }
 
+        start = System.currentTimeMillis();
         JmsMessage message = jmsManager.consumeMessage(queueName, messageId);
+        LOG.info("Consuming message [{}] from queue [{}] took [{}] milliseconds", messageId, queueName, System.currentTimeMillis() - start);
+
         if (message == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageId);
             throw new MessageNotFoundException("No message with id [" + messageId + "] pending for download");
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
-
     }
-
 
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {

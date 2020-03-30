@@ -88,8 +88,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         LegConfiguration legConfiguration = null;
         final String pModeKey;
 
+        long start = System.currentTimeMillis();
         try {
-
             try {
                 validateBeforeSending(userMessage);
             } catch (DomibusCoreException e) {
@@ -99,14 +99,21 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 return;
+            } finally {
+                getLog().info("Validating message [{}] before sending took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
             }
 
-
+            start = System.currentTimeMillis();
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            getLog().info("Finding PMode for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
             getLog().debug("PMode key found : " + pModeKey);
-            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            getLog().info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
+            start = System.currentTimeMillis();
+            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            getLog().info("Finding leg for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+            getLog().debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+            start = System.currentTimeMillis();
             Policy policy;
             try {
                 policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
@@ -114,13 +121,21 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Policy configuration invalid", null, e);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
+            } finally {
+                getLog().info("Parsing policy for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
             }
 
+            start = System.currentTimeMillis();
             Party sendingParty = pModeProvider.getSenderParty(pModeKey);
             Validate.notNull(sendingParty, "Initiator party was not found");
+            getLog().info("Finding sending party for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             Validate.notNull(receiverParty, "Responder party was not found");
+            getLog().info("Finding receiver party for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
 
+            start = System.currentTimeMillis();
             try {
                 messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
                 messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
@@ -132,18 +147,26 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
                 return;
+            } finally {
+                getLog().info("Verifying certificates for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
             }
 
             getLog().debug("PMode found : " + pModeKey);
             final SOAPMessage soapMessage = createSOAPMessage(userMessage, legConfiguration);
+
+            start = System.currentTimeMillis();
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            getLog().info("Dispatching SOAP request for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
             isOk = responseHandler.handle(response);
             if (ResponseHandler.CheckResult.UNMARSHALL_ERROR.equals(isOk)) {
                 EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
                 e.setMshRole(MSHRole.SENDING);
                 throw e;
             }
+            start = System.currentTimeMillis();
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, response, pModeKey);
+            getLog().info("Checking reliability for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
@@ -163,6 +186,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
+            start = System.currentTimeMillis();
             try {
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
@@ -171,6 +195,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 getLog().warn("Finally exception when handlingReliability", ex);
                 reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, reliabilityCheckSuccessful, isOk, legConfiguration);
                 updateAndCreateAttempt(attempt);
+            } finally {
+                getLog().info("Handling reliability for message [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
             }
         }
     }

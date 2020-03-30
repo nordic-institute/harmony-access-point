@@ -126,12 +126,15 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             }
         }
 
+        long start = System.currentTimeMillis();
         final String messageId;
         try {
             messageId = this.submit(ebMSHeaderInfo);
         } catch (final MessagingProcessingException mpEx) {
             LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
             throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));
+        } finally {
+            LOG.info("Submit message took [{}] milliseconds", System.currentTimeMillis() - start);
         }
         LOG.info("Received message from backend with messageID [{}]", messageId);
         final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();

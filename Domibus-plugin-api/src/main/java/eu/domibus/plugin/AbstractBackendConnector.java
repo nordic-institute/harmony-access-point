@@ -76,7 +76,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
     }
 
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -87,8 +86,17 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            long start = System.currentTimeMillis();
+            Submission submission = messageRetriever.downloadMessage(messageId);
+            LOG.info("Changing status and clearing payloads for [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
+            LOG.info("Transforming [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
+
+            start = System.currentTimeMillis();
             lister.removeFromPending(messageId);
+            LOG.info("Removing from pending [{}] took [{}] milliseconds", messageId, System.currentTimeMillis() - start);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;
