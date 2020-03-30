@@ -87,6 +87,12 @@
       </button>
     </ng-template>
 
+    <ng-template #passwordTpl let-value="value" let-row="row" ngx-datatable-cell-template>
+          <span class="password-field" class="clickAble">
+            ******
+          </span>
+    </ng-template>
+
     <page-footer [parent]="this"></page-footer>
 
   </div>

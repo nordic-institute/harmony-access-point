@@ -8,8 +8,8 @@ const PROXY_CONFIG = {
     // cookiePathRewrite: "/" // Doesn't work
     onProxyRes: function (proxyRes, req, res) {
       let cookies = proxyRes.headers["set-cookie"];
-      if(cookies) {
-		 proxyRes.headers["set-cookie"] = cookies.map(cookie => cookie.replace("path=/domibus", "path=/").replace("Path=/domibus", "Path=/"));
+      if (cookies) {
+        proxyRes.headers["set-cookie"] = cookies.map(cookie => cookie.replace("path=/domibus", "path=/").replace("Path=/domibus", "Path=/"));
       }
     },
   }
