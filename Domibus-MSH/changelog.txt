@@ -1,4 +1,5 @@
 Domibus 4.2
+- Removed password column from borh Users and Plugin Users components/lists( as their values were obscured anyway)
 - Added Parties functionality to External REST API calls
 - Added new component/page in admin console to monitor test connections; integrated the former test component as details page
 - Added domibus.monitoring.connection.party.enabled property which specifies the parties for which to monitor the connection (comma-separated list)
