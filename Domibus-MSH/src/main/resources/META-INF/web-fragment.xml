@@ -4,19 +4,6 @@
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd">
 
-    <distributable/>
-
-    <ordering>
-        <before>
-            <others/>
-        </before>
-    </ordering>
-
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
-   
-
     <error-page>
         <error-code>404</error-code>
         <location>/index.html</location>
