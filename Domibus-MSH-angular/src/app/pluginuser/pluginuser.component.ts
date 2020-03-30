@@ -72,33 +72,35 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   private initColumns () {
     this.columnPickerBasic.allColumns = [
-      {name: 'User Name', prop: 'userName', width: 20},
-      {name: 'Role', prop: 'authRoles', width: 10},
-      {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25},
-      {name: 'Original User', prop: 'originalUser', width: 240},
+      {name: 'User Name', prop: 'userName', width: 20, showInitially: true},
+      {name: 'Role', prop: 'authRoles', width: 10, showInitially: true},
+      {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25, showInitially: true},
+      {name: 'Original User', prop: 'originalUser', width: 240, showInitially: true},
       {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 60,
         canAutoResize: true,
-        sortable: false
+        sortable: false,
+        showInitially: true
       }
     ];
     this.columnPickerCert.allColumns = [
-      {name: 'Certificate Id', prop: 'certificateId', width: 240},
-      {name: 'Role', prop: 'authRoles', width: 10},
-      {name: 'Original User', prop: 'originalUser', width: 240},
+      {name: 'Certificate Id', prop: 'certificateId', width: 240, showInitially: true},
+      {name: 'Role', prop: 'authRoles', width: 10, showInitially: true},
+      {name: 'Original User', prop: 'originalUser', width: 240, showInitially: true},
       {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 60,
         canAutoResize: true,
-        sortable: false
+        sortable: false,
+        showInitially: true
       }
     ];
 
-    this.columnPickerBasic.selectedColumns = this.columnPickerBasic.allColumns.filter(col => true);
-    this.columnPickerCert.selectedColumns = this.columnPickerCert.allColumns.filter(col => true);
+    this.columnPickerBasic.selectedColumns = this.columnPickerBasic.allColumns.filter(col => col.showInitially);
+    this.columnPickerCert.selectedColumns = this.columnPickerCert.allColumns.filter(col => col.showInitially);
 
     this.setColumnPicker();
   }
