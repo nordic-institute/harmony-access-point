@@ -118,8 +118,7 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser"
-                       [currentComponent]="outlet && outlet.isActivated ? outlet.component : null"></domain-selector>
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
 
       <div class="helpMenu">
         <page-helper></page-helper>
