@@ -3,11 +3,12 @@ import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanDeactivate}
 import {Observable} from 'rxjs/Observable';
 import {MatDialog} from '@angular/material';
 import {DialogsService} from '../dialogs/dialogs.service';
+import {SecurityService} from '../../security/security.service';
 
 @Injectable()
 export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
-  constructor (public dialog: MatDialog, private dialogsService: DialogsService) {
+  constructor (public dialog: MatDialog, private dialogsService: DialogsService, private securityService: SecurityService) {
   };
 
   canActivate (next: ActivatedRouteSnapshot,
@@ -18,6 +19,9 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
   canDeactivate (component: any, currentRoute: ActivatedRouteSnapshot,
                  currentState: RouterStateSnapshot,
                  nextState?: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+    if (!this.securityService.getCurrentUser()) {
+      return true;
+    }
     if (component.isDirty && !component.isDirty()) {
       return true;
     }

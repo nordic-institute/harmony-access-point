@@ -1,10 +1,11 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {SecurityService} from './security/security.service';
-import {Router, RouterOutlet, RoutesRecognized} from '@angular/router';
+import {NavigationEnd, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {SecurityEventService} from './security/security.event.service';
 import {DomainService} from './security/domain.service';
 import {HttpEventService} from './common/http/http.event.service';
 import {DomibusInfoService} from "./common/appinfo/domibusinfo.service";
+import {ApplicationService} from './common/application.service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,8 @@ export class AppComponent implements OnInit {
                private securityEventService: SecurityEventService,
                private httpEventService: HttpEventService,
                private domainService: DomainService,
-               private domibusInfoService: DomibusInfoService) {
+               private domibusInfoService: DomibusInfoService,
+               private applicationService: ApplicationService) {
 
     this.domainService.setAppTitle();
 
@@ -37,6 +39,9 @@ export class AppComponent implements OnInit {
           let route = event.state.root.firstChild;
           this.extAuthProvideRedirectTo = '/' + route.url;
         }
+      } else if (event instanceof NavigationEnd) {
+        let comp = this.outlet && this.outlet.isActivated ? this.outlet.component : null;
+        applicationService.setCurrentComponent(this.outlet.component);
       }
     });
   }
