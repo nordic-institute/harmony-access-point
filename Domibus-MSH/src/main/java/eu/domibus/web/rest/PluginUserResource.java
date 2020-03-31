@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -100,10 +101,10 @@ public class PluginUserResource extends BaseResource {
 
         return exportToCSV(pluginUserROList.getEntries(),
                 PluginUserRO.class,
-                new HashMap<String, String>() {{
-                    put("UserName".toUpperCase(), "Username");
-                    put("authRoles".toUpperCase(), "Role");
-                }},
+                ImmutableMap.of(
+                        "UserName".toUpperCase(), "Username",
+                        "authRoles".toUpperCase(), "Role"
+                ),
                 Arrays.asList("entityId", "status", "password", "domain"),
                 "pluginusers");
     }

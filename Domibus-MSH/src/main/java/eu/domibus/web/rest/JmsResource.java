@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -101,13 +102,12 @@ public class JmsResource extends BaseResource {
         customizeJMSProperties(jmsMessageList);
 
         return exportToCSV(jmsMessageList, JmsMessage.class,
-                new HashMap<String, String>() {{
-                    put("id".toUpperCase(), "ID");
-                    put("type".toUpperCase(), "JMS Type");
-                    put("Timestamp".toUpperCase(), "Time");
-                    put("CustomProperties".toUpperCase(), "Custom prop");
-                    put("Properties".toUpperCase(), "JMS prop");
-                }},
+                ImmutableMap.of(
+                        "id".toUpperCase(), "ID",
+                        "type".toUpperCase(), "JMS Type",
+                        "Timestamp".toUpperCase(), "Time",
+                        "CustomProperties".toUpperCase(), "JMS prop",
+                        "Properties".toUpperCase(), "Time"),
                 Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId"),
                 "jmsmonitoring");
 

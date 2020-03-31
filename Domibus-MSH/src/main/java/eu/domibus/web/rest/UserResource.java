@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -157,10 +158,10 @@ public class UserResource extends BaseResource {
 
         return exportToCSV(userResponseROList,
                 UserResponseRO.class,
-                new HashMap<String, String>() {{
-                    put("UserName".toUpperCase(), "Username");
-                    put("Roles".toUpperCase(), "Role");
-                }},
+                ImmutableMap.of(
+                        "UserName".toUpperCase(), "Username",
+                        "Roles".toUpperCase(), "Role"
+                ),
                 domibusConfigurationService.isMultiTenantAware() ?
                         Arrays.asList("authorities", "status", "password", "suspended") :
                         Arrays.asList("authorities", "status", "password", "suspended", "domain"),
