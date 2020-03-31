@@ -23,10 +23,6 @@ public class UserSessionsServiceImpl implements UserSessionsService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSessionsServiceImpl.class);
 
-    public UserSessionsServiceImpl(){
-        int i = 1;
-    }
-
     @Autowired
     SessionRegistry sessionRegistry;
 

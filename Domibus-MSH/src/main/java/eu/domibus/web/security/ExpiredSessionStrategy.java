@@ -13,7 +13,7 @@ import java.io.IOException;
  * @author Ion Perpegel
  * @since 4.2
  */
-public final class InvalidSessionStrategy
+public final class ExpiredSessionStrategy
         implements SessionInformationExpiredStrategy {
 
     public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
