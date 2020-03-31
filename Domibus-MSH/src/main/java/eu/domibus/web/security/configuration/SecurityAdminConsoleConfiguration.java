@@ -1,6 +1,7 @@
 package eu.domibus.web.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.web.security.InvalidSessionStrategy;
 import eu.domibus.web.security.UserDetailServiceImpl;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.AuthenticationServiceImpl;
@@ -68,7 +69,7 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                 .sessionManagement()
                 .maximumSessions(10)
                 .maxSessionsPreventsLogin(false)
-                .expiredSessionStrategy(new DomibusRedirectInvalidSessionStrategy())
+                .expiredSessionStrategy(new InvalidSessionStrategy())
                 .sessionRegistry(sessionRegistry)
         ;
     }
