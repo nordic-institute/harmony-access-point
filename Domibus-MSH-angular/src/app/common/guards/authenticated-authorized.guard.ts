@@ -50,7 +50,7 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
         }
       }
     } catch (error) {
-      this.alertService.exception('The server didn\'t respond, please try again later', error);
+      this.alertService.exception('Error while checking authentication:', error);
     }
     return canActivate;
   }

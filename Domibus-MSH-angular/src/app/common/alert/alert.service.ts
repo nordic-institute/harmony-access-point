@@ -123,6 +123,8 @@ export class AlertService {
           errMsg = this.processMultipleItemsResponse(response.error);
         } else if (response.error.message) {
           errMsg = response.error.message;
+        } else {
+          errMsg = this.tryParseHtmlResponse(response.error);
         }
       }
     } else if (response instanceof HttpResponse) {
@@ -157,13 +159,19 @@ export class AlertService {
   private tryParseHtmlResponse(errMsg: string) {
     let res = errMsg;
     if (errMsg && errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
-      let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
-      if (res1 && res1.length > 0) {
-        res = res1[1];
+      let res0 = errMsg.match(/<p><b>Message<\/b>(.+)<\/p><p>/);
+      if (res0 && res0.length > 0) {
+        res = res0[1];
       }
-      let res2 = errMsg.match(/<p>(.+)<\/p>/);
-      if (res2 && res2.length >= 0) {
-        res += res2[0];
+      if(!res) {
+        let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
+        if (res1 && res1.length > 0) {
+          res = res1[1];
+        }
+        let res2 = errMsg.match(/<p>(.+)<\/p>/);
+        if (res2 && res2.length >= 0) {
+          res += res2[0];
+        }
       }
     }
     return res;

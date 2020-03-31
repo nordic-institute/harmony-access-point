@@ -1,6 +1,5 @@
 package eu.domibus.core.spring;
 
-import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
