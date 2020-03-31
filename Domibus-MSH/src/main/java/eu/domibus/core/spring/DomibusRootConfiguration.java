@@ -17,7 +17,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "classpath*:META-INF/resources/WEB-INF/spring-context.xml"
 })
 @ComponentScan(
-        basePackages = "eu.domibus"
+        basePackages = "eu.domibus",
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.web\\..*"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.ext\\.rest\\..*")}
 )
 @EnableJms
 @EnableTransactionManagement(proxyTargetClass = true)

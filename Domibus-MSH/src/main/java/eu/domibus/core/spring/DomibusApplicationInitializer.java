@@ -69,6 +69,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         servletContext.addListener(new RequestContextListener());
 
         AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
+        dispatcherContext.register(DomibusWebConfiguration.class);
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
