@@ -54,7 +54,7 @@ public class UserMessageLog extends MessageLog {
 
     @Version
     @Column(name = "VERSION")
-    protected Integer version = 0;
+    protected int version;
 
     public MessageInfo getMessageInfo() {
         return messageInfo;
