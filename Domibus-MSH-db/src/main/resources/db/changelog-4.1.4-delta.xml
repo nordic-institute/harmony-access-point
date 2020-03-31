@@ -15,7 +15,7 @@
     </changeSet>
     <changeSet author="Cosmin Baciu" id="EDELIVERY-6403">
         <addColumn tableName="TB_MESSAGE_LOG">
-            <column name="VERSION" type="INT" remarks="Used for optimistic locking mechanism"/>
+            <column name="VERSION" type="INT" remarks="Used for optimistic locking mechanism" defaultValueNumeric="0"/>
         </addColumn>
         <sql>
             UPDATE TB_MESSAGE_LOG SET VERSION = 0 WHERE MESSAGE_TYPE = 'USER_MESSAGE';
