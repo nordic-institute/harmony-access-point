@@ -1,4 +1,3 @@
-
 package eu.domibus.plugin.webService.impl;
 
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
@@ -42,7 +41,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendWebServiceImpl.class);
 
-    private static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
+    public static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
 
     private static final ObjectFactory EBMS_OBJECT_FACTORY = new ObjectFactory();
 
@@ -57,6 +56,9 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Autowired
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
+
+    @Autowired
+    protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
 
     public BackendWebServiceImpl(final String name) {
         super(name);
@@ -239,7 +241,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, createFault("MessageId is empty"));
+            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, backendWebServiceExceptionFactory.createFault("MessageId is empty"));
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
@@ -251,12 +253,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
                 LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
             }
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", createDownloadMessageFault(mnfEx));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", backendWebServiceExceptionFactory.createDownloadMessageFault(mnfEx));
         }
 
         if (userMessage == null) {
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", createFault("UserMessage not found"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", backendWebServiceExceptionFactory.createFault("UserMessage not found"));
         }
 
         // To avoid blocking errors during the Header's response validation
@@ -315,25 +317,6 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         return payloadInfo.getPartInfo();
     }
 
-    private FaultDetail createDownloadMessageFault(Exception ex) {
-        FaultDetail detail = WEBSERVICE_OF.createFaultDetail();
-        detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
-        if (ex instanceof MessagingProcessingException) {
-            MessagingProcessingException mpEx = (MessagingProcessingException) ex;
-            detail.setCode(mpEx.getEbms3ErrorCode().getErrorCodeName());
-            detail.setMessage(mpEx.getMessage());
-        } else {
-            detail.setMessage(ex.getMessage());
-        }
-        return detail;
-    }
-
-    private FaultDetail createFault(String message) {
-        FaultDetail detail = WEBSERVICE_OF.createFaultDetail();
-        detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
-        detail.setMessage(message);
-        return detail;
-    }
 
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
@@ -341,7 +324,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, createFault("MessageId is empty"));
+            throw new StatusFault(MESSAGE_ID_EMPTY, backendWebServiceExceptionFactory.createFault("MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
         return defaultTransformer.transformFromMessageStatus(messageRetriever.getStatus(trimmedMessageId));

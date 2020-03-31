@@ -87,6 +87,16 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
+            MessageStatus status = messageRetriever.getStatus(messageId);
+            if (MessageStatus.NOT_FOUND == status) {
+                LOG.debug("Message with id [{}] was not found", messageId);
+                throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
+            }
+            if (MessageStatus.DOWNLOADED == status) {
+                LOG.debug("Message with id [{}] was already downloaded", messageId);
+                throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
+            }
+
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
             lister.removeFromPending(messageId);
 

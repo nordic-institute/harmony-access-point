@@ -69,9 +69,28 @@ public class UserMessageLogDefaultServiceTest {
         final String messageId = "1";
         final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
 
-        new Expectations() {{
+        new Expectations(userMessageLogDefaultService) {{
             userMessageLogDao.findByMessageId(messageId);
             result = messageLog;
+
+            userMessageLogDefaultService.updateMessageStatus((UserMessageLog) any, (MessageStatus) any);
+        }};
+
+        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+
+        new FullVerifications() {{
+            userMessageLogDefaultService.updateMessageStatus(messageLog, messageStatus);
+        }};
+    }
+
+    @Test
+    public void testUpdateMessageStatus1(@Injectable final UserMessageLog messageLog) throws Exception {
+        final String messageId = "1";
+        final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
+
+        new Expectations() {{
+            messageLog.getMessageId();
+            result = messageId;
 
             messageLog.getMessageType();
             result = MessageType.USER_MESSAGE;
@@ -80,7 +99,7 @@ public class UserMessageLogDefaultServiceTest {
             result = false;
         }};
 
-        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+        userMessageLogDefaultService.updateMessageStatus(messageLog, messageStatus);
 
         new FullVerifications() {{
             backendNotificationService.notifyOfMessageStatusChange(messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));

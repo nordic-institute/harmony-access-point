@@ -72,12 +72,16 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
         final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        updateMessageStatus(messageLog, newStatus);
+    }
+
+    protected void updateMessageStatus(UserMessageLog messageLog, final MessageStatus newStatus) {
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
 
-        uiReplicationSignalService.messageChange(messageId);
+        uiReplicationSignalService.messageChange(messageLog.getMessageId());
     }
 
     @Override
@@ -88,6 +92,10 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     @Override
     public void setMessageAsDownloaded(String messageId) {
         updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+    }
+
+    public void setMessageAsDownloaded(UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessageLog, MessageStatus.DOWNLOADED);
     }
 
     @Override
