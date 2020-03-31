@@ -1,5 +1,6 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
@@ -17,10 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "classpath*:META-INF/resources/WEB-INF/spring-context.xml"
 })
 @ComponentScan(
-        basePackages = "eu.domibus",
-        excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.web\\..*"),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.ext\\.rest\\..*")}
+        basePackages = "eu.domibus"
 )
 @EnableJms
 @EnableTransactionManagement(proxyTargetClass = true)
