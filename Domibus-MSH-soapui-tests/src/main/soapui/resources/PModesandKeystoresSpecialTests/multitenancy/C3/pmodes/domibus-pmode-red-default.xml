@@ -30,13 +30,13 @@
 			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=default" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw_dom1" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
+			<party name="domibus_C2Dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
 				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw_dom3" endpoint="http://localhost:8080/domibus/services/msh?domain=a" allowChunking="false">
+			<party name="a_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=a" allowChunking="false">
 				<identifier partyId="domibus-blue-dom3" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw_dom4" endpoint="http://localhost:8080/domibus/services/msh?domain=length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc" allowChunking="false">
+			<party name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc" allowChunking="false">
 				<identifier partyId="domibus-blue-dom4" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -133,11 +133,11 @@
 		</process>
 		<process name="tc2Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
+				<initiatorParty name="domibus_C2Dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="domibus_C2Dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -146,11 +146,11 @@
 		</process>
 		<process name="tc4Process" agreement="domain3-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom3"/>
+				<initiatorParty name="a_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom3"/>
+				<responderParty name="a_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -159,11 +159,11 @@
 		</process>
 		<process name="tc5Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom4"/>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom4"/>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -185,11 +185,11 @@
 		</process>
 		<process name="tc7Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom1"/>
+				<initiatorParty name="domibus_C2Dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom1"/>
+				<responderParty name="domibus_C2Dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -198,11 +198,11 @@
 		</process>		
 		<process name="tc9Process" agreement="domain3-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom3"/>
+				<initiatorParty name="a_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom3"/>
+				<responderParty name="a_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -211,11 +211,11 @@
 		</process>		
 		<process name="tc10Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_gw_dom4"/>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_gw_dom4"/>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
