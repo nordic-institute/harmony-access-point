@@ -19,6 +19,10 @@ import org.springframework.transaction.UnexpectedRollbackException;
 import javax.persistence.OptimisticLockException;
 import java.util.Arrays;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.1.4
+ */
 @Component("wsPluginFaultOutInterceptor")
 public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
 
