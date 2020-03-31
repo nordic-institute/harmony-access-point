@@ -106,8 +106,9 @@ public class JmsResource extends BaseResource {
                         "id".toUpperCase(), "ID",
                         "type".toUpperCase(), "JMS Type",
                         "Timestamp".toUpperCase(), "Time",
-                        "CustomProperties".toUpperCase(), "JMS prop",
-                        "Properties".toUpperCase(), "Time"),
+                        "CustomProperties".toUpperCase(), "Custom prop",
+                        "Properties".toUpperCase(), "JMS prop"
+                ),
                 Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId"),
                 "jmsmonitoring");
 
