@@ -76,7 +76,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
      */
     @Override
     public void findAndSyncUIMessages() {
-        LOG.debug("start counting differences for UIReplication");
+        LOG.info("start counting differences for UIReplication");
 
         int rowsToSyncCount = countAll();
         LOG.debug("found [{}] differences between native tables and TB_MESSAGE_UI", rowsToSyncCount);
@@ -102,12 +102,12 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
                         collect(Collectors.toList());
 
         if (!uiMessageEntityList.isEmpty()) {
-            LOG.debug("start to update TB_MESSAGE_UI");
+            LOG.info("start to update TB_MESSAGE_UI");
 
             uiMessageEntityList.stream().forEach(uiMessageEntity ->
                     uiMessageService.saveOrUpdate(uiMessageEntity));
 
-            LOG.debug("finish to update TB_MESSAGE_UI");
+            LOG.info("finish to update TB_MESSAGE_UI");
         }
     }
 

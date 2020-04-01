@@ -178,9 +178,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         }
         Party initiator = pModeProvider.getGatewayParty();
         List<Process> pullProcesses = pModeProvider.findPullProcessesByInitiator(initiator);
-        LOG.trace("Initiating pull requests:");
+        LOG.info("[PULL]:Initiating pull requests...");
         if (pullProcesses.isEmpty()) {
-            LOG.trace("No pull process configured !");
+            LOG.info("[PULL]:No pull process configured !");
             return;
         }
 
@@ -206,7 +206,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
-                LOG.warn("Invalid pull process configuration found during pull try", e);
+                LOG.warn("[PULL]:Invalid pull process configuration found during pull try", e);
             }
         }
         return validPullProcesses;
@@ -231,7 +231,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.debug("messageExchangeConfiguration:[{}]", messageExchangeConfiguration);
             String mpcName = legConfiguration.getDefaultMpc().getName();
             Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForMpc(mpcName);
-            LOG.debug("Sending:[{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
+            LOG.info("[PULL]:Schedule sending [{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
             for (int i = 0; i < pullRequestNumberForResponder; i++) {
                 jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                         .property(MPC, mpcQualifiedName)
@@ -244,15 +244,15 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     private boolean pause(Integer maxPullRequestNumber) {
-        LOG.trace("Checking if the system should pause the pulling mechanism.");
+        LOG.info("[PULL]:Checking if the system should pause the pulling mechanism.");
         final long queueMessageNumber = jmsManager.getDestinationSize(PULL);
 
         final boolean shouldPause = queueMessageNumber > maxPullRequestNumber;
 
         if (shouldPause) {
-            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, maxPullRequestNumber);
+            LOG.info("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, maxPullRequestNumber);
         } else {
-            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, maxPullRequestNumber);
+            LOG.info("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, maxPullRequestNumber);
         }
         return shouldPause;
     }

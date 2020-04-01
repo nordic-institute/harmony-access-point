@@ -108,6 +108,8 @@ public class PullMessageSender {
         if (domibusInitializationHelper.isNotReady()) {
             return;
         }
+        long start = System.currentTimeMillis();
+
         LOG.clearCustomKeys();
 
         String domainCode;
@@ -177,6 +179,8 @@ public class PullMessageSender {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
             checkConnectionProblem(e, mpcName);
+        } finally {
+            LOG.info("PullMessageSender listener took [{}] milliseconds", System.currentTimeMillis() - start);
         }
     }
 

@@ -26,7 +26,12 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
     @Override
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
-        super.onMessage(message);
+        long start = System.currentTimeMillis();
+        try {
+            super.onMessage(message);
+        } finally {
+            LOG.info("MessageSenderListener took [{}] milliseconds", System.currentTimeMillis() - start);
+        }
     }
 
     @Override

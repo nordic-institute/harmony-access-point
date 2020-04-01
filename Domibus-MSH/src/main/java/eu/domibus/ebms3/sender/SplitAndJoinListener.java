@@ -49,6 +49,7 @@ public class SplitAndJoinListener implements MessageListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void onMessage(final Message message) {
+        long start = System.currentTimeMillis();
         try {
             LOG.clearCustomKeys();
 
@@ -139,7 +140,8 @@ public class SplitAndJoinListener implements MessageListener {
             }
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
+        } finally {
+            LOG.info("SplitAndJoinListener took [{}] milliseconds", System.currentTimeMillis() - start);
         }
-
     }
 }

@@ -44,6 +44,7 @@ public class RetentionListener implements MessageListener {
             authUtils.setAuthenticationToSecurityContext("retention", "retention", AuthRole.ROLE_ADMIN);
         }
 
+        long start = System.currentTimeMillis();
         try {
             String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
@@ -56,6 +57,8 @@ public class RetentionListener implements MessageListener {
             userMessageDefaultService.deleteMessage(messageId);
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
+        } finally {
+            LOG.info("RetentionListener took [{}] milliseconds", System.currentTimeMillis() - start);
         }
     }
 }

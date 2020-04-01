@@ -75,6 +75,7 @@ public class PullReceiptListener implements MessageListener {
     @Timer(OUTGOING_PULL_RECEIPT)
     @Counter(OUTGOING_PULL_RECEIPT)
     public void onMessage(final Message message) {
+        long start = System.currentTimeMillis();
         try {
             LOG.clearCustomKeys();
 
@@ -137,6 +138,8 @@ public class PullReceiptListener implements MessageListener {
         } catch (final JMSException | EbMS3Exception e) {
             LOG.error("Error processing JMS message", e);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e);
+        } finally {
+            LOG.info("PullReceiptListener took [{}] milliseconds", System.currentTimeMillis() - start);
         }
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");

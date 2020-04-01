@@ -22,7 +22,12 @@ public class LargeMessageSenderListener extends AbstractMessageSenderListener {
     @Override
     public void onMessage(final Message message) {
         LOG.debug("Processing large message [{}]", message);
-        super.onMessage(message);
+        long start = System.currentTimeMillis();
+        try {
+            super.onMessage(message);
+        } finally {
+            LOG.info("LargeMessageSenderListener took [{}] milliseconds", System.currentTimeMillis() - start);
+        }
     }
 
     @Override

@@ -28,6 +28,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+        long start = System.currentTimeMillis();
         try {
             LOG.clearCustomKeys();
             final Domain currentDomain = getDomain(context);
@@ -36,6 +37,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
         } finally {
             domainContextProvider.clearCurrentDomain();
             LOG.clearCustomKeys();
+            LOG.info("Quartz Job [{}] took [{}] milliseconds", getClass().getName(),System.currentTimeMillis() - start);
         }
     }
 

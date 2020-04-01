@@ -91,9 +91,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     mpc, expiredDownloadedMessagesLimit);
             if (CollectionUtils.isNotEmpty(downloadedMessageIds)) {
                 final int deleted = downloadedMessageIds.size();
-                LOG.debug("Found [{}] downloaded messages to delete", deleted);
+                LOG.info("Found [{}] downloaded messages to delete", deleted);
                 scheduleDeleteMessages(downloadedMessageIds);
-                LOG.debug("Deleted [{}] downloaded messages", deleted);
+                LOG.info("Deleted [{}] downloaded messages", deleted);
             }
         }
     }
@@ -106,9 +106,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     mpc, expiredNotDownloadedMessagesLimit);
             if (CollectionUtils.isNotEmpty(notDownloadedMessageIds)) {
                 final int deleted = notDownloadedMessageIds.size();
-                LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
+                LOG.info("Found [{}] not-downloaded messages to delete", deleted);
                 scheduleDeleteMessages(notDownloadedMessageIds);
-                LOG.debug("Deleted [{}] not-downloaded messages", deleted);
+                LOG.info("Deleted [{}] not-downloaded messages", deleted);
             }
         }
     }
@@ -120,7 +120,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             return;
         }
 
-        LOG.debug("Scheduling delete messages [{}]", messageIds);
+        LOG.info("Scheduling delete messages [{}]", messageIds);
         messageIds.forEach(messageId -> {
             JmsMessage message = JMSMessageBuilder.create()
                     .property(MessageConstants.MESSAGE_ID, messageId)
