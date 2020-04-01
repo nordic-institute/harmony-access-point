@@ -40,11 +40,6 @@ public class CRLServiceImplTest {
 
     PKIUtil pkiUtil = new PKIUtil();
 
-    @Before
-    public void init() {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-    }
-
     //    @Test
     public void testCreateCertificate() throws Exception {
         BigInteger serial = new BigInteger("0400000000011E44A5E404", 16);

@@ -87,11 +87,6 @@ public class CertificateServiceImplTest {
 
     PKIUtil pkiUtil = new PKIUtil();
 
-    @Before
-    public void init() {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-    }
-
     @Test
     public void testIsCertificateChainValidPathV1() throws CertificateException {
         new Expectations() {{

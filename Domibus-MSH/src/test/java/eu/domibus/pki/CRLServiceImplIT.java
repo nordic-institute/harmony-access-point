@@ -1,6 +1,7 @@
 package eu.domibus.pki;
 
 import eu.domibus.SpringTestConfiguration;
+import eu.domibus.configuration.DomibusSecurityPolicyConfig;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -37,7 +38,7 @@ public class CRLServiceImplIT {
 
     @Configuration
     @EnableCaching
-    @Import({DomibusCacheConfiguration.class, SpringTestConfiguration.class})
+    @Import({DomibusCacheConfiguration.class, SpringTestConfiguration.class, DomibusSecurityPolicyConfig.class})
     static class SpringConfig {
 
         @Bean
@@ -65,9 +66,6 @@ public class CRLServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
         //create crl file
         final X509CRL x509CRL = pkiUtil.createCRL(Arrays.asList(new BigInteger("0400000000011E44A5E405", 16),
                 new BigInteger("0400000000011E44A5E404", 16)));
