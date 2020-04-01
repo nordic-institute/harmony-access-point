@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
@@ -124,9 +125,7 @@ public class AlertResource extends BaseResource {
 
         return exportToCSV(alertRoList,
                 AlertRo.class,
-                new HashMap<String, String>() {{
-                    put("entityId".toUpperCase(), "Alert Id");
-                }},
+                ImmutableMap.of("entityId".toUpperCase(), "Alert Id"),
                 "alerts");
 
     }

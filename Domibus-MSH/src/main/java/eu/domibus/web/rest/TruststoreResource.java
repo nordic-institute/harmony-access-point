@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -113,10 +114,10 @@ public class TruststoreResource extends BaseResource {
 
         return exportToCSV(trustStoreROS,
                 TrustStoreRO.class,
-                new HashMap<String, String>() {{
-                    put("ValidFrom".toUpperCase(), "Valid from");
-                    put("ValidUntil".toUpperCase(), "Valid until");
-                }},
+                ImmutableMap.of(
+                        "ValidFrom".toUpperCase(), "Valid from",
+                        "ValidUntil".toUpperCase(), "Valid until"
+                ),
                 Arrays.asList("fingerprints"),
                 "truststore");
 
