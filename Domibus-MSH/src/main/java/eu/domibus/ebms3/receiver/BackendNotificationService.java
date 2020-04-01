@@ -373,18 +373,18 @@ public class BackendNotificationService {
         uiReplicationSignalService.messageChange(messageId);
     }
 
-    public void notifyOfSendSuccess(final String messageId) {
+    public void notifyOfSendSuccess(UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
         if (userMessageLog.getMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
         }
-
+        String messageId = userMessageLog.getMessageId();
         notify(messageId, userMessageLog.getBackend(), notificationType);
-        userMessageLogDao.setAsNotified(messageId);
+        userMessageLogDao.setAsNotified(userMessageLog);
 
         uiReplicationSignalService.messageChange(messageId);
     }

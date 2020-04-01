@@ -257,7 +257,7 @@ public class ReliabilityChecker {
         exceptionToHandle.setRefToMessageId(messageId);
         Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
         if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
-            userMessageLogService.setMessageAsAcknowledged(messageId);
+//            userMessageLogService.setMessageAsAcknowledged(messageId);
             // TODO Shouldn't clear the payload data here ?
         }
 

@@ -8,6 +8,7 @@ import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.common.services.ReliabilityService;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -35,7 +36,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityServiceImpl.class);
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -93,20 +94,20 @@ public class ReliabilityServiceImpl implements ReliabilityService {
             case OK:
                 switch (isOk) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(messageId);
+                        userMessageLogService.setMessageAsAcknowledged(userMessageLog);
 
                         if (userMessage.isUserMessageFragment()) {
                             splitAndJoinService.incrementSentFragments(userMessage.getMessageFragment().getGroupId());
                         }
                         break;
                     case WARNING:
-                        userMessageLogService.setMessageAsAckWithWarnings(messageId);
+                        userMessageLogService.setMessageAsAckWithWarnings(userMessageLog);
                         break;
                     default:
                         assert false;
                 }
                 if (!isTestMessage) {
-                    backendNotificationService.notifyOfSendSuccess(messageId);
+                    backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 messagingDao.clearPayloadData(messageId);

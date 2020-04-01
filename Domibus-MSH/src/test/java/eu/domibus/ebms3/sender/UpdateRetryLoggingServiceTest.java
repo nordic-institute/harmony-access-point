@@ -1,7 +1,6 @@
 
 package eu.domibus.ebms3.sender;
 
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
@@ -15,6 +14,7 @@ import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.common.model.configuration.RetryStrategy;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.receiver.BackendNotificationService;
 import mockit.*;
@@ -53,7 +53,7 @@ public class UpdateRetryLoggingServiceTest {
     private UserMessageLogDao messageLogDao;
 
     @Injectable
-    private UserMessageLogService messageLogService;
+    private UserMessageLogDefaultService messageLogService;
 
     @Injectable
     private MessagingDao messagingDao;
@@ -128,7 +128,7 @@ public class UpdateRetryLoggingServiceTest {
         assertEquals(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016), userMessageLog.getNextAttempt());
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -174,7 +174,7 @@ public class UpdateRetryLoggingServiceTest {
         assertEquals(new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016), userMessageLog.getNextAttempt());
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -251,7 +251,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messagingDao.clearPayloadData(messageId);
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messageLogDao.setAsNotified(messageId); times = 0;
         }};
 
@@ -290,7 +290,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messagingDao.clearPayloadData(messageId); times = 0;
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messageLogDao.setAsNotified(messageId); times = 0;
         }};
 
@@ -333,7 +333,7 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 
@@ -377,7 +377,7 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Verifications() {{
-            messageLogService.setMessageAsSendFailure(messageId);
+            messageLogService.setMessageAsSendFailure(userMessageLog);
             messagingDao.clearPayloadData(messageId);
         }};
 

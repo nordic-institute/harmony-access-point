@@ -579,7 +579,6 @@ public class UserMessageLogDaoTest {
         // THEN
         new Verifications() {{
             userMessageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
-            userMessageLogDao.update(userMessageLog);
         }};
     }
 
