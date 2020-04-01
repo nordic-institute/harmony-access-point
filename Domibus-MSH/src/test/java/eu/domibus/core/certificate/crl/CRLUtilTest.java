@@ -38,11 +38,6 @@ public class CRLUtilTest {
 
     PKIUtil pkiUtil = new PKIUtil();
 
-    @Before
-    public void init() {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-    }
-
     @Test(expected = DomibusCRLException.class)
     public void testDownloadCRLWithNullUrl(@Mocked final URL crlUrl) throws Exception {
         final String crlUrlString = "file://test";

@@ -12,6 +12,7 @@ Domibus 4.2
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
 Domibus 4.1.4
+- Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager
 - Fixed the issue regarding duplicate retrieval of messages by multiple concurrent clients
