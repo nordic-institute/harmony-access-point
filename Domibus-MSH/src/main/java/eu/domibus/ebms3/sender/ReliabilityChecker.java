@@ -48,7 +48,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DIS
 @Service
 public class ReliabilityChecker {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
-    private final String UNRECOVERABLE_ERROR_RETRY = DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
 
     @Autowired
     @Qualifier("jaxbContextEBMS")
@@ -255,12 +254,6 @@ public class ReliabilityChecker {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
         exceptionToHandle.setRefToMessageId(messageId);
-        Boolean retryUnrecoverableError = domibusPropertyProvider.getBooleanDomainProperty(UNRECOVERABLE_ERROR_RETRY);
-        if (!exceptionToHandle.isRecoverable() && !retryUnrecoverableError) {
-//            userMessageLogService.setMessageAsAcknowledged(messageId);
-            // TODO Shouldn't clear the payload data here ?
-        }
-
         exceptionToHandle.setMshRole(MSHRole.SENDING);
         LOG.error("Error sending message with ID [" + messageId + "]", exceptionToHandle);
         this.errorLogDao.create(new ErrorLogEntry(exceptionToHandle));
