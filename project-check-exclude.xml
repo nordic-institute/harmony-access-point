@@ -173,5 +173,13 @@
         <cve>CVE-2020-9548</cve>
         <!-- we are not using xbean-reflect libraries -->
         <cve>CVE-2020-8840</cve>
+        <!-- we are not using apache aries library -->
+        <cve>CVE-2020-10672</cve>
+        <!-- we are not using caucho quercus library -->
+        <cve>CVE-2020-10673</cve>
+        <!-- we are not using bus-proxy library -->
+        <cve>CVE-2020-10968</cve>
+        <!-- we are not using javax.swing -->
+        <cve>CVE-2020-10969</cve>
     </suppress>
 </suppressions>
