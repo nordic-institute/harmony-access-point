@@ -1,4 +1,4 @@
-package eu.domibus.logging;
+package eu.domibus.core.logging.cxf;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;

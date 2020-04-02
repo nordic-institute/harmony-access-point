@@ -1,4 +1,4 @@
-package eu.domibus.logging;
+package eu.domibus.core.logging.cxf;
 
 import org.apache.cxf.ext.logging.event.LogEvent;
 

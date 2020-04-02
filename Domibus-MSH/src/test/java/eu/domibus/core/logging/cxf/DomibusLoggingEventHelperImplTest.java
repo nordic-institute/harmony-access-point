@@ -1,5 +1,7 @@
-package eu.domibus.logging;
+package eu.domibus.core.logging.cxf;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.ext.logging.event.EventType;
