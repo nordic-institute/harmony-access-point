@@ -47,7 +47,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Testing valid login with every type of user");
 		SoftAssert soft = new SoftAssert();
 
-		if(data.isIsMultiDomain()){
+		if(data.isMultiDomain()){
 			checkUserLogin(DRoles.SUPER, soft);
 		}
 		checkUserLogin(DRoles.ADMIN, soft);

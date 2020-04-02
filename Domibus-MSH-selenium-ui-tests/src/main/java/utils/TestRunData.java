@@ -61,7 +61,7 @@ public class TestRunData {
 	}
 
 	public HashMap<String, String> getAdminUser() {
-		if (isIsMultiDomain()) {
+		if (isMultiDomain()) {
 			return getUser(DRoles.SUPER);
 		}
 		return getUser(DRoles.ADMIN);
@@ -83,7 +83,7 @@ public class TestRunData {
 		return prop.getProperty("reports.folder");
 	}
 
-	public boolean isIsMultiDomain() {
+	public boolean isMultiDomain() {
 		return Boolean.valueOf(prop.getProperty("isMultiDomain"));
 	}
 

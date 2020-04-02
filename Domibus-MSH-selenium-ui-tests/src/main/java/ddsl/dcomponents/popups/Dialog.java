@@ -35,6 +35,9 @@ public class Dialog extends DComponent {
 	@FindBy(css = "mat-dialog-container h1")
 	private WebElement dialogMessage;
 
+	@FindBy(css="md-dialog-container[role='dialog']")
+	public WebElement confirmationPopUp;
+
 	public boolean isLoaded() throws Exception{
 		return (new DObject(driver, yesBtn).isEnabled()
 		&& new DObject(driver, noBtn).isEnabled()
@@ -56,6 +59,11 @@ public class Dialog extends DComponent {
 
 	public String getMessage() throws Exception {
 		return new DObject(driver, dialogMessage).getText();
+	}
+
+	public boolean isPresent() throws Exception{
+		weToDobject(confirmationPopUp).isVisible();
+		return confirmationPopUp.isDisplayed();
 	}
 
 

@@ -154,7 +154,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public void setAsNotified(final UserMessageLog messageLog) {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
-        super.update(messageLog);
     }
 
     public int countAllInfo(boolean asc, Map<String, Object> filters) {

@@ -51,6 +51,7 @@
             <ref bean="clearAuthenticationMDCInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:outFaultInterceptors>
+            <ref bean="wsPluginFaultOutInterceptor"/>
             <ref bean="clearAuthenticationMDCInterceptor"/>
         </jaxws:outFaultInterceptors>
         <jaxws:features>
