@@ -4,8 +4,8 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationVisitor;
 import eu.domibus.core.ebms3.receiver.leg.AbstractSignalLegConfigurationExtractor;
+import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationVisitor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.MessageExchangeService;
@@ -65,7 +65,7 @@ public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfi
             return legConfiguration;
         } catch (PModeException p) {
             EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010,
-                    "Error for pullrequest with mpc:" + pullRequest.getMpc() + " " + p.getMessage(), null, p);
+                    "Error for pullrequest with mpc:" + pullRequest.getMpc() + " " + p.getMessage(), messaging.getSignalMessage().getMessageInfo().getMessageId(), p);
             LOG.warn("Could not extract pull request leg configuration from pMode", ebMS3Exception);
             throw ebMS3Exception;
         }

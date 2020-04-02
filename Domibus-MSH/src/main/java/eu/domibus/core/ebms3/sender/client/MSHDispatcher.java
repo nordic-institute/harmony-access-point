@@ -95,7 +95,7 @@ public class MSHDispatcher {
             if(e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
             }
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, null, exception);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, userMessage.getMessageInfo().getMessageId(), exception);
             ex.setMshRole(MSHRole.SENDING);
             throw ex;
         }
