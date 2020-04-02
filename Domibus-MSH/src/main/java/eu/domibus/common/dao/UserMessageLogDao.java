@@ -137,10 +137,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
     }
 
+    public void setAsNotified(UserMessageLog messageLog) {
+        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
+    }
+
     public void setAsNotified(String messageId) {
         final UserMessageLog messageLog = findByMessageId(messageId);
-        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
-        super.update(messageLog);
+        setAsNotified(messageLog);
     }
 
     public int countAllInfo(boolean asc, Map<String, Object> filters) {

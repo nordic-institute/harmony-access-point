@@ -69,9 +69,28 @@ public class UserMessageLogDefaultServiceTest {
         final String messageId = "1";
         final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
 
-        new Expectations() {{
+        new Expectations(userMessageLogDefaultService) {{
             userMessageLogDao.findByMessageId(messageId);
             result = messageLog;
+
+            userMessageLogDefaultService.updateMessageStatus((UserMessageLog) any, (MessageStatus) any);
+        }};
+
+        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+
+        new FullVerifications() {{
+            userMessageLogDefaultService.updateMessageStatus(messageLog, messageStatus);
+        }};
+    }
+
+    @Test
+    public void testUpdateMessageStatus1(@Injectable final UserMessageLog messageLog) throws Exception {
+        final String messageId = "1";
+        final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
+
+        new Expectations() {{
+            messageLog.getMessageId();
+            result = messageId;
 
             messageLog.getMessageType();
             result = MessageType.USER_MESSAGE;
@@ -80,7 +99,7 @@ public class UserMessageLogDefaultServiceTest {
             result = false;
         }};
 
-        userMessageLogDefaultService.updateMessageStatus(messageId, messageStatus);
+        userMessageLogDefaultService.updateMessageStatus(messageLog, messageStatus);
 
         new FullVerifications() {{
             backendNotificationService.notifyOfMessageStatusChange(messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
@@ -101,52 +120,42 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsDownloaded() throws Exception {
+    public void testSetMessageAsDownloaded(@Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsDownloaded(messageId);
+        userMessageLogDefaultService.setMessageAsDownloaded(userMessageLog);
 
         new FullVerifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+            userMessageLogDefaultService.updateMessageStatus(userMessageLog, MessageStatus.DOWNLOADED);
         }};
     }
 
     @Test
-    public void testSetMessageAsAcknowledged() throws Exception {
+    public void testSetMessageAsAcknowledged(@Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsAcknowledged(messageId);
+        userMessageLogDefaultService.setMessageAsAcknowledged(userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+            userMessageLogDefaultService.updateMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED);
         }};
     }
 
     @Test
-    public void testSetMessageAsAckWithWarnings() throws Exception {
+    public void testSetMessageAsAckWithWarnings(@Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsAckWithWarnings(messageId);
+        userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+            userMessageLogDefaultService.updateMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
         }};
     }
 
     @Test
-    public void testSetMessageAsWaitingForReceipt() throws Exception {
+    public void tesSetMessageAsSendFailure(@Injectable UserMessageLog userMessageLog) throws Exception {
         final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsWaitingForReceipt(messageId);
+        userMessageLogDefaultService.setMessageAsSendFailure(userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.WAITING_FOR_RECEIPT);
-        }};
-    }
-
-    @Test
-    public void tesSetMessageAsSendFailure() throws Exception {
-        final String messageId = "1";
-        userMessageLogDefaultService.setMessageAsSendFailure(messageId);
-
-        new Verifications() {{
-            userMessageLogDefaultService.updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+            userMessageLogDefaultService.updateMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
         }};
     }
 

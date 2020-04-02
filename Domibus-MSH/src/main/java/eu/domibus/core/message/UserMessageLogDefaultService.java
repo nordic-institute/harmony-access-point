@@ -72,12 +72,16 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected void updateMessageStatus(final String messageId, final MessageStatus newStatus) {
         final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        updateMessageStatus(messageLog, newStatus);
+    }
+
+    protected void updateMessageStatus(UserMessageLog messageLog, final MessageStatus newStatus) {
         if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
 
-        uiReplicationSignalService.messageChange(messageId);
+        uiReplicationSignalService.messageChange(messageLog.getMessageId());
     }
 
     @Override
@@ -85,29 +89,20 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateMessageStatus(messageId, MessageStatus.DELETED);
     }
 
-    @Override
-    public void setMessageAsDownloaded(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.DOWNLOADED);
+    public void setMessageAsDownloaded(UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessageLog, MessageStatus.DOWNLOADED);
     }
 
-    @Override
-    public void setMessageAsAcknowledged(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED);
+    public void setMessageAsAcknowledged(UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED);
     }
 
-    @Override
-    public void setMessageAsAckWithWarnings(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+    public void setMessageAsAckWithWarnings(UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
     }
 
-    @Override
-    public void setMessageAsWaitingForReceipt(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.WAITING_FOR_RECEIPT);
-    }
-
-    @Override
-    public void setMessageAsSendFailure(String messageId) {
-        updateMessageStatus(messageId, MessageStatus.SEND_FAILURE);
+    public void setMessageAsSendFailure(UserMessageLog userMessageLog) {
+        updateMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
     /**

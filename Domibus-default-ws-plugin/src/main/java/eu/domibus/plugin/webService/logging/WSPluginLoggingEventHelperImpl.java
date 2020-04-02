@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.logging;
 
+import eu.domibus.plugin.webService.impl.BackendWebServiceOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
@@ -22,8 +23,6 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String VALUE_END_MARKER = "</value";
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String SUBMIT_REQUEST = "submitRequest";
-    static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
-    static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
 
     @Override
     public void stripPayload(LogEvent event) {
@@ -53,10 +52,10 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
     @Override
     public String checkIfOperationIsAllowed(LogEvent logEvent) {
-        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
+        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(BackendWebServiceOperation.SUBMIT_MESSAGE)) {
             return SUBMIT_REQUEST;
         }
-        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
+        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(BackendWebServiceOperation.RETRIEVE_MESSAGE)) {
             return RETRIEVE_MESSAGE_RESPONSE;
         }
         return null;

@@ -23,6 +23,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
@@ -117,7 +118,7 @@ public class DatabaseMessageHandlerTest {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Injectable
     private SignalMessageLogDao signalMessageLogDao;
@@ -925,7 +926,7 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testDownloadMessageOK() throws Exception {
+    public void testDownloadMessageOK(@Injectable UserMessageLog userMessageLog) throws Exception {
 
         final UserMessage userMessage = createUserMessage();
 
@@ -943,7 +944,7 @@ public class DatabaseMessageHandlerTest {
             result = userMessage;
 
             userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            result = new UserMessageLog();
+            result = userMessageLog;
 
             pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
             result = 0;
@@ -976,7 +977,7 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
             userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            userMessageLogService.setMessageAsDownloaded(anyString);
+            userMessageLogService.setMessageAsDownloaded(userMessageLog);
             pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
             messagingDao.clearPayloadData(anyString);
             signalMessageDao.findSignalMessagesByRefMessageId(MESS_ID);
@@ -987,7 +988,7 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testDownloadMessageOK_RetentionNonZero() throws Exception {
+    public void testDownloadMessageOK_RetentionNonZero(@Injectable  UserMessageLog userMessageLog) throws Exception {
 
         final UserMessage userMessage = createUserMessage();
 
@@ -1005,7 +1006,7 @@ public class DatabaseMessageHandlerTest {
             result = userMessage;
 
             userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            result = new UserMessageLog();
+            result = userMessageLog;
 
             pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
             result = 5;
@@ -1023,7 +1024,7 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
             userMessageLogDao.findByMessageId(MESS_ID, MSHRole.RECEIVING);
-            userMessageLogService.setMessageAsDownloaded(anyString);
+            userMessageLogService.setMessageAsDownloaded(userMessageLog);
             pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc());
             messagingDao.clearPayloadData(anyString);
             times = 0;

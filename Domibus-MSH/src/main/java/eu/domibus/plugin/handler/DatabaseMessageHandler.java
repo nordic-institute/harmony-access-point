@@ -1,7 +1,6 @@
 package eu.domibus.plugin.handler;
 
 import com.google.common.collect.Sets;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -25,6 +24,7 @@ import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.fragment.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.PModeDefaultService;
@@ -52,6 +52,7 @@ import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -91,7 +92,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private PayloadFileStorageProvider storageProvider;
@@ -145,9 +146,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         checkMessageAuthorization(messageId);
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
-        userMessageLogService.setMessageAsDownloaded(messageId);
+        if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
+            LOG.debug("Message [{}] is already downloaded", messageId);
+            return transformer.transformFromMessaging(userMessage);
+        }
+
+        userMessageLogService.setMessageAsDownloaded(messageLog);
+
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
         if (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc()) && !userMessage.isPayloadOnFileSystem()) {
             messagingDao.clearPayloadData(messageId);

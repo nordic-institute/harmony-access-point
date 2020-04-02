@@ -544,6 +544,7 @@
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
             <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
+            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGE_PROPERTY">

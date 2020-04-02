@@ -13,6 +13,7 @@ import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.logging.MessageLog;
 import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.mpc.MpcService;
 import eu.domibus.core.pmode.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -49,7 +50,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -140,21 +141,20 @@ public class PullMessageServiceImpl implements PullMessageService {
             case OK:
                 switch (isOk) {
                     case OK:
-                        userMessageLogService.setMessageAsAcknowledged(messageId);
+                        userMessageLogService.setMessageAsAcknowledged(userMessageLog);
                         LOG.debug("[PULL_RECEIPT]:Message:[{}] acknowledged.", messageId);
                         break;
                     case WARNING:
-                        userMessageLogService.setMessageAsAckWithWarnings(messageId);
+                        userMessageLogService.setMessageAsAckWithWarnings(userMessageLog);
                         LOG.debug("[PULL_RECEIPT]:Message:[{}] acknowledged with warning.", messageId);
                         break;
                     default:
                         assert false;
                 }
-                backendNotificationService.notifyOfSendSuccess(messageId);
+                backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 messagingDao.clearPayloadData(messageId);
-                userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
                 uiReplicationSignalService.messageChange(messageId);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:
