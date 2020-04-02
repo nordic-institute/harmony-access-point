@@ -56,6 +56,9 @@ public class BackendWebServiceImplTest {
     @Injectable
     private String name;
 
+    @Injectable
+    protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+
     @Test(expected = SubmitMessageFault.class)
     public void validateSubmitRequestWithPayloadsAndBodyload(@Injectable SubmitRequest submitRequest,
                                                              @Injectable Messaging ebMSHeaderInfo,
