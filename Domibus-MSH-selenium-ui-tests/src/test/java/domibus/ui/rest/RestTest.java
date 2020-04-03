@@ -1,6 +1,11 @@
 package domibus.ui.rest;
 
+import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,6 +17,10 @@ import utils.Generator;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,11 +65,31 @@ public class RestTest {
 		log.info("DONE GENERATING TEST DATA");
 	}
 
+	public String getSanitizedStringResponse(ClientResponse response){
+		return rest.sanitizeResponse(response.getEntity(String.class));
+	}
 
 	private void getListOfDomains(){
 		List<String> codes = rest.getDomainCodes();
 		if(null == codes || codes.size() == 0){domains.add("default");}
 		domains.addAll(codes);
 	}
+
+	protected Object[][] readCSV(String filename) throws IOException {
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<CSVRecord> records = csvParser.getRecords();
+
+		Object[][] toRet = new Object[records.size()][1];
+
+		for (int i = 0; i < records.size() ; i++) {
+			toRet[i][0] = records.get(i).toMap();
+		}
+
+		return toRet;
+	}
+
+
 
 }

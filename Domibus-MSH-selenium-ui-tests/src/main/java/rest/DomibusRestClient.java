@@ -8,6 +8,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 import ddsl.enums.DRoles;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,19 +40,19 @@ import java.util.Map;
 public class DomibusRestClient {
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	private Client client = Client.create();
-	private TestRunData data = new TestRunData();
-	private ObjectProvider provider = new ObjectProvider();
-	private WebResource resource = client.resource(data.getUiBaseUrl());
+	protected Client client = Client.create();
+	protected TestRunData data = new TestRunData();
+	protected ObjectProvider provider = new ObjectProvider();
+	public WebResource resource = client.resource(data.getUiBaseUrl());
 
-	private List<NewCookie> cookies;
-	private String token;
+	protected List<NewCookie> cookies;
+	protected String token;
 
 	public DomibusRestClient() {
 		refreshCookies();
 	}
 
-	private String sanitizeResponse(String response) {
+	public String sanitizeResponse(String response) {
 		return response.replaceFirst("\\)]}',\n", "");
 	}
 
@@ -151,7 +152,7 @@ public class DomibusRestClient {
 	}
 
 	//	---------------------------------------Default request methods -------------------------------------------------
-	private ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
+	public ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
 
 		if (!isLoggedIn()) {
 			refreshCookies();
@@ -167,7 +168,7 @@ public class DomibusRestClient {
 		return builder.get(ClientResponse.class);
 	}
 
-	private ClientResponse requestPOSTFile(WebResource resource, String filePath, HashMap<String, String> fields) {
+	public ClientResponse requestPOSTFile(WebResource resource, String filePath, HashMap<String, String> fields) {
 
 		if (!isLoggedIn()) {
 			refreshCookies();
@@ -190,21 +191,16 @@ public class DomibusRestClient {
 				.post(ClientResponse.class, multipartEntity);
 	}
 
-	private ClientResponse requestPUT(WebResource resource, String params) {
-
-		if (!isLoggedIn()) {
-			refreshCookies();
-		}
-
-		WebResource.Builder builder = decorateBuilder(resource);
-
-		return builder
-				.type(MediaType.APPLICATION_JSON)
-				.put(ClientResponse.class, params);
+	public ClientResponse jsonPUT(WebResource resource, String params) {
+		return requestPUT(resource, params, MediaType.APPLICATION_JSON);
 	}
 
 	//Method is applicable when Media type is TEXT_PLAIN
-	private ClientResponse requesttPUT(WebResource resource, String params) {
+	public ClientResponse textPUT(WebResource resource, String params) {
+		return requestPUT(resource, params, MediaType.TEXT_PLAIN);
+	}
+
+	public ClientResponse requestPUT(WebResource resource, String params, String type) {
 
 		if (!isLoggedIn()) {
 			refreshCookies();
@@ -213,7 +209,7 @@ public class DomibusRestClient {
 		WebResource.Builder builder = decorateBuilder(resource);
 
 		return builder
-				.type(MediaType.TEXT_PLAIN)
+				.type(type)
 				.put(ClientResponse.class, params);
 	}
 
@@ -255,7 +251,7 @@ public class DomibusRestClient {
 
 		String payload = provider.createUserObj(username, role, pass, domain);
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), payload);
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload);
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not create user");
 		}
@@ -279,7 +275,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not delete user");
 		}
@@ -308,7 +304,7 @@ public class DomibusRestClient {
 
 			user.put("status", "UPDATED");
 
-			ClientResponse response = requestPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
+			ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
 			if (response.getStatus() != 200) {
 				throw new RuntimeException("Could not UPDATE user");
 			}
@@ -335,7 +331,7 @@ public class DomibusRestClient {
 		String payload = provider.createPluginUserObj(username, role, pass);
 
 		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not create plugin user");
 		}
@@ -345,7 +341,7 @@ public class DomibusRestClient {
 		String payload = provider.createCertPluginUserObj(username, role);
 
 		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not create plugin user");
 		}
@@ -372,7 +368,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
 		if (response.getStatus() != 204) {
 			throw new RuntimeException("Could not delete plugin user");
 		}
@@ -477,7 +473,7 @@ public class DomibusRestClient {
 			e.printStackTrace();
 		}
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get message filter");
 		}
@@ -485,7 +481,7 @@ public class DomibusRestClient {
 
 	public void saveMessageFilters(JSONArray filters, String domain) throws JSONException {
 		switchDomain(domain);
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), filters.toString());
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), filters.toString());
 		if (response.getStatus() != 200) {
 			throw new RuntimeException("Could not get message filter");
 		}
@@ -513,7 +509,7 @@ public class DomibusRestClient {
 		}
 
 
-		ClientResponse response = requestPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), deletedL.toString());
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), deletedL.toString());
 		if (response.getStatus() != 200) {
 			log.debug(String.valueOf(response.getStatus()));
 			log.debug(response.getEntity(String.class));
@@ -634,8 +630,8 @@ public class DomibusRestClient {
 	public boolean resendMessage(String id, String domain) throws Exception {
 		switchDomain(domain);
 
-		ClientResponse response = requestPUT(resource.path(
-				String.format(RestServicePaths.MESSAGE_LOG_RESEND, id)),
+		ClientResponse response = jsonPUT(resource.path(
+				RestServicePaths.MESSAGE_LOG_RESEND).queryParam("messageId", id),
 				"{}");
 
 		if (response.getStatus() == 200) {
@@ -656,6 +652,20 @@ public class DomibusRestClient {
 		}
 
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
+	}
+
+	public JSONObject searchMessage(String id, String domain) throws Exception {
+		switchDomain(domain);
+		HashMap<String, String> par = new HashMap<>();
+		par.put("pageSize", "100");
+		par.put("messageId", id);
+
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
+		if (clientResponse.getStatus() != 200) {
+			return null;
+		}
+
+		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries").getJSONObject(0);
 	}
 
 
@@ -682,7 +692,7 @@ public class DomibusRestClient {
 	public void updateDomibusProperty(String propertyName, HashMap<String, String> params, String payload) throws Exception {
 
 		String RestServicePathForPropertyUpdate = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
-		ClientResponse clientResponse = requesttPUT(resource.path(RestServicePathForPropertyUpdate), payload);
+		ClientResponse clientResponse = textPUT(resource.path(RestServicePathForPropertyUpdate), payload);
 		if (clientResponse.getStatus() != 200) {
 			throw new RuntimeException("Could not update " + propertyName + " property");
 		}
@@ -701,7 +711,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
+		ClientResponse updatePartiesResp = jsonPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 
 		if(updatePartiesResp.getStatus() != 200){
 			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
@@ -732,7 +742,7 @@ public class DomibusRestClient {
 			}
 		}
 
-		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
+		ClientResponse updatePartiesResp = jsonPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 
 		if(updatePartiesResp.getStatus() != 200){
 			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );

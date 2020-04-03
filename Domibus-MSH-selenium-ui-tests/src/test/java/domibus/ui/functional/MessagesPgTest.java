@@ -13,6 +13,7 @@ import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import pages.messages.MessageFilters;
 import utils.Generator;
+import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
 import java.io.File;
@@ -219,7 +220,7 @@ public class MessagesPgTest extends BaseTest {
 		String zipPath = rest.downloadMessage(messageID, null);
 		log.info("downloaded message to zip with path " + zipPath);
 
-		HashMap<String, String> zipContent = unzip(zipPath);
+		HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
 		log.info("checking zip for files message and message.xml");
 		boolean foundXMLfile = false;
 		boolean foundMessfile = false;
@@ -238,11 +239,11 @@ public class MessagesPgTest extends BaseTest {
 		log.info("checking the message metadata");
 		MessageDetailsModal modal = new MessageDetailsModal(driver);
 		soft.assertEquals(modal.getValue("Message Id"),
-				getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
 		soft.assertEquals(modal.getValue("Conversation Id"),
-				getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
 		soft.assertEquals(modal.getValue("Ref To Message Id"),
-				getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
 
 		soft.assertTrue(xmlString.contains("name=\"originalSender\">"+modal.getValue("Original Sender"))
 				, "Original Sender - value matches");
@@ -398,65 +399,6 @@ public class MessagesPgTest extends BaseTest {
 
 
 
-
-	private HashMap<String, String> unzip(String zipFilePath) throws Exception {
-
-		String destDir = zipFilePath.replaceAll(".zip", "");
-
-		HashMap<String, String> zipContent = new HashMap<>();
-
-		File dir = new File(destDir);
-		// create output directory if it doesn't exist
-		if(!dir.exists()) dir.mkdirs();
-
-
-		FileInputStream fis;
-		//buffer for read and write data to file
-		byte[] buffer = new byte[1024];
-
-		fis = new FileInputStream(zipFilePath);
-		ZipInputStream zis = new ZipInputStream(fis);
-		ZipEntry ze = zis.getNextEntry();
-		while (ze != null) {
-
-			String fileName = ze.getName();
-			File newFile = new File(destDir + File.separator + fileName);
-
-			System.out.println("Unzipping to " + newFile.getAbsolutePath());
-			//create directories for sub directories in zip
-			new File(newFile.getParent()).mkdirs();
-			FileOutputStream fos = new FileOutputStream(newFile);
-			int len;
-			while ((len = zis.read(buffer)) > 0) {
-				fos.write(buffer, 0, len);
-			}
-			fos.close();
-			//close this ZipEntry
-			zis.closeEntry();
-
-			String fileContent = new String(Files.readAllBytes(Paths.get(newFile.getAbsolutePath())));
-			zipContent.put(fileName, fileContent);
-
-			ze = zis.getNextEntry();
-		}
-
-		//close last ZipEntry
-		zis.closeEntry();
-		zis.close();
-		fis.close();
-
-		return zipContent;
-	}
-
-	private String getValueFromXMLString(String xmlString, String key){
-		String start = key + ">";
-		String end = "<\\/eb:" + key ;
-
-		Pattern p = Pattern.compile(start+"(.*?)"+end);
-		Matcher m = p.matcher(xmlString);
-		m.find();
-		return m.group(1);
-	}
 
 
 }
