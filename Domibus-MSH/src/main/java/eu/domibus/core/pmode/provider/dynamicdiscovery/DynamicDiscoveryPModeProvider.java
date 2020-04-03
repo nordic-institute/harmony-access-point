@@ -6,12 +6,12 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.pmode.provider.CachingPModeProvider;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -197,7 +197,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             to = userMessage.getPartyInfo().getTo().getPartyId().iterator().next();
         }
         if (to == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", userMessage.getMessageInfo().getMessageId(), null);
         }
 
         return to;
@@ -214,7 +214,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             from = userMessage.getPartyInfo().getFrom().getPartyId().iterator().next();
         }
         if (from == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", userMessage.getMessageInfo().getMessageId(), null);
         }
 
         return from;
@@ -337,7 +337,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             LOG.debug("Extracted the common name [{}]", cn);
         } catch (final InvalidNameException e) {
             LOG.error("Error while extracting CommonName from certificate", e);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Error while extracting CommonName from certificate", null, e);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Error while extracting CommonName from certificate", userMessage.getMessageInfo().getMessageId(), e);
         }
         //set toPartyId in UserMessage
         final PartyId receiverParty = new PartyId();

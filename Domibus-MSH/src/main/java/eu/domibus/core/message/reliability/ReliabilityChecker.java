@@ -3,21 +3,24 @@ package eu.domibus.core.message.reliability;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.ResponseResult;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
-import eu.domibus.core.ebms3.sender.ResponseResult;
+import eu.domibus.core.util.xml.XMLUtilImpl;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.wss4j.dom.WSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -130,7 +133,7 @@ public class ReliabilityChecker {
 
                     if (!elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: No security header found", null, null);
+                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: No security header found", messageId, null);
                         ex.setMshRole(MSHRole.SENDING);
                         ex.setSignalMessageId(messageId);
                         throw ex;
@@ -139,7 +142,7 @@ public class ReliabilityChecker {
 
                     if (elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MULTIPLE_SECURITY_HEADERS, messageId);
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: Multiple security headers found", null, null);
+                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: Multiple security headers found", messageId, null);
                         ex.setMshRole(MSHRole.SENDING);
                         ex.setSignalMessageId(messageId);
                         throw ex;
@@ -161,7 +164,7 @@ public class ReliabilityChecker {
                     if (!signatureFound) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MESSAGING_NOT_SIGNED, messageId);
                         LOG.error("Response message [{}]", soapPartToString(response));
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: eb:Messaging not signed", null, null);
+                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: eb:Messaging not signed", messageId, null);
                         ex.setMshRole(MSHRole.SENDING);
                         ex.setSignalMessageId(messageId);
                         throw ex;
@@ -172,7 +175,7 @@ public class ReliabilityChecker {
 
                     if (!nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation)) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_NOT_MATCHING_THE_MESSAGE, soapPartToString(response), soapPartToString(request));
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: non repudiation information and request message do not match", null, null);
+                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: non repudiation information and request message do not match", messageId, null);
                         ex.setMshRole(MSHRole.SENDING);
                         ex.setSignalMessageId(messageId);
                         throw ex;

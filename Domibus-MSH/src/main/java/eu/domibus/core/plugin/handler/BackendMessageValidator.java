@@ -86,11 +86,11 @@ public class BackendMessageValidator {
     public void validateMessageId(final String messageId) throws EbMS3Exception {
 
         if (messageId == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "required element eb:Messaging/eb:UserMessage/eb:MessageId missing", null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "required element eb:Messaging/eb:UserMessage/eb:MessageId missing", messageId, null);
         }
 
         if (messageId.length() > 255) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", messageId, null);
         }
 
         validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
@@ -128,7 +128,7 @@ public class BackendMessageValidator {
         Matcher m = patternNoControlChar.matcher(messageId);
         if (!m.matches()) {
             String errorMessage = "Element " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, messageId, null);
         }
     }
 
