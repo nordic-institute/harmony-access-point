@@ -46,7 +46,6 @@ public class RestServicePaths {
 	public static final String ALERTS_CSV = "/rest/alerts/csv";
 	public static final String UI_REPLICATION_SYNC= "/rest/uireplication/sync";
 	public static final String DOMIBUS_PROPERTIES="rest/configuration/properties";
-	public static final String ALERTS_LOG="/rest/alerts";
 
 
 }

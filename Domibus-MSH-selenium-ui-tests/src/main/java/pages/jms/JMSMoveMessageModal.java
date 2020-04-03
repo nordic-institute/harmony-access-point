@@ -8,43 +8,38 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.List;
-
 /**
  * @author Catalin Comanici
+
  * @since 4.1
  */
 public class JMSMoveMessageModal extends EditModal {
-    public JMSMoveMessageModal(WebDriver driver) {
-        super(driver);
-        PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-    }
+	public JMSMoveMessageModal(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
-    @FindBy(id = "messageDialogResendButton")
-    protected WebElement okBtn;
+	@FindBy(id = "messageDialogResendButton")
+	protected WebElement okBtn;
 
-    @FindBy(id = "messageDialogCancelButton")
-    protected WebElement cancelBtn;
+	@FindBy(id = "messageDialogCancelButton")
+	protected WebElement cancelBtn;
 
-    @FindBy(id = "jmsqueuedestination_id")
-    protected WebElement queueSelect;
+	@FindBy(id = "jmsqueuedestination_id")
+	protected WebElement queueSelect;
 
-    @FindBy(css = "span[class=mat-select-arrow]")
-    public List<WebElement> destinationArrows;
+	public JMSSelect getQueueSelect() {
+		return new JMSSelect(driver, queueSelect);
+	}
 
-    public JMSSelect getQueueSelect() {
-        return new JMSSelect(driver, queueSelect);
-    }
+	@Override
+	public DButton getOkBtn() {
+		return new DButton(driver, okBtn);
+	}
 
-    @Override
-    public DButton getOkBtn() {
-        return new DButton(driver, okBtn);
-    }
-
-    @Override
-    public DButton getCancelBtn() {
-        return new DButton(driver, cancelBtn);
-    }
+	@Override
+	public DButton getCancelBtn() {	return new DButton(driver, cancelBtn);
+	}
 
 
 }
