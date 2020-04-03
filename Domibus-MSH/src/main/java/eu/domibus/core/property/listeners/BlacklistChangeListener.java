@@ -4,8 +4,10 @@ import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.web.rest.validators.IBlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_BLACK_LIST;
@@ -19,6 +21,14 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USE
  */
 @Service
 public class BlacklistChangeListener implements DomibusPropertyChangeListener {
+
+    @Autowired
+    ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void init() {
+        String id = applicationContext.getId();
+    }
 
     @Autowired
     List<IBlacklistValidator> blacklistValidators;
