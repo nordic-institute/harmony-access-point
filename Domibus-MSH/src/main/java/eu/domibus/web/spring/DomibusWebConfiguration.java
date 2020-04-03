@@ -1,15 +1,14 @@
 package eu.domibus.web.spring;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.ext.rest.spring.DomibusExtWebConfiguration;
 import eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter;
 import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import eu.domibus.web.security.AuthenticatedPrincipalInterceptor;
 import eu.domibus.web.security.DefaultPasswordInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -27,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_FIL
  */
 @EnableWebMvc
 @Configuration("domibusWebConfiguration")
-@ImportResource({"classpath*:config/*-domibusServlet.xml"})
+@Import(DomibusExtWebConfiguration.class)
 @ComponentScan(basePackages = "eu.domibus.web")
 public class DomibusWebConfiguration implements WebMvcConfigurer {
 
