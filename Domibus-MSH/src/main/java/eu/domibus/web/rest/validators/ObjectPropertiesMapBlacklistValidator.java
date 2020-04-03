@@ -34,7 +34,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
     ItemsBlacklistValidator listValidator;
 
     @PostConstruct
-    public void init() {
+    public void onInit() {
         blacklistValidatorDelegate.setBaseBlacklistValidator(this);
         listValidator.init();
     }
