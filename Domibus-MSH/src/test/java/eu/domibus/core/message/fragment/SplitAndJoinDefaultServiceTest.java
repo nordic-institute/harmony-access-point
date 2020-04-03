@@ -913,7 +913,7 @@ public class SplitAndJoinDefaultServiceTest {
         final File file = splitAndJoinDefaultService.compressSourceMessage(sourceFile.getAbsolutePath());
         Assert.assertTrue(file.exists());
         Assert.assertTrue(file.getAbsolutePath().endsWith(".zip"));
-        Assert.assertTrue(Files.probeContentType(file.toPath()).contains("zip"));
+        Assert.assertTrue(file.toPath().toString().contains("zip"));
     }
 
     @Test
