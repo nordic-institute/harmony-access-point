@@ -14,6 +14,7 @@ import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
+import eu.domibus.web.core.spring.DomibusWebConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -78,8 +79,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         sessionTrackingModes.add(SessionTrackingMode.COOKIE);
         servletContext.setSessionTrackingModes(sessionTrackingModes);
 
-        DelegatingFilterProxy delegateFilterProxy = new DelegatingFilterProxy();
-        FilterRegistration.Dynamic springSecurityFilterChain = servletContext.addFilter("springSecurityFilterChain", delegateFilterProxy);
+        FilterRegistration.Dynamic springSecurityFilterChain = servletContext.addFilter("springSecurityFilterChain", DelegatingFilterProxy.class);
         springSecurityFilterChain.addMappingForUrlPatterns(null, false, "/*");
 
         ServletRegistration.Dynamic cxfServlet = servletContext.addServlet("CXF", CXFServlet.class);

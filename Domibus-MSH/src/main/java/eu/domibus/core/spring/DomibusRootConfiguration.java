@@ -1,5 +1,6 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.security.configuration.SecurityAdminConsoleConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
+@Import({ SecurityAdminConsoleConfiguration.class })
 public class DomibusRootConfiguration {
 
 }
