@@ -14,7 +14,7 @@ import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
-import eu.domibus.web.core.spring.DomibusWebConfiguration;
+import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
