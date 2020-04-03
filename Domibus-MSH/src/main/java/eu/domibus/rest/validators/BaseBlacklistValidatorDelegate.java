@@ -13,8 +13,7 @@ import java.lang.annotation.Annotation;
  * <p>
  * Standard delegate implementation for blacklist validators
  */
-@Component
-public class BaseBlacklistValidatorDelegate<A extends Annotation, T> implements IBlacklistValidator<A, T> {
+public abstract class BaseBlacklistValidatorDelegate<A extends Annotation, T> implements IBlacklistValidator<A, T> {
 
     protected IBlacklistValidator<A, T> baseBlacklistValidator;
 
