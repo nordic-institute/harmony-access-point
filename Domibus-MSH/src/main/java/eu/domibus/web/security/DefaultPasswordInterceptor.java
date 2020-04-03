@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.security.UserDetailServiceImpl;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

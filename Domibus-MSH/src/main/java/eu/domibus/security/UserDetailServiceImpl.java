@@ -1,4 +1,4 @@
-package eu.domibus.web.security;
+package eu.domibus.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserService;
@@ -6,6 +6,7 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
