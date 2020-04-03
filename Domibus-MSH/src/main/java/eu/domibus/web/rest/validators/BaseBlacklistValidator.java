@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
@@ -26,10 +25,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USE
  * @author Ion Perpegel
  * @since 4.1
  * <p>
- * * The base, abstract class that contains common code for all the blacklist/whitelist validators
- * * Basically, it check that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
+ * * The base class that contains common code for all the blacklist/whitelist validators
+ * * Basically, it checks that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
  */
-public abstract class BaseBlacklistValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
+public abstract class BaseBlacklistValidator<A extends Annotation, T> implements IBlacklistValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
     public static final String WHITELIST_PROPERTY = DOMIBUS_USER_INPUT_WHITE_LIST;
@@ -99,7 +98,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         }
     }
 
-    protected abstract String getErrorMessage();
+    public abstract String getErrorMessage();
 
     public abstract boolean isValid(T value, CustomWhiteListed customAnnotation);
 
@@ -107,11 +106,11 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return isValid(value, (CustomWhiteListed) null);
     }
 
-    protected boolean isValidValue(String value) {
+    public boolean isValidValue(String value) {
         return isValidValue(value, null);
     }
 
-    protected boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
+    public boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
         boolean res = isWhiteListValid(value, customAnnotation) && isBlackListValid(value, customAnnotation);
         LOG.debug("Validated value [{}] and the outcome is [{}]", value, res);
         return res;
@@ -123,7 +122,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
      *                         it is used for some properties, like endpoint, that need to allow some characters that otherwise are not permitted
      * @return if the value contain only characters that are defined in the whitelist domibus property and custom annotation, if specified
      */
-    protected boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
+    public boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
         LOG.trace("Validating value [{}] in whitelist", value);
         if (whitelist == null) {
             LOG.trace("Whitelist is empty, exiting");
@@ -149,7 +148,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return valid;
     }
 
-    protected boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
+    public boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
         LOG.trace("Validating value [{}] in blacklist", value);
         if (blacklist == null) {
             LOG.trace("Blacklist is empty, exiting");

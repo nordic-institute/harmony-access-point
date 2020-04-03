@@ -1,7 +1,11 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
+import eu.domibus.rest.validators.BlacklistValidatorDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author Ion Perpegel
@@ -13,11 +17,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class BlacklistValidator extends BaseBlacklistValidator<WhiteListed, String> {
 
+    @Autowired
+    BlacklistValidatorDelegate blacklistValidatorDelegate;
+
+    @PostConstruct
+    public void init() {
+        blacklistValidatorDelegate.setBaseBlacklistValidator(this);
+    }
+
     @Override
-    protected String getErrorMessage() {
+    public String getErrorMessage() {
         return WhiteListed.MESSAGE;
     }
 
+    @Override
     public boolean isValid(String value, CustomWhiteListed customAnnotation) {
         return super.isValidValue(value, customAnnotation);
     }
