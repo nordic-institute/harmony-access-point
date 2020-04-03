@@ -1,0 +1,1 @@
+java -Dlogging.config=/home/edelivery/conf/sti/logback.xml -jar sti-mock-2.2.0.RELEASE.jar --spring.config.location=classpath:application.properties,file:/home/edelivery/conf/sti/application.properties
