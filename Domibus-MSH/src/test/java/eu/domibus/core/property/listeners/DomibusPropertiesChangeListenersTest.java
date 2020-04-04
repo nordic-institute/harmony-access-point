@@ -23,6 +23,7 @@ import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.web.rest.validators.BaseBlacklistValidator;
+import eu.domibus.web.rest.validators.IBlacklistValidator;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -123,7 +124,7 @@ public class DomibusPropertiesChangeListenersTest {
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     @Injectable
-    List<BaseBlacklistValidator> blacklistValidators;
+    List<IBlacklistValidator> blacklistValidators;
 
     @Injectable
     DomainService domainService;
