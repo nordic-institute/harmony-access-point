@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -149,9 +150,7 @@ public class MessageLogResource extends BaseResource {
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,
-                new HashMap<String, String>() {{
-                    put("mshRole".toUpperCase(), "AP Role");
-                }},
+                ImmutableMap.of("mshRole".toUpperCase(), "AP Role"),
                 Arrays.asList("sourceMessage", "messageFragment"),
                 "messages");
     }

@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
@@ -100,12 +101,12 @@ public class PartyResource extends BaseResource {
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,
-                new HashMap<String, String>() {{
-                    put("Name".toUpperCase(), "Party name");
-                    put("EndPoint".toUpperCase(), "End point");
-                    put("JoinedIdentifiers".toUpperCase(), "Party id");
-                    put("JoinedProcesses".toUpperCase(), "Process");
-                }},
+                ImmutableMap.of(
+                        "Name".toUpperCase(), "Party name",
+                        "EndPoint".toUpperCase(), "End point",
+                        "JoinedIdentifiers".toUpperCase(), "Party id",
+                        "JoinedProcesses".toUpperCase(), "Process"
+                ),
                 Arrays.asList("entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"),
                 "pmodeparties");
     }

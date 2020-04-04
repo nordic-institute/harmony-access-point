@@ -115,6 +115,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 messagingDao.clearPayloadData(userMessage);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
+
+                userMessageLogDao.update(userMessageLog);
                 break;
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(messageId, legConfiguration);

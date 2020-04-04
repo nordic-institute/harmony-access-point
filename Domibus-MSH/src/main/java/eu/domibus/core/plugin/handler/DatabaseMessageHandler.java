@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -148,6 +149,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
+        if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
+            LOG.debug("Message [{}] is already downloaded", messageId);
+            return transformer.transformFromMessaging(userMessage);
+        }
 
         checkMessageAuthorization(userMessage, messageLog);
 

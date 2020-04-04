@@ -221,8 +221,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
             //not part of ebMS3, eCODEX legacy property
             String strFinalRecipient = trim(messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT));
+
+            String strFinalRecipientType = trim(messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE));
+
+            LOG.debug("FinalRecipient [{}]  and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
+
             if (!isEmpty(strFinalRecipient)) {
-                target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient);
+                target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient, strFinalRecipientType);
             }
 
             target.setRefToMessageId(trim(messageIn.getStringProperty(REF_TO_MESSAGE_ID)));
@@ -262,12 +267,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     private void setTargetToPartyIdAndToPartyType(MapMessage messageIn, Submission target) throws JMSException {
         String toPartyID = getPropertyWithFallback(messageIn, TO_PARTY_ID);
         String toPartyType = getPropertyWithFallback(messageIn, TO_PARTY_TYPE);
-        target.addToParty(toPartyID, toPartyType);
+        LOG.debug("To Party Id  [{}] and Type [{}]", toPartyID, toPartyType);
+        if (toPartyID != null) {
+            target.addToParty(toPartyID, toPartyType);
+        }
     }
 
     private void setTargetFromPartyIdAndFromPartyType(MapMessage messageIn, Submission target) throws JMSException {
         String fromPartyID = getPropertyWithFallback(messageIn, FROM_PARTY_ID);
         String fromPartyType = getPropertyWithFallback(messageIn, FROM_PARTY_TYPE);
+        LOG.debug("From Party Id  [{}] and Type [{}]", fromPartyID, fromPartyType);
         target.addFromParty(fromPartyID, fromPartyType);
     }
 

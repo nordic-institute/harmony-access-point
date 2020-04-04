@@ -2,23 +2,23 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.exception.SendMessageException;
 import eu.domibus.core.generator.id.MessageIdGenerator;
+import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.MessageHeaderEntity;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
 import eu.domibus.ebms3.common.model.mf.TypeType;
-import eu.domibus.core.ebms3.sender.exception.SendMessageException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.message.UserMessageFactory;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -114,7 +114,7 @@ public class EbMS3MessageBuilder {
             //TODO: locale is static
             soapMessage.getSOAPBody().addFault(SOAPConstants.SOAP_RECEIVER_FAULT, "An error occurred while processing your request. Please check the message header for more details.", Locale.ENGLISH);
         } catch (final SOAPException e) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", null, e);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", signalMessage.getMessageInfo().getMessageId(), e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
