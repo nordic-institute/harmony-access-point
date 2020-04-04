@@ -18,6 +18,9 @@ import java.util.Optional;
  *
  * @author Ion Perpegel
  * @since 4.2
+ *
+ * Delegate implementation for UserSessionsService(used for crossing the spring context boundary).
+ * It is injected by spring instead of the actual UserSessionsService and delegates the impl to it
  */
 @Service
 public class UserSessionsServiceDelegate implements UserSessionsService {

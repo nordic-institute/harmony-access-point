@@ -2,7 +2,6 @@ package eu.domibus.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.web.rest.validators.IBlacklistValidator;
-import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
@@ -11,7 +10,8 @@ import java.lang.annotation.Annotation;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Standard delegate implementation for blacklist validators
+ * Standard delegate implementation for blacklist validators, used for crossing the spring context boundary
+ * derived classes are injected by Spring instead of the actual business classes and delegate implementation to them
  */
 public abstract class BaseBlacklistValidatorDelegate<A extends Annotation, T> implements IBlacklistValidator<A, T> {
 

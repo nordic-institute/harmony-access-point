@@ -7,7 +7,6 @@ import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import eu.domibus.web.security.AuthenticatedPrincipalInterceptor;
 import eu.domibus.web.security.DefaultPasswordInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -21,8 +20,10 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Ion Perpegel
  * @since 4.2
+ *
+ * Java configuration (that replaces mvc-dispatcher-servlet) for configuring dispatcher servlet
  */
 @EnableWebMvc
 @Configuration("domibusWebConfiguration")

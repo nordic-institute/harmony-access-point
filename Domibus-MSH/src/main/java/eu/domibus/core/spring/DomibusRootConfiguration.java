@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
-@Import({ SecurityAdminConsoleConfiguration.class })
+@Import({SecurityAdminConsoleConfiguration.class})
 public class DomibusRootConfiguration {
 
 }
