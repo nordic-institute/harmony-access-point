@@ -34,7 +34,7 @@ public class UserSessionsServiceImpl implements UserSessionsService {
     UserSessionsServiceDelegate userSessionsServiceDelegate;
 
     @PostConstruct
-    protected void Init() {
+    protected void init() {
         userSessionsServiceDelegate.setUserSessionsService(this);
     }
 

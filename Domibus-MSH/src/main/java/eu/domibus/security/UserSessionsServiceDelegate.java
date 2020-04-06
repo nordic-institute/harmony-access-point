@@ -25,9 +25,9 @@ import java.util.Optional;
 @Service
 public class UserSessionsServiceDelegate implements UserSessionsService {
 
-    private UserSessionsServiceImpl userSessionsService;
+    private UserSessionsService userSessionsService;
 
-    public void setUserSessionsService(UserSessionsServiceImpl userSessionsService) {
+    public void setUserSessionsService(UserSessionsService userSessionsService) {
         this.userSessionsService = userSessionsService;
     }
 
