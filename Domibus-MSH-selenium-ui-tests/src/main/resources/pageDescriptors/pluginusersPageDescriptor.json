@@ -35,12 +35,6 @@
 		"visibleByDefault": true
 	  },
 	  {
-		"name": "Password",
-		"type": "password",
-		"sortable": false,
-		"visibleByDefault": true
-	  },
-	  {
 		"name": "Role",
 		"type": "text",
 		"sortable": true,
