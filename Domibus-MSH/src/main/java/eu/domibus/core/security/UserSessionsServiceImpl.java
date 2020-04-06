@@ -15,7 +15,7 @@ import java.util.Optional;
 
 /**
  * Implementation for {@link UserSessionsService}
- * It is located in core package(and nor web) because it is referred from classes created in root application context
+ * It is located in core package(and not web) because it is referred from classes created in root application context
  *
  * @author Ion Perpegel
  * @since 4.2

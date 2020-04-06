@@ -10,7 +10,7 @@ import java.lang.annotation.Annotation;
  * @since 4.2
  * <p>
  * Interface for all the blacklist/whitelist validators;
- * All actual validators are located in core package(and nor web) because they are referred from BlackListpropertyChangeListener, created in root application context
+ * All actual validators are located in core package because they are referred from BlackListpropertyChangeListener, created in root application context
  */
 public interface BlacklistValidator<A extends Annotation, T> extends ConstraintValidator<A, T> {
     void reset();

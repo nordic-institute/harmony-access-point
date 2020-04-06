@@ -9,10 +9,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
+ * Java configuration (that replaces xml file) for configuring external rest services
+ * 
  * @author Ion Perpegel
  * @since 4.2
  *
- * Java configuration (that replaces xml file) for configuring external rest services
  */
 @EnableWebMvc
 @Configuration("domibusExtWebConfiguration")
