@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 
@@ -7,9 +7,10 @@ import java.lang.annotation.Annotation;
 
 /**
  * @author Ion Perpegel
- * @since 4.1
+ * @since 4.2
  * <p>
- * Interface for all the blacklist/whitelist validators
+ * Interface for all the blacklist/whitelist validators;
+ * All actual validators are located in core package(and nor web) because they are referred from BlackListpropertyChangeListener, created in root application context
  */
 public interface BlacklistValidator<A extends Annotation, T> extends ConstraintValidator<A, T> {
     void reset();

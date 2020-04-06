@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;

@@ -1,9 +1,10 @@
-package eu.domibus.web.security;
+package eu.domibus.core.security;
 
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 /**
  * Implementation for {@link UserSessionsService}
+ * It is located in core package(and nor web) because it is referred from classes created in root application context
  *
  * @author Ion Perpegel
  * @since 4.2

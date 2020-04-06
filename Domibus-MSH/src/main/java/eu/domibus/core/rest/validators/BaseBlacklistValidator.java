@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import com.google.common.base.Strings;
 import eu.domibus.api.property.DomibusPropertyProvider;
