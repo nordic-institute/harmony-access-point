@@ -1,10 +1,10 @@
 package eu.domibus.core.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.core.security.ExpiredSessionStrategy;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.AuthenticationServiceImpl;
-import eu.domibus.web.security.ExpiredSessionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -40,6 +40,9 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     @Autowired
     SessionRegistry sessionRegistry;
 
+    @Autowired
+    ExpiredSessionStrategy expiredSessionStrategy;
+
     @Bean(name = "authenticationManagerForAdminConsole")
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -69,7 +72,7 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                 .sessionManagement()
                 .maximumSessions(10)
                 .maxSessionsPreventsLogin(false)
-                .expiredSessionStrategy(new ExpiredSessionStrategy())
+                .expiredSessionStrategy(expiredSessionStrategy)
                 .sessionRegistry(sessionRegistry)
         ;
     }
