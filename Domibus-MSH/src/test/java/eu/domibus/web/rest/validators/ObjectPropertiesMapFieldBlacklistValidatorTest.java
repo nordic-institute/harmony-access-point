@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ObjectPropertiesMapBlacklistValidatorTest {
+public class ObjectPropertiesMapFieldBlacklistValidatorTest {
     @Tested
     ObjectPropertiesMapBlacklistValidator blacklistValidator;
 

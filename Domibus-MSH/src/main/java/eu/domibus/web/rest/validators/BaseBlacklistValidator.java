@@ -28,7 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USE
  * The base class that contains common code for all the blacklist/whitelist validators
  * Basically, it checks that the value/values/object properties of the REST model do not contain any char from the blacklist and contain only chars from whitelist
  */
-public abstract class BaseBlacklistValidator<A extends Annotation, T> implements IBlacklistValidator<A, T> {
+public abstract class BaseBlacklistValidator<A extends Annotation, T> implements BlacklistValidator<A, T> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(BaseBlacklistValidator.class);
 
     public static final String WHITELIST_PROPERTY = DOMIBUS_USER_INPUT_WHITE_LIST;

@@ -18,9 +18,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
-@Constraint(validatedBy = BlacklistValidator.class)
+@Constraint(validatedBy = FieldBlacklistValidator.class)
 @Documented
-public @interface WhiteListed {
+public @interface FieldWhiteListed {
 
     static String MESSAGE = "Forbidden character detected.";
 

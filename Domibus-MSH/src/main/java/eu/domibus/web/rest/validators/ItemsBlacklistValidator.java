@@ -2,7 +2,6 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.rest.validators.BlacklistValidatorDelegate;
 import eu.domibus.rest.validators.ItemsBlacklistValidatorDelegate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;

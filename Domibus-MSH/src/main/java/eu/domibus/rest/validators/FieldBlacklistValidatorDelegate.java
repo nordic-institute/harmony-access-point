@@ -1,6 +1,6 @@
 package eu.domibus.rest.validators;
 
-import eu.domibus.web.rest.validators.WhiteListed;
+import eu.domibus.web.rest.validators.FieldWhiteListed;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
  * Delegate class for BlacklistValidator
  */
 @Component
-public class BlacklistValidatorDelegate extends BaseBlacklistValidatorDelegate<WhiteListed, String> {
+public class FieldBlacklistValidatorDelegate extends BaseBlacklistValidatorDelegate<FieldWhiteListed, String> {
 
 }
