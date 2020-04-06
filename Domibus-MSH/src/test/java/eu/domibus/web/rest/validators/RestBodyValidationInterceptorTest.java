@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.core.rest.validators.ObjectBlacklistValidator;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;

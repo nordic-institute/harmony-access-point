@@ -1,8 +1,7 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.CustomWhiteListed;
-import eu.domibus.rest.validators.FieldBlacklistValidatorDelegate;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -19,9 +18,6 @@ public class FieldBlacklistValidatorTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    FieldBlacklistValidatorDelegate fieldBlacklistValidatorDelegate;
 
     @Test
     public void shouldValidateWhenBlacklistIsDefined() {

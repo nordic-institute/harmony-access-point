@@ -1,4 +1,4 @@
-package eu.domibus.security.configuration;
+package eu.domibus.core.security.configuration;
 
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Configuration;

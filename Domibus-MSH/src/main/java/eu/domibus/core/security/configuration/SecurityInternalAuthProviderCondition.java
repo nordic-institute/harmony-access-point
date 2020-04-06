@@ -1,4 +1,4 @@
-package eu.domibus.security.configuration;
+package eu.domibus.core.security.configuration;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;

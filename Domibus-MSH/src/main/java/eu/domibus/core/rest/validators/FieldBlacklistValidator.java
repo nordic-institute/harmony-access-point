@@ -1,11 +1,8 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
-import eu.domibus.rest.validators.FieldBlacklistValidatorDelegate;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.web.rest.validators.FieldWhiteListed;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author Ion Perpegel
@@ -16,14 +13,6 @@ import javax.annotation.PostConstruct;
  */
 @Component
 public class FieldBlacklistValidator extends BaseBlacklistValidator<FieldWhiteListed, String> {
-
-    @Autowired
-    FieldBlacklistValidatorDelegate fieldBlacklistValidatorDelegate;
-
-    @PostConstruct
-    public void onInit() {
-        fieldBlacklistValidatorDelegate.setDelegated(this);
-    }
 
     @Override
     public String getErrorMessage() {
