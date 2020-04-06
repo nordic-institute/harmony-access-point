@@ -30,7 +30,7 @@
 			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=default" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="domibus_C2Dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
+			<party name="domibus_c2dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom1" allowChunking="false">
 				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="a_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=a" allowChunking="false">
@@ -133,11 +133,11 @@
 		</process>
 		<process name="tc2Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="domibus_C2Dom1_gw"/>
+				<initiatorParty name="domibus_c2dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="domibus_C2Dom1_gw"/>
+				<responderParty name="domibus_c2dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -185,11 +185,11 @@
 		</process>
 		<process name="tc7Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="domibus_C2Dom1_gw"/>
+				<initiatorParty name="domibus_c2dom1_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="domibus_C2Dom1_gw"/>
+				<responderParty name="domibus_c2dom1_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
