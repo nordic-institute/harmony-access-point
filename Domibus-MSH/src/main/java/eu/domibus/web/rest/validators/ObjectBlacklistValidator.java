@@ -3,11 +3,14 @@ package eu.domibus.web.rest.validators;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.rest.validators.ObjectBlacklistValidatorDelegate;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.validation.ValidationException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -30,8 +33,16 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
     private String message = ObjectWhiteListed.MESSAGE;
 
+    @Autowired
+    ObjectBlacklistValidatorDelegate blacklistValidatorDelegate;
+
+    @PostConstruct
+    public void onInit() {
+        blacklistValidatorDelegate.setDelegated(this);
+    }
+
     @Override
-    protected String getErrorMessage() {
+    public String getErrorMessage() {
         return message;
     }
 

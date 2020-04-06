@@ -2,6 +2,7 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.rest.validators.ObjectBlacklistValidatorDelegate;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -11,12 +12,15 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-public class ObjectBlacklistValidatorTest {
+public class ObjectFieldBlacklistValidatorTest {
     @Tested
     ObjectBlacklistValidator blacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    ObjectBlacklistValidatorDelegate objectBlacklistValidatorDelegate;
 
     @Test
     public void testValid() {
@@ -33,7 +37,7 @@ public class ObjectBlacklistValidatorTest {
         ro.setRoutingCriterias(Arrays.asList(rt, rt));
 
         new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns(";%'\\/");
         }};
 
@@ -59,7 +63,7 @@ public class ObjectBlacklistValidatorTest {
         ro.setRoutingCriterias(Arrays.asList(rt, rt));
 
         new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns(";%'\\/");
         }};
 

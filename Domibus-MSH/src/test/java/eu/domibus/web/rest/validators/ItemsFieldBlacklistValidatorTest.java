@@ -1,23 +1,27 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.rest.validators.ItemsBlacklistValidatorDelegate;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ItemsBlacklistValidatorTest {
+public class ItemsFieldBlacklistValidatorTest {
     @Tested
     ItemsBlacklistValidator blacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    ItemsBlacklistValidatorDelegate itemsBlacklistValidatorDelegate;
+
     @Test
     public void testIsValid() {
         new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns("%'\\/");
         }};
 

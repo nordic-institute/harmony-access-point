@@ -1,6 +1,7 @@
 package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.security.UserDetailServiceImpl;
 import mockit.*;
 import org.junit.Before;
 import org.junit.Test;

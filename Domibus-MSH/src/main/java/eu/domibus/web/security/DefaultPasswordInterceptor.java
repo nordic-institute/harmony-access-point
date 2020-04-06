@@ -2,11 +2,13 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.security.UserDetailServiceImpl;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.HttpURLConnection;

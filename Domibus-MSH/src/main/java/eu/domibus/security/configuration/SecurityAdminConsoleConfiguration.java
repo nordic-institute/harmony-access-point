@@ -1,10 +1,10 @@
-package eu.domibus.web.security.configuration;
+package eu.domibus.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.web.security.ExpiredSessionStrategy;
-import eu.domibus.web.security.UserDetailServiceImpl;
+import eu.domibus.security.UserDetailServiceImpl;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.AuthenticationServiceImpl;
+import eu.domibus.web.security.ExpiredSessionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;

@@ -1,25 +1,34 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
-import org.springframework.stereotype.Component;
+
+import javax.validation.ConstraintValidator;
+import java.lang.annotation.Annotation;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  * <p>
- * Custom validator that checks that the string value does not contain any char from the blacklist but only chars from the whitelist
- * It heavily relies on the base class
+ * Interface for all the blacklist/whitelist validators
  */
-@Component
-public class BlacklistValidator extends BaseBlacklistValidator<WhiteListed, String> {
+public interface BlacklistValidator<A extends Annotation, T> extends ConstraintValidator<A, T> {
+    void reset();
 
-    @Override
-    protected String getErrorMessage() {
-        return WhiteListed.MESSAGE;
-    }
+    void init();
 
-    public boolean isValid(String value, CustomWhiteListed customAnnotation) {
-        return super.isValidValue(value, customAnnotation);
-    }
+    void validate(T value);
 
+    String getErrorMessage();
+
+    boolean isValid(T value, CustomWhiteListed customAnnotation);
+
+    boolean isValid(T value);
+
+    boolean isValidValue(String value);
+
+    boolean isValidValue(String value, CustomWhiteListed customAnnotation);
+
+    boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation);
+
+    boolean isBlackListValid(String value, CustomWhiteListed customAnnotation);
 }
