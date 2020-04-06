@@ -188,6 +188,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     protected PartyId getToPartyId(UserMessage userMessage) throws EbMS3Exception {
         PartyId to = null;
+        String messageId = getMessageId(userMessage);
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getTo() != null &&
@@ -197,7 +198,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             to = userMessage.getPartyInfo().getTo().getPartyId().iterator().next();
         }
         if (to == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", userMessage.getMessageInfo().getMessageId() != null ? userMessage.getMessageInfo().getMessageId() : null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", messageId, null);
         }
 
         return to;
@@ -205,6 +206,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     protected PartyId getFromPartyId(UserMessage userMessage) throws EbMS3Exception {
         PartyId from = null;
+        String messageId = getMessageId(userMessage);
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getFrom() != null &&
@@ -214,10 +216,16 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             from = userMessage.getPartyInfo().getFrom().getPartyId().iterator().next();
         }
         if (from == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", userMessage.getMessageInfo().getMessageId() != null ? userMessage.getMessageInfo().getMessageId() : null, null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", messageId, null);
         }
 
         return from;
+    }
+    protected String getMessageId(UserMessage userMessage) {
+        if(userMessage == null || userMessage.getMessageInfo() == null) {
+            return null;
+        }
+        return userMessage.getMessageInfo().getMessageId();
     }
 
     protected synchronized Party updateConfigurationParty(String name, String type, String endpoint) {
