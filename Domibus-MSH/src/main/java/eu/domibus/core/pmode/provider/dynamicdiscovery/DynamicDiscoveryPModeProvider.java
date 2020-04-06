@@ -221,6 +221,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
         return from;
     }
+
     protected String getMessageId(UserMessage userMessage) {
         if(userMessage == null || userMessage.getMessageInfo() == null) {
             return null;
