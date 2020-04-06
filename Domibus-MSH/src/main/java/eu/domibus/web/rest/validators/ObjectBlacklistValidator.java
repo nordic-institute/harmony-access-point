@@ -3,7 +3,6 @@ package eu.domibus.web.rest.validators;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.rest.validators.ItemsBlacklistValidatorDelegate;
 import eu.domibus.rest.validators.ObjectBlacklistValidatorDelegate;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
 
     @PostConstruct
     public void onInit() {
-        blacklistValidatorDelegate.setBaseBlacklistValidator(this);
+        blacklistValidatorDelegate.setDelegated(this);
     }
 
     @Override

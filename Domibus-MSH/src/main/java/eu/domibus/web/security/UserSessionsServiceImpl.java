@@ -35,7 +35,7 @@ public class UserSessionsServiceImpl implements UserSessionsService {
 
     @PostConstruct
     protected void init() {
-        userSessionsServiceDelegate.setUserSessionsService(this);
+        userSessionsServiceDelegate.setDelegated(this);
     }
 
     @Override

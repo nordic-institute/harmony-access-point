@@ -2,16 +2,7 @@ package eu.domibus.security;
 
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.UserSessionsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Implementation for {@link UserSessionsService}
@@ -25,14 +16,14 @@ import java.util.Optional;
 @Service
 public class UserSessionsServiceDelegate implements UserSessionsService {
 
-    private UserSessionsService userSessionsService;
+    private UserSessionsService delegated;
 
-    public void setUserSessionsService(UserSessionsService userSessionsService) {
-        this.userSessionsService = userSessionsService;
+    public void setDelegated(UserSessionsService delegated) {
+        this.delegated = delegated;
     }
 
     @Override
     public void invalidateSessions(UserBase user) {
-        userSessionsService.invalidateSessions(user);
+        delegated.invalidateSessions(user);
     }
 }

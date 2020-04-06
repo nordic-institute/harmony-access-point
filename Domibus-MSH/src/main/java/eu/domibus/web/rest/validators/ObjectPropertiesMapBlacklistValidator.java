@@ -2,7 +2,6 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.rest.validators.ObjectBlacklistValidatorDelegate;
 import eu.domibus.rest.validators.ObjectPropertiesMapBlacklistValidatorDelegate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     @PostConstruct
     public void onInit() {
-        blacklistValidatorDelegate.setBaseBlacklistValidator(this);
+        blacklistValidatorDelegate.setDelegated(this);
         listValidator.init();
     }
 

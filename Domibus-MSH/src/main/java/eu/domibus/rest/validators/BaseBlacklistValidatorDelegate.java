@@ -15,64 +15,64 @@ import java.lang.annotation.Annotation;
  */
 public abstract class BaseBlacklistValidatorDelegate<A extends Annotation, T> implements BlacklistValidator<A, T> {
 
-    protected BlacklistValidator<A, T> baseBlacklistValidator;
+    protected BlacklistValidator<A, T> delegated;
 
-    public void setBaseBlacklistValidator(BlacklistValidator<A, T> baseBlacklistValidator) {
-        this.baseBlacklistValidator = baseBlacklistValidator;
+    public void setDelegated(BlacklistValidator<A, T> delegated) {
+        this.delegated = delegated;
     }
 
     @Override
     public void reset() {
-        baseBlacklistValidator.reset();
+        delegated.reset();
     }
 
     @Override
     public void init() {
-        baseBlacklistValidator.init();
+        delegated.init();
     }
 
     @Override
     public void validate(T value) {
-        baseBlacklistValidator.validate(value);
+        delegated.validate(value);
     }
 
     @Override
     public String getErrorMessage() {
-        return baseBlacklistValidator.getErrorMessage();
+        return delegated.getErrorMessage();
     }
 
     @Override
     public boolean isValid(T value, CustomWhiteListed customAnnotation) {
-        return baseBlacklistValidator.isValid(value, customAnnotation);
+        return delegated.isValid(value, customAnnotation);
     }
 
     @Override
     public boolean isValid(T value) {
-        return baseBlacklistValidator.isValid(value);
+        return delegated.isValid(value);
     }
 
     @Override
     public boolean isValidValue(String value) {
-        return baseBlacklistValidator.isValidValue(value);
+        return delegated.isValidValue(value);
     }
 
     @Override
     public boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
-        return baseBlacklistValidator.isValidValue(value, customAnnotation);
+        return delegated.isValidValue(value, customAnnotation);
     }
 
     @Override
     public boolean isWhiteListValid(String value, CustomWhiteListed customAnnotation) {
-        return baseBlacklistValidator.isWhiteListValid(value, customAnnotation);
+        return delegated.isWhiteListValid(value, customAnnotation);
     }
 
     @Override
     public boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
-        return baseBlacklistValidator.isBlackListValid(value, customAnnotation);
+        return delegated.isBlackListValid(value, customAnnotation);
     }
 
     @Override
     public boolean isValid(T value, ConstraintValidatorContext constraintValidatorContext) {
-        return baseBlacklistValidator.isValid(value, constraintValidatorContext);
+        return delegated.isValid(value, constraintValidatorContext);
     }
 }

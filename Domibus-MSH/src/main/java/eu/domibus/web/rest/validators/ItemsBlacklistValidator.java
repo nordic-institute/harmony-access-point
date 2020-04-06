@@ -27,7 +27,7 @@ public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsWhiteLi
 
     @PostConstruct
     public void onInit() {
-        blacklistValidatorDelegate.setBaseBlacklistValidator(this);
+        blacklistValidatorDelegate.setDelegated(this);
     }
 
     @Override

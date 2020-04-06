@@ -22,7 +22,7 @@ public class FieldBlacklistValidator extends BaseBlacklistValidator<FieldWhiteLi
 
     @PostConstruct
     public void onInit() {
-        fieldBlacklistValidatorDelegate.setBaseBlacklistValidator(this);
+        fieldBlacklistValidatorDelegate.setDelegated(this);
     }
 
     @Override
