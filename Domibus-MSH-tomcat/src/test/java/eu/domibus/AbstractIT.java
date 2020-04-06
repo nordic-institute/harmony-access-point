@@ -18,6 +18,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
+import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -79,7 +80,9 @@ import static org.awaitility.Awaitility.with;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(initializers = PropertyOverrideContextInitializer.class, classes = {DomibusRootConfiguration.class, DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class})
+@ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
+        classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
+                DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
