@@ -2,7 +2,6 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.rest.validators.ObjectBlacklistValidatorDelegate;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -18,9 +17,6 @@ public class ObjectFieldBlacklistValidatorTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    ObjectBlacklistValidatorDelegate objectBlacklistValidatorDelegate;
 
     @Test
     public void testValid() {

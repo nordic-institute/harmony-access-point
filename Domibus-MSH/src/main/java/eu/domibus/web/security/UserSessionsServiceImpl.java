@@ -4,14 +4,11 @@ import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.security.UserSessionsServiceDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,21 +19,12 @@ import java.util.Optional;
  * @since 4.2
  */
 @Service
-@Primary
 public class UserSessionsServiceImpl implements UserSessionsService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSessionsServiceImpl.class);
 
     @Autowired
     SessionRegistry sessionRegistry;
-
-    @Autowired
-    UserSessionsServiceDelegate userSessionsServiceDelegate;
-
-    @PostConstruct
-    protected void init() {
-        userSessionsServiceDelegate.setDelegated(this);
-    }
 
     @Override
     public void invalidateSessions(UserBase user) {

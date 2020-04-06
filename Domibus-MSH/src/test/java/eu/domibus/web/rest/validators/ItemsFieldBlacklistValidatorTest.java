@@ -1,7 +1,6 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.rest.validators.ItemsBlacklistValidatorDelegate;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -14,9 +13,6 @@ public class ItemsFieldBlacklistValidatorTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    ItemsBlacklistValidatorDelegate itemsBlacklistValidatorDelegate;
 
     @Test
     public void testIsValid() {

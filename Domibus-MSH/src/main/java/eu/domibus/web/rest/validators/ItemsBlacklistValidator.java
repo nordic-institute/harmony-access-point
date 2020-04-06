@@ -2,13 +2,10 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.rest.validators.ItemsBlacklistValidatorDelegate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,14 +18,6 @@ import java.util.List;
 @Component
 public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsWhiteListed, String[]> {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ItemsBlacklistValidator.class);
-
-    @Autowired
-    ItemsBlacklistValidatorDelegate blacklistValidatorDelegate;
-
-    @PostConstruct
-    public void onInit() {
-        blacklistValidatorDelegate.setDelegated(this);
-    }
 
     @Override
     public String getErrorMessage() {
