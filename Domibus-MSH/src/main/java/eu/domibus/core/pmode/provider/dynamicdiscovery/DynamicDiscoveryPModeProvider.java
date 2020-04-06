@@ -197,7 +197,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             to = userMessage.getPartyInfo().getTo().getPartyId().iterator().next();
         }
         if (to == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", userMessage.getMessageInfo().getMessageId(), null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", null, null);
         }
 
         return to;
@@ -214,7 +214,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             from = userMessage.getPartyInfo().getFrom().getPartyId().iterator().next();
         }
         if (from == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", userMessage.getMessageInfo().getMessageId(), null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", null, null);
         }
 
         return from;
