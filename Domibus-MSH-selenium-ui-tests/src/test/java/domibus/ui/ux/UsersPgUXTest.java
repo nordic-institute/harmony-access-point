@@ -171,7 +171,6 @@ public class UsersPgUXTest extends BaseTest {
 
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
-        page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
 
         log.info("checking info in grid against the file");
         page.grid().checkCSVvsGridHeaders(fileName, soft);
