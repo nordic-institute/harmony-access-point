@@ -55,7 +55,6 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
                 break;
             default:
         }
-        super.update(messageLog);
         final String messageId = messageLog.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

@@ -24,7 +24,7 @@
         <property name="sender" ref="loggingSender"/>
         <property name="limit" value="${domibus.logging.cxf.limit}"/>
     </bean>
-    <bean id="loggingSender" class="eu.domibus.logging.DomibusLoggingEventSender">
+    <bean id="loggingSender" class="eu.domibus.core.logging.cxf.DomibusLoggingEventSender">
         <property name="printPayload" value="${domibus.logging.payload.print}"/>
     </bean>
 

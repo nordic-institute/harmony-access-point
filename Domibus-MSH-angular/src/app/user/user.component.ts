@@ -34,7 +34,6 @@ export class UserComponent extends mix(BaseListComponent)
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
 
-  @ViewChild('passwordTpl', {static: false}) passwordTpl: TemplateRef<any>;
   @ViewChild('editableTpl', {static: false}) editableTpl: TemplateRef<any>;
   @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
   @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
@@ -80,46 +79,44 @@ export class UserComponent extends mix(BaseListComponent)
         cellTemplate: this.editableTpl,
         name: 'Username',
         prop: 'userName',
-        canAutoResize: true
+        canAutoResize: true,
+        showInitially: true
       },
       {
         cellTemplate: this.editableTpl,
         name: 'Role',
         prop: 'roles',
-        canAutoResize: true
+        canAutoResize: true,
+        showInitially: true
       },
       {
         cellTemplate: this.editableTpl,
         name: 'Email',
         prop: 'email',
-        canAutoResize: true
-      },
-      {
-        cellTemplate: this.passwordTpl,
-        name: 'Password',
-        prop: 'password',
         canAutoResize: true,
-        sortable: false,
-        width: 25
+        showInitially: false
       },
       {
         cellTemplate: this.checkBoxTpl,
         name: 'Active',
         canAutoResize: true,
-        width: 25
+        width: 25,
+        showInitially: true
       },
       {
         cellTemplate: this.deletedTpl,
         name: 'Deleted',
         canAutoResize: true,
-        width: 25
+        width: 25,
+        showInitially: true
       },
       {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 60,
         canAutoResize: true,
-        sortable: false
+        sortable: false,
+        showInitially: true
       }
     ];
 
@@ -132,13 +129,12 @@ export class UserComponent extends mix(BaseListComponent)
           cellTemplate: this.editableTpl,
           name: 'Domain',
           prop: 'domainName',
-          canAutoResize: true
+          canAutoResize: true,
+          showInitially: true
         });
     }
 
-    this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Username', 'Role', 'Domain', 'Active', 'Deleted', 'Actions'].indexOf(col.name) !== -1
-    });
+    this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => col.showInitially);
   }
 
   ngAfterViewChecked() {

@@ -58,7 +58,6 @@ public class MessageLogDaoTest {
             messageLog.setMessageStatus(MessageStatus.DELETED);
             messageLog.setDeleted((java.util.Date) any);
             messageLog.setNextAttempt(null);
-            messageLogDao.update(messageLog);
         }};
     }
 
@@ -72,7 +71,6 @@ public class MessageLogDaoTest {
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
             messageLog.setDeleted((java.util.Date) any);
             messageLog.setNextAttempt(null);
-            messageLogDao.update(messageLog);
         }};
     }
 
@@ -86,7 +84,6 @@ public class MessageLogDaoTest {
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED_WITH_WARNING);
             messageLog.setDeleted((java.util.Date) any);
             messageLog.setNextAttempt(null);
-            messageLogDao.update(messageLog);
         }};
     }
 
@@ -100,7 +97,6 @@ public class MessageLogDaoTest {
             messageLog.setMessageStatus(MessageStatus.DOWNLOADED);
             messageLog.setDownloaded((java.util.Date) any);
             messageLog.setNextAttempt(null);
-            messageLogDao.update(messageLog);
         }};
     }
 
@@ -114,7 +110,6 @@ public class MessageLogDaoTest {
             messageLog.setMessageStatus(MessageStatus.SEND_FAILURE);
             messageLog.setFailed((java.util.Date) any);
             messageLog.setNextAttempt(null);
-            messageLogDao.update(messageLog);
         }};
     }
 

@@ -115,7 +115,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             request = soapUtil.createSOAPMessage(rawXmlByMessageId.getRawMessage());
         } catch (SOAPException | IOException | ParserConfigurationException | SAXException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0201, "Could not generate Receipt. Check security header and non-repudiation settings", null, e);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0201, "Could not generate Receipt. Check security header and non-repudiation settings", messageId, e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
@@ -179,7 +179,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Error generating receipt", e);
             } catch (final TransformerException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0201, "Could not generate Receipt. Check security header and non-repudiation settings", null, e);
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0201, "Could not generate Receipt. Check security header and non-repudiation settings", userMessage.getMessageInfo().getMessageId(), e);
                 ex.setMshRole(MSHRole.RECEIVING);
                 throw ex;
             }

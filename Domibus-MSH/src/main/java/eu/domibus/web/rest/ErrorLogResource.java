@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
@@ -91,11 +92,10 @@ public class ErrorLogResource extends BaseResource {
 
         return exportToCSV(errorLogROList,
                 ErrorLogRO.class,
-                new HashMap<String, String>() {{
-                    put("ErrorSignalMessageId".toUpperCase(), "Signal Message Id");
-                    put("MshRole".toUpperCase(), "AP Role");
-                    put("MessageInErrorId".toUpperCase(), "Message Id");
-                }},
+                ImmutableMap.of(
+                        "ErrorSignalMessageId".toUpperCase(), "Signal Message Id",
+                        "MshRole".toUpperCase(), "AP Role",
+                        "MessageInErrorId".toUpperCase(), "Message Id"),
                 "errorlog");
     }
 

@@ -1,10 +1,10 @@
 package eu.domibus.core.payload;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -49,14 +49,13 @@ public class PayloadProfileValidator {
         if(userMessage.getPayloadInfo() == null) {
             return;
         }
-
-        for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
-            validatePartInfo(isCompressEnabledInPmode, partInfo);
+         for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
+            validatePartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageInfo().getMessageId());
         }
 
     }
 
-    protected void validatePartInfo(final boolean isCompressEnabledInPmode, final PartInfo partInfo) throws EbMS3Exception {
+    protected void validatePartInfo(final boolean isCompressEnabledInPmode, final PartInfo partInfo, String messageId) throws EbMS3Exception {
 
         if(partInfo.getPartProperties() == null) {
             if(isCompressEnabledInPmode) {
@@ -70,7 +69,7 @@ public class PayloadProfileValidator {
         for(Property property : partInfo.getPartProperties().getProperties()) {
             if(CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 if(!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue(), null, null);
+                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue(), messageId, null);
                 }
                 compress = true;
             }
@@ -81,7 +80,7 @@ public class PayloadProfileValidator {
 
 
         if(compress == true && mimeType == null) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", null, null);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", messageId, null);
         }
     }
 

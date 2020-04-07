@@ -53,6 +53,10 @@ public class UserMessageLog extends MessageLog {
     @Column(name = "SCHEDULED")
     protected Boolean scheduled;
 
+    @Version
+    @Column(name = "VERSION")
+    protected int version;
+
     public MessageInfo getMessageInfo() {
         return messageInfo;
     }

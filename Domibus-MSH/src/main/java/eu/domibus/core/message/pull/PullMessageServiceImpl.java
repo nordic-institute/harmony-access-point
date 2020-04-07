@@ -152,7 +152,9 @@ public class PullMessageServiceImpl implements PullMessageService {
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
                 messagingDao.clearPayloadData(userMessage);
-                userMessageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
+
+                userMessageLogDao.update(userMessageLog);
+
                 uiReplicationSignalService.messageChange(messageId);
                 return new PullRequestResult(userMessageLog);
             case PULL_FAILED:

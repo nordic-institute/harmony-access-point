@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.web.rest.validators.BaseBlacklistValidator;
+import eu.domibus.core.rest.validators.BlacklistValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USE
 public class BlacklistChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    List<BaseBlacklistValidator> blacklistValidators;
+    List<BlacklistValidator> blacklistValidators;
 
     @Override
     public boolean handlesProperty(String propertyName) {

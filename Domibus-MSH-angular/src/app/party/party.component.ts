@@ -9,7 +9,7 @@ import {CurrentPModeComponent} from '../pmode/current/currentPMode.component';
 import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
-import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import {ClientFilterableListMixin} from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
@@ -27,7 +27,7 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class PartyComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
+  .with(ClientFilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations {
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
@@ -166,13 +166,13 @@ export class PartyComponent extends mix(BaseListComponent)
 
   async doSave(): Promise<any> {
     try {
-      this.partyService.validateParties(this.rows)
+      this.partyService.validateParties(this.allRows)
     } catch (err) {
       this.alertService.exception('Party validation error:', err);
       return false;
     }
 
-    return this.partyService.updateParties(this.rows)
+    return this.partyService.updateParties(this.allRows)
       .then((res) => {
           this.resetDirty();
           return res;

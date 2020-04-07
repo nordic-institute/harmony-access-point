@@ -21,10 +21,10 @@ import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.*;
-import eu.domibus.web.rest.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -91,7 +91,7 @@ public class MessageLogResourceTest {
     SignalMessage signalMessage;
 
     @Injectable
-    BlacklistValidator blacklistValidator;
+    FieldBlacklistValidator fieldBlacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;

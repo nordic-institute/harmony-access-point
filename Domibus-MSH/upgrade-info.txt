@@ -1,6 +1,8 @@
 Domibus 4.2 (from 4.1.4):
-                    - add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
-                    - add a configuration file named super-domibus.properties for properties specific to super users
+                - add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
+                - add a configuration file named super-domibus.properties for properties specific to super users
+Domibus 4.1.4 (from 4.1.3)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
 Domibus 4.1.3 (from 4.1.2):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - [Tomcat only]

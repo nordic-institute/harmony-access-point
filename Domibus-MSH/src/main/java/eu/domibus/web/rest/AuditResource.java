@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -132,9 +133,7 @@ public class AuditResource extends BaseResource {
 
         return exportToCSV(auditResponseRos,
                 AuditResponseRo.class,
-                new HashMap<String, String>() {{
-                    put("AuditTargetName".toUpperCase(), "Table");
-                }},
+                ImmutableMap.of("AuditTargetName".toUpperCase(), "Table"),
                 Arrays.asList("revisionId"),
                 "audit");
     }
