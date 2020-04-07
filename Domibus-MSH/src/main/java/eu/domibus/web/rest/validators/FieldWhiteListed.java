@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.validators;
 
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
@@ -18,9 +20,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
-@Constraint(validatedBy = BlacklistValidator.class)
+@Constraint(validatedBy = FieldBlacklistValidator.class)
 @Documented
-public @interface WhiteListed {
+public @interface FieldWhiteListed {
 
     static String MESSAGE = "Forbidden character detected.";
 

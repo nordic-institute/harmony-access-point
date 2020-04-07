@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.CustomWhiteListed;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ObjectPropertiesMapBlacklistValidatorTest {
+public class ObjectPropertiesMapFieldBlacklistValidatorTest {
     @Tested
     ObjectPropertiesMapBlacklistValidator blacklistValidator;
 

@@ -1,4 +1,4 @@
-package eu.domibus.web.security;
+package eu.domibus.core.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserService;
@@ -6,6 +6,7 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +23,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PAS
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
-    public static final String CHECK_DEFAULT_PASSWORD = DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD; //NOSONAR
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Autowired
@@ -54,7 +54,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     }
 
     private boolean isDefaultPasswordUsed(final User user) {
-        boolean checkDefaultPassword = Boolean.parseBoolean(domibusPropertyProvider.getProperty(CHECK_DEFAULT_PASSWORD));
+        boolean checkDefaultPassword = Boolean.parseBoolean(domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD));
         if (!checkDefaultPassword) {
             return false;
         }

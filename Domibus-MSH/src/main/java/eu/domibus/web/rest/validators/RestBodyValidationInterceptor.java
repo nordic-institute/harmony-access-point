@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.core.rest.validators.ObjectBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class RestBodyValidationInterceptor extends RequestBodyAdviceAdapter {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(RestBodyValidationInterceptor.class);
 
     @PostConstruct
-    public void init() {
+    public void onInit() {
         blacklistValidator.init();
     }
 

@@ -1,7 +1,8 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.validators.ItemsWhiteListed;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class ItemsBlacklistValidator extends BaseBlacklistValidator<ItemsWhiteLi
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ItemsBlacklistValidator.class);
 
     @Override
-    protected String getErrorMessage() {
+    public String getErrorMessage() {
         return ItemsWhiteListed.MESSAGE;
     }
 

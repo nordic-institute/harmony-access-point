@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.validators;
+package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.CustomWhiteListed;
@@ -11,30 +11,30 @@ import org.junit.Test;
 import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
 
-public class BlacklistValidatorTest {
+public class FieldBlacklistValidatorTest {
 
     @Tested
-    BlacklistValidator blacklistValidator;
+    FieldBlacklistValidator fieldBlacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void shouldValidateWhenBlacklistIsDefined() {
-        new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+        new Expectations(fieldBlacklistValidator) {{
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns("%'\\/");
         }};
 
-        blacklistValidator.initialize(null);
+        fieldBlacklistValidator.initialize(null);
 
         String validValue = "abc.";
         String invalidValue = "abc%";
         String emptyValue = "";
 
-        boolean actualValid = blacklistValidator.isValid(validValue);
-        boolean actualInvalid = blacklistValidator.isValid(invalidValue);
-        boolean emptyIsValid = blacklistValidator.isValid(emptyValue);
+        boolean actualValid = fieldBlacklistValidator.isValid(validValue);
+        boolean actualInvalid = fieldBlacklistValidator.isValid(invalidValue);
+        boolean emptyIsValid = fieldBlacklistValidator.isValid(emptyValue);
 
         Assert.assertEquals(true, actualValid);
         Assert.assertEquals(false, actualInvalid);
@@ -43,38 +43,38 @@ public class BlacklistValidatorTest {
 
     @Test
     public void shouldValidateWhenBlacklistIsEmpty() {
-        new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+        new Expectations(fieldBlacklistValidator) {{
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns("");
         }};
 
-        blacklistValidator.initialize(null);
+        fieldBlacklistValidator.initialize(null);
 
         String invalidValue = "abc%";
-        boolean result = blacklistValidator.isValid(invalidValue, (CustomWhiteListed) null);
+        boolean result = fieldBlacklistValidator.isValid(invalidValue, (CustomWhiteListed) null);
 
         Assert.assertEquals(true, result);
     }
 
     @Test
     public void shouldThrowWhenInvalid() {
-        new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.BLACKLIST_PROPERTY);
+        new Expectations(fieldBlacklistValidator) {{
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
             returns("%'\\/");
         }};
 
-        blacklistValidator.init();
+        fieldBlacklistValidator.init();
 
         String validValue = "abc.";
         String invalidValue = "abc%";
 
         try {
-            blacklistValidator.validate(validValue);
+            fieldBlacklistValidator.validate(validValue);
         } catch (IllegalArgumentException ex) {
             Assert.fail("Should not throw for valid values");
         }
         try {
-            blacklistValidator.validate(invalidValue);
+            fieldBlacklistValidator.validate(invalidValue);
             Assert.fail("Should throw for invalid values");
         } catch (ValidationException ex) {
         }
@@ -82,8 +82,8 @@ public class BlacklistValidatorTest {
 
     @Test
     public void isWhiteListValid() {
-        new Expectations(blacklistValidator) {{
-            domibusPropertyProvider.getProperty(BlacklistValidator.WHITELIST_PROPERTY);
+        new Expectations(fieldBlacklistValidator) {{
+            domibusPropertyProvider.getProperty(FieldBlacklistValidator.WHITELIST_PROPERTY);
             returns("^[\\w\\-\\.: @]*$");
         }};
 
@@ -99,15 +99,15 @@ public class BlacklistValidatorTest {
             }
         };
 
-        blacklistValidator.initialize(null);
+        fieldBlacklistValidator.initialize(null);
 
         String validValue = "abc.";
         String invalidValue = "abc%";
         String emptyValue = "";
 
-        boolean actualValid = blacklistValidator.isWhiteListValid(validValue, null);
-        boolean actualInvalid = blacklistValidator.isWhiteListValid(invalidValue, customChars);
-        boolean emptyIsValid = blacklistValidator.isWhiteListValid(emptyValue, null);
+        boolean actualValid = fieldBlacklistValidator.isWhiteListValid(validValue, null);
+        boolean actualInvalid = fieldBlacklistValidator.isWhiteListValid(invalidValue, customChars);
+        boolean emptyIsValid = fieldBlacklistValidator.isWhiteListValid(emptyValue, null);
 
         Assert.assertEquals(true, actualValid);
         Assert.assertEquals(true, actualInvalid);

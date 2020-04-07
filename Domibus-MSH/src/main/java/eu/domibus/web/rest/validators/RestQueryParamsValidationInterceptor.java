@@ -2,11 +2,13 @@ package eu.domibus.web.rest.validators;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.core.rest.validators.ObjectPropertiesMapBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -32,7 +34,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
     private static final Logger LOG = DomibusLoggerFactory.getLogger(RestQueryParamsValidationInterceptor.class);
 
     @PostConstruct
-    public void init() {
+    public void onInit() {
         blacklistValidator.init();
     }
 
