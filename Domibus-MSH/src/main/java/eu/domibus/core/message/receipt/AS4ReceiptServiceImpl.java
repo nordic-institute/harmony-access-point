@@ -261,7 +261,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
     protected TransformerFactory createTransformerFactoryForTemplates() {
-        return TransformerFactory.newInstance();
+        return XMLUtilImpl.createTransformerFactory();
     }
 
     protected InputStream getAs4ReceiptXslInputStream() throws IOException {
