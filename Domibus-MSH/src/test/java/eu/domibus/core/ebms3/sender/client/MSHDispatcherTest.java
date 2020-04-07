@@ -143,7 +143,7 @@ public class MSHDispatcherTest {
             legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
             result = algorithm;
 
-            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).getClient();
+            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
         }};
 
@@ -183,7 +183,7 @@ public class MSHDispatcherTest {
             domainContextProvider.getCurrentDomain();
             result = domain;
 
-            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).getClient();
+            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
 
             legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
