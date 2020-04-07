@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_dom2_gw">
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="domibus_c2dom2_gw">
 	<mpcs>
 		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
 		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
@@ -19,10 +19,10 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 				<partyIdType name="partyTypeEmpty" value=""/>
 			</partyIdTypes>
-			<party name="blue_dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom1" allowChunking="false">
+			<party name="domibus_c2dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom1" allowChunking="false">
 				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_dom2_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_C2Dom2" allowChunking="false">
+			<party name="domibus_c2dom2_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom2" allowChunking="false">
 				<identifier partyId="domibus-blue-dom2" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -85,12 +85,12 @@
 			</legConfigurations>
 		<process name="tc11Process" agreement="domain1-domain2-self" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_dom1_gw"/>
-				<initiatorParty name="blue_dom2_gw"/>
+				<initiatorParty name="domibus_c2dom1_gw"/>
+				<initiatorParty name="domibus_c2dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_dom1_gw"/>
-				<responderParty name="blue_dom2_gw"/>
+				<responderParty name="domibus_c2dom1_gw"/>
+				<responderParty name="domibus_c2dom2_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain2Self"/>
@@ -98,10 +98,10 @@
 		</process>
 		<process name="tc12Process" agreement="domain2-domain2-self" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_dom2_gw"/>
+				<initiatorParty name="domibus_c2dom2_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_dom2_gw"/>
+				<responderParty name="domibus_c2dom2_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushDomain2Domain2Self"/>

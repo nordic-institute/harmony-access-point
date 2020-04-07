@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_dom4_gw">
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw">
 	<mpcs>
 		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
 		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
@@ -27,7 +27,7 @@
 			<party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=default" allowChunking="false">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_dom4_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc" allowChunking="false">
+			<party name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc" allowChunking="false">
 				<identifier partyId="domibus-blue-dom4" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -89,11 +89,11 @@
 			</legConfigurations>
 		<process name="tc5Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_dom4_gw"/>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_dom4_gw"/>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
@@ -102,11 +102,11 @@
 		</process>		
 		<process name="tc10Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
-				<initiatorParty name="blue_dom4_gw"/>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
 			<responderParties>
-				<responderParty name="blue_dom4_gw"/>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
 				<responderParty name="red_gw"/>
 			</responderParties>
 			<legs>
