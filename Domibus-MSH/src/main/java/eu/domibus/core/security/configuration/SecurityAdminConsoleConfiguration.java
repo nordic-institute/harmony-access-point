@@ -1,7 +1,6 @@
 package eu.domibus.core.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.core.security.ExpiredSessionStrategy;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.AuthenticationServiceImpl;
