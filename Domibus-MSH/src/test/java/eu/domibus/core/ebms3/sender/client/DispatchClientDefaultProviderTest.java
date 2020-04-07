@@ -112,7 +112,7 @@ public class DispatchClientDefaultProviderTest {
             result = domibusProxy;
         }};
 
-        Dispatch<SOAPMessage> dispatch = dispatchClientDefaultProvider.getClient("default", endpoint, algorithm, policy, pModeKey, false);
+        Dispatch<SOAPMessage> dispatch = dispatchClientDefaultProvider.getClient("default", endpoint, algorithm, policy, pModeKey, false).getClient();
 
         ProxyAuthorizationPolicy proxyAuthorizationPolicy = ((URLConnectionHTTPConduit) ((DispatchImpl) dispatch).getClient().getConduit()).getProxyAuthorization();
         Assert.assertEquals(domibusProxy.getHttpProxyUser(), proxyAuthorizationPolicy.getUserName());

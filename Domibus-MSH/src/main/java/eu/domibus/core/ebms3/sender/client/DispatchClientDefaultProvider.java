@@ -74,7 +74,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Transactional(propagation = Propagation.SUPPORTS)
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
-    public Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
+    public DispatchClientWrapper getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
@@ -96,7 +96,8 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         }
 
         configureProxy(httpClientPolicy, httpConduit);
-        return dispatch;
+
+        return new DispatchClientWrapper(dispatch);
     }
 
 
