@@ -1,7 +1,7 @@
 package eu.domibus.weblogic.security;
 
-import eu.domibus.web.security.configuration.AbstractWebSecurityConfigurerAdapter;
-import eu.domibus.web.security.configuration.SecurityExternalAuthProviderCondition;
+import eu.domibus.core.security.configuration.AbstractWebSecurityConfigurerAdapter;
+import eu.domibus.core.security.configuration.SecurityExternalAuthProviderCondition;
 import eu.domibus.web.security.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

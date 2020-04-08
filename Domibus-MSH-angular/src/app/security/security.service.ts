@@ -158,7 +158,7 @@ export class SecurityService {
         resolve(isAuthenticated);
       }).catch(reason => {
         console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
-        reject(false);
+        reject(reason);
       });
     });
   }
