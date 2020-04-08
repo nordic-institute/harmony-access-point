@@ -26,6 +26,9 @@ import eu.domibus.messaging.MessageConstants;
 import eu.europa.ec.dynamicdiscovery.model.Endpoint;
 import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;
 import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Verifications;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -467,5 +470,21 @@ public class DynamicDiscoveryPModeProviderTest {
             return false;
         }
         return true;
+    }
+
+    @Test
+    public void testGetMessageId(@Injectable UserMessage userMessage, @Injectable MessageInfo messageInfo) {
+
+        new Expectations() {{
+            userMessage.getMessageInfo();
+            result = messageInfo;
+        }};
+
+        dynamicDiscoveryPModeProvider.getMessageId(userMessage);
+
+        new Verifications() {{
+            userMessage.getMessageInfo().getMessageId();
+            times = 1;
+        }};
     }
 }
