@@ -69,9 +69,8 @@ public class PModeArchivePage extends DomibusPage {
 		return weToDButton(restoreBtn);
 	}
 
-	public String deleteRow(int rowNo) throws Exception {
+	public void deleteRow(int rowNo) throws Exception {
 		log.info("deleting row " + rowNo);
-		String toRet = grid().getRowInfo(rowNo).get("Configuration Date");
 
 		grid().selectRow(rowNo);
 
@@ -79,7 +78,6 @@ public class PModeArchivePage extends DomibusPage {
 		getSaveBtn().click();
 
 		new Dialog(driver).confirm();
-		return toRet;
 	}
 
 }

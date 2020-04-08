@@ -44,6 +44,7 @@ public class DMessages {
 
 	public static final String PMODE_UPDATE_SUCCESS = "PMode file has been successfully uploaded";
 	public static final String PMODE_PARTIES_UPDATE_SUCCESS = "PMode parties have been successfully updated.";
+	public static final String PMODE_ARCHIVE_UPDATE_SUCCESS = "The operation 'update pmodes' completed successfully.";
 
 	public static final String JMS_MOVE_MESSAGE_SUCCESS = "The operation 'move messages' completed successfully.";
 	public static final String JMS_INVALID_SELECTOR_ERROR = "An error occured while loading the JMS messages. In case you are using the Selector / JMS Type please follow the rules for Selector / JMS Type according to Help Page / Admin Guide Error Status: 400";
