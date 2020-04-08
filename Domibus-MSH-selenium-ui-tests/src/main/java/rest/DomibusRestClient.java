@@ -541,7 +541,7 @@ public class DomibusRestClient {
 		switchDomain(domain);
 
 		HashMap<String, String> fields = new HashMap<>();
-		fields.put("description", "automatic red");
+		fields.put("description", Generator.randomAlphaNumeric(20));
 		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
 		if (response.getStatus() != 200) {
 			log.debug(String.valueOf(response.getStatus()));
@@ -555,7 +555,7 @@ public class DomibusRestClient {
 		return entries.length() > 0;
 	}
 
-	private JSONArray getPmodesList(String domain) throws Exception {
+	public JSONArray getPmodesList(String domain) throws Exception {
 		switchDomain(domain);
 		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
 
