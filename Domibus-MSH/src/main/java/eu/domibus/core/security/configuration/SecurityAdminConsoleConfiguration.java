@@ -39,6 +39,9 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     @Autowired
     SessionRegistry sessionRegistry;
 
+    @Autowired
+    ExpiredSessionStrategy expiredSessionStrategy;
+
     @Bean(name = "authenticationManagerForAdminConsole")
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -68,6 +71,7 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                 .sessionManagement()
                 .maximumSessions(10)
                 .maxSessionsPreventsLogin(false)
+                .expiredSessionStrategy(expiredSessionStrategy)
                 .sessionRegistry(sessionRegistry)
         ;
     }

@@ -7,13 +7,13 @@ import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import eu.domibus.web.security.AuthenticatedPrincipalInterceptor;
 import eu.domibus.web.security.DefaultPasswordInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_FIL
 /**
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.2
- *
+ * <p>
  * Java configuration (that replaces mvc-dispatcher-servlet) for configuring dispatcher servlet
  */
 @EnableWebMvc
@@ -57,6 +57,14 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(customMappingJackson2HttpMessageConverter());
+
+        List<HttpMessageConverter<?>> defaultConverters = new WebMvcConfigurationSupport() {
+            public List<HttpMessageConverter<?>> getDefaultMessageConverters() {
+                return this.getMessageConverters();
+            }
+        }.getDefaultMessageConverters();
+
+        converters.addAll(defaultConverters);
     }
 
     @Override
