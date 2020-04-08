@@ -10,6 +10,7 @@ Domibus 4.2
 - Upgrade Wildfly to version 18 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
 - Upgrade MySQL to version 8.0 and dropped support for MySQL version 5
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
+- When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
 Domibus 4.1.4
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager
