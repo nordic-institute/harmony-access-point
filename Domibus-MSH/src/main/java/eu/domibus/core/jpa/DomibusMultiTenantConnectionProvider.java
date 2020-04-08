@@ -1,10 +1,12 @@
 package eu.domibus.core.jpa;
 
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -72,18 +74,25 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     @Override
     public Connection getConnection(String identifier) throws SQLException {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        LOG.debug("Found current domain as [{}]", currentDomain);
         String databaseSchema;
         if (currentDomain != null) {
             LOG.trace("Getting schema for domain [{}]", currentDomain);
             databaseSchema = domainService.getDatabaseSchema(currentDomain);
+            LOG.debug("Found database schema name as [{}] for current domain [{}]", databaseSchema, currentDomain);
         } else {
             LOG.trace("Getting general schema");
             databaseSchema = domainService.getGeneralSchema();
+            LOG.debug("Database schema name for general schema: [{}]", databaseSchema);
         }
 
         final Connection connection = getAnyConnection();
         LOG.trace("Setting database schema to [{}] ", databaseSchema);
-        setSchema(connection, databaseSchema);
+        if (StringUtils.isEmpty(databaseSchema)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database Schema name for the domain cannot be empty.");
+        } else {
+            setSchema(connection, databaseSchema);
+        }
         return connection;
     }
 
