@@ -1,13 +1,16 @@
 package eu.domibus.core.multitenancy.dao;
 
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,8 +53,30 @@ public class DomainDaoImplTest {
         List<Domain> domains = domainDao.findAll();
 
         assertEquals(2, domains.size());
-        assertEquals("Adomain", domains.get(0).getCode());
-        assertEquals("Zdomain", domains.get(1).getCode());
+        assertEquals("adomain", domains.get(0).getCode());
+        assertEquals("zdomain", domains.get(1).getCode());
     }
 
+    @Test
+    public void testFindAll_InvalidDomain() {
+
+        File f1 = new File("Domain_7&8-domibus.properties");
+
+        new Expectations(FileUtils.class) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            domibusConfigurationService.getConfigLocation();
+            result = ".";
+            FileUtils.listFiles((File) any, (String[]) any, false);
+            result = Arrays.asList(f1);
+        }};
+
+        try {
+            domainDao.findAll();
+            Assert.fail();
+        } catch (DomibusCoreException ex) {
+            assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
+            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain Name:domain_7&8");
+        }
+    }
 }
