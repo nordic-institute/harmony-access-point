@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class DomainDaoImplTest {
             result = true;
             domibusConfigurationService.getConfigLocation();
             result = ".";
-            domibusPropertyProvider.getProperty((Domain)any, anyString);
+            domibusPropertyProvider.getProperty((Domain) any, anyString);
             returns("ZZZdomain", "AAAdomain");
         }};
         new Expectations(FileUtils.class) {{
@@ -58,25 +59,41 @@ public class DomainDaoImplTest {
     }
 
     @Test
-    public void testFindAll_InvalidDomain() {
+    public void testValidateDomain_InvalidDomain(@Injectable Domain domain) {
 
-        File f1 = new File("Domain_7&8-domibus.properties");
+        final String domainCode = "DomainA&7";
+        List<Domain> domains = new ArrayList<>();
 
         new Expectations(FileUtils.class) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            domibusConfigurationService.getConfigLocation();
-            result = ".";
-            FileUtils.listFiles((File) any, (String[]) any, false);
-            result = Arrays.asList(f1);
+            domain.getCode();
+            result = domainCode;
+            domains.add(domain);
+
         }};
 
         try {
-            domainDao.findAll();
+            domainDao.validateDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain Name:domain_7&8");
+            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain Name:domaina&7");
+        }
+    }
+
+    @Test
+    public void testValidateDomain_DuplicateDomain(@Injectable Domain domain) {
+
+        final String domainCode1 = "domaina";
+        final String domainCode = "DomainA";
+        List<Domain> domains = new ArrayList<>();
+        Domain domain1 = new Domain(domainCode1, null);
+        domains.add(domain1);
+        try {
+            domainDao.validateDomain(domains, domainCode);
+            Assert.fail();
+        } catch (DomibusCoreException ex) {
+            assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
+            assertEquals(ex.getMessage(), "[DOM_001]:Found duplicate domain name :domaina");
         }
     }
 }
