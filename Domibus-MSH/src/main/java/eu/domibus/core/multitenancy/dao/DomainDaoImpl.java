@@ -77,7 +77,7 @@ public class DomainDaoImpl implements DomainDao {
         for (String fileName : fileNames) {
             LOG.trace("Getting domain code from file [{}]", fileName);
             String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
-            if(validateDomain(domains, domainCode)) {
+            if(isValidDomain(domains, domainCode)) {
                 Domain domain = new Domain();
                 domain.setCode(domainCode.toLowerCase());
                 domain.setName(getDomainTitle(domain));
@@ -97,7 +97,7 @@ public class DomainDaoImpl implements DomainDao {
         return result;
     }
 
-    protected boolean validateDomain(List<Domain> domains, String domainCode) {
+    protected boolean isValidDomain(List<Domain> domains, String domainCode) {
         if (domainCode.chars().anyMatch(Character::isUpperCase)) {
             LOG.warn(WarningUtil.warnOutput("Domain name [{}] contains capital letter. So converting it to lowercase to make a valid domain name. "), domainCode);
             domainCode = domainCode.toLowerCase();

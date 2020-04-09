@@ -66,7 +66,7 @@ public class DomainDaoImplTest {
         List<Domain> domains = new ArrayList<>();
 
         try {
-            domainDao.validateDomain(domains, domainCode);
+            domainDao.isValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -83,7 +83,7 @@ public class DomainDaoImplTest {
         Domain domain1 = new Domain(domainCode1, null);
         domains.add(domain1);
         try {
-            domainDao.validateDomain(domains, domainCode);
+            domainDao.isValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -96,6 +96,6 @@ public class DomainDaoImplTest {
 
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
-       assertTrue(domainDao.validateDomain(domains, domainCode));
+       assertTrue(domainDao.isValidDomain(domains, domainCode));
     }
 }
