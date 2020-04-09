@@ -1,5 +1,15 @@
 package domibus.ui.rest;
 
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+import rest.RestServicePaths;
+import utils.Generator;
+
+import java.util.HashMap;
+
 public class MessFilterRestTest extends RestTest {
 
 	String[] criteriaOrder = {"from", "to", "action", "service"};
@@ -18,8 +28,8 @@ public class MessFilterRestTest extends RestTest {
 		newFilterInfo.put("service", "service:" + rndStr);
 
 		JSONArray msgfs = rest.getMessageFilters(null);
-		JSONObject newFilter = createMsgFilterEntity(newFilterInfo, getIndex(msgfs));
-		JSONArray toSendMSGFS = msgfs; //transformFiltersArr(msgfs);
+		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
+		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
 		rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
@@ -49,7 +59,7 @@ public class MessFilterRestTest extends RestTest {
 	}
 
 
-	private JSONObject createMsgFilterEntity(HashMap<String, String> filterInfo, int index) {
+	private JSONObject createMsgFilterEntity(HashMap<String, String> filterInfo) {
 		JSONObject obj = new JSONObject();
 		obj.put("entityId", 0);
 		obj.put("index", 0);
@@ -85,40 +95,7 @@ public class MessFilterRestTest extends RestTest {
 		return obj;
 	}
 
-	private int getIndex(JSONArray arr) {
-		int index = 0;
-		for (int i = 0; i < arr.length(); i++) {
-			index = Math.max(index, arr.getJSONObject(i).getInt("index"));
-		}
-		return index+2;
-	}
 
-	private JSONArray transformFiltersArr(JSONArray arr){
-
-
-
-		for (int i = 0; i < arr.length(); i++) {
-			JSONObject msgf = arr.getJSONObject(i);
-
-			JSONArray routingCriterias = msgf.getJSONArray("routingCriterias");
-
-			for (int j = 0; j < criteriaOrder.length; j++) {
-				String crit = criteriaOrder[j];
-				boolean found = false;
-				for (int k = 0; k < routingCriterias.length(); k++) {
-					JSONObject rCrit = routingCriterias.getJSONObject(k);
-					if(rCrit.getString("name").equalsIgnoreCase(crit)){
-						msgf.put(crit, rCrit);
-						found = true;
-					}
-				}
-				if (!found){
-					msgf.put(crit, JSONObject.NULL);
-				}
-			}
-		}
-		return arr;
-	}
 
 
 

@@ -22,7 +22,9 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RestTest {
 
@@ -34,10 +36,12 @@ public class RestTest {
 
 
 	List<String> domains = new ArrayList<>();
+	List<String> messageFilterPlugins = new ArrayList<>();
 
 	@BeforeSuite(alwaysRun = true)
 	public void setup() throws Exception {
 		getListOfDomains();
+		getListOfPlugins();
 
 		for (String domain : domains) {
 			int noOfMess = rest.getListOfMessages(domain).length();
@@ -73,6 +77,18 @@ public class RestTest {
 		List<String> codes = rest.getDomainCodes();
 		if(null == codes || codes.size() == 0){domains.add("default");}
 		domains.addAll(codes);
+	}
+
+	private void getListOfPlugins(){
+		Set<String> uniqPluginNames = new HashSet<>();
+		JSONArray msgfs = rest.getMessageFilters(null);
+
+		for (int i = 0; i < msgfs.length() ; i++) {
+			JSONObject msgf = msgfs.getJSONObject(i);
+			uniqPluginNames.add(msgf.getString("backendName"));
+		}
+		messageFilterPlugins.addAll(uniqPluginNames);
+
 	}
 
 	protected Object[][] readCSV(String filename) throws IOException {
