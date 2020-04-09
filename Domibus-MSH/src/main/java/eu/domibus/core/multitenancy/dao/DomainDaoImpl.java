@@ -107,8 +107,8 @@ public class DomainDaoImpl implements DomainDao {
             domain.setCode(domainCode);
             domain.setName(getDomainTitle(domain));
         } else {
-            LOG.error("Domain name [{}] is not valid. It should contains only alphanumeric characters and underscore.", domainCode);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Invalid domain Name:" + domainCode);
+            LOG.error("Domain name [{}] is not valid. It should contain only alphanumeric characters and underscore.", domainCode);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Invalid domain name:" + domainCode);
         }
         return domain;
     }

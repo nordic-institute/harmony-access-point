@@ -69,7 +69,7 @@ public class DomainDaoImplTest {
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain Name:domaina&7");
+            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain name:domaina&7");
         }
     }
 
