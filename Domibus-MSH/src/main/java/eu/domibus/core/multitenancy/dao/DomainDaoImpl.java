@@ -77,7 +77,9 @@ public class DomainDaoImpl implements DomainDao {
         for (String fileName : fileNames) {
             LOG.trace("Getting domain code from file [{}]", fileName);
             String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
-            validateDomain(domains, domainCode);
+            Domain domain = validateDomain(domains, domainCode);
+            domains.add(domain);
+            LOG.trace("Domain name is valid. Added domain [{}]", domain);
         }
         if(!domains.stream().anyMatch(domain-> DomainService.DEFAULT_DOMAIN.equals(domain))) {
             LOG.warn("Default domain is normally present in the configuration.");
@@ -91,26 +93,24 @@ public class DomainDaoImpl implements DomainDao {
         return result;
     }
 
-    protected void validateDomain(List<Domain> domains, String domainCode) {
+    protected Domain validateDomain(List<Domain> domains, String domainCode) {
         Domain domain = new Domain();
         if (domainCode.chars().anyMatch(Character::isUpperCase)) {
             LOG.warn(WarningUtil.warnOutput("Domain name [{}] contains capital letter. So converting it to lowercase to make a valid domain name. "), domainCode);
             domainCode = domainCode.toLowerCase();
         }
         String finalDomainCode = domainCode;
-        if (!domains.stream().anyMatch(d -> d.getCode().equals(finalDomainCode))) {
-            domain.setCode(domainCode);
-        } else {
+        if (domains.stream().anyMatch(d -> d.getCode().equals(finalDomainCode))) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Found duplicate domain name :" + domainCode);
         }
         if (domainCode.matches(DOMAIN_NAME_REGEX)) {
+            domain.setCode(domainCode);
             domain.setName(getDomainTitle(domain));
-            domains.add(domain);
-            LOG.trace("Domain name is valid. Added domain [{}]", domain);
         } else {
             LOG.error("Domain name [{}] is not valid. It should contains only alphanumeric characters and underscore.", domainCode);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Invalid domain Name:" + domainCode);
         }
+        return domain;
     }
 
     protected String getDomainTitle(Domain domain) {

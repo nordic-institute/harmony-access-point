@@ -64,13 +64,6 @@ public class DomainDaoImplTest {
         final String domainCode = "DomainA&7";
         List<Domain> domains = new ArrayList<>();
 
-        new Expectations(FileUtils.class) {{
-            domain.getCode();
-            result = domainCode;
-            domains.add(domain);
-
-        }};
-
         try {
             domainDao.validateDomain(domains, domainCode);
             Assert.fail();
@@ -95,5 +88,14 @@ public class DomainDaoImplTest {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             assertEquals(ex.getMessage(), "[DOM_001]:Found duplicate domain name :domaina");
         }
+    }
+
+    @Test
+    public void testValidateDomain_ValidDomain(@Injectable Domain domain) {
+
+        final String domainCode = "domain1";
+        List<Domain> domains = new ArrayList<>();
+        domain = domainDao.validateDomain(domains, domainCode);
+        assertEquals(domain.getCode(), domainCode);
     }
 }
