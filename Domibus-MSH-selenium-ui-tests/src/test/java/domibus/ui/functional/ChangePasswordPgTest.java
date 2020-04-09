@@ -3,7 +3,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
@@ -14,7 +14,7 @@ import pages.ChangePassword.ChangePasswordPage;
  * @version 4.1
  */
 
-public class ChangePasswordPgTest extends BaseTest {
+public class ChangePasswordPgTest extends SeleniumTest {
 
 	/**
 	 * This method shows the implemented error on update when user enters wrong current password but valid new password

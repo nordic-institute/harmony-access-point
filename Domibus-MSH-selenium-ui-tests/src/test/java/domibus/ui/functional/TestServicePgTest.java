@@ -1,7 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 
-public class TestServicePgTest extends BaseTest {
+public class TestServicePgTest extends SeleniumTest {
 
 	/* TS-1 - Login as super admin and open Connections Monitoring page */
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)

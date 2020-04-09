@@ -4,7 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 
 
-public class UsersPgTest extends BaseTest {
+public class UsersPgTest extends SeleniumTest {
 
 	ArrayList<String> ADMIN_VISIBLE_ROLES = new ArrayList<>(Arrays.asList(DRoles.ADMIN, DRoles.USER));
 

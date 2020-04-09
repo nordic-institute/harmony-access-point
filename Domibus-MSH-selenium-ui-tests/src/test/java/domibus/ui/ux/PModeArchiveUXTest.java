@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;
@@ -22,7 +22,7 @@ import java.nio.file.Paths;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class PModeArchiveUXTest extends BaseTest {
+public class PModeArchiveUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PMODE_ARCHIVE);
 

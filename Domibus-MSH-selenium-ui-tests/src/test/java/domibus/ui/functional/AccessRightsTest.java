@@ -3,7 +3,7 @@ package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import utils.Generator;
@@ -15,7 +15,7 @@ import utils.Generator;
  */
 
 
-public class AccessRightsTest extends BaseTest {
+public class AccessRightsTest extends SeleniumTest {
 
 	/* Login with valid user with role ROLE_USER */
 	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})

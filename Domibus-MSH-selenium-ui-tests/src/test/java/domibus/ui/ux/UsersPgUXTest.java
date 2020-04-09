@@ -12,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 
-public class UsersPgUXTest extends BaseTest {
+public class UsersPgUXTest extends SeleniumTest {
 
     JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.USERS);
 

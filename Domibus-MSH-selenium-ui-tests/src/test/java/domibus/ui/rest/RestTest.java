@@ -10,11 +10,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeSuite;
-import rest.DomibusRestClient;
-import rest.RestUtils;
+import domibus.BaseTest;
 import utils.Generator;
-import utils.TestRunData;
-import utils.soap_client.DomibusC1;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -25,13 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RestTest {
+public class RestTest extends BaseTest {
 
-	public static TestRunData data = new TestRunData();
-	public static DomibusC1 messageSender = new DomibusC1();
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	public static DomibusRestClient rest = new DomibusRestClient();
-	public static RestUtils restUtils = new RestUtils();
 
 
 	List<String> domains = new ArrayList<>();

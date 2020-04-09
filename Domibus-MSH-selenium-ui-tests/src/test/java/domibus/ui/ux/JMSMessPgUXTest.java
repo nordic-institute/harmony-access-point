@@ -3,7 +3,7 @@ package domibus.ui.ux;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1
  */
-public class JMSMessPgUXTest extends BaseTest {
+public class JMSMessPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.JMS_MONITORING);
 

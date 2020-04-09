@@ -6,7 +6,7 @@ import ddsl.enums.PAGES;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
@@ -16,7 +16,7 @@ import utils.Generator;
 import java.util.HashMap;
 import java.util.List;
 
-public class AlertPgTest extends BaseTest {
+public class AlertPgTest extends SeleniumTest {
 
 	//This method will do Search using Basic filters
 	@Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})

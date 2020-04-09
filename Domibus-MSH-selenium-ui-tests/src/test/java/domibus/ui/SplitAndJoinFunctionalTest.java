@@ -2,7 +2,7 @@ package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
-import utils.BaseTest;;
+;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.SplitAndJoin.SplitAndJoinPage;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class SplitAndJoinFunctionalTest extends BaseTest {
+public class SplitAndJoinFunctionalTest extends SeleniumTest {
     //This method will verify presence of splitting configuration and along with its activation
 
     @Test(description = "SJ-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)

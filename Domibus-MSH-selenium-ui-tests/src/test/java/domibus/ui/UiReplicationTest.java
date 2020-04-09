@@ -12,7 +12,7 @@ import rest.DomibusRestClient;
 import utils.Generator;
 import utils.TestRunData;
 import java.sql.*;
-import static utils.BaseTest.messageSender;
+import static domibus.ui.SeleniumTest.messageSender;
 
 /**
  * This file is referred for ticket 4839

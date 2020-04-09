@@ -3,7 +3,7 @@ package domibus.ui.ux;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
@@ -15,7 +15,7 @@ import pages.errorLog.ErrorLogPage;
  * @version 4.1
  */
 
-public class ChangePasswordPgUXTest extends BaseTest {
+public class ChangePasswordPgUXTest extends SeleniumTest {
 
 	/**
 	 * Checks whether changePassword page exists and it is opened successfully

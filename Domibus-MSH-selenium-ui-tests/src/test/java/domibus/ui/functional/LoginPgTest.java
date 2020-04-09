@@ -4,7 +4,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -18,7 +18,7 @@ import utils.Generator;
  */
 
 
-public class LoginPgTest extends BaseTest {
+public class LoginPgTest extends SeleniumTest {
 
 
 	private void checkUserLogin(String role, SoftAssert soft) throws Exception {

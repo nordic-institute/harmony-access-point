@@ -5,7 +5,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 
 
-public class PluginUsersPgTest extends BaseTest {
+public class PluginUsersPgTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);
 

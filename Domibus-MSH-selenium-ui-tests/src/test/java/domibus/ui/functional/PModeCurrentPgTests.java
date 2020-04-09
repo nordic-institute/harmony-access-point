@@ -2,7 +2,7 @@ package domibus.ui.functional;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -14,7 +14,7 @@ import pages.pmode.current.PModeCurrentPage;
 
  * @since 4.1
  */
-public class PModeCurrentPgTests extends BaseTest {
+public class PModeCurrentPgTests extends SeleniumTest {
 
 	/*	PMC-1 - Login as super admin and open PMode - Current page	*/
 	@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})

@@ -6,7 +6,7 @@ import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -22,7 +22,7 @@ import utils.TestUtils;
 import java.util.HashMap;
 
 
-public class AuditPgTest extends BaseTest {
+public class AuditPgTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 

@@ -5,7 +5,7 @@ import ddsl.enums.PAGES;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -26,7 +26,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class AuditPgUXTest extends BaseTest {
+public class AuditPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 

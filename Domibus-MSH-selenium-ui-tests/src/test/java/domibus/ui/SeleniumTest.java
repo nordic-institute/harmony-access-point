@@ -1,26 +1,23 @@
-package utils;
+package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import ddsl.enums.DRoles;
+import domibus.BaseTest;
+import domibus.FailListener;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
-import rest.DomibusRestClient;
-import rest.RestUtils;
 import utils.driver.DriverManager;
-import utils.soap_client.DomibusC1;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -32,14 +29,8 @@ import java.util.List;
  * @author Catalin Comanici
  * @version 4.1
  */
-@Listeners(utils.customReporter.FailListener.class)
-public class BaseTest {
-
-	public static WebDriver driver;
-	public static TestRunData data = new TestRunData();
-	public static DomibusRestClient rest = new DomibusRestClient();
-	public static RestUtils restUtils = new RestUtils();
-	public static DomibusC1 messageSender = new DomibusC1();
+@Listeners(FailListener.class)
+public class SeleniumTest extends BaseTest {
 
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -148,33 +139,6 @@ public class BaseTest {
 		login(userInfo);
 
 		return new DomibusPage(driver);
-	}
-
-
-	public void generateTestData() throws Exception {
-
-		log.info("GENERATING TEST DATA");
-
-		String pass = data.defaultPass();
-
-		int noOfMess = rest.messages().getListOfMessages(null).length();
-		if (noOfMess < 15) {
-			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
-			String pluginUsername = restUtils.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
-			for (int i = noOfMess; i < 15; i++) {
-				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
-			}
-		}
-
-		JSONArray messageFilters = rest.messFilters().getMessageFilters(null);
-		for (int i = 0; i < messageFilters.length(); i++) {
-			JSONObject obj = messageFilters.getJSONObject(i);
-			if (!obj.getBoolean("persisted")) {
-				rest.messFilters().saveMessageFilters(messageFilters, null);
-				break;
-			}
-		}
-		log.info("DONE GENERATING TEST DATA");
 	}
 
 

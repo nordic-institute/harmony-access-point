@@ -7,7 +7,7 @@ import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 
 
-public class MessageFilterPgTest extends BaseTest {
+public class MessageFilterPgTest extends SeleniumTest {
 
 	@BeforeMethod(alwaysRun = true)
 	private void login() throws Exception {

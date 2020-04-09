@@ -4,7 +4,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
  * @since 4.1
  */
-public class MessagesPgTest extends BaseTest {
+public class MessagesPgTest extends SeleniumTest {
 
 
 	/*Doubleclik on one message*/

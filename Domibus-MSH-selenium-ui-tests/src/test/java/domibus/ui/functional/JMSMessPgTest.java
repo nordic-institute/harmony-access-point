@@ -4,7 +4,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -20,7 +20,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class JMSMessPgTest extends BaseTest {
+public class JMSMessPgTest extends SeleniumTest {
 
 	/* JMS-7 - Delete message */
 	@Test(description = "JMS-7", groups = {"multiTenancy", "singleTenancy"})

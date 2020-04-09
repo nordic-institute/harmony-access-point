@@ -7,7 +7,7 @@ import ddsl.enums.PAGES;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import pages.pmode.parties.modal.PPartyModal;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PmodePartiesPgTest extends BaseTest {
+public class PmodePartiesPgTest extends SeleniumTest {
 
 	private static String partyName = "Party Name";
 	private static String endpoint = "End Point";
