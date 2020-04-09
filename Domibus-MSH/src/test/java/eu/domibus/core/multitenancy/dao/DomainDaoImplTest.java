@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
 public class DomainDaoImplTest {
@@ -95,7 +96,6 @@ public class DomainDaoImplTest {
 
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
-        domain = domainDao.validateDomain(domains, domainCode);
-        assertEquals(domain.getCode(), domainCode);
+       assertTrue(domainDao.validateDomain(domains, domainCode));
     }
 }
