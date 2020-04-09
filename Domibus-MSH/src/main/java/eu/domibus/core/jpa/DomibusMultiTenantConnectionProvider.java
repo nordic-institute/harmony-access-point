@@ -88,15 +88,19 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         final Connection connection = getAnyConnection();
         LOG.trace("Setting database schema to [{}] ", databaseSchema);
         if (StringUtils.isEmpty(databaseSchema)) {
-            if (currentDomain != null) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot be empty for the domain." + currentDomain);
-            } else {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database Schema name cannot be empty for general schema.");
-            }
+            checkDomain(currentDomain);
         } else {
             setSchema(connection, databaseSchema);
         }
         return connection;
+    }
+
+    protected void checkDomain(Domain currentDomain) {
+        if (currentDomain != null) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Database domain schema name cannot be empty for the domain [%s]", currentDomain));
+        } else {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database Schema name cannot be empty for general schema.");
+        }
     }
 
     protected void setSchema(final Connection connection, String databaseSchema) throws SQLException {
