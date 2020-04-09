@@ -26,6 +26,10 @@ public class DomibusSecurityPolicyConfig {
     // As recommended, make sure that the Sun security provider remains at a higher preference (i.e. index 2 on Weblogic)
     private static final int HIGHEST_RECOMMENDED_POSITION_IN_ORDER_OF_PREFERENCES = 3;
 
+    private static final int LIMITED_STRENGTH_MAX_KEY_LENGTH = 128;
+
+    private static final int UNLIMITED_STRENGTH_MAX_KEY_LENGTH = Integer.MAX_VALUE;
+
     @PostConstruct
     public void init() {
         LOG.info("Registering the Bouncy Castle provider as the third highest preferred security provider");
@@ -46,9 +50,9 @@ public class DomibusSecurityPolicyConfig {
         } catch (NoSuchAlgorithmException e) { /*ignore*/ }
 
         LOG.info("Using {} strength jurisdiction policy: maxKeyLen=[{}]",
-                maxKeyLen == 128
+                maxKeyLen == LIMITED_STRENGTH_MAX_KEY_LENGTH
                         ? "Limited"
-                        : maxKeyLen == 2147483647
+                        : maxKeyLen == UNLIMITED_STRENGTH_MAX_KEY_LENGTH
                             ? "Unlimited"
                             : "Unknown",
                 maxKeyLen);
