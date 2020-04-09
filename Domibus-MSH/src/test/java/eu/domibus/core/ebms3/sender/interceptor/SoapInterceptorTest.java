@@ -58,6 +58,7 @@ public class SoapInterceptorTest {
     @Injectable
     protected SoapUtil soapUtil;
 
+
     protected SOAPMessage createSoapMessage(MessageImpl messageImpl) throws SOAPException, IOException, ParserConfigurationException, SAXException, TransformerException {
         SOAPMessage message = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage();
 
@@ -87,6 +88,7 @@ public class SoapInterceptorTest {
                 "multipart/related; type=\"application/soap+xml\"; boundary=\"uuid:df560ff6-f165-4c38-8873-965a3caa48c7\"; start=\"<split.root.message@cxf.apache.org>\"; start-info=\"application/soap+xml\"");
         new AttachmentDeserializer(messageImpl).initializeAttachments();
         createSoapMessage(messageImpl);
+
     }
 
     public void testCXF2542() throws Exception {
@@ -103,13 +105,16 @@ public class SoapInterceptorTest {
             System.out.println("CID:" + attachment.getId());
             System.out.println(attachment.getDataHandler().getDataSource().getInputStream());
             Files.copy(attachment.getDataHandler().getDataSource().getInputStream(), Paths.get("c:/DEV/_work/mytest"));
+
         }
     }
 
     @Before
     public void init() {
         System.setProperty("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl");
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     }
+
 
     protected Document readDocument(String name) throws XMLStreamException, ParserConfigurationException {
         InputStream inStream = getClass().getClassLoader().getResourceAsStream(name);
