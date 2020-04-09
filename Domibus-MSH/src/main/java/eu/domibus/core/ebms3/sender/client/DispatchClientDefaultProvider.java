@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.logging.DomibusLogger;
@@ -74,7 +75,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Transactional(propagation = Propagation.SUPPORTS)
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
-    public Dispatch<SOAPMessage> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
+    public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
@@ -96,7 +97,8 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         }
 
         configureProxy(httpClientPolicy, httpConduit);
-        return dispatch;
+
+        return new IgnoreSizeOfWrapper<>(dispatch);
     }
 
 

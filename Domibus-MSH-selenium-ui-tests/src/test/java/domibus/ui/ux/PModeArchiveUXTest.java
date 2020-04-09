@@ -1,12 +1,12 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.current.PModeCurrentPage;
@@ -89,7 +89,7 @@ public class PModeArchiveUXTest extends BaseTest {
 	}
 
 	/*PMA-3 - User tries to download current file*/
-	@Test(description = "PMA-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMA-3", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickCurrentPMode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
@@ -178,27 +178,32 @@ public class PModeArchiveUXTest extends BaseTest {
 	}
 
 	/*PMA-5 - User tries to delete an older file*/
-	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteOldFile() throws Exception {
+
+		while (rest.getPmodesList(null).length() < 3){
+			rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		}
+
 		SoftAssert soft = new SoftAssert();
+
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
-		if (page.grid().getRowsNo() <= 1) {
-			throw new SkipException("Cannot delete old file because there is no old file");
-		}
 		log.info("getting config date for row 1");
-		String configDate = page.deleteRow(1);
+		String description = page.grid().getRowInfo(1).get("Description");
+		page.deleteRow(1);
+
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_UPDATE_SUCCESS, "Correct message is displayed");
+		soft.assertFalse(page.getAlertArea().isError(), "Message is succes");
 
 		log.info("searching for deleted row...");
-		int index = page.grid().scrollTo("Configuration Date", configDate);
+		int index = page.grid().scrollTo("Description", description);
 
 		soft.assertTrue(index==-1, "Row doesn't appear in the grid anymore");
 
 		soft.assertAll();
-
-		//TODO: this test fails if the pmode archive contains more than 1 row with the same Configuration Date;
-		//      we should change the test to use pmode id instead of configDate
 	}
 
 	/*PMA-6 - User downloads content of the grid*/

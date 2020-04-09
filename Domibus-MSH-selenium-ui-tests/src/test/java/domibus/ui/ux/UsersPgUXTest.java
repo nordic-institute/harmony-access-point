@@ -79,23 +79,24 @@ public class UsersPgUXTest extends BaseTest {
     }
 
     /* Doubleclick on one user (deleted) */
-    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
     public void doubleclickDeletedUser() throws Exception {
         SoftAssert soft = new SoftAssert();
         String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
 
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
-        page.refreshPage();
+
+        page.getDeletedChk().check();
+        page.getSearchBtn().click();
 
         log.info("double clicking on user");
         page.grid().scrollToAndDoubleClick("Username", username);
-        page.grid().scrollToAndSelect("Username", username);
-        // FIXME: the red alert area pushes the grid down, and, sometimes, changes the selected row. We're selecting again the double-clicked row.
 
         soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
         soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.USER_CANNOT_EDIT_DELETED, "Page shows error message");
 
+        page.grid().scrollToAndSelect("Username", username);
         soft.assertTrue(page.getEditBtn().isDisabled(), "Edit button is not enabled for deleted users!");
         soft.assertTrue(page.getDeleteBtn().isDisabled(), "Delete button is not enabled for deleted users!");
 
@@ -178,7 +179,7 @@ public class UsersPgUXTest extends BaseTest {
     }
 
     /* USR-30 - Download all lists of users */
-    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"})
     public void csvFileDownload() throws Exception {
         SoftAssert soft = new SoftAssert();
         UsersPage page = new UsersPage(driver);
@@ -190,7 +191,6 @@ public class UsersPgUXTest extends BaseTest {
         page.includeDeletedUsers();
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
-        page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
 
         log.info("checking info in grid against the file");
         page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
@@ -326,19 +326,26 @@ public class UsersPgUXTest extends BaseTest {
     }
 
     /* USR-24 - Deleted user row selection on single click */
-    @Test(description = "USR-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "USR-24", groups = {"multiTenancy", "singleTenancy"})
     public void selectDeletedUserRow() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
         String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
         log.info("checking for username " + username);
 
-        SoftAssert soft = new SoftAssert();
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
+        page.includeDeletedUsers();
+
+        page.grid().waitForRowsToLoad();
+
         int index = page.grid().scrollTo("Username", username);
         page.grid().selectRow(index);
         log.info("selecting row " + index);
 
         soft.assertEquals(page.grid().getSelectedRowIndex(), index, "Selected row is the one expected");
+        soft.assertFalse(page.getEditBtn().isEnabled(), "Cannot edit a deleted user");
+        soft.assertFalse(page.getDeleteBtn().isEnabled(), "Cannot delete a deleted user");
 
         soft.assertAll();
     }
