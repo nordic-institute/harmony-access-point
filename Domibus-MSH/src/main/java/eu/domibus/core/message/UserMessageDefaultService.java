@@ -19,6 +19,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -137,6 +138,10 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    ClearPayloadMessageService clearPayloadMessageService;
+
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -512,7 +517,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
-        messagingDao.clearPayloadData(userMessage);
+        //messagingDao.clearPayloadData(userMessage);
+        clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);

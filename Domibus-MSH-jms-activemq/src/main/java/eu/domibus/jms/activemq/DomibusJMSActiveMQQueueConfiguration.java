@@ -51,6 +51,11 @@ public class DomibusJMSActiveMQQueueConfiguration {
         return new ActiveMQQueue("domibus.internal.alert.queue");
     }
 
+    @Bean("clearPayloadQueue")
+    public ActiveMQQueue clearPayloadQueue() {
+        return new ActiveMQQueue("domibus.internal.clearPayload.queue");
+    }
+
     @Bean("uiReplicationQueue")
     public ActiveMQQueue uiReplicationQueue() {
         return new ActiveMQQueue("domibus.internal.ui.replication.queue");

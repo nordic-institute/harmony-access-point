@@ -287,6 +287,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
 
+    String DOMIBUS_JMS_QUEUE_CLEAR_PAYLOAD_CONCURRENCY = "domibus.jms.queue.clear.payload.concurrency";
+
     /**
      * Get all the properties metadata that support changing at runtime
      *
