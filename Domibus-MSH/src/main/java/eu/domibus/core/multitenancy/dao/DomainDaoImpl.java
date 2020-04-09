@@ -1,11 +1,14 @@
 package eu.domibus.core.multitenancy.dao;
 
 
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -42,6 +45,8 @@ public class DomainDaoImpl implements DomainDao {
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+    protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
+
 
     @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
     @Override
@@ -72,12 +77,13 @@ public class DomainDaoImpl implements DomainDao {
         for (String fileName : fileNames) {
             LOG.trace("Getting domain code from file [{}]", fileName);
             String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
-
-            Domain domain = new Domain(domainCode, null);
-            domain.setName(getDomainTitle(domain));
-            domains.add(domain);
-
-            LOG.trace("Added domain [{}]", domain);
+            if(isValidDomain(domains, domainCode)) {
+                Domain domain = new Domain();
+                domain.setCode(domainCode.toLowerCase());
+                domain.setName(getDomainTitle(domain));
+                domains.add(domain);
+                LOG.trace("Domain name is valid. Added domain [{}]", domain);
+            }
         }
         if(!domains.stream().anyMatch(domain-> DomainService.DEFAULT_DOMAIN.equals(domain))) {
             LOG.warn("Default domain is normally present in the configuration.");
@@ -89,6 +95,23 @@ public class DomainDaoImpl implements DomainDao {
         LOG.trace("Found the following domains [{}]", result);
 
         return result;
+    }
+
+    protected boolean isValidDomain(List<Domain> domains, String domainCode) {
+        if (domainCode.chars().anyMatch(Character::isUpperCase)) {
+            LOG.warn(WarningUtil.warnOutput("Domain name [{}] contains capital letter. So converting it to lowercase to make a valid domain name. "), domainCode);
+            domainCode = domainCode.toLowerCase();
+        }
+        String finalDomainCode = domainCode;
+        if (domains.stream().anyMatch(d -> d.getCode().equals(finalDomainCode))) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Found duplicate domain name :" + domainCode);
+        }
+        if (!domainCode.matches(DOMAIN_NAME_REGEX)) {
+            LOG.error("Domain name [{}] is not valid. It should contain only alphanumeric characters and underscore.", domainCode);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Invalid domain name:" + domainCode);
+        } else {
+            return true;
+        }
     }
 
     protected String getDomainTitle(Domain domain) {
