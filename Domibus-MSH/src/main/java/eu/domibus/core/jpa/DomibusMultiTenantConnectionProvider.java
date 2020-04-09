@@ -74,22 +74,25 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     @Override
     public Connection getConnection(String identifier) throws SQLException {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        LOG.debug("Found current domain as [{}]", currentDomain);
         String databaseSchema;
         if (currentDomain != null) {
             LOG.trace("Getting schema for domain [{}]", currentDomain);
             databaseSchema = domainService.getDatabaseSchema(currentDomain);
-            LOG.debug("Found database schema name as [{}] for current domain [{}]", databaseSchema, currentDomain);
+            LOG.trace("Found database schema name as [{}] for current domain [{}]", databaseSchema, currentDomain);
         } else {
             LOG.trace("Getting general schema");
             databaseSchema = domainService.getGeneralSchema();
-            LOG.debug("Database schema name for general schema: [{}]", databaseSchema);
+            LOG.trace("Database schema name for general schema: [{}]", databaseSchema);
         }
 
         final Connection connection = getAnyConnection();
         LOG.trace("Setting database schema to [{}] ", databaseSchema);
         if (StringUtils.isEmpty(databaseSchema)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database Schema name for the domain cannot be empty.");
+            if (currentDomain != null) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot be empty for the domain." + currentDomain);
+            } else {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database Schema name cannot be empty for general schema.");
+            }
         } else {
             setSchema(connection, databaseSchema);
         }
