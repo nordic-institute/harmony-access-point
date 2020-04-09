@@ -58,6 +58,8 @@
 
             <queue id="uiReplicationQueue"
                    physicalName="domibus.internal.ui.replication.queue"/>
+            <queue id="clearPayloadQueue"
+                   physicalName="domibus.internal.clearPayload.queue"/>
 
             <!-- Backend plugin notification queues -->
             <queue id="webserviceBackendNotificationQueue"
@@ -143,7 +145,9 @@
                             <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                             <redeliveryPolicy queue="domibus.internal.alert.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.ui.replication.queue" maximumRedeliveries="1" redeliveryDelay="10000"/>
+                            <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                             <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
+                            <redeliveryPolicy queue="domibus.internal.clearPayload.queue" maximumRedeliveries="3" redeliveryDelay="10000"/>
                         </redeliveryPolicyEntries>
                     </redeliveryPolicyMap>
                 </redeliveryPolicyMap>

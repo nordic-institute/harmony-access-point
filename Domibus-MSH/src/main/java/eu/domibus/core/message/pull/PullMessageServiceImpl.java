@@ -5,22 +5,19 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
+import eu.domibus.core.message.*;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -78,6 +75,9 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     @Autowired
     protected MpcService mpcService;
+
+    @Autowired
+    ClearPayloadMessageService clearPayloadMessageService;
 
     private Integer extraNumberOfAttemptTimeForExpirationDate;
 
@@ -151,7 +151,8 @@ public class PullMessageServiceImpl implements PullMessageService {
                 backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                messagingDao.clearPayloadData(userMessage);
+                //messagingDao.clearPayloadData(userMessage);
+                clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
 
                 userMessageLogDao.update(userMessageLog);
 
