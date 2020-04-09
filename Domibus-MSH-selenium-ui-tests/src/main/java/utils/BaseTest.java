@@ -157,20 +157,20 @@ public class BaseTest {
 
 		String pass = data.defaultPass();
 
-		int noOfMess = rest.getListOfMessages(null).length();
+		int noOfMess = rest.messages().getListOfMessages(null).length();
 		if (noOfMess < 15) {
-			rest.uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
+			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
 			String pluginUsername = restUtils.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
 			for (int i = noOfMess; i < 15; i++) {
 				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
 			}
 		}
 
-		JSONArray messageFilters = rest.getMessageFilters(null);
+		JSONArray messageFilters = rest.messFilters().getMessageFilters(null);
 		for (int i = 0; i < messageFilters.length(); i++) {
 			JSONObject obj = messageFilters.getJSONObject(i);
 			if (!obj.getBoolean("persisted")) {
-				rest.saveMessageFilters(messageFilters, null);
+				rest.messFilters().saveMessageFilters(messageFilters, null);
 				break;
 			}
 		}

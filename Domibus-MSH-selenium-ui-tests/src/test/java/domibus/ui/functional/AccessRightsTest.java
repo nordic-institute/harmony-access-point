@@ -6,7 +6,6 @@ import ddsl.enums.DRoles;
 import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
 import utils.Generator;
 
 
@@ -23,7 +22,7 @@ public class AccessRightsTest extends BaseTest {
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
@@ -41,7 +40,7 @@ public class AccessRightsTest extends BaseTest {
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
@@ -62,7 +61,7 @@ public class AccessRightsTest extends BaseTest {
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());
@@ -79,7 +78,7 @@ public class AccessRightsTest extends BaseTest {
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());

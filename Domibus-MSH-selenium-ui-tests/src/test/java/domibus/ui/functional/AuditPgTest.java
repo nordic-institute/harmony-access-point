@@ -34,7 +34,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Generate Random string for Username");
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
-		rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
 		log.info("Login with admin user");
 		log.info("Navigate to Audit page");
@@ -64,7 +64,7 @@ public class AuditPgTest extends BaseTest {
 
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
-		rest.createUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
 		log.info("Login into application with Admin credentials and navigate to Audit page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
@@ -101,7 +101,7 @@ public class AuditPgTest extends BaseTest {
 
 		String messID = restUtils.getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
 		log.info("Download message");
-		rest.downloadMessage(messID, null);
+		rest.messages().downloadMessage(messID, null);
 
 		log.info("Login into application with Admin credentials and navigate to Audit page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
@@ -132,7 +132,7 @@ public class AuditPgTest extends BaseTest {
 	public void msgFilterCreation() throws Exception {
 		String actionName = Generator.randomAlphaNumeric(5);
 		log.info("Create one message filter with action field value as :" + actionName);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
@@ -156,7 +156,7 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-16", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterEdit() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 
 		JSONObject action = new JSONObject();
 		action.put("entityId", "null");
@@ -175,7 +175,7 @@ public class AuditPgTest extends BaseTest {
 
 		msgfs.getJSONObject(0).put("routingCriterias", rcs);
 
-		rest.saveMessageFilters(msgfs, null);
+		rest.messFilters().saveMessageFilters(msgfs, null);
 
 		log.info("Navigate to Audit page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
@@ -196,12 +196,12 @@ public class AuditPgTest extends BaseTest {
 	public void msgFilterMoveAction() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		JSONObject obj = msgfs.getJSONObject(0);
 		msgfs.remove(0);
 		msgfs.put(obj);
 
-		rest.saveMessageFilters(msgfs, null);
+		rest.messFilters().saveMessageFilters(msgfs, null);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
@@ -224,14 +224,14 @@ public class AuditPgTest extends BaseTest {
 	public void msgFilterDeletion() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		rest.createMessageFilter(Generator.randomAlphaNumeric(10), null);
+		rest.messFilters().createMessageFilter(Generator.randomAlphaNumeric(10), null);
 
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 
 		int msgfid = msgfs.getJSONObject(msgfs.length()-1).getInt("entityId");
 
 		msgfs.remove(msgfs.length()-1);
-		rest.saveMessageFilters(msgfs, null);
+		rest.messFilters().saveMessageFilters(msgfs, null);
 
 		log.info("Navigate to Audit page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
@@ -265,7 +265,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Login into application with Admin credentials and navigate to Pmode current page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		log.info("Upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		PModeCurrentPage pPage = new PModeCurrentPage(driver);
 		log.info("Extract data from current Pmode");
 		String beforeEditPmode = pPage.getTextArea().getText();
@@ -303,7 +303,7 @@ public class AuditPgTest extends BaseTest {
 	public void pmodeUpload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		log.info("Login into application with Admin credentials and navigate to Audit page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Select Pmode as Table field data");
@@ -324,7 +324,7 @@ public class AuditPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		log.info("Upload pmode");
-		rest.uploadPMode("pmodes/multipleParties.xml", null);
+		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		String newPartyName = Generator.randomAlphaNumeric(5);
 
 		log.info("login into application and navigate to Pmode parties page");
@@ -373,9 +373,9 @@ public class AuditPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		log.info("upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 
-		rest.updatePartyURL("blue_gw");
+		rest.pmodeParties().updatePartyURL("blue_gw");
 
 		new DomibusPage(driver).getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage page = new AuditPage(driver);
@@ -396,7 +396,7 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteParty() throws Exception {
 		log.info("upload pmode");
-		rest.uploadPMode("pmodes/multipleParties.xml", null);
+		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		SoftAssert soft = new SoftAssert();
 
 		log.info("Login and navigate to pmode parties page");
@@ -426,13 +426,13 @@ public class AuditPgTest extends BaseTest {
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
 	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void pmodeDownload() throws Exception {
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		log.info("getting pmode id");
-		Integer pmodeID = rest.getLatestPModeID(null);
+		Integer pmodeID = rest.pmode().getLatestPModeID(null);
 		log.info("downloading PMODE with id " + pmodeID);
-		String filename = rest.downloadPmode(null, pmodeID);
+		String filename = rest.pmode().downloadPmode(null, pmodeID);
 		log.info("downloaded file with name " + filename);
 
 		AuditPage page = new AuditPage(driver);
@@ -466,7 +466,7 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-26", groups = {"multiTenancy", "singleTenancy"})
 	public void restorePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		SoftAssert soft = new SoftAssert();
 		log.info("Login and navigate to pmode parties page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
@@ -475,7 +475,7 @@ public class AuditPgTest extends BaseTest {
 		DomibusPage page = new DomibusPage(driver);
 		if (pAuditPage.grid().getRowsNo() == 1) {
 			log.info("Upload pmode if grid row count is 1");
-			rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+			rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		}
 		log.info("Select row with index 1");
 		pAuditPage.grid().selectRow(1);
@@ -502,7 +502,7 @@ public class AuditPgTest extends BaseTest {
 	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deletePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
-		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 
@@ -514,7 +514,7 @@ public class AuditPgTest extends BaseTest {
 
 		if (archivePage.grid().getRowsNo() == 1) {
 			log.info("Upload pmode");
-			rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+			rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 			archivePage.refreshPage();
 			archivePage.grid().waitForRowsToLoad();
 		}
@@ -555,7 +555,7 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Select User in Table input filter");
@@ -584,10 +584,10 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		HashMap<String, String> params = new HashMap<>();
 		params.put("password", data.getNewTestPass());
-		rest.updateUser(username, params, null);
+		rest.users().updateUser(username, params, null);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Select User in Table input filter");
@@ -614,8 +614,8 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
-		rest.deleteUser(username, null);
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().deleteUser(username, null);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Select User in Table input filter");
@@ -643,7 +643,7 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Select PluginUser as Table field data");
@@ -671,8 +671,8 @@ public class AuditPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
-		rest.deletePluginUser(username, null);
+		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.pluginUsers().deletePluginUser(username, null);
 		AuditPage auditPage = new AuditPage(driver);
 
 		log.info("Select PluginUser as Table field data");

@@ -16,18 +16,9 @@ import utils.Generator;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author Catalin Comanici
@@ -217,7 +208,7 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().scrollToAndDoubleClick("Message Id", messageID);
 		log.info("double clicked messag with id " + messageID);
 
-		String zipPath = rest.downloadMessage(messageID, null);
+		String zipPath = rest.messages().downloadMessage(messageID, null);
 		log.info("downloaded message to zip with path " + zipPath);
 
 		HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
@@ -259,11 +250,11 @@ public class MessagesPgTest extends BaseTest {
 	public void resendMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(),null);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(),null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageID =  messageSender.sendMessage(user, data.defaultPass(), null, null);
 
-		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -309,22 +300,22 @@ public class MessagesPgTest extends BaseTest {
 		log.info(String.format("Domain name = %s", domainName));
 
 		String userDomain = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(),domain);
+		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(),domain);
 		log.info("created plugin user " + userDomain);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
 		String messageIDDomain =  messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDomain);
 
 		log.info("Switching to default domain");
 		String userDefault = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(),null);
+		rest.pluginUsers().createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(),null);
 		log.info("created plugin user " + userDefault);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageIDDefault =  messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDefault);
 
 		String userAdmin = Generator.randomAlphaNumeric(10);
-		rest.createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
+		rest.users().createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created admin with username " + userAdmin);
 
 		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -351,9 +342,9 @@ public class MessagesPgTest extends BaseTest {
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Super admin sees the domain message while on the proper domain (5)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)<0, "Super admin doesn't see the default domain message when on domain (6)");
 
-		rest.deletePluginUser(userDefault, null);
-		rest.deletePluginUser(userDomain, domain);
-		rest.deletePluginUser(userAdmin, domain);
+		rest.pluginUsers().deletePluginUser(userDefault, null);
+		rest.pluginUsers().deletePluginUser(userDomain, domain);
+		rest.pluginUsers().deletePluginUser(userAdmin, domain);
 		log.info("delete admin and plugin users");
 		soft.assertAll();
 	}

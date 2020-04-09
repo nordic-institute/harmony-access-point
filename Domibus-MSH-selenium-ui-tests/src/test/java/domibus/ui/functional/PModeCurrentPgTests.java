@@ -29,7 +29,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is not enabled when first opening the page");
 		soft.assertTrue(page.getUploadBtn().isEnabled(), "Upload button is enabled when first opening the page");
 
-		if(rest.isPmodeUploaded(null)){
+		if(rest.pmode().isPmodeUploaded(null)){
 			soft.assertTrue(page.getTextArea().isEnabled(), "If at least one PMode file was uploaded, text area is present and enabled when first opening the page");
 			soft.assertTrue(page.getDownloadBtn().isEnabled(), "Download button button is enabled when first opening the page");
 		}else {
@@ -48,7 +48,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		String expectedErrorMess = "Failed to upload the PMode file due to: WstxUnexpectedCharException: Unexpected character";
 
 		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -83,7 +83,7 @@ public class PModeCurrentPgTests extends BaseTest {
 	public void editPModeValidXML() throws Exception{
 
 		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -123,8 +123,8 @@ public class PModeCurrentPgTests extends BaseTest {
 
 		log.info("uploading different pmodes on 2 different domains");
 
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		rest.uploadPMode("pmodes/multipleParties.xml", domaincode);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/multipleParties.xml", domaincode);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);

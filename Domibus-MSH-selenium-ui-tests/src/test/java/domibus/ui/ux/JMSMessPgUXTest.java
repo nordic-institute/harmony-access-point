@@ -266,7 +266,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -302,7 +302,7 @@ public class JMSMessPgUXTest extends BaseTest {
 			HashMap<String, String> params = new HashMap<>();
 			params.put("source", qName);
 
-			String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, domain);
+			String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, domain);
 			log.info("downloaded file " + fileName);
 
 			page.grid().getGridCtrl().showCtrls();
@@ -476,7 +476,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

@@ -35,7 +35,7 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		if (page.grid().getRowsNo() == 0) {
 			soft.assertTrue(!page.getDownloadBtn().isEnabled(), "If archive is empty the download button is disabled");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
 		}
 
@@ -67,7 +67,7 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
 		}
 
@@ -97,7 +97,7 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
 		}
 
@@ -116,7 +116,7 @@ public class PModeArchiveUXTest extends BaseTest {
 		modal.getOkBtn().click();
 
 		log.info("downloading current pmode");
-		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.downloadPmode(null, rest.getLatestPModeID(null)))));
+		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.pmode().downloadPmode(null, rest.pmode().getLatestPModeID(null)))));
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
@@ -142,8 +142,8 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		log.info("make sure there are at least 2 entries in grid");
 		if (page.grid().getRowsNo() < 2) {
-			rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
-			rest.uploadPMode("pmodes/multipleParties.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingSelfSending.xml", null);
+			rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 			page.refreshPage();
 		}
 
@@ -208,7 +208,7 @@ public class PModeArchiveUXTest extends BaseTest {
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -232,7 +232,7 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading pmode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
 		}
 

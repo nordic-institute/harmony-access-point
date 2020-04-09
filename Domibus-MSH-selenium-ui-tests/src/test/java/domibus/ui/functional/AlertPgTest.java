@@ -236,7 +236,7 @@ public class AlertPgTest extends BaseTest {
 			rest.login(username, "wrong");
 		}
 
-		JSONArray users = rest.getUsers(null);
+		JSONArray users = rest.users().getUsers(null);
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject obj = users.getJSONObject(i);
 			if (obj.getString("userName").equalsIgnoreCase(username)) {
@@ -275,16 +275,16 @@ public class AlertPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create plugin user");
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
 			HashMap<String, String> params = new HashMap<>();
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
 			params.put("name", propName);
-			log.info("Property details before modification" + rest.getDomibusPropertyDetail(params));
-			rest.updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(params));
+			rest.properties().updateDomibusProperty(propName, params, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(params));
 		}
 
 		log.info("Send message using plugin user credentials");
@@ -322,7 +322,7 @@ public class AlertPgTest extends BaseTest {
 
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create plugin users");
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
 		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
@@ -330,9 +330,9 @@ public class AlertPgTest extends BaseTest {
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
 			params.put("name", propName);
-			log.info("Property details before modification" + rest.getDomibusPropertyDetail(params));
-			rest.updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(params));
+			rest.properties().updateDomibusProperty(propName, params, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(params));
 		}
 
 		log.info("Send message using plugin user credentials");

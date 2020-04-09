@@ -13,8 +13,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import rest.RestServicePaths;
-import utils.Generator;
-import utils.Order;
 import utils.TestUtils;
 
 import java.io.Reader;
@@ -137,7 +135,7 @@ public class AuditPgUXTest extends BaseTest {
 		soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
 
 		log.info("Download all grid record csv");
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 
 		log.info("downloaded audit logs to file :" + fileName);
 		System.out.println(auditPage.grid().getRowsNo());
@@ -157,7 +155,7 @@ public class AuditPgUXTest extends BaseTest {
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
 
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

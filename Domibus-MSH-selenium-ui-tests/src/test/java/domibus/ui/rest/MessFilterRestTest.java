@@ -27,14 +27,14 @@ public class MessFilterRestTest extends RestTest {
 		newFilterInfo.put("action", "action" + rndStr);
 		newFilterInfo.put("service", "service:" + rndStr);
 
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
 		rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
 
-		JSONArray newMsgfs = rest.getMessageFilters(null);
+		JSONArray newMsgfs = rest.messFilters().getMessageFilters(null);
 
 		boolean found = false;
 		for (int i = 0; i < newMsgfs.length(); i++) {

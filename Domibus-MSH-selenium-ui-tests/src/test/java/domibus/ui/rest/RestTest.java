@@ -4,7 +4,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,9 +43,9 @@ public class RestTest {
 		getListOfPlugins();
 
 		for (String domain : domains) {
-			int noOfMess = rest.getListOfMessages(domain).length();
+			int noOfMess = rest.messages().getListOfMessages(domain).length();
 			if (noOfMess < 15) {
-				rest.uploadPMode("pmodes/pmode-dataSetupBlue.xml", domain);
+				rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", domain);
 				String pluginUsername = restUtils.getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
 				for (int i = noOfMess; i < 15; i++) {
 					messageSender.sendMessage(pluginUsername
@@ -56,11 +55,11 @@ public class RestTest {
 				}
 			}
 
-			JSONArray messageFilters = rest.getMessageFilters(domain);
+			JSONArray messageFilters = rest.messFilters().getMessageFilters(domain);
 			for (int i = 0; i < messageFilters.length(); i++) {
 				JSONObject obj = messageFilters.getJSONObject(i);
 				if (!obj.getBoolean("persisted")) {
-					rest.saveMessageFilters(messageFilters, domain);
+					rest.messFilters().saveMessageFilters(messageFilters, domain);
 					break;
 				}
 			}
@@ -81,7 +80,7 @@ public class RestTest {
 
 	private void getListOfPlugins(){
 		Set<String> uniqPluginNames = new HashSet<>();
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 
 		for (int i = 0; i < msgfs.length() ; i++) {
 			JSONObject msgf = msgfs.getJSONObject(i);

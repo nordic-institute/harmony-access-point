@@ -166,7 +166,7 @@ public class UsersPgUXTest extends BaseTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
         page.grid().getGridCtrl().showCtrls();
@@ -184,7 +184,7 @@ public class UsersPgUXTest extends BaseTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
         page.includeDeletedUsers();
@@ -372,7 +372,7 @@ public class UsersPgUXTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.USERS);
         page.getDomainSelector().selectOptionByText(domainName);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
         log.info("downloaded file with name " + fileName);
 
         page.includeDeletedUsers();

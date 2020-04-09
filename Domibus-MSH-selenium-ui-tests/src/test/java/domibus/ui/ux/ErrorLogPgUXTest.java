@@ -231,7 +231,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		log.info("downloaded errors to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -396,7 +396,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

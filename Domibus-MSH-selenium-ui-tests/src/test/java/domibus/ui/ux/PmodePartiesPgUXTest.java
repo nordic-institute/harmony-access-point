@@ -14,7 +14,7 @@ public class PmodePartiesPgUXTest  extends BaseTest{
     @Test(description = "PMP-1", groups = {"multiTenancy", "singleTenancy"})
     public void openPModePartiesPage() throws Exception {
 
-        rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+        rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);
@@ -43,7 +43,7 @@ public class PmodePartiesPgUXTest  extends BaseTest{
     @Test(description = "PMP-1.1", groups = {"multiTenancy", "singleTenancy"})
     public void selectRow() throws Exception {
 
-        rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+        rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);

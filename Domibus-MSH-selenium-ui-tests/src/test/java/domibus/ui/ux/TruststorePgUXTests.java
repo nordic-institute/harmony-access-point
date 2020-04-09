@@ -79,7 +79,7 @@ public class TruststorePgUXTests extends BaseTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -245,7 +245,7 @@ public class TruststorePgUXTests extends BaseTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

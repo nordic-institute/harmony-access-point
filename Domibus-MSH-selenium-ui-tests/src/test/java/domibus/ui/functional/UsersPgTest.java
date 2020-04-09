@@ -439,7 +439,7 @@ public class UsersPgTest extends BaseTest {
 	public void editUserRoleAndCheckPrivileges() throws Exception {
 		// we need to create a new user, because a random existing one may have a different password
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 
 		log.info("changing role to User for Admin " + username);
 

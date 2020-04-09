@@ -121,7 +121,7 @@ public class MessagesPgUXTest extends BaseTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -300,7 +300,7 @@ public class MessagesPgUXTest extends BaseTest {
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

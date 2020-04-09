@@ -25,7 +25,7 @@ public class LoginPgTest extends BaseTest {
 		logout();
 
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, role, data.defaultPass(), null);
+		rest.users().createUser(username, role, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, role));
 
 		log.info(String.format("Login %s with role %s", username, role));
@@ -38,7 +38,7 @@ public class LoginPgTest extends BaseTest {
 		page.getSandwichMenu().logout();
 
 		log.info("Deleted user: " + username);
-		rest.deleteUser(username, null);
+		rest.users().deleteUser(username, null);
 	}
 
 	/**Checks whether login as system admin works*/
@@ -65,7 +65,7 @@ public class LoginPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 		LoginPage page = new LoginPage(driver);
@@ -96,7 +96,7 @@ public class LoginPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 		LoginPage page = new LoginPage(driver);
@@ -125,7 +125,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Try to login with valid username and invalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 
@@ -157,7 +157,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "Displayed message is correct (2)");
 
-		rest.unblockUser(username, null);
+		rest.users().unblockUser(username, null);
 		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API
@@ -181,7 +181,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Admin unlocks account and user tries to login with valid username and password");
 		SoftAssert soft = new SoftAssert();
 		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 
 
@@ -197,7 +197,7 @@ public class LoginPgTest extends BaseTest {
 		log.info("Verifying LOGIN_ACCOUNT_SUSPENDED_1 error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED_1, "User account blocked confirmed");
 
-		rest.unblockUser(username, null);
+		rest.users().unblockUser(username, null);
 		log.info("Unblocked user account");
 
 //		wait required because the unlock is done trough REST API

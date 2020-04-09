@@ -146,7 +146,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		String certName = Generator.randomAlphaNumeric(5);
 		String id = Generator.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, id);
-		rest.createCertPluginUser(username, DRoles.USER, null);
+		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, null);
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -229,7 +229,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			String username = Generator.randomAlphaNumeric(10);
-			rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
+			rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 			usernames.add(username);
 		}
 
@@ -250,7 +250,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		}
 
 		for (int i = 0; i < usernames.size(); i++) {
-			rest.deletePluginUser(usernames.get(i), null);
+			rest.pluginUsers().deletePluginUser(usernames.get(i), null);
 		}
 		soft.assertAll();
 	}

@@ -22,12 +22,12 @@ public class RestUtils {
 
 
 
-	public String getUsername(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
+	public String getUsername(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) {
 		return getUser(domainCode, role, active, deleted, forceNew).getString("userName");
 	}
 
 	public List<String> getMessageIDs(String domainCode, int noOfNecessaryMessages, boolean forceNew) throws Exception {
-		JSONArray mess = rest.getListOfMessages(domainCode);
+		JSONArray mess = rest.messages().getListOfMessages(domainCode);
 		List<String> messIDs = new ArrayList<>();
 
 		if (forceNew) {
@@ -46,8 +46,8 @@ public class RestUtils {
 		return messIDs;
 	}
 
-	public List<String> getMessageIDsWithStatus(String domainCode, String status) throws Exception {
-		JSONArray mess = rest.getListOfMessages(domainCode);
+	public List<String> getMessageIDsWithStatus(String domainCode, String status) {
+		JSONArray mess = rest.messages().getListOfMessages(domainCode);
 		List<String> messIDs = new ArrayList<>();
 
 		for (int i = 0; i < mess.length(); i++) {
@@ -65,23 +65,23 @@ public class RestUtils {
 		String messageRefID = Generator.randomAlphaNumeric(10);
 		String conversationID = Generator.randomAlphaNumeric(10);
 
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), domainCode);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), domainCode);
 		log.info("Created plugin user " + user + " on domain " + domainCode);
 
 		log.info("Uploading PMODE ");
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 
 		for (int i = 0; i < noOf; i++) {
 			messIDs.add(messageSender.sendMessage(user, data.defaultPass(), messageRefID, conversationID));
 		}
 		log.info("Sent messages " + noOf);
 
-		rest.deletePluginUser(user, domainCode);
+		rest.pluginUsers().deletePluginUser(user, domainCode);
 		log.info("deleted plugin user" + user);
 		return messIDs;
 	}
 
-	public JSONObject getUser(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
+	public JSONObject getUser(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) {
 		String username = Generator.randomAlphaNumeric(10);
 
 		if (StringUtils.isEmpty(domainCode)) {
@@ -90,7 +90,7 @@ public class RestUtils {
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getUsers(domainCode);
+			JSONArray users = rest.users().getUsers(domainCode);
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -111,19 +111,19 @@ public class RestUtils {
 			}
 		}
 
-		rest.createUser(username, role, data.defaultPass(), domainCode);
+		rest.users().createUser(username, role, data.defaultPass(), domainCode);
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username, domainCode);
+			rest.users().blockUser(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 		if (deleted) {
-			rest.deleteUser(username, domainCode);
+			rest.users().deleteUser(username, domainCode);
 			log.info("deleted user " + username);
 		}
 
-		JSONArray users = rest.getUsers(domainCode);
+		JSONArray users = rest.users().getUsers(domainCode);
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
@@ -136,7 +136,7 @@ public class RestUtils {
 		return null;
 	}
 
-	public JSONObject getPluginUser(String domainCode, String role, boolean active, boolean forceNew) throws Exception {
+	public JSONObject getPluginUser(String domainCode, String role, boolean active, boolean forceNew) {
 		String username = Generator.randomAlphaNumeric(10);
 
 		if (StringUtils.isEmpty(domainCode)) {
@@ -145,7 +145,7 @@ public class RestUtils {
 
 		if (!forceNew) {
 			log.info("trying to find existing user with desired config");
-			JSONArray users = rest.getPluginUsers(domainCode, "BASIC");
+			JSONArray users = rest.pluginUsers().getPluginUsers(domainCode, "BASIC");
 			for (int i = 0; i < users.length(); i++) {
 				JSONObject user = users.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(user.getString("userName"), "super")
@@ -165,15 +165,15 @@ public class RestUtils {
 			}
 		}
 
-		rest.createPluginUser(username, role, data.defaultPass(), domainCode);
+		rest.pluginUsers().createPluginUser(username, role, data.defaultPass(), domainCode);
 		log.info("created user " + username);
 
 		if (!active) {
-			rest.blockUser(username, domainCode);
+			rest.users().blockUser(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 
-		JSONArray users = rest.getPluginUsers(domainCode, "BASIC");
+		JSONArray users = rest.pluginUsers().getPluginUsers(domainCode, "BASIC");
 		log.info("searching for user in the system");
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
@@ -186,11 +186,11 @@ public class RestUtils {
 		return null;
 	}
 
-	public String getPluginUsername(String domainCode, String role, boolean active, boolean forceNew) throws Exception {
+	public String getPluginUsername(String domainCode, String role, boolean active, boolean forceNew) {
 		return getPluginUser(domainCode, role, active, forceNew).getString("userName");
 	}
 
-	public String getNonDefaultDomain() throws Exception {
+	public String getNonDefaultDomain() {
 		log.info("getting domains");
 		List<String> domains = rest.getDomainNames();
 		String domain1 = "";

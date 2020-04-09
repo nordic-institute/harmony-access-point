@@ -101,7 +101,7 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled after new user persisted");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled after new user persisted");
 
-		rest.deletePluginUser(username, null);
+		rest.pluginUsers().deletePluginUser(username, null);
 
 		soft.assertAll();
 	}
@@ -388,7 +388,7 @@ public class PluginUsersPgTest extends BaseTest {
 				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
-		rest.deletePluginUser(username, domainCode);
+		rest.pluginUsers().deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 
@@ -498,7 +498,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "*****", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicatePluginUsersSameDomain() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -514,7 +514,7 @@ public class PluginUsersPgTest extends BaseTest {
 				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
 				"Error message is shown");
 
-		rest.deletePluginUser(username, null);
+		rest.pluginUsers().deletePluginUser(username, null);
 		soft.assertAll();
 	}
 
@@ -524,7 +524,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		String domainName = restUtils.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
+		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
 		log.debug("Plugin user created: " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -538,7 +538,7 @@ public class PluginUsersPgTest extends BaseTest {
 		page.getDomainSelector().selectOptionByText(domainName);
 		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1.");
 
-		rest.deletePluginUser(username, domainCode);
+		rest.pluginUsers().deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 

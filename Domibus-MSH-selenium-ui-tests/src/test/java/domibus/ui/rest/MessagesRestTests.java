@@ -1,27 +1,17 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import ddsl.enums.DMessages;
-import ddsl.enums.DRoles;
-import ddsl.enums.PAGES;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import org.testng.collections.Lists;
-import pages.messages.MessageResendModal;
-import pages.messages.MessagesPage;
 import rest.RestServicePaths;
-import utils.Generator;
 import utils.TestUtils;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -85,7 +75,7 @@ public class MessagesRestTests extends RestTest {
 
 			JSONObject messToDownload = null;
 
-			JSONArray messages = rest.getListOfMessages(domain);
+			JSONArray messages = rest.messages().getListOfMessages(domain);
 			for (int i = 0; i < messages.length(); i++) {
 				JSONObject message = messages.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(message.getString("messageStatus"), "SEND_FAILURE")) {
@@ -98,7 +88,7 @@ public class MessagesRestTests extends RestTest {
 				continue;
 			}
 
-			String zipPath = rest.downloadMessage(messToDownload.getString("messageId"), domain);
+			String zipPath = rest.messages().downloadMessage(messToDownload.getString("messageId"), domain);
 
 			HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
 			log.info("checking zip for files message and message.xml");
@@ -147,7 +137,7 @@ public class MessagesRestTests extends RestTest {
 
 			JSONObject messToResend = null;
 
-			JSONArray messages = rest.getListOfMessages(domain);
+			JSONArray messages = rest.messages().getListOfMessages(domain);
 			for (int i = 0; i < messages.length(); i++) {
 				JSONObject message = messages.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(message.getString("messageStatus"), "SEND_FAILURE")) {
@@ -160,12 +150,12 @@ public class MessagesRestTests extends RestTest {
 				continue;
 			}
 
-			rest.resendMessage(messToResend.getString("messageId"), domain);
+			rest.messages().resendMessage(messToResend.getString("messageId"), domain);
 
 
-			JSONObject object = rest.searchMessage(messToResend.getString("messageId"), domain);
+			JSONObject object = rest.messages().searchMessage(messToResend.getString("messageId"), domain);
 			soft.assertTrue(StringUtils.equalsAnyIgnoreCase(object.getString("messageStatus"), "SEND_ENQUEUED", "SEND_IN_PROGRESS", "WAITING_FOR_RECEIPT", "ACKNOWLEDGED", "ACKNOWLEDGED_WITH_WARNING", "WAITING_FOR_RETRY"),
-					"Status has chagened!"
+					"Status has changed!"
 			);
 
 
