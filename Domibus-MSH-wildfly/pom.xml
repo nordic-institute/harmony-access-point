@@ -174,7 +174,10 @@
                         </resource>
                     </webResources>
                     <archive>
-                        <!-- https://github.com/spring-projects/spring-framework/issues/21528 -->
+                        <!--
+                        We need the jdk.unsupported dependency for OpenJdk11 support. Without it, the Objenesis library
+                        fails to instantiate objects in the jdk.internal.reflect package.
+                        -->
                         <manifestEntries>
                             <Dependencies>jdk.unsupported</Dependencies>
                         </manifestEntries>

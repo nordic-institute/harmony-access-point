@@ -22,7 +22,10 @@
   -->
 <module name="org.apache.xerces" xmlns="urn:jboss:module:1.8">
 
-    <!-- https://stackoverflow.com/questions/58374278/org-xml-sax-saxnotrecognizedexception-property-http-javax-xml-xmlconstants-p -->
+    <!--
+    For OpenJdk 11 support, we need to exclude the jboss xerces implementation
+    and rely on jdk's implementation (found in com.sun.org.apache.xerces)
+     -->
 
     <!--
         <resources>
