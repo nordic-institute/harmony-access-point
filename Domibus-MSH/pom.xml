@@ -318,7 +318,6 @@
         </dependency>
         <!-- End Apache commons -->
 
-        <!-- todo: remove, or upgrade to 2.0 ? -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

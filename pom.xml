@@ -601,13 +601,7 @@
                 <artifactId>jsr305</artifactId>
                 <version>${findbugs.version}</version>
             </dependency>
-<!--
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
-            </dependency>
--->
+
             <!-- XStream -->
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -890,7 +884,6 @@
                     <configuration>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
-                        <!--<release>${java.version}</release>-->
                         <encoding>UTF-8</encoding>
                     </configuration>
                     <dependencies>

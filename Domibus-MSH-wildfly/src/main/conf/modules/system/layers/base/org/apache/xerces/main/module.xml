@@ -21,12 +21,14 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 <module name="org.apache.xerces" xmlns="urn:jboss:module:1.8">
-<!--
-    <resources>
-        <resource-root path="xercesImpl-2.12.0.SP02.jar"/>
-    </resources> -->
 
-<!-- https://stackoverflow.com/questions/58374278/org-xml-sax-saxnotrecognizedexception-property-http-javax-xml-xmlconstants-p -->
+    <!-- https://stackoverflow.com/questions/58374278/org-xml-sax-saxnotrecognizedexception-property-http-javax-xml-xmlconstants-p -->
+
+    <!--
+        <resources>
+            <resource-root path="xercesImpl-2.12.0.SP02.jar"/>
+        </resources>
+    -->
 
     <dependencies>
         <module name="jdk.xml.dom"/>

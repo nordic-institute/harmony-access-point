@@ -46,6 +46,7 @@
             <useDefaultExcludes>true</useDefaultExcludes>
             <excludes>
                 <exclude>standalone/configuration/standalone-full.xml</exclude>
+                <exclude>modules/system/layers/base/org/apache/xerces/main/module.xml</exclude>
             </excludes>
             <filtered>false</filtered>
         </fileSet>
