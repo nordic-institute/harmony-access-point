@@ -9,6 +9,7 @@ import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.core.ebms3.Ebms3Constants;
@@ -163,6 +164,9 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    ClearPayloadMessageService clearPayloadMessageService;
 
 
     protected Property createProperty(String name, String value, String type) {

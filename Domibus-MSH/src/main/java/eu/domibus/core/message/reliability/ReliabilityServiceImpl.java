@@ -7,6 +7,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -67,6 +68,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    private ClearPayloadMessageService clearPayloadMessageService;
+
     /**
      * {@inheritDoc}
      */
@@ -112,7 +116,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
 
-                messagingDao.clearPayloadData(userMessage);
+                //messagingDao.clearPayloadData(userMessage);
+                clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
+
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 

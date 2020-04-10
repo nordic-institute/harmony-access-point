@@ -9,6 +9,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -65,6 +66,9 @@ public class UpdateRetryLoggingService {
 
     @Autowired
     protected MessageAttemptService messageAttemptService;
+
+    @Autowired
+    private ClearPayloadMessageService clearPayloadMessageService;
 
 
     /**
@@ -133,7 +137,8 @@ public class UpdateRetryLoggingService {
         userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            messagingDao.clearPayloadData(userMessage);
+            clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
+            //messagingDao.clearPayloadData(userMessage);
         }
     }
 

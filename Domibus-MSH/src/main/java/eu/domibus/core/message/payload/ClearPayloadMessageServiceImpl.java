@@ -37,7 +37,7 @@ public class ClearPayloadMessageServiceImpl implements ClearPayloadMessageServic
             LOG.debug("Message [{}] does not exist", messageId);
             return;
         }
-
+        //clear payload data
         messagingDao.clearPayloadData(userMessage);
     }
 
@@ -46,17 +46,18 @@ public class ClearPayloadMessageServiceImpl implements ClearPayloadMessageServic
         //check before enqueuing the message
         if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
             LOG.debug("No payloads to clear");
+
+            //no JMS message will be enqueued if there is no payload to clear
             return;
         }
 
         String messageId = userMessage.getMessageInfo().getMessageId();
 
         final JmsMessage message = createJMSMessage(messageId);
-
-        jmsManager.sendMapMessageToQueue(message, clearPayloadQueue);
+        jmsManager.sendMessageToQueue(message, clearPayloadQueue);
     }
 
-    JmsMessage createJMSMessage(String messageId) {
+    private JmsMessage createJMSMessage(String messageId) {
         return JMSMessageBuilder.create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
                 .build();

@@ -11,6 +11,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -70,6 +71,9 @@ public class UpdateRetryLoggingServiceTest {
 
     @Injectable
     MessageAttemptService messageAttemptService;
+
+    @Injectable
+    ClearPayloadMessageService clearPayloadMessageService;
 
 
     /**
@@ -269,7 +273,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
-            messagingDao.clearPayloadData(userMessage);
+            clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
         }};
 
     }

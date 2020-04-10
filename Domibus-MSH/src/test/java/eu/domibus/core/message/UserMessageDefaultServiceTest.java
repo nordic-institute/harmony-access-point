@@ -9,6 +9,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -128,6 +129,8 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     PModeProvider pModeProvider;
 
+    @Injectable
+    ClearPayloadMessageService clearPayloadMessageService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -648,7 +651,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            messagingDao.clearPayloadData(userMessage);
+            clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
         }};

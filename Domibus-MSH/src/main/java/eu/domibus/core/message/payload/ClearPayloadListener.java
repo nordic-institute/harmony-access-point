@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
+import javax.jms.Message;
 
 /**
  * @since 4.2
@@ -28,14 +29,16 @@ public class ClearPayloadListener {
     @JmsListener(destination = "${domibus.jms.queue.clear.payload}", containerFactory = "clearPayloadJmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
-    public void onMessage(final MapMessage message) throws JMSException {
-        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-
-        //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        }
+    public void onMessage(final Message message) throws JMSException {
         LOG.debug("clearPayload message received");
+
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        if (StringUtils.isBlank(messageId)) {
+            LOG.debug("no messageId retrieved from [{}]", message);
+            return;
+        }
+        //add messageId to MDC map
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
         clearPayloadMessageService.clearPayloadData(messageId);
         LOG.debug("clearPayload done");
