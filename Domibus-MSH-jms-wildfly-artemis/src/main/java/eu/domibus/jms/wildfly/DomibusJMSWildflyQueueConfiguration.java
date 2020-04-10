@@ -110,6 +110,14 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
+    @Bean("clearPayloadQueue")
+    public JndiObjectFactoryBean clearPayloadQueue() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.clearPayload.queue");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
     @Bean("clusterCommandTopic")
     public JndiObjectFactoryBean clusterCommandTopic() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();

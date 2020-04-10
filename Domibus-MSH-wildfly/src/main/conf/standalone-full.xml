@@ -563,6 +563,7 @@
                 <address-setting name="jms.queue.DomibusNotifyBackendFileSystemQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
                 <address-setting name="jms.queue.DomibusUnknownReceiverQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
                 <address-setting name="jms.queue.DomibusNotifyBackendQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
+                <address-setting name="jms.queue.DomibusClearPayloadQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="3"/>
                 <address-setting name="jms.queue.DomibusFSPluginSendQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
                 <address-setting name="jms.queue.DomibusClusterCommandTopic" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="3"/>
                 <http-connector name="http-connector" socket-binding="http" endpoint="http-acceptor"/>
@@ -600,6 +601,7 @@
                 <jms-queue name="DomibusNotifyBackendFileSystemQueue" entries="java:/jms/domibus.notification.filesystem java:/jms/queue/DomibusNotifyBackendFileSystemQueue" durable="true"/>
                 <jms-queue name="DomibusUnknownReceiverQueue" entries="java:/jms/domibus.internal.notification.unknown java:/jms/queue/DomibusUnknownReceiverQueue" durable="true"/>
                 <jms-queue name="DomibusNotifyBackendQueue" entries="java:/jms/domibus.internal.notification.queue java:/jms/queue/DomibusNotifyBackendQueue" durable="true"/>
+                <jms-queue name="DomibusClearPayloadQueue" entries="java:/jms/domibus.internal.clearPayload.queue java:/jms/queue/DomibusClearPayloadQueue" durable="true"/>
                 <jms-queue name="DomibusFSPluginSendQueue" entries="java:/jms/domibus.fsplugin.send.queue java:/jms/queue/DomibusFSPluginSendQueue" durable="true"/>
                 <jms-queue name="DomibusDLQ" entries="java:/jms/domibus.DLQ java:/jms/queue/DomibusDLQ" durable="true"/>
                 <jms-topic name="DomibusClusterCommandTopic" entries="java:/jms/domibus.internal.command java:/jms/topic/DomibusClusterCommandTopic"/>
