@@ -7,6 +7,7 @@ import ddsl.dobjects.DInput;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.multi_select.MultiSelect;
 import org.apache.commons.collections4.CollectionUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -109,7 +110,7 @@ public class AlertFilters extends FilterArea {
 		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
 		weToDatePicker(creationFromContainer).selectDate(creationFromDate);
 		weToDatePicker(creationToContainer).selectDate(creationToDate);
-
+		wait.forXMillis(100);
 		clickSearch();
 	}
 

@@ -40,12 +40,10 @@ public class LoggingPgTest extends BaseTest {
         log.info("Login with created admin user");
         loginPage.login(adminUsername, data.defaultPass());
 
-        log.info("wait for page title to load");
-        page.waitForTitle();
-
         log.info("Navigate to logging page");
         page.getSidebar().goToPage(PAGES.LOGGING);
-
+        page.waitForTitle();
+        lPage.grid().waitForRowsToLoad();
         soft.assertTrue(lPage.getTitle().equals("Logging"));
         log.info("Logout from application");
         logout();
@@ -137,12 +135,12 @@ public class LoggingPgTest extends BaseTest {
         log.info("Clear data from package or class name field");
         lPage.getPackageClassInputField().clear();
 
-        log.info("Enter cxfin searc filter");
+        log.info("Enter cxf in search filter");
         lPage.getPackageClassInputField().fill("cxf");
 
         log.info("Click on search button");
         lPage.getSearchButton().click();
-
+        lPage.grid().waitForRowsToLoad();
         log.info("Verify cxf presence in  package and class name  shown as a search result");
         soft.assertTrue(lPage.getLoggerName("cxf", 0), "Logger Name for row 0 contains search string ");
 

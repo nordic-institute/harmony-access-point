@@ -120,7 +120,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /*User shuffles filters using Move Up and Move Down buttons and presses Cancel*/
-    @Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"})
     public void shuffleAndCancel() throws Exception {
         List<String> actionNames = new ArrayList<>();
         log.info("create 5 filters for the shuffle");
@@ -201,7 +201,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* User selects row other than first and last */
-    @Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"})
     public void selectMiddleRow() throws Exception {
 
         List<String> actionNames = new ArrayList<>();
@@ -315,7 +315,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* User reshuffles filters using Move Up and Move Down buttons and presses Save */
-    @Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"})
     public void shuffleAndSave() throws Exception {
         List<String> actionNames = new ArrayList<>();
         log.info("create 5 filters for the shuffle");
@@ -517,7 +517,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* Create new filter on default domain and change domains */
-    @Test(description = "MSGF-18", groups = {"multiTenancy"})
+    @Test(description = "MSGF-18", groups = {"multiTenancy"} )
     public void newFilterAndChangeDomains() throws Exception {
         String actionName = Generator.randomAlphaNumeric(5);
         SoftAssert soft = new SoftAssert();
@@ -551,7 +551,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* Operate a change in the list of filters and don't press Save or Cancel Change domain */
-    @Test(description = "MSGF-19", groups = {"multiTenancy"})
+    @Test(description = "MSGF-19", groups = {"multiTenancy"} )
     public void editAndChangeDomain() throws Exception {
         log.info("Create a filter to edit");
         String actionName = Generator.randomAlphaNumeric(5);
@@ -672,7 +672,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* Perform two action and press cancel */
-    @Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"})
     public void twoActionsAndCancel() throws Exception {
         List<String> actionNames = new ArrayList<>();
         log.info("create 5 filters for the shuffle");
@@ -812,7 +812,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 
     /* Create a duplicate by editing another filter */
-    @Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
     public void editToDuplicate() throws Exception {
         log.info("Create 2 filters to edit");
 
@@ -855,7 +855,7 @@ public class MessageFilterPgTest extends BaseTest {
     }
 
     /* Try to uncheck Persisted Field check box for one Message filter */
-    @Test(description = "MSGF-29", groups = {"multiTenancy"})
+    @Test(description = "MSGF-29", groups = {"multiTenancy"} )
     public void persistedCheckbox() throws Exception {
         SoftAssert soft = new SoftAssert();
 

@@ -1,6 +1,7 @@
 package ddsl.dobjects;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -61,6 +62,7 @@ public class DObject {
 	}
 
 	public void click() throws Exception {
+		wait.forElementToBeEnabled(element);
 		if (isEnabled()) {
 			wait.forElementToBeClickable(element).click();
 		} else {

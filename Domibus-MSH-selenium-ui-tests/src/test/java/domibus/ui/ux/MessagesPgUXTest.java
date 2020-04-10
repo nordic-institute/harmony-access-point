@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
+import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	}
 
 	/*rules need to be adapted to account for messages received in the same second that mess the order..*/
-	/* Download list of messages */
+	/* Download list of messages */ /* issue posted EDELIVERY-6118*/
 	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void csvFileDownload() throws Exception{
 		SoftAssert soft = new SoftAssert();
@@ -268,7 +269,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 	}
 
 	/*Check sorting on the basis of Headers of Grid */
-	@Test(description = "MSG-24", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-24", groups = {"multiTenancy", "singleTenancy"} ,enabled = false)
 	public void gridSorting() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 

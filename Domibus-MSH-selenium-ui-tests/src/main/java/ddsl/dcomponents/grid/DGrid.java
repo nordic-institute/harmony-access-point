@@ -509,18 +509,18 @@ public class DGrid extends DComponent {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
                 .withTrim());
         List<CSVRecord> records = csvParser.getRecords();
-        int csvRowCount=records.size();
-        Boolean isdataPresent=false;
+        int csvRowCount = records.size();
+        Boolean isdataPresent = false;
 
         log.info("verifying presence of grid row data for  row " + i + "in csv");
-        for(int j=0;j<csvRowCount;j++) {
+        for (int j = 0; j < csvRowCount; j++) {
             CSVRecord record = records.get(j);
             HashMap<String, String> gridInfo = getRowInfo(i);
             if (csvRowVsGridRow(record, gridInfo)) {
                 isdataPresent = true;
             }
         }
-            soft.assertTrue(isdataPresent, "Grid row data is present in csv irrespective of row order");
+        soft.assertTrue(isdataPresent, "Grid row data is present in csv irrespective of row order");
 
 
     }

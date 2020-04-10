@@ -84,7 +84,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
-	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"})
 	public void editPassErrMess() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
@@ -109,7 +109,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 		log.info("setting passord and confirmation not to match");
 		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
-
+		pum.wait.forElementToBeVisible(pum.getConfirmationErrMess().element);
 		log.info("check error message");
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
@@ -120,7 +120,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/*	PU-10 - Admin wants to edit username	*/
-	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"})
 	public void editUsername() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
@@ -252,7 +252,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
 //	known failure, was decided it will not be fixed
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"},enabled = false)
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");
@@ -451,7 +451,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 	}
 
 	/* PU-29 - Check sorting on the basis of Headers of Grid  */
-	@Test(description = "PU-29", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-29", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void checkSorting() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 

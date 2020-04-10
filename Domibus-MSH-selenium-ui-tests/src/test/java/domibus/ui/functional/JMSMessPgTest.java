@@ -135,18 +135,21 @@ public class JMSMessPgTest extends BaseTest {
     }
 
     /*JMS-9 - Domain admin logs in and views messages*/
-    @Test(description = "JMS-9", groups = {"multiTenancy"})
+    @Test(description = "JMS-9", groups = {"multiTenancy"} )
     public void adminOpenJMSMessagesPage() throws Exception {
         SoftAssert soft = new SoftAssert();
         String domain = getNonDefaultDomain();
         log.info("checking for domain " + domain);
-        JSONObject user = getUser(domain, DRoles.ADMIN, true, false, false);
+        String userName = Generator.randomAlphaNumeric(3);
 
-        login(user.getString("userName"), data.defaultPass());
-        log.info("logging in with admin " + user.getString("userName"));
+        rest.createUser(userName, DRoles.ADMIN, data.defaultPass(), domain);
+        login(userName,data.defaultPass());
+
+        log.info("logging in with admin " + userName);
 
         JMSMonitoringPage page = new JMSMonitoringPage(driver);
         page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+        page.grid().waitForRowsToLoad();
 
         log.info("checking domain name in the title");
         soft.assertEquals(page.getDomainFromTitle(), domain, "Page title shows correct domain");
@@ -211,7 +214,7 @@ public class JMSMessPgTest extends BaseTest {
     }
 
     /* This method will verify scenario of changing domain from second page of default domain*/
-    @Test(description = "JMS-11", groups = {"multiTenancy"})
+    @Test(description = "JMS-11", groups = {"multiTenancy"} )
     public void changeDomainFromSecondPage() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application and navigate to JMS Monitoring page");
@@ -522,7 +525,7 @@ public class JMSMessPgTest extends BaseTest {
     }
 
     /* This method will verify jms message count on queue in case of super admin*/
-    @Test(description = "JMS-25", groups = {"multiTenancy"})
+    @Test(description = "JMS-25", groups = {"multiTenancy"} )
     public void queueMsgCountForSuperAdmin() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application and navigate to Jms Monitoring Page");
@@ -555,7 +558,7 @@ public class JMSMessPgTest extends BaseTest {
     }
 
     /* This method will verify message count on move pop up in case of super admin */
-    @Test(description = "JMS-26", groups = {"multiTenancy"})
+    @Test(description = "JMS-26", groups = {"multiTenancy"} )
     public void msgCountOnMoveForSuperAdmin() throws Exception {
         SoftAssert soft = new SoftAssert();
 
