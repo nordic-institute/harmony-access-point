@@ -1,15 +1,16 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.payload.ClearPayloadMessageService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Ignore;
@@ -67,6 +68,9 @@ public class PullMessageServiceTest {
 
     @Injectable
     UserMessageLogDefaultService userMessageLogDefaultService;
+
+    @Injectable
+    ClearPayloadMessageService clearPayloadMessageService;
 
     @Test
     @Ignore
