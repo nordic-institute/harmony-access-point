@@ -6,6 +6,8 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -14,11 +16,13 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -31,6 +35,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -40,7 +45,9 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -49,10 +56,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
+import java.io.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Cosmin Baciu
@@ -137,6 +145,12 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    MessageConverterService messageConverterService;
+
+    @Autowired
+    private AuditService auditService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -254,6 +268,8 @@ public class UserMessageDefaultService implements UserMessageService {
         } else {
             restoreFailedMessage(messageId);
         }
+
+        auditService.addMessageResentAudit(messageId);
     }
 
     protected Integer getMaxAttemptsConfiguration(final String messageId) {
@@ -561,4 +577,95 @@ public class UserMessageDefaultService implements UserMessageService {
         notificationListener.deleteMessageCallback(messageId);
     }
 
+    @Override
+    public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
+        UserMessage userMessage = getUserMessageById(messageId);
+        return messageToBytes(userMessage);
+    }
+
+    @Override
+    public byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException {
+        Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
+        return zipFiles(message);
+    }
+
+    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
+
+        UserMessage userMessage = getUserMessageById(messageId);
+
+        Map<String, InputStream> ret = new HashMap<>();
+        ret.put("message.xml", messageToStream(userMessage));
+
+        if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
+            return ret;
+        }
+
+        final List<PartInfo> partInfos = userMessage.getPayloadInfo().getPartInfo();
+        for (PartInfo pInfo : partInfos) {
+            if (pInfo.getPayloadDatahandler() == null) {
+                throw new MessageNotFoundException("Could not find attachment for " + pInfo.getHref());
+            }
+            try {
+                ret.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+            } catch (IOException e) {
+                throw new MessagingException("Error getting input stream for attachment" + pInfo.getHref(), e);
+            }
+        }
+
+        return ret;
+    }
+
+    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
+        }
+
+        auditService.addMessageDownloadedAudit(messageId);
+
+        return userMessage;
+    }
+
+    protected InputStream messageToStream(UserMessage userMessage) {
+        return new ByteArrayInputStream(messageToBytes(userMessage));
+    }
+
+    protected byte[] messageToBytes(UserMessage userMessage) {
+        Messaging message = new Messaging();
+        message.setUserMessage(userMessage);
+
+        return messageConverterService.getAsByteArray(message);
+    }
+
+    protected String getPayloadName(PartInfo info) {
+        if (org.apache.cxf.common.util.StringUtils.isEmpty(info.getHref())) {
+            return "bodyload";
+        }
+        if (!info.getHref().contains("cid:")) {
+            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
+            return info.getHref();
+        }
+
+        return info.getHref().replace("cid:", "");
+    }
+
+    private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
+        //creating byteArray stream, make it bufferable and passing this buffer to ZipOutputStream
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+             ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)) {
+
+            for (Map.Entry<String, InputStream> entry : message.entrySet()) {
+                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
+
+                IOUtils.copy(entry.getValue(), zipOutputStream);
+
+                zipOutputStream.closeEntry();
+            }
+
+            zipOutputStream.finish();
+            zipOutputStream.flush();
+            return byteArrayOutputStream.toByteArray();
+        }
+    }
 }

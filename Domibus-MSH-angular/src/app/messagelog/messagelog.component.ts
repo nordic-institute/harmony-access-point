@@ -26,6 +26,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
+  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
@@ -52,13 +53,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MatDialog, public dialogsService: DialogsService, private elementRef: ElementRef,
-              private changeDetector: ChangeDetectorRef) {
+  constructor (private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
+               public dialog: MatDialog, public dialogsService: DialogsService, private elementRef: ElementRef,
+               private changeDetector: ChangeDetectorRef) {
     super();
   }
 
-  async ngOnInit() {
+  async ngOnInit () {
     super.ngOnInit();
 
     this.timestampFromMaxDate = new Date();
@@ -77,20 +78,20 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.filterData();
   }
 
-  public get name(): string {
+  public get name (): string {
     return 'Message Log';
   }
 
-  async ngAfterViewInit() {
+  async ngAfterViewInit () {
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
     this.configureColumnPicker();
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked () {
     this.changeDetector.detectChanges();
   }
 
-  private configureColumnPicker() {
+  private configureColumnPicker () {
     this.columnPicker.allColumns = [
       {
         name: 'Message Id',
@@ -187,13 +188,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  public beforeDomainChange() {
+  public beforeDomainChange () {
     if (this.list.isHorScroll) {
       this.scrollLeft();
     }
   }
 
-  protected createAndSetParameters(): HttpParams {
+  protected createAndSetParameters (): HttpParams {
     let filterParams = super.createAndSetParameters();
     if (this.activeFilter.isTestMessage) {
       filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
@@ -203,11 +204,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return filterParams;
   }
 
-  protected get GETUrl(): string {
+  protected get GETUrl (): string {
     return MessageLogComponent.MESSAGE_LOG_URL;
   }
 
-  public setServerResults(result: MessageLogResult) {
+  public setServerResults (result: MessageLogResult) {
     super.count = result.count;
     super.rows = result.messageLogEntries;
 
@@ -226,13 +227,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
-  onActivate(event) {
+  onActivate (event) {
     if ('dblclick' === event.type) {
       this.showDetails(event.row);
     }
   }
 
-  resendDialog() {
+  resendDialog () {
     this.dialogsService.openResendDialog().then(resend => {
       if (resend) {
         this.resend(this.selected[0].messageId);
@@ -244,7 +245,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resend(messageId: string) {
+  resend (messageId: string) {
     console.log('Resending message with id ', messageId);
 
     let url = MessageLogComponent.RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
@@ -259,90 +260,99 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  isResendButtonEnabledAction(row): boolean {
+  isResendButtonEnabledAction (row): boolean {
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendButtonEnabled() {
+  isResendButtonEnabled () {
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-  private isRowResendButtonEnabled(row): boolean {
+  private isRowResendButtonEnabled (row): boolean {
     return !row.deleted
       && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isSplitAndJoinMessage(row) {
+  private isSplitAndJoinMessage (row) {
     return row.messageFragment || row.sourceMessage;
   }
 
-  isDownloadButtonEnabledAction(row): boolean {
+  isDownloadButtonEnabledAction (row): boolean {
     return this.isRowDownloadButtonEnabled(row);
   }
 
-  isDownloadButtonEnabled(): boolean {
+  isDownloadButtonEnabled (): boolean {
     return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
   }
 
-  private isRowDownloadButtonEnabled(row): boolean {
+  private isRowDownloadButtonEnabled (row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isOneRowSelected() {
+  private isOneRowSelected () {
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage(messageId) {
-    const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    DownloadService.downloadNative(url);
+  private downloadMessage (messageId) {
+    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    this.http.get(canDownloadUrl).toPromise().then((canDownload) => {
+      if (canDownload) {
+        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+        DownloadService.downloadNative(downloadUrl);
+      } else {
+        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
+      }
+    }).catch((err) => {
+      this.alertService.exception(`Coud not download message content for id ${messageId}.`, err);
+    });
   }
 
-  downloadAction(row) {
+  downloadAction (row) {
     this.downloadMessage(row.messageId);
   }
 
-  download() {
+  download () {
     this.downloadMessage(this.selected[0].messageId);
   }
 
-  get csvUrl(): string {
+  get csvUrl (): string {
     return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters();
   }
 
-  showDetails(selectedRow: any) {
+  showDetails (selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
       data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
     });
   }
 
-  onResetAdvancedSearchParams() {
+  onResetAdvancedSearchParams () {
     this.filter.messageType = this.msgTypes[1];
     this.conversationIdValue = null;
   }
 
-  onTimestampFromChange(event) {
+  onTimestampFromChange (event) {
     this.timestampToMinDate = event.value;
   }
 
-  onTimestampToChange(event) {
+  onTimestampToChange (event) {
     this.timestampFromMaxDate = event.value;
   }
 
-  private showNextAttemptInfo(row: any): boolean {
+  private showNextAttemptInfo (row: any): boolean {
     if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING'))
       return false;
     return true;
   }
 
-  public scrollLeft() {
+  public scrollLeft () {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }
 
-  onMessageTypeChanged($event: MatSelectChange) {
+  onMessageTypeChanged ($event: MatSelectChange) {
     this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
     if (this.canSearchByConversationId) {
       this.filter.conversationId = this.conversationIdValue;
