@@ -13,8 +13,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
@@ -26,16 +24,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_CSV_MAX_ROWS;
+
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 4.0
  */
 
 @Service
 public class CsvServiceImpl implements CsvService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
-
-    static final String MAXIMUM_NUMBER_CSV_ROWS = "domibus.ui.csv.max.rows";
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -56,7 +55,7 @@ public class CsvServiceImpl implements CsvService {
 
     @Override
     public int getMaxNumberRowsToExport() {
-        return NumberUtils.toInt(domibusPropertyProvider.getProperty(MAXIMUM_NUMBER_CSV_ROWS));
+        return domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
     }
 
     @Override
