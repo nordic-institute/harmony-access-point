@@ -15,7 +15,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @since 4.2
  *
  */
-@EnableWebMvc
 @Configuration("domibusExtWebConfiguration")
 @ComponentScan(basePackages = "eu.domibus.ext.rest")
 public class DomibusExtWebConfiguration implements WebMvcConfigurer {
