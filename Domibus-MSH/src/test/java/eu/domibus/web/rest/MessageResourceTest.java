@@ -8,6 +8,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -74,7 +76,7 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void testDonloadZipped() throws IOException {
+    public void testDownloadZipped() throws IOException {
         // Given
         new Expectations() {{
             userMessageService.getMessageWithAttachmentsAsZip(anyString);
@@ -84,7 +86,7 @@ public class MessageResourceTest {
         ResponseEntity<ByteArrayResource> responseEntity = null;
         try {
             // When
-            responseEntity = messageResource.donloadUserMessage("messageId");
+            responseEntity = messageResource.downloadUserMessage("messageId");
         } catch (IOException | MessageNotFoundException e) {
             // NOT Then :)
             Assert.fail("Exception in zipFiles method");
@@ -107,11 +109,32 @@ public class MessageResourceTest {
             userMessageService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
-
-//            auditService.addMessageResentAudit(messageIdActual1 = withCapture());
-//            Assert.assertEquals(messageId, messageIdActual1);
-//            times = 1;
         }};
+    }
+
+    @Test
+    public void test_checkMessageContentExists() {
+        MessageLogRO deletedMessage = new MessageLogRO() {{
+            setDeleted(new Date());
+        }};
+        MessageLogRO existingMessage = new MessageLogRO() {{
+            setDeleted(null);
+        }};
+
+        // Given
+        new Expectations() {{
+            messagesLogService.findUserMessageById(anyString);
+            returns(null, deletedMessage, existingMessage);
+        }};
+
+        boolean result1 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result1);
+
+        boolean result2 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result2);
+
+        boolean result3 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(true, result3);
     }
 
 }

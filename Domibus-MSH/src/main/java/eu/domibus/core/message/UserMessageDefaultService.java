@@ -593,11 +593,11 @@ public class UserMessageDefaultService implements UserMessageService {
 
         UserMessage userMessage = getUserMessageById(messageId);
 
-        Map<String, InputStream> ret = new HashMap<>();
-        ret.put("message.xml", messageToStream(userMessage));
+        Map<String, InputStream> result = new HashMap<>();
+        result.put("message.xml", messageToStream(userMessage));
 
         if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
-            return ret;
+            return result;
         }
 
         final List<PartInfo> partInfos = userMessage.getPayloadInfo().getPartInfo();
@@ -606,13 +606,13 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessageNotFoundException("Could not find attachment for " + pInfo.getHref());
             }
             try {
-                ret.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment" + pInfo.getHref(), e);
             }
         }
 
-        return ret;
+        return result;
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {

@@ -4,6 +4,7 @@ import com.sun.istack.ByteArrayDataSource;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -940,6 +941,43 @@ public class UserMessageDefaultServiceTest {
         UserMessage message = createUserMessage();
         Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(message.getPayloadInfo().getPartInfo().get(0)));
         Assert.assertEquals("href", userMessageDefaultService.getPayloadName(message.getPayloadInfo().getPartInfo().get(1)));
+    }
+
+    @Test
+    public void getUserMessageById() {
+        final String messageId = UUID.randomUUID().toString();
+        UserMessage userMessage = new UserMessage();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+
+        new Verifications() {{
+            auditService.addMessageDownloadedAudit(messageId);
+            times = 1;
+        }};
+
+        Assert.assertEquals(userMessage, result);
+    }
+
+    @Test(expected = MessageNotFoundException.class)
+    public void getUserMessageById_notFound() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = null;
+        }};
+
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+
+        new Verifications() {{
+            auditService.addMessageDownloadedAudit(messageId);
+            times = 0;
+        }};
     }
 
     private UserMessage createUserMessage() {

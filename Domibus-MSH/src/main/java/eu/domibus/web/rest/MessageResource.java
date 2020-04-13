@@ -65,7 +65,7 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/download")
-    public ResponseEntity<ByteArrayResource> donloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
+    public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
             throws MessageNotFoundException, IOException {
 
         byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
@@ -89,26 +89,5 @@ public class MessageResource {
         }
         return true;
     }
-
-//    @RequestMapping(value = "/download", method = RequestMethod.HEAD)
-//    public ResponseEntity checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) throws MessageNotFoundException {
-//        HashMap<String, Object> filters = new HashMap<>();
-//        filters.put("messageId", messageId);
-//        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 1, null, true, filters);
-//        List<MessageLogRO> messages = result.getMessageLogEntries();
-//
-//        if(messages.size() == 0) {
-//            throw new MessageNotFoundException("Could not find message metadata for message: " + messageId);
-//        }
-//
-//        if (messages.get(0).getDeleted() != null) {
-//            throw new MessageNotFoundException("Could not find message content for message: " + messageId);
-//        }
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType("application/zip"))
-//                .header("content-disposition", "attachment; filename=" + messageId + ".zip")
-//                .build();
-//    }
 
 }

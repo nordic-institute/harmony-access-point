@@ -85,6 +85,9 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return domainConverter.convert(messageLogInfo, MessageLogRO.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public MessageLogRO findUserMessageById(String messageId) {
         HashMap<String, Object> filters = new HashMap<>();
