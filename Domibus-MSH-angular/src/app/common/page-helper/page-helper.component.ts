@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material';
-import {NavigationStart, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {isNullOrUndefined} from 'util';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 
@@ -26,7 +26,7 @@ export class PageHelperComponent implements OnInit {
   }
 
   private processRouteChange(event) {
-    if (event instanceof NavigationStart) {
+    if (event instanceof ResolveEnd) {
       let url = event.url.split('?')[0];
       let page = this.helpPages.get(url);
 
