@@ -4,13 +4,22 @@ import {Injectable} from '@angular/core';
 
 @Injectable()
 export class PropertiesService {
-
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
+  private uploadSizeLimitProperty: Promise<PropertyModel>;
+  private csvMaxRowsProperty: Promise<PropertyModel>;
 
-  constructor (private http: HttpClient, private alertService: AlertService) {
+  regularExpressions = {
+    'cron': /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/,
+    'concurrency': /^(\d+(\-\d+)*)$/,
+    'numeric': /^(\d+)$/,
+    'boolean': /^(true|false)$/,
+  };
+
+  constructor(private http: HttpClient, private alertService: AlertService) {
   }
 
-  getProperties (searchString: string, showDomainProperties: boolean, pageSize: number = 10, offset: number = 0): Promise<PropertyListModel> {
+  getProperties(searchString: string, showDomainProperties: boolean, pageSize: number = 10, offset: number = 0)
+    : Promise<PropertyListModel> {
     let searchParams = new HttpParams();
     if (searchString && searchString.trim()) {
       searchParams = searchParams.append('name', searchString.trim());
@@ -29,7 +38,18 @@ export class PropertiesService {
       .toPromise()
   }
 
-  updateProperty (prop: any, isDomain: boolean): Promise<void> {
+  async getProperty(propName: string, isDomain: boolean): Promise<PropertyModel> {
+    const result = await this.getProperties(propName, isDomain, 1);
+    if (result.count === 0) {
+      return null;
+    }
+    if (result.count > 1) {
+      throw new Error(`More than one value found for property ${propName}`);
+    }
+    return result.items[0];
+  }
+
+  updateProperty(prop: any, isDomain: boolean): Promise<void> {
     this.validateValue(prop);
 
     let value = prop.value;
@@ -42,7 +62,7 @@ export class PropertiesService {
       }).toPromise()
   }
 
-  validateValue (prop) {
+  validateValue(prop) {
     const propType = prop.type;
     const regexp = this.regularExpressions[propType];
     if (!regexp) {
@@ -54,16 +74,23 @@ export class PropertiesService {
     }
   }
 
-  regularExpressions = {
-    'cron': /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/,
-    'concurrency': /^(\d+(\-\d+)*)$/,
-    'numeric': /^(\d+)$/,
-    'boolean': /^(true|false)$/,
-  };
+  async getUploadSizeLimitProperty(): Promise<PropertyModel> {
+    if (this.uploadSizeLimitProperty == null) {
+      this.uploadSizeLimitProperty = this.getProperty('domibus.file.upload.maxSize', false);
+    }
+    return this.uploadSizeLimitProperty;
+  }
+
+  async getCsvMaxRowsProperty(): Promise<PropertyModel> {
+    if (this.csvMaxRowsProperty == null) {
+      this.csvMaxRowsProperty = this.getProperty('domibus.ui.csv.max.rows', true);
+    }
+    return this.csvMaxRowsProperty;
+  }
 
 }
 
-export class PropertyModel {
+export interface PropertyModel {
   value: string;
   name: string;
   type: string;
@@ -78,7 +105,7 @@ export class PropertyModel {
   encrypted: boolean;
 }
 
-export class PropertyListModel {
+export interface PropertyListModel {
   count: number;
   items: PropertyModel[];
 }

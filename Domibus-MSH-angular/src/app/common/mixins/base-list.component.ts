@@ -5,6 +5,7 @@ import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {PropertiesService} from '../../properties/support/properties.service';
 
 /**
  * @author Ion Perpegel
@@ -21,7 +22,6 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
-  public static readonly MAX_COUNT_CSV: number = 10000;
   public static readonly CSV_ERROR_MESSAGE = 'Maximum number of rows reached for downloading CSV';
 
   public rows: T[];
@@ -29,16 +29,25 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
+  private propertiesService: PropertiesService;
+  private csvMaxCount: number;
 
   constructor(protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.rows = [];
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
+    await this.readDomibusProperties();
+  }
+
+  private async readDomibusProperties() {
+    this.propertiesService = this.alertService.injector.get(PropertiesService);
+    const res = await this.propertiesService.getCsvMaxRowsProperty();
+    this.csvMaxCount = +res.value;
   }
 
   public get name(): string {
@@ -118,7 +127,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       await this.saveIfNeeded();
     }
 
-    if (this.count > BaseListComponent.MAX_COUNT_CSV) {
+    if (this.count > this.csvMaxCount) {
       this.alertService.error(BaseListComponent.CSV_ERROR_MESSAGE);
       return;
     }
