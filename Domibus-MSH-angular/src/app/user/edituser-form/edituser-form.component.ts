@@ -21,7 +21,7 @@ export class EditUserComponent implements OnInit {
   existingDomains = [];
   currentDomain: string;
   confirmation: string;
-  public emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}';
+  public emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}';
   public passwordPattern: string;
   public passwordValidationMessage: string;
   isDomainVisible: boolean;
