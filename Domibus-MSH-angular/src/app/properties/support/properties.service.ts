@@ -5,8 +5,6 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class PropertiesService {
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
-  private uploadSizeLimitProperty: Promise<PropertyModel>;
-  private csvMaxRowsProperty: Promise<PropertyModel>;
 
   regularExpressions = {
     'cron': /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/,
@@ -75,17 +73,11 @@ export class PropertiesService {
   }
 
   async getUploadSizeLimitProperty(): Promise<PropertyModel> {
-    if (this.uploadSizeLimitProperty == null) {
-      this.uploadSizeLimitProperty = this.getProperty('domibus.file.upload.maxSize', false);
-    }
-    return this.uploadSizeLimitProperty;
+    return this.getProperty('domibus.file.upload.maxSize', false);
   }
 
   async getCsvMaxRowsProperty(): Promise<PropertyModel> {
-    if (this.csvMaxRowsProperty == null) {
-      this.csvMaxRowsProperty = this.getProperty('domibus.ui.csv.max.rows', true);
-    }
-    return this.csvMaxRowsProperty;
+    return this.getProperty('domibus.ui.csv.max.rows', true);
   }
 
 }
