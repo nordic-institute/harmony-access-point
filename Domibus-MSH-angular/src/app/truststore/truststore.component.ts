@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {TrustStoreService} from './support/trustore.service';
@@ -10,6 +10,7 @@ import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   selector: 'app-truststore',
@@ -19,7 +20,7 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 export class TruststoreComponent extends mix(BaseListComponent)
   .with(ClientPageableListMixin)
-  implements OnInit {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly TRUSTSTORE_URL: string = 'rest/truststore';
   static readonly TRUSTSTORE_CSV_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/csv';
@@ -29,8 +30,8 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private http: HttpClient, private trustStoreService: TrustStoreService, public dialog: MatDialog,
-              public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationService, private http: HttpClient, private trustStoreService: TrustStoreService,
+              public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -121,8 +122,9 @@ export class TruststoreComponent extends mix(BaseListComponent)
   canDownload(): boolean {
     if (this.rows.length > 0) {
       return true;
-    } else
+    } else {
       return false;
+    }
   }
 
   get csvUrl(): string {

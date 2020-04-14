@@ -6,6 +6,7 @@ import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
+import {ApplicationService} from '../application.service';
 
 /**
  * @author Ion Perpegel
@@ -28,24 +29,17 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
   private propertiesService: PropertiesService;
-  private csvMaxCount: number;
 
-  constructor(protected alertService: AlertService, private http: HttpClient) {
+  constructor(protected applicationService: ApplicationService, protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.rows = [];
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
-    await this.readDomibusProperties();
-  }
-
-  private async readDomibusProperties() {
-    this.propertiesService = this.alertService.injector.get(PropertiesService);
-    const res = await this.propertiesService.getCsvMaxRowsProperty();
-    this.csvMaxCount = +res.value;
+    const z = this.applicationService;
   }
 
   public get name(): string {
@@ -61,7 +55,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async getServerData(): Promise<any> {
-    let getParams = this.createAndSetParameters();
+    const getParams = this.createAndSetParameters();
     return this.http.get<any>(this.GETUrl, {params: getParams})
       .toPromise();
   }
@@ -76,7 +70,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public async getDataAndSetResults(): Promise<any> {
     await this.onBeforeGetData();
 
-    let data = await this.getServerData();
+    const data = await this.getServerData();
     this.setServerResults(data);
   }
 
@@ -125,8 +119,9 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
       await this.saveIfNeeded();
     }
 
-    if (this.count > this.csvMaxCount) {
-      this.alertService.error('Could not downloas as CSV because the maximum accepted number of rows was exceeded.');
+    const csvMaxCount = await this.getCsvMaxRows();
+    if (this.count > csvMaxCount) {
+      this.alertService.error('Could not download as CSV because the maximum accepted number of rows was exceeded.');
       return;
     }
 
@@ -137,12 +132,17 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     DownloadService.downloadNative(this.csvUrl);
   }
 
+  private async getCsvMaxRows(): Promise<number> {
+    this.propertiesService = this.applicationService.injector.get(PropertiesService);
+    const res = await this.propertiesService.getCsvMaxRowsProperty();
+    return +res.value;
+  }
+
   protected hasMethod(name: string) {
     return this[name] && this[name] instanceof Function;
   }
 
   public onSelect(event) {
-
   }
 
   public onActivate(event) {

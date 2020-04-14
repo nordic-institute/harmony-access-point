@@ -1,5 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {MessageLogEntry} from '../messagelog/support/messagelogentry';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
@@ -8,6 +7,7 @@ import * as moment from 'moment';
 import {ConnectionMonitorEntry, ConnectionsMonitorService} from './support/connectionsmonitor.service';
 import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
+import {ApplicationService} from '../common/application.service';
 
 /**
  * @author Ion Perpegel
@@ -23,14 +23,14 @@ import {ConnectionDetailsComponent} from './connection-details/connection-detail
 })
 
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
-  implements OnInit {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
 
-  constructor(private connectionsMonitorService: ConnectionsMonitorService, private alertService: AlertService,
-              private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationService, private connectionsMonitorService: ConnectionsMonitorService,
+              private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService, PropertyListModel} from './support/properties.service';
 import {SecurityService} from '../security/security.service';
@@ -7,6 +7,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {HttpClient} from '@angular/common/http';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   moduleId: module.id,
@@ -16,19 +17,20 @@ import {HttpClient} from '@angular/common/http';
 })
 
 export class PropertiesComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   showGlobalPropertiesControl: boolean;
 
   @ViewChild('propertyUsageTpl', {static: false}) propertyUsageTpl: TemplateRef<any>;
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
-  constructor (private http: HttpClient, private propertiesService: PropertiesService, private alertService: AlertService,
-               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationService, private http: HttpClient, private propertiesService: PropertiesService,
+              private alertService: AlertService, private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
     super.ngOnInit();
 
     super.filter = {propertyName: '', showDomain: true};
@@ -37,15 +39,15 @@ export class PropertiesComponent extends mix(BaseListComponent)
     this.filterData();
   }
 
-  public get name (): string {
+  public get name(): string {
     return 'Domibus Properties';
   }
 
-  protected get GETUrl (): string {
+  protected get GETUrl(): string {
     return PropertiesService.PROPERTIES_URL;
   }
 
-  ngAfterViewInit () {
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         name: 'Property Name',
@@ -110,33 +112,33 @@ export class PropertiesComponent extends mix(BaseListComponent)
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => col.showInitially);
   }
 
-  ngAfterViewChecked () {
+  ngAfterViewChecked() {
     this.changeDetector.detectChanges();
   }
 
-  public setServerResults (result: PropertyListModel) {
+  public setServerResults(result: PropertyListModel) {
     super.count = result.count;
     super.rows = result.items;
   }
 
-  onPropertyValueFocus (row) {
+  onPropertyValueFocus(row) {
     row.currentValueSet = true;
     row.currentValue = row.value;
     this.alertService.clearAlert();
   }
 
-  onPropertyValueBlur (row) {
+  onPropertyValueBlur(row) {
     setTimeout(() => this.revertProperty(row), 1500);
   }
 
-  canUpdate (row): boolean {
+  canUpdate(row): boolean {
     if (row && !row.currentValueSet) {
       return false;
     }
     return row && row.currentValue != row.value;
   }
 
-  private async updateProperty (row) {
+  private async updateProperty(row) {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
@@ -145,15 +147,16 @@ export class PropertiesComponent extends mix(BaseListComponent)
     } catch (ex) {
       row.currentValue = row.oldValue;
       this.revertProperty(row);
-      if (!ex.handled)
+      if (!ex.handled) {
         this.alertService.exception('Could not update property: ', ex);
+      }
     }
   }
 
-  private revertProperty (row) {
+  private revertProperty(row) {
     row.value = row.currentValue;
   }
-  
+
   get csvUrl(): string {
     return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
   }

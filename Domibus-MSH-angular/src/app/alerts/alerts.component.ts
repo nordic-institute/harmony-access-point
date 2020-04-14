@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertsResult} from './support/alertsresult';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
@@ -12,6 +12,7 @@ import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   moduleId: module.id,
@@ -21,7 +22,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 export class AlertsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
-  implements OnInit {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly ALERTS_URL: string = 'rest/alerts';
   static readonly ALERTS_CSV_URL: string = AlertsComponent.ALERTS_URL + '/csv';
@@ -60,8 +61,8 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
-              private dialogsService: DialogsService,
+  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private dialogsService: DialogsService,
               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
 

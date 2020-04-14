@@ -18,7 +18,7 @@ export class AlertService {
   private needsExplicitClosing: boolean;
 
   // TODO move the logic in the ngInit block
-  constructor(private router: Router, private matSnackBar: MatSnackBar, public injector: Injector) {
+  constructor(private router: Router, private matSnackBar: MatSnackBar) {
     this.previousRoute = '';
     // clear alert message on route change
     router.events.subscribe(event => this.reactToNavigationEvents(event));

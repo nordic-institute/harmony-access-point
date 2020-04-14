@@ -1,5 +1,5 @@
-﻿import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, TemplateRef, ViewChild} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+﻿import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {ErrorLogResult} from './support/errorlogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {ErrorlogDetailsComponent} from 'app/errorlog/errorlog-details/errorlog-details.component';
@@ -9,6 +9,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   moduleId: module.id,
@@ -19,7 +20,10 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 export class ErrorLogComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ServerPageableListMixin)
-  implements OnInit {
+  implements OnInit, AfterViewInit, AfterViewChecked {
+
+  static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
+  static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -36,11 +40,8 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   mshRoles: string[];
   errorCodes: string[];
 
-  static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
-  static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
-
-  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationService, private elementRef: ElementRef, private http: HttpClient,
+              private alertService: AlertService, public dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }
 

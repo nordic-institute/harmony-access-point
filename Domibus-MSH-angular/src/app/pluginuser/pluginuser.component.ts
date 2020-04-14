@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
 import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
@@ -17,6 +17,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -25,7 +26,7 @@ import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 })
 export class PluginUserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
@@ -39,12 +40,13 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   userRoles: Array<String>;
 
-  constructor (private alertService: AlertService, private pluginUserService: PluginUserService, public dialog: MatDialog,
-               private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+  constructor(private applicationService: ApplicationService, private alertService: AlertService,
+              private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
+              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
-  ngOnInit () {
+  ngOnInit() {
     super.ngOnInit();
 
     this.filter = {authType: 'BASIC', authRole: '', userName: '', originalUser: ''};
@@ -54,23 +56,23 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.filterData();
   }
 
-  public get name (): string {
+  public get name(): string {
     return 'Plugin Users';
   }
 
-  ngAfterViewInit () {
+  ngAfterViewInit() {
     this.initColumns();
   }
 
-  ngAfterViewChecked () {
+  ngAfterViewChecked() {
     this.changeDetector.detectChanges();
   }
 
-  get displayedUsers (): PluginUserRO[] {
+  get displayedUsers(): PluginUserRO[] {
     return this.rows.filter(el => el.status !== UserState[UserState.REMOVED]);
   }
 
-  private initColumns () {
+  private initColumns() {
     this.columnPickerBasic.allColumns = [
       {name: 'User Name', prop: 'userName', width: 20, showInitially: true},
       {name: 'Role', prop: 'authRoles', width: 10, showInitially: true},
@@ -105,27 +107,27 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.setColumnPicker();
   }
 
-  setColumnPicker () {
+  setColumnPicker() {
     this.columnPicker = this.filter.authType === 'CERTIFICATE' ? this.columnPickerCert : this.columnPickerBasic;
   }
 
-  changeAuthType (x) {
+  changeAuthType(x) {
     this.clearSearchParams();
 
     super.tryFilter();
   }
 
-  clearSearchParams () {
+  clearSearchParams() {
     this.filter.authRole = null;
     this.filter.originalUser = null;
     this.filter.userName = null;
   }
 
-  protected get GETUrl (): string {
+  protected get GETUrl(): string {
     return PluginUserService.PLUGIN_USERS_URL;
   }
 
-  protected createAndSetParameters (): HttpParams {
+  protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
 
     filterParams = filterParams.append('page', '0');
@@ -134,32 +136,34 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return filterParams;
   }
 
-  public setServerResults (result: { entries: PluginUserRO[], count: number }) {
+  public setServerResults(result: { entries: PluginUserRO[], count: number }) {
     super.rows = result.entries;
     super.count = result.entries.length;
 
     this.setColumnPicker();
   }
 
-  inBasicMode (): boolean {
+  inBasicMode(): boolean {
     return this.filter.authType === 'BASIC';
   }
 
-  inCertificateMode (): boolean {
+  inCertificateMode(): boolean {
     return this.filter.authType === 'CERTIFICATE';
   }
 
-  isDirty (): boolean {
+  isDirty(): boolean {
     return this.isChanged;
   }
 
-  async getUserRoles () {
+  async getUserRoles() {
     const result = await this.pluginUserService.getUserRoles().toPromise();
     this.userRoles = result;
   }
 
-  async add () {
-    if (this.isBusy()) return;
+  async add() {
+    if (this.isBusy()) {
+      return;
+    }
 
     this.setPage(this.getLastPage());
 
@@ -183,15 +187,15 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  canEdit () {
+  canEdit() {
     return this.selected.length === 1;
   }
 
-  canDelete () {
+  canDelete() {
     return this.canEdit();
   }
 
-  async edit (row?: PluginUserRO) {
+  async edit(row?: PluginUserRO) {
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
 
@@ -207,7 +211,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  private openItemInEditForm (item: PluginUserRO) {
+  private openItemInEditForm(item: PluginUserRO) {
     var editForm;
     if (this.inBasicMode()) {
       editForm = EditBasicPluginUserFormComponent;
@@ -223,27 +227,27 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }).afterClosed().toPromise();
   }
 
-  canSave () {
+  canSave() {
     return this.isDirty();
   }
 
-  canAdd () {
+  canAdd() {
     return !this.isBusy();
   }
 
-  async doSave (): Promise<any> {
+  async doSave(): Promise<any> {
     return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
   }
 
-  setIsDirty () {
+  setIsDirty() {
     super.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
-  canCancel () {
+  canCancel() {
     return this.isDirty();
   }
 
-  delete (row?: any) {
+  delete(row?: any) {
     const itemToDelete = row || this.selected[0];
     if (itemToDelete.status === UserState[UserState.NEW]) {
       this.rows.splice(this.rows.indexOf(itemToDelete), 1);
@@ -254,7 +258,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.selected.length = 0;
   }
 
-  get csvUrl (): string {
+  get csvUrl(): string {
     return PluginUserService.CSV_URL + '?' + this.createAndSetParameters();
   }
 

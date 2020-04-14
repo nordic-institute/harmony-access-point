@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Injector} from '@angular/core';
 import 'rxjs/add/operator/map';
 
 /**
@@ -11,7 +11,7 @@ import 'rxjs/add/operator/map';
 export class ApplicationService {
   private currentComponent: any;
 
-  constructor () {
+  constructor (public injector: Injector) {
   }
 
   getCurrentComponent (): any {

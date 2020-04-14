@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {UserResponseRO, UserState} from './support/user';
 import {UserSearchCriteria, UserService} from './support/user.service';
-import {MAT_CHECKBOX_CLICK_ACTION, MatDialog, MatDialogRef} from '@angular/material';
+import {MAT_CHECKBOX_CLICK_ACTION, MatDialog} from '@angular/material';
 import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
@@ -16,6 +16,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationService} from '../common/application.service';
 
 @Component({
   moduleId: module.id,
@@ -28,7 +29,7 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 export class UserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
@@ -49,9 +50,10 @@ export class UserComponent extends mix(BaseListComponent)
   areRowsDeleted: boolean;
   deletedStatuses: any[];
 
-  constructor(private http: HttpClient, private userService: UserService, public dialog: MatDialog, private dialogsService: DialogsService,
-              private userValidatorService: UserValidatorService, private alertService: AlertService, private securityService: SecurityService,
-              private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationService, private http: HttpClient, private userService: UserService,
+              public dialog: MatDialog, private dialogsService: DialogsService, private userValidatorService: UserValidatorService,
+              private alertService: AlertService, private securityService: SecurityService, private domainService: DomainService,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -198,7 +200,9 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   add(): void {
-    if (this.isBusy()) return;
+    if (this.isBusy()) {
+      return;
+    }
 
     this.setPage(this.getLastPage());
 
@@ -231,7 +235,9 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   editUser(currentUser) {
-    if (this.isLoading) return;
+    if (this.isLoading) {
+      return;
+    }
 
     const rowCopy = Object.assign({}, currentUser);
     this.dialog.open(EditUserComponent, {
@@ -291,7 +297,9 @@ export class UserComponent extends mix(BaseListComponent)
 
   async doSave(): Promise<any> {
     const isValid = this.userValidatorService.validateUsers(this.rows);
-    if (!isValid) return false; // TODO throw instead??
+    if (!isValid) {
+      return false;
+    } // TODO throw instead??
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {

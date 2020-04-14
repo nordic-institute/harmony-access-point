@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AuditService} from './support/audit.service';
 import {UserService} from '../user/support/user.service';
 import {AlertService} from '../common/alert/alert.service';
@@ -8,6 +8,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {ApplicationService} from '../common/application.service';
 
 /**
  * @author Thomas Dussart
@@ -23,7 +24,8 @@ import {HttpClient, HttpParams} from '@angular/common/http';
   styleUrls: ['./audit.component.css']
 })
 export class AuditComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -39,8 +41,8 @@ export class AuditComponent extends mix(BaseListComponent)
 // --- Table binding ---
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private auditService: AuditService, private userService: UserService, private alertService: AlertService,
-              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+  constructor(private applicationService: ApplicationService, private auditService: AuditService, private userService: UserService,
+              private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
