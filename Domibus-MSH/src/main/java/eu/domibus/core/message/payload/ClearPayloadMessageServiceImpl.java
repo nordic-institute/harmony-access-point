@@ -57,7 +57,7 @@ public class ClearPayloadMessageServiceImpl implements ClearPayloadMessageServic
         jmsManager.sendMessageToQueue(message, clearPayloadQueue);
     }
 
-    private JmsMessage createJMSMessage(String messageId) {
+    protected JmsMessage createJMSMessage(String messageId) {
         return JMSMessageBuilder.create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
                 .build();

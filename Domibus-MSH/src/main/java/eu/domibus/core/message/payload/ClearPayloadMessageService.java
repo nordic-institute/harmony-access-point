@@ -15,5 +15,10 @@ public interface ClearPayloadMessageService {
      */
     void clearPayloadData(final String messageId);
 
+    /**
+     * send the UserMessage to JMS clearPayloadQueue
+     *
+     * @param userMessage
+     */
     void enqueueMessageForClearPayload(UserMessage userMessage);
 }
