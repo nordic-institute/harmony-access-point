@@ -81,9 +81,8 @@ public class MessagesPgTest extends BaseTest {
 		grid.waitForRowsToLoad();
 
 		log.info("Getting all listed message info");
-		List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
-		HashMap<String, String> fMessage = allRowInfo.get(0);
-		//HashMap<String, String> fMessage = grid.getRowInfo(0);
+		HashMap<String, String> fMessage= page.grid().getRowInfo(0);
+		System.out.println(fMessage.get("Message Id"));
 
 		log.info("Basic filtering by " + fMessage);
 		page.getFilters().basicFilterBy(fMessage.get("Message Id")
@@ -93,13 +92,9 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().waitForRowsToLoad();
 
 		log.info("Getting all listed message info after filtering");
-		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
-		//HashMap<String, String> filteredRowInfo = grid.getRowInfo(0);
 
-		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-		soft.assertTrue(filteredRowInfo.size() == expectedResult.size(), "No of listed items in page matches expected");
-//		soft.assertTrue(fMessage.get("Message Id").equals(filteredRowInfo.get("Message Id")),"compare message id");
-//		soft.assertTrue(fMessage.size()==filteredRowInfo.size(),"compare size");
+		HashMap<String, String> expectedResult=page.grid().getRowInfo(0);
+		soft.assertTrue(expectedResult.equals(fMessage),"compare message");
 		soft.assertAll();
 	}
 
