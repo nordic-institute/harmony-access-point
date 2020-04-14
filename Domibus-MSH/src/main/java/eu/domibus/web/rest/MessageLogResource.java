@@ -138,13 +138,15 @@ public class MessageLogResource extends BaseResource {
         filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
         filters.put("messageType", request.getMessageType());
 
-        int maxNumberRowsToExport = getMaxNumberRowsToExport();
+        int maxNumberRowsToExport = Integer.MAX_VALUE;
 
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {
+            validateMaxRows(uiMessageService.countMessages(filters));
             /** use TB_MESSAGE_UI table instead */
             resultList = uiMessageService.findPaged(0, maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
         } else {
+            validateMaxRows(messagesLogService.countMessages(request.getMessageType(), filters));
             resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
         }
 

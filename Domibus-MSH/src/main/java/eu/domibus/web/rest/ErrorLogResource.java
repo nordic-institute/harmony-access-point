@@ -5,11 +5,11 @@ import com.google.common.primitives.Ints;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvService;
+import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
@@ -81,12 +81,11 @@ public class ErrorLogResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
-        ErrorLogResultRO result = new ErrorLogResultRO();
-
         HashMap<String, Object> filters = createFilterMap(request);
-        result.setFilter(filters);
+        long count = errorLogDao.countEntries(filters);
+        validateMaxRows(count);
 
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, errorLogCsvServiceImpl.getMaxNumberRowsToExport(),
+        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, Integer.MAX_VALUE,
                 request.getOrderBy(), request.getAsc(), filters);
         final List<ErrorLogRO> errorLogROList = domainConverter.convert(errorLogEntries, ErrorLogRO.class);
 

@@ -2,18 +2,18 @@ package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.user.UserService;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,7 +29,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Thomas Dussart
@@ -152,11 +155,10 @@ public class UserResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
+        final List<UserResponseRO> entries = users();
+        validateMaxRows(entries.size());
 
-        // get list of users
-        final List<UserResponseRO> userResponseROList = users();
-
-        return exportToCSV(userResponseROList,
+        return exportToCSV(entries,
                 UserResponseRO.class,
                 ImmutableMap.of(
                         "UserName".toUpperCase(), "Username",

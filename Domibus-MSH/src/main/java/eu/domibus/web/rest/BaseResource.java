@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -102,5 +104,14 @@ public abstract class BaseResource {
      */
     protected CsvService getCsvService() {
         return csvServiceImpl;
+    }
+
+    protected void validateMaxRows(Long count) {
+        if (count > getMaxNumberRowsToExport()) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "The number of elements exceeds the maximum allowed.");
+        }
+    }
+    protected void validateMaxRows(Integer count) {
+        validateMaxRows(Long.valueOf(count));
     }
 }

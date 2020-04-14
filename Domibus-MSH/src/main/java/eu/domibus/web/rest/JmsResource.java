@@ -28,8 +28,6 @@ public class JmsResource extends BaseResource {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
 
-    private static final String APPLICATION_JSON = "application/json";
-
     @Autowired
     protected JMSManager jmsManager;
 
@@ -98,6 +96,8 @@ public class JmsResource extends BaseResource {
                 request.getSelector())
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
+
+        validateMaxRows(jmsMessageList.size());
 
         customizeJMSProperties(jmsMessageList);
 

@@ -33,6 +33,17 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private DomainCoreConverter domainConverter;
 
+    @Override
+    public int countMessages(MessageType messageType, Map<String, Object> filters) {
+        int numberOfMessageLogs = 0;
+        if (messageType == MessageType.SIGNAL_MESSAGE) {
+            numberOfMessageLogs = signalMessageLogDao.countAllInfo(true, filters);
+        } else if (messageType == MessageType.USER_MESSAGE) {
+            numberOfMessageLogs = userMessageLogDao.countAllInfo(true, filters);
+        }
+        return numberOfMessageLogs;
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -32,7 +32,9 @@ import javax.ws.rs.QueryParam;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Mircea Musat
@@ -161,15 +163,15 @@ public class PModeResource extends BaseResource {
     public ResponseEntity<String> getCsv() {
 
         // get list of archived pmodes
-        List<PModeResponseRO> pModeResponseROList = new ArrayList();
-        pModeResponseROList.addAll(pmodeList());
+        List<PModeResponseRO> pModeList = pmodeList();
+        validateMaxRows(pModeList.size());
 
         // set first PMode as current
-        if (!pModeResponseROList.isEmpty()) {
-            pModeResponseROList.get(0).setCurrent(true);
+        if (!pModeList.isEmpty()) {
+            pModeList.get(0).setCurrent(true);
         }
 
-        return exportToCSV(pModeResponseROList,
+        return exportToCSV(pModeList,
                 PModeResponseRO.class,
                 Arrays.asList("id"),
                 "pmodearchive");

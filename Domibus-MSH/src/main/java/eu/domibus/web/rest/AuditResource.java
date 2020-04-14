@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,10 +14,15 @@ import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -72,7 +77,6 @@ public class AuditResource extends BaseResource {
         return list;
     }
 
-
     @GetMapping(value = {"/count"})
     public Long countAudits(@Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
@@ -81,6 +85,28 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getUser(),
                 auditCriteria.getFrom(),
                 auditCriteria.getTo());
+    }
+
+    /**
+     * This method returns a CSV file with the contents of Audit table
+     *
+     * @param auditCriteria same filter criteria as in filter method
+     * @return CSV file with the contents of Audit table
+     */
+    @GetMapping(path = "/csv")
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
+        auditCriteria.setStart(0);
+        auditCriteria.setMax(Integer.MAX_VALUE);
+        final Long count = countAudits(auditCriteria);
+        validateMaxRows(count);
+
+        final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
+
+        return exportToCSV(auditResponseRos,
+                AuditResponseRo.class,
+                ImmutableMap.of("AuditTargetName".toUpperCase(), "Table"),
+                Arrays.asList("revisionId"),
+                "audit");
     }
 
     /**
@@ -117,25 +143,6 @@ public class AuditResource extends BaseResource {
     @GetMapping(value = {"/targets"})
     public List<String> auditTargets() {
         return auditService.listAuditTarget();
-    }
-
-    /**
-     * This method returns a CSV file with the contents of Audit table
-     *
-     * @param auditCriteria same filter criteria as in filter method
-     * @return CSV file with the contents of Audit table
-     */
-    @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
-        auditCriteria.setStart(0);
-        auditCriteria.setMax(getMaxNumberRowsToExport());
-        final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
-
-        return exportToCSV(auditResponseRos,
-                AuditResponseRo.class,
-                ImmutableMap.of("AuditTargetName".toUpperCase(), "Table"),
-                Arrays.asList("revisionId"),
-                "audit");
     }
 
 }
