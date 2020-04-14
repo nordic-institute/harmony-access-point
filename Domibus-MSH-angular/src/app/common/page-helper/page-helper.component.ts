@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material';
-import {NavigationStart, Router} from '@angular/router';
+import {ResolveEnd, Router} from '@angular/router';
 import {isNullOrUndefined} from 'util';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 
@@ -14,7 +14,7 @@ export class PageHelperComponent implements OnInit {
 
   pageName: string;
   helpPages: Map<String, String> = new Map<String, String>();
-  activateHelp: boolean = false;
+  activateHelp = false;
 
   constructor(public dialog: MatDialog, private router: Router, private domibusInfoService: DomibusInfoService) {
   }
@@ -26,9 +26,9 @@ export class PageHelperComponent implements OnInit {
   }
 
   private processRouteChange(event) {
-    if (event instanceof NavigationStart) {
-      let url = event.url.split('?')[0];
-      let page = this.helpPages.get(url);
+    if (event instanceof ResolveEnd) {
+      const url = event.url.split('?')[0];
+      const page = this.helpPages.get(url);
 
       if (isNullOrUndefined(page)) {
         this.activateHelp = false;
@@ -41,8 +41,8 @@ export class PageHelperComponent implements OnInit {
 
   private async setHelpPages() {
     const domibusInfo = await this.domibusInfoService.getDomibusInfo();
-    let MAIN_HELP_PAGE = `https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
-    let VERSION_SPECIFIC_PAGE = `#Domibusv${domibusInfo.versionNumber}AdminConsoleHelp-`;
+    const MAIN_HELP_PAGE = `https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
+    const VERSION_SPECIFIC_PAGE = `#Domibusv${domibusInfo.versionNumber}AdminConsoleHelp-`;
 
     const routes = this.router.config;
     routes.forEach(route => {
