@@ -105,7 +105,7 @@ public class AlertResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
         request.setPage(0);
-        request.setPageSize(Integer.MAX_VALUE);
+        request.setPageSize(getMaxNumberRowsToExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {

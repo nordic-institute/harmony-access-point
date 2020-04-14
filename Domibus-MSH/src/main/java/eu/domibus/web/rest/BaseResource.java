@@ -28,6 +28,10 @@ public abstract class BaseResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
+    protected int getMaxNumberRowsToExport() {
+        return Integer.MAX_VALUE;
+    }
+
     /**
      * exports to CSV
      *

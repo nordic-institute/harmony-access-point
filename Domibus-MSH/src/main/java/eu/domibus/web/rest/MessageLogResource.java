@@ -138,7 +138,7 @@ public class MessageLogResource extends BaseResource {
         filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
         filters.put("messageType", request.getMessageType());
 
-        int maxNumberRowsToExport = Integer.MAX_VALUE;
+        int maxNumberRowsToExport = getMaxNumberRowsToExport();
 
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {

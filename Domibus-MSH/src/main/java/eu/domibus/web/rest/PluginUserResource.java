@@ -83,7 +83,7 @@ public class PluginUserResource extends BaseResource {
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
 
         request.setPageStart(0);
-        request.setPageSize(Integer.MAX_VALUE);
+        request.setPageSize(getMaxNumberRowsToExport());
         Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
         validateMaxRows(count);
 

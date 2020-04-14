@@ -96,7 +96,7 @@ public class AuditResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         auditCriteria.setStart(0);
-        auditCriteria.setMax(Integer.MAX_VALUE);
+        auditCriteria.setMax(getMaxNumberRowsToExport());
         final Long count = countAudits(auditCriteria);
         validateMaxRows(count);
 

@@ -85,7 +85,7 @@ public class ErrorLogResource extends BaseResource {
         long count = errorLogDao.countEntries(filters);
         validateMaxRows(count);
 
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, Integer.MAX_VALUE,
+        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, getMaxNumberRowsToExport(),
                 request.getOrderBy(), request.getAsc(), filters);
         final List<ErrorLogRO> errorLogROList = domainConverter.convert(errorLogEntries, ErrorLogRO.class);
 
