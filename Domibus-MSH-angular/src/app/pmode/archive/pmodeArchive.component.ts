@@ -18,7 +18,7 @@ import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../../common/application.service';
+import {ApplicationContextService} from '../../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -68,7 +68,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();

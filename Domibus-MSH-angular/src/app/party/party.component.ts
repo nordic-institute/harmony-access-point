@@ -13,7 +13,7 @@ import {ClientFilterableListMixin} from '../common/mixins/filterable-list.mixin'
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -43,7 +43,7 @@ export class PartyComponent extends mix(BaseListComponent)
 
   pModeExists: boolean;
 
-  constructor(private applicationService: ApplicationService, public dialog: MatDialog, private dialogsService: DialogsService,
+  constructor(private applicationService: ApplicationContextService, public dialog: MatDialog, private dialogsService: DialogsService,
               public partyService: PartyService, public alertService: AlertService, private http: HttpClient,
               private changeDetector: ChangeDetectorRef) {
     super();

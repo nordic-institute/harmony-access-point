@@ -7,7 +7,7 @@ import * as moment from 'moment';
 import {ConnectionMonitorEntry, ConnectionsMonitorService} from './support/connectionsmonitor.service';
 import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Ion Perpegel
@@ -29,7 +29,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationService, private connectionsMonitorService: ConnectionsMonitorService,
+  constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }

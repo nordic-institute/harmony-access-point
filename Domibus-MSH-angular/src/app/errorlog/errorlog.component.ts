@@ -9,7 +9,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -40,7 +40,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   mshRoles: string[];
   errorCodes: string[];
 
-  constructor(private applicationService: ApplicationService, private elementRef: ElementRef, private http: HttpClient,
+  constructor(private applicationService: ApplicationContextService, private elementRef: ElementRef, private http: HttpClient,
               private alertService: AlertService, public dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super();
   }

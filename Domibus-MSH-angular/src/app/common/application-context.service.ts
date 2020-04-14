@@ -8,7 +8,7 @@ import 'rxjs/add/operator/map';
  * Service meant to keep the current component in the outlet(set by the framework)
  */
 @Injectable()
-export class ApplicationService {
+export class ApplicationContextService {
   private currentComponent: any;
 
   constructor (public injector: Injector) {

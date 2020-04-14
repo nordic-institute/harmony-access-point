@@ -8,7 +8,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Thomas Dussart
@@ -41,7 +41,7 @@ export class AuditComponent extends mix(BaseListComponent)
 // --- Table binding ---
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private applicationService: ApplicationService, private auditService: AuditService, private userService: UserService,
+  constructor(private applicationService: ApplicationContextService, private auditService: AuditService, private userService: UserService,
               private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }

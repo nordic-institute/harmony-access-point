@@ -7,7 +7,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Catalin Enache
@@ -30,7 +30,7 @@ export class LoggingComponent extends mix(BaseListComponent)
 
   levels: Array<String>;
 
-  constructor(private applicationService: ApplicationService, private elementRef: ElementRef, private http: HttpClient,
+  constructor(private applicationService: ApplicationContextService, private elementRef: ElementRef, private http: HttpClient,
               private alertService: AlertService, private changeDetector: ChangeDetectorRef) {
     super();
   }

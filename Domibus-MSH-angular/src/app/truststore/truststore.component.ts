@@ -10,7 +10,7 @@ import {HttpClient} from '@angular/common/http';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   selector: 'app-truststore',
@@ -30,7 +30,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private trustStoreService: TrustStoreService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
     super();
   }

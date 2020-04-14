@@ -7,7 +7,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {HttpClient} from '@angular/common/http';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -25,7 +25,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
   @ViewChild('propertyUsageTpl', {static: false}) propertyUsageTpl: TemplateRef<any>;
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private propertiesService: PropertiesService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private propertiesService: PropertiesService,
               private alertService: AlertService, private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();
   }

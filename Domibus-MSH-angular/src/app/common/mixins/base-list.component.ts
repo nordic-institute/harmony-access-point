@@ -6,7 +6,7 @@ import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
-import {ApplicationService} from '../application.service';
+import {ApplicationContextService} from '../application-context.service';
 
 /**
  * @author Ion Perpegel
@@ -30,7 +30,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public isLoading: boolean;
   private propertiesService: PropertiesService;
 
-  constructor(protected applicationService: ApplicationService, protected alertService: AlertService, private http: HttpClient) {
+  constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 

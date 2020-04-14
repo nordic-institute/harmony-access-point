@@ -16,7 +16,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -50,7 +50,7 @@ export class UserComponent extends mix(BaseListComponent)
   areRowsDeleted: boolean;
   deletedStatuses: any[];
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private userService: UserService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private userService: UserService,
               public dialog: MatDialog, private dialogsService: DialogsService, private userValidatorService: UserValidatorService,
               private alertService: AlertService, private securityService: SecurityService, private domainService: DomainService,
               private changeDetector: ChangeDetectorRef) {

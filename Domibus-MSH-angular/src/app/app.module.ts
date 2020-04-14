@@ -102,7 +102,7 @@ import {PropertiesService} from './properties/support/properties.service';
 import {FileUploadValidatorService} from './common/file-upload-validator.service';
 import {ConnectionsComponent} from './testservice/connections.component';
 import {ConnectionDetailsComponent} from './testservice/connection-details/connection-details.component';
-import {ApplicationService} from './common/application.service';
+import {ApplicationContextService} from './common/application-context.service';
 
 @NgModule({
   declarations: [
@@ -242,7 +242,7 @@ import {ApplicationService} from './common/application.service';
     DialogsService,
     PropertiesService,
     FileUploadValidatorService,
-    ApplicationService
+    ApplicationContextService
   ],
   bootstrap: [AppComponent]
 })

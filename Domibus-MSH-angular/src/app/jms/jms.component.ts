@@ -14,7 +14,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   selector: 'app-jms',
@@ -60,7 +60,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }

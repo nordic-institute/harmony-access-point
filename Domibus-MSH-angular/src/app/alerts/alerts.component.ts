@@ -12,7 +12,7 @@ import 'rxjs-compat/add/operator/filter';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -61,7 +61,7 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService,
               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {
     super();

@@ -23,7 +23,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 import {DirtyOperations} from '../common/dirty-operations';
 
 @Component({
@@ -65,7 +65,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {
     super();

@@ -12,7 +12,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -34,7 +34,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  constructor(private applicationService: ApplicationService, private http: HttpClient, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService) {
     super();
   }

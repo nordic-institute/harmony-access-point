@@ -17,7 +17,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -40,7 +40,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   userRoles: Array<String>;
 
-  constructor(private applicationService: ApplicationService, private alertService: AlertService,
+  constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
               private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
