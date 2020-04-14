@@ -1,6 +1,6 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.pmode.RequestValidationException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

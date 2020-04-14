@@ -1,8 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -29,10 +28,6 @@ public abstract class BaseResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
-    protected int getMaxNumberRowsToExport() {
-        return csvServiceImpl.getMaxNumberRowsToExport();
-    }
-
     /**
      * exports to CSV
      *
@@ -41,7 +36,7 @@ public abstract class BaseResource {
      * @param customColumnNames needed in case different column titles than the attribute name
      * @param excludedColumns   the list of excluded columns from the final export
      * @param moduleName        the seed of the name of the generated file
-     * @return                  The comma-separated list of records
+     * @return The comma-separated list of records
      */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass,
                                                  final Map<String, String> customColumnNames,
@@ -63,10 +58,11 @@ public abstract class BaseResource {
 
     /**
      * Overloaded method to export as CSV
-     * @param list              the list of objects to export
-     * @param tClass            the class of the object instances, used to determine the columns
-     * @param moduleName        the seed of the name of the generated file
-     * @return                  The comma-separated list of records
+     *
+     * @param list       the list of objects to export
+     * @param tClass     the class of the object instances, used to determine the columns
+     * @param moduleName the seed of the name of the generated file
+     * @return The comma-separated list of records
      */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final String moduleName) {
         return exportToCSV(list, tClass, new HashMap<>(), new ArrayList<>(), moduleName);
@@ -74,11 +70,12 @@ public abstract class BaseResource {
 
     /**
      * Overloaded method to export as CSV
+     *
      * @param list              the list of objects to export
      * @param tClass            the class of the object instances, used to determine the columns
      * @param customColumnNames needed in case different column titles than the attribute name
      * @param moduleName        the seed of the name of the generated file
-     * @return                  The comma-separated list of records
+     * @return The comma-separated list of records
      */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final Map<String, String> customColumnNames,
                                                  final String moduleName) {
@@ -87,11 +84,12 @@ public abstract class BaseResource {
 
     /**
      * Overloaded method to export as CSV
-     * @param list              the list of objects to export
-     * @param tClass            the class of the object instances, used to determine the columns
-     * @param excludedColumns   the list of excluded columns from the final export
-     * @param moduleName        the seed of the name of the generated file
-     * @return                  The comma-separated list of records
+     *
+     * @param list            the list of objects to export
+     * @param tClass          the class of the object instances, used to determine the columns
+     * @param excludedColumns the list of excluded columns from the final export
+     * @param moduleName      the seed of the name of the generated file
+     * @return The comma-separated list of records
      */
     protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, List<String> excludedColumns,
                                                  final String moduleName) {
@@ -100,6 +98,7 @@ public abstract class BaseResource {
 
     /**
      * Get the Csv service
+     *
      * @return
      */
     protected CsvService getCsvService() {
@@ -107,10 +106,11 @@ public abstract class BaseResource {
     }
 
     protected void validateMaxRows(Long count) {
-        if (count > getMaxNumberRowsToExport()) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "The number of elements exceeds the maximum allowed.");
+        if (count > csvServiceImpl.getMaxNumberRowsToExport()) {
+            throw new RequestValidationException("The number of elements exceeds the maximum allowed.");
         }
     }
+
     protected void validateMaxRows(Integer count) {
         validateMaxRows(Long.valueOf(count));
     }

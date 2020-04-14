@@ -22,8 +22,6 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
-  public static readonly CSV_ERROR_MESSAGE = 'Maximum number of rows reached for downloading CSV';
-
   public rows: T[];
   public selected: T[];
   public count: number;
@@ -128,7 +126,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     }
 
     if (this.count > this.csvMaxCount) {
-      this.alertService.error(BaseListComponent.CSV_ERROR_MESSAGE);
+      this.alertService.error('Could not downloas as CSV because the maximum accepted number of rows was exceeded.');
       return;
     }
 

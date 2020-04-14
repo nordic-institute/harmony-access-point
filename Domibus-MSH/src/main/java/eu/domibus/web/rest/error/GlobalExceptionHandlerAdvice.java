@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.error;
 
-import eu.domibus.api.pmode.RequestValidationException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
