@@ -115,12 +115,7 @@ public class TestUtils {
 		List<Date> toReturn = new ArrayList<>();
 
 		for (int i = 0; i < list.size(); i++) {
-			if(list.get(i)==""){
-				log.info("date is blank for" + i);
-			}
-			else {
 				toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
-			}
 		}
 		return toReturn;
 	}
