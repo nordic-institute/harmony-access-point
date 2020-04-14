@@ -138,7 +138,6 @@ public class UpdateRetryLoggingService {
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
             clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
-            //messagingDao.clearPayloadData(userMessage);
         }
     }
 

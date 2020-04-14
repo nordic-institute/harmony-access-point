@@ -161,7 +161,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage);
         if (shouldDeleteDownloadedMessage) {
-            //messagingDao.clearPayloadData(userMessage);
             clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
 
             // Sets the message log status to DELETED

@@ -517,7 +517,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
-        //messagingDao.clearPayloadData(userMessage);
         clearPayloadMessageService.enqueueMessageForClearPayload(userMessage);
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
