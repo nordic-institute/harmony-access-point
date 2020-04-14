@@ -95,6 +95,8 @@ public class MessageFilterResourceTest {
         new Expectations(messageFilterResource){{
             messageFilterResource.getBackendFiltersInformation();
             result = new ImmutablePair<>(messageFilterResultROS, true);
+            csvServiceImpl.getMaxNumberRowsToExport();
+            result = 1000;
             messageFilterCsvServiceImpl.exportToCSV(messageFilterResultROS, MessageFilterRO.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
         }};

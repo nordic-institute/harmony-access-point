@@ -182,6 +182,8 @@ public class TruststoreResourceTest {
         new Expectations(truststoreResource) {{
             truststoreResource.trustStoreEntries();
             result = trustStoreROList;
+            csvServiceImpl.getMaxNumberRowsToExport();
+            result = 1000;
             csvServiceImpl.exportToCSV(trustStoreROList, null, (Map<String, String>) any, (List<String>) any);
             result = "Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                     "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator();

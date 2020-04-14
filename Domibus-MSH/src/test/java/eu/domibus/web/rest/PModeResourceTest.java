@@ -366,6 +366,8 @@ public class PModeResourceTest {
         new Expectations() {{
             pModeProvider.getRawConfigurationList();
             result = pModeArchiveInfoList;
+            csvServiceImpl.getMaxNumberRowsToExport();
+            result = 1000;
             domainConverter.convert(pModeArchiveInfoList, PModeResponseRO.class);
             result = pModeResponseROList;
             csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class, (Map<String, String>) any, (List<String>) any);

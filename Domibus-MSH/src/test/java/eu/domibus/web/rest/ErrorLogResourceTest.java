@@ -123,8 +123,8 @@ public class ErrorLogResourceTest {
         errorLogRO.setNotified(date);
         errorLogROEntries.add(errorLogRO);
         new Expectations() {{
-            errorLogCsvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
+//            errorLogCsvServiceImpl.getMaxNumberRowsToExport();
+//            result = 10000;
 
             errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
