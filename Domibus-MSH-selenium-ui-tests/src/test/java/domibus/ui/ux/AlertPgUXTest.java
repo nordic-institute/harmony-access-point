@@ -64,7 +64,7 @@ public class AlertPgUXTest extends BaseUXTest {
         AlertPage page = new AlertPage(driver);
         page.getSidebar().goToPage(PAGES.ALERTS);
         AlertFilters aFilter= new AlertFilters(driver);
-        aFilter.getProcessedSelect().selectOptionByText("Processed");
+        aFilter.getProcessedSelect().selectOptionByIndex(1);
         aFilter.getSearchButton().click();
         page.grid().waitForRowsToLoad();
         do {
