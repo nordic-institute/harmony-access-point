@@ -77,7 +77,7 @@ export class PropertiesService {
   }
 
   async getCsvMaxRowsProperty(): Promise<PropertyModel> {
-    return this.getProperty('domibus.ui.csv.max.rows', true);
+    return this.getProperty('domibus.ui.csv.rows.max', true);
   }
 
 }

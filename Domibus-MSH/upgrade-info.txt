@@ -1,4 +1,5 @@
 Domibus 4.2 (from 4.1.4):
+                - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max
                 - add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
                 - add a configuration file named super-domibus.properties for properties specific to super users
 Domibus 4.1.4 (from 4.1.3)
