@@ -56,6 +56,12 @@ public class FilterArea extends DComponent {
 
 	}
 
+	public void mouseOverAndClick() throws Exception{
+		log.info("clicking search");
+		wait.forElementToBeClickable(searchButton);
+		new Actions(driver).moveToElement(searchButton).click().build().perform();
+	}
+
 
 
 

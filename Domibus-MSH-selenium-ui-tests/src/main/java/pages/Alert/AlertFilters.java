@@ -111,8 +111,7 @@ public class AlertFilters extends FilterArea {
 		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
 		weToDatePicker(creationFromContainer).selectDate(creationFromDate);
 		weToDatePicker(creationToContainer).selectDate(creationToDate);
-		wait.forElementToBeClickable(searchButton);
-		new Actions(driver).moveToElement(searchButton).click().build().perform();
+		mouseOverAndClick();
 
 	}
 
@@ -145,8 +144,7 @@ public class AlertFilters extends FilterArea {
 		weToDInput(alertIdInput).fill(alertId);
 		weToDatePicker(reportingFromContainer).selectDate(reportingFromDate);
 		weToDatePicker(reportingToContainer).selectDate(reportingToDate);
-		wait.forElementToBeClickable(searchButton);
-		new Actions(driver).moveToElement(searchButton).click().build().perform();
+		mouseOverAndClick();
 	}
 
 
