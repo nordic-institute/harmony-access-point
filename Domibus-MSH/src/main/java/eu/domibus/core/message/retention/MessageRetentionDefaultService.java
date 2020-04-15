@@ -71,7 +71,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    @Transactional
+    @Transactional (timeout = 1200) //20min as the children methods could run long time queries on a big DB
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
