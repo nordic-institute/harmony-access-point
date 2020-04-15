@@ -146,7 +146,7 @@ public class MessageLogResource extends BaseResource {
             getCsvService().validateMaxRows(resultList.size(), () -> uiMessageService.countMessages(filters));
         } else {
             resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
-            getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
+            getCsvService().validateMaxRows(resultList.size(), () -> Long.valueOf(messagesLogService.countMessages(request.getMessageType(), filters)));
         }
 
         return exportToCSV(resultList,

@@ -73,18 +73,14 @@ public class CsvServiceImpl implements CsvService {
 
     @Override
     public void validateMaxRows(Integer count) throws RequestValidationException {
-        if (count > getMaxNumberRowsToExport()) {
-            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
-                    , count, getMaxNumberRowsToExport());
-            throw new RequestValidationException(message);
-        }
+        validateMaxRows(count, null);
     }
 
     @Override
-    public <R> void validateMaxRows(Integer count, Supplier<R> countMethod) throws RequestValidationException {
+    public void validateMaxRows(Integer count, Supplier<Long> countMethod) throws RequestValidationException {
         if (count > getMaxNumberRowsToExport()) {
-            R all = countMethod.get();
-            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
+            Long all = countMethod == null ? Long.valueOf(count) : countMethod.get();
+            String message = String.format("The number of elements to export [%s] exceeds the maximum allowed [%s]."
                     , all, getMaxNumberRowsToExport());
             throw new RequestValidationException(message);
         }

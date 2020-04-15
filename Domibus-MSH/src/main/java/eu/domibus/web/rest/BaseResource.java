@@ -2,8 +2,6 @@ package eu.domibus.web.rest;
 
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +18,6 @@ import java.util.Map;
  * @since 4.1.1
  */
 public abstract class BaseResource {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BaseResource.class);
 
     @Autowired
     CsvServiceImpl csvServiceImpl;
