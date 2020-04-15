@@ -34,7 +34,6 @@ export class JmsComponent extends mix(BaseListComponent)
   queuesInfoGot: EventEmitter<boolean>;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
-  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<Object>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
@@ -128,15 +127,13 @@ export class JmsComponent extends mix(BaseListComponent)
 
       },
       {
-        cellTemplate: this.rowWithJSONTpl,
         name: 'Custom prop',
-        prop: 'customProperties',
+        prop: 'customPropertiesText',
         width: 250
       },
       {
-        cellTemplate: this.rowWithJSONTpl,
         name: 'JMS prop',
-        prop: 'jmsproperties',
+        prop: 'jmspropertiesText',
         width: 200
       },
       {
@@ -192,7 +189,9 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   private setDefaultQueue(queueName: string) {
-    if (!this.queues || this.queues.length == 0) return;
+    if (!this.queues || this.queues.length == 0) {
+      return;
+    }
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
     const toSelect = matching != null ? matching : this.queues.length[0];
@@ -236,8 +235,13 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   public setServerResults(res) {
-    super.rows = res.messages;
-    super.count = res.messages.length;
+    const rows: any[] = res.messages;
+    rows.forEach(row => {
+      row.customPropertiesText = JSON.stringify(row.customProperties);
+      row.jmspropertiesText = JSON.stringify(row.jmsproperties);
+    });
+    super.rows = rows;
+    super.count = rows.length;
     this.refreshDestinations();
   }
 
