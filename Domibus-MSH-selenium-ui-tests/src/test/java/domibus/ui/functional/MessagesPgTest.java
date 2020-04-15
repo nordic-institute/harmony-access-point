@@ -82,7 +82,7 @@ public class MessagesPgTest extends BaseTest {
 
 		log.info("Getting all listed message info");
 		HashMap<String, String> fMessage= page.grid().getRowInfo(0);
-		System.out.println(fMessage.get("Message Id"));
+		log.info(fMessage.get("Message Id"));
 
 		log.info("Basic filtering by " + fMessage);
 		page.getFilters().basicFilterBy(fMessage.get("Message Id")
