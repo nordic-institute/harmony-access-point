@@ -9,10 +9,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class DomainDTO {
 
+    public static final DomainDTO DEFAULT_DOMAIN = new DomainDTO("default", "Default");
+
     protected String code;
     protected String name;
 
-    public DomainDTO(){}
+    public DomainDTO() {
+    }
 
     public DomainDTO(String code, String name) {
         this.code = code;

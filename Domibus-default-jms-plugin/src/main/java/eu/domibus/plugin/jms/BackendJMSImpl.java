@@ -5,7 +5,6 @@ import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -50,6 +49,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Autowired
     protected DomainContextExtService domainContextExtService;
+
+    @Autowired
+    protected BackendJMSQueueService backendJMSQueueService;
 
     @Autowired
     @Qualifier(value = "mshToBackendTemplate")
@@ -133,17 +135,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected void sendReplyMessage(final String messageId, final String errorMessage, final String correlationId) {
         LOG.debug("Sending reply message");
         final JmsMessageDTO jmsMessageDTO = new ReplyMessageCreator(messageId, errorMessage, correlationId).createMessage();
-        sendJmsMessage(jmsMessageDTO, JMSPLUGIN_QUEUE_REPLY);
+        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
     @Override
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message");
-        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        final String queueValue = domibusPropertyExtService.getProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
-        if (StringUtils.isEmpty(queueValue)) {
-            throw new DomibusPropertyExtException("Error getting the queue [" + JMSPLUGIN_QUEUE_OUT + "]");
-        }
+
+        final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
         mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
     }
@@ -154,28 +153,26 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(messageReceiveFailureEvent.getErrorResult(),
                 messageReceiveFailureEvent.getEndpoint(),
                 NotificationType.MESSAGE_RECEIVED_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR);
+        sendJmsMessage(jmsMessageDTO, messageReceiveFailureEvent.getMessageId(), JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
     public void messageSendFailed(final String messageId) {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId);
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errors.get(errors.size() - 1), null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR);
+        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
     public void messageSendSuccess(String messageId) {
         LOG.debug("Handling messageSendSuccess");
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(messageId, NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
-        sendJmsMessage(jmsMessageDTO, JMSPLUGIN_QUEUE_REPLY);
+        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
-    protected void sendJmsMessage(JmsMessageDTO message, String queueProperty) {
-        final String queueValue = domibusPropertyExtService.getProperty(queueProperty);
-        if (StringUtils.isEmpty(queueValue)) {
-            throw new DomibusPropertyExtException("Error getting the queue [" + queueProperty + "]");
-        }
+    protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
+        final String queueValue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+
         LOG.info("Sending message to queue [{}]", queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue);
     }
