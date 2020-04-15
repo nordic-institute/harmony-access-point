@@ -163,7 +163,6 @@ public class SideNavigation extends DComponent {
 		log.info("Navigating to " + page.name());
 		DomibusPage pg = new DomibusPage(driver);
 		DLink link = getPageLnk(page);
-		pg.wait.forElementToBeVisible(link.element);
 		pg.wait.forElementToBeClickable(link.element);
 		link.click();
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
