@@ -99,7 +99,7 @@ public class AuditPgTest extends BaseTest {
 
 
     /*   AU-14 - Check Action On Audit page Grid data for Record created on Download action on Message page  */
-    @Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"})
     public void messageDownloadedLog() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credentials and navigate to Audit page");
@@ -194,7 +194,7 @@ public class AuditPgTest extends BaseTest {
     }
 
     /* AU-17 - Check action on Move up/Move Down on Message Filter */
-    @Test(description = "AU-17", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "AU-17", groups = {"multiTenancy", "singleTenancy"})
     public void msgFilterMoveAction() throws Exception {
         SoftAssert soft = new SoftAssert();
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
@@ -207,12 +207,14 @@ public class AuditPgTest extends BaseTest {
         }
         log.info("Select last row");
         mPage.grid().selectRow(mPage.grid().getPagination().getTotalItems() - 1);
+        //mPage.wait.forElementToBeClickable(mPage.getMoveUpBtn().element);
         log.info("Select last row");
         mPage.getMoveUpBtn().click();
         log.info("Click on save button then yes from confirmation pop up");
         mPage.saveAndConfirmChanges();
         page.getSidebar().goToPage(PAGES.AUDIT);
         AuditPage auditPage = new AuditPage(driver);
+        auditPage.grid().waitForRowsToLoad();
         soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
         log.info("Select data in search filters");
         auditPage.getFilters().setFilterData("table", "Message filter");
@@ -415,7 +417,7 @@ public class AuditPgTest extends BaseTest {
     }
 
     /*  AU-24 - Login as domain admin, go to page Parties and Delete parties    */
-    @Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
     public void deleteParty() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/multipleParties.xml", null);
@@ -424,6 +426,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Login and navigate to pmode parties page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage pPage = new PModePartiesPage(driver);
+        pPage.grid().waitForRowsToLoad();
         pPage.grid().scrollToAndSelect("Party Name", "red_gw");
         pPage.getDeleteButton().click();
         pPage.getSaveButton().click();
@@ -432,21 +435,23 @@ public class AuditPgTest extends BaseTest {
         pPage.getSidebar().goToPage(PAGES.AUDIT);
 
         AuditPage auditPage = new AuditPage(driver);
+        auditPage.grid().waitForRowsToLoad();
 
         log.info("Set all search filter data");
         auditPage.filters().getTableFilter().selectOptionByText("Pmode");
         auditPage.filters().clickSearch();
+        auditPage.waitForTitle();
         auditPage.grid().waitForRowsToLoad();
 
         log.info("Validate data on Audit page");
-        soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Created"), "Created action is logged");
-        soft.assertTrue(auditPage.grid().getRowInfo(1).containsValue("Deleted"), "Deleted action is logged");
+        soft.assertTrue(auditPage.grid().getRowInfo(0).containsValue("Deleted") || auditPage.grid().getRowInfo(0).containsValue("Created"), "Deleted /Created action is logged");
+        soft.assertTrue(auditPage.grid().getRowInfo(1).containsValue("Deleted") || auditPage.grid().getRowInfo(1).containsValue("Created"), "Created/Deleted action is logged");
 
         soft.assertAll();
     }
 
     /*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
-    @Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"})
     public void pmodeDownload() throws Exception {
         rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
@@ -459,8 +464,12 @@ public class AuditPgTest extends BaseTest {
 
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
         AuditPage page = new AuditPage(driver);
+        page.refreshPage();
+        page.waitForTitle();
+        page.grid().waitForRowsToLoad();
 
         page.getFilters().setFilterData("table", "Pmode");
+        page.getFilters().setFilterData("action", "Downloaded");
         log.info("click on search button");
         page.getFilters().getSearchButton().click();
         page.grid().waitForRowsToLoad();
@@ -514,7 +523,7 @@ public class AuditPgTest extends BaseTest {
     }
 
     /*  AU-27 - Login as domain admin, go to page PMode Archive and Delete old PModes   */
-    @Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"})
     public void deletePmodeFromArchive() throws Exception {
         log.info("upload pmode");
         rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -697,7 +706,7 @@ public class AuditPgTest extends BaseTest {
     }
 
     /* AU-8 Verify data after changing domain*/
-    @Test(description = "AU-8", groups = {"multiTenancy"})
+    @Test(description = "AU-8", groups = {"multiTenancy"} )
     public void changeDomain() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credentials and navigate to Audit page");
@@ -743,7 +752,7 @@ public class AuditPgTest extends BaseTest {
     }
 
     /* Verify data and page number after changing domain from second page of default domain*/
-    @Test(description = "AU-10", groups = {"multiTenancy"})
+    @Test(description = "AU-10", groups = {"multiTenancy"} )
     public void changeDomainFromSecPage() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Login into application with Admin credentials and navigate to Audit page");
@@ -873,6 +882,7 @@ public class AuditPgTest extends BaseTest {
 
             if (data.isMultiDomain()) {
                 if (mPage.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                    rest.uploadPMode("pmodes/Edelivery-blue-NoRetry.xml", mPage.getDomainFromTitle());
                     log.info("Create plugin user");
                     rest.createPluginUser(userr, DRoles.ADMIN, data.defaultPass(), mPage.getDomainFromTitle());
                     log.info("send message ");
@@ -940,6 +950,7 @@ public class AuditPgTest extends BaseTest {
         log.info("Login into application with Admin credentials and navigate to Audit page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
         PModeCurrentPage pcPage = new PModeCurrentPage(driver);
+        pcPage.waitForTitle();
         AuditPage aPage = new AuditPage(driver);
         do {
             soft.assertTrue(pcPage.getDownloadBtn().isPresent(), "Download button is present");
@@ -948,9 +959,9 @@ public class AuditPgTest extends BaseTest {
 
             log.info("Clean given directory");
             FileUtils.cleanDirectory(new File(filePath));
+            soft.assertTrue(pcPage.getDownloadBtn().isEnabled(),"Check status of Download button");
             log.info("Click on download button");
             pcPage.getDownloadBtn().click();
-            soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
             log.info("Navigate to Audit page");
             pcPage.getSidebar().goToPage(PAGES.AUDIT);
             aPage.waitForTitle();
@@ -970,6 +981,7 @@ public class AuditPgTest extends BaseTest {
             aPage.getDomainSelector().selectOptionByIndex(1);
             log.info("Navigate to Pmode current page");
             aPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+            pcPage.waitForTitle();
         } while (aPage.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 

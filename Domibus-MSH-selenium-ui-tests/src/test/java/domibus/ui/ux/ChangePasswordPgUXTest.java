@@ -120,7 +120,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 	/**
 	 * This method ensures validation message for Confirmation if New password and Confirmation field is different but valid
 	 */
-	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"})
 	public void differentPasswordsValidData() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -174,7 +174,7 @@ public class ChangePasswordPgUXTest extends BaseUXTest {
 
 	/* This method ensures validation message for no match to password policy and with confirmation password when
 	New password and Confirmation field is different and invalid */
-	@Test(description = "CP-8", groups = {"multiTenancy", "singleTenancy", "incomplete"}, enabled = false)
+	@Test(description = "CP-8", groups = {"multiTenancy", "singleTenancy", "incomplete"})
 	public void differentPasswordsInvalidData() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

@@ -10,6 +10,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import javax.print.DocFlavor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,10 +161,10 @@ public class SideNavigation extends DComponent {
 
 	public void goToPage(PAGES page) throws Exception {
 		log.info("Navigating to " + page.name());
-		DLink link = getPageLnk(page);
-		link.click();
-
 		DomibusPage pg = new DomibusPage(driver);
+		DLink link = getPageLnk(page);
+		pg.wait.forElementToBeClickable(link.element);
+		link.click();
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
 		pg.wait.forElementToContainText(pg.pageTitle, text);
 

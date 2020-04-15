@@ -78,10 +78,11 @@ public class MessagesPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		MessagesPage page = new MessagesPage(driver);
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 
 		log.info("Getting all listed message info");
-		List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
-		HashMap<String, String> fMessage = allRowInfo.get(0);
+		HashMap<String, String> fMessage= page.grid().getRowInfo(0);
+		log.info(fMessage.get("Message Id"));
 
 		log.info("Basic filtering by " + fMessage);
 		page.getFilters().basicFilterBy(fMessage.get("Message Id")
@@ -91,11 +92,9 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().waitForRowsToLoad();
 
 		log.info("Getting all listed message info after filtering");
-		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
 
-		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-		soft.assertTrue(filteredRowInfo.size() == expectedResult.size(), "No of listed items in page matches expected");
-
+		HashMap<String, String> expectedResult=page.grid().getRowInfo(0);
+		soft.assertTrue(expectedResult.equals(fMessage),"compare message");
 		soft.assertAll();
 	}
 
@@ -166,7 +165,7 @@ public class MessagesPgTest extends BaseTest {
 		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
 
 		log.info("filtering so that grid shows 0 results");
-		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.getFilters().basicFilterBy("invalidMessageId", "SEND_FAILURE", "domibus-blue", "domibus-blue");
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
@@ -188,7 +187,7 @@ public class MessagesPgTest extends BaseTest {
 		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
 
 		log.info("filtering so that grid shows 0 results");
-		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.getFilters().basicFilterBy("invalidMessageId", "SEND_FAILURE", "domibus-blue", "domibus-blue");
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
@@ -205,6 +204,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Download message */
+	// TODO - Need to add download feature availability criteria
 	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void downloadMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -261,7 +261,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Resend message */
-	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
@@ -306,7 +306,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Domain admin logs in and views messages */
-	@Test(description = "MSG-13", groups = {"multiTenancy"})
+	@Test(description = "MSG-13", groups = {"multiTenancy"} )
 	public void messagesSegregatedByDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -365,7 +365,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain */
-	@Test(description = "MSG-14", groups = {"multiTenancy"})
+	@Test(description = "MSG-14", groups = {"multiTenancy"} )
 	public void superSelectMessageChangeDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -502,7 +502,7 @@ public class MessagesPgTest extends BaseTest {
     /* This method will verify domain specific messages on each domain by changing domain through domain
      selector by Super user */
 
-	@Test(description = "MSG-15", groups = {"multiTenancy"})
+	@Test(description = "MSG-15", groups = {"multiTenancy"} )
 	public void verifyDomainSpecificMsgs() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -515,7 +515,7 @@ public class MessagesPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-16", groups = {"multiTenancy"})
+	@Test(description = "MSG-16", groups = {"multiTenancy"},enabled = false)
 	public void downloadMsgs() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

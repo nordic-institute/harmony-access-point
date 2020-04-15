@@ -2,16 +2,18 @@
 
 <suite name="TestAll">
 
-	<test name="UX">
-		<packages>
-			<package name="domibus.ui.ux.*"/>
-		</packages>
-	</test>
 	<test name="FUNC">
 		<packages>
 			<package name="domibus.ui.functional.*" />
 		</packages>
 	</test>
+
+	<test name="UX">
+		<packages>
+			<package name="domibus.ui.ux.*"/>
+		</packages>
+	</test>
+
 	<listeners>
 		<listener class-name="utils.customReporter.ExcelReportReporter" />
 	</listeners>

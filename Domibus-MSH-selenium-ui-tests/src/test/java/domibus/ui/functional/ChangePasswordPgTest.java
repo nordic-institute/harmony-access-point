@@ -47,7 +47,7 @@ public class ChangePasswordPgTest extends BaseTest {
 	/**
 	 * This method will change password and allow to login successfully with new credentials
 	 */
-	@Test(description = "CP-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-9", groups = {"multiTenancy", "singleTenancy"})
 	public void changePassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -96,7 +96,7 @@ public class ChangePasswordPgTest extends BaseTest {
 	/**
 	 * This method will throw error in new password is among previous 5 passwords.
 	 */
-	@Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"})
 	public void newPasswordAmongLast5() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

@@ -115,7 +115,7 @@ public class TestUtils {
 		List<Date> toReturn = new ArrayList<>();
 
 		for (int i = 0; i < list.size(); i++) {
-			toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
+				toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
 		}
 		return toReturn;
 	}

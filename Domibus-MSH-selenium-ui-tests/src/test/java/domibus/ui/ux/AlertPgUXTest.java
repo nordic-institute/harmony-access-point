@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
 import utils.BaseUXTest;
 import utils.DFileUtils;
@@ -62,11 +63,12 @@ public class AlertPgUXTest extends BaseUXTest {
         SoftAssert soft = new SoftAssert();
         AlertPage page = new AlertPage(driver);
         page.getSidebar().goToPage(PAGES.ALERTS);
+        AlertFilters aFilter= new AlertFilters(driver);
+        aFilter.getProcessedSelect().selectOptionByIndex(1);
+        aFilter.getSearchButton().click();
+        page.grid().waitForRowsToLoad();
         do {
             DGrid grid = page.grid();
-            log.info("Change page selector value to 25");
-            grid.getPagination().getPageSizeSelect().selectOptionByText("25");
-
             for (int i = 0; i < colDescs.length(); i++) {
                 JSONObject colDesc = colDescs.getJSONObject(i);
                 if (grid.getColumnNames().contains(colDesc.getString("name"))) {

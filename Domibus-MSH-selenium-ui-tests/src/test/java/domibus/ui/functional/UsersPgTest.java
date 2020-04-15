@@ -375,7 +375,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-14 - Admin changes password (also applies to user creation) */
-	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = getUser(null, DRoles.USER, true, false, true).getString("userName");
@@ -467,6 +467,7 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("logout");
 		page.getSandwichMenu().logout();
+		page.isLoaded();
 
 		log.info("login with username " + username);
 		LoginPage loginPage = new LoginPage(driver);
@@ -520,7 +521,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/*USR-20 - Admin tries to create a user with username that exists on another domain*/
-	@Test(description = "USR-20", groups = {"multiTenancy"})
+	@Test(description = "USR-20", groups = {"multiTenancy"} )
 	public void duplicateUsernameOnAnotherDomain() throws Exception {
 		List<String> domains = rest.getDomainNames();
 		String username = getUser(domains.get(1), DRoles.USER, false, false, false).getString("userName");
@@ -564,7 +565,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/*USR-21 - Admin tries to create a user with username that exists on a Plugin user*/
-	@Test(description = "USR-21", groups = {"multiTenancy"})
+	@Test(description = "USR-21", groups = {"multiTenancy"} )
 	public void duplicateUserVSPluginUser() throws Exception {
 
 		String username = getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");

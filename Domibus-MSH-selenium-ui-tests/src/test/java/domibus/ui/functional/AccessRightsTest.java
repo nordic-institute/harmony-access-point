@@ -3,6 +3,7 @@ package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
+import pages.messages.MessagesPage;
 import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -29,7 +30,8 @@ public class AccessRightsTest extends BaseTest {
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
-
+		DomibusPage page= new DomibusPage(driver);
+		page.waitForTitle();
 
 		log.info("Checking rights for: " + username);
 		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "Options that should be available to an USER are present");
@@ -62,6 +64,7 @@ public class AccessRightsTest extends BaseTest {
 	/*Login with valid user with role ROLE_ADMIN*/
 	@Test(description = "RGT-3", groups = {"multiTenancy", "singleTenancy"})
 	public void adminRights() throws Exception {
+		logout();
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
@@ -72,6 +75,7 @@ public class AccessRightsTest extends BaseTest {
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
+		page.waitForTitle();
 		log.info("Checking rights for admin: " + username);
 		soft.assertTrue(page.getSidebar().isAdminState(), "Options that should be available to an ADMIN are present");
 		soft.assertAll();
@@ -80,6 +84,7 @@ public class AccessRightsTest extends BaseTest {
 	/*Login with valid user with role ROLE_ADMIN*/
 	@Test(description = "RGT-4", groups = {"multiTenancy"})
 	public void adminDomainSwitch() throws Exception {
+		logout();
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
 		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
@@ -100,7 +105,7 @@ public class AccessRightsTest extends BaseTest {
 	}
 
 	/*Login with valid user with role ROLE_AP_ADMIN*/
-	@Test(description = "RGT-5", groups = {"multiTenancy"})
+	@Test(description = "RGT-5", groups = {"multiTenancy"} )
 	public void superAdminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		LoginPage loginPage = new LoginPage(driver);

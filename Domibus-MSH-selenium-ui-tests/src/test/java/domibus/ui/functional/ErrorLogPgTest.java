@@ -10,7 +10,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import pages.errorLog.ErrorLogPage;
 import pages.messages.MessagesPage;
+import pages.truststore.TruststorePage;
+import utils.BaseTest;
 import utils.BaseUXTest;
+import utils.DFileUtils;
 import utils.Generator;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,7 +29,7 @@ import java.util.Date;
  */
 
 
-public class ErrorLogPgTest extends BaseUXTest {
+public class ErrorLogPgTest extends BaseTest {
 
 
 	/* This method will verify domain specific error messages on each domain by changing domain through domain
@@ -38,7 +41,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
         ErrorLogPage page = new ErrorLogPage(driver);
         MessagesPage mPage = new MessagesPage(driver);
-        page.getSidebar().goToPage(PAGES.ERROR_LOG);
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.ERROR_LOG);
         log.info("Current Domain Name is " + page.getDomainFromTitle());
 
         log.info("Compare grid data for both domain");
@@ -50,9 +53,11 @@ public class ErrorLogPgTest extends BaseUXTest {
     @Test(description = "ERR-18", groups = {"multiTenancy", "singleTenancy"})
     public void errorLogForFailedMsg() throws Exception {
         SoftAssert soft = new SoftAssert();
-
+        login(data.getAdminUser());
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
+        TruststorePage tPage = new TruststorePage(driver);
+        tPage.waitForTitle();
 
         do {
             log.info("Send message for domain " + page.getDomainFromTitle());
@@ -64,7 +69,11 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("send message for " + page.getDomainFromTitle());
             String messageID = messageSender.sendMessage(user, data.defaultPass(), null, null);
+            page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
+            String path = DFileUtils.getAbsolutePath("truststore/gateway_truststore.jks");
+
+            tPage.uploadFile(path, "test123", soft);
             log.info("Navigate to Message page");
             page.getSidebar().goToPage(PAGES.MESSAGES);
             mPage.refreshPage();
@@ -76,6 +85,8 @@ public class ErrorLogPgTest extends BaseUXTest {
             DWait wait = new DWait(driver);
 
             for (; ; ) {
+                mPage.refreshPage();
+                mPage.grid().waitForRowsToLoad();
                 if (mPage.grid().getRowInfo(0).containsValue("SEND_ENQUEUED")) {
                     log.info("Wait for some time");
                     wait.forXMillis(100);
@@ -114,16 +125,24 @@ public class ErrorLogPgTest extends BaseUXTest {
 
 
     @Test(description = "ERR-19", groups = {"multiTenancy", "singleTenancy"})
-    public void totalErrorLogs() throws Exception {
+    public void checkTotalErrorLogs() throws Exception {
         SoftAssert soft = new SoftAssert();
+        login(data.getAdminUser());
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
+        TruststorePage tPage = new TruststorePage(driver);
+        page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+        tPage.waitForTitle();
+        tPage.grid().waitForRowsToLoad();
+        String path = DFileUtils.getAbsolutePath("truststore/gateway_truststore.jks");
 
+        tPage.uploadFile(path, "test123", soft);
         log.info("uploading pmode");
         rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
 
         log.info("Navigate to Pmode Current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+        page.waitForTitle();
 
         log.info("Find retryTimeout & retryCount from pmode");
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -146,8 +165,12 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to Messages page");
             page.getSidebar().goToPage(PAGES.MESSAGES);
+            page.grid().waitForRowsToLoad();
             for (; ; ) {
-                log.info("execute loop till message status chnages from WAITING_FOR_RETRY to SEND_FAILURE");
+                mPage.refreshPage();
+                log.info("Wait for grid row to load");
+                mPage.grid().waitForRowsToLoad();
+                log.info("execute loop till message status changes from WAITING_FOR_RETRY to SEND_FAILURE");
                 if (mPage.grid().getRowInfo(0).containsValue(messageID)) {
                     mPage.refreshPage();
 
@@ -166,26 +189,37 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to error log");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
+            page.refreshPage();
+            page.grid().waitForRowsToLoad();
+            int msgCount = 0;
 
             log.info("verify message id for all rows logged after retry");
             for (int j = 0; j < retryCount; j++) {
-                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID),"Check row info has message id present");
+                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID), "Message id is present");
             }
         }
         soft.assertAll();
     }
 
 
-    @Test(description = "ERR-20", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=0,description = "ERR-20", groups = {"multiTenancy", "singleTenancy"})
     public void checkTimestamp() throws Exception {
         SoftAssert soft = new SoftAssert();
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);;
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
+        TruststorePage tPage = new TruststorePage(driver);
+        tPage.waitForTitle();
+        tPage.grid().waitForRowsToLoad();
+        String path = DFileUtils.getAbsolutePath("truststore/gateway_truststore.jks");
+
+        tPage.uploadFile(path, "test123", soft);
         log.info("uploading pmode");
         rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
 
         log.info("Navigate to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+        page.waitForTitle();
 
         log.info("Extract value of retryTimeout and retryCount");
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -210,6 +244,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to message page");
             page.getSidebar().goToPage(PAGES.MESSAGES);
+            page.grid().waitForRowsToLoad();
             for (; ; ) {
                 log.info("Execute loop until message status changes to SEND_FAILURE");
                 if (mPage.grid().getRowInfo(0).containsValue(messageID)) {
@@ -231,11 +266,13 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to Error log page");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
+            page.grid().waitForRowsToLoad();
+
             ArrayList<String> dateStr = new ArrayList<String>();
 
             log.info("Find timestamp for each retry event");
             for (int j = 0; j <= retryCount; j++) {
-                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID),"Check row info has message id present");
+                soft.assertTrue(page.grid().getRowInfo(j).containsValue(messageID), "Check row info has message id present");
                 String str[] = page.grid().getRowInfo(j).get("Timestamp").split("GMT");
                 String str1[] = str[0].split(" ");
                 dateStr.add(str1[1]);
@@ -261,14 +298,24 @@ public class ErrorLogPgTest extends BaseUXTest {
     @Test(description = "ERR-21", groups = {"multiTenancy", "singleTenancy"})
     public void checkErrorCode() throws Exception {
         SoftAssert soft = new SoftAssert();
+        login(data.getAdminUser());
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
+        TruststorePage tPage = new TruststorePage(driver);
+        page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+        tPage.waitForTitle();
+        tPage.grid().waitForRowsToLoad();
+
+        String path = DFileUtils.getAbsolutePath("truststore/gateway_truststore.jks");
+
+        tPage.uploadFile(path, "test123", soft);
 
         log.info("uploading pmode");
         rest.uploadPMode("pmodes/Edelivery-blue-lessRetryTimeout.xml", null);
 
         log.info("Naviagte to Pmode current page");
         page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+        page.grid().waitForRowsToLoad();
 
         log.info("Extract retry count and timeout value from pmode configuration");
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -292,7 +339,9 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to Message page");
             page.getSidebar().goToPage(PAGES.MESSAGES);
+            page.grid().waitForRowsToLoad();
             for (; ; ) {
+                mPage.grid().waitForRowsToLoad();
                 log.info("Verify presence of message id for first row");
                 if (mPage.grid().getRowInfo(0).containsValue(messageID)) {
                     mPage.refreshPage();
@@ -312,6 +361,7 @@ public class ErrorLogPgTest extends BaseUXTest {
 
             log.info("Navigate to Error log page");
             page.getSidebar().goToPage(PAGES.ERROR_LOG);
+            page.grid().waitForRowsToLoad();
 
             log.info("Extract error code of first row");
             String errorCode = page.grid().getRowInfo(0).get("Error Code");

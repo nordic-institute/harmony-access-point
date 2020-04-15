@@ -14,7 +14,7 @@ import utils.DFileUtils;
 public class TruststorePgTest extends BaseTest {
 
     /*  This method wil verify Presence of error in case of random/file with wrong format */
-    @Test(description = "TRST-4", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(priority= 0,description = "TRST-4", groups = {"multiTenancy", "singleTenancy"})
     public void uploadRandomFile() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -49,7 +49,7 @@ public class TruststorePgTest extends BaseTest {
     }
 
     /*This method will verify successful upload of valid truststore  */
-    @Test(description = "TRST-5", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority = 6,description = "TRST-5", groups = {"multiTenancy", "singleTenancy"})
     public void uploadValidFile() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -84,7 +84,7 @@ public class TruststorePgTest extends BaseTest {
     }
 
     /*  This method will verify successful upload of truststore with no password for alias  */
-    @Test(description = "TRST-12", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority=1, description = "TRST-12", groups = {"multiTenancy", "singleTenancy"})
     public void uploadJksWithNoAliasPass() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -119,7 +119,7 @@ public class TruststorePgTest extends BaseTest {
     }
 
     /*  This method will verify successful upload of truststore with password protected alias  */
-    @Test(description = "TRST-13", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority =2, description = "TRST-13", groups = {"multiTenancy", "singleTenancy"})
     public void uploadJksWithPassProAlias() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -157,7 +157,7 @@ public class TruststorePgTest extends BaseTest {
     }
 
     /*  This method will verify no uploading in case of valid file but without password  */
-    @Test(description = "TRST-14", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority =3, description = "TRST-14", groups = {"multiTenancy", "singleTenancy"})
     public void uploadFileWithoutPassword() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -185,7 +185,7 @@ public class TruststorePgTest extends BaseTest {
     }
 
     /*  This method will verify no uploading in case of expired truststore certificate  */
-    @Test(description = "TRST-15", groups = {"multiTenancy", "singleTenancy"})
+    @Test(priority = 4,description = "TRST-15", groups = {"multiTenancy", "singleTenancy"} , enabled = false)
     public void expiredCertificate() throws Exception {
         SoftAssert soft = new SoftAssert();
 

@@ -7,8 +7,10 @@ import ddsl.dobjects.DInput;
 import ddsl.dobjects.DLink;
 import ddsl.dobjects.multi_select.MultiSelect;
 import org.apache.commons.collections4.CollectionUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
@@ -109,8 +111,8 @@ public class AlertFilters extends FilterArea {
 		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
 		weToDatePicker(creationFromContainer).selectDate(creationFromDate);
 		weToDatePicker(creationToContainer).selectDate(creationToDate);
+		mouseOverAndClick();
 
-		clickSearch();
 	}
 
 	public void advancedFilterBy(String processedStatus,
@@ -142,8 +144,7 @@ public class AlertFilters extends FilterArea {
 		weToDInput(alertIdInput).fill(alertId);
 		weToDatePicker(reportingFromContainer).selectDate(reportingFromDate);
 		weToDatePicker(reportingToContainer).selectDate(reportingToDate);
-
-		clickSearch();
+		mouseOverAndClick();
 	}
 
 

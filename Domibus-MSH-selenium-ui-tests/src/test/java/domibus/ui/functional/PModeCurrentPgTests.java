@@ -163,7 +163,6 @@ public class PModeCurrentPgTests extends BaseTest {
         log.info("Navigate to Pmode-Archive page");
         page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
         PModeArchivePage paPage = new PModeArchivePage(driver);
-        ;
         int totalCountBefore = paPage.grid().getPagination().getTotalItems();
         log.info("Total number of records  before upload : " + totalCountBefore);
         log.info("Navigate to Pmode current page");
@@ -182,6 +181,7 @@ public class PModeCurrentPgTests extends BaseTest {
 
         log.info("navigate to pmode archive page");
         page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+        paPage.grid().waitForRowsToLoad();
 
         int totalCountAfter = paPage.grid().getPagination().getTotalItems();
         log.info("Total number of records after upload " + totalCountAfter);
