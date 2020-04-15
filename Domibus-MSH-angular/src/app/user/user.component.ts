@@ -299,7 +299,7 @@ export class UserComponent extends mix(BaseListComponent)
     const isValid = this.userValidatorService.validateUsers(this.rows);
     if (!isValid) {
       return false;
-    } // TODO throw instead??
+    } 
 
     const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
     return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {

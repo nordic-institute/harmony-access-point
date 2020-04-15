@@ -101,12 +101,11 @@ public class PluginUserResource extends BaseResource {
 
     protected PluginUserResultRO retrieveUsers(PluginUserFilterRequestRO request, Long count) {
         LOG.debug("Retrieving plugin users");
-        List<AuthenticationEntity> users;
+        List<AuthenticationEntity> users = new ArrayList<>();
         if (count > 0) {
+            LOG.debug("Retrieving [{}] plugin users users.", count);
             users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
                     request.getPageStart(), request.getPageSize());
-        } else {
-            users = new ArrayList<>();
         }
 
         return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
