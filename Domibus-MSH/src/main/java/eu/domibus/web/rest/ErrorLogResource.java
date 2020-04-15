@@ -82,9 +82,9 @@ public class ErrorLogResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
-        final List<ErrorLogEntry> entries = errorLogDao.findPaged(0, getPageSizeForExport(),
+        final List<ErrorLogEntry> entries = errorLogDao.findPaged(0, getCsvService().getPageSizeForExport(),
                 request.getOrderBy(), request.getAsc(), filters);
-        validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
+        getCsvService().validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
 
         final List<ErrorLogRO> errorLogROList = domainConverter.convert(entries, ErrorLogRO.class);
 

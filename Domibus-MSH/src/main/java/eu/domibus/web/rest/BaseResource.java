@@ -1,7 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.core.csv.CsvService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Groups all common REST Resource code
@@ -29,78 +26,6 @@ public abstract class BaseResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
-    protected int getPageSizeForExport() {
-        return csvServiceImpl.getMaxNumberRowsToExport() + 1;
-    }
-
-    /**
-     * exports to CSV
-     *
-     * @param list              the list of objects to export
-     * @param tClass            the class of the object instances, used to determine the columns
-     * @param customColumnNames needed in case different column titles than the attribute name
-     * @param excludedColumns   the list of excluded columns from the final export
-     * @param moduleName        the seed of the name of the generated file
-     * @return The comma-separated list of records
-     */
-    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass,
-                                                 final Map<String, String> customColumnNames,
-                                                 List<String> excludedColumns,
-                                                 final String moduleName) {
-        String resultText;
-        try {
-            resultText = getCsvService().exportToCSV(list, tClass, customColumnNames, excludedColumns);
-        } catch (CsvException e) {
-            LOG.error("Exception caught during export to CSV", e);
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName) + "\"")
-                .body(resultText);
-    }
-
-    /**
-     * Overloaded method to export as CSV
-     *
-     * @param list       the list of objects to export
-     * @param tClass     the class of the object instances, used to determine the columns
-     * @param moduleName the seed of the name of the generated file
-     * @return The comma-separated list of records
-     */
-    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final String moduleName) {
-        return exportToCSV(list, tClass, new HashMap<>(), new ArrayList<>(), moduleName);
-    }
-
-    /**
-     * Overloaded method to export as CSV
-     *
-     * @param list              the list of objects to export
-     * @param tClass            the class of the object instances, used to determine the columns
-     * @param customColumnNames needed in case different column titles than the attribute name
-     * @param moduleName        the seed of the name of the generated file
-     * @return The comma-separated list of records
-     */
-    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, final Map<String, String> customColumnNames,
-                                                 final String moduleName) {
-        return exportToCSV(list, tClass, customColumnNames, new ArrayList<>(), moduleName);
-    }
-
-    /**
-     * Overloaded method to export as CSV
-     *
-     * @param list            the list of objects to export
-     * @param tClass          the class of the object instances, used to determine the columns
-     * @param excludedColumns the list of excluded columns from the final export
-     * @param moduleName      the seed of the name of the generated file
-     * @return The comma-separated list of records
-     */
-    protected ResponseEntity<String> exportToCSV(List<?> list, Class tClass, List<String> excludedColumns,
-                                                 final String moduleName) {
-        return exportToCSV(list, tClass, new HashMap<>(), excludedColumns, moduleName);
-    }
-
     /**
      * Get the Csv service
      *
@@ -110,24 +35,65 @@ public abstract class BaseResource {
         return csvServiceImpl;
     }
 
-    protected void validateMaxRows(Long count) {
-        if (count > csvServiceImpl.getMaxNumberRowsToExport()) {
-            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
-                    , count, csvServiceImpl.getMaxNumberRowsToExport());
-            throw new RequestValidationException(message);
-        }
+    /**
+     * exports to CSV
+     *
+     * @param list              the list of objects to export
+     * @param itemClass         the class of the object instances, used to determine the columns
+     * @param customColumnNames needed in case different column titles than the attribute name
+     * @param excludedColumns   the list of excluded columns from the final export
+     * @param moduleName        the seed of the name of the generated file
+     * @return The comma-separated list of records
+     */
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final Map<String, String> customColumnNames,
+                                                 List<String> excludedColumns, final String moduleName) {
+
+        String result = getCsvService().exportToCSV(list, itemClass, customColumnNames, excludedColumns);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
+                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName) + "\"")
+                .body(result);
     }
 
-    protected void validateMaxRows(Integer count) {
-        validateMaxRows(Long.valueOf(count));
+    /**
+     * Overloaded method to export as CSV
+     *
+     * @param list       the list of objects to export
+     * @param itemClass  the class of the object instances, used to determine the columns
+     * @param moduleName the seed of the name of the generated file
+     * @return The comma-separated list of records
+     */
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final String moduleName) {
+        return exportToCSV(list, itemClass, new HashMap<>(), new ArrayList<>(), moduleName);
     }
 
-    protected <R> void validateMaxRows(Integer count, Supplier<R> countMethod) {
-        if (count > csvServiceImpl.getMaxNumberRowsToExport()) {
-            R all = countMethod.get();
-            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
-                    , all, csvServiceImpl.getMaxNumberRowsToExport());
-            throw new RequestValidationException(message);
-        }
+    /**
+     * Overloaded method to export as CSV
+     *
+     * @param list              the list of objects to export
+     * @param itemClass         the class of the object instances, used to determine the columns
+     * @param customColumnNames needed in case different column titles than the attribute name
+     * @param moduleName        the seed of the name of the generated file
+     * @return The comma-separated list of records
+     */
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final Map<String, String> customColumnNames,
+                                                 final String moduleName) {
+        return exportToCSV(list, itemClass, customColumnNames, new ArrayList<>(), moduleName);
     }
+
+    /**
+     * Overloaded method to export as CSV
+     *
+     * @param list            the list of objects to export
+     * @param itemClass       the class of the object instances, used to determine the columns
+     * @param excludedColumns the list of excluded columns from the final export
+     * @param moduleName      the seed of the name of the generated file
+     * @return The comma-separated list of records
+     */
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, List<String> excludedColumns,
+                                                 final String moduleName) {
+        return exportToCSV(list, itemClass, new HashMap<>(), excludedColumns, moduleName);
+    }
+
 }

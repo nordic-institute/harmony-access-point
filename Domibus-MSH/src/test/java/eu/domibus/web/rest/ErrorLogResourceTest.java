@@ -133,9 +133,6 @@ public class ErrorLogResourceTest {
             result = CSV_TITLE +
                     signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
                     errorDetailStr + "," + date + "," + date + System.lineSeparator();
-
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
         }};
 
         // When

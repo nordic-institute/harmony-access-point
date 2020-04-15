@@ -110,7 +110,7 @@ public class TruststoreResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
         final List<TrustStoreRO> entries = trustStoreEntries();
-        validateMaxRows(entries.size());
+        csvServiceImpl.validateMaxRows(entries.size());
 
         return exportToCSV(entries,
                 TrustStoreRO.class,

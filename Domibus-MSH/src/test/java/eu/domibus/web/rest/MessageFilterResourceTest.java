@@ -95,8 +95,6 @@ public class MessageFilterResourceTest {
         new Expectations(messageFilterResource){{
             messageFilterResource.getBackendFiltersInformation();
             result = new ImmutablePair<>(messageFilterResultROS, true);
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 1000;
             messageFilterCsvServiceImpl.exportToCSV(messageFilterResultROS, MessageFilterRO.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
         }};
@@ -109,21 +107,6 @@ public class MessageFilterResourceTest {
         Assert.assertEquals(CSV_TITLE +
                         backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator(),
                 csv.getBody());
-    }
-
-    @Test
-    public void testGetMessageFilterCsv_Exception() throws CsvException {
-        // Given
-        new Expectations() {{
-            messageFilterCsvServiceImpl.exportToCSV((List<?>) any, null, null, null);
-            result = new CsvException(DomibusCoreErrorCode.DOM_001, "Exception", new Exception());
-        }};
-
-        // When
-        final ResponseEntity<String> csv = messageFilterResource.getCsv();
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
     }
 
     private MessageFilterResultRO getMessageFilterResultRO(int messageFilterEntityId) {

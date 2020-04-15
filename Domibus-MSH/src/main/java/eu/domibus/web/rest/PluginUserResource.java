@@ -83,9 +83,9 @@ public class PluginUserResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(getPageSizeForExport());
+        request.setPageSize(getCsvService().getPageSizeForExport());
         final PluginUserResultRO result = retrieveAndTransformUsers(request);
-        validateMaxRows(result.getEntries().size(),
+        getCsvService().validateMaxRows(result.getEntries().size(),
                 () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
         return exportToCSV(result.getEntries(),

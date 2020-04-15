@@ -195,8 +195,6 @@ public class TruststoreResourceTest {
         new Expectations(truststoreResource) {{
             truststoreResource.trustStoreEntries();
             result = trustStoreROList;
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 1000;
             csvServiceImpl.exportToCSV(trustStoreROList, null, (Map<String, String>) any, (List<String>) any);
             result = "Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                     "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator();
@@ -213,15 +211,15 @@ public class TruststoreResourceTest {
     }
 
     @Test(expected = RequestValidationException.class)
-    public void testGetCsv_validationExeption() throws EbMS3Exception {
+    public void testGetCsv_validationExeption() {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList2(date);
         new Expectations(truststoreResource) {{
             truststoreResource.trustStoreEntries();
             result = trustStoreROList;
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 1;
+            csvServiceImpl.validateMaxRows(trustStoreROList.size());
+            result = new RequestValidationException("");
         }};
 
         // When

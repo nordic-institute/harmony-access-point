@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.opencsv.CSVWriter;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -21,6 +22,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_CSV_MAX_ROWS;
@@ -62,6 +64,30 @@ public class CsvServiceImpl implements CsvService {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         return module + "_datatable_" + dateFormat.format(date) + ".csv";
+    }
+
+    @Override
+    public int getPageSizeForExport() {
+        return getMaxNumberRowsToExport() + 1;
+    }
+
+    @Override
+    public void validateMaxRows(Integer count) throws RequestValidationException {
+        if (count > getMaxNumberRowsToExport()) {
+            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
+                    , count, getMaxNumberRowsToExport());
+            throw new RequestValidationException(message);
+        }
+    }
+
+    @Override
+    public <R> void validateMaxRows(Integer count, Supplier<R> countMethod) throws RequestValidationException {
+        if (count > getMaxNumberRowsToExport()) {
+            R all = countMethod.get();
+            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
+                    , all, getMaxNumberRowsToExport());
+            throw new RequestValidationException(message);
+        }
     }
 
     protected List<Field> getExportedFields(List<?> list, Class theClass, List<String> excludedColumns) {

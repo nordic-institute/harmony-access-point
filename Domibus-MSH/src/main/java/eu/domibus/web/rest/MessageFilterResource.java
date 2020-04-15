@@ -60,7 +60,7 @@ public class MessageFilterResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
         List<MessageFilterRO> list = getBackendFiltersInformation().getKey();
-        validateMaxRows(list.size());
+        csvServiceImpl.validateMaxRows(list.size());
         return exportToCSV(list, MessageFilterRO.class, "message-filter");
     }
 

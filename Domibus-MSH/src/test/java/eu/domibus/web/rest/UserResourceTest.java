@@ -158,8 +158,6 @@ public class UserResourceTest {
         new Expectations(userResource) {{
             userResource.users();
             result = usersResponseROList;
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 1000;
             csvServiceImpl.exportToCSV(usersResponseROList, UserResponseRO.class, (Map<String, String>) any, (List<String>) any);
             result = "Username, Email, Active, Roles" + System.lineSeparator() +
                     "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator();

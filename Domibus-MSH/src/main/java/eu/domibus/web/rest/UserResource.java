@@ -127,7 +127,7 @@ public class UserResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
         final List<UserResponseRO> entries = users();
-        validateMaxRows(entries.size());
+        csvServiceImpl.validateMaxRows(entries.size());
 
         return exportToCSV(entries,
                 UserResponseRO.class,

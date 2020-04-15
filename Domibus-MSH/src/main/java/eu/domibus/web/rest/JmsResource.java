@@ -97,7 +97,7 @@ public class JmsResource extends BaseResource {
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
-        validateMaxRows(jmsMessageList.size());
+        csvServiceImpl.validateMaxRows(jmsMessageList.size());
 
         customizeJMSProperties(jmsMessageList);
 

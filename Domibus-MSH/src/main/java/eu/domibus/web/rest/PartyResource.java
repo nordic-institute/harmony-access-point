@@ -95,9 +95,9 @@ public class PartyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(getPageSizeForExport());
+        request.setPageSize(0); // no pagination
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
-        validateMaxRows(partyResponseRoList.size());
+        csvServiceImpl.validateMaxRows(partyResponseRoList.size());
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,
