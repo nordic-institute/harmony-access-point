@@ -955,11 +955,6 @@ public class UserMessageDefaultServiceTest {
 
         UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
 
-        new Verifications() {{
-            auditService.addMessageDownloadedAudit(messageId);
-            times = 1;
-        }};
-
         Assert.assertEquals(userMessage, result);
     }
 
