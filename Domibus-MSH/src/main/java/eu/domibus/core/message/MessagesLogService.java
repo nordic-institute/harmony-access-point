@@ -18,7 +18,7 @@ public interface MessagesLogService {
     List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters);
 
     /**
-     * Retrieves the user message log entry given an id; if not found, returns null
+     * Retrieves the user message log entry given a messageId; if not found, returns null
      * @param messageId
      * @return the log entry or null
      */

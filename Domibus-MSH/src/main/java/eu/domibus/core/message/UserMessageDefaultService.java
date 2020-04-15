@@ -580,6 +580,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
+        auditService.addMessageDownloadedAudit(messageId);
         return messageToBytes(userMessage);
     }
 
@@ -594,15 +595,22 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessage userMessage = getUserMessageById(messageId);
 
         Map<String, InputStream> result = new HashMap<>();
-        result.put("message.xml", messageToStream(userMessage));
+        InputStream messageStream = messageToStream(userMessage);
+        result.put("message.xml", messageStream);
 
         if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
+            LOG.info("No payload info found for message with id [{}]", messageId);
             return result;
         }
 
         final List<PartInfo> partInfos = userMessage.getPayloadInfo().getPartInfo();
         for (PartInfo pInfo : partInfos) {
             if (pInfo.getPayloadDatahandler() == null) {
+                try {
+                    messageStream.close();
+                } catch (IOException e) {
+                    LOG.debug("Encounter error tryinf to close the message input stream.", e);
+                }
                 throw new MessageNotFoundException("Could not find attachment for " + pInfo.getHref());
             }
             try {
@@ -612,6 +620,8 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
+        auditService.addMessageDownloadedAudit(messageId);
+
         return result;
     }
 
@@ -620,8 +630,6 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessage == null) {
             throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
         }
-
-        auditService.addMessageDownloadedAudit(messageId);
 
         return userMessage;
     }
@@ -638,7 +646,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
-        if (org.apache.cxf.common.util.StringUtils.isEmpty(info.getHref())) {
+        if (StringUtils.isEmpty(info.getHref())) {
             return "bodyload";
         }
         if (!info.getHref().contains("cid:")) {
