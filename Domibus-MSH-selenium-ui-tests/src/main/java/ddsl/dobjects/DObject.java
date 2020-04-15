@@ -62,7 +62,6 @@ public class DObject {
 	}
 
 	public void click() throws Exception {
-		wait.forElementToBeEnabled(element);
 		if (isEnabled()) {
 			wait.forElementToBeClickable(element).click();
 		} else {
