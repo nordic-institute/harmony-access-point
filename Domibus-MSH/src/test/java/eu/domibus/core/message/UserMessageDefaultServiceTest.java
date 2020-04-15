@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.sun.istack.ByteArrayDataSource;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
@@ -12,30 +11,32 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.pull.PartyExtractor;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.pull.PartyExtractor;
+import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.activation.DataHandler;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
@@ -937,10 +938,15 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testPayloadName() {
-        UserMessage message = createUserMessage();
-        Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(message.getPayloadInfo().getPartInfo().get(0)));
-        Assert.assertEquals("href", userMessageDefaultService.getPayloadName(message.getPayloadInfo().getPartInfo().get(1)));
+    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
+        new Expectations() {{
+            partInfoWithBodyload.getHref();
+            result = null;
+            partInfoWithPayload.getHref();
+            result = "cid:1234";
+        }};
+        Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
+        Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
     }
 
     @Test
@@ -973,33 +979,6 @@ public class UserMessageDefaultServiceTest {
             auditService.addMessageDownloadedAudit(messageId);
             times = 0;
         }};
-    }
-
-    private UserMessage createUserMessage() {
-        //TODO Use Mocking instead of real Instances
-        UserMessage userMessage = new UserMessage();
-        userMessage.setEntityId(1);
-        userMessage.setMessageInfo(new MessageInfo());
-        userMessage.setCollaborationInfo(new CollaborationInfo());
-        userMessage.setMessageProperties(new MessageProperties());
-        userMessage.setMpc("mpc1");
-        userMessage.setPartyInfo(new PartyInfo());
-        PayloadInfo payloadInfo = new PayloadInfo();
-        byte[] byteA = new byte[]{1, 0, 1};
-        PartInfo partInfoBody = new PartInfo();
-        partInfoBody.setInBody(true);
-        partInfoBody.setBinaryData(byteA);
-        partInfoBody.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(byteA, "text/xml")));
-        payloadInfo.getPartInfo().add(partInfoBody);
-        PartInfo partInfo = new PartInfo();
-        partInfo.setHref("href");
-        partInfo.setBinaryData(byteA);
-        partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(byteA, "text/xml")));
-        payloadInfo.getPartInfo().add(partInfo);
-
-        userMessage.setPayloadInfo(payloadInfo);
-
-        return userMessage;
     }
 
 }
