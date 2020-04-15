@@ -609,14 +609,14 @@ public class UserMessageDefaultService implements UserMessageService {
                 try {
                     messageStream.close();
                 } catch (IOException e) {
-                    LOG.debug("Encounter error tryinf to close the message input stream.", e);
+                    LOG.debug("Error encountered while trying to close the message input stream.", e);
                 }
-                throw new MessageNotFoundException("Could not find attachment for " + pInfo.getHref());
+                throw new MessageNotFoundException("Could not find attachment for [" + pInfo.getHref() + "]");
             }
             try {
                 result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
-                throw new MessagingException("Error getting input stream for attachment" + pInfo.getHref(), e);
+                throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
         }
 
