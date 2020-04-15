@@ -79,8 +79,7 @@ public class PartyResource extends BaseResource {
             final Set<ProcessRo> processRos = new HashSet<>(processesWithPartyAsInitiator);
             processRos.addAll(processesWithPartyAsResponder);
 
-            processRos
-                    .stream()
+            processRos.stream()
                     .map(item -> new PartyProcessLinkRo(item.getName(), processesWithPartyAsInitiator.contains(item), processesWithPartyAsResponder.contains(item)))
                     .collect(Collectors.toSet());
         });
@@ -96,7 +95,7 @@ public class PartyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(getMaxNumberRowsToExport());
+        request.setPageSize(getPageSizeForExport());
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
         validateMaxRows(partyResponseRoList.size());
 

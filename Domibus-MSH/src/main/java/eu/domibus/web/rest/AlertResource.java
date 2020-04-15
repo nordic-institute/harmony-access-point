@@ -105,7 +105,7 @@ public class AlertResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
         request.setPage(0);
-        request.setPageSize(getMaxNumberRowsToExport());
+        request.setPageSize(getPageSizeForExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
@@ -141,9 +141,9 @@ public class AlertResource extends BaseResource {
     }
 
     protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
-        final Long alertCount = alertService.countAlerts(alertCriteria);
-        validateMaxRows(alertCount);
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
+        validateMaxRows(alerts.size(), () -> alertService.countAlerts(alertCriteria));
+
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
         alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         return alertRoList;

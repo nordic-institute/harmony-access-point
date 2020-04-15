@@ -22,7 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,8 +53,10 @@ public class PluginUserResource extends BaseResource {
 
     @GetMapping(value = {"/users"})
     public PluginUserResultRO findUsers(PluginUserFilterRequestRO request) {
+        PluginUserResultRO result = retrieveAndTransformUsers(request);
         Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
-        return retrieveUsers(request, count);
+        result.setCount(count);
+        return result;
     }
 
     @PutMapping(value = {"/users"})
@@ -81,15 +82,13 @@ public class PluginUserResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
-
         request.setPageStart(0);
-        request.setPageSize(getMaxNumberRowsToExport());
-        Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
-        validateMaxRows(count);
+        request.setPageSize(getPageSizeForExport());
+        final PluginUserResultRO result = retrieveAndTransformUsers(request);
+        validateMaxRows(result.getEntries().size(),
+                () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
-        final PluginUserResultRO pluginUserROList = retrieveUsers(request, count);
-
-        return exportToCSV(pluginUserROList.getEntries(),
+        return exportToCSV(result.getEntries(),
                 PluginUserRO.class,
                 ImmutableMap.of(
                         "UserName".toUpperCase(), "Username",
@@ -99,16 +98,12 @@ public class PluginUserResource extends BaseResource {
                 "pluginusers");
     }
 
-    protected PluginUserResultRO retrieveUsers(PluginUserFilterRequestRO request, Long count) {
-        LOG.debug("Retrieving plugin users");
-        List<AuthenticationEntity> users = new ArrayList<>();
-        if (count > 0) {
-            LOG.debug("Retrieving [{}] plugin users users.", count);
-            users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
-                    request.getPageStart(), request.getPageSize());
-        }
+    protected PluginUserResultRO retrieveAndTransformUsers(PluginUserFilterRequestRO request) {
+        LOG.debug("Retrieving plugin users.");
+        List<AuthenticationEntity> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
+                request.getPageStart(), request.getPageSize());
 
-        return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
+        return prepareResponse(users, request.getPageStart(), request.getPageSize());
     }
 
     /**
@@ -116,7 +111,7 @@ public class PluginUserResource extends BaseResource {
      *
      * @return a list of PluginUserROs and the pagination info
      */
-    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, Long count, int pageStart, int pageSize) {
+    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
         List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
 
         // this is business, should be located somewhere else
@@ -139,7 +134,7 @@ public class PluginUserResource extends BaseResource {
         PluginUserResultRO result = new PluginUserResultRO();
 
         result.setEntries(userROs);
-        result.setCount(count);
+//        result.setCount(count);
         result.setPage(pageStart);
         result.setPageSize(pageSize);
 

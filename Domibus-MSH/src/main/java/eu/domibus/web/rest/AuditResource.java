@@ -87,6 +87,12 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getTo());
     }
 
+    @GetMapping(value = {"/targets"})
+    public List<String> auditTargets() {
+        return auditService.listAuditTarget();
+    }
+
+
     /**
      * This method returns a CSV file with the contents of Audit table
      *
@@ -96,13 +102,12 @@ public class AuditResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
         auditCriteria.setStart(0);
-        auditCriteria.setMax(getMaxNumberRowsToExport());
-        final Long count = countAudits(auditCriteria);
-        validateMaxRows(count);
+        auditCriteria.setMax(getPageSizeForExport());
 
-        final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
+        final List<AuditResponseRo> entries = listAudits(auditCriteria);
+        validateMaxRows(entries.size(), () -> countAudits(auditCriteria));
 
-        return exportToCSV(auditResponseRos,
+        return exportToCSV(entries,
                 AuditResponseRo.class,
                 ImmutableMap.of("AuditTargetName".toUpperCase(), "Table"),
                 Arrays.asList("revisionId"),
@@ -138,11 +143,6 @@ public class AuditResource extends BaseResource {
                 filter(modificationType -> modificationType.toString().equals(code)).
                 map(ModificationType::getLabel).
                 findFirst().orElse(code);
-    }
-
-    @GetMapping(value = {"/targets"})
-    public List<String> auditTargets() {
-        return auditService.listAuditTarget();
     }
 
 }

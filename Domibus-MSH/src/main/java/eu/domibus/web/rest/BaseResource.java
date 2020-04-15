@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Groups all common REST Resource code
@@ -28,8 +29,8 @@ public abstract class BaseResource {
     @Autowired
     CsvServiceImpl csvServiceImpl;
 
-    protected int getMaxNumberRowsToExport() {
-        return Integer.MAX_VALUE;
+    protected int getPageSizeForExport() {
+        return csvServiceImpl.getMaxNumberRowsToExport() + 1;
     }
 
     /**
@@ -111,11 +112,22 @@ public abstract class BaseResource {
 
     protected void validateMaxRows(Long count) {
         if (count > csvServiceImpl.getMaxNumberRowsToExport()) {
-            throw new RequestValidationException("The number of elements exceeds the maximum allowed.");
+            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
+                    , count, csvServiceImpl.getMaxNumberRowsToExport());
+            throw new RequestValidationException(message);
         }
     }
 
     protected void validateMaxRows(Integer count) {
         validateMaxRows(Long.valueOf(count));
+    }
+
+    protected <R> void validateMaxRows(Integer count, Supplier<R> countMethod) {
+        if (count > csvServiceImpl.getMaxNumberRowsToExport()) {
+            R all = countMethod.get();
+            String message = String.format("The number of elements to export [{}] exceeds the maximum allowed [{}]."
+                    , all, csvServiceImpl.getMaxNumberRowsToExport());
+            throw new RequestValidationException(message);
+        }
     }
 }

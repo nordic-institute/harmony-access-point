@@ -67,14 +67,6 @@ public class UserResource extends BaseResource {
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    private UserService getUserService() {
-        if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
-        } else {
-            return userManagementService;
-        }
-    }
-
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
@@ -109,27 +101,6 @@ public class UserResource extends BaseResource {
         updateUserRoles(userROS);
         List<User> users = domainConverter.convert(userROS, User.class);
         getUserService().updateUsers(users);
-    }
-
-    private void validateUsers(List<UserResponseRO> users) {
-        users.forEach(user -> {
-            if (Strings.isNullOrEmpty(user.getUserName())) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
-            }
-
-            if (Strings.isNullOrEmpty(user.getRoles())) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
-            }
-        });
-    }
-
-    private void updateUserRoles(List<UserResponseRO> userROS) {
-        for (UserResponseRO userRo : userROS) {
-            if (Objects.equals(userRo.getStatus(), UserState.NEW.name()) || Objects.equals(userRo.getStatus(), UserState.UPDATED.name())) {
-                List<String> auths = Arrays.asList(userRo.getRoles().split(","));
-                userRo.setAuthorities(auths);
-            }
-        }
     }
 
     @GetMapping(value = {"/userroles"})
@@ -168,6 +139,35 @@ public class UserResource extends BaseResource {
                         Arrays.asList("authorities", "status", "password", "suspended") :
                         Arrays.asList("authorities", "status", "password", "suspended", "domain"),
                 "users");
+    }
+
+    private UserService getUserService() {
+        if (authUtils.isSuperAdmin()) {
+            return superUserManagementService;
+        } else {
+            return userManagementService;
+        }
+    }
+
+    private void validateUsers(List<UserResponseRO> users) {
+        users.forEach(user -> {
+            if (Strings.isNullOrEmpty(user.getUserName())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
+            }
+
+            if (Strings.isNullOrEmpty(user.getRoles())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
+            }
+        });
+    }
+
+    private void updateUserRoles(List<UserResponseRO> userROS) {
+        for (UserResponseRO userRo : userROS) {
+            if (Objects.equals(userRo.getStatus(), UserState.NEW.name()) || Objects.equals(userRo.getStatus(), UserState.UPDATED.name())) {
+                List<String> auths = Arrays.asList(userRo.getRoles().split(","));
+                userRo.setAuthorities(auths);
+            }
+        }
     }
 
     /**
