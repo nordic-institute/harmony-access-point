@@ -205,11 +205,10 @@ public class ErrorLogPgTest extends BaseTest {
     @Test(priority=0,description = "ERR-20", groups = {"multiTenancy", "singleTenancy"})
     public void checkTimestamp() throws Exception {
         SoftAssert soft = new SoftAssert();
-        login(data.getAdminUser());
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);;
         MessagesPage mPage = new MessagesPage(driver);
         ErrorLogPage page = new ErrorLogPage(driver);
         TruststorePage tPage = new TruststorePage(driver);
-        page.getSidebar().goToPage(PAGES.TRUSTSTORE);
         tPage.waitForTitle();
         tPage.grid().waitForRowsToLoad();
         String path = DFileUtils.getAbsolutePath("truststore/gateway_truststore.jks");
