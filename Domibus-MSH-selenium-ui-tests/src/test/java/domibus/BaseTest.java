@@ -21,7 +21,6 @@ public class BaseTest {
 	public static DomibusC1 messageSender = new DomibusC1();
 
 	Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
-
 	public void generateTestData() throws Exception {
 
 		log.info("GENERATING TEST DATA");
@@ -47,7 +46,6 @@ public class BaseTest {
 		}
 		log.info("DONE GENERATING TEST DATA");
 	}
-
 
 
 }
