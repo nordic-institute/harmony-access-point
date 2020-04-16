@@ -164,7 +164,7 @@ public class PModeResource extends BaseResource {
 
         // get list of archived pmodes
         List<PModeResponseRO> pModeList = pmodeList();
-        csvServiceImpl.validateMaxRows(pModeList.size());
+        getCsvService().validateMaxRows(pModeList.size());
 
         // set first PMode as current
         if (!pModeList.isEmpty()) {

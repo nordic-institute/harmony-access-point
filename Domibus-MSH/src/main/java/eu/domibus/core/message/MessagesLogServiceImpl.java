@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,8 +35,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private DomainCoreConverter domainConverter;
 
     @Override
-    public int countMessages(MessageType messageType, Map<String, Object> filters) {
-        int numberOfMessageLogs = 0;
+    public long countMessages(MessageType messageType, Map<String, Object> filters) {
+        long numberOfMessageLogs = 0;
         if (messageType == MessageType.SIGNAL_MESSAGE) {
             numberOfMessageLogs = signalMessageLogDao.countAllInfo(true, filters);
         } else if (messageType == MessageType.USER_MESSAGE) {

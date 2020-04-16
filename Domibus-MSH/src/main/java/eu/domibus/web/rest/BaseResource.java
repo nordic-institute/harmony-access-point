@@ -20,7 +20,7 @@ import java.util.Map;
 public abstract class BaseResource {
 
     @Autowired
-    CsvServiceImpl csvServiceImpl;
+    private CsvServiceImpl csvServiceImpl;
 
     /**
      * Get the Csv service

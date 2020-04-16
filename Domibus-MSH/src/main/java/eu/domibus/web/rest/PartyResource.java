@@ -97,7 +97,7 @@ public class PartyResource extends BaseResource {
         request.setPageStart(0);
         request.setPageSize(0); // no pagination
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
-        csvServiceImpl.validateMaxRows(partyResponseRoList.size());
+        getCsvService().validateMaxRows(partyResponseRoList.size());
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,

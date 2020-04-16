@@ -27,7 +27,7 @@ public interface CsvService {
      * @param count number of items to export, it is the size of the items list
      * @throws RequestValidationException
      */
-    void validateMaxRows(Integer count) throws RequestValidationException;
+    void validateMaxRows(long count) throws RequestValidationException;
 
     /**
      * Validates that the number of items to export is less than the maximum allowed
@@ -35,5 +35,5 @@ public interface CsvService {
      * @param countMethod in case there are more elements than the max allowed, count the elements to show to the user
      * @throws RequestValidationException in case there are more elements, the total count is calculated and error thrown
      */
-    void validateMaxRows(Integer count, Supplier<Long> countMethod) throws RequestValidationException;
+    void validateMaxRows(long count, Supplier<Long> countMethod) throws RequestValidationException;
 }
