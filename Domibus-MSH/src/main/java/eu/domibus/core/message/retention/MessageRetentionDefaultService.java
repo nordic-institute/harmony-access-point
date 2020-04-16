@@ -60,7 +60,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     public void deleteExpiredMessages() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
@@ -71,7 +70,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    @Transactional
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
@@ -112,6 +110,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
+    @Transactional
     public void scheduleDeleteMessages(List<String> messageIds) {
         if (CollectionUtils.isEmpty(messageIds)) {
             LOG.debug("No message to be scheduled for deletion");

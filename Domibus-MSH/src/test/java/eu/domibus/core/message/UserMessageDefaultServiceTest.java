@@ -3,30 +3,34 @@ package eu.domibus.core.message;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.pull.PartyExtractor;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.pull.PartyExtractor;
+import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -128,6 +132,11 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     PModeProvider pModeProvider;
 
+    @Injectable
+    MessageConverterService messageConverterService;
+
+    @Injectable
+    AuditService auditService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -927,4 +936,49 @@ public class UserMessageDefaultServiceTest {
             jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);
         }};
     }
+
+    @Test
+    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
+        new Expectations() {{
+            partInfoWithBodyload.getHref();
+            result = null;
+            partInfoWithPayload.getHref();
+            result = "cid:1234";
+        }};
+        Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
+        Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+    }
+
+    @Test
+    public void getUserMessageById() {
+        final String messageId = UUID.randomUUID().toString();
+        UserMessage userMessage = new UserMessage();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+
+        Assert.assertEquals(userMessage, result);
+    }
+
+    @Test(expected = MessageNotFoundException.class)
+    public void getUserMessageById_notFound() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = null;
+        }};
+
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+
+        new Verifications() {{
+            auditService.addMessageDownloadedAudit(messageId);
+            times = 0;
+        }};
+    }
+
 }

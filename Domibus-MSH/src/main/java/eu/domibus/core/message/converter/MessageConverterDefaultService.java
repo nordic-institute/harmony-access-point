@@ -34,7 +34,7 @@ public class MessageConverterDefaultService implements MessageConverterService {
             marshaller = jaxbContext.createMarshaller();
             marshaller.marshal(message, baos);
         } catch (JAXBException e) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_001, "Error marshalling the message with id " + message.getId(), e);
+            throw new MessagingException("Error marshalling the message with id " + message.getId(), e);
         }
 
         return baos.toByteArray();

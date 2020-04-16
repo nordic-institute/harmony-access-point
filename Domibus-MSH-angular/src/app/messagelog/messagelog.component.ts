@@ -39,6 +39,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
+  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
@@ -308,17 +309,29 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage(messageId) {
-    const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    DownloadService.downloadNative(url);
+  private async downloadMessage(row) {
+    const messageId = row.messageId;
+    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    try {
+      const canDownload = await this.http.get(canDownloadUrl).toPromise();
+      if (canDownload) {
+        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+        DownloadService.downloadNative(downloadUrl);
+      } else {
+        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
+        row.deleted = true;
+      }
+    } catch (err) {
+      this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
+    }
   }
 
   downloadAction(row) {
-    this.downloadMessage(row.messageId);
+    this.downloadMessage(row);
   }
 
   download() {
-    this.downloadMessage(this.selected[0].messageId);
+    this.downloadMessage(this.selected[0]);
   }
 
   get csvUrl(): string {
