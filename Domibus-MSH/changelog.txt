@@ -1,5 +1,5 @@
 Domibus 4.2
-- Removed password column from borh Users and Plugin Users components/lists( as their values were obscured anyway)
+- Removed password column from both Users and Plugin Users components/lists( as their values were obscured anyway)
 - Added Parties functionality to External REST API calls
 - Added new component/page in admin console to monitor test connections; integrated the former test component as details page
 - Added domibus.monitoring.connection.party.enabled property which specifies the parties for which to monitor the connection (comma-separated list)
@@ -11,6 +11,7 @@ Domibus 4.2
 - Upgrade MySQL to version 8.0 and dropped support for MySQL version 5
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
+- Possibility to route JMS messages in the JMS Plugin to specific queues depending on service and action
 Domibus 4.1.4
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager

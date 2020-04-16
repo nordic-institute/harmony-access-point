@@ -36,6 +36,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 

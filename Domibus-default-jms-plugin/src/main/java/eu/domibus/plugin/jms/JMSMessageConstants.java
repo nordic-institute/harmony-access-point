@@ -3,6 +3,7 @@ package eu.domibus.plugin.jms;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public class JMSMessageConstants {
 

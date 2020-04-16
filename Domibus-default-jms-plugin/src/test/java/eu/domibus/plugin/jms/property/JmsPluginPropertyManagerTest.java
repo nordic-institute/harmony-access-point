@@ -13,10 +13,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author Ion Perpegel
+ * @author Cosmin Baciu
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
@@ -82,4 +87,22 @@ public class JmsPluginPropertyManagerTest {
         }
     }
 
+    @Test
+    public void testJmsPluginPropertyManager() {
+        String prefix = "routing.";
+
+        Set<String> propertiesStartingWithPrefix = new HashSet<>();
+        propertiesStartingWithPrefix.add("routing.rule1");
+        propertiesStartingWithPrefix.add("routing.rule1.queue");
+        propertiesStartingWithPrefix.add("routing.rule1.service");
+
+        new Expectations() {{
+            domibusPropertyExtService.filterPropertiesName((Predicate) any);
+            result = propertiesStartingWithPrefix;
+        }};
+
+        List<String> nestedProperties = jmsPluginPropertyManager.getNestedProperties(prefix);
+        Assert.assertEquals(1, nestedProperties.size());
+        Assert.assertTrue(nestedProperties.contains("rule1"));
+    }
 }
