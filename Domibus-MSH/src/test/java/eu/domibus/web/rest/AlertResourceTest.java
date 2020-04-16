@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.assertEquals;
 
@@ -140,4 +141,25 @@ public class AlertResourceTest {
         }};
     }
 
+    @Test
+    public void testFetchAndTransformAlerts() {
+        initAlertsData(); // 1 alert
+
+        boolean isSuperAdmin = true;
+        new Expectations() {{
+            alertService.findAlerts((AlertCriteria) any);
+            result = alerts;
+        }};
+
+        List<AlertRo> alertsRO = alertResource.fetchAndTransformAlerts(alertCriteria, isSuperAdmin);
+
+        new Verifications(1) {{
+            assertEquals(1, alertsRO.size());
+            assertEquals(isSuperAdmin, alertsRO.get(0).isSuperAdmin());
+            csvServiceImpl.validateMaxRows(1, (Supplier<Long>) any);
+            times = 1;
+            alertService.countAlerts((AlertCriteria) any);
+            times = 0;
+        }};
+    }
 }
