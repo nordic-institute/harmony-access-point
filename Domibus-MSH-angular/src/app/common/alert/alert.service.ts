@@ -1,4 +1,4 @@
-﻿import {Injectable} from '@angular/core';
+﻿import {Injectable, Injector} from '@angular/core';
 import {
   NavigationEnd,
   NavigationStart,
@@ -53,7 +53,6 @@ export class AlertService {
   // called from the alert component explicitly by the user
   public close(): void {
     this.matSnackBar.dismiss();
-    // this.subject.next();
   }
 
   public clearAlert(): void {

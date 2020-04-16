@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,9 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,19 +53,10 @@ public class PluginUserResource extends BaseResource {
 
     @GetMapping(value = {"/users"})
     public PluginUserResultRO findUsers(PluginUserFilterRequestRO request) {
-        LOG.debug("Retrieving plugin users");
-
+        PluginUserResultRO result = retrieveAndTransformUsers(request);
         Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
-
-        List<AuthenticationEntity> users;
-        if (count > 0) {
-            users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
-                    request.getPageStart(), request.getPageSize());
-        } else {
-            users = new ArrayList<>();
-        }
-
-        return prepareResponse(users, count, request.getPageStart(), request.getPageSize());
+        result.setCount(count);
+        return result;
     }
 
     @PutMapping(value = {"/users"})
@@ -93,13 +82,13 @@ public class PluginUserResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
-
         request.setPageStart(0);
-        request.setPageSize(getMaxNumberRowsToExport());
-        // get list of users
-        final PluginUserResultRO pluginUserROList = findUsers(request);
+        request.setPageSize(getCsvService().getPageSizeForExport());
+        final PluginUserResultRO result = retrieveAndTransformUsers(request);
+        getCsvService().validateMaxRows(result.getEntries().size(),
+                () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
-        return exportToCSV(pluginUserROList.getEntries(),
+        return exportToCSV(result.getEntries(),
                 PluginUserRO.class,
                 ImmutableMap.of(
                         "UserName".toUpperCase(), "Username",
@@ -109,12 +98,20 @@ public class PluginUserResource extends BaseResource {
                 "pluginusers");
     }
 
+    protected PluginUserResultRO retrieveAndTransformUsers(PluginUserFilterRequestRO request) {
+        LOG.debug("Retrieving plugin users.");
+        List<AuthenticationEntity> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
+                request.getPageStart(), request.getPageSize());
+
+        return prepareResponse(users, request.getPageStart(), request.getPageSize());
+    }
+
     /**
      * convert plugin users to PluginUserROs.
      *
      * @return a list of PluginUserROs and the pagination info
      */
-    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, Long count, int pageStart, int pageSize) {
+    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
         List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
 
         // this is business, should be located somewhere else
@@ -137,7 +134,7 @@ public class PluginUserResource extends BaseResource {
         PluginUserResultRO result = new PluginUserResultRO();
 
         result.setEntries(userROs);
-        result.setCount(count);
+//        result.setCount(count);
         result.setPage(pageStart);
         result.setPageSize(pageSize);
 

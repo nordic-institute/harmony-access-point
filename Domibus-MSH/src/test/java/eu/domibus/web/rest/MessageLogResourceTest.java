@@ -1,7 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -146,9 +145,6 @@ public class MessageLogResourceTest {
         List<MessageLogInfo> messageList = getMessageList(messageType, date, messageSubtype);
 
         new Expectations() {{
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
-
             messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
             result = messageList;
 
@@ -172,28 +168,6 @@ public class MessageLogResourceTest {
                         "conversationId,fromPartyId,toPartyId,originalSender,finalRecipient,refToMessageId,messageId," + MessageStatus.ACKNOWLEDGED + "," + NotificationStatus.NOTIFIED + "," +
                         MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + ",1,5," + date + "," + date + "," + date + "," + messageSubtype + System.lineSeparator(),
                 csv.getBody());
-    }
-
-    @Test
-    public void testUserMessageGetCsv_Exception() throws CsvException {
-        // Given
-        new Expectations() {{
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
-
-            csvServiceImpl.exportToCSV((List<?>) any, null, null, null);
-            result = new CsvException(DomibusCoreErrorCode.DOM_001, "Exception", new Exception());
-        }};
-
-        // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
-            setOrderBy("received");
-            setMessageType(messageType);
-            setMessageSubtype(messageSubtype);
-        }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
     }
 
     @Test

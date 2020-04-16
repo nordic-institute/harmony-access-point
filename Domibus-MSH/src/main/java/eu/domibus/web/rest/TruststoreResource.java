@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -110,9 +109,10 @@ public class TruststoreResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        final List<TrustStoreRO> trustStoreROS = trustStoreEntries();
+        final List<TrustStoreRO> entries = trustStoreEntries();
+        getCsvService().validateMaxRows(entries.size());
 
-        return exportToCSV(trustStoreROS,
+        return exportToCSV(entries,
                 TrustStoreRO.class,
                 ImmutableMap.of(
                         "ValidFrom".toUpperCase(), "Valid from",
@@ -120,7 +120,6 @@ public class TruststoreResource extends BaseResource {
                 ),
                 Arrays.asList("fingerprints"),
                 "truststore");
-
     }
 
 }

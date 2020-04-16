@@ -131,21 +131,22 @@ public class MessageLogResource extends BaseResource {
      * @return CSV file with the contents of Messages table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid MessageLogFilterRequestRO request) {
+    public ResponseEntity<String> getCsv(@Valid final MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
 
         filters.put(RECEIVED_FROM_STR, dateUtil.fromString(request.getReceivedFrom()));
         filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
         filters.put("messageType", request.getMessageType());
 
-        int maxNumberRowsToExport = getMaxNumberRowsToExport();
-
+        int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {
             /** use TB_MESSAGE_UI table instead */
             resultList = uiMessageService.findPaged(0, maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+            getCsvService().validateMaxRows(resultList.size(), () -> uiMessageService.countMessages(filters));
         } else {
             resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+            getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
         }
 
         return exportToCSV(resultList,

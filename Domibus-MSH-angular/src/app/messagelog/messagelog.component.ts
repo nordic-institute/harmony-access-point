@@ -1,4 +1,14 @@
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
@@ -13,6 +23,8 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
+import {DirtyOperations} from '../common/dirty-operations';
 
 @Component({
   moduleId: module.id,
@@ -22,7 +34,8 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class MessageLogComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
@@ -53,9 +66,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MatDialog, public dialogsService: DialogsService, private elementRef: ElementRef,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {
     super();
   }
 

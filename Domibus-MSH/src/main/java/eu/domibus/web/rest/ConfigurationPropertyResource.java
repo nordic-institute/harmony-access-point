@@ -5,7 +5,9 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyService;
-import eu.domibus.web.rest.ro.*;
+import eu.domibus.web.rest.ro.DomibusPropertyRO;
+import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
+import eu.domibus.web.rest.ro.PropertyResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,15 +71,14 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     /**
      * Exports to CSV
+     *
      * @param request
      * @return
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
         List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isShowDomain());
-        items = items.stream()
-                .limit(getMaxNumberRowsToExport())
-                .collect(Collectors.toList());
+        getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);
 

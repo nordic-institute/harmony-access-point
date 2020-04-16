@@ -5,16 +5,14 @@ import com.google.gson.GsonBuilder;
 import com.opencsv.CSVWriter;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
@@ -24,18 +22,20 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_CSV_MAX_ROWS;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 4.0
  */
 
 @Service
 public class CsvServiceImpl implements CsvService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
-
-    static final String MAXIMUM_NUMBER_CSV_ROWS = "domibus.ui.csv.max.rows";
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -56,7 +56,7 @@ public class CsvServiceImpl implements CsvService {
 
     @Override
     public int getMaxNumberRowsToExport() {
-        return NumberUtils.toInt(domibusPropertyProvider.getProperty(MAXIMUM_NUMBER_CSV_ROWS));
+        return domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
     }
 
     @Override
@@ -64,6 +64,26 @@ public class CsvServiceImpl implements CsvService {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         return module + "_datatable_" + dateFormat.format(date) + ".csv";
+    }
+
+    @Override
+    public int getPageSizeForExport() {
+        return getMaxNumberRowsToExport() + 1;
+    }
+
+    @Override
+    public void validateMaxRows(long count) throws RequestValidationException {
+        validateMaxRows(count, null);
+    }
+
+    @Override
+    public void validateMaxRows(long count, Supplier<Long> countMethod) throws RequestValidationException {
+        if (count > getMaxNumberRowsToExport()) {
+            Long all = countMethod == null ? count : countMethod.get();
+            String message = String.format("The number of elements to export [%s] exceeds the maximum allowed [%s]."
+                    , all, getMaxNumberRowsToExport());
+            throw new RequestValidationException(message);
+        }
     }
 
     protected List<Field> getExportedFields(List<?> list, Class theClass, List<String> excludedColumns) {
