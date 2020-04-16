@@ -115,13 +115,18 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async saveAsCSV() {
+    if (this.isBusy()) {
+      this.alertService.error(`Cannot export until data is loaded.`);
+      return;
+    }
+
     if (instanceOfModifiableList(this)) {
       await this.saveIfNeeded();
     }
 
     const csvMaxCount = await this.getCsvMaxRows();
     if (this.count > csvMaxCount) {
-      this.alertService.error('Could not download as CSV because the maximum accepted number of rows was exceeded.');
+      this.alertService.error(`The number of elements to export [${this.count}] exceeds the maximum allowed [${csvMaxCount}].`);
       return;
     }
 

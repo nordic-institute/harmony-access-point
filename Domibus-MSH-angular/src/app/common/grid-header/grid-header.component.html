@@ -1,7 +1,7 @@
 <div class="group-filter-button">
   <div class="group-2">
     <span>
-      <button mat-icon-button color="primary" (click)="parent.saveAsCSV()"
+      <button mat-icon-button color="primary" (click)="parent.saveAsCSV()" [disabled]="parent.isBusy()"
               id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
         <img src="assets/images/exportCSV.svg" width="30" height="30">
       </button>
