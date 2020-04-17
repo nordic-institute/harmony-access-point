@@ -29,6 +29,9 @@ public class MessageServiceImpl implements MessageExtService {
      */
     @Override
     public String sanitizePayloadName(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
         final String sanitizedFileName = FilenameUtils.getName(fileName);
         if (StringUtils.isNotBlank(sanitizedFileName) && !StringUtils.equals(fileName, sanitizedFileName)) {
             LOG.warn("{} has an improper value: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);

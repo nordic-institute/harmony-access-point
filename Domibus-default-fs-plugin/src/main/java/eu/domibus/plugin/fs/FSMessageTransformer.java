@@ -42,7 +42,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     protected FSMimeTypeHelper fsMimeTypeHelper;
 
     @Autowired
-    private MessageExtService messageExtService;
+    protected MessageExtService messageExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
