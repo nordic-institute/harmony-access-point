@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -9,7 +10,6 @@ import eu.domibus.plugin.fs.exception.FSPayloadException;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,6 +40,9 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
     @Autowired
     protected FSMimeTypeHelper fsMimeTypeHelper;
+
+    @Autowired
+    private MessageExtService messageExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
@@ -212,8 +215,8 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
             //file name
             String fileName = extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME);
-            LOG.debug("Received {} is: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-            fileName = sanitizePayloadName(fileName);
+            LOG.debug("{} property found=[{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+            fileName = messageExtService.sanitizePayloadName(fileName);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {
@@ -223,22 +226,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             result.put(payload.getContentId(), fsPayload);
         }
         return result;
-    }
-
-    /**
-     * It will remove any possible directories or path names before the name of the file
-     *
-     * @param fileName
-     * @return
-     */
-    protected String sanitizePayloadName(String fileName) {
-        final String sanitizedFileName = FilenameUtils.getName(fileName);
-        if (StringUtils.isNotBlank(sanitizedFileName) && !StringUtils.equals(fileName, sanitizedFileName)) {
-            LOG.warn("{}} has an improper value: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-            fileName = sanitizedFileName;
-        }
-        LOG.debug("{} will be: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-        return fileName;
     }
 
     protected String extractPayloadProperty(Submission.Payload payload, String propertyName) {

@@ -136,6 +136,11 @@
         </dependency>
         <!-- End Spring Security -->
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -174,8 +179,6 @@
             <version>0.9.10</version>
             <scope>test</scope>
         </dependency>
-
-
         <!-- End Test dependencies -->
 
         <!--Swagger-->
