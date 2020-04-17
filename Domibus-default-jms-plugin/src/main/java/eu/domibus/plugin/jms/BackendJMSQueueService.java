@@ -116,7 +116,6 @@ public class BackendJMSQueueService {
         String service = domibusPropertyExtService.getProperty(currentDomain, servicePropertyName);
         LOG.debug("Determined service value [{}] using property [{}]", service, servicePropertyName);
 
-
         String actionPropertyName = getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "action");
         String action = domibusPropertyExtService.getProperty(currentDomain, actionPropertyName);
         LOG.debug("Determined action value [{}] using property [{}]", action, actionPropertyName);
@@ -167,7 +166,7 @@ public class BackendJMSQueueService {
             LOG.debug("Using queue prefix [{}]", queuePrefix);
             return queuePrefix;
         }
-        if(DomainDTO.DEFAULT_DOMAIN.equals(currentDomain)) {
+        if (DomainDTO.DEFAULT_DOMAIN.equals(currentDomain)) {
             LOG.debug("Using queue prefix [{}]", queuePrefix);
             return queuePrefix;
         }
@@ -177,20 +176,31 @@ public class BackendJMSQueueService {
     }
 
     protected boolean matchesSubmission(String service, String action, Submission submission) {
-        String submissionService = submission.getService();
-        String submissionAction = submission.getAction();
-
-        boolean serviceMatches = StringUtils.equals(service, submissionService);
-        if (!serviceMatches) {
-            LOG.debug("Service [{}] does not matches Submission with message id [{}]", service, submission.getMessageId());
-            return false;
+        if (StringUtils.isNotBlank(service) && StringUtils.isNotBlank(action)) {
+            LOG.debug("Matching submission using service and action");
+            return matchesService(service, submission) && matchesAction(action, submission);
         }
-
-        boolean actionMatches = StringUtils.equals(action, submissionAction);
-        if (!actionMatches) {
-            LOG.debug("Action [{}] does not matches Submission with message id [{}]", action, submission.getMessageId());
-            return false;
+        if (StringUtils.isNotBlank(service)) {
+            LOG.debug("Matching submission using only service");
+            return matchesService(service, submission);
         }
-        return true;
+        if (StringUtils.isNotBlank(action)) {
+            LOG.debug("Matching submission using only action");
+            return matchesAction(action, submission);
+        }
+        LOG.debug("Submission not matched: both service and action are null");
+        return false;
+    }
+
+    protected boolean matchesService(String service, Submission submission) {
+        boolean serviceMatches = StringUtils.equals(service, submission.getService());
+        LOG.debug("Service [{}] matches Submission with message id [{}]?  [{}]", service, submission.getMessageId(), serviceMatches);
+        return serviceMatches;
+    }
+
+    protected boolean matchesAction(String action, Submission submission) {
+        boolean actionMatches = StringUtils.equals(action, submission.getAction());
+        LOG.debug("Action [{}] matches Submission with message id [{}]? [{}]", action, submission.getMessageId(), actionMatches);
+        return actionMatches;
     }
 }

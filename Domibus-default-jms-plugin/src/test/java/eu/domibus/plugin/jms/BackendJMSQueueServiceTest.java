@@ -10,6 +10,7 @@ import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -218,7 +219,7 @@ public class BackendJMSQueueServiceTest {
     }
 
     @Test
-    public void matchesSubmission(@Injectable Submission submission) {
+    public void matchesSubmissionWithServiceAndAction(@Injectable Submission submission) {
         String service = "serviceValue";
         String action = "actionValue";
 
@@ -231,5 +232,94 @@ public class BackendJMSQueueServiceTest {
         }};
 
         Assert.assertTrue(backendJMSQueueService.matchesSubmission(service, action, submission));
+    }
+
+    @Test
+    public void matchesSubmissionWithSameServiceAndDifferentAction(@Injectable Submission submission) {
+        String service = "serviceValue";
+        String action = "actionValue";
+
+        new Expectations() {{
+            submission.getService();
+            result = service;
+
+            submission.getAction();
+            result = action;
+        }};
+
+        Assert.assertFalse(backendJMSQueueService.matchesSubmission(service, "myAction", submission));
+    }
+
+    @Test
+    public void matchesSubmissionWithServiceAndNoAction(@Injectable Submission submission) {
+        String service = "serviceValue";
+
+        new Expectations() {{
+            submission.getService();
+            result = service;
+        }};
+
+        Assert.assertTrue(backendJMSQueueService.matchesSubmission(service, null, submission));
+
+        new Verifications() {{
+            submission.getAction();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void matchesSubmissionWithDifferentServiceAndNoAction(@Injectable Submission submission) {
+        String service = "serviceValue";
+
+        new Expectations() {{
+            submission.getService();
+            result = service;
+        }};
+
+        Assert.assertFalse(backendJMSQueueService.matchesSubmission("differentService", null, submission));
+
+        new Verifications() {{
+            submission.getAction();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void matchesSubmissionWithNoServiceAndAction(@Injectable Submission submission) {
+        String action = "actionValue";
+
+        new Expectations() {{
+            submission.getAction();
+            result = action;
+        }};
+
+        Assert.assertTrue(backendJMSQueueService.matchesSubmission(null, action, submission));
+
+        new Verifications() {{
+            submission.getService();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void matchesSubmissionWithNoServiceAndDifferentAction(@Injectable Submission submission) {
+        String action = "actionValue";
+
+        new Expectations() {{
+            submission.getAction();
+            result = action;
+        }};
+
+        Assert.assertFalse(backendJMSQueueService.matchesSubmission(null, "differentAction", submission));
+
+        new Verifications() {{
+            submission.getService();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void matchesSubmissionWithNoServiceAndNoAction(@Injectable Submission submission) {
+        Assert.assertFalse(backendJMSQueueService.matchesSubmission(null, null, submission));
     }
 }
