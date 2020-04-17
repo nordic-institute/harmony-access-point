@@ -66,6 +66,9 @@ public class BackendJMSImplTest {
     private MessageExtService messageExtService;
 
     @Injectable
+    protected BackendJMSQueueService backendJMSQueueService;
+
+    @Injectable
     String name = "myjmsplugin";
 
     @Tested
