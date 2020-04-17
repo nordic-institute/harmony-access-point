@@ -2,12 +2,14 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPayloadException;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,11 +35,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageTransformer.class);
 
     private static final String PAYLOAD_PROPERTY_MIME_TYPE = "MimeType";
-
-    /**
-     * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
-     */
-    private static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
     protected final ObjectFactory objectFactory = new ObjectFactory();
 
@@ -118,7 +115,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             }
             ArrayList<Submission.TypedProperty> payloadProperties = new ArrayList<>();
             payloadProperties.add(new Submission.TypedProperty(PAYLOAD_PROPERTY_MIME_TYPE, mimeType));
-            payloadProperties.add(new Submission.TypedProperty(PAYLOAD_PROPERTY_FILE_NAME, fileName));
+            payloadProperties.add(new Submission.TypedProperty(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName));
             List<Property> additionalPropertyList = extractAdditionalPropertyListFromMetadata(metadata);
             if (additionalPropertyList != null) {
                 for (Property property : additionalPropertyList) {
@@ -196,7 +193,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
         for (Property property : partProperties.getProperty()) {
             if (!PAYLOAD_PROPERTY_MIME_TYPE.equals(property.getName()) &&
-                    !PAYLOAD_PROPERTY_FILE_NAME.equals(property.getName())) {
+                    !MessageConstants.PAYLOAD_PROPERTY_FILE_NAME.equals(property.getName())) {
                 propertyList.add(property);
             }
         }
@@ -214,7 +211,9 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             }
 
             //file name
-            final String fileName = extractPayloadProperty(payload, PAYLOAD_PROPERTY_FILE_NAME);
+            String fileName = extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME);
+            LOG.debug("Received {} is: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+            fileName = sanitizePayloadName(fileName);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {
@@ -224,6 +223,22 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             result.put(payload.getContentId(), fsPayload);
         }
         return result;
+    }
+
+    /**
+     * It will remove any possible directories or path names before the name of the file
+     *
+     * @param fileName
+     * @return
+     */
+    protected String sanitizePayloadName(String fileName) {
+        final String sanitizedFileName = FilenameUtils.getName(fileName);
+        if (StringUtils.isNotBlank(sanitizedFileName) && !StringUtils.equals(fileName, sanitizedFileName)) {
+            LOG.warn("{}} has an improper value: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+            fileName = sanitizedFileName;
+        }
+        LOG.debug("{} will be: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+        return fileName;
     }
 
     protected String extractPayloadProperty(Submission.Payload payload, String propertyName) {

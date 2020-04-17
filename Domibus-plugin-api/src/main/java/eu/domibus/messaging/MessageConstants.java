@@ -17,6 +17,8 @@ public class MessageConstants {
     public static final String RETRY_COUNT = "RETRY_COUNT";
     public static final String FILE_NAME = "FILE_NAME";
 
-
-
+    /**
+     * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
+     */
+    public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 }
