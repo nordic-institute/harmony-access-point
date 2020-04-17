@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+import java.util.function.Predicate;
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -38,6 +40,10 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public String getProperty(DomainDTO domain, String propertyName) {
         return getDomainProperty(domain, propertyName);
+    }
+    @Override
+    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+        return domibusPropertyProvider.filterPropertiesName(predicate);
     }
 
     @Override

@@ -199,7 +199,7 @@ public class BackendJMSImplTest {
         event.setMessageId(messageId);
 
         new Expectations(backendJMS) {{
-            backendJMS.sendJmsMessage(withAny(new JmsMessageDTO()), anyString);
+            backendJMS.sendJmsMessage(withAny(new JmsMessageDTO()), anyString, anyString, anyString);
         }};
 
         backendJMS.messageReceiveFailed(event);

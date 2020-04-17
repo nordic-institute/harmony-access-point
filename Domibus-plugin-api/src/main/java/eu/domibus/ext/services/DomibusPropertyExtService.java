@@ -2,6 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 
+import java.util.Set;
+import java.util.function.Predicate;
 /**
  * Responsible for property related operations
  *
@@ -26,6 +28,13 @@ public interface DomibusPropertyExtService {
      * @return The property value
      */
     String getProperty(DomainDTO domain, String propertyName);
+
+    /**
+     * Returns all property names for which the given predicate is true
+     * @param predicate the predicate to filter with
+     * @return A set of property names
+     */
+    Set<String> filterPropertiesName(Predicate<String> predicate);
 
     /**
      * Gets the property value with the provided name for a specific domain

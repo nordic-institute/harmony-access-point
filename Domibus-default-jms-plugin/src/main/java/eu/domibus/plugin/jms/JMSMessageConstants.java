@@ -3,6 +3,7 @@ package eu.domibus.plugin.jms;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public class JMSMessageConstants {
 
@@ -55,9 +56,13 @@ public class JMSMessageConstants {
     public static final String PASSWORD = "password"; //NOSONAR
 
     public static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
+    public static final String JMSPLUGIN_QUEUE_REPLY_ROUTING = "jmsplugin.queue.reply.routing";
     public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.consumer.notification.error.routing";
     public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.producer.notification.error.routing";
     public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
+    public static final String JMSPLUGIN_QUEUE_OUT_ROUTING = "jmsplugin.queue.out.routing.";
 
     public static final String QUEUE_NOTIFICATION = "queue.notification";
     public static final String QUEUE_IN = "queue.in";
