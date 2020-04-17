@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public interface UIMessageService {
 
+    long countMessages(Map<String, Object> filters);
+
     List<MessageLogInfo> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 
     MessageLogResultRO countAndFindPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);

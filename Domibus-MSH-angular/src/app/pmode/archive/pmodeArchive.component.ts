@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {MatDialog} from '@angular/material';
@@ -18,6 +18,7 @@ import mix from '../../common/mixins/mixin.utils';
 import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -31,7 +32,7 @@ import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
  */
 export class PModeArchiveComponent extends mix(BaseListComponent)
   .with(ModifiableListMixin, ClientPageableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
   static readonly PMODE_URL: string = 'rest/pmode';
   static readonly PMODE_CSV_URL: string = PModeArchiveComponent.PMODE_URL + '/csv';
@@ -67,7 +68,8 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
    * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
   }

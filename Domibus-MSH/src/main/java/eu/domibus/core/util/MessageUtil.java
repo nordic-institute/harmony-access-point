@@ -673,7 +673,7 @@ public class MessageUtil {
             final JAXBElement<MessageFragmentType> root = (JAXBElement<MessageFragmentType>) unmarshaller.unmarshal(messagingXml);
             return root.getValue();
         } catch (SOAPException | JAXBException e) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_001, "Not possible to get the MessageFragmentType", e);
+            throw new MessagingException("Not possible to get the MessageFragmentType", e);
         }
     }
 
@@ -682,7 +682,7 @@ public class MessageUtil {
         try {
             messaging = getMessaging(request);
         } catch (SOAPException | JAXBException e) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_001, "Not possible to getMessage", e);
+            throw new MessagingException("Not possible to getMessage", e);
         }
         return messaging;
     }

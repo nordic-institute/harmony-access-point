@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
@@ -14,6 +14,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   selector: 'app-jms',
@@ -22,7 +23,7 @@ import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 })
 export class JmsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
@@ -34,7 +35,6 @@ export class JmsComponent extends mix(BaseListComponent)
   queuesInfoGot: EventEmitter<boolean>;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
-  @ViewChild('rowWithJSONTpl', {static: false}) rowWithJSONTpl: TemplateRef<Object>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   queues: any[];
@@ -53,14 +53,14 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   set selectedSource(value: any) {
-    var oldVal = this._selectedSource;
+    const oldVal = this._selectedSource;
     this._selectedSource = value;
     this.filter.source = value.name;
     this.defaultQueueSet.emit(oldVal);
   }
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog,
-              private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private dialogsService: DialogsService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -128,15 +128,13 @@ export class JmsComponent extends mix(BaseListComponent)
 
       },
       {
-        cellTemplate: this.rowWithJSONTpl,
         name: 'Custom prop',
-        prop: 'customProperties',
+        prop: 'customPropertiesText',
         width: 250
       },
       {
-        cellTemplate: this.rowWithJSONTpl,
         name: 'JMS prop',
-        prop: 'jmsproperties',
+        prop: 'jmspropertiesText',
         width: 200
       },
       {
@@ -192,7 +190,9 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   private setDefaultQueue(queueName: string) {
-    if (!this.queues || this.queues.length == 0) return;
+    if (!this.queues || this.queues.length == 0) {
+      return;
+    }
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
     const toSelect = matching != null ? matching : this.queues.length[0];
@@ -236,8 +236,13 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   public setServerResults(res) {
-    super.rows = res.messages;
-    super.count = res.messages.length;
+    const rows: any[] = res.messages;
+    rows.forEach(row => {
+      row.customPropertiesText = JSON.stringify(row.customProperties);
+      row.jmspropertiesText = JSON.stringify(row.jmsproperties);
+    });
+    super.rows = rows;
+    super.count = rows.length;
     this.refreshDestinations();
   }
 

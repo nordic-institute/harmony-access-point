@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -92,5 +93,32 @@ public class MessagesLogServiceImplTest {
 
     @Test
     public void convertMessageLogInfo() {
+    }
+
+    @Test
+    public void findUserMessageById() {
+        String userMessageId = "id1";
+        int from = 0, max = 1;
+        String column = null;
+        boolean asc = true;
+        HashMap<String, Object> filters = new HashMap<>();
+        long numberOfLogs = 1;
+        MessageLogInfo item1 = new MessageLogInfo();
+        MessageLogRO converted = new MessageLogRO();
+        filters.put("messageId", userMessageId);
+        List<MessageLogInfo> resultList = Arrays.asList(item1);
+
+        new Expectations() {{
+            userMessageLogDao.countAllInfo(asc, filters);
+            result = numberOfLogs;
+            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            result = resultList;
+            domainConverter.convert(item1, MessageLogRO.class);
+            result = converted;
+        }};
+
+        MessageLogRO res = messagesLogServiceImpl.findUserMessageById(userMessageId);
+
+        Assert.assertEquals(converted, res);
     }
 }

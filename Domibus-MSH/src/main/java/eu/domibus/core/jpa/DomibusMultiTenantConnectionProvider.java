@@ -1,10 +1,12 @@
 package eu.domibus.core.jpa;
 
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -76,15 +78,28 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         if (currentDomain != null) {
             LOG.trace("Getting schema for domain [{}]", currentDomain);
             databaseSchema = domainService.getDatabaseSchema(currentDomain);
+            LOG.trace("Found database schema name as [{}] for current domain [{}]", databaseSchema, currentDomain);
         } else {
             LOG.trace("Getting general schema");
             databaseSchema = domainService.getGeneralSchema();
+            LOG.trace("Database schema name for general schema: [{}]", databaseSchema);
         }
 
         final Connection connection = getAnyConnection();
         LOG.trace("Setting database schema to [{}] ", databaseSchema);
+        if (StringUtils.isEmpty(databaseSchema)) {
+            checkDomain(currentDomain);
+        }
         setSchema(connection, databaseSchema);
         return connection;
+    }
+
+    protected void checkDomain(Domain currentDomain) {
+        if (currentDomain != null) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot be empty for the domain:" + currentDomain);
+        } else {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name cannot be empty for general schema.");
+        }
     }
 
     protected void setSchema(final Connection connection, String databaseSchema) throws SQLException {

@@ -16,7 +16,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @RestController
@@ -79,8 +79,7 @@ public class PartyResource extends BaseResource {
             final Set<ProcessRo> processRos = new HashSet<>(processesWithPartyAsInitiator);
             processRos.addAll(processesWithPartyAsResponder);
 
-            processRos
-                    .stream()
+            processRos.stream()
                     .map(item -> new PartyProcessLinkRo(item.getName(), processesWithPartyAsInitiator.contains(item), processesWithPartyAsResponder.contains(item)))
                     .collect(Collectors.toSet());
         });
@@ -96,8 +95,9 @@ public class PartyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(getMaxNumberRowsToExport());
+        request.setPageSize(0); // no pagination
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
+        getCsvService().validateMaxRows(partyResponseRoList.size());
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,

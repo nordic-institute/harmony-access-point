@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.error;
 
-import eu.domibus.api.pmode.RequestValidationException;
+import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -82,6 +83,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler({PModeValidationException.class})
     public ResponseEntity<ValidationResponseRO> handleValidationException(PModeValidationException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({CsvException.class})
+    public ResponseEntity<ErrorRO> handleCsvException(CsvException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

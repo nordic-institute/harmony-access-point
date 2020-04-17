@@ -1,11 +1,14 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -18,9 +21,8 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.activation.DataHandler;
-import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -48,39 +50,18 @@ public class MessageResourceTest {
     @Injectable
     private AuditService auditService;
 
-    private UserMessage createUserMessage() {
-        //TODO Use Mocking instead of real Instances
-        UserMessage userMessage = new UserMessage();
-        userMessage.setEntityId(1);
-        userMessage.setMessageInfo(new MessageInfo());
-        userMessage.setCollaborationInfo(new CollaborationInfo());
-        userMessage.setMessageProperties(new MessageProperties());
-        userMessage.setMpc("mpc1");
-        userMessage.setPartyInfo(new PartyInfo());
-        PayloadInfo payloadInfo = new PayloadInfo();
-        byte[] byteA = new byte[]{1, 0, 1};
-        PartInfo partInfoBody = new PartInfo();
-        partInfoBody.setInBody(true);
-        partInfoBody.setBinaryData(byteA);
-        partInfoBody.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(byteA, "text/xml")));
-        payloadInfo.getPartInfo().add(partInfoBody);
-        PartInfo partInfo = new PartInfo();
-        partInfo.setHref("href");
-        partInfo.setBinaryData(byteA);
-        partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(byteA, "text/xml")));
-        payloadInfo.getPartInfo().add(partInfo);
+    @Injectable
+    MessagesLogService messagesLogService;
 
-        userMessage.setPayloadInfo(payloadInfo);
-
-        return userMessage;
-    }
+    @Injectable
+    ErrorHandlerService errorHandlerService;
 
     @Test
     public void testDownload() {
         // Given
         new Expectations() {{
-            messagingDao.findUserMessageByMessageId(anyString);
-            result = createUserMessage();
+            userMessageService.getMessageAsBytes(anyString);
+            result = new byte[]{0, 1, 2};
         }};
 
         // When
@@ -95,18 +76,18 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void testZipFiles() {
+    public void testDownloadZipped() throws IOException {
         // Given
         new Expectations() {{
-            messagingDao.findUserMessageByMessageId(anyString);
-            result = createUserMessage();
+            userMessageService.getMessageWithAttachmentsAsZip(anyString);
+            result = new byte[]{0, 1, 2};
         }};
 
         ResponseEntity<ByteArrayResource> responseEntity = null;
         try {
             // When
-            responseEntity = messageResource.zipFiles("messageId");
-        } catch (IOException e) {
+            responseEntity = messageResource.downloadUserMessage("messageId");
+        } catch (IOException | MessageNotFoundException e) {
             // NOT Then :)
             Assert.fail("Exception in zipFiles method");
         }
@@ -116,14 +97,6 @@ public class MessageResourceTest {
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         Assert.assertEquals("application/zip", responseEntity.getHeaders().get("Content-Type").get(0));
         Assert.assertEquals("attachment; filename=messageId.zip", responseEntity.getHeaders().get("content-disposition").get(0));
-    }
-
-
-    @Test
-    public void testPayloadName() {
-        UserMessage message = createUserMessage();
-        Assert.assertEquals("bodyload", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(0)));
-        Assert.assertEquals("href", messageResource.getPayloadName(message.getPayloadInfo().getPartInfo().get(1)));
     }
 
     @Test
@@ -136,11 +109,32 @@ public class MessageResourceTest {
             userMessageService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
-
-            auditService.addMessageResentAudit(messageIdActual1 = withCapture());
-            Assert.assertEquals(messageId, messageIdActual1);
-            times = 1;
         }};
+    }
+
+    @Test
+    public void test_checkMessageContentExists() {
+        MessageLogRO deletedMessage = new MessageLogRO() {{
+            setDeleted(new Date());
+        }};
+        MessageLogRO existingMessage = new MessageLogRO() {{
+            setDeleted(null);
+        }};
+
+        // Given
+        new Expectations() {{
+            messagesLogService.findUserMessageById(anyString);
+            returns(null, deletedMessage, existingMessage);
+        }};
+
+        boolean result1 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result1);
+
+        boolean result2 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result2);
+
+        boolean result3 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(true, result3);
     }
 
 }

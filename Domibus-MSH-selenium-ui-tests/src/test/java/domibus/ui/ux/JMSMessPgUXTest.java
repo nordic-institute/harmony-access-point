@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.jms.JMSMessModal;
 import pages.jms.JMSMonitoringPage;
+import pages.jms.JMSSelect;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
@@ -167,6 +168,7 @@ public class JMSMessPgUXTest extends BaseTest {
 			throw new SkipException(e.getMessage());
 		}
 		if (noOfMessages > 0) {
+			page.grid().waitForRowsToLoad();
 			log.info("perform search that results in empty grid");
 			String endDate = page.filters().getJmsToDatePicker().getSelectedDate();
 			page.filters().getJmsFromDatePicker().selectDate(endDate);
@@ -180,6 +182,10 @@ public class JMSMessPgUXTest extends BaseTest {
 			page.filters().getJmsFromDatePicker().clearSelectedDate();
 			page.filters().getJmsSearchButton().click();
 			page.grid().waitForRowsToLoad();
+
+			JMSSelect select = page.filters().getJmsQueueSelect();
+			String q = select.getSelectedValue();
+			noOfMessages = select.getListedNoOfMessInQName(q);
 
 			log.info("checking number of rows");
 			soft.assertEquals(page.grid().getAllRowInfo().size(), noOfMessages, "All messages are listed");

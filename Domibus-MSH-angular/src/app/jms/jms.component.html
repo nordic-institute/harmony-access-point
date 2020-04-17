@@ -62,10 +62,6 @@
                  [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
     </div>
 
-    <ng-template #rowWithJSONTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      {{value | json }}
-    </ng-template>
-
     <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
       <span class="text-select">{{value | domibusDate: dateFormat}}</span>
     </ng-template>

@@ -55,16 +55,8 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(customMappingJackson2HttpMessageConverter());
-
-        List<HttpMessageConverter<?>> defaultConverters = new WebMvcConfigurationSupport() {
-            public List<HttpMessageConverter<?>> getDefaultMessageConverters() {
-                return this.getMessageConverters();
-            }
-        }.getDefaultMessageConverters();
-
-        converters.addAll(defaultConverters);
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(0, customMappingJackson2HttpMessageConverter());
     }
 
     @Override

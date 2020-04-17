@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material';
 import {PartyService} from './support/party.service';
 import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
@@ -13,6 +13,7 @@ import {ClientFilterableListMixin} from '../common/mixins/filterable-list.mixin'
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -28,7 +29,7 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 
 export class PartyComponent extends mix(BaseListComponent)
   .with(ClientFilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
@@ -42,8 +43,9 @@ export class PartyComponent extends mix(BaseListComponent)
 
   pModeExists: boolean;
 
-  constructor(public dialog: MatDialog, private dialogsService: DialogsService, public partyService: PartyService,
-              public alertService: AlertService, private http: HttpClient, private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationContextService, public dialog: MatDialog, private dialogsService: DialogsService,
+              public partyService: PartyService, public alertService: AlertService, private http: HttpClient,
+              private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -174,13 +176,15 @@ export class PartyComponent extends mix(BaseListComponent)
 
     return this.partyService.updateParties(this.allRows)
       .then((res) => {
-          this.resetDirty();
-          return res;
-        });
+        this.resetDirty();
+        return res;
+      });
   }
 
   async add() {
-    if (this.isBusy()) return;
+    if (this.isBusy()) {
+      return;
+    }
 
     this.setPage(this.getLastPage());
 
@@ -201,14 +205,20 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   delete() {
-    if (this.isSaving) return;
-    if (!this.selected || this.selected.length == 0) return;
+    if (this.isSaving) {
+      return;
+    }
+    if (!this.selected || this.selected.length == 0) {
+      return;
+    }
 
     this.deleteRow(this.selected[0])
   }
 
   deleteRow(row) {
-    if (!row) return;
+    if (!row) {
+      return;
+    }
 
     this.rows.splice(this.rows.indexOf(row), 1);
     this.allRows.splice(this.allRows.indexOf(row), 1);
@@ -217,10 +227,11 @@ export class PartyComponent extends mix(BaseListComponent)
     this.selected.length = 0;
     super.count--;
 
-    if (this.newParties.indexOf(row) < 0)
+    if (this.newParties.indexOf(row) < 0) {
       this.deletedParties.push(row);
-    else
+    } else {
       this.newParties.splice(this.newParties.indexOf(row), 1);
+    }
   }
 
   async edit(row?): Promise<boolean> {
@@ -240,15 +251,17 @@ export class PartyComponent extends mix(BaseListComponent)
 
     const ok = await dialogRef.afterClosed().toPromise();
     if (ok) {
-      if (JSON.stringify(row) === JSON.stringify(rowCopy))
-        return; // nothing changed
+      if (JSON.stringify(row) === JSON.stringify(rowCopy)) {
+        return;
+      } // nothing changed
 
       Object.assign(row, rowCopy);
       row.name = rowCopy.name;// TODO temp
       super.rows = [...this.rows];
 
-      if (this.updatedParties.indexOf(row) < 0)
+      if (this.updatedParties.indexOf(row) < 0) {
         this.updatedParties.push(row);
+      }
     }
 
     return ok;

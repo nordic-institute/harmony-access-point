@@ -1,6 +1,7 @@
 package eu.domibus.core.csv;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
@@ -8,6 +9,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -21,6 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_CSV_MAX_ROWS;
 
 /**
  * @author Tiago Miguel
@@ -94,4 +99,32 @@ public class CsvServiceImplTest {
     }
 
 
+    @Test(expected = RequestValidationException.class)
+    public void validateMaxRows() {
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
+            result = 1000;
+        }};
+
+        csvServiceImpl.validateMaxRows(5000);
+    }
+
+    @Test
+    public void testValidateMaxRowsWithCount() {
+        Long actualCount = Long.valueOf(8000);
+        Supplier<Long> actualCountSupplier = () -> actualCount;
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
+            result = 1000;
+        }};
+
+        csvServiceImpl.validateMaxRows(1000, actualCountSupplier);
+
+        try {
+            csvServiceImpl.validateMaxRows(5000, actualCountSupplier);
+            Assert.fail("RequestValidationException not thrown");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue("Row count present in message", ex.getMessage().contains(actualCount.toString()));
+        }
+    }
 }

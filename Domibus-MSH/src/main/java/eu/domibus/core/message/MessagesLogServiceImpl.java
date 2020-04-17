@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +33,17 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     @Autowired
     private DomainCoreConverter domainConverter;
+
+    @Override
+    public long countMessages(MessageType messageType, Map<String, Object> filters) {
+        long numberOfMessageLogs = 0;
+        if (messageType == MessageType.SIGNAL_MESSAGE) {
+            numberOfMessageLogs = signalMessageLogDao.countAllInfo(true, filters);
+        } else if (messageType == MessageType.USER_MESSAGE) {
+            numberOfMessageLogs = userMessageLogDao.countAllInfo(true, filters);
+        }
+        return numberOfMessageLogs;
+    }
 
     /**
      * {@inheritDoc}
@@ -72,7 +84,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
                 userMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters));
     }
 
-
     /**
      * @param messageLogInfo
      * @return
@@ -85,4 +96,23 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return domainConverter.convert(messageLogInfo, MessageLogRO.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MessageLogRO findUserMessageById(String messageId) {
+        HashMap<String, Object> filters = new HashMap<>();
+        filters.put("messageId", messageId);
+        MessageLogResultRO result = countAndFindPaged(MessageType.USER_MESSAGE, 0, 1, null, true, filters);
+
+        List<MessageLogRO> messages = result.getMessageLogEntries();
+        if (messages.size() == 0) {
+            LOG.info("Could not find message log entry for id [{}].", messageId);
+            return null;
+        }
+        if (messages.size() > 1) {
+            LOG.warn("Found more than one message log entry for id [{}].", messageId);
+        }
+        return messages.get(0);
+    }
 }

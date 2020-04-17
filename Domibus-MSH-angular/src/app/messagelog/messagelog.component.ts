@@ -1,4 +1,14 @@
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
@@ -13,6 +23,8 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
+import {DirtyOperations} from '../common/dirty-operations';
 
 @Component({
   moduleId: module.id,
@@ -22,10 +34,12 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 })
 
 export class MessageLogComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
+  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
@@ -52,9 +66,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  constructor(private http: HttpClient, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-              public dialog: MatDialog, public dialogsService: DialogsService, private elementRef: ElementRef,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -295,17 +309,29 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage(messageId) {
-    const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    DownloadService.downloadNative(url);
+  private async downloadMessage(row) {
+    const messageId = row.messageId;
+    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    try {
+      const canDownload = await this.http.get(canDownloadUrl).toPromise();
+      if (canDownload) {
+        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+        DownloadService.downloadNative(downloadUrl);
+      } else {
+        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
+        row.deleted = true;
+      }
+    } catch (err) {
+      this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
+    }
   }
 
   downloadAction(row) {
-    this.downloadMessage(row.messageId);
+    this.downloadMessage(row);
   }
 
   download() {
-    this.downloadMessage(this.selected[0].messageId);
+    this.downloadMessage(this.selected[0]);
   }
 
   get csvUrl(): string {
@@ -332,8 +358,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private showNextAttemptInfo(row: any): boolean {
-    if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING'))
+    if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING')) {
       return false;
+    }
     return true;
   }
 

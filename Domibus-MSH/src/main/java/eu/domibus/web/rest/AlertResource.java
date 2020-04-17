@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -53,18 +56,6 @@ public class AlertResource extends BaseResource {
         }
 
         return domainTaskExecutor.submit(() -> retrieveAlerts(alertCriteria, true));
-    }
-
-
-    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
-        final Long alertCount = alertService.countAlerts(alertCriteria);
-        final List<Alert> alerts = alertService.findAlerts(alertCriteria);
-        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
-        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
-        final AlertResult alertResult = new AlertResult();
-        alertResult.setAlertsEntries(alertRoList);
-        alertResult.setCount(alertCount.intValue());
-        return alertResult;
     }
 
     @GetMapping(path = "/types")
@@ -114,7 +105,7 @@ public class AlertResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
         request.setPage(0);
-        request.setPageSize(getMaxNumberRowsToExport());
+        request.setPageSize(getCsvService().getPageSizeForExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
@@ -127,7 +118,17 @@ public class AlertResource extends BaseResource {
                 AlertRo.class,
                 ImmutableMap.of("entityId".toUpperCase(), "Alert Id"),
                 "alerts");
+    }
 
+    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
+        final Long alertCount = alertService.countAlerts(alertCriteria);
+        final List<Alert> alerts = alertService.findAlerts(alertCriteria);
+        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
+        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
+        final AlertResult alertResult = new AlertResult();
+        alertResult.setAlertsEntries(alertRoList);
+        alertResult.setCount(alertCount.intValue());
+        return alertResult;
     }
 
     private Alert toAlert(AlertRo alertRo) {
@@ -141,6 +142,8 @@ public class AlertResource extends BaseResource {
 
     protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
+        getCsvService().validateMaxRows(alerts.size(), () -> alertService.countAlerts(alertCriteria));
+
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
         alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         return alertRoList;
