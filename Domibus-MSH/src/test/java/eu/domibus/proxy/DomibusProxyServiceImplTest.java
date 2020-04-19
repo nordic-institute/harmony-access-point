@@ -1,14 +1,18 @@
 package eu.domibus.proxy;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,6 +29,12 @@ public class DomibusProxyServiceImplTest {
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected PasswordEncryptionService passwordEncryptionService;
 
     @Tested
     DomibusProxyServiceImpl domibusProxyService;
@@ -117,6 +127,47 @@ public class DomibusProxyServiceImplTest {
         Assert.assertEquals("idragusa", domibusProxyService.getDomibusProxy().getHttpProxyUser());
         Assert.assertEquals("pass", domibusProxyService.getDomibusProxy().getHttpProxyPassword());
         Assert.assertEquals("localhost", domibusProxyService.getDomibusProxy().getNonProxyHosts());
+    }
+
+    @Test
+    public void initDomibusProxyPasswordEncryptedTest(@Injectable Domain currentDomain) {
+
+        final String httpProxyPassword = "ENC(AiBTs5sYv5YngQkRlaUYAhtQ08zsjI2ymseX)";
+
+        new NonStrictExpectations(){{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
+            result = true;
+
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_HTTP_HOST);
+            result = "12.13.14.15";
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROXY_HTTP_PORT);
+            result = 8012;
+
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
+            result = "a0029jn2";
+
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
+            result = httpProxyPassword;
+
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS);
+            result = "localhost";
+
+            passwordEncryptionService.isValueEncrypted(httpProxyPassword);
+            result= true;
+
+            domainContextProvider.getCurrentDomainSafely();
+            result = currentDomain;
+
+        }};
+
+        domibusProxyService.initDomibusProxy();
+
+        new Verifications(){{
+            passwordEncryptionService.decryptProperty(currentDomain, DOMIBUS_PROXY_PASSWORD, httpProxyPassword);
+            times=1;
+            Assert.assertNotEquals(httpProxyPassword, passwordEncryptionService.decryptProperty(currentDomain, DOMIBUS_PROXY_PASSWORD, httpProxyPassword));
+        }};
     }
 }
 

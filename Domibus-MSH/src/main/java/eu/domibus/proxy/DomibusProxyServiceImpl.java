@@ -2,12 +2,14 @@ package eu.domibus.proxy;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
@@ -26,6 +28,12 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected PasswordEncryptionService passwordEncryptionService;
 
     private DomibusProxy domibusProxy = null;
     private volatile Object domibusProxyInitLock = new Object();
@@ -88,9 +96,18 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
 
         String httpProxyUser = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
         String httpProxyPassword = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
+        LOG.debug("HttpProxyUser and ProxyPassword: [{}] , [{}]", httpProxyUser, httpProxyPassword);
+
         if(!StringUtils.isEmpty(httpProxyUser) && StringUtils.isEmpty(httpProxyPassword)) {
             LOG.error("Proxy user is provided with no password [{}]", httpProxyUser);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy user is provided with no password.");
+        }
+
+        if (passwordEncryptionService.isValueEncrypted(httpProxyPassword)) {
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            LOG.debug("Decrypting HttpProxyPassword [{}]  for the domain: [{}]", httpProxyPassword, currentDomain);
+            httpProxyPassword = passwordEncryptionService.decryptProperty(currentDomain, DOMIBUS_PROXY_PASSWORD, httpProxyPassword);
+            LOG.debug("Decrypted HttpProxyPassword: [{}] ", httpProxyPassword);
         }
         domibusProxy.setHttpProxyUser(httpProxyUser);
         domibusProxy.setHttpProxyPassword(httpProxyPassword);
