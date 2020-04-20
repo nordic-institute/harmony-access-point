@@ -142,6 +142,7 @@ public class CommandServiceImpl implements CommandService {
         commandDao.delete(commandEntity);
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     public void executeCommands(String serverName, Domain domain) {
         LOG.debug("Executing comamnds for server [{}] ...", serverName);
