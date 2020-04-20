@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * @since 4.1.4
  * @author Catalin Enache
+ * @since 4.1.4
  */
 @RunWith(JMockit.class)
 public class FileServiceUtilImplTest {
@@ -19,19 +19,18 @@ public class FileServiceUtilImplTest {
     @Test
     public void test_sanitizeFileName() {
 
-            String baseFileName = "content.xml";
+        String baseFileName = "content.xml";
+        String fileName = baseFileName;
 
-            String fileName = baseFileName;
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
 
-            String sanitizedFileName = fileServiceUtil.sanitizeFileName( fileName);
-            Assert.assertEquals(baseFileName, sanitizedFileName);
+        fileName = "./../../../" + baseFileName;
+        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
 
-            fileName = "./../../../" + baseFileName;
-            sanitizedFileName = fileServiceUtil.sanitizeFileName( fileName);
-            Assert.assertEquals(baseFileName, sanitizedFileName);
-
-            fileName = "./../../../../..\\..\\" + baseFileName;
-            sanitizedFileName = fileServiceUtil.sanitizeFileName( fileName);
-            Assert.assertEquals(baseFileName, sanitizedFileName);
+        fileName = "./../../../../..\\..\\" + baseFileName;
+        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
     }
 }
