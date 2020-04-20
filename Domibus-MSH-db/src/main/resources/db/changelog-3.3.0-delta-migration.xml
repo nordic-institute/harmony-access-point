@@ -286,4 +286,16 @@
         </sql>
     </changeSet>
 
+    <!-- inserts -->
+    <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="1" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_ADMIN"/>
+        </insert>
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="2" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_USER"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>

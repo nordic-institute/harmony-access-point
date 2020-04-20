@@ -58,11 +58,9 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
+        <!-- TB_ALERT -> CREATION_TIME already exists so we need to alter it -->
+        <addNotNullConstraint tableName="TB_ALERT" columnName="CREATION_TIME" columnDataType="TIMESTAMP" defaultNullValue="${now}" />
         <addColumn tableName="TB_ALERT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-
             <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
@@ -128,11 +126,9 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
+        <!-- TB_COMMAND -> CREATION_TIME already exists so we need to alter it -->
+        <addNotNullConstraint tableName="TB_COMMAND" columnName="CREATION_TIME" columnDataType="TIMESTAMP" defaultNullValue="${now}" />
         <addColumn tableName="TB_COMMAND">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-
             <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
@@ -492,12 +488,10 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
+        <!-- TB_MESSAGE_LOG -> CREATED_BY already exists so we need to alter it -->
+        <addNotNullConstraint tableName="TB_MESSAGE_LOG" columnName="CREATED_BY" columnDataType="VARCHAR(255)" defaultNullValue="${current_db_user}" />
         <addColumn tableName="TB_MESSAGE_LOG">
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
@@ -982,5 +976,4 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
     </changeSet>
-
 </databaseChangeLog>
