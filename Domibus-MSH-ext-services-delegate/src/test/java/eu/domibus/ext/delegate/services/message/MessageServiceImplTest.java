@@ -1,5 +1,6 @@
 package eu.domibus.ext.delegate.services.message;
 
+import eu.domibus.messaging.MessageConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,6 +29,25 @@ public class MessageServiceImplTest {
 
         Assert.assertEquals("Should have returned the message as is when cleaning it if the message does not contain control characters",
                 "-Dom138--", trimmedMessageId);
+    }
+
+    @Test
+    public void test_sanitizeMessagePropertyFileName() {
+
+        String baseFileName = "content.xml";
+
+        String fileName = baseFileName;
+
+        String sanitizedFileName = messageService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
+
+        fileName = "./../../../" + baseFileName;
+        sanitizedFileName = messageService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
+
+        fileName = "./../../../../..\\..\\" + baseFileName;
+        sanitizedFileName = messageService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
+        Assert.assertEquals(baseFileName, sanitizedFileName);
     }
 
 }

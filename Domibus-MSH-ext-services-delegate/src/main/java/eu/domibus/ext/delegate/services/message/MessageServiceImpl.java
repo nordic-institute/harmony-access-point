@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Sebastian-Ion TINCU
+ * @author Catalin Enache
  * @since 4.1
  */
 @Service
