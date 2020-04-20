@@ -1,8 +1,10 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import javafx.beans.binding.MapExpression;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -12,9 +14,7 @@ import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class MessagesRestTests extends RestTest {
 
@@ -35,16 +35,77 @@ public class MessagesRestTests extends RestTest {
 	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "basicFilterCombinations")
 	public void filterUsingBasicFilters(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
+
+		if(params.containsKey("messageId")
+				&& StringUtils.isNotEmpty(params.get("messageId"))
+				&& StringUtils.equalsIgnoreCase(params.get("messageId"), "<FILL>")) {
+
+			JSONArray messages = rest.messages().getListOfMessages(null);
+			params.put("messageId", messages.getJSONObject(0).getString("messageId"));
+		}
+
+		eliminateEmptyValues(params);
+
 		ClientResponse response = rest.requestGET(
 				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
 				, params);
 
-		soft.assertEquals(response.getStatus(), 200, "Success");
-		JSONObject responseObj = new JSONObject(getSanitizedStringResponse(response));
+		assertPositiveResponse(response, soft, params);
+		soft.assertAll();
+	}
 
-		assertResponseForm(responseObj, params, soft);
-		assertAppliedFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
-		assertAppliedDateFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
+	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	public void filterUsingBasicFiltersNegativeTest(String evilStr) throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] keys = {"fromPartyId", "toPartyId", "messageId",  "messageStatus",  "messageType",  "isTestMessage",  "page",  "pageSize",  "orderBy",  "asc"};
+		HashMap<String, String> params = new HashMap<>();
+		for (int i = 0; i < keys.length; i++) {
+			String key = keys[i];
+			params.put(key, evilStr);
+		}
+
+		ClientResponse response = rest.requestGET(
+				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
+				, params);
+
+		soft.assertEquals(response.getStatus(), 400, "Response message is " + response.getStatus());
+
+		try {
+			String respContent = getSanitizedStringResponse(response);
+			log.debug("respContent: " + respContent);
+			new JSONObject(respContent);
+		}catch (JSONException e){
+			soft.fail("Response is not in JSON format");
+		}
+
+		soft.assertAll();
+	}
+
+	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	public void filterUsingAdvancedFiltersNegativeTest(String evilStr) throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] keys = {"fromPartyId", "toPartyId", "originalSender", "finalRecipient", "messageSubtype", "receivedFrom", "receivedTo", "notificationStatus", "messageStatus", "messageType", "mshRole", "isTestMessage", "page", "pageSize", "orderBy", "asc"};
+		HashMap<String, String> params = new HashMap<>();
+		for (int i = 0; i < keys.length; i++) {
+			String key = keys[i];
+			params.put(key, evilStr);
+		}
+
+		ClientResponse response = rest.requestGET(
+				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
+				, params);
+
+		soft.assertEquals(response.getStatus(), 400, "Response message is " + response.getStatus());
+
+		try {
+			String respContent = getSanitizedStringResponse(response);
+			log.debug("respContent: " + respContent);
+			new JSONObject(respContent);
+		}catch (JSONException e){
+			soft.fail("Response is not in JSON format");
+		}
 
 		soft.assertAll();
 	}
@@ -53,16 +114,16 @@ public class MessagesRestTests extends RestTest {
 	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "advancedFilterCombinations")
 	public void filterUsingAdvancedFilters(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
+
+		eliminateEmptyValues(params);
+
+		log.debug("------------" + params.toString());
+
 		ClientResponse response = rest.requestGET(
 				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
 				, params);
 
-		soft.assertEquals(response.getStatus(), 200, "Success");
-		JSONObject responseObj = new JSONObject(getSanitizedStringResponse(response));
-
-		assertResponseForm(responseObj, params, soft);
-		assertAppliedFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
-		assertAppliedDateFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
+		assertPositiveResponse(response, soft, params);
 
 		soft.assertAll();
 	}
@@ -95,8 +156,12 @@ public class MessagesRestTests extends RestTest {
 			boolean foundXMLfile = false;
 			boolean foundMessfile = false;
 			for (String fileName : zipContent.keySet()) {
-				if(StringUtils.equalsIgnoreCase(fileName, "message")){ foundMessfile= true;}
-				if(StringUtils.equalsIgnoreCase(fileName, "message.xml")){ foundXMLfile = true;	}
+				if (StringUtils.equalsIgnoreCase(fileName, "message")) {
+					foundMessfile = true;
+				}
+				if (StringUtils.equalsIgnoreCase(fileName, "message.xml")) {
+					foundXMLfile = true;
+				}
 			}
 
 			soft.assertTrue(foundMessfile, "Found file containing message content");
@@ -114,7 +179,7 @@ public class MessagesRestTests extends RestTest {
 			soft.assertEquals(messToDownload.getString("refToMessageId"),
 					TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
 
-			soft.assertTrue(xmlString.contains("name=\"originalSender\">"+messToDownload.getString("originalSender"))
+			soft.assertTrue(xmlString.contains("name=\"originalSender\">" + messToDownload.getString("originalSender"))
 					, "Original Sender - value matches");
 
 			soft.assertTrue(xmlString.contains("name=\"finalRecipient\">" + messToDownload.getString("finalRecipient"))
@@ -128,8 +193,8 @@ public class MessagesRestTests extends RestTest {
 	}
 
 	/* Resend message */
-	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
-	public void resendMessage() throws Exception{
+	@Test(groups = {"multiTenancy", "singleTenancy"})
+	public void resendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 
@@ -164,8 +229,69 @@ public class MessagesRestTests extends RestTest {
 	}
 
 
+	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	public void downloadMessageNegativeTest(String evilId) throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		for (String domain : domains) {
+			rest.switchDomain(domain);
+
+			HashMap<String, String> params = new HashMap<>();
+			params.put("messageId", evilId);
+
+			ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
+			int status = response.getStatus();
+			log.debug("Response status is " + status);
+
+			soft.assertTrue(status == 400
+					|| status == 404 ,
+					"Status found " + response.getStatus());
+
+			try{
+				String responseContent = getSanitizedStringResponse(response);
+				log.debug("Response content = " + responseContent);
+				new JSONObject(responseContent);
+			}catch (JSONException e){
+				soft.fail("Response is not JSON valid");
+			}
+		}
 
 
+		soft.assertAll();
+	}
+
+	/* Resend message */
+	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	public void resendMessageNegativeTest(String evilId) throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+
+		for (String domain : domains) {
+//TODO
+		}
+
+
+		soft.assertAll();
+	}
+
+
+	private void assertPositiveResponse(ClientResponse response, SoftAssert soft, HashMap<String, String> params) throws Exception {
+
+		soft.assertEquals(response.getStatus(), 200, "Success");
+		String responseContent = getSanitizedStringResponse(response);
+		if (response.getStatus() == 200) {
+			JSONObject responseObj = new JSONObject(responseContent);
+
+			assertResponseForm(responseObj, params, soft);
+			assertAppliedFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
+			assertAppliedDateFilter(responseObj.getJSONArray("messageLogEntries"), params, soft);
+		} else {
+			log.debug("Params: " + params.toString());
+			log.debug("Response code: " + response.getStatus());
+			log.debug("Response content: " + responseContent);
+		}
+
+	}
 
 	private void assertResponseForm(JSONObject object, HashMap<String, String> params, SoftAssert soft) {
 		JSONArray entries = object.getJSONArray("messageLogEntries");
@@ -201,7 +327,6 @@ public class MessagesRestTests extends RestTest {
 		}
 	}
 
-
 	private void assertAppliedDateFilter(JSONArray entries, HashMap<String, String> params, SoftAssert soft) throws Exception {
 		String from = "";
 		String to = "";
@@ -229,6 +354,22 @@ public class MessagesRestTests extends RestTest {
 			soft.assertTrue(received <= toMillis, "received is before to");
 		}
 
+	}
+
+	private void eliminateEmptyValues(HashMap<String, String> params){
+		List<String> torem = new ArrayList<>();
+
+		Iterator<String> it = params.keySet().iterator();
+		while (it.hasNext()) {
+			String key = it.next();
+			String value = params.get(key).trim();
+			if (StringUtils.isEmpty(value)) {
+				torem.add(key);
+			}
+		}
+		for (int i = 0; i < torem.size(); i++) {
+			params.remove(torem.get(i));
+		}
 	}
 
 }

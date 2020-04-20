@@ -1,41 +1,41 @@
-messageType, isTestMessage, pageSize, orderBy, asc
-USER_MESSAGE, TRUE, 10, messageId, TRUE
-SIGNAL_MESSAGE, FALSE, 25, conversationId, FALSE
-USER_MESSAGE, FALSE, 50, fromPartyId, TRUE
-SIGNAL_MESSAGE, TRUE, 100, toPartyId, FALSE
-USER_MESSAGE, FALSE, 10, messageStatus , TRUE
-SIGNAL_MESSAGE, TRUE, 25, notificationStatus, FALSE
-USER_MESSAGE, FALSE, 50, mshRole, TRUE
-SIGNAL_MESSAGE, FALSE, 100, messageType, FALSE
-USER_MESSAGE, TRUE, 100, deleted, TRUE
-SIGNAL_MESSAGE, FALSE, 25, received, FALSE
-USER_MESSAGE, TRUE, 50, sendAttempts, TRUE
-SIGNAL_MESSAGE, FALSE, 100, sendAttemptsMax, FALSE
-USER_MESSAGE, FALSE, 10, nextAttempt, TRUE
-SIGNAL_MESSAGE, TRUE, 25, originalSender, FALSE
-USER_MESSAGE, FALSE, 50, finalRecipient, TRUE
-SIGNAL_MESSAGE, TRUE, 100, refToMessageId, FALSE
-USER_MESSAGE, FALSE, 10, failed, TRUE
-SIGNAL_MESSAGE, FALSE, 25, restored, FALSE
-USER_MESSAGE, TRUE, 50, messageSubtype, TRUE
-SIGNAL_MESSAGE, FALSE, 100, messageId, FALSE
-USER_MESSAGE, TRUE, 100, conversationId, TRUE
-SIGNAL_MESSAGE, FALSE, 25, fromPartyId, TRUE
-USER_MESSAGE, FALSE, 50, toPartyId, TRUE
-SIGNAL_MESSAGE, TRUE, 100, messageStatus , FALSE
-USER_MESSAGE, FALSE, 10, notificationStatus, TRUE
-SIGNAL_MESSAGE, TRUE, 25, mshRole, FALSE
-USER_MESSAGE, FALSE, 50, messageType, TRUE
-SIGNAL_MESSAGE, FALSE, 100, deleted, FALSE
-USER_MESSAGE, TRUE, 10, received, TRUE
-SIGNAL_MESSAGE, FALSE, 25, sendAttempts, FALSE
-USER_MESSAGE, TRUE, 50, sendAttemptsMax, TRUE
-SIGNAL_MESSAGE, FALSE, 100, nextAttempt, FALSE
-USER_MESSAGE, FALSE, 100, originalSender, FALSE
-SIGNAL_MESSAGE, TRUE, 25, finalRecipient, TRUE
-USER_MESSAGE, FALSE, 50, refToMessageId, FALSE
-SIGNAL_MESSAGE, TRUE, 100, failed, TRUE
-USER_MESSAGE, FALSE, 100, restored, FALSE
-SIGNAL_MESSAGE, FALSE, 10, messageSubtype, TRUE
-USER_MESSAGE, TRUE, 25, messageId, TRUE
-SIGNAL_MESSAGE, FALSE, 50, conversationId, TRUE
+fromPartyId, toPartyId, originalSender, finalRecipient, messageSubtype, receivedFrom, receivedTo, notificationStatus, messageStatus, messageType, mshRole, isTestMessage, page, pageSize, orderBy, asc
+domibus-blue, domibus-red, urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, TEST, 2000-04-14T16:30:36.000Z, 2120-04-14T16:30:36.000Z, NOTIFIED, READY_TO_SEND, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, messageId, FALSE
+, , , , , 2000-04-14T16:30:36.000Z, , NOT_REQUIRED, READY_TO_PULL, USER_MESSAGE, RECEIVING, TRUE, 0, 25, conversationId, TRUE
+domibus-blue, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , 2000-04-14T16:30:36.000Z, 2120-04-14T16:30:36.000Z, REQUIRED, BEING_PULLED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, fromPartyId, FALSE
+domibus-blue, , , , TEST, 2000-04-14T16:30:36.000Z, , NOTIFIED, SEND_ENQUEUED, USER_MESSAGE, RECEIVING, TRUE, 0, 100, toPartyId, TRUE
+, , , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , 2000-04-14T16:30:36.000Z, , NOT_REQUIRED, SEND_IN_PROGRESS, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, messageStatus , FALSE
+, , , , , 2000-04-14T16:30:36.000Z, , REQUIRED, WAITING_FOR_RECEIPT, USER_MESSAGE, RECEIVING, TRUE, 0, 25, notificationStatus, TRUE
+domibus-blue, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , TEST, 2000-04-14T16:30:36.000Z, , NOTIFIED, ACKNOWLEDGED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, mshRole, FALSE
+, domibus-red, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , 2000-04-14T16:30:36.000Z, , NOT_REQUIRED, ACKNOWLEDGED_WITH_WARNING, USER_MESSAGE, RECEIVING, TRUE, 0, 100, messageType, TRUE
+, , , , , , , REQUIRED, SEND_ATTEMPT_FAILED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, deleted, FALSE
+, , , , , 2000-04-14T16:30:36.000Z, , NOTIFIED, SEND_FAILURE, USER_MESSAGE, RECEIVING, TRUE, 0, 25, received, TRUE
+domibus-blue, , , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , , 2120-04-14T16:30:36.000Z, NOT_REQUIRED, NOT_FOUND, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, sendAttempts, FALSE
+, domibus-red, , , , , , REQUIRED, WAITING_FOR_RETRY, USER_MESSAGE, RECEIVING, TRUE, 0, 100, sendAttemptsMax, TRUE
+, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , 2000-04-14T16:30:36.000Z, , NOTIFIED, RECEIVED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, nextAttempt, FALSE
+domibus-blue, domibus-red, , , , , 2120-04-14T16:30:36.000Z, NOT_REQUIRED, RECEIVED_WITH_WARNINGS, USER_MESSAGE, RECEIVING, TRUE, 0, 25, originalSender, TRUE
+, , , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , , , REQUIRED, DELETED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, finalRecipient, FALSE
+, domibus-red, , , , , , NOTIFIED, DOWNLOADED, USER_MESSAGE, RECEIVING, TRUE, 0, 100, refToMessageId, TRUE
+, , , , , 2000-04-14T16:30:36.000Z, , NOT_REQUIRED, READY_TO_SEND, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, failed, FALSE
+, domibus-red, , , , , , REQUIRED, READY_TO_PULL, USER_MESSAGE, RECEIVING, TRUE, 0, 25, restored, TRUE
+, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , , , NOTIFIED, BEING_PULLED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, messageSubtype, FALSE
+, domibus-blue, , , TEST, , , NOT_REQUIRED, SEND_ENQUEUED, USER_MESSAGE, RECEIVING, TRUE, 0, 100, messageId, TRUE
+domibus-blue, , , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , 2000-04-14T16:30:36.000Z, 2120-04-14T16:30:36.000Z, REQUIRED, SEND_IN_PROGRESS, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, conversationId, FALSE
+, , , , , , , NOTIFIED, WAITING_FOR_RECEIPT, USER_MESSAGE, RECEIVING, TRUE, 0, 25, fromPartyId, TRUE
+domibus-blue, , , , , , , NOT_REQUIRED, ACKNOWLEDGED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, toPartyId, FALSE
+, , , , , , 2120-04-14T16:30:36.000Z, REQUIRED, ACKNOWLEDGED_WITH_WARNING, USER_MESSAGE, RECEIVING, TRUE, 0, 100, messageStatus , TRUE
+, domibus-red, urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , 2000-04-14T16:30:36.000Z, , NOTIFIED, SEND_ATTEMPT_FAILED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, notificationStatus, FALSE
+, , , , , , , NOT_REQUIRED, SEND_FAILURE, USER_MESSAGE, RECEIVING, TRUE, 0, 25, mshRole, TRUE
+, domibus-red, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , , 2120-04-14T16:30:36.000Z, REQUIRED, NOT_FOUND, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, messageType, FALSE
+, , , , , , , NOTIFIED, WAITING_FOR_RETRY, USER_MESSAGE, RECEIVING, TRUE, 0, 100, deleted, TRUE
+, domibus-red, , , , 2000-04-14T16:30:36.000Z, , NOT_REQUIRED, RECEIVED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, received, FALSE
+, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , , , REQUIRED, RECEIVED_WITH_WARNINGS, USER_MESSAGE, RECEIVING, TRUE, 0, 25, sendAttempts, TRUE
+domibus-red, , , , , , , NOTIFIED, DELETED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, sendAttemptsMax, FALSE
+, , , , , , , NOT_REQUIRED, DOWNLOADED, USER_MESSAGE, RECEIVING, TRUE, 0, 100, nextAttempt, TRUE
+, domibus-red, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, TEST, , 2120-04-14T16:30:36.000Z, REQUIRED, READY_TO_SEND, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, originalSender, FALSE
+, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , , , NOTIFIED, READY_TO_PULL, USER_MESSAGE, RECEIVING, TRUE, 0, 25, finalRecipient, TRUE
+, , , , , , , NOT_REQUIRED, BEING_PULLED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, refToMessageId, FALSE
+, , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1, , , , 2120-04-14T16:30:36.000Z, REQUIRED, SEND_ENQUEUED, USER_MESSAGE, RECEIVING, TRUE, 0, 100, failed, TRUE
+, , , urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4, , , , NOTIFIED, SEND_IN_PROGRESS, SIGNAL_MESSAGE, SENDING, FALSE, 0, 10, restored, FALSE
+, , , , TEST, , , NOT_REQUIRED, WAITING_FOR_RECEIPT, USER_MESSAGE, RECEIVING, TRUE, 0, 25, messageSubtype, TRUE
+, , , , , , , REQUIRED, ACKNOWLEDGED, SIGNAL_MESSAGE, SENDING, FALSE, 0, 50, messageId, FALSE
+, , , , , , , NOTIFIED, ACKNOWLEDGED_WITH_WARNING, USER_MESSAGE, RECEIVING, TRUE, 0, 100, conversationId, TRUE

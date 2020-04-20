@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeSuite;
 import domibus.BaseTest;
+import org.testng.annotations.DataProvider;
 import utils.Generator;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.util.Set;
 public class RestTest extends BaseTest {
 
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
+	private String invalidStringsFile = "src/test/resources/rest_csv/invalidStrings.txt";
 
 	List<String> domains = new ArrayList<>();
 	List<String> messageFilterPlugins = new ArrayList<>();
@@ -97,6 +98,21 @@ public class RestTest extends BaseTest {
 
 		return toRet;
 	}
+
+	@DataProvider
+	protected Object[][] readInvalidStrings() throws IOException {
+
+		List<String> strings = Files.readAllLines(Paths.get(invalidStringsFile));
+
+		Object[][] toRet = new Object[strings.size()][1];
+
+		for (int i = 0; i < strings.size() ; i++) {
+			toRet[i][0] = strings.get(i);
+		}
+
+		return toRet;
+	}
+
 
 
 

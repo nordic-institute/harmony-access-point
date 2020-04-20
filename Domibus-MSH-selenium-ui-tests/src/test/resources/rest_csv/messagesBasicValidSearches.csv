@@ -1,41 +1,41 @@
-messageType, isTestMessage, pageSize, orderBy, asc
-USER_MESSAGE, TRUE, 10, messageId, TRUE
-SIGNAL_MESSAGE, FALSE, 25, conversationId, FALSE
-USER_MESSAGE, FALSE, 50, fromPartyId, TRUE
-SIGNAL_MESSAGE, TRUE, 100, toPartyId, FALSE
-USER_MESSAGE, FALSE, 10, messageStatus , TRUE
-SIGNAL_MESSAGE, TRUE, 25, notificationStatus, FALSE
-USER_MESSAGE, FALSE, 50, mshRole, TRUE
-SIGNAL_MESSAGE, FALSE, 100, messageType, FALSE
-USER_MESSAGE, TRUE, 100, deleted, TRUE
-SIGNAL_MESSAGE, FALSE, 25, received, FALSE
-USER_MESSAGE, TRUE, 50, sendAttempts, TRUE
-SIGNAL_MESSAGE, FALSE, 100, sendAttemptsMax, FALSE
-USER_MESSAGE, FALSE, 10, nextAttempt, TRUE
-SIGNAL_MESSAGE, TRUE, 25, originalSender, FALSE
-USER_MESSAGE, FALSE, 50, finalRecipient, TRUE
-SIGNAL_MESSAGE, TRUE, 100, refToMessageId, FALSE
-USER_MESSAGE, FALSE, 10, failed, TRUE
-SIGNAL_MESSAGE, FALSE, 25, restored, FALSE
-USER_MESSAGE, TRUE, 50, messageSubtype, TRUE
-SIGNAL_MESSAGE, FALSE, 100, messageId, FALSE
-USER_MESSAGE, TRUE, 100, conversationId, TRUE
-SIGNAL_MESSAGE, FALSE, 25, fromPartyId, TRUE
-USER_MESSAGE, FALSE, 50, toPartyId, TRUE
-SIGNAL_MESSAGE, TRUE, 100, messageStatus , FALSE
-USER_MESSAGE, FALSE, 10, notificationStatus, TRUE
-SIGNAL_MESSAGE, TRUE, 25, mshRole, FALSE
-USER_MESSAGE, FALSE, 50, messageType, TRUE
-SIGNAL_MESSAGE, FALSE, 100, deleted, FALSE
-USER_MESSAGE, TRUE, 10, received, TRUE
-SIGNAL_MESSAGE, FALSE, 25, sendAttempts, FALSE
-USER_MESSAGE, TRUE, 50, sendAttemptsMax, TRUE
-SIGNAL_MESSAGE, FALSE, 100, nextAttempt, FALSE
-USER_MESSAGE, FALSE, 100, originalSender, FALSE
-SIGNAL_MESSAGE, TRUE, 25, finalRecipient, TRUE
-USER_MESSAGE, FALSE, 50, refToMessageId, FALSE
-SIGNAL_MESSAGE, TRUE, 100, failed, TRUE
-USER_MESSAGE, FALSE, 100, restored, FALSE
-SIGNAL_MESSAGE, FALSE, 10, messageSubtype, TRUE
-USER_MESSAGE, TRUE, 25, messageId, TRUE
-SIGNAL_MESSAGE, FALSE, 50, conversationId, TRUE
+fromPartyId, toPartyId, messageId,  messageStatus,  messageType,  isTestMessage,  page,  pageSize,  orderBy,  asc
+domibus-blue, domibus-blue, <FILL>,  READY_TO_SEND,  SIGNAL_MESSAGE,  FALSE, 0, 10,  messageId,  FALSE
+domibus-red, domibus-red, <FILL>,  READY_TO_PULL,  USER_MESSAGE,  TRUE, 1, 25,  conversationId,  TRUE
+, , <FILL>,  BEING_PULLED, , , 2, 50,  fromPartyId, 
+domibus-blue, domibus-blue, ,  SEND_ENQUEUED,  USER_MESSAGE,  TRUE, 3, 100,  toPartyId,  TRUE
+domibus-red, domibus-red, <FILL>,  SEND_IN_PROGRESS, ,  FALSE, 4, 10,  messageStatus ,  FALSE
+domibus-blue, domibus-blue, <FILL>,  WAITING_FOR_RECEIPT,  USER_MESSAGE,  TRUE, 0, 25,  notificationStatus,  TRUE
+domibus-red, domibus-red, <FILL>,  ACKNOWLEDGED,  SIGNAL_MESSAGE,  FALSE, 0, 50,  mshRole,  FALSE
+, , <FILL>, ,  USER_MESSAGE,  TRUE, 0, 100, , 
+domibus-blue, domibus-blue, ,  SEND_ATTEMPT_FAILED, ,  FALSE, 0, 10,  deleted,  FALSE
+domibus-red, domibus-red, <FILL>,  SEND_FAILURE,  USER_MESSAGE,  TRUE, 0, 25,  received,  TRUE
+domibus-blue, domibus-blue, <FILL>,  NOT_FOUND,  SIGNAL_MESSAGE,  FALSE, 0, 50,  sendAttempts,  FALSE
+domibus-red, domibus-red, ,  WAITING_FOR_RETRY,  USER_MESSAGE, , 0, 100,  sendAttemptsMax,  TRUE
+, , <FILL>,  RECEIVED,  SIGNAL_MESSAGE,  FALSE, 0, 10,  nextAttempt,  FALSE
+domibus-blue, domibus-blue, <FILL>,  RECEIVED_WITH_WARNINGS, ,  TRUE, 0, 25,  originalSender,  TRUE
+domibus-red, domibus-red, <FILL>,  DELETED,  SIGNAL_MESSAGE,  FALSE, 0, 50, ,  FALSE
+domibus-blue, domibus-blue, <FILL>,  DOWNLOADED,  USER_MESSAGE,  TRUE, 0, 100,  refToMessageId, 
+domibus-red, domibus-red, <FILL>,  READY_TO_SEND,  SIGNAL_MESSAGE,  FALSE, 0, 10,  failed,  FALSE
+, , <FILL>,  READY_TO_PULL,  USER_MESSAGE, , 0, 25,  restored,  TRUE
+domibus-blue, domibus-blue, <FILL>,  BEING_PULLED,  SIGNAL_MESSAGE,  FALSE, 0, 50,  messageSubtype,  FALSE
+domibus-red, domibus-red, <FILL>,  SEND_ENQUEUED,  USER_MESSAGE,  TRUE, 0, 100,  messageId,  TRUE
+domibus-blue, domibus-blue, <FILL>,  SEND_IN_PROGRESS,  SIGNAL_MESSAGE,  FALSE, 0, 10,  conversationId,  FALSE
+domibus-red, domibus-red, <FILL>,  WAITING_FOR_RECEIPT,  USER_MESSAGE,  TRUE, 0, 25,  fromPartyId,  TRUE
+, , <FILL>,  ACKNOWLEDGED,  SIGNAL_MESSAGE,  FALSE, 0, 50,  toPartyId,  FALSE
+domibus-blue, domibus-blue, <FILL>,  ACKNOWLEDGED_WITH_WARNING,  USER_MESSAGE,  TRUE, 0, 100, , 
+domibus-red, domibus-red, <FILL>,  SEND_ATTEMPT_FAILED, ,  FALSE, 0, 10,  notificationStatus,  FALSE
+domibus-blue, domibus-blue, <FILL>, ,  USER_MESSAGE,  TRUE, 0, 25,  mshRole,  TRUE
+domibus-red, domibus-red, ,  NOT_FOUND,  SIGNAL_MESSAGE,  FALSE, 0, 50,  messageType,  FALSE
+, , <FILL>,  WAITING_FOR_RETRY,  USER_MESSAGE,  TRUE, 0, 100,  deleted,  TRUE
+domibus-blue, domibus-blue, <FILL>,  RECEIVED,  SIGNAL_MESSAGE,  FALSE, 0, 10,  received,  FALSE
+domibus-red, domibus-red, <FILL>,  RECEIVED_WITH_WARNINGS, , , 0, 25,  sendAttempts, 
+domibus-blue, domibus-blue, <FILL>,  DELETED,  SIGNAL_MESSAGE,  FALSE, 0, 50,  sendAttemptsMax,  FALSE
+domibus-red, domibus-red, ,  DOWNLOADED,  USER_MESSAGE,  TRUE, 0, 100,  nextAttempt,  TRUE
+, , <FILL>,  READY_TO_SEND,  SIGNAL_MESSAGE,  FALSE, 0, 10,  originalSender, 
+domibus-blue, domibus-blue, <FILL>, ,  USER_MESSAGE, , 0, 25,  finalRecipient,  TRUE
+domibus-red, domibus-red, <FILL>,  BEING_PULLED,  SIGNAL_MESSAGE,  FALSE, 0, 50,  refToMessageId,  FALSE
+domibus-blue, domibus-blue, <FILL>,  SEND_ENQUEUED,  USER_MESSAGE,  TRUE, 0, 100,  failed,  TRUE
+domibus-red, domibus-red, <FILL>,  SEND_IN_PROGRESS,  SIGNAL_MESSAGE,  FALSE, 0, 10,  restored,  FALSE
+, , <FILL>,  WAITING_FOR_RECEIPT,  USER_MESSAGE,  TRUE, 0, 25,  messageSubtype,  TRUE
+domibus-blue, domibus-blue, <FILL>,  ACKNOWLEDGED,  SIGNAL_MESSAGE,  FALSE, 0, 50, ,  FALSE
+domibus-red, domibus-red, <FILL>,  ACKNOWLEDGED_WITH_WARNING,  USER_MESSAGE,  TRUE, 0, 100,  conversationId,  TRUE
