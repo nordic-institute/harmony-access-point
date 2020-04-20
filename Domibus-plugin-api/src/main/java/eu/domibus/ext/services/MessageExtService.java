@@ -18,12 +18,4 @@ public interface MessageExtService {
      * @throws MessageExtException when something wrong occurs while trying to clean the message identifier
      */
     String cleanMessageIdentifier(String messageId) throws MessageExtException;
-
-    /**
-     * Sanitizes any Message property's value e.g. PayloadName property by removing any full path as prefix
-     * @param propertyName message property name
-     * @param propertyValue message property value which contains a file name
-     * @return sanitized value -
-     */
-    String sanitizeMessagePropertyFileName(String propertyName, String propertyValue);
 }

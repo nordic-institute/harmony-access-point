@@ -2,7 +2,7 @@ package eu.domibus.plugin.jms;
 
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.plugin.Submission;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
@@ -59,7 +59,7 @@ public class JMSMessageTransformerTest {
     protected DomainContextExtService domainContextExtService;
 
     @Injectable
-    protected MessageExtService messageExtService;
+    protected FileUtilExtService fileUtilExtService;
 
     @Tested
     JMSMessageTransformer testObj = new JMSMessageTransformer();

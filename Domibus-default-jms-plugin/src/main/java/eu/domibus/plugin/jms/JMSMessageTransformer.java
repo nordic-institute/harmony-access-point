@@ -4,7 +4,7 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -53,7 +53,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     protected DomainContextExtService domainContextExtService;
 
     @Autowired
-    protected MessageExtService messageExtService;
+    protected FileUtilExtService fileUtilExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link javax.jms.MapMessage}
@@ -304,9 +304,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i);
         mimeType = trim(messageIn.getStringProperty(payMimeTypeProp));
         final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i);
-        fileName = messageExtService.sanitizeMessagePropertyFileName(PAYLOAD_FILENAME, trim(messageIn.getStringProperty(payFileNameProp)));
+        fileName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payFileNameProp)));
         final String payloadNameProperty = MessageFormat.format(FS_PAYLOAD_NAME_FORMAT, i);
-        payloadName = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, trim(messageIn.getStringProperty(payloadNameProperty)));
+        payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
         final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
         contentId = trim(messageIn.getStringProperty(payContID));
         final Collection<Submission.TypedProperty> partProperties = new ArrayList<>();

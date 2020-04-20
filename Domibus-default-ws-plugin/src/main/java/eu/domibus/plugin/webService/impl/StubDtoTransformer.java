@@ -3,7 +3,7 @@ package eu.domibus.plugin.webService.impl;
 
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -36,7 +36,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
 
     @Autowired
-    MessageExtService messageExtService;
+    FileUtilExtService fileUtilExtService;
 
 
     @Override
@@ -194,7 +194,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                         String propertyValue = trim(property.getValue());
                         if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                             LOG.debug("{} property found=[{}]", propertyName, propertyValue);
-                            propertyValue = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, propertyValue);
+                            propertyValue = fileUtilExtService.sanitizeFileName(propertyValue);
                         }
                         properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
                     }
