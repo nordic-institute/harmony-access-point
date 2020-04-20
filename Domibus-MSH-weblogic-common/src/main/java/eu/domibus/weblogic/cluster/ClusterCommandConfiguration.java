@@ -43,7 +43,6 @@ public class ClusterCommandConfiguration {
     @Autowired
     protected CommandService commandService;
 
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
         String serverName = System.getProperty("weblogic.Name");
