@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -42,7 +42,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     protected FSMimeTypeHelper fsMimeTypeHelper;
 
     @Autowired
-    protected MessageExtService messageExtService;
+    protected FileUtilExtService fileUtilExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
@@ -214,9 +214,8 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             }
 
             //file name
-            String fileName = extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME);
+            String fileName = fileUtilExtService.sanitizeFileName(extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME));
             LOG.debug("{} property found=[{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-            fileName = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {

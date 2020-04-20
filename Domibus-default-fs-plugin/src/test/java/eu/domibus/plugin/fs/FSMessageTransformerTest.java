@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPluginException;
@@ -29,7 +29,7 @@ import java.util.*;
 public class FSMessageTransformerTest {
 
     @Injectable
-    protected MessageExtService messageExtService;
+    protected FileUtilExtService fileUtilExtService;
 
     @Injectable
     protected FSMimeTypeHelper fsMimeTypeHelper;
@@ -175,7 +175,7 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
         new Expectations(fsMessageTransformer) {{
-           messageExtService.sanitizeMessagePropertyFileName(anyString, anyString);
+           fileUtilExtService.sanitizeFileName(anyString);
            result = "content.xml";
         }};
 
