@@ -15,6 +15,9 @@ public class FileUtilServiceDelegate implements FileUtilExtService {
     @Autowired
     protected FileServiceUtil fileServiceUtil;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String sanitizeFileName(String fileName) {
         return fileServiceUtil.sanitizeFileName(fileName);

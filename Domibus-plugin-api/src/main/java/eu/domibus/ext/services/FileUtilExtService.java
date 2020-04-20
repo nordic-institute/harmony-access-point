@@ -7,8 +7,8 @@ package eu.domibus.ext.services;
 public interface FileUtilExtService {
 
     /**
-     * Sanitizes any file name by removing any references (prefixes) to full or relative path
-     * and leaving only the the file name
+     * Sanitizes file name by removing any references (prefixes) to full or relative path
+     *
      * @return sanitized value of the file name, null if sanitization fails
      */
     String sanitizeFileName(String fileName);
