@@ -175,7 +175,7 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
         new Expectations(fsMessageTransformer) {{
-           messageExtService.sanitizePayloadName(anyString);
+           messageExtService.sanitizeMessagePropertyFileName(anyString, anyString);
            result = "content.xml";
         }};
 

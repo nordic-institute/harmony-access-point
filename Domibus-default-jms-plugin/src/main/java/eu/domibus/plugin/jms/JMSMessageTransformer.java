@@ -4,12 +4,15 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +51,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
     @Autowired
     protected DomainContextExtService domainContextExtService;
+
+    @Autowired
+    protected MessageExtService messageExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link javax.jms.MapMessage}
@@ -231,7 +237,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
             String strFinalRecipientType = trim(messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE));
 
-            LOG.debug("FinalRecipient [{}]  and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
+            LOG.debug("FinalRecipient [{}] and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
 
             if (!isEmpty(strFinalRecipient)) {
                 target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient, strFinalRecipientType);
@@ -292,13 +298,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
         final String contentId;
         final String mimeType;
-        final String fileName;
+        String fileName;
+        String payloadName; //FSPlugin payload custom name
 
-        final String payMimeTypeProp = String.valueOf(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i));
+        final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i);
         mimeType = trim(messageIn.getStringProperty(payMimeTypeProp));
-        final String payFileNameProp = String.valueOf(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i));
-        fileName = trim(messageIn.getStringProperty(payFileNameProp));
-        final String payContID = String.valueOf(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i));
+        final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i);
+        fileName = messageExtService.sanitizeMessagePropertyFileName(PAYLOAD_FILENAME, trim(messageIn.getStringProperty(payFileNameProp)));
+        final String payloadNameProperty = MessageFormat.format(FS_PAYLOAD_NAME_FORMAT, i);
+        payloadName = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, trim(messageIn.getStringProperty(payloadNameProperty)));
+        final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
         contentId = trim(messageIn.getStringProperty(payContID));
         final Collection<Submission.TypedProperty> partProperties = new ArrayList<>();
         if (mimeType != null && !mimeType.trim().equals("")) {
@@ -307,7 +316,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         if (fileName != null && !fileName.trim().equals("")) {
             partProperties.add(new Submission.TypedProperty(PAYLOAD_FILENAME, fileName));
         }
-        DataHandler payloadDataHandler = null;
+        if (StringUtils.isNotBlank(payloadName)) {
+            partProperties.add(new Submission.TypedProperty(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, payloadName));
+        }
+        DataHandler payloadDataHandler;
         try {
             payloadDataHandler = new DataHandler(new ByteArrayDataSource(messageIn.getBytes(propPayload), mimeType));
         } catch (JMSException jmsEx) {

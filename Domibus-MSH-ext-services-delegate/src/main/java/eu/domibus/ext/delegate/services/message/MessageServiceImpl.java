@@ -3,7 +3,6 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,16 @@ public class MessageServiceImpl implements MessageExtService {
      * {@inheritDoc}
      */
     @Override
-    public String sanitizePayloadName(String fileName) {
-        if (fileName == null) {
+    public String sanitizeMessagePropertyFileName(String propertyName, String propertyValue) {
+        final String sanitizedValue = FilenameUtils.getName(propertyValue);
+        if (StringUtils.isBlank(sanitizedValue)) {
+            LOG.debug("Unable to sanitize {} which has the value [{}]", propertyName, propertyValue);
             return null;
         }
-        final String sanitizedFileName = FilenameUtils.getName(fileName);
-        if (StringUtils.isNotBlank(sanitizedFileName) && !StringUtils.equals(fileName, sanitizedFileName)) {
-            LOG.warn("{} has an improper value: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-            fileName = sanitizedFileName;
+        if (!StringUtils.equals(propertyName, sanitizedValue)) {
+            LOG.warn("{} value=[{}] will be sanitized to=[{}]", propertyName, propertyValue, sanitizedValue);
+            propertyValue = sanitizedValue;
         }
-        LOG.debug("{} will be: [{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-        return fileName;
+        return propertyValue;
     }
 }

@@ -194,7 +194,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                         String propertyValue = trim(property.getValue());
                         if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                             LOG.debug("{} property found=[{}]", propertyName, propertyValue);
-                            propertyValue = messageExtService.sanitizePayloadName(propertyValue);
+                            propertyValue = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, propertyValue);
                         }
                         properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
                     }

@@ -216,7 +216,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             //file name
             String fileName = extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME);
             LOG.debug("{} property found=[{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
-            fileName = messageExtService.sanitizePayloadName(fileName);
+            fileName = messageExtService.sanitizeMessagePropertyFileName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {
