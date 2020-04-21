@@ -16,17 +16,16 @@ import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
+import joptsimple.internal.Strings;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -293,4 +292,29 @@ public class UserPersistenceServiceImplTest {
 
     }
 
+    @Test
+    public void filterModifiedUsersTest(@Mocked eu.domibus.api.user.User user1) {
+
+        List<eu.domibus.api.user.User> users = new ArrayList<>();
+        users.add(user1);
+
+        new Expectations() {{
+            user1.getStatus();
+            result = UserState.UPDATED.name();
+
+            user1.getPassword();
+            returns(Strings.EMPTY, "newPass", null, "newPass2");
+        }};
+
+        Collection<eu.domibus.api.user.User> result1 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
+        Assert.assertTrue(result1.size() == 1);
+        Collection<eu.domibus.api.user.User> result2 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
+        Assert.assertTrue(result2.isEmpty());
+
+        Collection<eu.domibus.api.user.User> result3 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
+        Assert.assertTrue(result3.isEmpty());
+        Collection<eu.domibus.api.user.User> result4 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
+        Assert.assertTrue(result4.size() == 1);
+
+    }
 }

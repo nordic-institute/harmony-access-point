@@ -15,12 +15,12 @@ import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -189,17 +189,24 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         }
     }
 
-
     private Collection<eu.domibus.api.user.User> filterNewUsers(List<eu.domibus.api.user.User> users) {
         return Collections2.filter(users, user -> UserState.NEW.name().equals(user.getStatus()));
     }
 
-    private Collection<eu.domibus.api.user.User> filterModifiedUserWithoutPasswordChange(List<eu.domibus.api.user.User> users) {
-        return Collections2.filter(users, user -> UserState.UPDATED.name().equals(user.getStatus()) && StringUtils.isEmpty(user.getPassword()));
+    protected Collection<eu.domibus.api.user.User> filterModifiedUserWithoutPasswordChange(List<eu.domibus.api.user.User> users) {
+        return Collections2.filter(users, user -> isUpdated(user) && !isPasswordChanged(user));
     }
 
-    private Collection<eu.domibus.api.user.User> filterModifiedUserWithPasswordChange(List<eu.domibus.api.user.User> users) {
-        return Collections2.filter(users, user -> UserState.UPDATED.name().equals(user.getStatus()) && !StringUtils.isEmpty(user.getPassword()));
+    protected Collection<eu.domibus.api.user.User> filterModifiedUserWithPasswordChange(List<eu.domibus.api.user.User> users) {
+        return Collections2.filter(users, user -> isUpdated(user) && isPasswordChanged(user));
+    }
+
+    private boolean isUpdated(eu.domibus.api.user.User user) {
+        return UserState.UPDATED.name().equals(user.getStatus());
+    }
+
+    private boolean isPasswordChanged(eu.domibus.api.user.User user) {
+        return StringUtils.isNotEmpty(user.getPassword());
     }
 
     private List<eu.domibus.api.user.User> filterDeletedUsers(List<eu.domibus.api.user.User> users) {
