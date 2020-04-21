@@ -1,7 +1,7 @@
 package eu.domibus.weblogic.cluster;
 
 import eu.domibus.api.cluster.Command;
-import eu.domibus.api.cluster.CommandService;
+import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -41,30 +41,16 @@ public class ClusterCommandConfiguration {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected CommandService commandService;
+    protected CommandExecutorService commandExecutorService;
 
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
+        String serverName = System.getProperty("weblogic.Name");
+        LOGGER.debug("Server name ...[{}]", serverName);
+
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            final Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    LOGGER.debug("Executing job...");
-
-                    String serverName = System.getProperty("weblogic.Name");
-                    final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
-                    if (commandsByServerName == null) {
-                        return;
-                    }
-                    for (Command command : commandsByServerName) {
-                        commandService.executeCommand(command.getCommandName(), domain, command.getCommandProperties());
-                        commandService.deleteCommand(command.getEntityId());
-                    }
-                }
-            };
-            domainTaskExecutor.submit(task, domain);
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName, domain), domain);
         }
     }
 }

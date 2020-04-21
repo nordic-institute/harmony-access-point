@@ -20,4 +20,6 @@ public interface CommandService {
     void executeCommand(String command, Domain domain, Map<String, String> commandProperties);
 
     void deleteCommand(Integer commandId);
+
+    void executeAndDeleteCommand(Command command, Domain domain);
 }

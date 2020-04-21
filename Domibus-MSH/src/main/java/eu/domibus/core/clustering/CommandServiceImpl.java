@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -73,8 +75,11 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Command> findCommandsByServerAndDomainName(String serverName, String domain) {
+        LOG.debug("Find commands by serverName [{}] for domain [{}]", serverName, domain);
         final List<CommandEntity> commands = commandDao.findCommandsByServerAndDomainName(serverName, domain);
+        LOG.debug("There are [{}] commands", commands.size());
         return domainConverter.convert(commands, Command.class);
     }
 
@@ -136,6 +141,19 @@ public class CommandServiceImpl implements CommandService {
             return;
         }
         commandDao.delete(commandEntity);
+    }
+
+    @Override
+    @Transactional
+    public void executeAndDeleteCommand(Command command, Domain domain) {
+        if(command == null) {
+            LOG.warn("Attempting to execute and delete a null command");
+            return;
+        }
+        LOG.debug("Execute command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
+        executeCommand(command.getCommandName(), domain, command.getCommandProperties());
+        LOG.debug("Delete command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
+        deleteCommand(command.getEntityId());
     }
 
     /**

@@ -1,7 +1,10 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
@@ -47,13 +50,25 @@ public abstract class AbstractBaseEntity implements Serializable {
     @PrePersist
     public void updateCreationDetails() {
         String user = LOG.getMDC(DomibusLogger.MDC_USER);
+        if (StringUtils.isEmpty(user)) {
+            user = getDataBaseUser();
+        }
         setCreatedBy(user);
         setCreationTime(Calendar.getInstance().getTime());
+    }
+
+    protected String getDataBaseUser() {
+        final DatabaseUtil databaseUtil = SpringContextProvider.getApplicationContext().getBean(DatabaseUtil.DATABASE_USER, DatabaseUtil.class);
+        LOG.trace("DataBase UserName: [{}]", databaseUtil.getDatabaseUserName());
+        return databaseUtil.getDatabaseUserName();
     }
 
     @PreUpdate
     public void updateModificationDetails() {
         String user = LOG.getMDC(DomibusLogger.MDC_USER);
+        if (StringUtils.isEmpty(user)) {
+            user = getDataBaseUser();
+        }
         setModifiedBy(user);
         setModificationTime(Calendar.getInstance().getTime());
     }
