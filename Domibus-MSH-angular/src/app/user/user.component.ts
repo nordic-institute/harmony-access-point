@@ -311,10 +311,6 @@ export class UserComponent extends mix(BaseListComponent)
     return UserComponent.USER_CSV_URL;
   }
 
-  isDirty(): boolean {
-    return this.isChanged;
-  }
-
   setState() {
     this.filter.deleted_notSet = this.filter.i++ % 3 === 1;
     if (this.filter.deleted_notSet) {
@@ -322,23 +318,28 @@ export class UserComponent extends mix(BaseListComponent)
     }
   }
 
-  canCancel() {
-    return this.isDirty();
-  }
-
-  canSave() {
-    return this.isDirty() && !this.isBusy();
-  }
-
-  canAdd() {
-    return !this.isBusy();
-  }
-
   canEdit() {
-    return !this.isBusy() && this.selected.length == 1 && !this.selected[0].deleted;
+    return  this.oneRowSelected() && this.selectedRowNotDeleted() && !this.isBusy();
   }
 
   canDelete() {
-    return !this.isBusy() && this.selected.length > 0 && !this.selected.every(el => el.deleted);
+    return this.atLeastOneRowSelected() && this.notEveryRowIsDeleted() && !this.isBusy();
   }
+
+  private notEveryRowIsDeleted() {
+    return !this.selected.every(el => el.deleted);
+  }
+
+  private atLeastOneRowSelected() {
+    return this.selected.length > 0;
+  }
+
+  private selectedRowNotDeleted() {
+    return !this.selected[0].deleted;
+  }
+
+  private oneRowSelected() {
+    return this.selected.length === 1;
+  }
+
 }

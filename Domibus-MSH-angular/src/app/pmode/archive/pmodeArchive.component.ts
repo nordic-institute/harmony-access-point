@@ -2,7 +2,6 @@ import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, T
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {MatDialog} from '@angular/material';
-import {isNullOrUndefined} from 'util';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
 import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-dirty-dialog.component';
@@ -41,51 +40,25 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
-  disabledSave: boolean;
-  disabledCancel: boolean;
-  disabledDownload: boolean;
-  disabledDelete: boolean;
-  disabledRestore: boolean;
-
-  actualId: number;
-  actualRow: number;
-
   deleteList: any[];
 
   currentDomain: Domain;
-
-  // needed for the first request after upload
-  // datatable was empty if we don't do the request again
-  // resize window shows information
-
-  private uploaded: boolean;
+  currentPMode: any;
 
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
-  /**
-   * Constructor
-   * @param {Http} http Http object used for the requests
-   * @param {AlertService} alertService Alert Service object used for alerting success and error messages
-   * @param {MatDialog} dialog Object used for opening dialogs
-   */
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
-  /**
-   * NgOnInit method
-   */
   ngOnInit() {
     super.ngOnInit();
 
-    this.actualId = 0;
-    this.actualRow = 0;
+    this.currentPMode = null;
 
     this.deleteList = [];
-
-    this.uploaded = false;
 
     this.loadServerData();
 
@@ -94,7 +67,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   }
 
   public get name(): string {
-    return 'pmodes';
+    return 'pModes';
   }
 
   ngAfterViewInit() {
@@ -130,86 +103,49 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
-  /**
-   * Gets all the PMode
-   * @returns {Observable<any>}
-   */
   getResultObservable(): Observable<any[]> {
     return this.http.get<any[]>(PModeArchiveComponent.PMODE_URL + '/list');
   }
 
   public async getDataAndSetResults(): Promise<any> {
     this.deleteList.length = 0;
-    this.disableAllButtons();
     return this.getAllPModeEntries();
   }
 
-  /**
-   * Gets all the PModes Entries
-   */
-  async getAllPModeEntries() {
+  async getAllPModeEntries(): Promise<any> {
     return this.getResultObservable().toPromise().then((results) => {
       super.rows = results;
       super.count = this.rows.length;
 
-      this.actualRow = 0;
-      this.actualId = undefined;
+      this.currentPMode = null;
 
       if (this.count > 0) {
-        this.rows[0].current = true;
-        this.rows[0].description = '[CURRENT]: ' + this.rows[0].description;
-        this.actualId = this.rows[0].id;
+        this.currentPMode = this.rows[0];
+        this.currentPMode.current = true;
+        this.currentPMode.description = '[CURRENT]: ' + this.currentPMode.description;
       }
     });
   }
 
-  /**
-   * Disable All the Buttons
-   * used mainly when no row is selected
-   */
-  private disableAllButtons() {
-    this.disabledSave = true;
-    this.disabledCancel = true;
-    this.disabledDownload = true;
-    this.disabledDelete = true;
-    this.disabledRestore = true;
-  }
-
-  /**
-   * Enable Save and Cancel buttons
-   * used when changes occurred (deleted entries)
-   */
-  private enableSaveAndCancelButtons() {
-    this.disabledSave = false;
-    this.disabledCancel = false;
-    this.disabledDownload = true;
-    this.disabledDelete = true;
-    this.disabledRestore = true;
-  }
-
-  /**
-   * Method called by NgxDatatable on selection/deselection
-   * @param {any} selected selected/unselected object
-   */
-  onSelect({selected}) {
-    if (isNullOrUndefined(selected) || selected.length === 0) {
-      this.disableAllButtons();
-      return;
-    }
-
-    this.disabledDownload = !(this.selected[0] != null && this.selected.length === 1);
-    this.disabledDelete = this.selected.findIndex(sel => sel.id === this.actualId) !== -1;
-    this.disabledRestore = !(this.selected[0] != null && this.selected.length === 1 && this.selected[0].id !== this.actualId);
-  }
-
   doSave(): Promise<any> {
+    return this.deleteEntries();
+  }
+
+  private async deleteEntries(): Promise<any> {
     const queryParams = {ids: this.deleteList};
-    return this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams}).toPromise()
-      .then(() => {
-          this.disableAllButtons();
-          this.deleteList = [];
-        }
-      );
+
+    let result;
+    try {
+      result = await this.http.delete(PModeArchiveComponent.PMODE_URL, {params: queryParams}).toPromise();
+      this.deleteList = [];
+      super.isChanged = false;
+    } catch (error) {
+      this.alertService.exception('The operation \'delete pmodes\' not completed successfully.', error);
+      super.selected = [];
+      error.handled = true;
+      throw error;
+    }
+    return result;
   }
 
   /**
@@ -248,7 +184,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
 
     setTimeout(() => {
       super.selected = [];
-      this.enableSaveAndCancelButtons();
+      super.isChanged = true;
     }, 100);
   }
 
@@ -260,52 +196,46 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    *
    * @param selectedRow Selected Row
    */
-  restoreArchive(selectedRow) {
+  async restoreArchive(selectedRow) {
     if (!this.isDirty()) {
-      this.dialogsService.openRestoreDialog().then(restore => {
-        if (restore) {
-          this.restore(selectedRow);
-        }
-      });
+      const restore = await this.dialogsService.openRestoreDialog();
+      if (restore) {
+        this.restore(selectedRow);
+      }
     } else {
-      this.dialog.open(ActionDirtyDialogComponent, {
-        data: {
-          actionTitle: 'You will now also Restore an older version of the PMode',
-          actionName: 'restore',
-          actionIconName: 'settings_backup_restore'
-        }
-      }).afterClosed().subscribe(result => {
-        if (result === 'ok') {
-          this.http.delete(PModeArchiveComponent.PMODE_URL, {params: {ids: this.deleteList}}).subscribe(result => {
-              this.restore(selectedRow);
-            },
-            error => {
-              this.alertService.exception('The operation \'delete pmodes\' not completed successfully.', error);
-              this.enableSaveAndCancelButtons();
-              super.selected = [];
-            });
-        } else if (result === 'restore') {
-          this.restore(selectedRow);
-        }
-      });
+      const option = await this.openUserDialog();
+      if (option === 'restore') {
+        await this.restore(selectedRow);
+      } else if (option === 'ok') {
+        await this.deleteEntries().then(() => this.restore(selectedRow));
+      }
     }
   }
 
+  private openUserDialog() {
+    return this.dialog.open(ActionDirtyDialogComponent, {
+      data: {
+        actionTitle: 'You will now also Restore an older version of the PMode',
+        actionName: 'restore',
+        actionIconName: 'settings_backup_restore'
+      }
+    }).afterClosed().toPromise();
+  }
+
   private async restore(selectedRow) {
-    this.rows[this.actualRow].current = false;
+    super.isSaving = true;
+    this.currentPMode.current = false;
     try {
-      let res = await this.http.put(PModeArchiveComponent.PMODE_URL + '/restore/' + selectedRow.id, null)
-        .toPromise();
+      const res = await this.http.put(PModeArchiveComponent.PMODE_URL + '/restore/' + selectedRow.id, null).toPromise();
       this.alertService.success(res);
 
       this.deleteList = [];
-      this.disableAllButtons();
       super.selected = [];
-      this.actualRow = 0;
+      super.isSaving = false;
 
-      await this.getAllPModeEntries();
-
+      await this.getAllPModeEntries(); // todo better call loadServerData??
     } catch (e) {
+      super.isSaving = false;
       this.alertService.exception('The operation \'restore pmode\' not completed successfully.', e);
     }
   }
@@ -315,7 +245,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
       .afterClosed().subscribe(result => {
       this.getAllPModeEntries();
     });
-    this.uploaded = true;
   }
 
   /**
@@ -325,7 +254,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   download(row) {
     this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
-      PModeArchiveComponent.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
+      this.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {
       this.alertService.exception('Error downloading pMode from archive:', err);
     });
@@ -341,7 +270,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * @param domain
    * @param date
    */
-  private static downloadFile(data: any, domain: string, date: string) {
+  private downloadFile(data: any, domain: string, date: string) {
     const blob = new Blob([data], {type: 'text/xml'});
     let filename = 'PMode';
     if (domain) {
@@ -352,14 +281,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     }
     filename += '.xml';
     FileSaver.saveAs(blob, filename);
-  }
-
-  /**
-   * IsDirty method used for the IsDirtyOperations
-   * @returns {boolean}
-   */
-  isDirty(): boolean {
-    return !this.disabledCancel;
   }
 
   edit(row) {
@@ -383,16 +304,30 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
     });
   }
 
-  canCancel() {
-    return !this.disabledCancel;
-  }
-
-  canSave() {
-    return !this.disabledSave;
-  }
-
   canDelete() {
-    return !this.disabledDelete;
+    return this.atLeastOneRowSelected() && !this.currentPModeSelected() && !this.isBusy();
   }
+
+  canDownload() {
+    return this.oneRowSelected() && !this.isBusy();
+  }
+
+  canRestore() {
+    return this.oneRowSelected() && !this.currentPModeSelected() && !this.isBusy();
+  }
+
+  private oneRowSelected() {
+    return this.selected.length === 1;
+  }
+
+  private currentPModeSelected() {
+    return this.selected.find(el => el.id === this.currentPMode.id);
+  }
+
+  private atLeastOneRowSelected() {
+    return this.selected.length > 0;
+  }
+
 }
+
 

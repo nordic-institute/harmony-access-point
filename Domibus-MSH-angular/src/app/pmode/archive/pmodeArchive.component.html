@@ -35,13 +35,13 @@
 
     <div class="group-action-button">
       <button mat-raised-button color="primary" (click)="downloadArchive(selected[0])" id="downloadArchivebutton_id"
-              [disabled]="disabledDownload"
+              [disabled]="!canDownload()"
               button-click-behaviour>
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
       <button mat-raised-button color="primary" (click)="restoreArchive(selected[0])" id="restoreArchivebutton_id"
-              [disabled]="disabledRestore"
+              [disabled]="!canRestore()"
               button-click-behaviour>
         <mat-icon>settings_backup_restore</mat-icon>
         <span>Restore</span>
