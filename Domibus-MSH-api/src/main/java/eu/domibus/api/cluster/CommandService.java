@@ -20,4 +20,12 @@ public interface CommandService {
     void executeCommand(String command, Domain domain, Map<String, String> commandProperties);
 
     void deleteCommand(Integer commandId);
+
+    /**
+     * Execute commands by server and domain (find commands, execute and delete each command)
+     *
+     * @param serverName
+     * @param domain
+     */
+    void executeCommands(String serverName, Domain domain);
 }
