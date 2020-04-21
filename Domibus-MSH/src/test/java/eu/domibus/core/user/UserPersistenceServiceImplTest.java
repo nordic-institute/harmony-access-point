@@ -334,4 +334,19 @@ public class UserPersistenceServiceImplTest {
         Assert.assertFalse(res3);
     }
 
+    @Test
+    public void isUpdatedTest(@Mocked eu.domibus.api.user.User user1) {
+
+        new Expectations(userPersistenceService) {{
+            user1.getStatus();
+            returns(UserState.UPDATED.name(), UserState.REMOVED.name(), UserState.PERSISTED.name());
+        }};
+
+        boolean res1 = userPersistenceService.isUpdated(user1);
+        Assert.assertTrue(res1);
+        boolean res2 = userPersistenceService.isUpdated(user1);
+        Assert.assertFalse(res2);
+        boolean res3 = userPersistenceService.isUpdated(user1);
+        Assert.assertFalse(res3);
+    }
 }
