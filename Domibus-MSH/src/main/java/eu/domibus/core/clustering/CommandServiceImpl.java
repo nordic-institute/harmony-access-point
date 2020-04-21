@@ -75,6 +75,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
+    @Transactional
     public List<Command> findCommandsByServerAndDomainName(String serverName, String domain) {
         LOG.debug("Find commands by serverName [{}] for domain [{}]", serverName, domain);
         final List<CommandEntity> commands = commandDao.findCommandsByServerAndDomainName(serverName, domain);
@@ -143,21 +144,16 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
-    public void executeCommands(String serverName, Domain domain) {
-        LOG.debug("Executing comamnds for server [{}] ...", serverName);
-
-        final List<Command> commandsByServerName = findCommandsByServerAndDomainName(serverName, domain.getCode());
-        if (commandsByServerName == null) {
-            LOG.debug("commandsByServerName is null");
+    @Transactional
+    public void executeAndDeleteCommand(Command command, Domain domain) {
+        if(command == null) {
+            LOG.warn("Attempting to execute and delete a null command");
             return;
         }
-        for (Command command : commandsByServerName) {
-            LOG.debug("Execute command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
-            executeCommand(command.getCommandName(), domain, command.getCommandProperties());
-            LOG.debug("Delete command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
-            deleteCommand(command.getEntityId());
-        }
+        LOG.debug("Execute command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
+        executeCommand(command.getCommandName(), domain, command.getCommandProperties());
+        LOG.debug("Delete command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
+        deleteCommand(command.getEntityId());
     }
 
     /**

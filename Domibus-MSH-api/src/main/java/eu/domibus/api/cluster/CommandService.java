@@ -22,10 +22,10 @@ public interface CommandService {
     void deleteCommand(Integer commandId);
 
     /**
-     * Execute commands by server and domain (find commands, execute and delete each command)
+     * Executes and deletes one command transactional
      *
-     * @param serverName
+     * @param command
      * @param domain
      */
-    void executeCommands(String serverName, Domain domain);
+    void executeAndDeleteCommand(Command command, Domain domain);
 }

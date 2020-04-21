@@ -1,7 +1,7 @@
 package eu.domibus.weblogic.cluster;
 
 import eu.domibus.api.cluster.Command;
-import eu.domibus.api.cluster.CommandService;
+import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -41,7 +41,7 @@ public class ClusterCommandConfiguration {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected CommandService commandService;
+    protected CommandExecutorService commandExecutorService;
 
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
@@ -50,7 +50,7 @@ public class ClusterCommandConfiguration {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            domainTaskExecutor.submit(() -> commandService.executeCommands(serverName, domain), domain);
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName, domain), domain);
         }
     }
 }
