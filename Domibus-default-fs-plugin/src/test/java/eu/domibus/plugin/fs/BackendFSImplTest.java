@@ -317,8 +317,8 @@ public class BackendFSImplTest {
         final DataHandler messageHandler = new DataHandler(new ByteArrayDataSource(messageContent.getBytes(), TEXT_XML));
         final DataHandler invoiceHandler = new DataHandler(new ByteArrayDataSource(invoiceContent.getBytes(), TEXT_XML));
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
-        fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "./../message.xml", messageHandler));
-        fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, ".%2F..%2Finvoice.xml", invoiceHandler));
+        fsPayloads.put("cid:message2", new FSPayload(TEXT_XML, "./../message.xml", messageHandler));
+        fsPayloads.put("cid:invoice2", new FSPayload(TEXT_XML, ".%2F..%2Finvoice.xml", invoiceHandler));
 
         expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
@@ -345,14 +345,14 @@ public class BackendFSImplTest {
         fileMetadata.close();
 
         FileObject fileMessage0 = files[1];
-        Assert.assertEquals("message.xml",
+        Assert.assertEquals("message2.xml",
                 fileMessage0.getName().getBaseName());
         Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage0.delete();
         fileMessage0.close();
 
         FileObject fileMessage1 = files[2];
-        Assert.assertEquals("invoice.xml",
+        Assert.assertEquals("invoice2.xml",
                 fileMessage1.getName().getBaseName());
         Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.delete();
