@@ -276,8 +276,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
             LOG.debug("fileName value decoded to=[{}]", decodedFileName);
         }
 
-        try {
-            incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD);
+        try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
         } catch (FileSystemException e) {
             LOG.debug("invalid fileName or outside the parent folder=[{}]", fileName);
             fileName = fileNameContentId;
