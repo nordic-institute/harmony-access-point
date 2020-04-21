@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * Implementation for {@link FileUtilExtService}
  * @since 4.1.4
  * @author Catalin Enache
  */

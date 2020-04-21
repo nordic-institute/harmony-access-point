@@ -299,13 +299,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final String contentId;
         final String mimeType;
         String fileName;
-        String payloadName; //FSPlugin payload custom name
+        String payloadName;
 
         final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i);
         mimeType = trim(messageIn.getStringProperty(payMimeTypeProp));
         final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i);
         fileName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payFileNameProp)));
-        final String payloadNameProperty = MessageFormat.format(FS_PAYLOAD_NAME_FORMAT, i);
+        final String payloadNameProperty = MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, i);
         payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
         final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
         contentId = trim(messageIn.getStringProperty(payContID));

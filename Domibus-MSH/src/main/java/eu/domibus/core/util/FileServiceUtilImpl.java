@@ -20,6 +20,9 @@ public class FileServiceUtilImpl implements FileServiceUtil {
      */
     @Override
     public String sanitizeFileName(String fileName) {
+        if (fileName == null) {
+            return fileName;
+        }
         final String sanitizedFileName = FilenameUtils.getName(fileName);
         if (StringUtils.isBlank(sanitizedFileName)) {
             LOG.warn("Unable to sanitize file name which has the value [{}]", fileName);
