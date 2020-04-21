@@ -6,7 +6,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,10 +20,12 @@ import java.sql.SQLException;
  * @since 4.2
  */
 @DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
-@Service
+@Service(DatabaseUtil.DATABASE_USER)
 public class DatabaseUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseUtil.class);
+
+    public static final String DATABASE_USER = "databaseUtil";
 
     private String databaseUserName;
 
