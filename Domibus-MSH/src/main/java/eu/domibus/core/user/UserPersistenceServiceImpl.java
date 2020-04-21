@@ -201,11 +201,11 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         return Collections2.filter(users, user -> isUpdated(user) && isPasswordChanged(user));
     }
 
-    private boolean isUpdated(eu.domibus.api.user.User user) {
+    protected boolean isUpdated(eu.domibus.api.user.User user) {
         return UserState.UPDATED.name().equals(user.getStatus());
     }
 
-    private boolean isPasswordChanged(eu.domibus.api.user.User user) {
+    protected boolean isPasswordChanged(eu.domibus.api.user.User user) {
         return StringUtils.isNotEmpty(user.getPassword());
     }
 

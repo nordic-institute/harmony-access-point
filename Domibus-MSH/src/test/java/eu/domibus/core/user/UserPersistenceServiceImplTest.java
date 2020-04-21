@@ -298,12 +298,12 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> users = new ArrayList<>();
         users.add(user1);
 
-        new Expectations() {{
-            user1.getStatus();
-            result = UserState.UPDATED.name();
+        new Expectations(userPersistenceService) {{
+            userPersistenceService.isUpdated(user1);
+            result = true;
 
-            user1.getPassword();
-            returns(Strings.EMPTY, "newPass", null, "newPass2");
+            userPersistenceService.isPasswordChanged(user1);
+            returns(false, true, false, true);
         }};
 
         Collection<eu.domibus.api.user.User> result1 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
@@ -317,4 +317,21 @@ public class UserPersistenceServiceImplTest {
         Assert.assertTrue(result4.size() == 1);
 
     }
+
+    @Test
+    public void isPasswordChangedTest(@Mocked eu.domibus.api.user.User user1) {
+
+        new Expectations(userPersistenceService) {{
+            user1.getPassword();
+            returns(Strings.EMPTY, "newPass", null);
+        }};
+
+        boolean res1 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertFalse(res1);
+        boolean res2 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertTrue(res2);
+        boolean res3 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertFalse(res3);
+    }
+
 }
