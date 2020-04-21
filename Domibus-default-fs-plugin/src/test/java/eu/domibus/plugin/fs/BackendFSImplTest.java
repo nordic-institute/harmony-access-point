@@ -20,7 +20,10 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataHandler;
@@ -223,6 +226,9 @@ public class BackendFSImplTest {
 
             fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageId);
             result = incomingFolderByMessageId;
+
+            backendFS.getFileNameExtension(TEXT_XML);
+            result = ".xml";
         }};
     }
 
@@ -297,8 +303,60 @@ public class BackendFSImplTest {
         Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.delete();
         fileMessage1.close();
+    }
+
+    @Test
+    public void testDeliverMessage_MultiplePayloads_WrongPayloadNames(@Injectable final FSMessage fsMessage)
+            throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
+
+        final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        final String messageContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGludm9pY2U+aGVsbG88L2ludm9pY2U+";
+        final String invoiceContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
 
 
+        final DataHandler messageHandler = new DataHandler(new ByteArrayDataSource(messageContent.getBytes(), TEXT_XML));
+        final DataHandler invoiceHandler = new DataHandler(new ByteArrayDataSource(invoiceContent.getBytes(), TEXT_XML));
+        final Map<String, FSPayload> fsPayloads = new HashMap<>();
+        fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "./../message.xml", messageHandler));
+        fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, ".%2F..%2Finvoice.xml", invoiceHandler));
+
+        expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
+
+        //tested method
+        backendFS.deliverMessage(messageId);
+
+        // Assert results
+        FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
+        Assert.assertEquals(3, files.length);
+
+        FileObject fileMetadata = files[0];
+        Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
+                fileMetadata.getName().getBaseName());
+
+        UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        new Verifications() {{
+            UserMessage savedUserMessage = null;
+            fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
+            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+        }};
+
+
+        fileMetadata.delete();
+        fileMetadata.close();
+
+        FileObject fileMessage0 = files[1];
+        Assert.assertEquals("message.xml",
+                fileMessage0.getName().getBaseName());
+        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
+        fileMessage0.delete();
+        fileMessage0.close();
+
+        FileObject fileMessage1 = files[2];
+        Assert.assertEquals("invoice.xml",
+                fileMessage1.getName().getBaseName());
+        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
+        fileMessage1.delete();
+        fileMessage1.close();
     }
 
     @Test(expected = FSPluginException.class)
