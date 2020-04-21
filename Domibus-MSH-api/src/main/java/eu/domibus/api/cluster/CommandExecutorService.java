@@ -9,7 +9,7 @@ import eu.domibus.api.multitenancy.Domain;
 public interface CommandExecutorService {
 
     /**
-     * Execute commands by server and domain (find commands, then call CommandService#executeAndDeleteCommand for each command)
+     * Execute commands by server and domain (find commands, then execute and delete each command)
      *
      * @param serverName
      * @param domain

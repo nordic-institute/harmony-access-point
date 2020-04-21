@@ -3,10 +3,7 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.multitenancy.DomainService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,15 +24,13 @@ public class CommandExecutorServiceImplTest {
     private CommandExecutorServiceImpl commandExecutorService;
 
     @Test
-    public void testExecuteCommands() {
+    public void testExecuteCommands(@Mocked Command command1, @Mocked Command command2) {
         String server1 = "server1";
         String server2 = "server2";
         List<Command> commands = new ArrayList<>();
-        Command command1 = new Command();
         command1.setCommandName(Command.RELOAD_PMODE);
         commands.add(command1);
 
-        Command command2 = new Command();
         command2.setCommandName(Command.RELOAD_TRUSTSTORE);
         commands.add(command2);
 

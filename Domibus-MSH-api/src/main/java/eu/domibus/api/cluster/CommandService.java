@@ -21,11 +21,5 @@ public interface CommandService {
 
     void deleteCommand(Integer commandId);
 
-    /**
-     * Executes and deletes one command transactional
-     *
-     * @param command
-     * @param domain
-     */
     void executeAndDeleteCommand(Command command, Domain domain);
 }
