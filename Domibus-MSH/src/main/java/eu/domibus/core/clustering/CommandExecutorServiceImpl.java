@@ -6,6 +6,7 @@ import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
         LOG.debug("Executing comamnds for server [{}] ...", serverName);
 
         final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
-        if (commandsByServerName == null) {
+        if (CollectionUtils.isEmpty(commandsByServerName)) {
             LOG.debug("commandsByServerName is null");
             return;
         }

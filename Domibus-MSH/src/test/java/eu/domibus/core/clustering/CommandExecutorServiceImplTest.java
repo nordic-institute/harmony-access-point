@@ -32,7 +32,7 @@ public class CommandExecutorServiceImplTest {
         commands.add(command2);
 
 
-        new Expectations() {{
+        new NonStrictExpectations() {{
             command1.getCommandName(); result = Command.RELOAD_PMODE;
             command2.getCommandName(); result = Command.RELOAD_TRUSTSTORE;
             commandService.findCommandsByServerAndDomainName(server1, DomainService.DEFAULT_DOMAIN.getCode());
