@@ -16,9 +16,9 @@ import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
-import joptsimple.internal.Strings;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -323,7 +323,7 @@ public class UserPersistenceServiceImplTest {
 
         new Expectations(userPersistenceService) {{
             user1.getPassword();
-            returns(Strings.EMPTY, "newPass", null);
+            returns(StringUtils.EMPTY, "newPass", null);
         }};
 
         boolean res1 = userPersistenceService.isPasswordChanged(user1);
