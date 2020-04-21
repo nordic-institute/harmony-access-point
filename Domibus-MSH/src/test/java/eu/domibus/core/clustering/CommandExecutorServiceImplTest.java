@@ -28,14 +28,13 @@ public class CommandExecutorServiceImplTest {
         String server1 = "server1";
         String server2 = "server2";
         List<Command> commands = new ArrayList<>();
-        command1.setCommandName(Command.RELOAD_PMODE);
         commands.add(command1);
-
-        command2.setCommandName(Command.RELOAD_TRUSTSTORE);
         commands.add(command2);
 
 
         new Expectations() {{
+            command1.getCommandName(); result = Command.RELOAD_PMODE;
+            command2.getCommandName(); result = Command.RELOAD_TRUSTSTORE;
             commandService.findCommandsByServerAndDomainName(server1, DomainService.DEFAULT_DOMAIN.getCode());
             result = commands;
 
