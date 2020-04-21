@@ -14,14 +14,14 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.process.Process;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
@@ -266,46 +266,71 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    public void namePredicate() throws Exception {
-        Party party = new Party();
-        party.setName("name");
+    public void testNamePredicate(@Injectable Party party) {
+        final String name = "name";
+
+        new Expectations(partyService) {{
+            party.getName();
+            result = name;
+        }};
 
         assertTrue(partyService.namePredicate("").test(party));
         assertTrue(partyService.namePredicate("name").test(party));
         assertFalse(partyService.namePredicate("wrong").test(party));
+        assertFalse(partyService.namePredicate("Name1").test(party));
     }
 
     @Test
-    public void endPointPredicate() throws Exception {
-        Party party = new Party();
-        party.setEndpoint("http://localhost:8080");
+    public void testEndPointPredicate(@Injectable Party party) {
+        final String endPoint = "http://localhost:8080";
+
+        new Expectations(partyService) {{
+            party.getEndpoint();
+            result = endPoint;
+        }};
+
         assertTrue(partyService.endPointPredicate("").test(party));
-        assertTrue(partyService.endPointPredicate("8080").test(party));
-        assertFalse(partyService.endPointPredicate("7070").test(party));
+        assertTrue(partyService.endPointPredicate("http://localhost:8080").test(party));
+        assertFalse(partyService.endPointPredicate("8080").test(party));
+        assertFalse(partyService.endPointPredicate("http://localhost:7070").test(party));
     }
 
     @Test
-    public void partyIdPredicate() throws Exception {
-        Party party = new Party();
-        Identifier identifier = new Identifier();
-        identifier.setPartyId("partyId");
-        party.setIdentifiers(Sets.newHashSet(identifier));
-        party.setIdentifiers(Sets.newHashSet(identifier));
+    public void testPartyIdPredicate(@Injectable Party party, @Injectable Identifier identifier) {
+        final String partyId = "partyId";
+
+        new Expectations(partyService) {{
+            identifier.getPartyId();
+            result = partyId;
+            party.getIdentifiers();
+            result = Sets.newHashSet(identifier);
+        }};
+
         assertTrue(partyService.partyIdPredicate("").test(party));
-        assertTrue(partyService.partyIdPredicate("party").test(party));
+        assertTrue(partyService.partyIdPredicate("partyId").test(party));
         assertFalse(partyService.partyIdPredicate("wrong").test(party));
+        assertFalse(partyService.partyIdPredicate("partyId1").test(party));
     }
 
     @Test
-    public void processPredicate() throws Exception {
-        Party party = new Party();
-        Process process = new Process();
-        process.setName("processName");
-        party.addProcessesWithPartyAsInitiator(process);
-        party.addprocessesWithPartyAsResponder(process);
+    public void testProcessPredicate(@Injectable Party party, @Injectable Process process) {
+        final String processName = "tc1Process";
+        List<Process> processes = new ArrayList<>();
+
+        new Expectations(partyService) {{
+            process.getName();
+            result = processName;
+            processes.add(process);
+            party.getProcessesWithPartyAsInitiator();
+            result = processes;
+            party.getProcessesWithPartyAsResponder();
+            result = processes;
+        }};
+
         assertTrue(partyService.processPredicate(null).test(party));
-        assertTrue(partyService.processPredicate("cessName").test(party));
+        assertTrue(partyService.processPredicate("tc1Process").test(party));
         assertFalse(partyService.processPredicate("wrong").test(party));
+        assertFalse(partyService.processPredicate("tc1ProcessIR").test(party));
     }
 
     @Test
