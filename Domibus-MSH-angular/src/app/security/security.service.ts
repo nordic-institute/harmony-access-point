@@ -6,7 +6,7 @@ import {SecurityEventService} from './security.event.service';
 import {DomainService} from './domain.service';
 import {PasswordPolicyRO} from './passwordPolicyRO';
 import {AlertService} from '../common/alert/alert.service';
-import {ApplicationService} from '../common/application.service';
+import {ApplicationContextService} from '../common/application-context.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class SecurityService {
                private securityEventService: SecurityEventService,
                private alertService: AlertService,
                private domainService: DomainService,
-               private applicationService: ApplicationService,
+               private applicationService: ApplicationContextService,
                private dialogsService: DialogsService) {
   }
 

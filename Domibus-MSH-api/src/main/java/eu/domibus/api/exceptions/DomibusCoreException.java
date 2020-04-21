@@ -39,7 +39,7 @@ public class DomibusCoreException extends RuntimeException {
     }
 
     /**
-     * Constructs a new DomibusCoreException with a specific error and message.
+     * Constructs a new DomibusCoreException with a specific message.
      * @param message the Error message detail. It is saved for later retrieval by the {@link #getMessage()} method.
      */
     public DomibusCoreException(String message) {

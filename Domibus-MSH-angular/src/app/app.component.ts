@@ -5,7 +5,7 @@ import {SecurityEventService} from './security/security.event.service';
 import {DomainService} from './security/domain.service';
 import {HttpEventService} from './common/http/http.event.service';
 import {DomibusInfoService} from "./common/appinfo/domibusinfo.service";
-import {ApplicationService} from './common/application.service';
+import {ApplicationContextService} from './common/application-context.service';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
                private httpEventService: HttpEventService,
                private domainService: DomainService,
                private domibusInfoService: DomibusInfoService,
-               private applicationService: ApplicationService) {
+               private applicationService: ApplicationContextService) {
 
     this.domainService.setAppTitle();
 

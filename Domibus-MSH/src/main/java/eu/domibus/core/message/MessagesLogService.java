@@ -12,6 +12,7 @@ import java.util.Map;
  * @since 3.2
  */
 public interface MessagesLogService {
+    long countMessages(MessageType messageType, Map<String, Object> filters);
 
     MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String orderByColumn, boolean asc, Map<String, Object> filters);
 

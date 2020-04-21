@@ -66,6 +66,9 @@ public class BackendJMSImplTest {
     private MessageExtService messageExtService;
 
     @Injectable
+    protected BackendJMSQueueService backendJMSQueueService;
+
+    @Injectable
     String name = "myjmsplugin";
 
     @Tested
@@ -199,7 +202,7 @@ public class BackendJMSImplTest {
         event.setMessageId(messageId);
 
         new Expectations(backendJMS) {{
-            backendJMS.sendJmsMessage(withAny(new JmsMessageDTO()), anyString);
+            backendJMS.sendJmsMessage(withAny(new JmsMessageDTO()), anyString, anyString, anyString);
         }};
 
         backendJMS.messageReceiveFailed(event);

@@ -35,6 +35,13 @@ public class UIMessageServiceImpl implements UIMessageService {
 
     @Override
     @Transactional(readOnly = true)
+    public long countMessages(Map<String, Object> filters) {
+        long numberOfMessages = uiMessageDao.countEntries(filters);
+        return numberOfMessages;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<MessageLogInfo> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         return uiMessageDao.findPaged(from, max, column, asc, filters)
                 .stream()

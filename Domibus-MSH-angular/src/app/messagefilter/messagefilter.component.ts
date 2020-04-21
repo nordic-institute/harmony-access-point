@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialog, MatDialogRef} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
@@ -12,6 +12,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -33,7 +34,8 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableMoveUp: boolean;
   enableMoveDown: boolean;
 
-  constructor(private http: HttpClient, private alertService: AlertService, public dialog: MatDialog, private dialogsService: DialogsService) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private dialogsService: DialogsService) {
     super();
   }
 
@@ -92,7 +94,9 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   }
 
   add() {
-    if (this.isBusy()) return;
+    if (this.isBusy()) {
+      return;
+    }
 
     let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
     this.dialog.open(EditMessageFilterComponent, {

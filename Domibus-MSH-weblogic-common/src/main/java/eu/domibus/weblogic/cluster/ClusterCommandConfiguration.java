@@ -43,28 +43,14 @@ public class ClusterCommandConfiguration {
     @Autowired
     protected CommandService commandService;
 
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
+        String serverName = System.getProperty("weblogic.Name");
+        LOGGER.debug("Server name ...[{}]", serverName);
+
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            final Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    LOGGER.debug("Executing job...");
-
-                    String serverName = System.getProperty("weblogic.Name");
-                    final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
-                    if (commandsByServerName == null) {
-                        return;
-                    }
-                    for (Command command : commandsByServerName) {
-                        commandService.executeCommand(command.getCommandName(), domain, command.getCommandProperties());
-                        commandService.deleteCommand(command.getEntityId());
-                    }
-                }
-            };
-            domainTaskExecutor.submit(task, domain);
+            domainTaskExecutor.submit(() -> commandService.executeCommands(serverName, domain), domain);
         }
     }
 }

@@ -5,6 +5,8 @@ import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {PropertiesService} from '../../properties/support/properties.service';
+import {ApplicationContextService} from '../application-context.service';
 
 /**
  * @author Ion Perpegel
@@ -21,24 +23,23 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
-  public static readonly MAX_COUNT_CSV: number = 10000;
-  public static readonly CSV_ERROR_MESSAGE = 'Maximum number of rows reached for downloading CSV';
-
   public rows: T[];
   public selected: T[];
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
+  private propertiesService: PropertiesService;
 
-  constructor(protected alertService: AlertService, private http: HttpClient) {
+  constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.rows = [];
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
+    const z = this.applicationService;
   }
 
   public get name(): string {
@@ -54,7 +55,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async getServerData(): Promise<any> {
-    let getParams = this.createAndSetParameters();
+    const getParams = this.createAndSetParameters();
     return this.http.get<any>(this.GETUrl, {params: getParams})
       .toPromise();
   }
@@ -69,7 +70,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public async getDataAndSetResults(): Promise<any> {
     await this.onBeforeGetData();
 
-    let data = await this.getServerData();
+    const data = await this.getServerData();
     this.setServerResults(data);
   }
 
@@ -114,12 +115,18 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public async saveAsCSV() {
+    if (this.isBusy()) {
+      this.alertService.error(`Cannot export until data is loaded.`);
+      return;
+    }
+
     if (instanceOfModifiableList(this)) {
       await this.saveIfNeeded();
     }
 
-    if (this.count > BaseListComponent.MAX_COUNT_CSV) {
-      this.alertService.error(BaseListComponent.CSV_ERROR_MESSAGE);
+    const csvMaxCount = await this.getCsvMaxRows();
+    if (this.count > csvMaxCount) {
+      this.alertService.error(`The number of elements to export [${this.count}] exceeds the maximum allowed [${csvMaxCount}].`);
       return;
     }
 
@@ -130,12 +137,17 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     DownloadService.downloadNative(this.csvUrl);
   }
 
+  private async getCsvMaxRows(): Promise<number> {
+    this.propertiesService = this.applicationService.injector.get(PropertiesService);
+    const res = await this.propertiesService.getCsvMaxRowsProperty();
+    return +res.value;
+  }
+
   protected hasMethod(name: string) {
     return this[name] && this[name] instanceof Function;
   }
 
   public onSelect(event) {
-
   }
 
   public onActivate(event) {

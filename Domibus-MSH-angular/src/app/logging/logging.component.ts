@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {LoggingLevelResult} from './support/logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
@@ -7,6 +7,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
 
 /**
  * @author Catalin Enache
@@ -19,7 +20,8 @@ import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 })
 
 export class LoggingComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin) implements OnInit {
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly LOGGING_URL: string = 'rest/logging/loglevel';
   static readonly RESET_LOGGING_URL: string = 'rest/logging/reset';
@@ -28,8 +30,8 @@ export class LoggingComponent extends mix(BaseListComponent)
 
   levels: Array<String>;
 
-  constructor(private elementRef: ElementRef, private http: HttpClient, private alertService: AlertService,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(private applicationService: ApplicationContextService, private elementRef: ElementRef, private http: HttpClient,
+              private alertService: AlertService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 

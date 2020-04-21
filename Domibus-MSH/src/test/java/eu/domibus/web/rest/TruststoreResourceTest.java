@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -144,6 +145,18 @@ public class TruststoreResourceTest {
         return trustStoreROList;
     }
 
+    private List<TrustStoreRO> getTestTrustStoreROList2(Date date) {
+        List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
+        TrustStoreRO trustStoreRO = new TrustStoreRO();
+        trustStoreRO.setName("Name2");
+        trustStoreRO.setSubject("Subject2");
+        trustStoreRO.setIssuer("Issuer2");
+        trustStoreRO.setValidFrom(date);
+        trustStoreRO.setValidUntil(date);
+        trustStoreROList.add(trustStoreRO);
+        return trustStoreROList;
+    }
+
     @Test
     public void testTrustStoreEntries(@Mocked KeyStore trustStore) {
         // Given
@@ -195,6 +208,22 @@ public class TruststoreResourceTest {
         Assert.assertEquals("Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                         "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator(),
                 csv.getBody());
+    }
+
+    @Test(expected = RequestValidationException.class)
+    public void testGetCsv_validationExeption() {
+        // Given
+        Date date = new Date();
+        List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList2(date);
+        new Expectations(truststoreResource) {{
+            truststoreResource.trustStoreEntries();
+            result = trustStoreROList;
+            csvServiceImpl.validateMaxRows(trustStoreROList.size());
+            result = new RequestValidationException("");
+        }};
+
+        // When
+        final ResponseEntity<String> csv = truststoreResource.getCsv();
     }
 
     @Test

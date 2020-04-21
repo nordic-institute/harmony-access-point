@@ -109,21 +109,6 @@ public class MessageFilterResourceTest {
                 csv.getBody());
     }
 
-    @Test
-    public void testGetMessageFilterCsv_Exception() throws CsvException {
-        // Given
-        new Expectations() {{
-            messageFilterCsvServiceImpl.exportToCSV((List<?>) any, null, null, null);
-            result = new CsvException(DomibusCoreErrorCode.DOM_001, "Exception", new Exception());
-        }};
-
-        // When
-        final ResponseEntity<String> csv = messageFilterResource.getCsv();
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
-    }
-
     private MessageFilterResultRO getMessageFilterResultRO(int messageFilterEntityId) {
         // Given
         final ArrayList<BackendFilter> backendFilters = new ArrayList<>();

@@ -84,7 +84,7 @@ public class MessageResource {
             return false;
         }
         if (message.getDeleted() != null) {
-            LOG.info("Could not find message content for message: " + messageId);
+            LOG.info("Could not find message content for message: [{}]", messageId);
             return false;
         }
         return true;
