@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.api.validators.CustomWhiteListed;
+
 import java.io.Serializable;
 
 /**
@@ -9,6 +11,11 @@ import java.io.Serializable;
 
 public class PartyFilterRequestRO implements Serializable {
     private String name;
+    /**
+     * Custom annotation to add some additional characters to be permitted by black-list/white-list validation
+     * The endpoint property can contain the specified characters so we must permit this
+     */
+    @CustomWhiteListed(permitted = ":/=?&-+%")
     private String endPoint;
     private String partyId;
     private String process;
