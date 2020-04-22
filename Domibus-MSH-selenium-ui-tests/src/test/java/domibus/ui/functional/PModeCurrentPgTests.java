@@ -119,12 +119,12 @@ public class PModeCurrentPgTests extends BaseTest {
 	public void domainSegregationPMode() throws Exception{
 
 		String domainName = getNonDefaultDomain();
-		String domaincode = rest.getDomainCodeForName(domainName);
+		String domainCode = rest.getDomainCodeForName(domainName);
 
 		log.info("uploading different pmodes on 2 different domains");
 
 		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		rest.uploadPMode("pmodes/multipleParties.xml", domaincode);
+		rest.uploadPMode("pmodes/multipleParties.xml", domainCode);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -136,6 +136,8 @@ public class PModeCurrentPgTests extends BaseTest {
 
 		log.info("changing domain");
 		page.getDomainSelector().selectOptionByText(domainName);
+
+		page.wait.forXMillis(1000);
 		String d1Pmode = page.getTextArea().getText();
 
 		log.info("comparing pmodes");

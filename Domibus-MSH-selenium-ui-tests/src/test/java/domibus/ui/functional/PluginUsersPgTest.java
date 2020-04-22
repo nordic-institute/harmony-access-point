@@ -520,6 +520,8 @@ public class PluginUsersPgTest extends BaseTest {
 
 	@Test(description = "*****", groups = {"multiTenancy"})
 	public void domainVisibility() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		String username = Generator.randomAlphaNumeric(10);
 
 		String domainName = getNonDefaultDomain();
@@ -527,15 +529,16 @@ public class PluginUsersPgTest extends BaseTest {
 		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
 		log.debug("Plugin user created: " + username);
 
-		SoftAssert soft = new SoftAssert();
-//		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-
+//		go to plugin users page
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 
 		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain.");
 
 		page.getDomainSelector().selectOptionByText(domainName);
+		page.grid().waitForRowsToLoad();
+
 		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1.");
 
 		rest.deletePluginUser(username, domainCode);

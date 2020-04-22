@@ -307,7 +307,7 @@ public class JMSMessPgUXTest extends BaseTest {
 			log.info("checking domain " + domain);
 			page.getDomainSelector().selectOptionByText(domain);
 
-
+			page.grid().waitForRowsToLoad();
 			String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
 			log.info("verifying for queue " + qName);
 			HashMap<String, String> params = new HashMap<>();

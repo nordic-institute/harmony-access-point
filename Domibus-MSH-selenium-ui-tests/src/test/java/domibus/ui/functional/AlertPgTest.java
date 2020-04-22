@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
-import pages.login.LoginPage;
 import utils.Generator;
 
 import java.util.HashMap;
@@ -58,25 +57,29 @@ public class AlertPgTest extends BaseTest {
 		String username = getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
 		if (data.isIsMultiDomain()) {
-			apage.filters().showDomainAlert();
+			page.filters().showDomainAlert();
+			page.grid().waitForRowsToLoad();
 		}
 
-		log.info("Number of records : " + apage.grid().getRowsNo());
 		log.info("Getting all listed alert info");
-		log.info("Alert type for top row : " + apage.grid().getRowInfo(0).get("Alert Type"));
-		String beforeSearchalertType = apage.grid().getRowInfo(0).get("Alert Type");
-		List<HashMap<String, String>> allRowInfo = apage.grid().getAllRowInfo();
-		HashMap<String, String> fAlert = allRowInfo.get(0);
+
+		HashMap<String, String> fAlert = page.grid().getRowInfo(0);
+		String beforeSearchAlertType = fAlert.get("Alert Type");
+		log.info("Alert type for top row : " + beforeSearchAlertType);
+
 		log.info("Advance filtering by " + fAlert);
-		apage.filters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
+		page.filters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
 				, null, fAlert.get("Alert Level"), fAlert.get("Creation Time"), null,
 				fAlert.get("Reporting Time"), null);
-		apage.grid().waitForRowsToLoad();
-		String afterSearchAlertType = apage.grid().getRowInfo(0).get("Alert Type");
-		soft.assertTrue(beforeSearchalertType.equals(afterSearchAlertType), "After and before search records are same");
+		page.grid().waitForRowsToLoad();
+
+		String afterSearchAlertType = page.grid().getRowInfo(0).get("Alert Type");
+		soft.assertEquals(beforeSearchAlertType, afterSearchAlertType, "Alert type after filter is correct");
+
 		soft.assertAll();
 	}
 
