@@ -29,7 +29,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 
 export class UserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
-  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';

@@ -31,7 +31,7 @@ import {ApplicationContextService} from '../../common/application-context.servic
  */
 export class PModeArchiveComponent extends mix(BaseListComponent)
   .with(ModifiableListMixin, ClientPageableListMixin)
-  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly PMODE_URL: string = 'rest/pmode';
   static readonly PMODE_CSV_URL: string = PModeArchiveComponent.PMODE_URL + '/csv';

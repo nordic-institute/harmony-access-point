@@ -26,7 +26,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 })
 export class PluginUserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
-  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
@@ -149,10 +149,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   inCertificateMode(): boolean {
     return this.filter.authType === 'CERTIFICATE';
-  }
-
-  isDirty(): boolean {
-    return this.isChanged;
   }
 
   async getUserRoles() {

@@ -22,7 +22,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 })
 
 export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
-  implements OnInit, DirtyOperations {
+  implements OnInit {
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
@@ -221,10 +221,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   canMoveDown(): boolean {
     return this.oneRowSelected() && this.rowNumber < this.rows.length - 1 && !this.isBusy();
-  }
-
-  isDirty(): boolean {
-    return this.isChanged;
   }
 
   setDirty(dirty: boolean) {
