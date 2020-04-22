@@ -3,7 +3,6 @@ import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
 import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
 import {PluginUserRO} from './support/pluginuser';
-import {DirtyOperations} from 'app/common/dirty-operations';
 import {MatDialog} from '@angular/material';
 import {EditBasicPluginUserFormComponent} from './editpluginuser-form/edit-basic-plugin-user-form.component';
 import {EditCertificatePluginUserFormComponent} from './editpluginuser-form/edit-certificate-plugin-user-form.component';
@@ -26,7 +25,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 })
 export class PluginUserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
-  implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
@@ -149,10 +148,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   inCertificateMode(): boolean {
     return this.filter.authType === 'CERTIFICATE';
-  }
-
-  isDirty(): boolean {
-    return this.isChanged;
   }
 
   async getUserRoles() {
