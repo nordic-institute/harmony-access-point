@@ -147,23 +147,11 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   canAdd() {
-    return !!this.pModeExists && !this.isBusy();
-  }
-
-  canSave() {
-    return this.isDirty() && !this.isSaving;
+    return !!this.pModeExists && super.canAdd();
   }
 
   canEdit() {
-    return !!this.pModeExists && this.selected.length === 1 && !this.isSaving;
-  }
-
-  canCancel() {
-    return this.isDirty() && !this.isSaving;
-  }
-
-  canDelete() {
-    return !!this.pModeExists && this.selected.length === 1 && !this.isSaving;
+    return !!this.pModeExists && super.canEdit();
   }
 
   async doSave(): Promise<any> {

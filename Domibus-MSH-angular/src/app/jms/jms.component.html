@@ -81,12 +81,12 @@
     <page-footer [parent]="this" [isAddVisible]="false" [isEditVisible]="false"></page-footer>
 
     <span>
-    <button id="jmsMoveButton" mat-raised-button color="primary" (click)="move()" [disabled]="selected.length == 0"
-            button-click-behaviour>
-      <mat-icon>move_to_inbox</mat-icon>
-      <span>Move</span>
-    </button>
-  </span>
+      <button id="jmsMoveButton" mat-raised-button color="primary" (click)="moveSelected()" [disabled]="!canMove()"
+              button-click-behaviour>
+        <mat-icon>move_to_inbox</mat-icon>
+        <span>Move</span>
+      </button>
+    </span>
 
   </div>
 </div>

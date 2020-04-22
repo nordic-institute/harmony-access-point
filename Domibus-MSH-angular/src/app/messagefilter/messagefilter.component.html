@@ -85,12 +85,12 @@
   </div>
 
   <div class="group-action-button">
-    <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveUp"
+    <button mat-raised-button color="primary" type="button" [disabled]="!canMoveUp()"
             (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
       <mat-icon>arrow_drop_up</mat-icon>
       <span>Move Up</span>
     </button>
-    <button mat-raised-button color="primary" type="button" [disabled]="!enableMoveDown"
+    <button mat-raised-button color="primary" type="button" [disabled]="!canMoveDown()"
             (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
       <mat-icon>arrow_drop_down</mat-icon>
       <span>Move Down</span>
