@@ -278,7 +278,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
         try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
         } catch (FileSystemException e) {
-            LOG.debug("invalid fileName or outside the parent folder=[{}]", fileName);
+            LOG.warn("invalid fileName or outside the parent folder=[{}]", fileName);
             fileName = fileNameContentId;
         }
         LOG.debug("returned fileName=[{}]", fileName);

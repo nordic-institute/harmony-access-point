@@ -20,6 +20,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -706,6 +707,74 @@ public class BackendFSImplTest {
         new Verifications() {{
             fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
+        }};
+    }
+
+    @Test
+    public void test_getFileName(final @Mocked FSPayload fsPayload,
+                                 final @Mocked FileObject incomingFolderByMessageId,
+                                 final @Mocked FileObject fileNameObject) throws  Exception{
+        final String contentId = "cid:message";
+        final String fileName = "message.xml";
+
+        new Expectations(backendFS) {{
+            fsPayload.getFileName();
+            result = fileName;
+
+            fsPayload.getMimeType();
+            result = TEXT_XML;
+
+            fsMimeTypeHelper.getExtension(anyString);
+            result = ".xml";
+
+            UriParser.decode(fileName);
+            result = fileName;
+
+            incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD);
+            result = fileNameObject;
+        }};
+
+        backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
+
+        new Verifications() {{
+            incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD);
+        }};
+    }
+
+    @Test
+    public void test_getFileName_Decode(final @Mocked FSPayload fsPayload,
+                                 final @Mocked FileObject incomingFolderByMessageId,
+                                 final @Mocked FileObject fileNameObject) throws  Exception{
+        final String contentId = "cid:message";
+        final String fileNameInput = ".%2F..%2Fmessage.xml";
+        final String fileNameDecoded = "./../message.xml";
+        final String fileNameExpected ="message.xml";
+
+        new Expectations(backendFS) {{
+            fsPayload.getFileName();
+            result = fileNameInput;
+
+            fsPayload.getMimeType();
+            result = TEXT_XML;
+
+            fsMimeTypeHelper.getExtension(anyString);
+            result = ".xml";
+
+            UriParser.decode(fileNameInput);
+            result = fileNameDecoded;
+
+            incomingFolderByMessageId.resolveFile(anyString, NameScope.CHILD);
+            result = new FileSystemException("folder outside the parent");
+        }};
+
+        final String fileName = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
+        Assert.assertNotNull(fileName);
+        Assert.assertEquals(fileNameExpected, fileName);
+
+        new Verifications() {{
+            String fileNameActual;
+            incomingFolderByMessageId.resolveFile(fileNameActual = withCapture(), NameScope.CHILD);
+            Assert.assertEquals(fileNameDecoded, fileNameActual);
         }};
     }
 }
