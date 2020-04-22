@@ -3,18 +3,25 @@ package eu.domibus.plugin.webService.impl;
 
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.ext.services.FileUtilExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.generated.*;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -27,6 +34,9 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
+
+    @Autowired
+    FileUtilExtService fileUtilExtService;
 
 
     @Override
@@ -180,7 +190,13 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 final Collection<Submission.TypedProperty> properties = new ArrayList<>();
                 if (extPartInfo.getPartProperties() != null) {
                     for (final Property property : extPartInfo.getPartProperties().getProperty()) {
-                        properties.add(new Submission.TypedProperty(trim(property.getName()), trim(property.getValue()), trim(property.getType())));
+                        String propertyName = trim(property.getName());
+                        String propertyValue = trim(property.getValue());
+                        if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
+                            LOG.debug("{} property found=[{}]", propertyName, propertyValue);
+                            propertyValue = fileUtilExtService.sanitizeFileName(propertyValue);
+                        }
+                        properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
                     }
                 }
                 result.addPayload(extPartInfo.getHref(), extPartInfo.getPayloadDatahandler(), properties, extPartInfo.isInBody(), null, null);
