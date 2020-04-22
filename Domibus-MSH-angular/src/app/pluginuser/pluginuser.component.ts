@@ -3,7 +3,6 @@ import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
 import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
 import {PluginUserRO} from './support/pluginuser';
-import {DirtyOperations} from 'app/common/dirty-operations';
 import {MatDialog} from '@angular/material';
 import {EditBasicPluginUserFormComponent} from './editpluginuser-form/edit-basic-plugin-user-form.component';
 import {EditCertificatePluginUserFormComponent} from './editpluginuser-form/edit-certificate-plugin-user-form.component';

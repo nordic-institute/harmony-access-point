@@ -6,7 +6,6 @@ import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {HttpClient} from '@angular/common/http';
-import {DirtyOperations} from '../common/dirty-operations';
 import {SecurityService} from '../security/security.service';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
@@ -319,7 +318,7 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   canEdit() {
-    return  this.oneRowSelected() && this.selectedRowNotDeleted() && !this.isBusy();
+    return this.oneRowSelected() && this.selectedRowNotDeleted() && !this.isBusy();
   }
 
   canDelete() {

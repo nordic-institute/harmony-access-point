@@ -7,7 +7,6 @@ import {MessageFilterResult} from './support/messagefilterresult';
 import {BackendFilterEntry} from './support/backendfilterentry';
 import {RoutingCriteriaEntry} from './support/routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
-import {DirtyOperations} from '../common/dirty-operations';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';

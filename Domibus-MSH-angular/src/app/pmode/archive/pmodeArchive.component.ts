@@ -5,7 +5,6 @@ import {MatDialog} from '@angular/material';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
 import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-dirty-dialog.component';
-import {DirtyOperations} from 'app/common/dirty-operations';
 import {Observable} from 'rxjs/Observable';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
 import {PmodeViewComponent} from './pmode-view/pmode-view.component';
