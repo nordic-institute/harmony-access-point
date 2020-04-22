@@ -187,14 +187,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }
   }
 
-  canEdit() {
-    return this.selected.length === 1;
-  }
-
-  canDelete() {
-    return this.canEdit();
-  }
-
   async edit(row?: PluginUserRO) {
     row = row || this.selected[0];
     const rowCopy = Object.assign({}, row);
@@ -227,24 +219,12 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }).afterClosed().toPromise();
   }
 
-  canSave() {
-    return this.isDirty();
-  }
-
-  canAdd() {
-    return !this.isBusy();
-  }
-
   async doSave(): Promise<any> {
     return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
   }
 
   setIsDirty() {
     super.isChanged = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
-  }
-
-  canCancel() {
-    return this.isDirty();
   }
 
   delete(row?: any) {

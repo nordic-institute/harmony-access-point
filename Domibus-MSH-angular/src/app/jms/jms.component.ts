@@ -213,7 +213,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canSearch() {
-    return this.filter.source && !this.isLoading;
+    return this.filter.source && !this.isBusy();
   }
 
   protected get GETUrl(): string {
@@ -247,126 +247,97 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    let messageIds = this.markedForDeletionMessages.map((message) => message.id);
-    //because the user can change the source after pressing search and then select the messages and press delete
-    //in this case I need to use currentSearchSelectedSource
+    const messageIds = this.markedForDeletionMessages.map((message) => message.id);
+    // because the user can change the source after pressing search and then select the messages and press delete
+    // in this case I need to use currentSearchSelectedSource
     return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
   }
 
-  move() {
+  moveElements(elements: any[]) {
+    if (!elements || elements.length == 0) {
+      return;
+    }
+
     const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
-
-    if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
-
-      if (this.selected.length > 1) {
-        dialogRef.componentInstance.queues.push(...this.queues);
-      } else {
-        for (let message of this.selected) {
-
-          try {
-            let originalQueue = message.customProperties.originalQueue;
-            // EDELIVERY-2814
-            let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-            if (originalQueue) {
-              let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
-              console.debug(queues);
-              if (queues) {
-                dialogRef.componentInstance.queues = queues;
-                dialogRef.componentInstance.selectedSource = queues[0];
-              }
-              if (queues.length == 1) {
-                dialogRef.componentInstance.destinationsChoiceDisabled = true;
-              }
-              break;
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-
-        if (dialogRef.componentInstance.queues.length == 0) {
-          console.warn('Unable to determine the original queue for the selected messages');
-          dialogRef.componentInstance.queues.push(...this.queues);
-        }
-      }
+    if (this.isDLQQueue()) {
+      this.handleDLQQueueMoving(elements, dialogRef);
     } else {
       dialogRef.componentInstance.queues.push(...this.queues);
     }
 
-
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.destination) {
-        let messageIds = this.selected.map((message) => message.id);
+        const messageIds = elements.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
       }
     });
   }
 
-  moveAction(row) {
-    let dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
-
-    if (/DLQ/.test(this.currentSearchSelectedSource.name)) {
+  private handleDLQQueueMoving(elements: any[], dialogRef: MatDialogRef<MoveDialogComponent>) {
+    if (elements.length > 1) {
+      dialogRef.componentInstance.queues.push(...this.queues);
+    } else { // just one element
       try {
-        let originalQueue = row.customProperties.originalQueue;
-        // EDELIVERY-2814
-        let originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-        let queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) != -1);
-        console.debug(queues);
-        if (queues) {
-          dialogRef.componentInstance.queues = queues;
-          dialogRef.componentInstance.selectedSource = queues[0];
-        }
-        if (queues.length == 1) {
-          dialogRef.componentInstance.destinationsChoiceDisabled = true;
+        const message = elements[0];
+        const originalQueue = message.customProperties.originalQueue;
+        if (originalQueue) {
+          // EDELIVERY-2814
+          const originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
+          const queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) !== -1);
+          dialogRef.componentInstance.setQueues(queues);
         }
       } catch (e) {
         console.error(e);
       }
-
-      if (dialogRef.componentInstance.queues.length == 0) {
-        console.log(dialogRef.componentInstance.queues.length);
+      if (dialogRef.componentInstance.queues.length === 0) {
+        console.warn('Unable to determine the original queue for the selected messages');
         dialogRef.componentInstance.queues.push(...this.queues);
       }
-    } else {
-      dialogRef.componentInstance.queues.push(...this.queues);
     }
+  }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result && result.destination) {
-        let messageIds = this.selected.map((message) => message.id);
-        this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
-      }
-    });
+  private isDLQQueue() {
+    return /DLQ/.test(this.currentSearchSelectedSource.name);
+  }
+
+  moveSelected() {
+    this.moveElements(this.selected);
+  }
+
+  moveAction(row) {
+    this.moveElements([row]);
   }
 
   showDetails(selectedRow: any) {
-    let dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
+    const dialogRef: MatDialogRef<MessageDialogComponent> = this.dialog.open(MessageDialogComponent);
     dialogRef.componentInstance.message = selectedRow;
     dialogRef.componentInstance.currentSearchSelectedSource = this.currentSearchSelectedSource;
   }
 
   deleteAction(row) {
-    this.markedForDeletionMessages.push(row);
-    let newRows = this.rows.filter((element) => {
-      return row !== element;
-    });
-    super.selected = [];
-    super.rows = newRows;
-    super.count = newRows.length;
+    this.deleteElements([row]);
   }
 
   delete() {
-    this.markedForDeletionMessages.push(...this.selected);
-    let newRows = this.rows.filter((element) => {
-      return !this.selected.includes(element);
+    this.deleteElements(this.selected);
+  }
+
+  deleteElements(elements: any[]) {
+    elements.forEach(el => {
+      const index = this.rows.indexOf(el);
+      if (index > -1) {
+        this.rows.splice(index, 1);
+        this.markedForDeletionMessages.push(el);
+      }
     });
+    super.rows = [...this.rows];
+    super.count = this.rows.length;
+
     super.selected = [];
-    super.rows = newRows;
-    super.count = newRows.length;
   }
 
   serverMove(source: string, destination: string, messageIds: Array<any>) {
+    super.isSaving = true;
     this.http.post('rest/jms/messages/action', {
       source: source,
       destination: destination,
@@ -376,21 +347,20 @@ export class JmsComponent extends mix(BaseListComponent)
       () => {
         this.alertService.success('The operation \'move messages\' completed successfully.');
 
-        //refresh destinations
+        // refresh destinations
         this.refreshDestinations().subscribe(res => {
           this.setDefaultQueue(this.currentSearchSelectedSource.name);
         });
 
-        //remove the selected rows
-        let newRows = this.rows.filter((element) => {
-          return !this.selected.includes(element);
-        });
-        super.selected = [];
-        super.rows = newRows;
-        super.count = newRows.length;
+        // remove the selected rows
+        this.deleteElements(this.selected);
+        this.markedForDeletionMessages = [];
+
+        super.isSaving = false;
       },
       error => {
         this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
+        super.isSaving = false;
       }
     )
   }
@@ -425,7 +395,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canCancel() {
-    return (this.markedForDeletionMessages.length > 0);
+    return this.isDirty() && !this.isBusy();
   }
 
   canSave() {
@@ -433,6 +403,16 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canDelete() {
-    return (this.selected.length > 0);
+    return this.atLeastOneRowSelected() && !this.isBusy();
   }
+
+  canMove() {
+    return this.canDelete();
+  }
+
+  private atLeastOneRowSelected() {
+    return this.selected.length > 0;
+  }
+
+
 }

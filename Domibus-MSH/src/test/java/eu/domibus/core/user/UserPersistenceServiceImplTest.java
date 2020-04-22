@@ -18,15 +18,14 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -293,4 +292,61 @@ public class UserPersistenceServiceImplTest {
 
     }
 
+    @Test
+    public void filterModifiedUsersTest(@Mocked eu.domibus.api.user.User user1) {
+
+        List<eu.domibus.api.user.User> users = new ArrayList<>();
+        users.add(user1);
+
+        new Expectations(userPersistenceService) {{
+            userPersistenceService.isUpdated(user1);
+            result = true;
+
+            userPersistenceService.isPasswordChanged(user1);
+            returns(false, true, false, true);
+        }};
+
+        Collection<eu.domibus.api.user.User> result1 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
+        Assert.assertTrue(result1.size() == 1);
+        Collection<eu.domibus.api.user.User> result2 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
+        Assert.assertTrue(result2.isEmpty());
+
+        Collection<eu.domibus.api.user.User> result3 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
+        Assert.assertTrue(result3.isEmpty());
+        Collection<eu.domibus.api.user.User> result4 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
+        Assert.assertTrue(result4.size() == 1);
+
+    }
+
+    @Test
+    public void isPasswordChangedTest(@Mocked eu.domibus.api.user.User user1) {
+
+        new Expectations(userPersistenceService) {{
+            user1.getPassword();
+            returns(StringUtils.EMPTY, "newPass", null);
+        }};
+
+        boolean res1 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertFalse(res1);
+        boolean res2 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertTrue(res2);
+        boolean res3 = userPersistenceService.isPasswordChanged(user1);
+        Assert.assertFalse(res3);
+    }
+
+    @Test
+    public void isUpdatedTest(@Mocked eu.domibus.api.user.User user1) {
+
+        new Expectations(userPersistenceService) {{
+            user1.getStatus();
+            returns(UserState.UPDATED.name(), UserState.REMOVED.name(), UserState.PERSISTED.name());
+        }};
+
+        boolean res1 = userPersistenceService.isUpdated(user1);
+        Assert.assertTrue(res1);
+        boolean res2 = userPersistenceService.isUpdated(user1);
+        Assert.assertFalse(res2);
+        boolean res3 = userPersistenceService.isUpdated(user1);
+        Assert.assertFalse(res3);
+    }
 }

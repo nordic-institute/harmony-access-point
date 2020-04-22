@@ -9,7 +9,7 @@ import {OnInit} from '@angular/core';
  *
  * A mixin for components that display a list of items that can be modified and saved
  */
-let ModifiableListMixin = (superclass: Constructable) => class extends superclass
+const ModifiableListMixin = (superclass: Constructable) => class extends superclass
   implements IModifiableList, DirtyOperations, OnInit {
 
   public isChanged: boolean;
@@ -38,6 +38,7 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
 
   async save(): Promise<boolean> {
     if (this.isSaving) {
+      this.alertService.error(`Cannot save because another save operation is ongoing.`);
       return false;
     }
 
@@ -45,13 +46,13 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
     if (save) {
       this.isSaving = true;
       let saved: boolean;
-      let operationName: string = 'update ' + (this.name || '').toLowerCase();
+      const operationName: string = 'update ' + (this.name || '').toLowerCase();
       try {
-        let result = await this.doSave();
+        const result = await this.doSave();
         if (result === false) {
           saved = false; // TODO do not expect false after client validation on save
         } else {
-          if(result != null) {
+          if (result != null) {
             this.alertService.success(result);
           } else {
             this.alertService.success(`The operation '${operationName}' completed successfully.`);
@@ -78,7 +79,9 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   public async cancel() {
-    if (this.isSaving) return;
+    if (this.isSaving) {
+      return;
+    }
 
     const cancel = await this.dialogsService.openCancelDialog();
     if (cancel) {
@@ -97,23 +100,23 @@ let ModifiableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   canCancel(): boolean {
-    return this.isChanged;
+    return this.isDirty() && !this.isBusy();
   }
 
   canSave(): boolean {
-    return this.isChanged;
+    return this.isDirty() && !this.isBusy();
   }
 
   canDelete(): boolean {
-    return !this.isChanged;
+    return this.canEdit();
   }
 
   canEdit(): boolean {
-    return !this.isSaving;
+    return this.selected.length === 1 && !this.isBusy();
   }
 
   canAdd(): boolean {
-    return !this.isSaving;
+    return !this.isBusy();
   }
 
   isBusy(): boolean {

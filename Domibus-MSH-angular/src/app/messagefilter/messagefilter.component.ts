@@ -31,8 +31,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   areFiltersPersisted: boolean;
 
   enableSave: boolean;
-  enableMoveUp: boolean;
-  enableMoveDown: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService) {
@@ -44,7 +42,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
     this.backendFilterNames = [];
     this.rowNumber = -1;
-    this.disableSelectionAndButtons();
     this.loadServerData();
   }
 
@@ -54,12 +51,12 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   async getDataAndSetResults(): Promise<any> {
     this.getBackendFiltersInfo();
-    this.disableSelectionAndButtons();
   }
 
   getBackendFiltersInfo() {
+    this.disableSelectionAndButtons();
     return this.getMessageFilterEntries().toPromise().then((result: MessageFilterResult) => {
-      let newRows = [];
+      const newRows = [];
       this.backendFilterNames = [];
       if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
@@ -93,29 +90,28 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     return this.http.get<MessageFilterResult>(MessageFilterComponent.MESSAGE_FILTER_URL);
   }
 
-  add() {
+  async add() {
     if (this.isBusy()) {
       return;
     }
 
     let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
-    this.dialog.open(EditMessageFilterComponent, {
+    const ok = await this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
         entity: backendEntry
       }
-    }).afterClosed().toPromise().then(ok => {
-      if (ok) {
-        if (this.findRowLike(backendEntry) == -1) {
-          super.rows = [...this.rows, backendEntry];
-          super.count = this.rows.length + 1;
+    }).afterClosed().toPromise();
+    if (ok) {
+      if (this.findRowLike(backendEntry) == -1) {
+        super.rows = [...this.rows, backendEntry];
+        super.count = this.rows.length + 1;
 
-          this.setDirty(true);
-        } else {
-          this.alertService.error('Impossible to insert a duplicate entry');
-        }
+        this.setDirty(true);
+      } else {
+        this.alertService.error('Impossible to insert a duplicate entry');
       }
-    });
+    }
   }
 
   edit(row?) {
@@ -154,7 +150,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   }
 
   async doSave(): Promise<any> {
-    this.disableSelectionAndButtons();
     return this.http.put(MessageFilterComponent.MESSAGE_FILTER_URL, this.rows).toPromise().then(res => {
       this.getBackendFiltersInfo();
     });
@@ -170,9 +165,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   private deleteItems(items: any[]) {
     this.setDirty(true);
-
-    this.enableMoveUp = false;
-    this.enableMoveDown = false;
 
     let copy = [...this.rows];
     // we need to use the old for loop approach to don't mess with the entries on the top before
@@ -193,7 +185,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     let rowIndex = this.rows.indexOf(row);
     this.moveInternal(rowIndex, step);
     setTimeout(() => {
-      let rowIndex = this.rows.indexOf(row);
+      rowIndex = this.rows.indexOf(row);
       document.getElementById('pluginRow' + (rowIndex) + '_id').click();
     }, 50);
   }
@@ -203,17 +195,14 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
       return;
     }
 
-    let array = this.rows.slice();
-    let move = array[rowNumber];
+    const array = this.rows.slice();
+    const move = array[rowNumber];
     array[rowNumber] = array[rowNumber + step];
     array[rowNumber + step] = move;
 
     super.rows = array.slice();
     super.count = this.rows.length;
     this.rowNumber = this.rowNumber + step;
-
-    this.enableMoveUp = !(rowNumber == 0 && step == -1);
-    this.enableMoveDown = !(rowNumber == this.rows.length - 1 && step == 1);
 
     this.setDirty(true);
   }
@@ -224,38 +213,35 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   onSelect({selected}) {
     this.rowNumber = this.rows.indexOf(this.selected[0]);
+  }
 
-    this.enableMoveDown = selected.length == 1 && this.rowNumber < this.rows.length - 1;
-    this.enableMoveUp = selected.length == 1 && this.rowNumber > 0;
+  canMoveUp(): boolean {
+    return this.oneRowSelected() && this.rowNumber > 0 && !this.isBusy();
+  }
+
+  canMoveDown(): boolean {
+    return this.oneRowSelected() && this.rowNumber < this.rows.length - 1 && !this.isBusy();
   }
 
   isDirty(): boolean {
     return this.isChanged;
   }
 
-  setDirty(itemValue: boolean) {
-    super.isChanged = this.isChanged || itemValue;
+  setDirty(dirty: boolean) {
+    super.isChanged = this.isChanged || dirty;
     this.enableSave = this.isChanged;
   }
 
-  canCancel() {
-    return this.isDirty();
-  }
-
   canSave() {
-    return this.enableSave;
-  }
-
-  canAdd() {
-    return true;
-  }
-
-  canEdit() {
-    return this.selected.length === 1;
+    return this.enableSave && !this.isBusy();
   }
 
   canDelete() {
-    return this.selected.length > 0;
+    return this.selected.length > 0 && !this.isBusy();
+  }
+
+  private oneRowSelected() {
+    return this.selected.length == 1;
   }
 
   private findRowLike(backendEntry: BackendFilterEntry): number {
@@ -276,8 +262,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   private disableSelectionAndButtons() {
     super.selected = [];
-    this.enableMoveDown = false;
-    this.enableMoveUp = false;
     this.enableSave = false;
   }
 }
