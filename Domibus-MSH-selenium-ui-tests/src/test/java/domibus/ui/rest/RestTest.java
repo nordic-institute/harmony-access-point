@@ -2,16 +2,20 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeSuite;
 import domibus.BaseTest;
 import org.testng.annotations.DataProvider;
+import org.testng.asserts.SoftAssert;
+import org.testng.collections.Lists;
 import utils.Generator;
 
 import java.io.IOException;
@@ -113,7 +117,22 @@ public class RestTest extends BaseTest {
 		return toRet;
 	}
 
+	protected void validateInvalidResponse(ClientResponse response, SoftAssert soft, Integer... acceptedResponseCodes){
+		Integer status=  response.getStatus();
+		String responseContent = getSanitizedStringResponse(response);
 
+		log.debug("Response status: " + status);
+		log.debug("Response content: " + responseContent);
+
+		soft.assertTrue(Lists.newArrayList(acceptedResponseCodes).contains(status), "Response status not as expected, found: " + status);
+
+		try {
+			new JSONObject(responseContent);
+		} catch (JSONException e) {
+			soft.fail("Response is not in JSON format");
+		}
+
+	}
 
 
 }

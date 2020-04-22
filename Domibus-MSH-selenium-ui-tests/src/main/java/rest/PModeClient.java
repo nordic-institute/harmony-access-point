@@ -3,6 +3,8 @@ package rest;
 import com.sun.jersey.api.client.ClientResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTSlideIdListEntry;
+import utils.Generator;
 
 import java.io.File;
 import java.io.InputStream;
@@ -16,13 +18,22 @@ public class PModeClient extends DomibusRestClient {
 		switchDomain(domain);
 
 		HashMap<String, String> fields = new HashMap<>();
-		fields.put("description", "automatic red");
+		fields.put("description", Generator.randomAlphaNumeric(10));
 		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
 		if (response.getStatus() != 200) {
 			log.debug(String.valueOf(response.getStatus()));
 			log.debug(response.getEntity(String.class));
 			throw new Exception("Could not upload PMODE file!!!");
 		}
+	}
+
+	public ClientResponse uploadPMode(String pmodeFilePath, String comment, String domain) throws Exception {
+		switchDomain(domain);
+
+		HashMap<String, String> fields = new HashMap<>();
+		fields.put("description", comment);
+		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
+		return response;
 	}
 
 	public boolean isPmodeUploaded(String domain) {
@@ -65,5 +76,11 @@ public class PModeClient extends DomibusRestClient {
 
 		in.close();
 		return file.getAbsolutePath();
+	}
+
+	public ClientResponse downloadPmode(String domain, String pmodeID) throws Exception {
+		switchDomain(domain);
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
+		return clientResponse;
 	}
 }
