@@ -77,14 +77,14 @@
             <agreement name="agreement1" value="A1" type="T1"/>
         </agreements>
         <services>
-            <service name="testService1" value="bdx:noprocess" type="tc1"/>
-            <service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
             <service name="dynService" value="urn:www.cenbii.eu:profile:bii04:ver1.0" type="cenbii-procid-ubl"/>
         </services>
         <actions>
-            <action name="tc1Action" value="TC1Leg1"/>
-            <action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
             <action name="dynAction" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::107"/>
+			<action name="dynAction3" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::108"/>
+			<action name="dynAction4" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::109"/>
+			<action name="dynAction5" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::110"/>
+			<action name="dynAction6" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::111"/>
         </actions>
         <as4>
             <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -101,39 +101,11 @@
             Please add the attribute "splitting"(pointing to a splitting configuration)
             to a specific leg in case you want to activate splitAndJoin feature
             -->
-            <legConfiguration name="pushTestcase1tc1Action"
-                              service="testService1"
-                              action="tc1Action"
-                              defaultMpc="defaultMpc"
-                              reliability="AS4Reliability"
-                              security="eDeliveryAS4Policy"
-                              receptionAwareness="receptionAwareness"
-                              propertySet="eDeliveryPropertySet"
-                              payloadProfile="MessageProfile"
-                              errorHandling="demoErrorHandling"
-                              compressPayloads="true"/>
-            <legConfiguration name="testServiceCase"
-                              service="testService"
-                              action="testAction"
-                              defaultMpc="defaultMpc"
-                              reliability="AS4Reliability"
-                              security="eDeliveryAS4Policy_BST"
-                              receptionAwareness="receptionAwareness"
-                              propertySet="eDeliveryPropertySet"
-                              payloadProfile="MessageProfile"
-                              errorHandling="demoErrorHandling"
-                              compressPayloads="true"/>
-            <legConfiguration name="dynamicLeg"
-                              service="dynService"
-                              action="dynAction"
-                              defaultMpc="defaultMpc"
-                              reliability="AS4Reliability"
-                              security="eDeliveryAS4Policy_BST"
-                              receptionAwareness="receptionAwareness"
-                              propertySet="eDeliveryPropertySet"
-                              payloadProfile="MessageProfile"
-                              errorHandling="demoErrorHandling"
-                              compressPayloads="true"/>
+            <legConfiguration name="dynamicLeg" service="dynService" action="dynAction" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg3" service="dynService" action="dynAction3" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg4" service="dynService" action="dynAction4" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg5" service="dynService" action="dynAction5" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg6" service="dynService" action="dynAction6" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 
         </legConfigurations>
         <process name="tc1Process"
@@ -145,22 +117,56 @@
                 <initiatorParty name="blue_gw"/>
             </initiatorParties>
             <legs>
-                <leg name="testServiceCase"/>
                 <leg name="dynamicLeg"/>
             </legs>
-        </process>
-        <process name="tc1ProcessReverse"
+        </process>		
+        <process name="tc3Process"
                  mep="oneway"
                  binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
-            <responderParties>
-                <responderParty name="blue_gw"/>
-            </responderParties>
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
             <legs>
-                <leg name="testServiceCase"/>
-                <leg name="dynamicLeg"/>
+                <leg name="dynamicLeg3"/>
             </legs>
         </process>
+        <process name="tc4Process"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="dynamicLeg4"/>
+            </legs>
+        </process>
+        <process name="tc5Process"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="dynamicLeg5"/>
+            </legs>
+        </process>
+        <process name="tc6Process"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="dynamicLeg6"/>
+            </legs>
+        </process>		
     </businessProcesses>
 </db:configuration>
