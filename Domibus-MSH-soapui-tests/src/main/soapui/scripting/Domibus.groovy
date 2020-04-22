@@ -2355,11 +2355,11 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 
 			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/" + propName,
 							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-							"-H",  "Content-Type: text/xml",
+							"-H",  "Content-Type: text/plain",
 							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 							"-X", "PUT",
 							"-v",
-							"--data-binary", "\"" + propNewValue + "\""]
+							"--data-binary", "$propNewValue"]
             def commandResult = runCommandInShell(commandString, log)
 
             assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
