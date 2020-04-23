@@ -805,8 +805,8 @@ def findNumberOfDomain(String inputSite) {
         if (commandToRun) {
             proc = commandToRun.execute()
             if (proc != null) {
-                proc.consumeProcessOutput(outputCatcher, errorCatcher)
-                proc.waitFor()
+                proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                proc.waitForProcessOutput(outputCatcher, errorCatcher);
             }
             debugLog("  clearCache  [][]  commandToRun = " + commandToRun, log)
             debugLog("  clearCache  [][]  outputCatcher = " + outputCatcher, log)
@@ -865,8 +865,8 @@ def findNumberOfDomain(String inputSite) {
                         }
                     }
                     if (proc != null) {
-                        proc.consumeProcessOutput(outputCatcher, errorCatcher)
-                        proc.waitFor()
+                        proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                        proc.waitForProcessOutput(outputCatcher, errorCatcher);
                     }
                     assert((!errorCatcher) && (proc != null)), locateTest(context) + "Error:startMSH: Error while trying to start the MSH."
                     while ( (!pingMSH(side, context, log).equals("200")) && (passedDuration < MAX_WAIT_TIME) ) {
@@ -935,8 +935,8 @@ def findNumberOfDomain(String inputSite) {
             proc = "cmd /c cd ${path} && shutdown.bat".execute()
 
             if (proc != null) {
-                proc.consumeProcessOutput(outputCatcher, errorCatcher)
-                proc.waitFor()
+                proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                proc.waitForProcessOutput(outputCatcher, errorCatcher);
             }
             assert((!errorCatcher) && (proc != null)),locateTest(context) + "Error:stopMSH: Error while trying to stop the MSH."
             while ( (pingMSH(side, context, log).equals("200")) && (passedDuration < MAX_WAIT_TIME) ) {
