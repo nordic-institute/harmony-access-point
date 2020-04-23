@@ -1,10 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.pmode.PModeException;
-import eu.domibus.ext.domain.PartyDTO;
-import eu.domibus.ext.domain.PartyFilterRequestDTO;
-import eu.domibus.ext.domain.ProcessDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -37,12 +34,12 @@ public class PartyExtResource {
     PartyExtService partyExtService;
 
     @ExceptionHandler(PartyExtServiceException.class)
-    public ResponseEntity<ErrorRO> handlePartyExtServiceException(PartyExtServiceException e) {
+    public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
         String message = e.getMessage();
         if (e.getCause() instanceof PModeException) {
             message = ExceptionUtils.getRootCauseMessage(e);
         }
-        ErrorRO errorRO = new ErrorRO(message);
+        ErrorDTO errorRO = new ErrorDTO(message);
         return ResponseEntity.badRequest().body(errorRO);
     }
 

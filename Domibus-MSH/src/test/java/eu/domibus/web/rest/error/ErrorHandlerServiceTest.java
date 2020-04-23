@@ -1,7 +1,7 @@
 package eu.domibus.web.rest.error;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.web.rest.ro.ErrorRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

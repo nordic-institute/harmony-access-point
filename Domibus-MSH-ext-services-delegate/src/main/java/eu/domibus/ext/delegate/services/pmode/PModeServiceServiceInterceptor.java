@@ -1,7 +1,7 @@
-package eu.domibus.ext.delegate.services.usermessage;
+package eu.domibus.ext.delegate.services.pmode;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
-import eu.domibus.ext.exceptions.UserMessageExtException;
+import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -10,16 +10,16 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 /**
- * @author Tiago Miguel
- * @since 3.3.1
+ * @author Catalin Enache
+ * @since 4.2
  */
 @Aspect
 @Component
-public class UserMessageServiceInterceptor extends ServiceInterceptor {
+public class PModeServiceServiceInterceptor extends ServiceInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeServiceServiceInterceptor.class);
 
-    @Around(value = "execution(public * eu.domibus.ext.delegate.services.usermessage.UserMessageServiceDelegate.*(..))")
+    @Around(value = "execution(public * eu.domibus.ext.delegate.services.pmode.PModeServiceDelegate.*(..))")
     @Override
     public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
         return super.intercept(joinPoint);
@@ -27,7 +27,7 @@ public class UserMessageServiceInterceptor extends ServiceInterceptor {
 
     @Override
     public Exception convertCoreException(Exception e) {
-        return new UserMessageExtException(e);
+        return new PModeExtException(e);
     }
 
     @Override

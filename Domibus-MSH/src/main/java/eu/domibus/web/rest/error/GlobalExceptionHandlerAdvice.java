@@ -5,7 +5,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
-import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * the last resort if the error is not caught in the controller where it originated
  */
 
-@ControllerAdvice
+@ControllerAdvice("eu.domibus.web.rest")
 @RequestMapping(produces = "application/vnd.error+json")
 public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
