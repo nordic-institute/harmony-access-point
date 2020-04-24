@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.NameScope;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -204,7 +206,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
             FSPayload fsPayload = entry.getValue();
             DataHandler dataHandler = fsPayload.getDataHandler();
             String contentId = entry.getKey();
-            String fileName = getFileName(contentId, fsPayload);
+            String fileName = getFileName(contentId, fsPayload, incomingFolderByMessageId);
 
             try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName);
                  FileContent fileContent = fileObject.getContent()) {
@@ -256,14 +258,32 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
     }
 
-    protected String getFileName(String contentId, FSPayload fsPayload) {
+    protected String getFileName(String contentId, FSPayload fsPayload, FileObject incomingFolderByMessageId) {
         //original name + extension
         String fileName = fsPayload.getFileName();
 
-        //if empty, we compose it - based on cid and extension
-        if (StringUtils.isBlank(fileName)) {
-            fileName = contentId.replaceFirst("cid:", StringUtils.EMPTY) + getFileNameExtension(fsPayload.getMimeType());
+        //contentId file name - if the parsing of the received fileName fails we will return this
+        final String fileNameContentId = contentId.replaceFirst("cid:", StringUtils.EMPTY) + getFileNameExtension(fsPayload.getMimeType());
+
+        String decodedFileName;
+        try {
+            decodedFileName = UriParser.decode(fileName);
+        } catch (FileSystemException e) {
+            LOG.error("Error while decoding the fileName=[{}]", fileName, e);
+            return fileNameContentId;
         }
+        if (decodedFileName != null && !StringUtils.equals(fileName, decodedFileName)) {
+            //we have an encoded fileName
+            fileName = decodedFileName;
+            LOG.debug("fileName value decoded to=[{}]", decodedFileName);
+        }
+
+        try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
+        } catch (FileSystemException e) {
+            LOG.warn("invalid fileName or outside the parent folder=[{}]", fileName);
+            fileName = fileNameContentId;
+        }
+        LOG.debug("returned fileName=[{}]", fileName);
         return fileName;
     }
 
