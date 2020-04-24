@@ -188,6 +188,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         try {
