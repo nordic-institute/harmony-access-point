@@ -61,7 +61,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		if(page.grid().getRowsNo()==0){
-			restUtils.getPluginUser(null, DRoles.USER, true, true);
+			rest.getPluginUser(null, DRoles.USER, true, true);
 			page.refreshPage();
 		}
 
@@ -84,7 +84,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
 	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editPassErrMess() throws Exception {
-		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -120,7 +120,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	/*	PU-10 - Admin wants to edit username	*/
 	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUsername() throws Exception {
-		String username = restUtils.getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();

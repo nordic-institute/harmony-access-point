@@ -56,7 +56,7 @@ public class UsersPgUXTest extends SeleniumTest {
     public void openDoubleClickModal() throws Exception {
         SoftAssert soft = new SoftAssert();
 
-        String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("found user " + username);
 
         UsersPage page = new UsersPage(driver);
@@ -82,7 +82,7 @@ public class UsersPgUXTest extends SeleniumTest {
     @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void doubleclickDeletedUser() throws Exception {
         SoftAssert soft = new SoftAssert();
-        String username = restUtils.getUser(null, DRoles.USER, true, true, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, true, false).getString("userName");
 
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
@@ -109,7 +109,7 @@ public class UsersPgUXTest extends SeleniumTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("test for user " + username);
 
         page.grid().scrollToAndDoubleClick("Username", username);
@@ -126,7 +126,7 @@ public class UsersPgUXTest extends SeleniumTest {
         SoftAssert soft = new SoftAssert();
 
 //		edit scenario
-        String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("found user " + username);
 
         UsersPage page = new UsersPage(driver);
@@ -327,7 +327,7 @@ public class UsersPgUXTest extends SeleniumTest {
     /* USR-24 - Deleted user row selection on single click */
     @Test(description = "USR-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void selectDeletedUserRow() throws Exception {
-        String username = restUtils.getUser(null, DRoles.USER, true, true, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, true, false).getString("userName");
         log.info("checking for username " + username);
 
         SoftAssert soft = new SoftAssert();
@@ -345,7 +345,7 @@ public class UsersPgUXTest extends SeleniumTest {
     /* USR-23 - Active user row selection on single click */
     @Test(description = "USR-23", groups = {"multiTenancy", "singleTenancy"})
     public void selectUserRow() throws Exception {
-        String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("checking for username " + username);
 
         SoftAssert soft = new SoftAssert();
@@ -364,7 +364,7 @@ public class UsersPgUXTest extends SeleniumTest {
     @Test(description = "USR-18", groups = {"multiTenancy"}, enabled = false)
     public void csvFileDownloadDomain() throws Exception {
         SoftAssert soft = new SoftAssert();
-        String domainName = restUtils.getNonDefaultDomain();
+        String domainName = rest.getNonDefaultDomain();
         String domainCode = rest.getDomainCodeForName(domainName);
         log.info("checking download for domain " + domainName);
 

@@ -28,12 +28,8 @@ public class BaseRestClient {
 	protected Client client = Client.create();
 	public WebResource resource = client.resource(data.getUiBaseUrl());
 
-
 	protected List<NewCookie> cookies;
 	protected String token;
-
-
-
 
 	//	---------------------------------------Default request methods -------------------------------------------------
 	public ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
@@ -50,6 +46,22 @@ public class BaseRestClient {
 
 		WebResource.Builder builder = decorateBuilder(resource);
 		return builder.get(ClientResponse.class);
+	}
+
+	public ClientResponse requestDEL(WebResource resource, HashMap<String, String> params) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
+		if (params != null) {
+			for (Map.Entry<String, String> param : params.entrySet()) {
+				resource = resource.queryParam(param.getKey(), param.getValue());
+			}
+		}
+
+		WebResource.Builder builder = decorateBuilder(resource);
+		return builder.delete(ClientResponse.class);
 	}
 
 	public ClientResponse requestPOSTFile(WebResource resource, String filePath, HashMap<String, String> fields) {

@@ -1,9 +1,12 @@
 package rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTSlideIdListEntry;
+import org.testng.collections.Lists;
 import utils.Generator;
 
 import java.io.File;
@@ -11,8 +14,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.List;
 
 public class PModeClient extends DomibusRestClient {
+
 	// -------------------------------------------- PMode --------------------------------------------------------------
 	public void uploadPMode(String pmodeFilePath, String domain) throws Exception {
 		switchDomain(domain);
@@ -41,7 +46,7 @@ public class PModeClient extends DomibusRestClient {
 		return entries.length() > 0;
 	}
 
-	JSONArray getPmodesList(String domain) {
+	public JSONArray getPmodesList(String domain) {
 		switchDomain(domain);
 		String getResponse = requestGET(resource.path(RestServicePaths.PMODE_LIST), null).getEntity(String.class);
 
@@ -83,4 +88,26 @@ public class PModeClient extends DomibusRestClient {
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.PMODE_CURRENT_DOWNLOAD + pmodeID), null);
 		return clientResponse;
 	}
+
+	public ClientResponse deletePmode(String domain, List<String> pmodeIDs) throws Exception {
+		switchDomain(domain);
+
+		WebResource myRes = resource.path(RestServicePaths.PMODE);
+
+		for (int i = 0; i < pmodeIDs.size(); i++) {
+			String pmodeID = pmodeIDs.get(i);
+			myRes = myRes.queryParam("ids", pmodeID);
+		}
+		ClientResponse clientResponse = decorateBuilder(myRes).delete(ClientResponse.class);
+		return clientResponse;
+	}
+
+	public ClientResponse restorePmode(String domain, String pmodeId) throws Exception {
+		switchDomain(domain);
+
+		ClientResponse clientResponse = jsonPUT(resource.path(RestServicePaths.PMODE_RESTORE + pmodeId), "");
+		return clientResponse;
+	}
+
+
 }

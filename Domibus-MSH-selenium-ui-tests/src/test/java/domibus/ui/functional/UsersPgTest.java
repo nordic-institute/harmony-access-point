@@ -59,7 +59,7 @@ public class UsersPgTest extends SeleniumTest {
 	/* Admin deletes user and presses Save */
 	@Test(description = "USR-10", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteUserAndSave() throws Exception {
-		String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -85,7 +85,7 @@ public class UsersPgTest extends SeleniumTest {
 	/* Admin deletes user and presses Cancel */
 	@Test(description = "USR-9", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteUserAndCancel() throws Exception {
-		String username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
 		loginAndGoToUsersPage(data.getAdminUser());
@@ -114,8 +114,8 @@ public class UsersPgTest extends SeleniumTest {
 	public void availableRolesAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String adminUser = restUtils.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
-		String toEditUser = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+		String adminUser = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		String toEditUser = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		log.info("got user " + toEditUser);
 		log.info("got admin " + adminUser);
@@ -141,7 +141,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		if(data.isMultiDomain()) {
 			logout();
-			String superUser = restUtils.getUser(null, DRoles.SUPER, true, false, true).getString("userName");
+			String superUser = rest.getUser(null, DRoles.SUPER, true, false, true).getString("userName");
 			log.info("checking for super admin " + superUser);
 			login(superUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
 
@@ -236,7 +236,7 @@ public class UsersPgTest extends SeleniumTest {
 	public void editUserAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("acquiring user for edit");
-		String username = restUtils.getUser(null, DRoles.USER, false, false, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, false, false, false).getString("userName");
 
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
@@ -275,7 +275,7 @@ public class UsersPgTest extends SeleniumTest {
 	public void editUserAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("acquiring user for edit");
-		String username = restUtils.getUser(null, DRoles.USER, false, false, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, false, false, false).getString("userName");
 
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
@@ -339,7 +339,7 @@ public class UsersPgTest extends SeleniumTest {
 
 //		admin edits to disable active user
 		log.info("Disable active user");
-		username = restUtils.getUser(null, DRoles.USER, true, false, false).getString("userName");
+		username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
 
 		page = loginAndGoToUsersPage(data.getAdminUser());
 
@@ -370,7 +370,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = restUtils.getUser(null, DRoles.USER, true, false, true).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
 		log.info("changing password for " + username);
@@ -471,8 +471,8 @@ public class UsersPgTest extends SeleniumTest {
 	/*USR-19 - Admin tries to create a user with username that exists already (active deleted) both*/
 	@Test(description = "USR-19", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicateUsername() throws Exception {
-		String username = restUtils.getUser(null, DRoles.USER, false, false, false).getString("userName");
-		String deleted_username = restUtils.getUser(null, DRoles.USER, false, true, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, false, false, false).getString("userName");
+		String deleted_username = rest.getUser(null, DRoles.USER, false, true, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -509,10 +509,10 @@ public class UsersPgTest extends SeleniumTest {
 	/*USR-20 - Admin tries to create a user with username that exists on another domain*/
 	@Test(description = "USR-20", groups = {"multiTenancy"})
 	public void duplicateUsernameOnAnotherDomain() throws Exception {
-		String domainName = restUtils.getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = restUtils.getUser(domainCode, DRoles.USER, false, false, false).getString("userName");
-		String deleted_username = restUtils.getUser(domainCode, DRoles.USER, false, true, false).getString("userName");
+		String username = rest.getUser(domainCode, DRoles.USER, false, false, false).getString("userName");
+		String deleted_username = rest.getUser(domainCode, DRoles.USER, false, true, false).getString("userName");
 
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -553,7 +553,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-21", groups = {"multiTenancy"})
 	public void duplicateUserVSPluginUser() throws Exception {
 
-		String username = restUtils.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
 		log.info("got plugin user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -578,9 +578,9 @@ public class UsersPgTest extends SeleniumTest {
 	/*USR-22 - Admin tries to create a user with username that exists on a Plugin user on another domain*/
 	@Test(description = "USR-22", groups = {"multiTenancy"})
 	public void duplicateUserVSPluginUserOtherDomain() throws Exception {
-		String domainName = restUtils.getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = restUtils.getPluginUser(domainCode, DRoles.ADMIN, true, false).getString("userName");
+		String username = rest.getPluginUser(domainCode, DRoles.ADMIN, true, false).getString("userName");
 		log.info("got plugin user " + username + " on domain " + domainCode);
 
 		SoftAssert soft = new SoftAssert();
@@ -606,7 +606,7 @@ public class UsersPgTest extends SeleniumTest {
 	/*USR-32 - Delete logged in user*/
 	@Test(description = "USR-32", groups = {"multiTenancy", "singleTenancy"})
 	public void adminDeleteSelf() throws Exception {
-		String username = restUtils.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		String username = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
 		log.info("created user " + username);
 
 		SoftAssert soft = new SoftAssert();

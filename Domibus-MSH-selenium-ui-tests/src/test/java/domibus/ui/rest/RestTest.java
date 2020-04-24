@@ -2,7 +2,6 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -44,7 +43,7 @@ public class RestTest extends BaseTest {
 			int noOfMess = rest.messages().getListOfMessages(domain).length();
 			if (noOfMess < 15) {
 				rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", domain);
-				String pluginUsername = restUtils.getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
+				String pluginUsername = rest.getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
 				for (int i = noOfMess; i < 15; i++) {
 					messageSender.sendMessage(pluginUsername
 							,data.defaultPass()

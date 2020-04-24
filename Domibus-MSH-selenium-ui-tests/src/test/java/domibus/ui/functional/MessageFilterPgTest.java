@@ -526,7 +526,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
 
 		log.info("changing domain to 1");
-		page.getDomainSelector().selectOptionByText(restUtils.getNonDefaultDomain());
+		page.getDomainSelector().selectOptionByText(rest.getNonDefaultDomain());
 
 		log.info("check if filter is NOT present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid on other domains then default");
@@ -544,7 +544,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
 		rest.messFilters().createMessageFilter(actionName, null);
 		log.debug("filter with action "+actionName+" created");
-		String domainName = restUtils.getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);

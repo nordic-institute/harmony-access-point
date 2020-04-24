@@ -57,7 +57,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String messID = restUtils.getMessageIDs(null, 1, false).get(0);
+		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -80,7 +80,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 	public void selectAnotherRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> messIds = restUtils.getMessageIDs(null, 2, false);
+		List<String> messIds = rest.getMessageIDs(null, 2, false);
 		String messID1 = messIds.get(0);
 		String messID2 = messIds.get(1);
 

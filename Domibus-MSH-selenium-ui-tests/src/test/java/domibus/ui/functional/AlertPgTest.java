@@ -23,7 +23,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void searchBasicFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
@@ -54,7 +54,7 @@ public class AlertPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
@@ -146,7 +146,7 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Logout from application");
 		logout();
 		log.info("Login with admin credentials");
-		login(restUtils.getUser(null, DRoles.ADMIN, true, false, true).getString("userName"), data.defaultPass())
+		login(rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName"), data.defaultPass())
 				.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Validate non availability of Show domain alert checkbox for Admin user");
 		soft.assertFalse(filters.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");
@@ -158,7 +158,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void msgStatusChangeAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> ids = restUtils.getMessageIDsWithStatus(null, "SEND_FAILURE");
+		List<String> ids = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
 		if (ids.size() < 1) {
 			throw new SkipException("no messages in SEND_FAILURE state");
 		}
@@ -198,7 +198,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void userLoginFailureAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
 		log.info("Login into application");
@@ -230,7 +230,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void userDisableAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		log.info("Try to login with wrong password for 5 times so that user account gets disabled");
 		for (int i = 0; i < 6; i++) {
 			rest.login(username, "wrong");

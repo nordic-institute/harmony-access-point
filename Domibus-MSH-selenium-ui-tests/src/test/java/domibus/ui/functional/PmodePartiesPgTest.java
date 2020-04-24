@@ -232,7 +232,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 	@Test(priority=7,description = "PMP-8", groups = {"multiTenancy"}, enabled = false)
 	public void domainSegregation() throws Exception {
-		String domainName = restUtils.getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
 		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		rest.pmode().uploadPMode("pmodes/doNothingSelfSending.xml", domainCode);

@@ -23,7 +23,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 	public void wrongCurrentPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, true);
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
 
 		log.info("Login into application with Admin credentials");
 		DomibusPage page = login(username, data.defaultPass());
@@ -47,7 +47,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 	public void changePassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, true);
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
 
 		log.info("Login into application with Admin credentials");
 		DomibusPage page = login(username, data.defaultPass());
@@ -87,7 +87,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 	public void newPasswordAmongLast5() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = restUtils.getUsername(null, DRoles.USER, true, false, true);
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
 
 		log.info("Login into application with Admin credentials");
 		DomibusPage page = login(username, data.defaultPass());
