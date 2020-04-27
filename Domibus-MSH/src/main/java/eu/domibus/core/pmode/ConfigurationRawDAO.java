@@ -1,9 +1,9 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
+import eu.domibus.core.audit.envers.RevisionLog;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.AuditReader;
@@ -29,7 +29,12 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
     public ConfigurationRaw getConfigurationRaw(long id) {
         final TypedQuery<ConfigurationRaw> query = this.em.createNamedQuery("ConfigurationRaw.getById", ConfigurationRaw.class);
         query.setParameter("CONF_ID", id);
-        return query.getSingleResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException ex){
+            LOG.trace("No PMode for id=[{}]", id, ex);
+            return null;
+        }
     }
 
     public List<PModeArchiveInfo> getDetailedConfigurationRaw() {

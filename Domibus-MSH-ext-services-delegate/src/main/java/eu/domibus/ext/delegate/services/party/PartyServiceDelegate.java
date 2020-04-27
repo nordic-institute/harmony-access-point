@@ -21,8 +21,9 @@ import java.util.List;
 
 /**
  * {@inheritDoc}
- * @since 4.2
+ *
  * @author Catalin Enache
+ * @since 4.2
  */
 @Service
 public class PartyServiceDelegate implements PartyExtService {
@@ -43,8 +44,8 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void createParty(PartyDTO partyDTO) {
-            Party newParty = domainConverter.convert(partyDTO, Party.class);
-            partyService.createParty(newParty, partyDTO.getCertificateContent());
+        Party newParty = domainConverter.convert(partyDTO, Party.class);
+        partyService.createParty(newParty, partyDTO.getCertificateContent());
     }
 
     /**
@@ -78,7 +79,7 @@ public class PartyServiceDelegate implements PartyExtService {
      */
     @Override
     public void deleteParty(String partyName) {
-            partyService.deleteParty(partyName);
+        partyService.deleteParty(partyName);
     }
 
     /**

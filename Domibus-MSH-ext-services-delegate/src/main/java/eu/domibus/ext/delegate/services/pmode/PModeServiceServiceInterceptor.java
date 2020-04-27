@@ -1,6 +1,9 @@
 package eu.domibus.ext.delegate.services.pmode;
 
+import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,6 +30,9 @@ public class PModeServiceServiceInterceptor extends ServiceInterceptor {
 
     @Override
     public Exception convertCoreException(Exception e) {
+        if (e instanceof PModeValidationException || e instanceof RequestValidationException) {
+            throw new PModeExtException(DomibusErrorCode.DOM_004, e);
+        }
         return new PModeExtException(e);
     }
 

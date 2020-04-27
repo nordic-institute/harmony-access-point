@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -28,9 +29,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/pmode")
-public class PModeFileResource {
+public class PModeFileExtResource {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileResource.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
 
     @Autowired
     PModeExtService pModeExtService;
@@ -40,7 +41,7 @@ public class PModeFileResource {
 
     @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") int id) {
         LOG.debug("downloadPMode -> start");
         final byte[] rawConfiguration = pModeExtService.getPModeFile(id);
@@ -72,7 +73,7 @@ public class PModeFileResource {
     @PostMapping(consumes = {"multipart/form-data", "application/x-www-form-urlencoded"})
     public ValidationResponseDTO uploadPMode(
             @RequestPart("file") MultipartFile pmode,
-            @RequestParam("description") @Valid String pModeDescription) {
+            @RequestParam("description") @Valid @NotEmpty String pModeDescription) {
 
         List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(pmode, pModeDescription);
 

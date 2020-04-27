@@ -20,10 +20,10 @@ import java.util.List;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class DomibusMonitoringResourceTest {
+public class DomibusMonitoringExtResourceTest {
 
     @Tested
-    DomibusMonitoringResource domibusMonitoringResource;
+    DomibusMonitoringExtResource domibusMonitoringExtResource;
 
     @Injectable
     DomibusMonitoringExtService domibusMonitoringExtService;
@@ -39,7 +39,7 @@ public class DomibusMonitoringResourceTest {
             result = monitoringInfoDTO;
         }};
 
-        final MonitoringInfoDTO responseList = domibusMonitoringResource.getMonitoringDetails(filter);
+        final MonitoringInfoDTO responseList = domibusMonitoringExtResource.getMonitoringDetails(filter);
 
         Assert.assertNotNull(responseList);
     }

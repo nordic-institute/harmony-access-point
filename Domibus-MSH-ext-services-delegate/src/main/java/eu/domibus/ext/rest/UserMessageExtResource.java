@@ -8,7 +8,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Tiago Miguel
@@ -16,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/ext/messages/usermessages")
-public class UserMessageResource {
+public class UserMessageExtResource {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageResource.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
 
     @Autowired
     UserMessageExtService userMessageExtService;
@@ -32,9 +35,9 @@ public class UserMessageResource {
      */
     @ApiOperation(value = "Get user message", notes = "Retrieve the user message with the specified message id",
             authorizations = @Authorization(value = "basicAuth"), tags = "usermessage")
-    @RequestMapping(path = "/{messageId:.+}", method = RequestMethod.GET)
-    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) throws UserMessageExtException{
-        LOG.debug("Getting User Message with id = '" + messageId + "'");
+    @GetMapping(path = "/{messageId:.+}")
+    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) {
+        LOG.debug("Getting User Message with id = '{}", messageId);
         return userMessageExtService.getMessage(messageId);
     }
 }

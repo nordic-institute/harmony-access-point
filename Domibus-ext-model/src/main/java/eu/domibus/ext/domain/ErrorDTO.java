@@ -1,8 +1,9 @@
 package eu.domibus.ext.domain;
 
 /**
- * @since 4.2
+ * Error DTO
  * @author Catalin Enache
+ * @since 4.2
  */
 public class ErrorDTO {
     protected String message;
@@ -18,4 +19,5 @@ public class ErrorDTO {
     public void setMessage(String message) {
         this.message = message;
     }
+
 }

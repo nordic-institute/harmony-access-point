@@ -23,10 +23,10 @@ import java.util.List;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class PModeFileResourceTest {
+public class PModeFileExtResourceTest {
 
     @Tested
-    PModeFileResource pModeFileResource;
+    PModeFileExtResource pModeFileExtResource;
 
     @Injectable
     PModeExtService pModeExtService;
@@ -46,7 +46,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final ResponseEntity<ByteArrayResource> response = pModeFileResource.downloadPMode(pModeId);
+        final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
         Assert.assertNotNull(response);
 
         new FullVerifications() {{
@@ -69,7 +69,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final ResponseEntity<ByteArrayResource> response = pModeFileResource.downloadPMode(pModeId);
+        final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
         Assert.assertNotNull(response);
 
         new FullVerifications() {{
@@ -94,7 +94,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final PModeArchiveInfoDTO result = pModeFileResource.getCurrentPMode();
+        final PModeArchiveInfoDTO result = pModeFileExtResource.getCurrentPMode();
         Assert.assertNotNull(result);
         Assert.assertEquals(pModeId, result.getId());
 
@@ -111,6 +111,6 @@ public class PModeFileResourceTest {
         }};
 
         //tested
-        pModeFileResource.uploadPMode(pModeFile, description);
+        pModeFileExtResource.uploadPMode(pModeFile, description);
     }
 }

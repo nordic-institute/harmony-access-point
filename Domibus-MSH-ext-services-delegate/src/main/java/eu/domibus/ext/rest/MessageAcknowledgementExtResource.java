@@ -2,7 +2,6 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
-import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/messages/acknowledgments")
-public class MessageAcknowledgementResource {
+public class MessageAcknowledgementExtResource {
 
     @Autowired
     MessageAcknowledgeExtService messageAcknowledgeService;
@@ -27,12 +26,11 @@ public class MessageAcknowledgementResource {
      *
      * @param acknowledgementRequestDTO the details of the message delivered acknowledgement to be created
      * @return The newly created message acknowledgement
-     * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
      */
     @ApiOperation(value = "Create a message delivered acknowledgement", notes = "Acknowledges that a message has been delivered to the backend",
             authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
-    @RequestMapping(path = "/delivered", method = RequestMethod.POST)
-    public MessageAcknowledgementDTO acknowledgeMessageDelivered(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) throws MessageAcknowledgeExtException {
+    @PostMapping(path = "/delivered")
+    public MessageAcknowledgementDTO acknowledgeMessageDelivered(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) {
         return messageAcknowledgeService.acknowledgeMessageDelivered(acknowledgementRequestDTO.getMessageId(), acknowledgementRequestDTO.getAcknowledgeDate(), acknowledgementRequestDTO.getProperties());
     }
 
@@ -41,12 +39,11 @@ public class MessageAcknowledgementResource {
      *
      * @param acknowledgementRequestDTO the details of the message delivered acknowledgement to be created
      * @return The newly created message acknowledgement
-     * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
      */
     @ApiOperation(value = "Create a message processed acknowledgement", notes = "Acknowledges that a message has been processed by the backend",
             authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
-    @RequestMapping(path = "/processed", method = RequestMethod.POST)
-    public MessageAcknowledgementDTO acknowledgeMessageProcessed(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) throws MessageAcknowledgeExtException {
+    @PostMapping(path = "/processed")
+    public MessageAcknowledgementDTO acknowledgeMessageProcessed(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) {
         return messageAcknowledgeService.acknowledgeMessageProcessed(acknowledgementRequestDTO.getMessageId(), acknowledgementRequestDTO.getAcknowledgeDate(), acknowledgementRequestDTO.getProperties());
     }
 
@@ -55,13 +52,12 @@ public class MessageAcknowledgementResource {
      *
      * @param messageId The message id for which message acknowledgments are retrieved
      * @return All acknowledgments registered for a specific message
-     * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
      */
     @ApiOperation(value = "Get acknowledgements", notes = "Gets all acknowledgments associated to a message id",
             authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
-    @RequestMapping(path = "/{messageId:.+}", method = RequestMethod.GET)
+    @GetMapping(path = "/{messageId:.+}")
     @ResponseBody
-    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@PathVariable(value = "messageId") String messageId) throws MessageAcknowledgeExtException {
+    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@PathVariable(value = "messageId") String messageId) {
         return messageAcknowledgeService.getAcknowledgedMessages(messageId);
     }
 
