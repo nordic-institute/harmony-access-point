@@ -99,30 +99,31 @@ public class AlertPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	//This method will validate presence of all records after deletion of all search criterias
-	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
+	//This method will validate presence of all records after deletion of all search criteria
+	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Login into application and navigate to Alerts page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
 		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
 		if (data.isIsMultiDomain()) {
 			page.filters().showDomainAlert();
 		}
+
 		log.info("Wait for grid row to load ");
 		page.grid().waitForRowsToLoad();
 
 		log.info("Search using basic filter");
 		int prevCount = page.grid().getPagination().getTotalItems();
 		log.info("Previous count of grid rows:" + prevCount);
+
 		page.filters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
 		page.grid().waitForRowsToLoad();
 
-
 		log.info("Validate Grid row count as zero ");
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "No search result exist");
-		log.info("Refresh page");
 
+		log.info("Refresh page");
 		page.refreshPage();
 		if (data.isIsMultiDomain()) {
 			page.filters().showDomainAlert();
@@ -158,7 +159,7 @@ public class AlertPgTest extends BaseTest {
 	}
 
 	//This method will verify alert for message status change
-	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void msgStatusChangeAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -230,7 +231,7 @@ public class AlertPgTest extends BaseTest {
 	}
 
 	//This method will verify alert for user account disable after 5 attempts of login with wrong credentials
-	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void userDisableAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
