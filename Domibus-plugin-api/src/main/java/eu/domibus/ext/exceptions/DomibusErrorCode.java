@@ -19,12 +19,7 @@ public enum DomibusErrorCode {
     /**
      * PMode (Parties) error
      */
-    DOM_003("003"),
-
-    /**
-     * Invalid request exception
-     */
-    DOM_004("004");
+    DOM_003("003");
 
     private String errorCode;
 

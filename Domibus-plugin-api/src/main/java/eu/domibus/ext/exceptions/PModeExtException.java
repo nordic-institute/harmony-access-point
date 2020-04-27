@@ -2,6 +2,9 @@ package eu.domibus.ext.exceptions;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * PMode upload/download operations Exception
  *
@@ -9,12 +12,16 @@ import org.apache.commons.lang3.StringUtils;
  * @author Catalin Enache
  */
 public class PModeExtException extends DomibusServiceExtException {
+
+    private List<String> validationIssues;
+
+
     public PModeExtException(DomibusErrorCode errorCode, String message) {
         super(errorCode, message);
     }
 
     public PModeExtException(Throwable throwable) {
-        super(DomibusErrorCode.DOM_003, "PMode operations Exception", throwable);
+        this(DomibusErrorCode.DOM_003, throwable);
     }
 
     public PModeExtException(DomibusErrorCode errorCode, Throwable throwable) {
@@ -22,5 +29,18 @@ public class PModeExtException extends DomibusServiceExtException {
                 "PMode operations Exception", throwable);
     }
 
+    public void setValidationIssues(List<String> validationIssues) {
+        this.validationIssues = validationIssues;
+    }
 
+
+    public String getErrorMessage() {
+        Throwable cause = (this.getCause() == null ? this : this.getCause());
+        String errorMessage = cause.getMessage();
+        if (this.validationIssues != null) {
+            errorMessage += ". Validation issues: " + validationIssues.stream().collect(Collectors.joining(","));
+
+        }
+        return errorMessage;
+    }
 }

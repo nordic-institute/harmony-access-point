@@ -35,7 +35,7 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PModeExtException.class)
     public ResponseEntity<ErrorDTO> handlePModeExtServiceException(PModeExtException e) {
-        return handleExtException(e);
+        return handlePModeExtException(e);
     }
 
     @ExceptionHandler(PartyExtServiceException.class)
@@ -63,6 +63,40 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return createResponse(e);
     }
 
+
+
+    /**
+     * Generic method to thread Ext exceptions
+     * It unpacks Core exceptions
+     *
+     * @param ex Exception
+     * @return ResponseEntity<ErrorDTO>
+     */
+    protected ResponseEntity<ErrorDTO> handleExtException(DomibusServiceExtException ex) {
+        Throwable cause = (ex.getCause() == null ? ex : ex.getCause());
+
+        //Domibus core exceptions
+        if (cause instanceof DomibusCoreException) {
+            return createResponseFromCoreException(cause, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        //other exceptions wrapped by interceptors
+        return createResponse(cause);
+    }
+
+    /**
+     * Handles PModeExtException including validation messages
+     * @param ex
+     * @return
+     */
+    protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException ex) {
+        String errorMessage = ex.getErrorMessage() ;
+        HttpHeaders headers = new HttpHeaders();
+        ErrorDTO body = new ErrorDTO(errorMessage);
+        LOG.error(errorMessage, ex);
+        return new ResponseEntity(body, headers, HttpStatus.NOT_ACCEPTABLE);
+    }
+
     public ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
         String errorMessage = showErrorDetails ? ex.getMessage() : "A server error occurred";
         HttpHeaders headers = new HttpHeaders();
@@ -75,27 +109,9 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, false);
     }
 
-    /**
-     * Generic method to unpack Core exceptions
-     *
-     * @param ex Exception
-     * @return ResponseEntity<ErrorDTO>
-     */
-    protected ResponseEntity<ErrorDTO> handleExtException(DomibusServiceExtException ex) {
-        Throwable rootCause = (ex.getCause() == null ? ex : ex.getCause());
-
-        //Domibus core exceptions
-        if (rootCause instanceof DomibusCoreException) {
-            if (DomibusErrorCode.DOM_004 == ex.getErrorCode()) {
-                //this error signalises a bad request that will be mapped to 4xx code
-                //we are avoiding BAD_REQUEST as may be associated as well with a bad URL etc
-                return createResponse(rootCause, HttpStatus.NOT_ACCEPTABLE, true);
-            }
-            return createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, true);
-        }
-
-        //other exceptions wrapped by interceptors
-        return createResponse(rootCause);
+    public ResponseEntity<ErrorDTO> createResponseFromCoreException(Throwable ex, HttpStatus httpStatus) {
+        Throwable cause = (ex.getCause() == null ? ex : ex.getCause());
+        return createResponse(cause, httpStatus, true);
     }
 
     /**
