@@ -105,7 +105,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override

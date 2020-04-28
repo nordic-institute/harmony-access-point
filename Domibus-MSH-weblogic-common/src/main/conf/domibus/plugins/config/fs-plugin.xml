@@ -7,10 +7,12 @@
        xmlns:c="http://www.springframework.org/schema/c"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns="http://www.springframework.org/schema/beans"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation= "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
                             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                            http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
     <!-- General File System Plugin properties -->
     <util:properties id="fsPluginProperties" ignore-resource-not-found="true"
@@ -55,7 +57,7 @@
         <property name="cronExpression" value="${fsplugin.messages.sent.purge.worker.cronExpression}"/>
         <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for purging failed messages -->
     <bean id="fsPluginPurgeFailedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -69,7 +71,7 @@
         <property name="cronExpression" value="${fsplugin.messages.failed.purge.worker.cronExpression}"/>
         <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for purging received messages -->
     <bean id="fsPluginPurgeReceivedWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
@@ -83,7 +85,7 @@
         <property name="cronExpression" value="${fsplugin.messages.received.purge.worker.cronExpression}"/>
         <property name="startDelay" value="20000"/>
     </bean>
-    
+
     <!-- quartz job for sending messages (from OUT folders) -->
     <bean id="fsPluginSendMessagesWorkerJob"
           class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -97,5 +99,56 @@
         <property name="repeatInterval" value="${fsplugin.messages.send.worker.repeatInterval}"/>
         <property name="startDelay" value="20000"/>
     </bean>
+
+    <bean id="domain1WorkerJob"
+          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
+        <property name="jobClass" value="eu.domibus.plugin.fs.worker.Domain1Worker"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean id="domain1WorkerTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
+        <property name="jobDetail" ref="domain1WorkerJob"/>
+        <property name="cronExpression" value="${fsplugin.domain.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
+    </bean>
+
+    <bean id="domain2WorkerJob"
+          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
+        <property name="jobClass" value="eu.domibus.plugin.fs.worker.Domain2Worker"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean id="domain2WorkerTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
+        <property name="jobDetail" ref="domain2WorkerJob"/>
+        <property name="cronExpression" value="${fsplugin.domain.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
+    </bean>
+
+    <bean id="domain3WorkerJob"
+          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
+        <property name="jobClass" value="eu.domibus.plugin.fs.worker.Domain3Worker"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean id="domain3WorkerTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
+        <property name="jobDetail" ref="domain3WorkerJob"/>
+        <property name="cronExpression" value="${fsplugin.domain.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
+    </bean>
+
+    <bean id="domain4WorkerJob"
+          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
+        <property name="jobClass" value="eu.domibus.plugin.fs.worker.Domain4Worker"/>
+        <property name="durability" value="true"/>
+    </bean>
+    <bean id="domain4WorkerTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
+        <property name="jobDetail" ref="domain4WorkerJob"/>
+        <property name="cronExpression" value="${fsplugin.domain.worker.cronExpression}"/>
+        <property name="startDelay" value="20000"/>
+    </bean>
+
+
+    <task:annotation-driven executor="taskExecutor" proxy-target-class="true"/>
 
 </beans>
