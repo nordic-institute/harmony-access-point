@@ -90,7 +90,7 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
      * @return esponseEntity<ErrorDTO>
      */
     protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException ex) {
-        String errorMessage = ex.getErrorMessage() ;
+        String errorMessage = ex.getErrorMessage();
         HttpHeaders headers = new HttpHeaders();
         ErrorDTO body = new ErrorDTO(errorMessage);
         LOG.error(errorMessage, ex);
