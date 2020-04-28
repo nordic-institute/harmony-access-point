@@ -26,7 +26,7 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.3.5</cxf.version>
+        <cxf.version>3.3.6</cxf.version>
         <spring.version>5.2.4.RELEASE</spring.version>
         <spring.security.version>5.3.0.RELEASE</spring.security.version>
         <hibernate.version>5.4.7.Final</hibernate.version>
@@ -50,7 +50,7 @@
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.2</jackson-databind.version>
+        <jackson-databind.version>2.9.10.4</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
         <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
