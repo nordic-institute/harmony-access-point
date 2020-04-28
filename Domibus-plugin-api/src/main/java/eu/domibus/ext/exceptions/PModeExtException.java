@@ -22,22 +22,28 @@ public class PModeExtException extends DomibusServiceExtException {
         super(errorCode, message, throwable);
     }
 
-    public PModeExtException(Throwable throwable) {
-        this(DomibusErrorCode.DOM_003, throwable);
+    public PModeExtException(Throwable cause) {
+        this(DomibusErrorCode.DOM_003, cause.getMessage(), cause);
     }
 
-    public PModeExtException(DomibusErrorCode errorCode, Throwable throwable) {
-        super(errorCode, StringUtils.isNotBlank(throwable.getMessage()) ? throwable.getMessage() :
-                "PMode operations Exception", throwable);
+    public PModeExtException(String message) {
+        this(DomibusErrorCode.DOM_003, message);
     }
 
     public void setValidationIssues(List<String> validationIssues) {
         this.validationIssues = validationIssues;
     }
 
+    /**
+     * Return in a unique String both error message and validation issues
+     * @return error message String
+     */
     public String getErrorMessage() {
         Throwable cause = (this.getCause() == null ? this : this.getCause());
-        String errorMessage = cause.getMessage();
+        String errorMessage = null;
+        if (StringUtils.isNotBlank(cause.getMessage())) {
+            errorMessage += cause.getMessage();
+        }
         if (this.validationIssues != null) {
             errorMessage += ". Validation issues: " + String.join(",", validationIssues);
 

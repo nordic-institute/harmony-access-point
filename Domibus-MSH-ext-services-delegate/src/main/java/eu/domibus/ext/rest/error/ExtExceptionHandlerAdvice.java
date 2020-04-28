@@ -32,6 +32,7 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ExtExceptionHandlerAdvice.class);
 
+    protected static final HttpStatus HTTP_STATUS_INVALID_REQUEST = HttpStatus.NOT_ACCEPTABLE;
 
     @ExceptionHandler(PModeExtException.class)
     public ResponseEntity<ErrorDTO> handlePModeExtServiceException(PModeExtException e) {
@@ -63,8 +64,6 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return createResponse(e);
     }
 
-
-
     /**
      * Generic method to thread Ext exceptions
      * It unpacks Core exceptions
@@ -86,18 +85,19 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     /**
      * Handles PModeExtException including validation messages
-     * @param ex
-     * @return
+     *
+     * @param ex PModeExtException
+     * @return esponseEntity<ErrorDTO>
      */
     protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException ex) {
         String errorMessage = ex.getErrorMessage() ;
         HttpHeaders headers = new HttpHeaders();
         ErrorDTO body = new ErrorDTO(errorMessage);
         LOG.error(errorMessage, ex);
-        return new ResponseEntity(body, headers, HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity(body, headers, HTTP_STATUS_INVALID_REQUEST);
     }
 
-    public ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
+    protected ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
         String errorMessage = showErrorDetails ? ex.getMessage() : "A server error occurred";
         HttpHeaders headers = new HttpHeaders();
         ErrorDTO body = new ErrorDTO(errorMessage);
@@ -105,22 +105,22 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return new ResponseEntity(body, headers, status);
     }
 
-    public ResponseEntity<ErrorDTO> createResponse(Throwable ex) {
+    protected ResponseEntity<ErrorDTO> createResponse(Throwable ex) {
         return createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, false);
     }
 
-    public ResponseEntity<ErrorDTO> createResponseFromCoreException(Throwable ex, HttpStatus httpStatus) {
+    protected ResponseEntity<ErrorDTO> createResponseFromCoreException(Throwable ex, HttpStatus httpStatus) {
         Throwable cause = (ex.getCause() == null ? ex : ex.getCause());
         return createResponse(cause, httpStatus, true);
     }
 
     /**
-     * Customized the behavior for @Valid annotated input methods
+     * Handles the exception behavior for @Valid annotated input methods
      *
-     * @param ex
-     * @param headers
-     * @param status
-     * @param request
+     * @param ex MethodArgumentNotValidException
+     * @param headers HttpHeaders
+     * @param status HttpStatus
+     * @param request WebRequest
      * @return errors list
      */
     @Override
@@ -136,7 +136,7 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
                 .getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage)
                 .collect(Collectors.toList());
-        return new ResponseEntity(errorsList, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(errorsList, HTTP_STATUS_INVALID_REQUEST);
     }
 
 }

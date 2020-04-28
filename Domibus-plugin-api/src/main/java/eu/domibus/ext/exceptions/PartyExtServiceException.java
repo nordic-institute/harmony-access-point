@@ -19,23 +19,18 @@ public class PartyExtServiceException extends PModeExtException {
 
     /**
      *
-     * @param errorCode
-     * @param message
-     * @param throwable
+     * @param message error message
+     * @param cause cause of the Exception
      */
-    public PartyExtServiceException(DomibusErrorCode errorCode, String message, Throwable throwable) {
-        super(errorCode, message, throwable);
+    public PartyExtServiceException(String message, Throwable cause) {
+        super(DomibusErrorCode.DOM_003, message, cause);
     }
 
     /**
      *
-     * @param cause
+     * @param cause cause of the Exception
      */
     public PartyExtServiceException(Throwable cause) {
-        super(cause);
-    }
-
-    public PartyExtServiceException(String message, Throwable cause) {
-        super(DomibusErrorCode.DOM_003, message, cause);
+        this(cause.getMessage(), cause);
     }
 }
