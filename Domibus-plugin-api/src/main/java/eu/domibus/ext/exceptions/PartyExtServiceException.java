@@ -6,7 +6,7 @@ package eu.domibus.ext.exceptions;
  * @since 4.2
  * @author Catalin Enache
  */
-public class PartyExtServiceException extends DomibusServiceExtException {
+public class PartyExtServiceException extends PModeExtException {
 
     /**
      *
@@ -32,10 +32,10 @@ public class PartyExtServiceException extends DomibusServiceExtException {
      * @param cause
      */
     public PartyExtServiceException(Throwable cause) {
-        this(DomibusErrorCode.DOM_003, "Parties management Exception", cause);
+        super(cause);
     }
 
     public PartyExtServiceException(String message, Throwable cause) {
-        this(DomibusErrorCode.DOM_003, message, cause);
+        super(DomibusErrorCode.DOM_003, message, cause);
     }
 }
