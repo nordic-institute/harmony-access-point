@@ -29,7 +29,6 @@ public class ServiceInterceptorHelper {
                 List<String> issues = ((PModeValidationException) coreException).getIssues().stream().map(ValidationIssue::getMessage).collect(Collectors.toList());
                 pModeExtException.setValidationIssues(issues);
             }
-            throw pModeExtException;
         }
     }
 }

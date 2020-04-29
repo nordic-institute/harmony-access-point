@@ -1,7 +1,11 @@
 package eu.domibus.ext.domain;
 
 /**
- * Error DTO
+ * Error DTO for REST API calls
+ *
+ * It will contains the generic error message and
+ * additionally the validation issues for PMode / Parties operations
+ *
  * @author Catalin Enache
  * @since 4.2
  */

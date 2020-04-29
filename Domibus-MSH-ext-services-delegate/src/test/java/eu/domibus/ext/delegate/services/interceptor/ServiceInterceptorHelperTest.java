@@ -35,13 +35,8 @@ public class ServiceInterceptorHelperTest {
             result = validationIssueList;
         }};
 
-        try {
-            //tested method
-            serviceInterceptorHelper.handlePModeValidationException(coreException, pModeExtException);
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof PModeExtException);
-            PModeExtException pModeExtException1 = (PModeExtException) e;
-            Assert.assertTrue(pModeExtException1.getErrorMessage().contains("test 123"));
-        }
+        //tested method
+        serviceInterceptorHelper.handlePModeValidationException(coreException, pModeExtException);
+        Assert.assertTrue(pModeExtException.getErrorMessage().contains("test 123"));
     }
 }
