@@ -6,11 +6,13 @@ import {Injectable} from '@angular/core';
 export class PropertiesService {
   static readonly PROPERTIES_URL: string = 'rest/configuration/properties';
 
+  // todo: get this from server??
   regularExpressions = {
     'cron': /^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/,
     'concurrency': /^(\d+(\-\d+)*)$/,
     'numeric': /^(\d+)$/,
     'boolean': /^(true|false)$/,
+    'email': /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$/
   };
 
   constructor(private http: HttpClient, private alertService: AlertService) {

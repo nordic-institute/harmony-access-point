@@ -26,14 +26,6 @@ public class DomibusPropertyMetadata {
         return (getUsage() & Usage.DOMAIN) == Usage.DOMAIN;
     }
 
-    public class Usage {
-        public static final int GLOBAL = 1;
-        public static final int DOMAIN = 2;
-        public static final int SUPER = 4;
-        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
-        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
-    }
-
     /**
      * The name of the property, corresponds to the value in the domibus.properties files
      * ex: domibus.ui.replication.sync.cron, domibus.ui.replication.sync.cron.max.rows
@@ -90,11 +82,23 @@ public class DomibusPropertyMetadata {
     private boolean encrypted;
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, Usage.GLOBAL, false);
+        return getGlobalProperty(name, Type.STRING);
+    }
+
+    public static DomibusPropertyMetadata getGlobalProperty(String name, Type type) {
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Usage.GLOBAL, false);
+        res.setType(type.name());
+        return res;
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false, false);
+        return getReadOnlyGlobalProperty(name, Type.STRING);
+    }
+
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type) {
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false, false);
+        res.setType(type.name());
+        return res;
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, boolean encrypted) {
@@ -105,11 +109,20 @@ public class DomibusPropertyMetadata {
         return new DomibusPropertyMetadata(name, module, false, Usage.GLOBAL, false, false, false, false);
     }
 
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type, String module) {
+        return new DomibusPropertyMetadata(name, type, module, false, Usage.GLOBAL, false, false, false, false);
+    }
+
     public DomibusPropertyMetadata() {
     }
 
     public DomibusPropertyMetadata(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
+        this(name, Type.STRING, module, writable, usage, withFallback, clusterAware, encrypted, isComposable);
+    }
+
+    public DomibusPropertyMetadata(String name, Type type, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
+        this.type = type.name();
         this.writable = writable;
         this.usage = usage;
         this.withFallback = withFallback;
@@ -119,8 +132,16 @@ public class DomibusPropertyMetadata {
         this.isComposable = isComposable;
     }
 
+    public DomibusPropertyMetadata(String name, Type type, int usage, boolean withFallback) {
+        this(name, type, Module.MSH, true, usage, withFallback, true, false, false);
+    }
+
     public DomibusPropertyMetadata(String name, int usage, boolean withFallback) {
         this(name, Module.MSH, true, usage, withFallback, true, false, false);
+    }
+
+    public DomibusPropertyMetadata(String name, Type type, boolean writable, int usage, boolean withFallback) {
+        this(name, type, Module.MSH, writable, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadata(String name, boolean writable, int usage, boolean withFallback) {
@@ -256,5 +277,30 @@ public class DomibusPropertyMetadata {
                 .toHashCode();
     }
 
+    public class Usage {
+        public static final int GLOBAL = 1;
+        public static final int DOMAIN = 2;
+        public static final int SUPER = 4;
+        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
+        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+    }
 
+    public enum Type {
+        NUMERIC("^(\\d+)$"),
+        BOOLEAN("^(true|false)$"),
+        STRING(null),
+        CRON("^(\\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\\*\\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\\*|([0-9]|1[0-9]|2[0-3])|\\*\\/([0-9]|1[0-9]|2[0-3])) (\\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\\*\\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\\*|([1-9]|1[0-2])|\\*\\/([1-9]|1[0-2])) (\\*|([0-6])|\\*\\/([0-6]))$"),
+        CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
+        EMAIL("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$");
+
+        private final String regularExpression;
+
+        Type(String regularExpression) {
+            this.regularExpression = regularExpression;
+        }
+
+        public String getRegularExpression() {
+            return regularExpression;
+        }
+    }
 }
