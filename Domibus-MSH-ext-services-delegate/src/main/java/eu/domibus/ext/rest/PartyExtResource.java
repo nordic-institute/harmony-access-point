@@ -30,15 +30,15 @@ public class PartyExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
     @Autowired
+    PartyExtService partyExtService;
+
+    @Autowired
     ExtExceptionHelper extExceptionHelper;
 
     @ExceptionHandler(PartyExtServiceException.class)
     public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
         return extExceptionHelper.handleExtException(e);
     }
-
-    @Autowired
-    PartyExtService partyExtService;
 
     @ApiOperation(value = "Get Parties", notes = "Get Parties using certain criteria like name, endpoint, partyId, process name. " +
             "Use pageStart and pageSize for pagination purposes",

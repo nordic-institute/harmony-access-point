@@ -37,18 +37,18 @@ public class PModeFileExtResource {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
 
     @Autowired
+    PModeExtService pModeExtService;
+
+    @Autowired
+    DomainExtConverter domainConverter;
+
+    @Autowired
     ExtExceptionHelper extExceptionHelper;
 
     @ExceptionHandler(PModeExtException.class)
     protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException e) {
         return extExceptionHelper.handleExtException(e);
     }
-
-    @Autowired
-    PModeExtService pModeExtService;
-
-    @Autowired
-    DomainExtConverter domainConverter;
 
     @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")

@@ -2,6 +2,8 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.exceptions.PModeExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -33,6 +35,9 @@ public class PModeFileExtResourceTest {
 
     @Injectable
     DomainExtConverter domainConverter;
+
+    @Injectable
+    ExtExceptionHelper extExceptionHelper;
 
     @Test
     public void test_downloadPMode(@Mocked ResponseEntity responseEntity) {
@@ -112,5 +117,16 @@ public class PModeFileExtResourceTest {
 
         //tested
         pModeFileExtResource.uploadPMode(pModeFile, description);
+    }
+
+    @Test
+    public void test_handlePartyExtServiceException(final @Mocked PModeExtException pModeExtException) {
+
+        //tested method
+        pModeFileExtResource.handlePModeExtException(pModeExtException);
+
+        new FullVerifications() {{
+            extExceptionHelper.handleExtException(pModeExtException);
+        }};
     }
 }

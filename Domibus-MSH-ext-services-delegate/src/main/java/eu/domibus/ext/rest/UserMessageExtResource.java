@@ -1,17 +1,17 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Tiago Miguel
@@ -25,6 +25,14 @@ public class UserMessageExtResource {
 
     @Autowired
     UserMessageExtService userMessageExtService;
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    @ExceptionHandler(UserMessageExtException.class)
+    public ResponseEntity<ErrorDTO> handleUserMessageExtException(UserMessageExtException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     /**
      * Gets the User Message by messageId

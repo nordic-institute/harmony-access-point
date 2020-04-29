@@ -27,7 +27,6 @@ public class MessageMonitoringExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
 
-
     @Autowired
     ExtExceptionHelper extExceptionHelper;
 

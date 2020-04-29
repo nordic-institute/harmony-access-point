@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.PartyFilterRequestDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -23,6 +24,9 @@ public class PartyExtResourceTest {
 
     @Injectable
     PartyExtService partyExtService;
+
+    @Injectable
+    ExtExceptionHelper extExceptionHelper;
 
     @Test
     public void test_listParties(final @Mocked PartyFilterRequestDTO partyFilterRequestDTO) {
@@ -157,6 +161,17 @@ public class PartyExtResourceTest {
             PartyDTO partyDTOActual;
             partyExtService.updateParty(partyDTOActual = withCapture());
             Assert.assertNotNull(partyDTOActual);
+        }};
+    }
+
+    @Test
+    public void test_handlePartyExtServiceException(final @Mocked PartyExtServiceException partyExtServiceException) {
+
+        //tested method
+        partyExtResource.handlePartyExtServiceException(partyExtServiceException);
+
+        new FullVerifications() {{
+            extExceptionHelper.handleExtException(partyExtServiceException);
         }};
     }
 }
