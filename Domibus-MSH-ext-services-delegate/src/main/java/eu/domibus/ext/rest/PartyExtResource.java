@@ -1,9 +1,8 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.ext.domain.PartyDTO;
-import eu.domibus.ext.domain.PartyFilterRequestDTO;
-import eu.domibus.ext.domain.ProcessDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.*;
+import eu.domibus.ext.exceptions.PartyExtServiceException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,6 +28,14 @@ import java.util.List;
 public class PartyExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    @ExceptionHandler(PartyExtServiceException.class)
+    public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     @Autowired
     PartyExtService partyExtService;

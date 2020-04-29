@@ -3,13 +3,12 @@ package eu.domibus.ext.exceptions;
 /**
  * Exception while managing Ext Parties API
  *
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
-public class PartyExtServiceException extends PModeExtException {
+public class PartyExtServiceException extends DomibusServiceExtException {
 
     /**
-     *
      * @param errorCode
      * @param message
      */
@@ -18,19 +17,18 @@ public class PartyExtServiceException extends PModeExtException {
     }
 
     /**
-     *
      * @param message error message
-     * @param cause cause of the Exception
+     * @param cause   cause of the Exception
      */
     public PartyExtServiceException(String message, Throwable cause) {
-        super(DomibusErrorCode.DOM_003, message, cause);
+        super(DomibusErrorCode.DOM_004, message, cause);
     }
 
     /**
-     *
      * @param cause cause of the Exception
      */
     public PartyExtServiceException(Throwable cause) {
         this(cause.getMessage(), cause);
     }
+
 }

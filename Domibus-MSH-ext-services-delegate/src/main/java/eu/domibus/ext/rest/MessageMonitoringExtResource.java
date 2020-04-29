@@ -1,7 +1,10 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
+import eu.domibus.ext.exceptions.MessageMonitorExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.MessageMonitorExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -9,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +27,17 @@ public class MessageMonitoringExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
 
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
     @Autowired
     MessageMonitorExtService messageMonitorExtService;
+
+    @ExceptionHandler(MessageMonitorExtException.class)
+    public ResponseEntity<ErrorDTO> handleMessageMonitorExtException(MessageMonitorExtException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     @ApiOperation(value = "Get failed messages", notes = "Retrieve all the messages with the specified finalRecipient(if provided) that are currently in a SEND_FAILURE status",
             authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")

@@ -1,11 +1,15 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
+import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +24,14 @@ public class MessageAcknowledgementExtResource {
 
     @Autowired
     MessageAcknowledgeExtService messageAcknowledgeService;
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    @ExceptionHandler(MessageAcknowledgeExtException.class)
+    public ResponseEntity<ErrorDTO> handleMessageAcknowledgeExtException(MessageAcknowledgeExtException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     /**
      * Acknowledges that a message has been delivered to the backend

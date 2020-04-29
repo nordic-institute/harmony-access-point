@@ -2,9 +2,12 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
 import eu.domibus.ext.domain.ValidationResponseDTO;
+import eu.domibus.ext.exceptions.PModeExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,6 +35,14 @@ import java.util.List;
 public class PModeFileExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    @ExceptionHandler(PModeExtException.class)
+    protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     @Autowired
     PModeExtService pModeExtService;

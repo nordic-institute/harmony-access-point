@@ -1,16 +1,17 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
+import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +29,14 @@ public class DomibusMonitoringExtResource {
 
     @Autowired
     DomibusMonitoringExtService domibusMonitoringExtService;
+
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    @ExceptionHandler(DomibusMonitoringExtException.class)
+    public ResponseEntity<ErrorDTO> handleDomibusMonitoringExtException(DomibusMonitoringExtException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     /**
      * Get Monitoring Details by checking the DB, JMS Broker and Quarter Trigger based on the filters
