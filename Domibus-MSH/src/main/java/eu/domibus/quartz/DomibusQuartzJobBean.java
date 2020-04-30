@@ -28,15 +28,15 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        try {
+//        try {
             LOG.clearCustomKeys();
             final Domain currentDomain = getDomain(context);
             domainContextProvider.setCurrentDomain(currentDomain);
             executeJob(context, currentDomain);
-        } finally {
+        /*} finally {
             domainContextProvider.clearCurrentDomain();
             LOG.clearCustomKeys();
-        }
+        }*/
     }
 
     protected Domain getDomain(JobExecutionContext context) throws JobExecutionException {
