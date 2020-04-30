@@ -12,6 +12,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.metrics.Counter;

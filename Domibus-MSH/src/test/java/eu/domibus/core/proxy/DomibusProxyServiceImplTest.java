@@ -102,7 +102,7 @@ public class DomibusProxyServiceImplTest {
             domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
             result = "idragusa";
 
-            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD, true);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
             result = "pass";
 
             domibusPropertyProvider.getProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS);

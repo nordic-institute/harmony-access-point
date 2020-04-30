@@ -89,7 +89,7 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
         domibusProxy.setHttpProxyPort(httpProxyPort);
 
         String httpProxyUser = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
-        String httpProxyPassword = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD, true);
+        String httpProxyPassword = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
         if(!StringUtils.isEmpty(httpProxyUser) && StringUtils.isEmpty(httpProxyPassword)) {
             LOG.error("Proxy user is provided with no password [{}]", httpProxyUser);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy user is provided with no password.");
