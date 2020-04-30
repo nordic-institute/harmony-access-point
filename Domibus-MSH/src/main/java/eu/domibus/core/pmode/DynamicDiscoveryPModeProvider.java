@@ -237,7 +237,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         // remove party if exists to add it with latest values for address and type
         if (configurationParty != null) {
             LOG.debug("Remove party to add with new values " + configurationParty.getName());
-            getConfiguration().getBusinessProcesses().getParties().remove(configurationParty);
+            getConfiguration().getBusinessProcesses().removeParty(configurationParty);
         }
         // set the new endpoint if exists, otherwise copy the old one if exists
         String newEndpoint = endpoint;
@@ -251,7 +251,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         LOG.debug("New endpoint is [{}]", newEndpoint);
         Party newConfigurationParty = buildNewConfigurationParty(name, configurationType, newEndpoint);
         LOG.debug("Add new configuration party: " + newConfigurationParty.getName());
-        getConfiguration().getBusinessProcesses().getParties().add(newConfigurationParty);
+        getConfiguration().getBusinessProcesses().addParty(newConfigurationParty);
 
         return newConfigurationParty;
     }
