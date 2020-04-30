@@ -352,6 +352,7 @@ public class AuditPgTest extends BaseTest {
 		log.info("Go to Audit page");
 		pPage.getSidebar().goToPage(PAGES.AUDIT);
 		AuditPage auditPage = new AuditPage(driver);
+		auditPage.grid().waitForRowsToLoad();
 
 		log.info("Set all search filter data");
 		auditPage.filters().getTableFilter().selectOptionByText("Pmode");
