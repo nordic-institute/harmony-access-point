@@ -249,9 +249,9 @@ public class DomibusPropertyMetadataDTO {
     }
 
     /**
-     * Metadata being used by third-party modules, here I added the type just as a string
+     * Metadata being used by third-party modules, here I added the type just as a string and not an enum
      */
-    public static class Type {
+    public class Type {
         public static final String NUMERIC = "NUMERIC";
         public static final String BOOLEAN = "BOOLEAN";
         public static final String STRING = "STRING";

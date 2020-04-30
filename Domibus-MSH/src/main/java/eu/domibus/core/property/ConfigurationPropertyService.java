@@ -22,7 +22,7 @@ public interface ConfigurationPropertyService {
     List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties);
 
     /**
-     * Stets the property with specified name to the specified value
+     * Sets the property with specified name to the specified value
      *
      * @param name  name of the property
      * @param value the new value

@@ -277,6 +277,9 @@ public class DomibusPropertyMetadata {
                 .toHashCode();
     }
 
+    /**
+     * States if a property is used as a global, domain super one or a valid combination of them
+     */
     public class Usage {
         public static final int GLOBAL = 1;
         public static final int DOMAIN = 2;
@@ -286,7 +289,7 @@ public class DomibusPropertyMetadata {
     }
 
     /**
-     * Metadata being an internal class, we control everything so I added the type as an enum as it has some convinience methods and type-safety
+     * Metadata being an internal class, we control everything so I added the type as an enum as it has some convenience methods and type-safety
      * More types can be added later without any breaking changes
      */
     public enum Type {
