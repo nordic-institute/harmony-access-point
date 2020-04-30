@@ -1,24 +1,23 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.DomainRO;
-import eu.domibus.web.rest.ro.DomibusInfoRO;
-import eu.domibus.web.rest.ro.PasswordPolicyRO;
-import eu.domibus.web.rest.ro.SupportTeamInfoRO;
+import eu.domibus.web.rest.ro.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
@@ -165,6 +164,7 @@ public class ApplicationResource {
     /**
      * Returns support team name and email address
      * Info is used in the notAuthorized page
+     *
      * @return {@code SupportTeamInfoRO} object
      */
     @RequestMapping(value = "supportteam", method = RequestMethod.GET)
@@ -175,6 +175,20 @@ public class ApplicationResource {
         supportTeamInfoRO.setName(getSupportTeamName());
 
         return supportTeamInfoRO;
+    }
+
+    /**
+     * Retrieves the password policy info
+     *
+     * @return password policy info
+     */
+    @RequestMapping(value = "domibusPropertyMetadataTypes", method = RequestMethod.GET)
+    public List<DomibusPropertyTypeRO> getDomibusPropertyMetadataTypes() {
+        LOG.debug("Getting domibusPropertyMetadata types.");
+
+        DomibusPropertyMetadata.Type[] types = DomibusPropertyMetadata.Type.values();
+        List<DomibusPropertyTypeRO> res = domainCoreConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
+        return res;
     }
 
     private String getPasswordPattern() {
@@ -188,6 +202,7 @@ public class ApplicationResource {
     private String getPluginPasswordPattern() {
         return domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN);
     }
+
     private String getPluginPasswordValidationMessage() {
         return domibusPropertyProvider.getProperty(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }

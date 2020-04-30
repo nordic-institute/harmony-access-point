@@ -1,13 +1,14 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.RegexUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -41,6 +42,9 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    private RegexUtil regexUtil;
 
     /**
      * We inject here all property managers: one for each plugin, external module, specific server
@@ -109,6 +113,9 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         try {
             DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
 
+            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
+            validatePropertyValue(propMeta, value);
+
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
                 propertyManager.setKnownPropertyValue(name, value);
@@ -137,4 +144,25 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         throw new DomibusPropertyException("Property manager not found for property " + propertyName);
     }
 
+    protected void validatePropertyValue(DomibusPropertyMetadataDTO propMeta, String propertyValue) throws DomibusPropertyException {
+        if (propMeta == null) {
+            LOG.warn("Property metadata is null; exiting validation.");
+            return;
+        }
+
+        try {
+            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+            String expr = type.getRegularExpression();
+            if (expr == null) {
+                LOG.debug("Regular expression for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+                return;
+            }
+
+            if (!regexUtil.matches(expr, propertyValue)) {
+                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
+            }
+        } catch (IllegalArgumentException ex) {
+            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
+        }
+    }
 }
