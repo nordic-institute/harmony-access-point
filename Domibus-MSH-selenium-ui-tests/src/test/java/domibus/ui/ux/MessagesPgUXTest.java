@@ -14,6 +14,7 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -121,14 +122,18 @@ public class MessagesPgUXTest extends BaseTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		HashMap<String, String> params = new HashMap<>();
+		params.put("orderBy",  "received");
+		params.put("asc", "false");
+
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, params, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-		log.info("sorting after column Received");
-		page.grid().sortBy("Received");
+//		log.info("sorting after column Received");
+//		page.grid().sortBy("Received");
 
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");

@@ -465,28 +465,36 @@ public class AuditPgTest extends BaseTest {
 	/*  AU-26 - Login as domain admin, go to page PMode Archive and Restore  old  PModes    */
 	@Test(description = "AU-26", groups = {"multiTenancy", "singleTenancy"})
 	public void restorePmodeFromArchive() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("upload pmode");
 		rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
-		SoftAssert soft = new SoftAssert();
-		log.info("Login and navigate to pmode parties page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		PModeArchivePage pAuditPage = new PModeArchivePage(driver);
-		PModePartiesPage pPage = new PModePartiesPage(driver);
-		DomibusPage page = new DomibusPage(driver);
-		if (pAuditPage.grid().getRowsNo() == 1) {
-			log.info("Upload pmode if grid row count is 1");
-			rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+		for (int i = rest.getPmodesList(null).length(); i < 3; i++) {
+			rest.uploadPMode("pmodes/pmode-blue.xml", null);
 		}
+
+		log.info("Login and navigate to pmode parties page");
+		PModeArchivePage archivePage = new PModeArchivePage(driver);
+		archivePage.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		archivePage.grid().waitForRowsToLoad();
+
+
 		log.info("Select row with index 1");
-		pAuditPage.grid().selectRow(1);
+		archivePage.grid().selectRow(1);
+
 		log.info("Click on restore button");
-		pAuditPage.getRestoreButton().click();
+		archivePage.getRestoreButton().click();
+
 		log.info("Click on save and then yes button on confirmation pop up");
-		pAuditPage.getConfirmation().confirm();
-		log.info("Success message shown : " + pPage.getAlertArea().getAlertMessage());
-		page.getSidebar().goToPage(PAGES.AUDIT);
+		archivePage.getConfirmation().confirm();
+
+		log.info("Success message shown : " + archivePage.getAlertArea().getAlertMessage());
+		archivePage.getSidebar().goToPage(PAGES.AUDIT);
+
 		AuditPage auditPage = new AuditPage(driver);
 		auditPage.waitForPageToLoad();
+		auditPage.grid().waitForRowsToLoad();
+
 		log.info("Set all search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode");
 		auditPage.getFilters().getSearchButton().click();
