@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 @Component
-public class UserMessageServiceInterceptor extends ServiceInterceptor{
+public class UserMessageServiceInterceptor extends ServiceInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceInterceptor.class);
 

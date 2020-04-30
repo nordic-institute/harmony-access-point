@@ -3,13 +3,12 @@ package eu.domibus.ext.exceptions;
 /**
  * Exception while managing Ext Parties API
  *
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
 public class PartyExtServiceException extends DomibusServiceExtException {
 
     /**
-     *
      * @param errorCode
      * @param message
      */
@@ -18,24 +17,18 @@ public class PartyExtServiceException extends DomibusServiceExtException {
     }
 
     /**
-     *
-     * @param errorCode
-     * @param message
-     * @param throwable
+     * @param message error message
+     * @param cause   cause of the Exception
      */
-    public PartyExtServiceException(DomibusErrorCode errorCode, String message, Throwable throwable) {
-        super(errorCode, message, throwable);
+    public PartyExtServiceException(String message, Throwable cause) {
+        super(DomibusErrorCode.DOM_004, message, cause);
     }
 
     /**
-     *
-     * @param cause
+     * @param cause cause of the Exception
      */
     public PartyExtServiceException(Throwable cause) {
-        this(DomibusErrorCode.DOM_003, "Parties management Exception", cause);
+        this(cause.getMessage(), cause);
     }
 
-    public PartyExtServiceException(String message, Throwable cause) {
-        this(DomibusErrorCode.DOM_003, message, cause);
-    }
 }

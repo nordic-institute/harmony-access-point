@@ -1,4 +1,4 @@
-package eu.domibus.ext.rest;
+package eu.domibus.web.rest.ro;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;

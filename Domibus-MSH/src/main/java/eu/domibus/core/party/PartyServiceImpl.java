@@ -779,7 +779,7 @@ public class PartyServiceImpl implements PartyService {
 
 
     @Override
-    public void updateParty(Party party, String certificateContent) {
+    public void updateParty(Party party, String certificateContent) throws PModeException {
 
         final String partyName = party.getName();
         checkPartyInUse(partyName);
