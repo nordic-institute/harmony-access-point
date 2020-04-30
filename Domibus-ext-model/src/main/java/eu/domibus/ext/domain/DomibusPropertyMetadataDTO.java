@@ -248,6 +248,9 @@ public class DomibusPropertyMetadataDTO {
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
     }
 
+    /**
+     * Metadata being used by third-party modules, here I added the type just as a string
+     */
     public static class Type {
         public static final String NUMERIC = "NUMERIC";
         public static final String BOOLEAN = "BOOLEAN";

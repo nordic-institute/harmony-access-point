@@ -71,49 +71,14 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return allProperties;
     }
 
-    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
-        List<DomibusProperty> list = new ArrayList<>();
-
-        for (DomibusPropertyMetadataDTO p : knownProps) {
-            String value = propertyManager.getKnownPropertyValue(p.getName());
-            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
-
-            DomibusProperty prop = new DomibusProperty();
-            prop.setMetadata(meta);
-            prop.setValue(value);
-
-            list.add(prop);
-        }
-
-        return list;
-    }
-
-    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
-        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
-                .filter(p -> p.isWritable())
-                .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toList());
-
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            if (showDomain) {
-                knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
-            } else {
-                if (authUtils.isSuperAdmin()) {
-                    knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
-                } else {
-                    throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
-                }
-            }
-        }
-        return knownProps;
-    }
-
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) {
         try {
             DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
 
             DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
+            // validate the property value against the type
+            // I prefer to do it here since it covers all properties, core and external and server specific
             validatePropertyValue(propMeta, value);
 
             if (isDomain) {
@@ -165,4 +130,42 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
         }
     }
+
+    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
+        List<DomibusProperty> list = new ArrayList<>();
+
+        for (DomibusPropertyMetadataDTO p : knownProps) {
+            String value = propertyManager.getKnownPropertyValue(p.getName());
+            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+
+            DomibusProperty prop = new DomibusProperty();
+            prop.setMetadata(meta);
+            prop.setValue(value);
+
+            list.add(prop);
+        }
+
+        return list;
+    }
+
+    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
+        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
+                .filter(p -> p.isWritable())
+                .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            if (showDomain) {
+                knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
+            } else {
+                if (authUtils.isSuperAdmin()) {
+                    knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
+                } else {
+                    throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
+                }
+            }
+        }
+        return knownProps;
+    }
+
 }

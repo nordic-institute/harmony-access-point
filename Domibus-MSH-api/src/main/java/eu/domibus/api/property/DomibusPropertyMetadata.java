@@ -285,6 +285,10 @@ public class DomibusPropertyMetadata {
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
     }
 
+    /**
+     * Metadata being an internal class, we control everything so I added the type as an enum as it has some convinience methods and type-safety
+     * More types can be added later without any breaking changes
+     */
     public enum Type {
         NUMERIC("^(\\d+)$"),
         BOOLEAN("^(true|false)$"),

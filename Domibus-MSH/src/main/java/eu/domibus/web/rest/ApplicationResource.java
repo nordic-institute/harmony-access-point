@@ -178,9 +178,10 @@ public class ApplicationResource {
     }
 
     /**
-     * Retrieves the password policy info
+     * Retrieves the domibus property types (along with their regular expression) as a list,
+     * To be used in client validation
      *
-     * @return password policy info
+     * @return a list of property types
      */
     @RequestMapping(value = "domibusPropertyMetadataTypes", method = RequestMethod.GET)
     public List<DomibusPropertyTypeRO> getDomibusPropertyMetadataTypes() {
