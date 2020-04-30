@@ -29,7 +29,6 @@
     "angular-md2": "^6.3.0",
     "core-js": "^2.6.11",
     "file-saver": "^1.3.8",
-    "fsevents": "^2.1.3",
     "hammerjs": "^2.0.8",
     "minimist": "^1.2.5",
     "moment": "^2.24.0",
@@ -52,5 +51,8 @@
     "tslint": "^5.20.1",
     "typescript": "~3.5.3",
     "yargs": "^15.3.1"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.1.3"
   }
 }
