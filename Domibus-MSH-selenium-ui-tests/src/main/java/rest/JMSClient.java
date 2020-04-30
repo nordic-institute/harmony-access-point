@@ -6,8 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class JMSClient extends DomibusRestClient {
 
@@ -17,7 +19,7 @@ public class JMSClient extends DomibusRestClient {
 
 		log.debug("Got status: " + response.getStatus());
 		String content = response.getEntity(String.class);
-		log.debug("Got content: " + content);
+//		log.debug("Got content: " + content);
 
 		if (response.getStatus() == 200) {
 			JSONObject object = new JSONObject(sanitizeResponse(content)).getJSONObject("jmsDestinations");
@@ -68,6 +70,25 @@ public class JMSClient extends DomibusRestClient {
 			log.debug("Got response content: " + content);
 		}
 		return null;
+	}
+
+
+	public ClientResponse moveMessages(String source, String destination, String... messages) throws JSONException {
+
+		JSONArray array = new JSONArray();
+		for (String message : messages) {
+			array.put(message);
+		}
+
+		JSONObject params = new JSONObject();
+		params.put("action", "MOVE");
+		params.put("source", source);
+		params.put("destination", destination);
+		params.put("selectedMessages", array);
+
+		ClientResponse response = requestPOST(resource.path(RestServicePaths.JMS_ACTION), params.toString());
+
+		return response;
 	}
 
 

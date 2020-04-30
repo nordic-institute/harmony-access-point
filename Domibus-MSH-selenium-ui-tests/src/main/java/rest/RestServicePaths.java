@@ -26,6 +26,7 @@ public class RestServicePaths {
 
 	public static final String JMS_SEARCH = "/rest/jms/messages";
 	public static final String JMS_QUEUES = "/rest/jms/destinations";
+	public static final String JMS_ACTION = "/rest/jms/messages/action";
 
 	public static final String UPDATE_PARTIES = "/rest/party/update";
 	public static final String GET_PARTIES = "/rest/party/list";

@@ -1,7 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -70,5 +70,58 @@ public class JMSRestTests extends RestTest {
 
 		soft.assertAll();
 	}
+
+	@Test
+	public void moveTest() {
+		SoftAssert soft = new SoftAssert();
+
+		String source = null;
+		String destination = null;
+
+		JSONArray queues = rest.jms().getQueues();
+		for (int i = 0; i < queues.length(); i++) {
+			if(queues.getJSONObject(i).getString("name").contains("DLQ")){
+				destination = queues.getJSONObject(i).getString("name");
+				continue;
+			}else if(queues.getJSONObject(i).getInt("numberOfMessages") > 0){
+				source = queues.getJSONObject(i).getString("name");
+			}
+		}
+
+		if(null == source || null == destination){
+			throw new SkipException("No messages found to move");
+		}
+
+		JSONArray messages = rest.jms().getQueueMessages(source);
+		JSONObject message = messages.getJSONObject(0);
+
+		ClientResponse response = rest.jms().moveMessages(source, destination, message.getString("id"));
+
+		int status = response.getStatus();
+		log.debug("Response status: " + status);
+
+		soft.assertTrue(status == 200, "Response status is " + status);
+
+		String responseContent = getSanitizedStringResponse(response);
+
+		soft.assertTrue(new JSONObject(responseContent).getString("outcome").equalsIgnoreCase("success"), "success message returned");
+
+		messages = rest.jms().getQueueMessages(destination);
+		boolean found = false;
+		for (int i = 0; i < messages.length(); i++) {
+			JSONObject curMessage = messages.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(curMessage.getString("id"), message.getString("id"))){
+				found = true;
+				break;
+			}
+		}
+
+		soft.assertTrue(found, "Message listed in the destination queue");
+
+		soft.assertAll();
+	}
+
+
+
 
 }

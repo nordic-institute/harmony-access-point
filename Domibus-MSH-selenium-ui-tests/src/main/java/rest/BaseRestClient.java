@@ -87,6 +87,19 @@ public class BaseRestClient {
 				.post(ClientResponse.class, multipartEntity);
 	}
 
+	public ClientResponse requestPOST(WebResource resource, String content) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
+		WebResource.Builder builder = decorateBuilder(resource);
+
+		return builder
+				.type(MediaType.APPLICATION_JSON)
+				.post(ClientResponse.class, content);
+	}
+
 	public ClientResponse jsonPUT(WebResource resource, String params) {
 		return requestPUT(resource, params, MediaType.APPLICATION_JSON);
 	}
