@@ -145,6 +145,10 @@ public class DomibusRestClient extends BaseRestClient{
 		return new PModeClient();
 	}
 
+	public JMSClient jms() {
+		return new JMSClient();
+	}
+
 	public MessageFiltersClient messFilters() {
 		return new MessageFiltersClient();
 	}

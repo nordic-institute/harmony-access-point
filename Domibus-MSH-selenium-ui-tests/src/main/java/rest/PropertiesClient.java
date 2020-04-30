@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 public class PropertiesClient extends DomibusRestClient{
+
+
 	// -------------------------------------------- Domibus Properties -----------------------------------------------------------
 	public JSONArray getDomibusPropertyDetail(HashMap<String, String> params) throws Exception {
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);

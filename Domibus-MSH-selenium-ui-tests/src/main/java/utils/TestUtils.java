@@ -229,5 +229,13 @@ public class TestUtils {
         return m.group(1);
     }
 
+    public static String jmsDateStrFromTimestamp(Long timestamp){
+        Date date  = new Date();
+        date.setTime(timestamp);
+
+        TestRunData.REST_JMS_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String dateStr = TestRunData.REST_JMS_DATE_FORMAT.format(date);
+        return dateStr;
+    }
 
 }

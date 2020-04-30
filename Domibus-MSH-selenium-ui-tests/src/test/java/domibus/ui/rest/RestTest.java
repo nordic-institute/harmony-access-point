@@ -66,7 +66,9 @@ public class RestTest extends BaseTest {
 	}
 
 	public String getSanitizedStringResponse(ClientResponse response){
-		return rest.sanitizeResponse(response.getEntity(String.class));
+		String content = response.getEntity(String.class);
+		log.debug("ResponseContent = " + content);
+		return rest.sanitizeResponse(content);
 	}
 
 	private void getListOfDomains(){

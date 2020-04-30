@@ -15,6 +15,7 @@ public class RestServicePaths {
 	public static final String PMODE = "/rest/pmode";
 	public static final String TRUSTSTORE = "/rest/truststore/save";
 	public static final String PMODE_LIST = "/rest/pmode/list";
+	public static final String PMODE_PROCESS_LIST = "/rest/party/processes";
 	public static final String PMODE_RESTORE = "/rest/pmode/restore/";
 	public static final String USERS = "/rest/user/users";
 	public static final String PLUGIN_USERS = "/rest/plugin/users";
@@ -22,6 +23,9 @@ public class RestServicePaths {
 	public static final String IS_MULTITENANCY = "/rest/application/multitenancy";
 	public static final String MESSAGE_FILTERS = "/rest/messagefilters";
 	public static final String SESSION_DOMAIN = "/rest/security/user/domain";
+
+	public static final String JMS_SEARCH = "/rest/jms/messages";
+	public static final String JMS_QUEUES = "/rest/jms/destinations";
 
 	public static final String UPDATE_PARTIES = "/rest/party/update";
 	public static final String GET_PARTIES = "/rest/party/list";
