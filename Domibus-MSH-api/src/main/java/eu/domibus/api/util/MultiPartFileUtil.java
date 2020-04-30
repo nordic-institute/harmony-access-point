@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,7 @@ import java.util.List;
  */
 @Service
 public interface MultiPartFileUtil {
-    byte[] validateAndGetFileContent(MultipartFile file, List<MimeType> allowedTypes) throws IllegalArgumentException;
+    byte[] validateAndGetFileContent(MultipartFile file, List<MimeType> allowedTypes) throws RequestValidationException;
 
-    byte[] validateAndGetFileContent(MultipartFile file) throws IllegalArgumentException;
+    byte[] validateAndGetFileContent(MultipartFile file) throws RequestValidationException;
 }

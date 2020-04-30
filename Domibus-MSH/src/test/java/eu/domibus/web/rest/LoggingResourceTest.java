@@ -4,8 +4,8 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.LoggingLevelResultRO;
@@ -14,7 +14,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
