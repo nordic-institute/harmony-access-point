@@ -1,17 +1,13 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.api.pmode.PModeException;
-import eu.domibus.ext.domain.PartyDTO;
-import eu.domibus.ext.domain.PartyFilterRequestDTO;
-import eu.domibus.ext.domain.ProcessDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,14 +32,12 @@ public class PartyExtResource {
     @Autowired
     PartyExtService partyExtService;
 
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
     @ExceptionHandler(PartyExtServiceException.class)
-    public ResponseEntity<ErrorRO> handlePartyExtServiceException(PartyExtServiceException e) {
-        String message = e.getMessage();
-        if (e.getCause() instanceof PModeException) {
-            message = ExceptionUtils.getRootCauseMessage(e);
-        }
-        ErrorRO errorRO = new ErrorRO(message);
-        return ResponseEntity.badRequest().body(errorRO);
+    public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
+        return extExceptionHelper.handleExtException(e);
     }
 
     @ApiOperation(value = "Get Parties", notes = "Get Parties using certain criteria like name, endpoint, partyId, process name. " +

@@ -2,10 +2,9 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,13 +19,16 @@ import java.util.List;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class DomibusMonitoringResourceTest {
+public class DomibusMonitoringExtResourceTest {
 
     @Tested
-    DomibusMonitoringResource domibusMonitoringResource;
+    DomibusMonitoringExtResource domibusMonitoringExtResource;
 
     @Injectable
     DomibusMonitoringExtService domibusMonitoringExtService;
+
+    @Injectable
+    ExtExceptionHelper extExceptionHelper;
 
     @Test
     public void getDomibusStatusTest() throws DomibusMonitoringExtException {
@@ -39,9 +41,19 @@ public class DomibusMonitoringResourceTest {
             result = monitoringInfoDTO;
         }};
 
-        final MonitoringInfoDTO responseList = domibusMonitoringResource.getMonitoringDetails(filter);
+        final MonitoringInfoDTO responseList = domibusMonitoringExtResource.getMonitoringDetails(filter);
 
         Assert.assertNotNull(responseList);
+    }
+
+    @Test
+    public void test_handleDomibusMonitoringExtException(final @Mocked DomibusMonitoringExtException domibusMonitoringExtException) {
+        //tested method
+        domibusMonitoringExtResource.handleDomibusMonitoringExtException(domibusMonitoringExtException);
+
+        new FullVerifications() {{
+            extExceptionHelper.handleExtException(domibusMonitoringExtException);
+        }};
     }
 
 }
