@@ -32,6 +32,7 @@ public class PModeArchiveUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			soft.assertTrue(!page.getDownloadBtn().isEnabled(), "If archive is empty the download button is disabled");
@@ -64,11 +65,13 @@ public class PModeArchiveUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
 			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
+			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("checking the first row is the current pmode");
@@ -94,11 +97,13 @@ public class PModeArchiveUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
 			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
+			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("checking the first row is the current pmode");
@@ -139,12 +144,14 @@ public class PModeArchiveUXTest extends BaseTest {
 		log.info(" go to PMode Archive page");
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		log.info("make sure there are at least 2 entries in grid");
 		if (page.grid().getRowsNo() < 2) {
 			rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
 			rest.uploadPMode("pmodes/multipleParties.xml", null);
 			page.refreshPage();
+			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("doubleclick row 1");
@@ -167,6 +174,7 @@ public class PModeArchiveUXTest extends BaseTest {
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
+		pmcPage.waitForTitle();
 
 		log.info("getting listed current pmode");
 		String listedPmodeCurrent = pmcPage.getTextArea().getText();
@@ -212,6 +220,7 @@ public class PModeArchiveUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		String fileName = rest.downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
@@ -234,11 +243,13 @@ public class PModeArchiveUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading pmode");
 			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
+			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("double clicking row 0");

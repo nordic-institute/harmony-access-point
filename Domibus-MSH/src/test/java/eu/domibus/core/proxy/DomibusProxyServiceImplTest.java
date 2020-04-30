@@ -4,11 +4,11 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -102,7 +102,7 @@ public class DomibusProxyServiceImplTest {
             domibusPropertyProvider.getProperty(DOMIBUS_PROXY_USER);
             result = "idragusa";
 
-            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
+            domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD, true);
             result = "pass";
 
             domibusPropertyProvider.getProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS);

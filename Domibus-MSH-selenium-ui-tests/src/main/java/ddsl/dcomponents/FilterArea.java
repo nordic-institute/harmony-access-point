@@ -1,7 +1,9 @@
 package ddsl.dcomponents;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
@@ -51,6 +53,13 @@ public class FilterArea extends DComponent {
 	public void clickSearch() throws Exception {
 		log.info("clicking search");
 		weToDButton(searchButton).click();
+
+	}
+
+	public void mouseOverAndClick() throws Exception{
+		log.info("clicking search");
+		wait.forElementToBeClickable(searchButton);
+		new Actions(driver).moveToElement(searchButton).click().build().perform();
 	}
 
 

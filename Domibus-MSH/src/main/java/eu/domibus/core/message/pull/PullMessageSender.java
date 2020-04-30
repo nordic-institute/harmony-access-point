@@ -151,13 +151,8 @@ public class PullMessageSender {
                 return;
             }
             messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+            handleResponse(response, messaging);
 
-            LOG.trace("handle message");
-            Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
-
-            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                    messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
             String sendMessageId = messageId;
             if (userMessageHandlerService.checkSelfSending(pModeKey)) {
                 sendMessageId += UserMessageHandlerService.SELF_SENDING_SUFFIX;
@@ -180,6 +175,24 @@ public class PullMessageSender {
             }
             checkConnectionProblem(e, mpcName);
         }
+    }
+
+    protected void handleResponse(final SOAPMessage response, Messaging messaging) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
+        LOG.trace("handle message");
+        Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+
+        // Find legConfiguration for the received UserMessage
+        MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
+        String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+        LOG.debug("pModeKey for received userMessage is [{}]", pModeKey);
+
+        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+        LOG.debug("legConfiguration for received userMessage is [{}]", legConfiguration.getName());
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
+
+        LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
+                messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
+
     }
 
     private Policy getPolicy(LegConfiguration legConfiguration) throws EbMS3Exception {
