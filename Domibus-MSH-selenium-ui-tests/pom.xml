@@ -138,11 +138,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-		</dependency>-->
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
 		<dependency>
 			<groupId>xmlunit</groupId>

@@ -369,7 +369,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/* USR-14 - Admin changes password (also applies to user creation) */
-	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = getUser(null, DRoles.USER, true, false, true).getString("userName");
@@ -460,7 +460,6 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("logout");
 		page.getSandwichMenu().logout();
-		page.isLoaded();
 
 		log.info("login with username " + username);
 		login(username, data.defaultPass());

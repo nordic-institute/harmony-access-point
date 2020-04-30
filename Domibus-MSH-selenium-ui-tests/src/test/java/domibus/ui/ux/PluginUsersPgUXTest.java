@@ -82,7 +82,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 	}
 
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
-	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editPassErrMess() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
@@ -107,7 +107,6 @@ public class PluginUsersPgUXTest extends BaseTest {
 		log.info("setting passord and confirmation not to match");
 		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
-		pum.wait.forElementToBeVisible(pum.getConfirmationErrMess().element);
 		log.info("check error message");
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
@@ -118,7 +117,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 	}
 
 	/*	PU-10 - Admin wants to edit username	*/
-	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUsername() throws Exception {
 		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
@@ -456,7 +455,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 	}
 
 	/* PU-29 - Check sorting on the basis of Headers of Grid  */
-	@Test(description = "PU-29", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-29", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSorting() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 
