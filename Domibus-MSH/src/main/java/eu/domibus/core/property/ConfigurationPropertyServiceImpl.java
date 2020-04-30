@@ -78,7 +78,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
             DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
             // validate the property value against the type
-            // I prefer to do it here since it covers all properties, core and external and server specific
+            // We are doing it here since it covers all properties, core and external and server specific
             validatePropertyValue(propMeta, value);
 
             if (isDomain) {
