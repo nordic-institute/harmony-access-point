@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 
 import java.util.List;
 
@@ -26,6 +27,6 @@ public interface ConfigurationPropertyService {
      * @param name  name of the property
      * @param value the new value
      */
-    void setPropertyValue(String name, boolean isDomain, String value);
+    void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException;
 
 }

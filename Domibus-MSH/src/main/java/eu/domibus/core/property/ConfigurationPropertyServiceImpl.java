@@ -72,7 +72,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     @Transactional(noRollbackFor = DomibusCoreException.class)
-    public void setPropertyValue(String name, boolean isDomain, String value) {
+    public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         try {
             DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
 
