@@ -1,10 +1,10 @@
-import {Constructable} from './base-list.component';
-import {OnInit} from '@angular/core';
+import {Constructable, ConstructableDecorator} from './base-list.component';
+import {OnInit, ViewChild} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 import {PaginationType} from './ipageable-list';
-import {PageableListMixin} from './pageable-list.mixin';
+import {FormGroup, NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -15,6 +15,8 @@ import {PageableListMixin} from './pageable-list.mixin';
 let FilterableListMixin = (superclass: Constructable) => class extends superclass
   implements IFilterableList, OnInit {
 
+  public filterForm: NgForm;
+
   public filter: any;
   public activeFilter: any;
 
@@ -22,13 +24,13 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
   public advancedFilters: Set<string>;
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
     this.filter = {};
     this.advancedFilters = new Set<string>();
   }
 
-  ngOnInit () {
+  ngOnInit() {
     if (super.ngOnInit) {
       super.ngOnInit();
     }
@@ -40,7 +42,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
-  public async tryFilter (): Promise<boolean> {
+  public async tryFilter(): Promise<boolean> {
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
       this.setActiveFilter();
@@ -57,7 +59,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is supposed to be overridden in derived classes to implement actual search
    */
-  public filterData (): Promise<any> {
+  public filterData(): Promise<any> {
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {
@@ -67,10 +69,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return this.loadServerData();
   }
 
-  public onResetAdvancedSearchParams () {
+  public onResetAdvancedSearchParams() {
   }
 
-  public resetAdvancedSearchParams () {
+  public resetAdvancedSearchParams() {
     this.advancedFilters.forEach(filterName => {
       if (typeof this.filter[filterName] === 'boolean') {
         this.filter[filterName] = false;
@@ -81,7 +83,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.onResetAdvancedSearchParams();
   }
 
-  protected createAndSetParameters (): HttpParams {
+  protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
 
     Object.keys(this.activeFilter).forEach((key: string) => {
@@ -106,7 +108,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method takes the filter params set through widgets and copies them to the active params
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
-  public setActiveFilter () {
+  public setActiveFilter() {
     //just in case ngOnInit wasn't called from corresponding component class
     if (!this.activeFilter) {
       this.activeFilter = {};
@@ -117,12 +119,12 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method takes the actual filter params and copies them to the UI bound params thus synchronizing the pair so what you see it is what you get
    */
-  public resetFilters () {
+  public resetFilters() {
     this.filter = {};
     Object.assign(this.filter, this.activeFilter);
   }
 
-  protected canProceedToFilter (): Promise<boolean> {
+  protected canProceedToFilter(): Promise<boolean> {
     if (instanceOfModifiableList(this) && this.isDirty()) {
       return this.dialogsService.openCancelDialog();
     }
@@ -139,7 +141,7 @@ export default FilterableListMixin;
  * A mixin for components that display a list of items that can be filtered on the client side(party, plugin users, users)
  */
 export let ClientFilterableListMixin = (superclass: Constructable) => class extends FilterableListMixin(superclass) {
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
     super.type = PaginationType.Client;
   }
@@ -152,7 +154,7 @@ export let ClientFilterableListMixin = (superclass: Constructable) => class exte
  * A mixin for components that display a list of items that can be filtered on the server side(messages, etc)
  */
 export let ServerFilterableListMixin = (superclass: Constructable) => class extends FilterableListMixin(superclass) {
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
     super.type = PaginationType.Client;
   }
