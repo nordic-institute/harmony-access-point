@@ -14,6 +14,4 @@ public interface UserAlertsService {
 
     void triggerDisabledEvent(UserBase user);
 
-//    void triggerLoginFailureEvent(UserEntityBase user);
-
 }
