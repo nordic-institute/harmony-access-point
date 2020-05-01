@@ -8,8 +8,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 
 /**
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
 public class PartyServiceInterceptor extends ServiceInterceptor {
 

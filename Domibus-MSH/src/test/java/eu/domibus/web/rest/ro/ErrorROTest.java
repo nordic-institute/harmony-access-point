@@ -1,4 +1,4 @@
-package eu.domibus.ext.rest;
+package eu.domibus.web.rest.ro;
 
 import org.junit.Test;
 

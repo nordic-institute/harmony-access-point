@@ -97,5 +97,5 @@ public interface PartyService {
      * @param party
      * @param certificateContent
      */
-    void updateParty(Party party, String certificateContent);
+    void updateParty(Party party, String certificateContent) throws PModeException;
 }

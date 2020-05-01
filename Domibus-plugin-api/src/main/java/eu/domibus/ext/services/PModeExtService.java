@@ -41,8 +41,6 @@ public interface PModeExtService {
      * @param bytes PMode file to be uploaded
      * @param description of the PMode uploaded version
      * @return List<String> as errors
-     */
-    /**
      * @deprecated Use instead {@link eu.domibus.ext.services.PModeExtService#updatePModeFile(MultipartFile, String) }
      */
     @Deprecated
@@ -55,5 +53,5 @@ public interface PModeExtService {
      * @param description of the PMode uploaded version
      * @return List<String> as errors
      */
-    List<ValidationIssueDTO> updatePModeFile(MultipartFile file, String description) throws IllegalArgumentException;
+    List<ValidationIssueDTO> updatePModeFile(MultipartFile file, String description);
 }

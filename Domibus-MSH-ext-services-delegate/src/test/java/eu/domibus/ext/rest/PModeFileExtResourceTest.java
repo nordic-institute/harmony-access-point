@@ -2,6 +2,8 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
+import eu.domibus.ext.exceptions.PModeExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -23,16 +25,19 @@ import java.util.List;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class PModeFileResourceTest {
+public class PModeFileExtResourceTest {
 
     @Tested
-    PModeFileResource pModeFileResource;
+    PModeFileExtResource pModeFileExtResource;
 
     @Injectable
     PModeExtService pModeExtService;
 
     @Injectable
     DomainExtConverter domainConverter;
+
+    @Injectable
+    ExtExceptionHelper extExceptionHelper;
 
     @Test
     public void test_downloadPMode(@Mocked ResponseEntity responseEntity) {
@@ -46,7 +51,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final ResponseEntity<ByteArrayResource> response = pModeFileResource.downloadPMode(pModeId);
+        final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
         Assert.assertNotNull(response);
 
         new FullVerifications() {{
@@ -69,7 +74,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final ResponseEntity<ByteArrayResource> response = pModeFileResource.downloadPMode(pModeId);
+        final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
         Assert.assertNotNull(response);
 
         new FullVerifications() {{
@@ -94,7 +99,7 @@ public class PModeFileResourceTest {
         }};
 
         //tested method
-        final PModeArchiveInfoDTO result = pModeFileResource.getCurrentPMode();
+        final PModeArchiveInfoDTO result = pModeFileExtResource.getCurrentPMode();
         Assert.assertNotNull(result);
         Assert.assertEquals(pModeId, result.getId());
 
@@ -111,6 +116,17 @@ public class PModeFileResourceTest {
         }};
 
         //tested
-        pModeFileResource.uploadPMode(pModeFile, description);
+        pModeFileExtResource.uploadPMode(pModeFile, description);
+    }
+
+    @Test
+    public void test_handlePartyExtServiceException(final @Mocked PModeExtException pModeExtException) {
+
+        //tested method
+        pModeFileExtResource.handlePModeExtException(pModeExtException);
+
+        new FullVerifications() {{
+            extExceptionHelper.handleExtException(pModeExtException);
+        }};
     }
 }

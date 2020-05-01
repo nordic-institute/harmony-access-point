@@ -242,7 +242,7 @@ public class PartyServiceImpl implements PartyService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("create name predicate for [{}]", name);
             }
-            return party -> StringUtils.containsIgnoreCase(party.getName(), name.toUpperCase());
+            return party -> StringUtils.equalsIgnoreCase(party.getName(), name.toUpperCase());
         }
         return DEFAULT_PREDICATE;
 
@@ -254,7 +254,7 @@ public class PartyServiceImpl implements PartyService {
                 LOG.debug("create endPoint predicate for [{}]", endPoint);
             }
             return party ->
-                    StringUtils.containsIgnoreCase(party.getEndpoint(), endPoint.toUpperCase());
+                    StringUtils.equalsIgnoreCase(party.getEndpoint(), endPoint.toUpperCase());
         }
         return DEFAULT_PREDICATE;
     }
@@ -268,7 +268,7 @@ public class PartyServiceImpl implements PartyService {
             return
                     party -> {
                         long count = party.getIdentifiers().stream().
-                                filter(identifier -> StringUtils.containsIgnoreCase(identifier.getPartyId(), partyId)).count();
+                                filter(identifier -> StringUtils.equalsIgnoreCase(identifier.getPartyId(), partyId)).count();
                         return count > 0;
                     };
         }
@@ -284,9 +284,9 @@ public class PartyServiceImpl implements PartyService {
             return
                     party -> {
                         long count = party.getProcessesWithPartyAsInitiator().stream().
-                                filter(process -> StringUtils.containsIgnoreCase(process.getName(), processName)).count();
+                                filter(process -> StringUtils.equalsIgnoreCase(process.getName(), processName)).count();
                         count += party.getProcessesWithPartyAsResponder().stream().
-                                filter(process -> StringUtils.containsIgnoreCase(process.getName(), processName)).count();
+                                filter(process -> StringUtils.equalsIgnoreCase(process.getName(), processName)).count();
                         return count > 0;
                     };
         }
@@ -779,7 +779,7 @@ public class PartyServiceImpl implements PartyService {
 
 
     @Override
-    public void updateParty(Party party, String certificateContent) {
+    public void updateParty(Party party, String certificateContent) throws PModeException {
 
         final String partyName = party.getName();
         checkPartyInUse(partyName);
