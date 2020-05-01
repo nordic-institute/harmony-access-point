@@ -303,17 +303,19 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
      * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
      */
     public void validateUniqueUser(UserBase user) {
-        //check to see if it is a domain user
+        //check to see if it is a domain user(works in single and multy tenancy mode)
         String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
         if (domain != null) {
             String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
             throw new UserManagementException(errorMessage);
         }
-        //if no luck, check also if it is super-user/AP admin
-        String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
-        if (preferredDomain != null) {
-            String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
-            throw new UserManagementException(errorMessage);
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            //if no luck, check also if it is super-user/AP admin
+            String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
+            if (preferredDomain != null) {
+                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
+                throw new UserManagementException(errorMessage);
+            }
         }
     }
 
