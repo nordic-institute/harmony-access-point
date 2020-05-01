@@ -485,8 +485,6 @@ public class UserSecurityPolicyManagerTest {
         }};
 
         new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
             userDomainService.getDomainForUser(testUsername);
             result = testDomain;
         }};
