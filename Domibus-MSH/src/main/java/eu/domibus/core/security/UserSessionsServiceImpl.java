@@ -36,7 +36,7 @@ public class UserSessionsServiceImpl implements UserSessionsService {
                 .filter(u -> u.getUsername().equals(user.getUserName()))
                 .collect(Collectors.toList());
         principals.forEach(principal -> {
-            LOG.info("Found user [{}] in session registry", principal.getUsername());
+            LOG.info("Found principal [{}] in session registry", principal.getUsername());
             List<SessionInformation> sess = sessionRegistry.getAllSessions(principal, false);
             sess.forEach(session -> {
                 LOG.info("Expire session [{}] for user [{}]", session, user.getUserName());
