@@ -42,6 +42,7 @@ public class DynamicDiscoveryPModeProviderIT {
      */
     @Test
     @Ignore
+    //TODO this test is failling when running at package level (at least eu.domibus.core) java.lang.InterruptedException
     public void concurrentAccessReadWrite() throws ExecutionException, InterruptedException {
         Callable<List<Party>> getPartiesAndDoStuff = () -> {
 
