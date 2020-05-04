@@ -8,7 +8,6 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.RegexUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -54,9 +53,6 @@ public class ConfigurationPropertyServiceImplTest {
 
     @Mocked
     private DomibusPropertyManagerExt propertyManager2;
-
-    @Injectable
-    private RegexUtil regexUtil;
 
     Map<String, DomibusPropertyMetadataDTO> props1, props2;
     String domainCode = "domain1";
@@ -159,7 +155,6 @@ public class ConfigurationPropertyServiceImplTest {
     @Test(expected = DomibusPropertyException.class)
     public void setPropertyValue_notMatch() {
         new Expectations() {{
-
             propertyManager1.hasKnownProperty("non_existing_prop");
             result = false;
 
@@ -177,12 +172,12 @@ public class ConfigurationPropertyServiceImplTest {
             returns("NON_EXISTING", "STRING");
         }};
 
-        configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
-        configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
-        new Verifications() {{
-            regexUtil.matches(anyString, "doesn't matter");
-            times = 0;
-        }};
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
     }
 
     @Test
@@ -190,16 +185,13 @@ public class ConfigurationPropertyServiceImplTest {
         new Expectations(configurationPropertyService) {{
             propMeta.getType();
             returns("NUMERIC");
-            regexUtil.matches(DomibusPropertyMetadata.Type.NUMERIC.getRegularExpression(), "123");
-            result = true;
         }};
 
-        configurationPropertyService.validatePropertyValue(propMeta, "123");
-        new Verifications() {{
-            regexUtil.matches(DomibusPropertyMetadata.Type.NUMERIC.getRegularExpression(), "123");
-            times = 1;
-        }};
-
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "123");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
     }
 
     @Test(expected = DomibusPropertyException.class)
@@ -210,10 +202,5 @@ public class ConfigurationPropertyServiceImplTest {
         }};
 
         configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
-
-        new Verifications() {{
-            regexUtil.matches(anyString, "doesn't matter");
-            times = 1;
-        }};
     }
 }

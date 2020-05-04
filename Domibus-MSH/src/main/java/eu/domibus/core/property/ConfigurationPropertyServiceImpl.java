@@ -7,8 +7,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.RegexUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -42,9 +42,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    private RegexUtil regexUtil;
 
     /**
      * We inject here all property managers: one for each plugin, external module, specific server
@@ -117,13 +114,13 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
         try {
             DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
-            String expr = type.getRegularExpression();
-            if (expr == null) {
-                LOG.debug("Regular expression for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+            DomibusPropertyValidator validator = type.getValidator();
+            if (validator == null) {
+                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
                 return;
             }
 
-            if (!regexUtil.matches(expr, propertyValue)) {
+            if (!validator.isValid(propertyValue)) {
                 throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
             }
         } catch (IllegalArgumentException ex) {
