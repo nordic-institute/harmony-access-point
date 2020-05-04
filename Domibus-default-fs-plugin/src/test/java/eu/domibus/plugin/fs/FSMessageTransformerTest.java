@@ -1,13 +1,19 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPluginException;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -19,7 +25,17 @@ import java.util.*;
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
+@RunWith(JMockit.class)
 public class FSMessageTransformerTest {
+
+    @Injectable
+    protected FileUtilExtService fileUtilExtService;
+
+    @Injectable
+    protected FSMimeTypeHelper fsMimeTypeHelper;
+
+    @Tested
+    FSMessageTransformer fsMessageTransformer;
 
     private static final String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
     private static final String RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
@@ -93,8 +109,7 @@ public class FSMessageTransformerTest {
         submission.addPayload(submissionPayload);
 
         // Transform FSMessage from Submission
-        FSMessageTransformer transformer = new FSMessageTransformer();
-        FSMessage fsMessage = transformer.transformFromSubmission(submission, null);
+        FSMessage fsMessage = fsMessageTransformer.transformFromSubmission(submission, null);
 
         // Expected results for FSMessage
         UserMessage userMessage = fsMessage.getMetadata();
@@ -137,6 +152,7 @@ public class FSMessageTransformerTest {
         // Transform FSMessage to Submission
         FSMessageTransformer transformer = new FSMessageTransformer();
         transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
+
         Submission submission = transformer.transformToSubmission(fsMessage);
 
         assertTransformValues(submission);
@@ -152,19 +168,21 @@ public class FSMessageTransformerTest {
         Submission submission = transformer.transformToSubmission(fsMessage);
 
         assertTransformPayloadInfo(submission);
-
     }
 
     @Test
     public void testTransformToFromToSubmission_NormalFlow() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
-        FSMessageTransformer transformer = new FSMessageTransformer();
-        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
-        // perform the transformation to - from and back to subbmission
-        Submission submission0 = transformer.transformToSubmission(fsMessage);
-        FSMessage fsMessage1 = transformer.transformFromSubmission(submission0, null);
-        Submission submission = transformer.transformToSubmission(fsMessage1);
+        new Expectations(fsMessageTransformer) {{
+           fileUtilExtService.sanitizeFileName(anyString);
+           result = "content.xml";
+        }};
+
+        // perform the transformation to - from and back to submission
+        Submission submission0 = fsMessageTransformer.transformToSubmission(fsMessage);
+        FSMessage fsMessage1 = fsMessageTransformer.transformFromSubmission(submission0, null);
+        Submission submission = fsMessageTransformer.transformToSubmission(fsMessage1);
 
         assertTransformValues(submission);
         assertTransformPayloadInfo(submission);

@@ -176,8 +176,6 @@
             <artifactId>reflections</artifactId>
             <scope>test</scope>
         </dependency>
-
-
         <!-- End Test dependencies -->
 
         <!--Swagger-->
