@@ -509,7 +509,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/*USR-20 - Admin tries to create a user with username that exists on another domain*/
-	@Test(description = "USR-20", groups = {"multiTenancy"})
+	@Test(description = "USR-20", groups = {"multiTenancy"} )
 	public void duplicateUsernameOnAnotherDomain() throws Exception {
 		String domainName = getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
@@ -552,7 +552,7 @@ public class UsersPgTest extends BaseTest {
 	}
 
 	/*USR-21 - Admin tries to create a user with username that exists on a Plugin user*/
-	@Test(description = "USR-21", groups = {"multiTenancy"})
+	@Test(description = "USR-21", groups = {"multiTenancy"} )
 	public void duplicateUserVSPluginUser() throws Exception {
 
 		String username = getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");

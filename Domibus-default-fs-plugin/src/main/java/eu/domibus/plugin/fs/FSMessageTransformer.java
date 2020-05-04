@@ -1,7 +1,9 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPayloadException;
@@ -34,15 +36,13 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
     private static final String PAYLOAD_PROPERTY_MIME_TYPE = "MimeType";
 
-    /**
-     * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
-     */
-    private static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
-
     protected final ObjectFactory objectFactory = new ObjectFactory();
 
     @Autowired
     protected FSMimeTypeHelper fsMimeTypeHelper;
+
+    @Autowired
+    protected FileUtilExtService fileUtilExtService;
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
@@ -118,7 +118,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             }
             ArrayList<Submission.TypedProperty> payloadProperties = new ArrayList<>();
             payloadProperties.add(new Submission.TypedProperty(PAYLOAD_PROPERTY_MIME_TYPE, mimeType));
-            payloadProperties.add(new Submission.TypedProperty(PAYLOAD_PROPERTY_FILE_NAME, fileName));
+            payloadProperties.add(new Submission.TypedProperty(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName));
             List<Property> additionalPropertyList = extractAdditionalPropertyListFromMetadata(metadata);
             if (additionalPropertyList != null) {
                 for (Property property : additionalPropertyList) {
@@ -196,7 +196,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
         for (Property property : partProperties.getProperty()) {
             if (!PAYLOAD_PROPERTY_MIME_TYPE.equals(property.getName()) &&
-                    !PAYLOAD_PROPERTY_FILE_NAME.equals(property.getName())) {
+                    !MessageConstants.PAYLOAD_PROPERTY_FILE_NAME.equals(property.getName())) {
                 propertyList.add(property);
             }
         }
@@ -214,7 +214,8 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             }
 
             //file name
-            final String fileName = extractPayloadProperty(payload, PAYLOAD_PROPERTY_FILE_NAME);
+            String fileName = fileUtilExtService.sanitizeFileName(extractPayloadProperty(payload, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME));
+            LOG.debug("{} property found=[{}]", MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, fileName);
 
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {
