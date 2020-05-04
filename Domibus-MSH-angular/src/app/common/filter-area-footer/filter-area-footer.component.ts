@@ -30,10 +30,12 @@ export class FilterAreaFooterComponent {
   }
 
   canSearch() {
+    const canSearch = this.parent.canSearch();
+
     const form = this.parent.filterForm;
     if (!form) {
-      return true;
+      return canSearch;
     }
-    return !form.invalid;
+    return !form.invalid && canSearch;
   }
 }

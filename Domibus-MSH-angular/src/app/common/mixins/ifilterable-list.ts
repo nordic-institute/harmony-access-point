@@ -23,5 +23,6 @@ export interface IFilterableList {
 
   resetAdvancedSearchParams();
 
+  canSearch(): boolean | Promise<boolean>;
 }
 

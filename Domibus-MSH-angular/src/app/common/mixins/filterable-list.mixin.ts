@@ -1,10 +1,10 @@
-import {Constructable, ConstructableDecorator} from './base-list.component';
-import {OnInit, ViewChild} from '@angular/core';
+import {Constructable} from './base-list.component';
+import {OnInit} from '@angular/core';
 import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 import {PaginationType} from './ipageable-list';
-import {FormGroup, NgForm} from '@angular/forms';
+import {NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -109,7 +109,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
   public setActiveFilter() {
-    //just in case ngOnInit wasn't called from corresponding component class
+    // just in case ngOnInit wasn't called from corresponding component class
     if (!this.activeFilter) {
       this.activeFilter = {};
     }
@@ -131,6 +131,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return Promise.resolve(true);
   }
 
+  canSearch(): boolean | Promise<boolean> {
+    return !super.isBusy();
+  }
 };
 export default FilterableListMixin;
 
