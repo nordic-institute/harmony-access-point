@@ -14,7 +14,8 @@ export class FileUploadValidatorService {
         throw new Error('The file exceeds the maximum size limit.');
       }
     } catch (e) {
-      //no error in case we cannot read property because the server will validate
+      console.log('Exception while reading upload size limit property:', e);
+      // no error in case we cannot read property because the server will validate
     }
   }
 
