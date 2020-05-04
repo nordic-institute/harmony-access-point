@@ -34,7 +34,8 @@ import java.util.Set;
         @NamedQuery(name = "User.findSuspendedUsers", query = "FROM User u where u.suspensionDate is not null and u.suspensionDate<:SUSPENSION_INTERVAL and u.deleted=false"),
         @NamedQuery(name = "User.findWithPasswordChangedBetween", query = "FROM User u where u.passwordChangeDate is not null and u.passwordChangeDate>:START_DATE " +
                 "and u.passwordChangeDate<:END_DATE and u.defaultPassword=:DEFAULT_PASSWORD and u.deleted=false"),
-        @NamedQuery(name = "User.findByRoleName", query = "select u FROM User u join u.roles r where r.name=:ROLE_NAME")
+        @NamedQuery(name = "User.findByRoleName", query = "select u FROM User u join u.roles r where r.name=:ROLE_NAME"),
+        @NamedQuery(name = "User.findAllByUserName", query = "FROM User u where u.userName=:USER_NAME"),
 })
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName("User")
