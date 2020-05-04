@@ -51,7 +51,9 @@ public class FilterArea extends DComponent {
 	public void clickSearch() throws Exception {
 		log.info("clicking search");
 		weToDButton(searchButton).click();
+
 	}
+
 
 
 

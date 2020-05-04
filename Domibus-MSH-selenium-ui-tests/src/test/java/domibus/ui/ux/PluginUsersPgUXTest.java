@@ -107,7 +107,6 @@ public class PluginUsersPgUXTest extends BaseTest {
 		log.info("setting passord and confirmation not to match");
 		pum.getPasswordInput().fill(data.defaultPass());
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
-
 		log.info("check error message");
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match");
@@ -257,7 +256,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
 //	known failure, was decided it will not be fixed
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"},enabled = false)
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");
