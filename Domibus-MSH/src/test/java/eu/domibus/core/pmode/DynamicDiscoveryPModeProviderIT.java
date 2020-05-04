@@ -6,6 +6,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -30,42 +31,23 @@ public class DynamicDiscoveryPModeProviderIT {
 
     /**
      * Test case to show case the issue with the singleton {@link CachingPModeProvider#getConfiguration()}
-     *
+     * <p>
      * getPartiesAndDoStuff Thread should start before modifyConfigSynchronized and finish after
-     *
+     * <p>
      * To reproduce the {@link java.util.ConcurrentModificationException}, change the {@link BusinessProcesses#getParties()} to:
-     *
-     *    public List<Party> getParties() {
-     *         return this.parties;
-     *     }
-     *
-     *    java.util.concurrent.ExecutionException: java.util.ConcurrentModificationException
-     *               at java.util.concurrent.FutureTask.report(FutureTask.java:122)
-     *               at java.util.concurrent.FutureTask.get(FutureTask.java:192)
-     *               at eu.domibus.core.pmode.DynamicDiscoveryPModeProviderConfigurationTest.concurrentAccessReadWrite(DynamicDiscoveryPModeProviderConfigurationTest.java:56)
-     *               at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     *               at java.lang.reflect.Method.invoke(Method.java:498)
-     *               at org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
-     *               at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
-     *               at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
-     *               at com.intellij.rt.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:33)
-     *               at com.intellij.rt.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:230)
-     *               at com.intellij.rt.junit.JUnitStarter.main(JUnitStarter.java:58)
-     *    Caused by: java.util.ConcurrentModificationException
-     *               at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:901)
-     *               at java.util.ArrayList$Itr.next(ArrayList.java:851)
-     *               at eu.domibus.core.pmode.DynamicDiscoveryPModeProviderConfigurationTest.lambda$concurrentAccessReadWrite$1(DynamicDiscoveryPModeProviderConfigurationTest.java:44)
-     *               at java.util.concurrent.FutureTask.run(FutureTask.java:266)
-     *               at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-     *               at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-     *               at java.lang.Thread.run(Thread.java:745)
+     * <p>
+     * public List<Party> getParties() {
+     * return this.parties;
+     * }
      */
     @Test
-    public void concurrentAccessReadWrite() throws ExecutionException, TimeoutException, InterruptedException {
+    @Ignore
+    public void concurrentAccessReadWrite() throws ExecutionException, InterruptedException {
         Callable<List<Party>> getPartiesAndDoStuff = () -> {
 
+            List<Party> parties;
             LOG.info("Start Thread getParties " + Thread.currentThread().getName());
-            List<Party> parties = dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties();
+            parties = dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties();
             for (final Party party : parties) {
                 // The thread should keep on reading the parties longer than the other thread is trying to modify the parties
                 Thread.sleep(200);

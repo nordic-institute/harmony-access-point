@@ -420,6 +420,14 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.openjdk.jcstress</groupId>
+            <artifactId>jcstress-core</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- End Test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
