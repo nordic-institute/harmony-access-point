@@ -12,7 +12,7 @@ export class PropertiesService {
   }
 
   async loadPropertyTypes(): Promise<any> {
-    const types = await this.http.get<any[]>('rest/application/domibusPropertyMetadataTypes').toPromise();
+    const types = await this.http.get<any[]>('rest/configuration/properties/metadata/types').toPromise();
     const result = new Map(types.map(i => [i.name, new RegExp(i.regularExpression)]));
     this.regularExpressions = result;
   }

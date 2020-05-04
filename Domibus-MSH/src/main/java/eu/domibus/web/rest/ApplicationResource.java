@@ -4,20 +4,21 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.DomibusPropertiesService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.*;
+import eu.domibus.web.rest.ro.DomainRO;
+import eu.domibus.web.rest.ro.DomibusInfoRO;
+import eu.domibus.web.rest.ro.PasswordPolicyRO;
+import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
@@ -175,21 +176,6 @@ public class ApplicationResource {
         supportTeamInfoRO.setName(getSupportTeamName());
 
         return supportTeamInfoRO;
-    }
-
-    /**
-     * Retrieves the domibus property types (along with their regular expression) as a list,
-     * To be used in client validation
-     *
-     * @return a list of property types
-     */
-    @RequestMapping(value = "domibusPropertyMetadataTypes", method = RequestMethod.GET)
-    public List<DomibusPropertyTypeRO> getDomibusPropertyMetadataTypes() {
-        LOG.debug("Getting domibusPropertyMetadata types.");
-
-        DomibusPropertyMetadata.Type[] types = DomibusPropertyMetadata.Type.values();
-        List<DomibusPropertyTypeRO> res = domainCoreConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
-        return res;
     }
 
     private String getPasswordPattern() {
