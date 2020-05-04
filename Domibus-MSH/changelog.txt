@@ -13,6 +13,7 @@ Domibus 4.2
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
 - Possibility to route JMS messages in the JMS Plugin to specific queues depending on service and action
 Domibus 4.1.4
+- Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager
 - Fixed the issue regarding duplicate retrieval of messages by multiple concurrent clients

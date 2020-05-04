@@ -361,7 +361,7 @@ public class PluginUsersPgTest extends BaseTest {
 	}
 
 	/*PU-18 - Admin tries to create users with the same username on multiple domains*/
-	@Test(description = "PU-18", groups = {"multiTenancy"})
+	@Test(description = "PU-18", groups = {"multiTenancy"} )
 	public void duplicatePluginUsersDifferentDomain() throws Exception {
 		String domainName = getNonDefaultDomain();
 		if (StringUtils.isEmpty(domainName)) {
@@ -518,7 +518,7 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "*****", groups = {"multiTenancy"})
+	@Test(description = "*****", groups = {"multiTenancy"} )
 	public void domainVisibility() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
 

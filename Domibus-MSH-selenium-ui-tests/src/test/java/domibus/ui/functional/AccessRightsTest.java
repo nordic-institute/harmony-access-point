@@ -29,7 +29,6 @@ public class AccessRightsTest extends BaseTest {
 		login(username, data.defaultPass());
 		log.info("Logged in with user: " + username);
 
-
 		log.info("Checking rights for: " + username);
 		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "Options that should be available to an USER are present");
 
@@ -96,7 +95,7 @@ public class AccessRightsTest extends BaseTest {
 	}
 
 	/*Login with valid user with role ROLE_AP_ADMIN*/
-	@Test(description = "RGT-5", groups = {"multiTenancy"})
+	@Test(description = "RGT-5", groups = {"multiTenancy"} )
 	public void superAdminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
