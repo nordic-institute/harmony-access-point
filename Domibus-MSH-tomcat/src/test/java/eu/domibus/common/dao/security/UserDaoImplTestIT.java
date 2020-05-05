@@ -130,7 +130,7 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void existsWithName() {
-        String userName = "user4";
+        String userName = "user1ForExistsTest";
         User user = createUser(userName);
         user.setDeleted(true);
         userDao.update(user);
@@ -138,15 +138,14 @@ public class UserDaoImplTestIT extends AbstractIT {
         boolean res = userDao.existsWithName(userName);
         assertTrue(res);
 
-        res = userDao.existsWithName(userName+"sss");
+        res = userDao.existsWithName(userName + "sss");
         assertFalse(res);
 
-        userName = "user5";
+        userName = "user2ForExistsTest";
         user = createUser(userName);
 
         res = userDao.existsWithName(userName);
         assertTrue(res);
-
     }
 
     private User createUser(String name) {
