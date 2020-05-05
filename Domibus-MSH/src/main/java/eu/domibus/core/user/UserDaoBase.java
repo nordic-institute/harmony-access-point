@@ -21,5 +21,5 @@ public interface UserDaoBase<U extends UserEntityBase> {
 
     List<U> findByRole(String roleName);
 
-    boolean existsWithName(String userName);
+    boolean existsWithId(String userName);
 }

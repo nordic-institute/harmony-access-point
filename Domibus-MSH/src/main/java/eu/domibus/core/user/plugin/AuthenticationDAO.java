@@ -138,7 +138,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
     }
 
     @Override
-    public boolean existsWithName(String userName) {
-        return findByUser(userName) != null;
+    public boolean existsWithId(String userId) {
+        return listByUser(userId).size() > 0 || listByCertificateId(userId).size() > 0;
     }
 }
