@@ -13,7 +13,7 @@ export class PropertiesService {
 
   async loadPropertyTypes(): Promise<any> {
     const types = await this.http.get<any[]>('rest/configuration/properties/metadata/types').toPromise();
-    const result = new Map(types.map(i => [i.name, new RegExp(i.regularExpression)]));
+    const result = new Map(types.filter(el => el.regularExpression != null).map(i => [i.name, new RegExp(i.regularExpression)]));
     this.regularExpressions = result;
   }
 
