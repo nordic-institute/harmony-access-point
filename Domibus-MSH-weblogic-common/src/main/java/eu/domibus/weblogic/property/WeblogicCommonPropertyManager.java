@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyServiceDelegateAbstract;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -28,7 +29,7 @@ public class WeblogicCommonPropertyManager extends DomibusPropertyServiceDelegat
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_USER, module),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD, module),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, DomibusPropertyMetadata.Type.BOOLEAN, module)
-    ).stream().collect(Collectors.toMap(x - >x.getName(), x -> x));
+    ).stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
