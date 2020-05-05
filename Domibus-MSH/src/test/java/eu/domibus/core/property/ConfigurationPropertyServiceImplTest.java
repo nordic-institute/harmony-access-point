@@ -115,7 +115,7 @@ public class ConfigurationPropertyServiceImplTest {
             result = convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME));
         }};
 
-        List<DomibusProperty> aRegexpValidator.javaRegexpValidator.javactual = configurationPropertyService.getAllWritableProperties("domibus.UI", true);
+        List<DomibusProperty> actual = configurationPropertyService.getAllWritableProperties("domibus.UI", true);
 
         Assert.assertEquals(3, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
