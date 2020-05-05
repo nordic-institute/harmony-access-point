@@ -1,10 +1,13 @@
 package domibus.ui.rest;
 
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import ddsl.enums.DRoles;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,8 +49,8 @@ public class RestTest extends BaseTest {
 				String pluginUsername = rest.getPluginUser(domain, DRoles.ADMIN, true, false).getString("userName");
 				for (int i = noOfMess; i < 15; i++) {
 					messageSender.sendMessage(pluginUsername
-							,data.defaultPass()
-							,Generator.randomAlphaNumeric(20)
+							, data.defaultPass()
+							, Generator.randomAlphaNumeric(20)
 							, Generator.randomAlphaNumeric(20));
 				}
 			}
@@ -65,23 +68,29 @@ public class RestTest extends BaseTest {
 		log.info("DONE GENERATING TEST DATA");
 	}
 
-	public String getSanitizedStringResponse(ClientResponse response){
-		String content = response.getEntity(String.class);
-		log.debug("ResponseContent = " + content);
+	public String getSanitizedStringResponse(ClientResponse response) {
+		String content = "";
+		try {
+			content = response.getEntity(String.class);
+			log.debug("ResponseContent = " + content);
+		} catch (Exception e) {
+		}
 		return rest.sanitizeResponse(content);
 	}
 
-	private void getListOfDomains(){
+	private void getListOfDomains() {
 		List<String> codes = rest.getDomainCodes();
-		if(null == codes || codes.size() == 0){domains.add("default");}
+		if (null == codes || codes.size() == 0) {
+			domains.add("default");
+		}
 		domains.addAll(codes);
 	}
 
-	private void getListOfPlugins(){
+	private void getListOfPlugins() {
 		Set<String> uniqPluginNames = new HashSet<>();
 		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 
-		for (int i = 0; i < msgfs.length() ; i++) {
+		for (int i = 0; i < msgfs.length(); i++) {
 			JSONObject msgf = msgfs.getJSONObject(i);
 			uniqPluginNames.add(msgf.getString("backendName"));
 		}
@@ -97,7 +106,7 @@ public class RestTest extends BaseTest {
 
 		Object[][] toRet = new Object[records.size()][1];
 
-		for (int i = 0; i < records.size() ; i++) {
+		for (int i = 0; i < records.size(); i++) {
 			toRet[i][0] = records.get(i).toMap();
 		}
 
@@ -111,15 +120,15 @@ public class RestTest extends BaseTest {
 
 		Object[][] toRet = new Object[strings.size()][1];
 
-		for (int i = 0; i < strings.size() ; i++) {
+		for (int i = 0; i < strings.size(); i++) {
 			toRet[i][0] = strings.get(i);
 		}
 
 		return toRet;
 	}
 
-	protected void validateInvalidResponse(ClientResponse response, SoftAssert soft, Integer... acceptedResponseCodes){
-		Integer status=  response.getStatus();
+	protected void validateInvalidResponse(ClientResponse response, SoftAssert soft, Integer... acceptedResponseCodes) {
+		Integer status = response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
 
 		log.debug("Response status: " + status);
@@ -127,12 +136,13 @@ public class RestTest extends BaseTest {
 
 		soft.assertTrue(Lists.newArrayList(acceptedResponseCodes).contains(status), "Response status not as expected, found: " + status);
 
-		try {
-			new JSONObject(responseContent);
-		} catch (JSONException e) {
-			soft.fail("Response is not in JSON format");
+		if (StringUtils.isNotEmpty(responseContent)) {
+			try {
+				new JSONObject(responseContent);
+			} catch (JSONException e) {
+				soft.fail("Response is not in JSON format");
+			}
 		}
-
 	}
 
 

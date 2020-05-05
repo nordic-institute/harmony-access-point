@@ -7,6 +7,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PluginUsersClient extends DomibusRestClient {
 	public void createPluginUser(String username, String role, String pass, String domain) throws JSONException {
@@ -78,5 +82,25 @@ public class PluginUsersClient extends DomibusRestClient {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public ClientResponse searchPluginUsers(String domain, String authType, String role, String username, String originalUser, String page, String pageSize) {
+
+		switchDomain(domain);
+
+		HashMap<String, String> params = new HashMap<>();
+		HashMap<String, String> paramsNotEmpty = new HashMap<>();
+		params.put("authType", authType);
+		params.put("authRole", role);
+		params.put("originalUser", originalUser);
+		params.put("username", username);
+		params.put("authType", authType);
+		params.put("page", page);
+		params.put("pageSize", pageSize);
+
+		params.keySet().removeIf(k -> StringUtils.isEmpty(params.get(k)));
+
+		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
+		return response;
 	}
 }

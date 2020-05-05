@@ -91,5 +91,23 @@ public class JMSClient extends DomibusRestClient {
 		return response;
 	}
 
+	public ClientResponse deleteMessages(String source, String... messages) throws JSONException {
+
+		JSONArray array = new JSONArray();
+		for (String message : messages) {
+			array.put(message);
+		}
+
+		JSONObject params = new JSONObject();
+		params.put("action", "REMOVE");
+		params.put("source", source);
+//		params.put("destination", destination);
+		params.put("selectedMessages", array);
+
+		ClientResponse response = requestPOST(resource.path(RestServicePaths.JMS_ACTION), params.toString());
+
+		return response;
+	}
+
 
 }

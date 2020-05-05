@@ -54,7 +54,7 @@ public class DomibusRestClient extends BaseRestClient{
 
 
 	// -------------------------------------------- Domains -----------------------------------------------------a-------
-	private JSONArray getDomains() {
+	public JSONArray getDomains() {
 		JSONArray domainArray = null;
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMAINS), null);
 		try {
@@ -306,8 +306,57 @@ public class DomibusRestClient extends BaseRestClient{
 		return null;
 	}
 
-	public String getPluginUsername(String domainCode, String role, boolean active, boolean forceNew) {
-		return getPluginUser(domainCode, role, active, forceNew).getString("userName");
+	public JSONObject getPluginUser(String domainCode, String type, String role, boolean active, boolean forceNew) {
+		String username = Generator.randomAlphaNumeric(10);
+
+		String identiKey = "userName";
+		String authType = "BASIC";
+
+		if(type.equalsIgnoreCase("CERTIFICATE")){
+			identiKey = "certificateId";
+			authType = "CERTIFICATE";
+			String partyName = Generator.randomAlphaNumeric(5);
+			String id = Generator.randomAlphaNumeric(15);
+			username = String.format("CN=%s,O=eDelivery,C=BE:%s", partyName, id);
+		}
+
+		if (StringUtils.isEmpty(domainCode)) {
+			domainCode = "default";
+		}
+
+		if (!forceNew) {
+			log.info("trying to find existing user with desired config");
+			JSONArray users = pluginUsers().getPluginUsers(domainCode, authType);
+			for (int i = 0; i < users.length(); i++) {
+				JSONObject user = users.getJSONObject(i);
+				if (!StringUtils.equalsIgnoreCase(user.getString(identiKey), "null")
+						&& StringUtils.equalsIgnoreCase(user.getString("authRoles"), role)
+						&& user.getBoolean("active") == active) {
+					log.info("found user " + user.getString(identiKey));
+					return user;
+				}
+			}
+		}
+
+		if(type.equalsIgnoreCase("CERTIFICATE")){
+			pluginUsers().createCertPluginUser(username, role, domainCode);
+		}else {
+			pluginUsers().createPluginUser(username, role, data.defaultPass(), domainCode);
+		}
+
+		log.info("created user " + username);
+
+		JSONArray users = pluginUsers().getPluginUsers(domainCode, authType);
+		log.info("searching for user in the system");
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (StringUtils.equalsIgnoreCase(user.getString(identiKey), username)) {
+				log.info("user found and returned");
+				return user;
+			}
+		}
+		log.info("user not found .. returning null");
+		return null;
 	}
 
 	public String getNonDefaultDomain() {
