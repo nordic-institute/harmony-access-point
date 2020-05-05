@@ -36,6 +36,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     super.filter = {propertyName: '', showDomain: true};
     this.showGlobalPropertiesControl = this.securityService.isCurrentUserSuperAdmin();
 
+    this.propertiesService.loadPropertyTypes();
     this.filterData();
   }
 

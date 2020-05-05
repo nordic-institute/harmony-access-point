@@ -1,11 +1,11 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -32,6 +32,9 @@ public class ConfigurationPropertyServiceImplTest {
     @Injectable
     protected DomainContextProvider domainContextProvider;
 
+    @Tested
+    ConfigurationPropertyServiceImpl configurationPropertyService;
+
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
@@ -50,9 +53,6 @@ public class ConfigurationPropertyServiceImplTest {
 
     @Mocked
     private DomibusPropertyManagerExt propertyManager2;
-
-    @Tested
-    ConfigurationPropertyServiceImpl configurationPropertyService;
 
     Map<String, DomibusPropertyMetadataDTO> props1, props2;
     String domainCode = "domain1";
@@ -155,7 +155,6 @@ public class ConfigurationPropertyServiceImplTest {
     @Test(expected = DomibusPropertyException.class)
     public void setPropertyValue_notMatch() {
         new Expectations() {{
-
             propertyManager1.hasKnownProperty("non_existing_prop");
             result = false;
 
@@ -164,5 +163,44 @@ public class ConfigurationPropertyServiceImplTest {
         }};
 
         configurationPropertyService.setPropertyValue("non_existing_prop", true, "val11");
+    }
+
+    @Test
+    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            returns("NON_EXISTING", "STRING");
+        }};
+
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            returns("NUMERIC");
+        }};
+
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "123");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            result = "NUMERIC";
+        }};
+
+        configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
     }
 }

@@ -15,13 +15,14 @@ import groovy.json.JsonOutput
 import groovy.json.JsonBuilder
 
 
+
 class Domibus{
     def messageExchange = null;
     def context = null;
     def log = null;
 
-    def allDomainsProperties = null
-    def allDomains = null
+    def allDomainsProperties = null;
+    def allDomains = null;
 
     // sleepDelay value is increased from 2000 to 6000 because of pull request take longer ...
     def sleepDelay = 6000
@@ -34,7 +35,12 @@ class Domibus{
 
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-
+	static def FS_DEF_SENDER="domibus-blue"; static def FS_DEF_RECEIVER="domibus-red"; static def FS_DEF_AGR_TYPE="DUM";
+	static def FS_DEF_AGR="DummyAgr"; static def FS_DEF_SRV_TYPE="tc20"; static def FS_DEF_SRV="bdx:noprocess";
+	static def FS_DEF_ACTION="TC20Leg1"; static def FS_DEF_CID="cid:message"; static def FS_DEF_PAY_NAME="PayloadName.xml"; static def FS_DEF_MIME="text/xml";
+	static def FS_DEF_OR_SENDER="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"; static def FS_DEF_FIN_RECEIVER="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+	static def FS_DEF_LIST=[FS_DEF_SENDER,FS_DEF_RECEIVER,FS_DEF_AGR_TYPE,FS_DEF_AGR,FS_DEF_SRV_TYPE,FS_DEF_SRV,FS_DEF_ACTION,FS_DEF_OR_SENDER,FS_DEF_FIN_RECEIVER,FS_DEF_CID,FS_DEF_MIME,FS_DEF_PAY_NAME];
+	
     static def backup_file_sufix = "_backup_for_soapui_tests";
     static def DEFAULT_LOG_LEVEL = 0;
     static def DEFAULT_PASSWORD = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
@@ -2072,8 +2078,11 @@ static def void copyFile(String source, String destination, log, overwriteOpt=tr
 // replace slashes in project custom properties values
 static def String formatPathSlashes(String source) {
     if ( (source != null) && (source != "") ) {
-        return source.replaceAll("/", "\\\\")
+		if (System.properties['os.name'].toLowerCase().contains('windows')){
+			return source.replaceAll("/", "\\\\");
+		}
     }
+	return source;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2443,6 +2452,17 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 		assert(retPropVal!=null),"Error:getTestCaseCustProp: Couldn't fetch property \"$custPropName\" value";
 		log.info "Test case level custom property fetched \"$custPropName\"= \"$retPropVal\"."
 		debugLog("  ====  End \"getTestCaseCustProp\".", log);
+		return retPropVal;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getProjectCustProp(custPropName,context,log, testRunner){
+		def retPropVal=null;
+        debugLog("  ====  Calling \"getProjectCustProp\".", log);		
+		retPropVal=testRunner.testCase.testSuite.project.getPropertyValue(custPropName);
+		assert(retPropVal!=null),"Error:getProjectCustProp: Couldn't fetch property \"$custPropName\" value";
+		assert(retPropVal.trim()!=""),"Error:getProjectCustProp: Property \"$custPropName\" returned value is empty.";
+		log.info "Project level custom property fetched \"$custPropName\"= \"$retPropVal\"."
+		debugLog("  ====  End \"getProjectCustProp\".", log);
 		return retPropVal;
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -3337,8 +3357,95 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
         def mapValue = jsonSlurper.parseText(stringValue);
 		return mapValue[side+number];
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static submitFSmessage(String side,String configuration,String domain,parametersList,context,log,testRunner,boolean twoFiles=true,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"submitFSmessage\".", log);
+		def messageMetadata=null;
+		def fspluginPath=null;
+		def source=null;
+		def dest=null;
+		def metadataFile=null;
+		// After testing of 4.1.4 change to "fsplugin.messages.location"
+		def messageLocationPrpertyName="fsplugin.domains.default.messages.location";
+		def i=0;
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+	
+	    switch (configuration.toLowerCase()) {
+			case  "standard":
+				assert(parametersList.size>=9),"Error: submitFSmessage: number of parameters provided must be at least 9. Provided: " +parametersList.size;
+				messageMetadata=getProjectCustProp("fsMetadataStandard",context,log,testRunner);
+                break;
+            case "withmime":
+				assert(parametersList.size>=11),"Error: submitFSmessage: number of parameters provided must be at least 11. Provided: " +parametersList.size;
+				messageMetadata=getProjectCustProp("fsMetadataWithMimeType",context,log,testRunner);
+				messageMetadata=messageMetadata.replace(FS_DEF_CID,parametersList[9]).replace(FS_DEF_MIME,parametersList[10]);
+                break;
+            case "withpname":
+				assert(parametersList.size>=11),"Error: submitFSmessage: number of parameters provided must be at least 11. Provided: " +parametersList.size;
+				messageMetadata=getProjectCustProp("fsMetadataWithPayloadName",context,log,testRunner);
+				messageMetadata=messageMetadata.replace(FS_DEF_CID,parametersList[9]).replace(FS_DEF_PAY_NAME,parametersList[10]);
+                break;
+            default:
+				assert(parametersList.size>=9),"Error: submitFSmessage: number of parameters provided must be at least 9. Provided: " +parametersList.size;
+                log.warn "Unknown type of configuration: assume standard ..."
+				messageMetadata=getProjectCustProp("fsPluginPrototype",context,log,testRunner);
+                break;
+        }
+		for(i=0;i<=8;i++){
+			messageMetadata=messageMetadata.replace(FS_DEF_LIST[i],parametersList[i]);
+		}
+		fspluginPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/OUT/";
+		fspluginPath=formatPathSlashes(fspluginPath);
+		debugLog("  submitFSmessage  [][]  fspluginPath=\"$fspluginPath\"", log);
+		
+		source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml");
+		dest=fspluginPath+"Test_file.xml";
+		copyFile(source,dest,log);
 
+		if(twoFiles){
+			source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf");
+			dest=fspluginPath+"fileSmall.pdf";
+			copyFile(source,dest,log);
+		}
+		
 
+		metadataFile = new File(fspluginPath+"metadata.xml")
+		metadataFile.newWriter().withWriter { w ->
+			w << messageMetadata
+		}
+
+		
+		debugLog("  ====  \"submitFSmessage\" DONE.", log);
+		
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+
+	def static checkFSpayloadPresent(String side,String finalRecipient,String messageID,payloadName,String domain="default",context,log,testRunner,boolean confirmPresent=true,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"checkFSpayloadPresent\".", log);
+		def fsPayloadPath=null;
+		def i=0;
+		def testFile=null;
+		// After testing of 4.1.4 change to "fsplugin.messages.location"	
+		def messageLocationPrpertyName="fsplugin.domains.default.messages.location";
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+		fsPayloadPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/IN/"+finalRecipient+"/"+messageID+"/";
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  checkFSpayloadPresent  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
+		for(i=0;i<payloadName.size;i++){
+			testFile = new File(fsPayloadPath+payloadName[i]);
+			assert(testFile.exists()),"Error: checkFSpayloadPresent: file \"${payloadName[i]}\" was not found in path \"$fsPayloadPath\" ...";
+			log.info "File file \"{$payloadName[i]}\" was not found in path \"$fsPayloadPath\"."
+		}
+		debugLog("  ====  \"checkFSpayloadPresent\" DONE.", log);
+	}
 
 } // Domibus class end
 
