@@ -265,4 +265,7 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     eu.domibus.api.usermessage.domain.PartProperties partPropertiesToPartPropertiesApi(PartProperties partProperties);
 
+    default DomibusPropertyTypeRO domibusPropertyMetadataTypeTOdomibusPropertyTypeRO(DomibusPropertyMetadata.Type type){
+        return new DomibusPropertyTypeRO(type.name(), type.getRegularExpression());
+    }
 }

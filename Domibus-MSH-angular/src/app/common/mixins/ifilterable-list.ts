@@ -1,3 +1,4 @@
+import {FormGroup, NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -6,6 +7,7 @@
  * An interface for the list with pagination ( client or server)
  * */
 export interface IFilterableList {
+  filterForm: NgForm;
   filter: any;
   activeFilter: any;
   advancedSearch: boolean;
@@ -21,5 +23,6 @@ export interface IFilterableList {
 
   resetAdvancedSearchParams();
 
+  canSearch(): boolean | Promise<boolean>;
 }
 

@@ -11,7 +11,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for {@link UserSessionsService}
@@ -31,17 +31,17 @@ public class UserSessionsServiceImpl implements UserSessionsService {
     @Override
     public void invalidateSessions(UserBase user) {
         LOG.debug("Invalidate sessions called for user [{}]", user.getUserName());
-        Optional<UserDetail> userDetail = sessionRegistry.getAllPrincipals().stream()
+        List<UserDetail> principals = sessionRegistry.getAllPrincipals().stream()
                 .map(p -> ((UserDetail) p))
                 .filter(u -> u.getUsername().equals(user.getUserName()))
-                .findFirst();
-        if (userDetail.isPresent()) {
-            LOG.info("Found session for user [{}]", user.getUserName());
-            List<SessionInformation> sess = sessionRegistry.getAllSessions(userDetail.get(), false);
+                .collect(Collectors.toList());
+        principals.forEach(principal -> {
+            LOG.info("Found principal [{}] in session registry", principal.getUsername());
+            List<SessionInformation> sess = sessionRegistry.getAllSessions(principal, false);
             sess.forEach(session -> {
                 LOG.info("Expire session [{}] for user [{}]", session, user.getUserName());
                 session.expireNow();
             });
-        }
+        });
     }
 }

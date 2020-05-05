@@ -1,12 +1,13 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
@@ -67,6 +68,66 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return allProperties;
     }
 
+    @Transactional(noRollbackFor = DomibusCoreException.class)
+    public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
+        try {
+            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
+
+            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
+            // validate the property value against the type
+            // We are doing it here since it covers all properties, core and external and server specific
+            validatePropertyValue(propMeta, value);
+
+            if (isDomain) {
+                LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
+                propertyManager.setKnownPropertyValue(name, value);
+            } else {
+                if (!authUtils.isSuperAdmin()) {
+                    throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
+                }
+                // for non-domain properties, we set the value in the null-domain context:
+                domainTaskExecutor.submit(() -> {
+                    LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
+                    propertyManager.setKnownPropertyValue(name, value);
+                });
+            }
+        } catch (IllegalArgumentException ex) {
+            LOG.error("Could not set property [{}].", name, ex);
+        }
+    }
+
+    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
+        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
+                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+        if (found.isPresent()) {
+            return found.get();
+        }
+
+        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
+    }
+
+    protected void validatePropertyValue(DomibusPropertyMetadataDTO propMeta, String propertyValue) throws DomibusPropertyException {
+        if (propMeta == null) {
+            LOG.warn("Property metadata is null; exiting validation.");
+            return;
+        }
+
+        try {
+            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+            DomibusPropertyValidator validator = type.getValidator();
+            if (validator == null) {
+                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+                return;
+            }
+
+            if (!validator.isValid(propertyValue)) {
+                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
+            }
+        } catch (IllegalArgumentException ex) {
+            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
+        }
+    }
+
     private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
         List<DomibusProperty> list = new ArrayList<>();
 
@@ -102,39 +163,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             }
         }
         return knownProps;
-    }
-
-    @Transactional(noRollbackFor = DomibusCoreException.class)
-    public void setPropertyValue(String name, boolean isDomain, String value) {
-        try {
-            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
-
-            if (isDomain) {
-                LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
-                propertyManager.setKnownPropertyValue(name, value);
-            } else {
-                if (!authUtils.isSuperAdmin()) {
-                    throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
-                }
-                // for non-domain properties, we set the value in the null-domain context:
-                domainTaskExecutor.submit(() -> {
-                    LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
-                    propertyManager.setKnownPropertyValue(name, value);
-                });
-            }
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Could not set property [{}].", name, ex);
-        }
-    }
-
-    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
-        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
-                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
-        if (found.isPresent()) {
-            return found.get();
-        }
-
-        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
     }
 
 }

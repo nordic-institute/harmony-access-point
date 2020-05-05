@@ -2,7 +2,6 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
-import {PropertiesService} from '../../properties/support/properties.service';
 import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
@@ -13,13 +12,9 @@ import {FileUploadValidatorService} from '../../common/file-upload-validator.ser
 export class PmodeUploadComponent implements OnInit {
 
   private url = 'rest/pmode';
-
-  enableSubmit = false;
   submitInProgress = false;
-
-  description: string = '';
-
-  useFileSelector: boolean = true;
+  description = '';
+  useFileSelector = true;
 
   @ViewChild('fileInput', {static: false})
   private fileInput;
@@ -34,12 +29,8 @@ export class PmodeUploadComponent implements OnInit {
     this.useFileSelector = !this.data || !this.data.pModeContents;
   }
 
-  public checkFileAndDescription() {
-    this.enableSubmit = this.hasFile() && this.description.length !== 0;
-  }
-
   private hasFile(): boolean {
-    return (this.useFileSelector && this.fileInput.nativeElement.files.length !== 0)
+    return (this.useFileSelector && this.fileInput && this.fileInput.nativeElement && this.fileInput.nativeElement.files.length !== 0)
       || (!this.useFileSelector && !!this.data.pModeContents);
   }
 
@@ -67,13 +58,12 @@ export class PmodeUploadComponent implements OnInit {
       let input = new FormData();
       input.append('file', file);
       input.append('description', this.description);
-      this.http.post<string>(this.url, input).subscribe(res => {
-          this.alertService.success(res);
-          this.dialogRef.close({done: true});
-          this.submitInProgress = false;
-        }, err => {
-          this.processError(err);
-        });
+
+      const res = await this.http.post<string>(this.url, input).toPromise();
+
+      this.alertService.success(res);
+      this.dialogRef.close({done: true});
+      this.submitInProgress = false;
     } catch (err) {
       this.processError(err);
     }
@@ -87,5 +77,9 @@ export class PmodeUploadComponent implements OnInit {
 
   public cancel() {
     this.dialogRef.close({done: false})
+  }
+
+  canUpload() {
+    return this.hasFile() && this.description.length !== 0 && !this.submitInProgress;
   }
 }

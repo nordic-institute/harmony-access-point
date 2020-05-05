@@ -20,39 +20,36 @@ import java.util.stream.Collectors;
 public class TomcatPropertyManager extends DomibusPropertyServiceDelegateAbstract
         implements DomibusPropertyManager {
 
-    private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
-            DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME,
-            DOMIBUS_DATASOURCE_XA_MAX_LIFETIME,
-            DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE,
-            DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE,
-            DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT,
-            DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT,
-            DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME,
-            DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL,
+    private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.asList(
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
 
-            DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
 
-            COM_ATOMIKOS_ICATCH_OUTPUT_DIR, //move the usage from xml ?
-            COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, //move the usage from xml ?
-            COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, //move the usage from xml ?
-            COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, //move the usage from xml ?
-            COM_ATOMIKOS_ICATCH_MAX_ACTIVES,
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_OUTPUT_DIR, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_ACTIVES, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT),
 
-            ACTIVE_MQ_BROKER_HOST, //cannot find the usage
-            ACTIVE_MQ_BROKER_NAME, //move the usage from xml ?
-            ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE,
-            ACTIVE_MQ_JMXURL, //move the usage from xml ?
-            ACTIVE_MQ_CONNECTOR_PORT, //move the usage from xml ?
-            ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, //move the usage from xml ?
-            ACTIVE_MQ_USERNAME, //move the usage from xml ?
-            ACTIVE_MQ_PASSWORD, //move the usage from xml ?
-            ACTIVE_MQ_PERSISTENT, //move the usage from xml ?
-            ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT, //move the usage from xml ?
-            ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT, //move the usage from xml ?
-
-    })
-            .map(name -> DomibusPropertyMetadata.getReadOnlyGlobalProperty(name, Module.TOMCAT))
-            .collect(Collectors.toMap(x -> x.getName(), x -> x));
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_HOST, Module.TOMCAT), //cannot find the usage
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_JMXURL, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTOR_PORT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_USERNAME, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PASSWORD, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_PERSISTENT, DomibusPropertyMetadata.Type.BOOLEAN, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CLOSE_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTION_CONNECT_RESPONSE_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, Module.TOMCAT) //move the usage from xml ?
+    ).stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public Map<String, DomibusPropertyMetadata> getKnownProperties() {
