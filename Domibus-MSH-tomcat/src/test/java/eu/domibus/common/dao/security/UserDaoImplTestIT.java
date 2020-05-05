@@ -1,10 +1,10 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.UserEntityBase;
-import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.UserRole;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -121,9 +121,32 @@ public class UserDaoImplTestIT extends AbstractIT {
         final List<User> users = Arrays.asList(user);
         userDao.update(users);
 
-        User sameUser = (User)userDao.findByUserName("updateUser");
+        User sameUser = (User) userDao.findByUserName("updateUser");
         assertEquals("changed@gmail.com", sameUser.getEmail());
         assertEquals(false, sameUser.isActive());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void existsWithName() {
+        String userName = "user4";
+        User user = createUser(userName);
+        user.setDeleted(true);
+        userDao.update(user);
+
+        boolean res = userDao.existsWithName(userName);
+        assertTrue(res);
+
+        res = userDao.existsWithName(userName+"sss");
+        assertFalse(res);
+
+        userName = "user5";
+        user = createUser(userName);
+
+        res = userDao.existsWithName(userName);
+        assertTrue(res);
+
     }
 
     private User createUser(String name) {
@@ -137,7 +160,6 @@ public class UserDaoImplTestIT extends AbstractIT {
         user.setEmail("test@gmail.com");
         user.setActive(true);
         userDao.create(user);
-
         return user;
     }
 
