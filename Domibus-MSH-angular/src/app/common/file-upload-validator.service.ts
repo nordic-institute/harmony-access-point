@@ -8,13 +8,17 @@ export class FileUploadValidatorService {
   }
 
   public async validateSize(file: Blob): Promise<any> {
+    let limit;
     try {
-      const limit = await this.getUploadSizeLimit();
-      if (file.size > limit) {
-        throw new Error('The file exceeds the maximum size limit.');
-      }
+      limit = await this.getUploadSizeLimit();
     } catch (e) {
-      //no error in case we cannot read property because the server will validate
+      console.log('Exception while reading upload size limit property:', e);
+      // no error in case we cannot read property because the server will validate
+      return ;
+    }
+
+    if (limit && file.size > limit) {
+      throw new Error(`The file size ${file.size} exceeds the maximum size limit of ${limit}.`);
     }
   }
 

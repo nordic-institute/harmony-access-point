@@ -7,6 +7,7 @@ import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
@@ -234,6 +235,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse, Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
 
         UserMessage userMessage;

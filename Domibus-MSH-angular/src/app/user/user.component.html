@@ -48,7 +48,7 @@
     <ng-template #checkBoxTpl let-row="row" ngx-datatable-cell-template>
       <mat-checkbox [checked]="row['active']" disabled></mat-checkbox>
       <ng-container *ngIf="row['suspended']">
-        <span>(Suspended)</span>
+        <span> (Suspended)</span>
       </ng-container>
     </ng-template>
 

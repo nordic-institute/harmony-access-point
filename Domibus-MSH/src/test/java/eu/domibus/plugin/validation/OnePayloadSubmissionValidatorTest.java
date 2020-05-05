@@ -1,9 +1,6 @@
 package eu.domibus.plugin.validation;
 
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.validation.OnePayloadSubmissionValidator;
-import eu.domibus.plugin.validation.SubmissionValidationException;
-import eu.domibus.plugin.validation.SubmissionValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
