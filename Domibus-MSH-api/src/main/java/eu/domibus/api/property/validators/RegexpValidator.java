@@ -1,6 +1,7 @@
 package eu.domibus.api.property.validators;
 
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class RegexpValidator implements DomibusPropertyValidator {
@@ -14,12 +15,12 @@ public class RegexpValidator implements DomibusPropertyValidator {
 
     @Override
     public boolean isValid(String propValue) {
-        if (this.regexp == null) {
+        if (StringUtils.isBlank(this.regexp)) {
             LOG.debug("Regular expression for property type is null; exiting validation.");
             return true;
         }
-        if (propValue == null) {
-            LOG.debug("Property value is nukk; exiting validation.");
+        if (StringUtils.isBlank(propValue)) {
+            LOG.debug("Property value is null; exiting validation.");
             return true;
         }
         return propValue.matches(this.regexp);
