@@ -144,11 +144,11 @@ public class AuditDaoImpl implements AuditDao {
             predicates.add(userField.in(users));
         }
         if (from != null) {
-            Path<Date> changedDate = root.get("changed");
+            Path<Date> changedDate = root.get("id").get("changed");
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(changedDate, from));
         }
         if (to != null) {
-            Path<Date> changedDate = root.get("changed");
+            Path<Date> changedDate = root.get("id").get("changed");
             predicates.add(criteriaBuilder.lessThanOrEqualTo(changedDate, to));
         }
         if (!predicates.isEmpty()) {

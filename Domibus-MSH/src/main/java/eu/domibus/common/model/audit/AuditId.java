@@ -26,7 +26,7 @@ public class AuditId implements Serializable {
     @Column(name = "ACTION_TYPE")
     private String action;
 
-    @Column(name = "AUDIT_DATE")
+    @Column(name = "AUDIT_DATE", updatable = false, nullable = false)
     private Date changed;
 
     public AuditId() {
