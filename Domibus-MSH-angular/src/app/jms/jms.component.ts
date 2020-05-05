@@ -213,7 +213,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canSearch() {
-    return this.filter.source && !this.isBusy();
+    return this.filter.source && super.canSearch();
   }
 
   protected get GETUrl(): string {
