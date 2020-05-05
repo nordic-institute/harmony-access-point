@@ -303,22 +303,23 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
      * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
      */
     public void validateUniqueUser(UserBase user) throws UserManagementException {
+        String userId = user.getUniqueIdentifier();
         if (domibusConfigurationService.isMultiTenantAware()) {
             //check to see if it is a domain user
-            String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
+            String domain = userDomainService.getDomainForUser(userId);
             if (domain != null) {
-                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
+                String errorMessage = "Cannot add user " + userId + " because it already exists in the " + domain + " domain.";
                 throw new UserManagementException(errorMessage);
             }
             //if no luck, check also if it is super-user/AP admin
-            String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
+            String preferredDomain = userDomainService.getPreferredDomainForUser(userId);
             if (preferredDomain != null) {
-                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
+                String errorMessage = "Cannot add user " + userId + " because an AP admin with this name already exists.";
                 throw new UserManagementException(errorMessage);
             }
         } else {
-            if (getUserDao().existsWithName(user.getUniqueIdentifier())) {
-                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists.";
+            if (getUserDao().existsWithName(userId)) {
+                String errorMessage = "Cannot add user " + userId + " because it already exists.";
                 throw new UserManagementException(errorMessage);
             }
         }
