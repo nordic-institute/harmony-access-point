@@ -253,7 +253,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             user.setActive(false);
             user.setSuspensionDate(new Date(System.currentTimeMillis()));
             LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
-
+            userSessionsService.invalidateSessions(user);
             getUserAlertsService().triggerDisabledEvent(user);
         }
 
