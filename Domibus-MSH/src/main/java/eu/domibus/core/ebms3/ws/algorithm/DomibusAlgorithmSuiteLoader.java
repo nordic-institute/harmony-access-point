@@ -17,6 +17,7 @@ import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.w3c.dom.Element;
 
+import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,32 +43,49 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     public static final String BASIC_128_GCM_SHA_256 = "Basic128GCMSha256";
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256 = "Basic128GCMSha256MgfSha256";
 
+    protected Bus bus;
 
     public DomibusAlgorithmSuiteLoader(final Bus bus) {
         bus.setExtension(this, AlgorithmSuiteLoader.class);
+        this.bus = bus;
     }
 
+    @PostConstruct
+    public void load() {
+        registerBuilders(this.bus);
+    }
 
-    public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
-        final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
-        if (reg != null) {
-            final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
-            QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);
-            assertions.put(qName, new PrimitiveAssertion(qName));
-            qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
-            assertions.put(qName, new PrimitiveAssertion(qName));
+    /**
+     * Registers the builders for Domibus custom security policies QNames
+     *
+     * @param bus Apache Cxf Bus
+     */
+    protected void registerBuilders(final Bus bus) {
+        if (bus != null) {
+            final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
+            if (reg != null) {
+                final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
+                QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);
+                assertions.put(qName, new PrimitiveAssertion(qName));
+                qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
+                assertions.put(qName, new PrimitiveAssertion(qName));
 
-            reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
-                public Assertion build(final Element element, final AssertionBuilderFactory fact) {
-                    if (XMLPrimitiveAssertionBuilder.isOptional(element)
-                            || XMLPrimitiveAssertionBuilder.isIgnorable(element)) {
-                        return super.build(element, fact);
+                reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
+                    public Assertion build(final Element element, final AssertionBuilderFactory fact) {
+                        if (XMLPrimitiveAssertionBuilder.isOptional(element)
+                                || XMLPrimitiveAssertionBuilder.isIgnorable(element)) {
+                            return super.build(element, fact);
+                        }
+                        final QName q = new QName(element.getNamespaceURI(), element.getLocalName());
+                        return assertions.get(q);
                     }
-                    final QName q = new QName(element.getNamespaceURI(), element.getLocalName());
-                    return assertions.get(q);
-                }
-            });
+                });
+            }
         }
+    }
+
+    @Override
+    public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
         return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
     }
 
