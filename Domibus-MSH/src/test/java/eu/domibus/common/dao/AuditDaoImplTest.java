@@ -59,12 +59,12 @@ public class AuditDaoImplTest {
             criteriaQuery.where(predicateList = withCapture());
             times = 1;
             root.get("id");
-            times = 2;
+            times = 4;
             root.get("id").get("auditTargetName");
             times = 1;
             root.get("id").get("action");
             times = 1;
-            root.get("changed");
+            root.get("id").get("changed");
             times = 2;
             root.get("user");
             times = 1;
@@ -95,7 +95,6 @@ public class AuditDaoImplTest {
             criteriaQuery.select(root);
             auditDao.where(auditTarget, action, user, from, to, criteriaBuilder, criteriaQuery, root);
         }};
-
 
     }
 
