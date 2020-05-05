@@ -1,5 +1,6 @@
 <div class="searchArea">
-  <button mat-raised-button color="primary" (click)="parent.tryFilter()" id="searchbutton_id" button-click-behaviour>
+  <button mat-raised-button color="primary" (click)="parent.tryFilter()" [disabled]="!canSearch()"
+          id="searchbutton_id" button-click-behaviour>
     <mat-icon>search</mat-icon>
     <span>Search</span>
   </button>
