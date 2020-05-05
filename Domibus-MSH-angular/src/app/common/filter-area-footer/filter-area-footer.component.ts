@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import BaseListComponent from '../mixins/base-list.component';
 import {IFilterableList} from '../mixins/ifilterable-list';
 
@@ -15,7 +15,7 @@ export class FilterAreaFooterComponent {
   parent: BaseListComponent<any> & IFilterableList;
 
   @Input()
-  isAdvancedVisible: boolean = true;
+  isAdvancedVisible = true;
 
   toggleAdvancedSearch() {
     this.parent.advancedSearch = true;
@@ -29,4 +29,13 @@ export class FilterAreaFooterComponent {
     return false;
   }
 
+  canSearch() {
+    const canSearch = this.parent.canSearch();
+
+    const form = this.parent.filterForm;
+    if (!form) {
+      return canSearch;
+    }
+    return !form.invalid && canSearch;
+  }
 }
