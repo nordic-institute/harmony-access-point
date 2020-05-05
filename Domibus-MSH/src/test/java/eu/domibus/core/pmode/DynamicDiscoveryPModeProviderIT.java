@@ -17,6 +17,10 @@ import java.util.concurrent.*;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author François Gautier
+ * @since 4.1.4
+ */
 public class DynamicDiscoveryPModeProviderIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderIT.class);
