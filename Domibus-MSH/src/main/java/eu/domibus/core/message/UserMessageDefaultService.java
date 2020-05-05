@@ -293,6 +293,7 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
+    @Transactional
     @Override
     public void scheduleSending(String messageId, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);

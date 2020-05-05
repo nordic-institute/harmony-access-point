@@ -150,7 +150,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected ErrorService errorService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();

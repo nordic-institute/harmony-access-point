@@ -72,7 +72,6 @@ public class MSHDispatcher {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatchLocal(final UserMessage userMessage, final SOAPMessage soapMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
         Domain domain = domainContextProvider.getCurrentDomain();
         String endpoint = LOCAL_MSH_ENDPOINT;

@@ -446,7 +446,6 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
         List<X509Certificate> certificates = new ArrayList<>();
         try (PemReader reader = new PemReader(new StringReader(chain))) {
@@ -527,7 +526,6 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(partyName, cert);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
         X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
         LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
