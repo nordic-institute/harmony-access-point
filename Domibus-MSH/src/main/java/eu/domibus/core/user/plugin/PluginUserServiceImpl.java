@@ -104,20 +104,15 @@ public class PluginUserServiceImpl implements PluginUserService {
             if (!StringUtils.isEmpty(user.getUserName())) {
                 if (addedUsers.stream().anyMatch(x -> x != user && user.getUserName().equalsIgnoreCase(x.getUserName())))
                     throw new UserManagementException("Cannot add user " + user.getUserName() + " more than once.");
-                if (!authenticationDAO.listByUser(user.getUserName()).isEmpty())
-                    throw new UserManagementException("Cannot add user " + user.getUserName() + " because this name already exists.");
             }
             if (StringUtils.isNotBlank(user.getCertificateId())) {
                 if (addedUsers.stream().anyMatch(x -> x != user && user.getCertificateId().equalsIgnoreCase(x.getCertificateId())))
                     throw new UserManagementException("Cannot add user with certificate " + user.getCertificateId() + " more than once.");
-                if (!authenticationDAO.listByCertificateId(user.getCertificateId()).isEmpty())
-                    throw new UserManagementException("Cannot add user with certificate " + user.getCertificateId() + " because this certificate already exists.");
             }
         }
 
-        // check for duplicates with other users or plugin users in multi-tenancy mode
+        // check for duplicates with other users or plugin users in single and multi-tenancy modes
         for (UserBase user : addedUsers) {
-            // validate user not already in general schema
             userSecurityPolicyManager.validateUniqueUser(user);
         }
     }
