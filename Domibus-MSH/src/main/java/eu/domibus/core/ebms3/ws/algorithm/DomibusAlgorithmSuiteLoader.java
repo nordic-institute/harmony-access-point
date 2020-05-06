@@ -1,6 +1,8 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
@@ -36,6 +38,8 @@ import java.util.Map;
  */
 public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuiteLoader.class);
+
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";
 
     public static final String MGF1_KEY_TRANSPORT_ALGORITHM = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
@@ -46,42 +50,44 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     protected Bus bus;
 
     public DomibusAlgorithmSuiteLoader(final Bus bus) {
-        bus.setExtension(this, AlgorithmSuiteLoader.class);
         this.bus = bus;
     }
 
     @PostConstruct
     public void load() {
-        registerBuilders(this.bus);
+        if (this.bus == null) {
+            LOG.warn("cxf bus is null");
+            return;
+        }
+        bus.setExtension(this, AlgorithmSuiteLoader.class);
+        registerBuilders();
     }
 
     /**
      * Registers the builders for Domibus custom security policies QNames
      *
-     * @param bus Apache Cxf Bus
      */
-    protected void registerBuilders(final Bus bus) {
-        if (bus != null) {
-            final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
-            if (reg != null) {
-                final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
-                QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);
-                assertions.put(qName, new PrimitiveAssertion(qName));
-                qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
-                assertions.put(qName, new PrimitiveAssertion(qName));
+    protected void registerBuilders() {
+        final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
+        if (reg != null) {
+            final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
+            QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);
+            assertions.put(qName, new PrimitiveAssertion(qName));
+            qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
+            assertions.put(qName, new PrimitiveAssertion(qName));
 
-                reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
-                    public Assertion build(final Element element, final AssertionBuilderFactory fact) {
-                        if (XMLPrimitiveAssertionBuilder.isOptional(element)
-                                || XMLPrimitiveAssertionBuilder.isIgnorable(element)) {
-                            return super.build(element, fact);
-                        }
-                        final QName q = new QName(element.getNamespaceURI(), element.getLocalName());
-                        return assertions.get(q);
+            reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
+                public Assertion build(final Element element, final AssertionBuilderFactory fact) {
+                    if (XMLPrimitiveAssertionBuilder.isOptional(element)
+                            || XMLPrimitiveAssertionBuilder.isIgnorable(element)) {
+                        return super.build(element, fact);
                     }
-                });
-            }
+                    final QName q = new QName(element.getNamespaceURI(), element.getLocalName());
+                    return assertions.get(q);
+                }
+            });
         }
+
     }
 
     @Override
