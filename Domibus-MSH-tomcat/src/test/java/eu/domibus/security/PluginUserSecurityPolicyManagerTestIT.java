@@ -5,12 +5,12 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.user.ui.User;
-import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
+import eu.domibus.core.user.plugin.AuthenticationDAO;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
+import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.core.user.ui.UserRole;
-import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -23,22 +23,22 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
-public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
+public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired
-    ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
+    PluginUserSecurityPolicyManager userSecurityPolicyManager;
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    protected UserDao userDao;
+    protected AuthenticationDAO userDao;
 
     @Autowired
-    private ConsoleUserPasswordHistoryDao userPasswordHistoryDao;
+    private PluginUserPasswordHistoryDao userPasswordHistoryDao;
 
     @Autowired
-    private ConsoleUserAlertsServiceImpl userAlertsService;
+    private PluginUserAlertsServiceImpl userAlertsService;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -47,17 +47,16 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     protected EntityManager entityManager;
 
 
-    private User initTestUser(String userName) {
+    private AuthenticationEntity initTestUser(String userName) {
         UserRole userRole = entityManager.find(UserRole.class, 1L);
         if (userRole == null) {
             userRole = new UserRole("ROLE_USER");
             entityManager.persist(userRole);
         }
-        User user = new User();
+        AuthenticationEntity user = new AuthenticationEntity();
         user.setUserName(userName);
         user.setPassword("Password-0");
-        user.addRole(userRole);
-        user.setEmail("test@mailinator.com");
+        user.setAuthRoles("ROLE_USER");
         user.setActive(true);
         userDao.create(user);
         return user;
@@ -67,7 +66,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void testPasswordReusePolicy_shouldPass() {
-        User user = initTestUser("testUser1");
+        AuthenticationEntity user = initTestUser("testUser1");
         userSecurityPolicyManager.changePassword(user, "Password-1");
         userSecurityPolicyManager.changePassword(user, "Password-2");
         userSecurityPolicyManager.changePassword(user, "Password-3");
@@ -81,7 +80,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void testPasswordReusePolicy_shouldFail() {
-        User user = initTestUser("testUser2");
+        AuthenticationEntity user = initTestUser("testUser2");
         userSecurityPolicyManager.changePassword(user, "Password-1");
         userSecurityPolicyManager.changePassword(user, "Password-2");
         userSecurityPolicyManager.changePassword(user, "Password-3");
@@ -94,7 +93,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void testPasswordComplexity_blankPasswordShouldFail() {
-        User user = initTestUser("testUser3");
+        AuthenticationEntity user = initTestUser("testUser3");
         userSecurityPolicyManager.changePassword(user, "");
     }
 
@@ -102,7 +101,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void testPasswordComplexity_shortPasswordShouldFail() {
-        User user = initTestUser("testUser4");
+        AuthenticationEntity user = initTestUser("testUser4");
         userSecurityPolicyManager.changePassword(user, "Aa-1");
     }
 
@@ -110,7 +109,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Transactional
     @Rollback
     public void test_validateUniqueUser() {
-        User user = initTestUser("testUser_Unique");
+        AuthenticationEntity user = initTestUser("testUser_Unique");
         userSecurityPolicyManager.validateUniqueUser(user);
     }
 }
