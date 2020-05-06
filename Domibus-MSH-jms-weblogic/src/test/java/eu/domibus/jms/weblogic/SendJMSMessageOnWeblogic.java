@@ -1,45 +1,84 @@
 package eu.domibus.jms.weblogic;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.apache.commons.collections.map.HashedMap;
 import weblogic.security.Security;
 
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.security.auth.Subject;
-import java.io.InputStream;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.time.LocalDateTime;
 import java.util.Hashtable;
 import java.util.Map;
 
 public class SendJMSMessageOnWeblogic {
 
     private static final String PROVIDER_URL = "t3://localhost:7001";
-    private static final String USER = "admin";
-    private static final String PASSWORD = "Europa0005";
+    private static final String USER = "weblogic";
+    private static final String PASSWORD = "weblogic1";
     private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
-    private static final String QUEUE = "jms/domibus.backend.etrustex.inQueue";
+    private static final String QUEUE = "jms/domibus.DLQ";
 
     public static void main(String[] args) throws Exception {
+        SendJMSMessageOnWeblogic sendJMSMessageOnWeblogic = new SendJMSMessageOnWeblogic();
+
+        Thread threadHigh = new Thread(() -> {
+            try {
+                sendJMSMessageOnWeblogic.sendMessages("HIGH");
+            } catch (PrivilegedActionException e) {
+                e.printStackTrace();
+            }
+        });
+        Thread threadMedium = new Thread(() -> {
+            try {
+                sendJMSMessageOnWeblogic.sendMessages("MEDIUM");
+            } catch (PrivilegedActionException e) {
+                e.printStackTrace();
+            }
+        });
+        Thread threadLow = new Thread(() -> {
+            try {
+                sendJMSMessageOnWeblogic.sendMessages("LOW");
+            } catch (PrivilegedActionException e) {
+                e.printStackTrace();
+            }
+        });
+        threadHigh.start();
+//        threadMedium.start();
+//        threadLow.start();
+
+        System.out.println("Joining thread high");
+        threadHigh.join();
+
+        System.out.println("Joining thread medium");
+//        threadMedium.join();
+
+        System.out.println("Joining thread low");
+//        threadLow.join();
+
+        System.out.println("Finished sending messages");
+
+    }
+
+    public void sendMessages(String priority) throws PrivilegedActionException {
         try {
             Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
                 @Override
-                public Object run()  {
-                    new SendJMSMessageOnWeblogic().run();
+                public Object run() {
+                    sendMessagesWithPriority(priority, 5000);
                     return null;
                 }
             });
         } catch (PrivilegedActionException e) {
             throw e;
         }
-
-
     }
 
-//    @Test
-    public void run() throws RuntimeException {
+    //    @Test
+    public void sendMessagesWithPriority(String priority, int limit) throws RuntimeException {
+        System.out.println("Sending " + priority + " priority messages: " + LocalDateTime.now());
         try {
             InitialContext ic = getInitialContext(PROVIDER_URL, USER, PASSWORD);
             Queue queue = (Queue) ic.lookup(QUEUE);
@@ -47,15 +86,27 @@ public class SendJMSMessageOnWeblogic {
             QueueConnection qc = cf.createQueueConnection();
             QueueSession qs = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
             QueueSender qsr = qs.createSender(queue);
-            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jms/etrustexJmsMessage.xml");
-            final String message = IOUtils.toString(resourceAsStream);
-            TextMessage textMessage = createTextMessage(qs, message, "", null);
-            qsr.send(textMessage);
+//            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jms/etrustexJmsMessage.xml");
+//            final String message = IOUtils.toString(resourceAsStream);
+
+            for (int index = 0; index < limit; index++) {
+                Map<String, String> properties = new HashedMap();
+                properties.put("messagePriority", priority);
+                properties.put("DOMAIN", "default");
+                properties.put("MESSAGE_ID", System.currentTimeMillis() + "");
+                TextMessage textMessage = createTextMessage(qs, null, "", properties);
+                qsr.send(textMessage);
+            }
+
+//            TextMessage textMessage1 = createTextMessage(qs, null, "", properties);
+
+//            qsr.send(textMessage1);
             ic.close();
-            System.out.println("Successfully sent message");
+            System.out.println("Successfully sent messages [" + limit + "]");
         } catch (Throwable t) {
             t.printStackTrace();
         }
+        System.out.println("Finished sending " + priority + " priority messages: " + LocalDateTime.now());
     }
 
     InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
@@ -79,7 +130,7 @@ public class SendJMSMessageOnWeblogic {
 
     TextMessage createTextMessage(Session session, String message, String messageType, Map<String, String> messageProperties) throws JMSException {
         TextMessage textMessage = session.createTextMessage();
-        textMessage.setText(message != null ? message : "");
+//        textMessage.setText(message != null ? message : "");
         if (messageType != null) {
             textMessage.setJMSType(messageType);
         }

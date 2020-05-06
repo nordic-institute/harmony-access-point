@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 4.0
- *
+ * <p>
  * Class for creating Message Listener containers for a specified domain
  */
 @Service
@@ -25,6 +25,24 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the SendMessageListenerContainer for domain [{}]", domain);
         return (DomainMessageListenerContainer) applicationContext.getBean("dispatchContainer", domain);
+    }
+
+    @Override
+    public DomainMessageListenerContainer createDlqListenerContainerLowPriority(Domain domain, String selector, String concurrency) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] and selector [{}] and concurrency [{}]", domain, selector, concurrency);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dlqListenerLowPriority", domain, selector, concurrency);
+    }
+
+    @Override
+    public DomainMessageListenerContainer createDlqListenerContainerMediumPriority(Domain domain, String selector, String concurrency) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] and selector [{}] and concurrency [{}]", domain, selector, concurrency);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dlqListenerMediumPriority", domain, selector, concurrency);
+    }
+
+    @Override
+    public DomainMessageListenerContainer createDlqListenerContainerHighPriority(Domain domain, String selector, String concurrency) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] and selector [{}] and concurrency [{}]", domain, selector, concurrency);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dlqListenerHighPriority", domain, selector, concurrency);
     }
 
     @Override

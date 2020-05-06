@@ -164,6 +164,9 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_ALLOW_CHUNKING, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CHUNKING_THRESHOLD, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONCURENCY, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DLQ_CONCURENCY_LOW, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DLQ_CONCURENCY_MEDIUM, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DLQ_CONCURENCY_HIGH, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CACHEABLE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -176,6 +179,7 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT, DomibusPropertyMetadata.Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DLQ_SLEEP, DomibusPropertyMetadata.Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PROXY_PASSWORD, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 

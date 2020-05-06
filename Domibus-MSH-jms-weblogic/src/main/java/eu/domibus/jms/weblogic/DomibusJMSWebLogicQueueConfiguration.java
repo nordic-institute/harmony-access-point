@@ -38,6 +38,14 @@ public class DomibusJMSWebLogicQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
+    @Bean("dlqQueue")
+    public JndiObjectFactoryBean dlqQueue() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.DLQ");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
     @Bean("sendLargeMessageQueue")
     public JndiObjectFactoryBean sendLargeMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
