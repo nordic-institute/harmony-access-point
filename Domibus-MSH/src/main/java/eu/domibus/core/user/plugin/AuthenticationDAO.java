@@ -4,6 +4,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -139,6 +140,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
 
     @Override
     public boolean existsWithId(String userId) {
-        return listByUser(userId).size() > 0 || listByCertificateId(userId).size() > 0;
+        return CollectionUtils.isNotEmpty(listByUser(userId))
+                || CollectionUtils.isNotEmpty(listByCertificateId(userId));
     }
 }
