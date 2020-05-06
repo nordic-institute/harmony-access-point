@@ -16,7 +16,7 @@ public class LowDLQListener extends AbstractDLQListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LowDLQListener.class);
 
-    private String priority = "LOW";
+    private String priority = "1";
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = PRIORITY_LOW)

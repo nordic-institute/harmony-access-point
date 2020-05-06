@@ -17,7 +17,7 @@ public class HighDLQListener extends AbstractDLQListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HighDLQListener.class);
 
-    private String priority = "HIGH";
+    private String priority = "10";
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = PRIORITY_HIGH)

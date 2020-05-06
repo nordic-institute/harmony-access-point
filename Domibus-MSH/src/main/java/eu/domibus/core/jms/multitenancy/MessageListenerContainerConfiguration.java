@@ -262,9 +262,13 @@ public class MessageListenerContainerConfiguration {
         if (StringUtils.isNotBlank(selector)) {
             messageSelector += " AND " + selector;
         }
-        LOG.info("-------------Using message selector [{}]", messageSelector);
 
-        messageListenerContainer.setMessageSelector(messageSelector);
+        LOG.error("-------------Using message selector [{}]", messageSelector);
+
+        if (StringUtils.isNotBlank(messageSelector)) {
+            messageListenerContainer.setMessageSelector(messageSelector);
+        }
+
 
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(destination);

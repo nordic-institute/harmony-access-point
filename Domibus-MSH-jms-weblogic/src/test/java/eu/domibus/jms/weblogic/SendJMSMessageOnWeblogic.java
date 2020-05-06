@@ -26,37 +26,37 @@ public class SendJMSMessageOnWeblogic {
 
         Thread threadHigh = new Thread(() -> {
             try {
-                sendJMSMessageOnWeblogic.sendMessages("HIGH");
+                sendJMSMessageOnWeblogic.sendMessages("10");
             } catch (PrivilegedActionException e) {
                 e.printStackTrace();
             }
         });
         Thread threadMedium = new Thread(() -> {
             try {
-                sendJMSMessageOnWeblogic.sendMessages("MEDIUM");
+                sendJMSMessageOnWeblogic.sendMessages("5");
             } catch (PrivilegedActionException e) {
                 e.printStackTrace();
             }
         });
         Thread threadLow = new Thread(() -> {
             try {
-                sendJMSMessageOnWeblogic.sendMessages("LOW");
+                sendJMSMessageOnWeblogic.sendMessages("1");
             } catch (PrivilegedActionException e) {
                 e.printStackTrace();
             }
         });
         threadHigh.start();
-//        threadMedium.start();
-//        threadLow.start();
+        threadMedium.start();
+        threadLow.start();
 
         System.out.println("Joining thread high");
         threadHigh.join();
 
         System.out.println("Joining thread medium");
-//        threadMedium.join();
+        threadMedium.join();
 
         System.out.println("Joining thread low");
-//        threadLow.join();
+        threadLow.join();
 
         System.out.println("Finished sending messages");
 
@@ -67,7 +67,7 @@ public class SendJMSMessageOnWeblogic {
             Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() {
-                    sendMessagesWithPriority(priority, 5000);
+                    sendMessagesWithPriority(priority, 10000);
                     return null;
                 }
             });
@@ -101,6 +101,9 @@ public class SendJMSMessageOnWeblogic {
 //            TextMessage textMessage1 = createTextMessage(qs, null, "", properties);
 
 //            qsr.send(textMessage1);
+            qsr.close();
+            qs.close();
+            qc.close();
             ic.close();
             System.out.println("Successfully sent messages [" + limit + "]");
         } catch (Throwable t) {

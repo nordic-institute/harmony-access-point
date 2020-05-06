@@ -20,7 +20,7 @@ public abstract class AbstractDLQListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDLQListener.class);
 
-    public static final int LIMIT = 5000;
+    public static final int LIMIT = 10000;
 
     @Autowired
     private AuthUtils authUtils;
@@ -37,6 +37,9 @@ public abstract class AbstractDLQListener implements MessageListener {
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("dlqListener", "dlqListener", AuthRole.ROLE_ADMIN);
+        }
+        if (count.get() == 0) {
+            LOG.error("-------------------Starting processing [{}] messages with priority [{}]", LIMIT, getPriority());
         }
 
         try {

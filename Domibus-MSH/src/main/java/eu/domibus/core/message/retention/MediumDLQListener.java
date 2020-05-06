@@ -16,7 +16,7 @@ public class MediumDLQListener extends AbstractDLQListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MediumDLQListener.class);
 
-    private String priority = "MEDIUM";
+    private String priority = "5";
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(value = PRIORITY_MEDIUM)
