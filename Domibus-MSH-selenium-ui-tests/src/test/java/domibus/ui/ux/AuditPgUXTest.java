@@ -183,8 +183,9 @@ public class AuditPgUXTest extends BaseTest {
 			log.info("sorting by column " + column);
 			grid.sortBy(column);
 
+			String sortCol = grid.getSortedColumnName();
 			log.info("checking sorting");
-			soft.assertNull(grid.getSortedColumnName(), "After sorting by "+ column +", no column is marked as sorted");
+			soft.assertEquals(sortCol, "Changed", "After sorting page is sorted by " + sortCol);
 		}
 
 		soft.assertAll();
