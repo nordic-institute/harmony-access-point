@@ -48,14 +48,96 @@ public class UsersRestTests extends RestTest {
 	public void editUserTest() {
 		SoftAssert soft = new SoftAssert();
 
-		String username = Generator.randomAlphaNumeric(15);
 		String email = "test@email.com";
-		String role = DRoles.ADMIN;
+		String role = DRoles.USER;
+		boolean active = false;
 
-		rest.users().createUser(username, role, data.defaultPass(), null);
+		JSONObject user = rest.getUser(null, DRoles.ADMIN, true, false, false);
+
+		user.put("status", "UPDATED");
+		user.put("active", active);
+		user.put("email", email);
+		user.put("roles", role);
+
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(user);
+
+		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toUpdate.toString());
+
+		int status = response.getStatus();
+		log.debug("Status: " + status);
+
+		soft.assertTrue(status == 200, "Response status is success: " + status);
+
+		boolean found = false;
 		JSONArray users = rest.users().getUsers(null);
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject curUser = users.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(curUser.getString("userName"), user.getString("userName"))){
+				found = true;
+				soft.assertFalse(curUser.getBoolean("active"), "User is deactivated");
+				soft.assertEquals(curUser.getString("roles"), role, "User role si updated");
+				soft.assertEquals(curUser.getString("email"), email, "User email si updated");
+			}
+		}
 
-		soft.assertTrue(users.toString().contains(username), "New user in list of users");
+		soft.assertTrue(found, "User still present in user list after edit");
+
+		soft.assertAll();
+	}
+
+	@Test
+	public void deleteUserTest() {
+		SoftAssert soft = new SoftAssert();
+
+		JSONObject user = rest.getUser(null, DRoles.USER, true, false, false);
+
+		user.put("status", "REMOVED");
+
+		JSONArray toDelete = new JSONArray();
+		toDelete.put(user);
+
+		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toDelete.toString());
+
+		int status = response.getStatus();
+		log.debug("Status: " + status);
+
+		soft.assertTrue(status == 200, "Response status is success: " + status);
+
+		boolean found = false;
+		JSONArray users = rest.users().getUsers(null);
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject curUser = users.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(curUser.getString("userName"), user.getString("userName"))){
+				found = true;
+				soft.assertTrue(curUser.getBoolean("deleted"), "User is marked as deleted");
+			}
+		}
+
+		soft.assertTrue(found, "User still present in user list after edit");
+
+		soft.assertAll();
+	}
+
+
+	@Test(dataProvider = "readInvalidStrings")
+	public void editUserNegativeTest(String evilStr) {
+		SoftAssert soft = new SoftAssert();
+
+		String email = evilStr;
+		String role = evilStr;
+
+		JSONObject user = rest.getUser(null, DRoles.ADMIN, true, false, false);
+
+		user.put("status", "UPDATED");
+		user.put("email", email);
+		user.put("roles", role);
+
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(user);
+
+		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toUpdate.toString());
+		validateInvalidResponse(response, soft, 400);
 
 		soft.assertAll();
 	}
