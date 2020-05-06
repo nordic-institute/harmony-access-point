@@ -3,19 +3,29 @@ package rest;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
+import com.sun.jersey.multipart.file.StreamDataBodyPart;
+import com.sun.jersey.multipart.impl.MultiPartWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Entity;
 import utils.TestRunData;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +95,30 @@ public class BaseRestClient {
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.accept(MediaType.TEXT_PLAIN_TYPE)
 				.post(ClientResponse.class, multipartEntity);
+	}
+
+	public ClientResponse requestPOSTJKSFile(WebResource resource, String filePath, HashMap<String, String> fields) throws IOException {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
+		WebResource.Builder builder = decorateBuilder(resource);
+
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(filePath).getFile());
+		FileDataBodyPart filePart = new FileDataBodyPart("truststore", file);
+
+		FormDataMultiPart multiPartEntity = new FormDataMultiPart();
+		multiPartEntity.field("password", "test123");
+		multiPartEntity.bodyPart(filePart);
+
+		return builder
+				.type(MediaType.MULTIPART_FORM_DATA_TYPE)
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.accept(MediaType.TEXT_PLAIN_TYPE)
+				.post(ClientResponse.class,
+						multiPartEntity);
 	}
 
 	public ClientResponse requestPOST(WebResource resource, String content) {
