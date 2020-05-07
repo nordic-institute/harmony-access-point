@@ -581,14 +581,16 @@ public class AuditPgTest extends SeleniumTest {
 	public void editUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Login into application with Admin credentials and navigate to Audit page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.AUDIT);
 		log.info("Create user with rest call");
 		String username = Generator.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		HashMap<String, String> params = new HashMap<>();
 		params.put("password", data.getNewTestPass());
 		rest.users().updateUser(username, params, null);
+
 		AuditPage auditPage = new AuditPage(driver);
+		auditPage.getSidebar().goToPage(PAGES.AUDIT);
+		auditPage.grid().waitForRowsToLoad();
 
 		log.info("Select User in Table input filter");
 		auditPage.getFilters().setFilterData("table", "User");

@@ -136,6 +136,10 @@ public class DomibusRestClient extends BaseRestClient{
 	public MessageClient messages() {
 		return new MessageClient();
 	}
+	public ErrorsClient errors() {
+		return new ErrorsClient();
+	}
+
 
 	public CSVClient csv() {
 		return new CSVClient();
