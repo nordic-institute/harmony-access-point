@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
@@ -103,5 +104,13 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     public void testPasswordComplexity_shortPasswordShouldFail() {
         User user = initTestUser("testUser4");
         userSecurityPolicyManager.changePassword(user, "Aa-1");
+    }
+
+    @Test(expected = UserManagementException.class)
+    @Transactional
+    @Rollback
+    public void test_validateUniqueUser() {
+        User user = initTestUser("testUser_Unique");
+        userSecurityPolicyManager.validateUniqueUser(user);
     }
 }

@@ -318,7 +318,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
                 throw new UserManagementException(errorMessage);
             }
         } else {
-            if (getUserDao().existsWithName(userId)) {
+            if (getUserDao().existsWithId(userId)) {
                 String errorMessage = "Cannot add user " + userId + " because it already exists.";
                 throw new UserManagementException(errorMessage);
             }

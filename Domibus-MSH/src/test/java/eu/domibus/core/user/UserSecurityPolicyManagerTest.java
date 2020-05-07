@@ -507,7 +507,7 @@ public class UserSecurityPolicyManagerTest {
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
-            securityPolicyManager.getUserDao().existsWithName(testUsername);
+            securityPolicyManager.getUserDao().existsWithId(testUsername);
             result = true;
         }};
 
