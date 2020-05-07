@@ -265,11 +265,17 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         //contentId file name - if the parsing of the received fileName fails we will return this
         final String fileNameContentId = contentId.replaceFirst("cid:", StringUtils.EMPTY) + getFileNameExtension(fsPayload.getMimeType());
 
+        //received payloadName is empty, returning the content Id based one
+        if (StringUtils.isBlank(fileName)) {
+            LOG.debug("received payload filename is empty, returning contentId based one=[{}]", fileNameContentId);
+            return fileNameContentId;
+        }
+
         String decodedFileName;
         try {
             decodedFileName = UriParser.decode(fileName);
         } catch (FileSystemException e) {
-            LOG.error("Error while decoding the fileName=[{}]", fileName, e);
+            LOG.error("Error while decoding the fileName=[{}], returning contentId based one=[{}]", fileName, fileNameContentId, e);
             return fileNameContentId;
         }
         if (decodedFileName != null && !StringUtils.equals(fileName, decodedFileName)) {
@@ -280,8 +286,8 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
         try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
         } catch (FileSystemException e) {
-            LOG.warn("invalid fileName or outside the parent folder=[{}]", fileName);
-            fileName = fileNameContentId;
+            LOG.warn("invalid fileName or outside the parent folder=[{}], returning contentId based one=[{}]", fileName, fileNameContentId);
+            return fileNameContentId;
         }
         LOG.debug("returned fileName=[{}]", fileName);
         return fileName;

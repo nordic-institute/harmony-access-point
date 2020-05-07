@@ -15,7 +15,7 @@
 		<mpc name="defaultMpcSeven" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 		<mpc name="defaultMpcEight" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcEight" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 		<mpc name="defaultMpcRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcRetention" enabled="true" default="true" retention_downloaded="1" retention_undownloaded="2"/>
-		<mpc name="defaultMpcMulti" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcMulti" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
+		<mpc name="defaultMpcNine" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcNine" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>				
 	</mpcs>
 	<businessProcesses>
 		<roles>
@@ -144,8 +144,8 @@
 			<service name="InboxBundleTransmissionService" value="InboxBundleTransmissionService" type="eDeliverySecond"/>
 			<service name="testService27" value="bdx:noprocess" type="tc27"/>			
 			<service name="testService28" value="bdx:noprocess" type="tc28"/>
-			<service name="testService29" value="bdx:noprocess" type="tc29"/>
-			<service name="testService30" value="bdx:noprocess" type="tc30"/>
+			<service name="testService31" value="bdx:noprocess" type="tc31"/>			
+			<service name="testService32" value="bdx:noprocess" type="tc32"/>					
 			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
 		</services>
 		<actions>
@@ -179,8 +179,8 @@
             <action name="ackInboxBundleNotification" value="AckInboxBundleNotification"/>			
 			<action name="tc27Action" value="TC27Leg1"/>			
 			<action name="tc28Action" value="TC28Leg1"/>
-			<action name="tc29Action" value="TC29Leg1"/>
-			<action name="tc30Action" value="TC30Leg1"/>
+			<action name="tc31Action" value="TC31Leg1"/>			
+			<action name="tc32Action" value="TC32Leg1"/>				
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
@@ -221,8 +221,8 @@
 			<legConfiguration name="pushTestcase27tc27Action" service="testService27" action="tc27Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadOptionalAttachment" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="testServiceCase" service="testService" action="testAction" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pullTestcase28tc28Action" service="testService28" action="tc28Action" defaultMpc="defaultMpcRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<legConfiguration name="pullTestcase29tc29Action" service="testService29" action="tc29Action" defaultMpc="defaultMpcMulti" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<legConfiguration name="pullTestcase30tc30Action" service="testService30" action="tc30Action" defaultMpc="defaultMpcMulti" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase31tc31Action" service="testService31" action="tc31Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" 	                         errorHandling="demoErrorHandling" compressPayloads="true"/>			
+			<legConfiguration name="pullTestcase32tc32Action" service="testService32" action="tc32Action" defaultMpc="defaultMpcNine" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"                                 errorHandling="demoErrorHandling" compressPayloads="true"/>
 			</legConfigurations>
 
 			
@@ -627,7 +627,20 @@
 				<leg name="pullTestcase28tc28Action"/>
 			</legs>
 		</process>
-		<process name="tc29Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc31Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase31tc31Action"/>
+			</legs>
+		</process>
+		<process name="tc32Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -635,9 +648,8 @@
 				<responderParty name="blue_gw"/>
 			</responderParties>
 			<legs>
-				<leg name="pullTestcase29tc29Action"/>
-				<leg name="pullTestcase30tc30Action"/>
+				<leg name="pullTestcase32tc32Action"/>
 			</legs>
-		</process>
+		</process>	
 	</businessProcesses>
 </db:configuration>

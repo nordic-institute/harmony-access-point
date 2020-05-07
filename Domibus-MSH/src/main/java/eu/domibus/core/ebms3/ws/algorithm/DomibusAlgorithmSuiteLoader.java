@@ -1,6 +1,8 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
@@ -17,6 +19,7 @@ import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.w3c.dom.Element;
 
+import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +38,8 @@ import java.util.Map;
  */
 public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuiteLoader.class);
+
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";
 
     public static final String MGF1_KEY_TRANSPORT_ALGORITHM = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
@@ -42,13 +47,27 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     public static final String BASIC_128_GCM_SHA_256 = "Basic128GCMSha256";
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256 = "Basic128GCMSha256MgfSha256";
 
+    protected Bus bus;
 
     public DomibusAlgorithmSuiteLoader(final Bus bus) {
-        bus.setExtension(this, AlgorithmSuiteLoader.class);
+        this.bus = bus;
     }
 
+    @PostConstruct
+    public void load() {
+        if (this.bus == null) {
+            LOG.warn("cxf bus is null");
+            return;
+        }
+        bus.setExtension(this, AlgorithmSuiteLoader.class);
+        registerBuilders();
+    }
 
-    public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
+    /**
+     * Registers the builders for Domibus custom security policies QNames
+     *
+     */
+    protected void registerBuilders() {
         final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
         if (reg != null) {
             final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
@@ -68,6 +87,11 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                 }
             });
         }
+
+    }
+
+    @Override
+    public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
         return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
     }
 

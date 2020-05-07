@@ -19,14 +19,14 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.tika.mime.MimeTypeException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.tika.mime.MimeTypeException;
-import org.junit.*;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataHandler;
@@ -745,12 +745,11 @@ public class BackendFSImplTest {
 
     @Test
     public void test_getFileName_Decode(final @Mocked FSPayload fsPayload,
-                                 final @Mocked FileObject incomingFolderByMessageId,
-                                 final @Mocked FileObject fileNameObject) throws  Exception{
+                                        final @Mocked FileObject incomingFolderByMessageId) throws Exception {
         final String contentId = "cid:message";
         final String fileNameInput = ".%2F..%2Fmessage.xml";
         final String fileNameDecoded = "./../message.xml";
-        final String fileNameExpected ="message.xml";
+        final String fileNameExpected = "message.xml";
 
         new Expectations(backendFS) {{
             fsPayload.getFileName();
@@ -777,6 +776,32 @@ public class BackendFSImplTest {
             String fileNameActual;
             incomingFolderByMessageId.resolveFile(fileNameActual = withCapture(), NameScope.CHILD);
             Assert.assertEquals(fileNameDecoded, fileNameActual);
+        }};
+    }
+
+    @Test
+    public void test_getFileName_Empty(final @Mocked FSPayload fsPayload,
+                                       final @Mocked FileObject incomingFolderByMessageId) throws Exception {
+        final String contentId = "cid:message2";
+        final String fileExtension = ".xml";
+        final String fileName = "message2" + fileExtension;
+
+        new Expectations(backendFS) {{
+            fsPayload.getFileName();
+            result = null;
+
+            fsPayload.getMimeType();
+            result = TEXT_XML;
+
+            fsMimeTypeHelper.getExtension(anyString);
+            result = fileExtension;
+        }};
+
+        String fileNameActual = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
+        Assert.assertTrue(StringUtils.isNotBlank(fileNameActual));
+        Assert.assertEquals(fileName, fileNameActual);
+
+        new FullVerifications() {{
         }};
     }
 

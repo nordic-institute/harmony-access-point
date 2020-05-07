@@ -135,16 +135,16 @@ public class UserDaoImplTestIT extends AbstractIT {
         user.setDeleted(true);
         userDao.update(user);
 
-        boolean res = userDao.existsWithName(userName);
+        boolean res = userDao.existsWithId(userName);
         assertTrue(res);
 
-        res = userDao.existsWithName(userName + "sss");
+        res = userDao.existsWithId(userName + "sss");
         assertFalse(res);
 
         userName = "user2ForExistsTest";
         user = createUser(userName);
 
-        res = userDao.existsWithName(userName);
+        res = userDao.existsWithId(userName);
         assertTrue(res);
     }
 
