@@ -32,6 +32,7 @@ public class DomibusPage extends DComponent {
 	@FindBy(tagName = "mat-dialog-container")
 	protected WebElement dialogContainer;
 
+	By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > mat-select");
 
 	public AlertArea getAlertArea() {
 		return new AlertArea(driver);
@@ -79,7 +80,6 @@ public class DomibusPage extends DComponent {
 	}
 
 	public DomainSelector getDomainSelector() throws Exception {
-		By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > mat-select");
 		WebElement element = driver.findElement(domainSelectSelector);
 		return new DomainSelector(driver, element);
 	}

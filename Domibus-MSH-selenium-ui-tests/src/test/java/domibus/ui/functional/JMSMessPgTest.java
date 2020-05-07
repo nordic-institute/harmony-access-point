@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class JMSMessPgTest extends BaseTest {
@@ -27,16 +26,21 @@ public class JMSMessPgTest extends BaseTest {
 	public void deleteJMSMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
+		page.filters().getJmsSearchButton().isEnabled();
 
-		int noOfMessages;
+
+		int noOfMessages = -1;
 		try {
 			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 		} catch (Exception e) {
 			throw new SkipException(e.getMessage());
 		}
 		if (noOfMessages > 0) {
+
+
 			log.info("deleting first message listed");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
@@ -44,6 +48,8 @@ public class JMSMessPgTest extends BaseTest {
 			log.info("cancel delete");
 			page.getCancelButton().click();
 			new Dialog(driver).confirm();
+			page.wait.forXMillis(500);
+
 			soft.assertTrue(page.grid().scrollTo("ID", rowInfo.get("ID")) >= 0, "Message still present in the grid after user cancels delete operation");
 
 			log.info("deleting first message listed");
@@ -55,6 +61,9 @@ public class JMSMessPgTest extends BaseTest {
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
 
+			soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
+
+			page.grid().waitForRowsToLoad();
 			log.info("check message is deleted from grid");
 			soft.assertTrue(page.grid().scrollTo("ID", rowInfo2.get("ID")) < 0, "Message NOT present in the grid after delete operation");
 

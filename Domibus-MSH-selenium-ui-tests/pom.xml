@@ -213,7 +213,7 @@
 						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-							<groups>singleTenancy</groups>
+							<groups>multiTenancy</groups>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
 							</suiteXmlFiles>

@@ -195,8 +195,8 @@ public class PModeArchiveUXTest extends BaseTest {
 		String description = page.grid().getRowInfo(1).get("Description");
 		page.deleteRow(1);
 
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_UPDATE_SUCCESS, "Correct message is displayed");
-		soft.assertFalse(page.getAlertArea().isError(), "Message is succes");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_DELETE_SUCCESS, "Correct message is displayed");
+		soft.assertFalse(page.getAlertArea().isError(), "Message is success");
 
 		log.info("searching for deleted row...");
 		int index = page.grid().scrollTo("Description", description);
