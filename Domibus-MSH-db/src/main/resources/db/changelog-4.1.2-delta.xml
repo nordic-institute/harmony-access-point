@@ -563,7 +563,7 @@
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
     </changeSet>
-    <changeSet id="EDELIVEREY-5414" author="Catalin Enache" dbms="mysql">
+    <changeSet id="EDELIVERY-5414" author="Catalin Enache" dbms="mysql">
         <comment>add back AUTO_INCREMENT for MySQL</comment>
         <sql>
             ALTER TABLE TB_ACTION MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;

@@ -7,6 +7,232 @@
 
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-1">
         <comment>Drop all FK constraints</comment>
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_13k2eptp1ejp5othy1njrg3p8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MEP_BINDING"
+                                  constraintName="FK_277j83lgsq3nmwyhsw637ynd8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
+                                  constraintName="FK_2h31p0a2y6weg2grh70c9cyva"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ROLE"
+                                  constraintName="FK_2sw6knalor7rpr04ye0o2r9ap"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_3emt6xaglh7676lpckiy6r1vb"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RECEPTION_AWARENESS"
+                                  constraintName="FK_3sgaxwfr5koe3oldbbd62siwq"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGING"
+                                  constraintName="FK_433rgm5a446t59q6jkb885l3x"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGING"
+                                  constraintName="FK_53gp9smtemqcuio8o9t10narm"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_CONFIGURATION"
+                                  constraintName="FK_62dt1y6o7od1t0iqn7dow8uq5"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ACTION"
+                                  constraintName="FK_6hldnnqkmh6lui555t4n9fjiv"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_AGREEMENT"
+                                  constraintName="FK_70m9kqpqab3rgk90wsuv9vn64"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG_TB_MPC"
+                                  constraintName="FK_7h5nw411791gf4lg1yh6si1wd"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_7p1g7sqvli1sj6k7vphjo9irc"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RECEIPT_DATA"
+                                  constraintName="FK_8nccae214mvs1kh5sgcj3y5oy"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MPC"
+                                  constraintName="FK_8q319stwm1noijpb3jfl8jri8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_9hpmoewlitivcl8rw1joccuau"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_BACKEND_FILTER_AUD"
+                                  constraintName="FK_BACKEND_FILTER_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_BACK_RCRITERIA_AUD"
+                                  constraintName="FK_BACK_RCRITERIA_AUD"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_CONFIGURATION_AUD"
+                                  constraintName="FK_CONFIGURATION_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_CONFIGURATION_RAW_AUD"
+                                  constraintName="FK_CONFIGURATION_RAW_AUD"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_AUD"
+                                  constraintName="FK_PARTY_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_IDENTIFIER_AUD"
+                                  constraintName="FK_PARTY_IDENTIFIER_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID_TYPE_AUD"
+                                  constraintName="FK_PARTY_ID_TYPE_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_REV_CHANGES"
+                                  constraintName="FK_REV_CHANGES_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ROUTING_CRITERIA_AUD"
+                                  constraintName="FK_ROUTING_CRITERIA_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLES"
+                                  constraintName="FK_USER_ROLES_ROLE"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLES"
+                                  constraintName="FK_USER_ROLES_USER"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLE_AUD"
+                                  constraintName="FK_USER_ROLE_AUD"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID_TYPE"
+                                  constraintName="FK_advgudix024irqpuge4dl9iqf"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_am7bwsm92se3nvclbeiep5vwg"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+                                  constraintName="FK_asjdl57budmuwmj3611969jpp"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_MESSAGE"
+                                  constraintName="FK_be4xc1069qyw2klhvm3xmg26s"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE"
+                                  constraintName="FK_c08ljjwi4p9dx1rjtcdbe1sfu"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY"
+                                  constraintName="FK_cloyy9k391vhsup85iwr8ixiv"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
+                                  constraintName="FK_cwylvg6ernwba61mo3yagmkg8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PAYLOAD"
+                                  constraintName="FK_d9el0l8u1gm5oeu67nqrkherq"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_IDENTIFIER"
+                                  constraintName="FK_desr6xtdp1lp41d5venlhf4bc"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_dgtgtg41yrfebyysmkyi1gcaa"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_IDENTIFIER"
+                                  constraintName="FK_e7ehghifrns83w6v3tps7vpii"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_PROPERTY_SET"
+                                  constraintName="FK_eiy3f9ahx0kdx4wxoi6prytn9"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROPERTY_SET"
+                                  constraintName="FK_ekk8pn89y50g22kd3gpja7j39"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MEP"
+                                  constraintName="FK_epmxkh8u7jnw5pbyj47sirmlh"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID"
+                                  constraintName="FK_fkftd5orw2etiu4ghmn3mhx9i"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_LEG"
+                                  constraintName="FK_fpxbdc63gifacrd4qb6afrqyw"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SECURITY"
+                                  constraintName="FK_fwrq81cctu2nh0qeprmpvker9"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+                                  constraintName="FK_g20eow5f2cke3avsrg6qpkuxv"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_LEG"
+                                  constraintName="FK_gh98q07kcjl7wdaon9ggifqux"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+                                  constraintName="FK_hlb2y2prpm52ssynn22h3swsr"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ROUTING_CRITERIA"
+                                  constraintName="FK_i7gei6bdr2cdn61hdoplxbu7p"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_j0y3fcediqx5but8jbscy59kw"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_j7lab5n5suklcldqhxn8jl2jo"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_kjanlcdeap7nirdigr7rt7p4v"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SERVICE"
+                                  constraintName="FK_kkhxs36rw15aygpn00nvvgyxg"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_kv2c5k41apdlvc6i18ar57abe"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+                                  constraintName="FK_kyn19swm143m96in317sr97h2"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ERROR_HANDLING"
+                                  constraintName="FK_l1mmhs1tbt8pw7vx5teuytjvj"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_le4rxnki51eak6xetc7fq8sri"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RELIABILITY"
+                                  constraintName="FK_lnnplhiawxx7wlt43ye3pej00"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PAYLOAD_PROFILE"
+                                  constraintName="FK_lynom7rxkc0t1xfl0nowxpeuj"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE"
+                                  constraintName="FK_m6uu2y6g9buet3o3k1n4qxwec"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROPERTY_SET"
+                                  constraintName="FK_mk54xe43f3hokh7fjl3w66efk"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG_TB_MPC"
+                                  constraintName="FK_nylcxsy1f9cn3tdskh97h8pt1"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG_TB_MPC"
+                                  constraintName="FK_orddltv2g3lq79eu48c2mc2fy"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+                                  constraintName="FK_ot8jfkotd6qu7jrdaptrohbn8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_ppvxyurcvfy71fvejw9bosghw"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ERROR"
+                                  constraintName="FK_prrcmi4grm4txhfsfnfhgq1k1"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+                                  constraintName="FK_q0l3ej6ruqcfutru2securq9l"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_q1jfsxfoj3nl7hii3co7bu0fr"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_CONFIGURATION"
+                                  constraintName="FK_q3gapfc1e7hfbgmo0nebj4k1n"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_r2swpqof7636vveqt0dxl89dp"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_PROPERTY"
+                                  constraintName="FK_rj8h1b65vnjjgyfcjnvswkguh"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_LEG"
+                                  constraintName="FK_rlbjstvo4gpdcp6ysv9mofqxj"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RAWENVELOPE_LOG"
+                                  constraintName="FK_signalmsg_id_fk_rawenv_id"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROCESS"
+                                  constraintName="FK_tp11d8fg7cv1fwf5xkvwqpp34"/>
 
         <dropForeignKeyConstraint baseTableName="TB_EVENT_PROPERTY"
                                   constraintName="FK_EVENT_PROPERTY_ID"/>
@@ -17,20 +243,213 @@
         <dropForeignKeyConstraint baseTableName="TB_EVENT_ALERT"
                                   constraintName="FK_ALERT_ID"/>
 
+        <dropForeignKeyConstraint baseTableName="TB_PART_INFO"
+                                  constraintName="FK_tq6lbn3mp0vsfc6qqu7wxy54g"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RAWENVELOPE_LOG"
+                                  constraintName="FK_usermsg_id_fk_rawenv_id"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID"
+                                  constraintName="FK_ylub8lptgvsch02mj71euuil"/>
+
         <dropForeignKeyConstraint baseTableName="TB_USER_PASSWORD_HISTORY"
                                   constraintName="FK_USER_PASSWORD_HISTORY"/>
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-2">
         <comment>Modify data types</comment>
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ACTION"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_ACTION"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ACTION_AUDIT"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_AGREEMENT"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_AGREEMENT"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_BACK_RCRITERIA_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_BACK_RCRITERIA_AUD"/>
+        <modifyDataType columnName="FK_BACKEND_FILTER" newDataType="BIGINT" tableName="TB_BACK_RCRITERIA_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_BACKEND_FILTER"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_BACKEND_FILTER_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_BACKEND_FILTER_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_BUSINESS_PROCESS"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_CONFIGURATION"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESSES" newDataType="BIGINT" tableName="TB_CONFIGURATION"/>
+        <modifyDataType columnName="FK_PARTY" newDataType="BIGINT" tableName="TB_CONFIGURATION"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_CONFIGURATION_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_CONFIGURATION_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_CONFIGURATION_RAW"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_CONFIGURATION_RAW_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_CONFIGURATION_RAW_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ERROR"/>
+        <modifyDataType columnName="SIGNALMESSAGE_ID" newDataType="BIGINT" tableName="TB_ERROR"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ERROR_HANDLING"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_ERROR_HANDLING"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ERROR_LOG"/>
+
+        <modifyDataType columnName="FK_PAYLOAD" newDataType="BIGINT" tableName="TB_JOIN_PAYLOAD_PROFILE"/>
+        <modifyDataType columnName="FK_PROFILE" newDataType="BIGINT" tableName="TB_JOIN_PAYLOAD_PROFILE"/>
+
+        <modifyDataType columnName="PROCESS_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_INIT_PARTY"/>
+        <modifyDataType columnName="PARTY_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_INIT_PARTY"/>
+
+        <modifyDataType columnName="PROCESS_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_LEG"/>
+        <modifyDataType columnName="LEG_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_LEG"/>
+
+        <modifyDataType columnName="PROCESS_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_RESP_PARTY"/>
+        <modifyDataType columnName="PARTY_FK" newDataType="BIGINT" tableName="TB_JOIN_PROCESS_RESP_PARTY"/>
+
+        <modifyDataType columnName="PROPERTY_FK" newDataType="BIGINT" tableName="TB_JOIN_PROPERTY_SET"/>
+        <modifyDataType columnName="SET_FK" newDataType="BIGINT" tableName="TB_JOIN_PROPERTY_SET"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_ACTION" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_MPC" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_ERROR_HANDLING" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_PAYLOAD_PROFILE" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_PROPERTY_SET" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_RECEPTION_AWARENESS" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_RELIABILITY" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_SECURITY" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_SERVICE" newDataType="BIGINT" tableName="TB_LEG"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_LEG"/>
+
+        <modifyDataType columnName="LegConfiguration_ID_PK" newDataType="BIGINT" tableName="TB_LEG_TB_MPC"/>
+        <modifyDataType columnName="partyMpcMap_ID_PK" newDataType="BIGINT" tableName="TB_LEG_TB_MPC"/>
+        <modifyDataType columnName="partyMpcMap_KEY" newDataType="BIGINT" tableName="TB_LEG_TB_MPC"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MEP"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_MEP"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MEP_BINDING"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_MEP_BINDING"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_ACKNW"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_ACKNW_PROP"/>
+        <modifyDataType columnName="FK_MSG_ACKNOWLEDGE" newDataType="BIGINT" tableName="TB_MESSAGE_ACKNW_PROP"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_INFO"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_LOG"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_PROPERTY"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_MESSAGE_PROPERTY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_PROPERTY_SET"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_MESSAGE_PROPERTY_SET"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGING"/>
+        <modifyDataType columnName="SIGNAL_MESSAGE_ID" newDataType="BIGINT" tableName="TB_MESSAGING"/>
+        <modifyDataType columnName="USER_MESSAGE_ID" newDataType="BIGINT" tableName="TB_MESSAGING"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGING_LOCK"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MPC"/>
+        <modifyDataType columnName="FK_CONFIGURATION" newDataType="BIGINT" tableName="TB_MPC"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PART_INFO"/>
+        <modifyDataType columnName="PAYLOADINFO_ID" newDataType="BIGINT" tableName="TB_PART_INFO"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_PARTY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_PARTY_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_ID"/>
+        <modifyDataType columnName="TO_ID" newDataType="BIGINT" tableName="TB_PARTY_ID"/>
+        <modifyDataType columnName="FROM_ID" newDataType="BIGINT" tableName="TB_PARTY_ID"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_ID_TYPE"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_PARTY_ID_TYPE"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_ID_TYPE_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_PARTY_ID_TYPE_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER"/>
+        <modifyDataType columnName="FK_PARTY_ID_TYPE" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER"/>
+        <modifyDataType columnName="FK_PARTY" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER_AUD"/>
+        <modifyDataType columnName="FK_PARTY" newDataType="BIGINT" tableName="TB_PARTY_IDENTIFIER_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PAYLOAD"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_PAYLOAD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_AGREEMENT" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_INITIATOR_ROLE" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_MEP" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_MEP_BINDING" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_RESPONDER_ROLE" newDataType="BIGINT" tableName="TB_PROCESS"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_PROCESS"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_PROPERTY"/>
+        <modifyDataType columnName="MESSAGEPROPERTIES_ID" newDataType="BIGINT" tableName="TB_PROPERTY"/>
+        <modifyDataType columnName="PARTPROPERTIES_ID" newDataType="BIGINT" tableName="TB_PROPERTY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_RAWENVELOPE_LOG"/>
+        <modifyDataType columnName="USERMESSAGE_ID_FK" newDataType="BIGINT" tableName="TB_RAWENVELOPE_LOG"/>
+        <modifyDataType columnName="SIGNALMESSAGE_ID_FK" newDataType="BIGINT" tableName="TB_RAWENVELOPE_LOG"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_RECEIPT"/>
+
+        <modifyDataType columnName="RECEIPT_ID" newDataType="BIGINT" tableName="TB_RECEIPT_DATA"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_RECEPTION_AWARENESS"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_RECEPTION_AWARENESS"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_RELIABILITY"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_RELIABILITY"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_REV_CHANGES"/>
 
         <modifyDataType columnName="ID" newDataType="BIGINT" tableName="TB_REV_INFO"/>
 
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ROLE"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_ROLE"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ROUTING_CRITERIA"/>
+        <modifyDataType columnName="FK_BACKEND_FILTER" newDataType="BIGINT" tableName="TB_ROUTING_CRITERIA"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_ROUTING_CRITERIA_AUD"/>
+        <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_ROUTING_CRITERIA_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_SECURITY"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_SECURITY"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_SEND_ATTEMPT"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_SERVICE"/>
+        <modifyDataType columnName="FK_BUSINESSPROCESS" newDataType="BIGINT" tableName="TB_SERVICE"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_SIGNAL_MESSAGE"/>
+        <modifyDataType columnName="messageInfo_ID_PK" newDataType="BIGINT" tableName="TB_SIGNAL_MESSAGE"/>
+        <modifyDataType columnName="receipt_ID_PK" newDataType="BIGINT" tableName="TB_SIGNAL_MESSAGE"/>
+
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_USER_AUD"/>
+
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_MESSAGE"/>
+        <modifyDataType columnName="messageInfo_ID_PK" newDataType="BIGINT" tableName="TB_USER_MESSAGE"/>
 
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_ROLE_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_USER_ROLE_AUD"/>
@@ -49,21 +468,513 @@
         <modifyDataType columnName="FK_EVENT" newDataType="BIGINT" tableName="TB_EVENT_ALERT"/>
         <modifyDataType columnName="FK_ALERT" newDataType="BIGINT" tableName="TB_EVENT_ALERT"/>
 
+        <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_MESSAGE_UI"/>
+
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_USER_PASSWORD_HISTORY"/>
     </changeSet>
     <changeSet id="EDELIVERY-5414" author="Catalin Enache" dbms="mysql">
         <comment>add back AUTO_INCREMENT for MySQL</comment>
         <sql>
+            ALTER TABLE TB_ACTION MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ACTION_AUDIT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_AGREEMENT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_ALERT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_AUTHENTICATION_ENTRY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_BACKEND_FILTER MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_BUSINESS_PROCESS MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_CERTIFICATE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_CONFIGURATION MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_CONFIGURATION_RAW MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ERROR MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ERROR_HANDLING MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ERROR_LOG MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_EVENT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_EVENT_PROPERTY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_LEG MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MEP MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MEP_BINDING MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_ACKNW MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_ACKNW_PROP MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_INFO MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_LOG MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_PROPERTY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_PROPERTY_SET MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGE_UI MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGING MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MESSAGING_LOCK MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_MPC MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PARTY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PARTY_ID MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PARTY_IDENTIFIER MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PARTY_ID_TYPE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PART_INFO MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PAYLOAD MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PAYLOAD_PROFILE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PROCESS MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_PROPERTY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_RAWENVELOPE_LOG MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_RECEIPT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_RECEPTION_AWARENESS MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_RELIABILITY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_REV_CHANGES MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_REV_INFO MODIFY ID BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ROLE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_ROUTING_CRITERIA MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_SECURITY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_SEND_ATTEMPT MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_SERVICE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_SIGNAL_MESSAGE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_USER MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_USER_MESSAGE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
             ALTER TABLE TB_USER_PASSWORD_HISTORY MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
+            ALTER TABLE TB_USER_ROLE MODIFY ID_PK BIGINT AUTO_INCREMENT NOT NULL;
         </sql>
     </changeSet>
     <changeSet author="Catalin Enache" id="EDELIVERY-4866-3">
         <comment>Add FK constraints back</comment>
+        <addForeignKeyConstraint baseColumnNames="FK_RELIABILITY" baseTableName="TB_LEG"
+                                 constraintName="FK_13k2eptp1ejp5othy1njrg3p8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RELIABILITY"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MEP_BINDING"
+                                 constraintName="FK_277j83lgsq3nmwyhsw637ynd8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+        <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
+                                 constraintName="FK_2h31p0a2y6weg2grh70c9cyva" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ROLE"
+                                 constraintName="FK_2sw6knalor7rpr04ye0o2r9ap" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_RESPONDER_ROLE" baseTableName="TB_PROCESS"
+                                 constraintName="FK_3emt6xaglh7676lpckiy6r1vb" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ROLE"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_RECEPTION_AWARENESS"
+                                 constraintName="FK_3sgaxwfr5koe3oldbbd62siwq" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
+                                 constraintName="FK_433rgm5a446t59q6jkb885l3x" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
+                                 constraintName="FK_53gp9smtemqcuio8o9t10narm" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_CONFIGURATION"
+                                 constraintName="FK_62dt1y6o7od1t0iqn7dow8uq5" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ACTION"
+                                 constraintName="FK_6hldnnqkmh6lui555t4n9fjiv" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_AGREEMENT"
+                                 constraintName="FK_70m9kqpqab3rgk90wsuv9vn64" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="partyMpcMap_ID_PK" baseTableName="TB_LEG_TB_MPC"
+                                 constraintName="FK_7h5nw411791gf4lg1yh6si1wd" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MPC"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PROCESS"
+                                 constraintName="FK_7p1g7sqvli1sj6k7vphjo9irc" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
+                                 constraintName="FK_8nccae214mvs1kh5sgcj3y5oy" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_MPC"
+                                 constraintName="FK_8q319stwm1noijpb3jfl8jri8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_CONFIGURATION"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_SECURITY" baseTableName="TB_LEG"
+                                 constraintName="FK_9hpmoewlitivcl8rw1joccuau" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SECURITY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACKEND_FILTER_AUD"
+                                 constraintName="FK_BACKEND_FILTER_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACK_RCRITERIA_AUD"
+                                 constraintName="FK_BACK_RCRITERIA_AUD" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CONFIGURATION_AUD"
+                                 constraintName="FK_CONFIGURATION_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CONFIGURATION_RAW_AUD"
+                                 constraintName="FK_CONFIGURATION_RAW_AUD" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_IDENTIFIER_AUD"
+                                 constraintName="FK_PARTY_IDENTIFIER_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_ID_TYPE_AUD"
+                                 constraintName="FK_PARTY_ID_TYPE_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_ROUTING_CRITERIA_AUD"
+                                 constraintName="FK_ROUTING_CRITERIA_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="ROLE_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_USER" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_ROLE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USER_ROLE_AUD" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY_ID_TYPE"
+                                 constraintName="FK_advgudix024irqpuge4dl9iqf" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD_PROFILE" baseTableName="TB_LEG"
+                                 constraintName="FK_am7bwsm92se3nvclbeiep5vwg" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD_PROFILE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+                                 constraintName="FK_asjdl57budmuwmj3611969jpp" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="messageInfo_ID_PK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_be4xc1069qyw2klhvm3xmg26s" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="messageInfo_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_c08ljjwi4p9dx1rjtcdbe1sfu" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY"
+                                 constraintName="FK_cloyy9k391vhsup85iwr8ixiv" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
+                                 constraintName="FK_cwylvg6ernwba61mo3yagmkg8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PAYLOAD"
+                                 constraintName="FK_d9el0l8u1gm5oeu67nqrkherq" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PARTY_IDENTIFIER"
+                                 constraintName="FK_desr6xtdp1lp41d5venlhf4bc" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_ACTION" baseTableName="TB_LEG"
+                                 constraintName="FK_dgtgtg41yrfebyysmkyi1gcaa" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ACTION"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY_ID_TYPE" baseTableName="TB_PARTY_IDENTIFIER"
+                                 constraintName="FK_e7ehghifrns83w6v3tps7vpii" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY_ID_TYPE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MESSAGE_PROPERTY_SET"
+                                 constraintName="FK_eiy3f9ahx0kdx4wxoi6prytn9" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_JOIN_PROPERTY_SET"
+                                 constraintName="FK_ekk8pn89y50g22kd3gpja7j39" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY_SET"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MEP"
+                                 constraintName="FK_epmxkh8u7jnw5pbyj47sirmlh" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FROM_ID" baseTableName="TB_PARTY_ID"
+                                 constraintName="FK_fkftd5orw2etiu4ghmn3mhx9i" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_LEG"
+                                 constraintName="FK_fpxbdc63gifacrd4qb6afrqyw" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_SECURITY"
+                                 constraintName="FK_fwrq81cctu2nh0qeprmpvker9" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PROFILE" baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+                                 constraintName="FK_g20eow5f2cke3avsrg6qpkuxv" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_JOIN_PROCESS_LEG"
+                                 constraintName="FK_gh98q07kcjl7wdaon9ggifqux" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_LEG"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+                                 constraintName="FK_hlb2y2prpm52ssynn22h3swsr" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BACKEND_FILTER" baseTableName="TB_ROUTING_CRITERIA"
+                                 constraintName="FK_i7gei6bdr2cdn61hdoplxbu7p" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BACKEND_FILTER"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_ERROR_HANDLING" baseTableName="TB_LEG"
+                                 constraintName="FK_j0y3fcediqx5but8jbscy59kw" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ERROR_HANDLING"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_MEP" baseTableName="TB_PROCESS"
+                                 constraintName="FK_j7lab5n5suklcldqhxn8jl2jo" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MEP"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_AGREEMENT" baseTableName="TB_PROCESS"
+                                 constraintName="FK_kjanlcdeap7nirdigr7rt7p4v" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_AGREEMENT"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_SERVICE"
+                                 constraintName="FK_kkhxs36rw15aygpn00nvvgyxg" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_SERVICE" baseTableName="TB_LEG"
+                                 constraintName="FK_kv2c5k41apdlvc6i18ar57abe" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SERVICE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+                                 constraintName="FK_kyn19swm143m96in317sr97h2" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ERROR_HANDLING"
+                                 constraintName="FK_l1mmhs1tbt8pw7vx5teuytjvj" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PROPERTY_SET" baseTableName="TB_LEG"
+                                 constraintName="FK_le4rxnki51eak6xetc7fq8sri" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY_SET"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_RELIABILITY"
+                                 constraintName="FK_lnnplhiawxx7wlt43ye3pej00" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PAYLOAD_PROFILE"
+                                 constraintName="FK_lynom7rxkc0t1xfl0nowxpeuj" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="receipt_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_m6uu2y6g9buet3o3k1n4qxwec" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_JOIN_PROPERTY_SET"
+                                 constraintName="FK_mk54xe43f3hokh7fjl3w66efk" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="LegConfiguration_ID_PK" baseTableName="TB_LEG_TB_MPC"
+                                 constraintName="FK_nylcxsy1f9cn3tdskh97h8pt1" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_LEG"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="partyMpcMap_KEY" baseTableName="TB_LEG_TB_MPC"
+                                 constraintName="FK_orddltv2g3lq79eu48c2mc2fy" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+                                 constraintName="FK_ot8jfkotd6qu7jrdaptrohbn8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_MPC" baseTableName="TB_LEG"
+                                 constraintName="FK_ppvxyurcvfy71fvejw9bosghw" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MPC"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
+                                 constraintName="FK_prrcmi4grm4txhfsfnfhgq1k1" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+                                 constraintName="FK_q0l3ej6ruqcfutru2securq9l" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD_PROFILE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_INITIATOR_ROLE" baseTableName="TB_PROCESS"
+                                 constraintName="FK_q1jfsxfoj3nl7hii3co7bu0fr" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ROLE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_CONFIGURATION"
+                                 constraintName="FK_q3gapfc1e7hfbgmo0nebj4k1n" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_LEG"
+                                 constraintName="FK_r2swpqof7636vveqt0dxl89dp" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MESSAGE_PROPERTY"
+                                 constraintName="FK_rj8h1b65vnjjgyfcjnvswkguh" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_RECEPTION_AWARENESS" baseTableName="TB_LEG"
+                                 constraintName="FK_rlbjstvo4gpdcp6ysv9mofqxj" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEPTION_AWARENESS"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
+                                 constraintName="FK_signalmsg_id_fk_rawenv_id" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PROCESS"
+                                 constraintName="FK_tp11d8fg7cv1fwf5xkvwqpp34" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MEP_BINDING"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
                                  constraintName="FK_EVENT_PROPERTY_ID" deferrable="false"
@@ -81,6 +992,21 @@
                                  constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER"/>
-    </changeSet>
+        <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_tq6lbn3mp0vsfc6qqu7wxy54g" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
+
+        <addForeignKeyConstraint baseColumnNames="USERMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
+                                 constraintName="FK_usermsg_id_fk_rawenv_id" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+
+        <addForeignKeyConstraint baseColumnNames="TO_ID" baseTableName="TB_PARTY_ID"
+                                 constraintName="FK_ylub8lptgvsch02mj71euuil" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+    </changeSet>
 </databaseChangeLog>
