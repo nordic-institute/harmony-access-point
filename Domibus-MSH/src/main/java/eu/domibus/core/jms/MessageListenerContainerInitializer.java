@@ -130,7 +130,10 @@ public class MessageListenerContainerInitializer {
         highPriority.start();
         instances.add(highPriority);
 
-
+        DomainMessageListenerContainer defaultPriority = messageListenerContainerFactory.createDlqListenerContainerDefaultPriority(domain, "(messagePriority is null or (messagePriority <>'1' and messagePriority <> '5' and messagePriority <> '10'))", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_HIGH);
+        removeInstance(domain, defaultPriority.getName());
+        defaultPriority.start();
+        instances.add(defaultPriority);
 
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }

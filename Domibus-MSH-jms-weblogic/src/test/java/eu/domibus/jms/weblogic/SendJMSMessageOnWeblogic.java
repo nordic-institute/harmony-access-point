@@ -45,6 +45,15 @@ public class SendJMSMessageOnWeblogic {
                 e.printStackTrace();
             }
         });
+        Thread defaultThread = new Thread(() -> {
+            try {
+                sendJMSMessageOnWeblogic.sendMessages("2");
+            } catch (PrivilegedActionException e) {
+                e.printStackTrace();
+            }
+        });
+
+        defaultThread.start();
         threadHigh.start();
         threadMedium.start();
         threadLow.start();
@@ -58,6 +67,9 @@ public class SendJMSMessageOnWeblogic {
         System.out.println("Joining thread low");
         threadLow.join();
 
+        System.out.println("Joining thread default");
+        defaultThread.join();
+
         System.out.println("Finished sending messages");
 
     }
@@ -67,7 +79,7 @@ public class SendJMSMessageOnWeblogic {
             Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() {
-                    sendMessagesWithPriority(priority, 10000);
+                    sendMessagesWithPriority(priority, 5);
                     return null;
                 }
             });

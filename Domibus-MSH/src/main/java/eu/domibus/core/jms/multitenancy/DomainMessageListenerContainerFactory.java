@@ -16,6 +16,8 @@ public interface DomainMessageListenerContainerFactory {
 
     DomainMessageListenerContainer createDlqListenerContainerHighPriority(Domain domain, String selector, String concurrency);
 
+    DomainMessageListenerContainer createDlqListenerContainerDefaultPriority(Domain domain, String selector, String concurrency);
+
     DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain);
 
     DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);

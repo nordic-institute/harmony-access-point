@@ -46,6 +46,12 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     }
 
     @Override
+    public DomainMessageListenerContainer createDlqListenerContainerDefaultPriority(Domain domain, String selector, String concurrency) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] and selector [{}] and concurrency [{}]", domain, selector, concurrency);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dlqListenerDefaultPriority", domain, selector, concurrency);
+    }
+
+    @Override
     public DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the SendLargeMessageListenerContainer for domain [{}]", domain);
         return (DomainMessageListenerContainer) applicationContext.getBean("sendLargeMessageContainer", domain);

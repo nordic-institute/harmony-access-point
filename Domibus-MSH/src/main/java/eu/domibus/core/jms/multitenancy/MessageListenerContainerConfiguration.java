@@ -6,10 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
 import eu.domibus.core.message.pull.PullReceiptListener;
-import eu.domibus.core.message.retention.HighDLQListener;
-import eu.domibus.core.message.retention.LowDLQListener;
-import eu.domibus.core.message.retention.MediumDLQListener;
-import eu.domibus.core.message.retention.RetentionListener;
+import eu.domibus.core.message.retention.*;
 import eu.domibus.core.message.splitandjoin.LargeMessageSenderListener;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
 import eu.domibus.logging.DomibusLogger;
@@ -104,6 +101,9 @@ public class MessageListenerContainerConfiguration {
     protected HighDLQListener highDLQListener;
 
     @Autowired
+    protected DefaultDLQListener defaultDLQListener;
+
+    @Autowired
     PullMessageSender pullMessageListener;
 
     @Autowired
@@ -143,6 +143,15 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the dlq listener for domain [{}] with selector [{}] and concurrency [{}]", domain, selector, concurrency);
         return createDefaultMessageListenerContainer(domain, connectionFactory, dlqQueue,
                 highDLQListener, transactionManager, concurrency, selector
+        );
+    }
+
+    @Bean(name = "dlqListenerDefaultPriority")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createDlqListenerDefaultPriority(Domain domain, String selector, String concurrency) {
+        LOG.debug("Instantiating the dlq listener for domain [{}] with selector [{}] and concurrency [{}]", domain, selector, concurrency);
+        return createDefaultMessageListenerContainer(domain, connectionFactory, dlqQueue,
+                defaultDLQListener, transactionManager, concurrency, selector
         );
     }
 
