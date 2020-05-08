@@ -70,11 +70,10 @@ public class PModeDefaultService implements PModeService {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
-            LOG.warn("Xml processing issue while trying to upload pmode", e);
+            LOG.warn("Xml processing issue while trying to upload pmode with description [{}]", description, e);
             throw pModeValidationHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
     }
-
 
     protected LegConfiguration convert(eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) {
         if (legConfigurationEntity == null) {
