@@ -36,8 +36,6 @@ public class DynamicDiscoveryPModeProviderIT {
 
     private CachingPModeProvider cachingPModeProvider = new CachingPModeProvider(DomainService.DEFAULT_DOMAIN);
 
-    private MultiDomainPModeProvider multiDomainPModeProvider = new MultiDomainPModeProvider();
-
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
