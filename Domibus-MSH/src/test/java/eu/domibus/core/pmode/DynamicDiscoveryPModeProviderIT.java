@@ -1,10 +1,15 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.RandomUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -28,9 +34,14 @@ public class DynamicDiscoveryPModeProviderIT {
 
     private DynamicDiscoveryPModeProvider dynamicDiscoveryPModeProvider = new DynamicDiscoveryPModeProvider(null);
 
+    private CachingPModeProvider cachingPModeProvider = new CachingPModeProvider(DomainService.DEFAULT_DOMAIN);
+
+    private MultiDomainPModeProvider multiDomainPModeProvider = new MultiDomainPModeProvider();
+
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
+        ReflectionTestUtils.setField(cachingPModeProvider, "configuration", getConfiguration());
     }
 
     /**
@@ -83,6 +94,58 @@ public class DynamicDiscoveryPModeProviderIT {
         assertNotNull(party);
         assertEquals(NAME, party.getName());
     }
+
+
+    /**
+     * It will simulates the situation when we update parties config on many threads and other thread tries
+     * to read the config party
+     * @throws Exception
+     */
+    @Test
+    public void test_UpdateConfigurationParty_FindPartyName() throws Exception {
+
+        final String partyName = "PIT000158";
+        final String partyType = "urn:fdc:peppol.eu:2017:identifiers:ap";
+        final String partyUrl = "https://notier.regione.emilia-romagna.it/oxalis/as4";
+        PartyId partyId = new PartyId();
+        partyId.setValue(partyName);
+        partyId.setType(partyType);
+
+        Callable<Party> updateConfigPartyTask = () -> {
+            // update the configuration
+            // but sleep a variable time before doing this
+            int sleepTime = RandomUtils.nextInt(10, 51);
+            LOG.info("Sleep first=[{}]", sleepTime);
+            Thread.sleep(sleepTime);
+            LOG.info("Start Thread updateConfigurationParty " + Thread.currentThread().getName());
+            Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty(partyName, partyType, partyUrl);
+            LOG.info("End Thread updateConfigurationParty " + Thread.currentThread().getName());
+            return party;
+        };
+
+        int nbThreads = 50;
+        ExecutorService executorUpdate = Executors.newFixedThreadPool(nbThreads);
+        List<Callable<Party>> tasksList = new ArrayList<>();
+        for (int i =0; i < nbThreads; i++) {
+            tasksList.add(updateConfigPartyTask);
+        }
+
+        //update here
+        List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+
+        //read here
+        try {
+            do {
+                cachingPModeProvider.findPartyName(Collections.singletonList(partyId));
+            } while (executorUpdate.isTerminated());
+        } catch (Exception e) {
+            LOG.error("exception thrown", e);
+            Assert.assertTrue(e instanceof EbMS3Exception);
+            EbMS3Exception ebMS3Exception = (EbMS3Exception) e;
+            Assert.assertTrue(e.getMessage().contains("No matching party found"));
+        }
+    }
+
 
     private Configuration getConfiguration() {
         Configuration configuration = new Configuration();
