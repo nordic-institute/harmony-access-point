@@ -141,7 +141,6 @@ public class DynamicDiscoveryPModeProviderIT {
         } catch (Exception e) {
             LOG.error("exception thrown", e);
             Assert.assertTrue(e instanceof EbMS3Exception);
-            EbMS3Exception ebMS3Exception = (EbMS3Exception) e;
             Assert.assertTrue(e.getMessage().contains("No matching party found"));
         }
     }
