@@ -27,7 +27,7 @@ public class AuditPgTest extends BaseTest {
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 
 	/*    AU-6 - Filter events so that there are no results   */
-	@Test(description = "AU-6", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void searchWithNoData() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -58,7 +58,7 @@ public class AuditPgTest extends BaseTest {
 	}
 
 	/*   AU-7 - Delete all criteria and press Search    */
-	@Test(description = "AU-7", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "AU-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
