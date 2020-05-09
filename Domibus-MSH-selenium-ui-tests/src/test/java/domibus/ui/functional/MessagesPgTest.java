@@ -299,7 +299,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Domain admin logs in and views messages */
-	@Test(description = "MSG-13", groups = {"multiTenancy"})
+	@Test(description = "MSG-13", groups = {"multiTenancy"}, enabled = false)
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
