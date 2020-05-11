@@ -70,8 +70,6 @@ public interface JMSManager {
 
     void sendMapMessageToQueue(JmsMessage message, Queue destination);
 
-    void sendMessageToTopic(JmsMessage message, Topic destination);
-
     /**
      * It sends a JMS message to {@code destination} topic but it marks to not be executed by origin server
      *
@@ -105,7 +103,6 @@ public interface JMSManager {
     /**
      * Return the number of jms messages in the destination.
      *
-     * @param jmsDestination
      * @return the number of messages contained in the destination.
      */
     long getDestinationSize(JMSDestination jmsDestination);

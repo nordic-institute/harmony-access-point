@@ -1,10 +1,9 @@
 package eu.domibus.jms.weblogic;
 
-import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
@@ -16,7 +15,6 @@ import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -248,21 +246,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
     }
 
-    protected List<String> getManagedServerNames() {
-        if (managedServerNames == null) {
-            managedServerNames = jmxTemplate.query(
-                    new JMXOperation() {
-                        @Override
-                        public List<String> execute(MBeanServerConnection mbsc) {
-                            return getManagedServerNames(mbsc);
-                        }
-                    }
-            );
-            return managedServerNames;
-        }
-        return managedServerNames;
-    }
-
     protected List<String> getManagedServerNames(MBeanServerConnection mbsc) {
         List<String> result = new ArrayList<>();
         try {
@@ -320,7 +303,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return destName;
     }
 
-    protected long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination)  {
+    protected long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
             return NB_MESSAGES_ADMIN;
@@ -397,14 +380,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return queueMap;
     }
 
-    protected Queue getQueue(String queueName) throws NamingException {
-        return (Queue) lookupDestination(queueName);
-    }
-
-    protected Topic getTopic(String topicName) throws NamingException {
-        return (Topic) lookupDestination(topicName);
-    }
-
     protected Destination lookupDestination(String destJndiName) throws NamingException {
         LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
         return jmsDestinationCache.getByJndiName(destJndiName);
@@ -426,39 +401,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
-       sendMessageToTopic(internalJmsMessage, destination, false);
-    }
-
-    protected void sendMessage(InternalJmsMessage internalJmsMessage, Topic destination) {
-        final boolean isClusterDeployment = domibusConfigurationService.isClusterDeployment();
-        if (!isClusterDeployment) {
-            LOG.debug("Sending JMS message to topic");
-            sendMessage(internalJmsMessage, destination);
-            return;
-        }
-        //the uniform distributed topics do not work correctly in WebLogic 12.1.3
-        // the JMS message is not correctly replicated to all managed servers when the cluster is composed of more than 2 managed servers
-        LOG.debug("Cluster deployment: using command signaling via database instead of uniform distributed topic");
-        String command = (String) internalJmsMessage.getProperty(Command.COMMAND);
-        String domain = (String) internalJmsMessage.getProperty(MessageConstants.DOMAIN);
-        String originServer = (String) internalJmsMessage.getProperty(CommandProperty.ORIGIN_SERVER);
-
-        final List<String> managedServerNamesList = getManagedServerNames();
-        LOG.debug("Found managed servers [{}]", managedServerNamesList);
-
-        if(StringUtils.isNotBlank(originServer)) {
-            managedServerNamesList.remove(originServer);
-            LOG.debug("Managed servers [{}] after exclusion of origin server [{}]", managedServerNamesList, originServer);
-        }
-
-        for (String managedServerName : managedServerNamesList) {
-            commandService.createClusterCommand(command, domain, managedServerName, internalJmsMessage.getCustomProperties());
-        }
-    }
-
-    @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin) {
+
         if (excludeOrigin) {
             internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }

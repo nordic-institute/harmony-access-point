@@ -24,17 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Cosmin Baciu
  * @since 4.0.1
  */
 @RunWith(JMockit.class)
 public class CommandServiceImplTest {
-
-    @Injectable
-    private CommandDao commandDao;
 
     @Injectable
     private DomainCoreConverter domainConverter;
@@ -60,34 +55,6 @@ public class CommandServiceImplTest {
     @Tested
     private CommandServiceImpl commandService;
 
-    @Test
-    public void testCreateClusterCommand() {
-        String command = "command1";
-        String domain = "domain1";
-        String server = "server1";
-
-        commandService.createClusterCommand(command, domain, server, null);
-
-        new Verifications() {{
-            CommandEntity entity = null;
-            commandDao.create(entity = withCapture());
-
-            assertEquals(entity.getCommandName(), command);
-            assertEquals(entity.getDomain(), domain);
-            assertEquals(entity.getServerName(), server);
-        }};
-    }
-
-    @Test
-    public void testFindCommandsByServerName() {
-        String server = "server1";
-
-        commandService.findCommandsByServerName(server);
-
-        new Verifications() {{
-            commandDao.findCommandsByServerName(server);
-        }};
-    }
 
     @Test
     public void testExecuteReloadPModeCommand() {

@@ -27,8 +27,6 @@ public interface InternalJMSManager {
 
     void sendMessage(InternalJmsMessage message, Destination destination);
 
-    void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination);
-
     void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin);
 
     void deleteMessages(String source, String[] messageIds);
