@@ -95,11 +95,10 @@ public class DynamicDiscoveryPModeProviderIT {
 
 
     /**
-     * This test is just an example to reproduce the issue described by EDELIVERY-6522 for further development
-     * when fetched DDC metadata will be cached in concurrent safe way - this test must be also updated/removed
+     * This test is just an example to reproduce the issue described by EDELIVERY-6522 when there are concurrent access issues
      *
-     * It will simulates the situation when we update parties config on many threads and other thread tries
-     * to read the config party
+     * When fetched DDC metadata will be cached in concurrent safe way - this test must be also updated/removed
+     *
      *
      * @throws Exception
      */
