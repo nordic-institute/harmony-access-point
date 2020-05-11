@@ -147,17 +147,36 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async getUsers(): Promise<any> {
-    return this.userService.getUsers(this.activeFilter).toPromise().then(async results => {
-      const showDomain = await this.userService.isDomainVisible();
-      if (showDomain) {
-        await this.getUserDomains();
-        results.forEach(user => this.setDomainName(user));
-      }
-      super.rows = results;
-      super.count = results.length;
+    return this.userService.getUsers(this.activeFilter).toPromise().then(async users => {
+      await this.checkConfiguredCorrectlyForMulttenancy(users);
+
+      await this.setDomain(users);
+
+      super.rows = users;
+      super.count = users.length;
+
       this.areRowsDeleted = false;
       this.disableSelection();
     });
+  }
+
+  private async setDomain(users: UserResponseRO[]) {
+    const showDomain = await this.userService.isDomainVisible();
+    if (showDomain) {
+      await this.getUserDomains();
+      users.forEach(user => this.setDomainName(user));
+    }
+  }
+
+  private async checkConfiguredCorrectlyForMulttenancy(users: UserResponseRO[]) {
+    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
+    if (isMultiDomain) {
+      const usersWithoutDomain = users.filter(user => !user.deleted && !user.domain);
+      if (usersWithoutDomain.length > 0) {
+        const userNames = usersWithoutDomain.map(u => u.userName).join(', ');
+        this.alertService.error(`The following users are not configured correctly for multiteancy: ${userNames}`);
+      }
+    }
   }
 
   private setDomainName(user) {
