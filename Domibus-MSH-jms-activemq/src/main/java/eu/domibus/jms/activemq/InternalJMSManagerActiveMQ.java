@@ -57,7 +57,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     JMSDestinationHelper jmsDestinationHelper;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     JMSSelectorUtil jmsSelectorUtil;
@@ -131,13 +131,16 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, String destination) {
+    public void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations) {
         ActiveMQQueue activeMQQueue = new ActiveMQQueue(destination);
-        sendMessage(message, activeMQQueue);
+        sendMessage(message, activeMQQueue, jmsOperations);
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, Destination destination) {
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
+        if(jmsOperations == null) {
+            jmsOperations = jmsSender;
+        }
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
@@ -151,7 +154,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         if (excludeOrigin) {
             internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
-        sendMessage(internalJmsMessage, destination);
+        sendMessage(internalJmsMessage, destination, null);
     }
 
     @Override
@@ -339,7 +342,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             return new ArrayList<>();
         }
 
-        return jmsOperations.browseSelected(queue, selector, (session, browser) -> {
+        return jmsSender.browseSelected(queue, selector, (session, browser) -> {
             List<InternalJmsMessage> result = new ArrayList<>();
             Enumeration enumeration = browser.getEnumeration();
             while (enumeration.hasMoreElements()) {

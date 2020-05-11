@@ -14,10 +14,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -352,6 +349,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
+//    @Ignore
     public void testCheckTimestampChangedRecently() throws InterruptedException {
         final String domain = "default";
         new Expectations(1, instance) {{

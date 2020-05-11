@@ -473,13 +473,13 @@ public class JMSManagerWeblogicTest {
 
         }};
 
-        jmsManagerWeblogic.sendMessage(internalJmsMessage, destinationQueue);
+        jmsManagerWeblogic.sendMessage(internalJmsMessage, destinationQueue, null);
 
         new Verifications() {{
             InternalJmsMessage capturedInternalJmsMessage = null;
             String capturedDestQueue = null;
 
-            jmsManagerWeblogic.sendMessage(capturedInternalJmsMessage = withCapture(), capturedDestQueue = withCapture());
+            jmsManagerWeblogic.sendMessage(capturedInternalJmsMessage = withCapture(), capturedDestQueue = withCapture(), null);
             assertTrue(capturedInternalJmsMessage == internalJmsMessage);
             assertTrue(capturedDestQueue == destinationQueue);
         }};

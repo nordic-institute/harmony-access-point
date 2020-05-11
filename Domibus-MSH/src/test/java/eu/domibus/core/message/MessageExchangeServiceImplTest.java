@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
@@ -199,7 +200,7 @@ public class MessageExchangeServiceImplTest {
         ArgumentCaptor<JmsMessage> mapArgumentCaptor = ArgumentCaptor.forClass(JmsMessage.class);
         messageExchangeService.initiatePullRequest();
         verify(pModeProvider, times(1)).getGatewayParty();
-        verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class));
+        verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class), any(JmsOperations.class));
         String pModeKeyResult = "party1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "responder" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "service1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +

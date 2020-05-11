@@ -93,7 +93,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     private JMXTemplate jmxTemplate;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     private JMSDestinationHelper jmsDestinationHelper;
@@ -411,7 +411,10 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, String destName) {
+    public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
+        if(jmsOperations == null) { // use default jmsSender with default connection factory
+            jmsOperations = jmsSender;
+        }
         try {
             JmsMessageCreator messageCreator = new JmsMessageCreator(message);
             jmsOperations.send(lookupDestination(destName), messageCreator);
@@ -421,7 +424,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, Destination destination) {
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
+        if(jmsOperations == null) { // use default jmsSender with default connection factory
+            jmsOperations = jmsSender;
+        }
+
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 

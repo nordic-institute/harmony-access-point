@@ -75,7 +75,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     ActiveMQServerControl activeMQServerControl;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     JMSDestinationHelper jmsDestinationHelper;
@@ -268,7 +268,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, String destName) {
+    public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
+        if(jmsOperations == null) {
+            jmsOperations = jmsSender;
+        }
         try {
             jmsOperations.send(lookupQueue(destName), new JmsMessageCreator(message));
         } catch (NamingException e) {
@@ -277,7 +280,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
-    public void sendMessage(InternalJmsMessage message, Destination destination) {
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
+        if(jmsOperations == null) {
+            jmsOperations = jmsSender;
+        }
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
@@ -291,7 +297,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (excludeOrigin) {
             internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
-        sendMessage(internalJmsMessage, destination);
+        sendMessage(internalJmsMessage, destination, null);
     }
 
     @Override
@@ -365,7 +371,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     private List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws NamingException {
         Queue queue = getQueue(destination);
-        return jmsOperations.browseSelected(queue, selector, new BrowserCallback<List<InternalJmsMessage>>() {
+        return jmsSender.browseSelected(queue, selector, new BrowserCallback<List<InternalJmsMessage>>() {
             @Override
             public List<InternalJmsMessage> doInJms(Session session, QueueBrowser browser) throws JMSException {
                 List<InternalJmsMessage> result = new ArrayList<>();

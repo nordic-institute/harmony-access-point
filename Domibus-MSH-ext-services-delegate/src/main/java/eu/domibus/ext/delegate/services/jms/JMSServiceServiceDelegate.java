@@ -6,6 +6,7 @@ import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.JMSExtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
@@ -36,14 +37,14 @@ public class JMSServiceServiceDelegate implements JMSExtService {
     }
 
     @Override
-    public void sendMapMessageToQueue(JmsMessageDTO message, String destination) {
+    public void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations) {
         final JmsMessage jmsMessage = domainConverter.convert(message, JmsMessage.class);
-        jmsManager.sendMapMessageToQueue(jmsMessage, destination);
+        jmsManager.sendMapMessageToQueue(jmsMessage, destination, jmsOperations);
     }
 
     @Override
-    public void sendMapMessageToQueue(JmsMessageDTO message, Queue destination) {
+    public void sendMapMessageToQueue(JmsMessageDTO message, Queue destination, JmsOperations jmsOperations) {
         final JmsMessage jmsMessage = domainConverter.convert(message, JmsMessage.class);
-        jmsManager.sendMapMessageToQueue(jmsMessage, destination);
+        jmsManager.sendMapMessageToQueue(jmsMessage, destination, jmsOperations);
     }
 }

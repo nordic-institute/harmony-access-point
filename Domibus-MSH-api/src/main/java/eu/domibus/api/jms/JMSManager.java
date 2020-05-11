@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 
+import org.springframework.jms.core.JmsOperations;
+
 /**
  * // TODO Documentation
  *
@@ -69,6 +71,10 @@ public interface JMSManager {
     void sendMapMessageToQueue(JmsMessage message, String destination);
 
     void sendMapMessageToQueue(JmsMessage message, Queue destination);
+
+    void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations);
+
+    void sendMapMessageToQueue(JmsMessage message, Queue destination, JmsOperations jmsOperations);
 
     void sendMessageToTopic(JmsMessage message, Topic destination);
 
