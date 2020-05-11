@@ -33,9 +33,9 @@ public class Select extends DComponent {
         this.selectContainer = container;
     }
 
-    protected List<String> optionIDs = new ArrayList<String>();
+    public WebElement selectContainer;
 
-    protected WebElement selectContainer;
+    protected List<String> optionIDs = new ArrayList<String>();
 
     @FindBy(css = "[class*=\"select-arrow\"]")
     protected WebElement expandBtn;
@@ -128,4 +128,5 @@ public class Select extends DComponent {
         }
         return texts;
     }
+
 }

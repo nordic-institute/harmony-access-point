@@ -111,7 +111,7 @@ public class SoapInterceptorTest {
 
     @Before
     public void init() {
-        System.setProperty("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl");
+        System.setProperty("javax.xml.soap.MessageFactory", "com.sun.xml.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl");
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     }
 
