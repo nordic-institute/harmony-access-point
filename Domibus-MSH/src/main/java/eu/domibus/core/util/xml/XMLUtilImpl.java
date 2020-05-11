@@ -1,12 +1,16 @@
 package eu.domibus.core.util.xml;
 
+import com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory;
 import eu.domibus.api.util.xml.DefaultUnmarshallerResult;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.XmlValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -37,6 +41,8 @@ import java.io.InputStream;
  */
 @Component
 public class XMLUtilImpl implements XMLUtil {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -131,8 +137,16 @@ public class XMLUtilImpl implements XMLUtil {
 
     private Schema getSchema(InputStream xsdStream) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
-        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+        try {
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+        } catch (SAXNotRecognizedException ex) {
+            LOG.warn("Unrecognized property for [{}] schema factory, attempting to use the platform default XML Schema factory",
+                    schemaFactory.getClass().getName(), ex);
+            schemaFactory = new XMLSchemaFactory(); // attempting to use the platform default XML Schema validator
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+        }
         return schemaFactory.newSchema(new StreamSource(xsdStream));
     }
 
