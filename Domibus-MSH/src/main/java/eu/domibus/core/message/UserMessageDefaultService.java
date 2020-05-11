@@ -62,6 +62,8 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -520,7 +522,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
+        if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
@@ -534,7 +536,15 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
         SignalMessage signalMessage = messaging.getSignalMessage();
-        userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
+        if(signalMessage != null &&
+                signalMessage.getMessageInfo() != null &&
+                isNotBlank(signalMessage.getMessageInfo().getMessageId())) {
+            String msgId = signalMessage.getMessageInfo().getMessageId();
+            userMessageLogService.setSignalMessageAsDeleted(msgId);
+            LOG.debug("SignalMessage [{}] was set as DELETED.", msgId);
+        } else {
+            LOG.debug("SignalMessage?.messageInfo?.messageId is empty for messageId [{}]", messageId);
+        }
     }
 
     protected void deleteMessagePluginCallback(String messageId) {

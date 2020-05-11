@@ -92,8 +92,14 @@ public class UserMessageLogDefaultService {
         updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
     }
 
-    public void setSignalMessageAsDeleted(final String signalMessageid) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
+    /**
+     * Find the {@link SignalMessageLog} and set to {@link MessageStatus#DELETED}
+     * Propagate the change to the UiReplication
+     *
+     * @param signalMessageId is not blank
+     */
+    public void setSignalMessageAsDeleted(final String signalMessageId) {
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
         signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
         uiReplicationSignalService.messageChange(signalMessageLog.getMessageId());
     }
