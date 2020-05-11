@@ -31,21 +31,6 @@ public class BackendJMSConfiguration {
                                                          DomainContextExtService domainContextExtService,
                                                          JmsPluginPropertyManager jmsPluginPropertyManager,
                                                          MessageRetriever messageRetriever) {
-        LOG.warn("!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~~~BEAN backendJMSQueueService backendJMSQueueService~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!");
         return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, jmsPluginPropertyManager, messageRetriever);
     }
-
-//    @Bean(DOMIBUS_JMS_PLUGIN_CONNECTION_FACTORY)
-//    public JndiObjectFactoryBean jmsPluginConnectionFactory(DomibusPropertyExtService domibusPropertyExtService) {
-//
-//        LOG.warn("!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~~~BEAN CONNECTION FACTORY~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!");
-//
-//        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-//        final String connectioFactoryJNDI = domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTIONFACTORY);
-//        LOG.warn("!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~~~[{}]~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!", connectioFactoryJNDI);
-//        jndiObjectFactoryBean.setJndiName(connectioFactoryJNDI);
-//        jndiObjectFactoryBean.setLookupOnStartup(false);
-//        jndiObjectFactoryBean.setExpectedType(ConnectionFactory.class);
-//        return jndiObjectFactoryBean;
-//    }
 }
