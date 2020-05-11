@@ -17,7 +17,6 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
-import {DomainService} from '../security/domain.service';
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -42,7 +41,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
-              private changeDetector: ChangeDetectorRef, private http: HttpClient, private domainService: DomainService) {
+              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
@@ -137,23 +136,12 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   public async setServerResults(result: { entries: PluginUserRO[], count: number }) {
-    await this.checkConfiguredCorrectlyForMulttenancy(result.entries);
+    await this.pluginUserService.checkConfiguredCorrectlyForMultitenancy(result.entries);
 
     super.rows = result.entries;
     super.count = result.entries.length;
 
     this.setColumnPicker();
-  }
-
-  private async checkConfiguredCorrectlyForMulttenancy(users: PluginUserRO[]) {
-    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
-    if (isMultiDomain) {
-      const usersWithoutDomain = users.filter(user => !user.domain);
-      if (usersWithoutDomain.length > 0) {
-        const userNames = usersWithoutDomain.map(u => u.userName).join(', ');
-        this.alertService.error(`The following plugin users are not configured correctly for multiteancy: ${userNames}`);
-      }
-    }
   }
 
   inBasicMode(): boolean {
