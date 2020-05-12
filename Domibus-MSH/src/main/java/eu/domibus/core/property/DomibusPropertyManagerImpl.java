@@ -101,12 +101,15 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
         } catch (DomibusPropertyException ex) {
             LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
-            domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
             try {
+                // revert to old value
+                domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
                 propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
+                // propagate the exception to the client
                 throw ex;
             } catch (DomibusPropertyException ex2) {
                 LOGGER.error("An error occurred when executing property change listeners for property [{}].", propertyName, ex2);
+                // failed to revert!!! just report the error
                 throw ex2;
             }
         }
