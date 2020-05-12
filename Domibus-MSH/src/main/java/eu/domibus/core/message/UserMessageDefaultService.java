@@ -36,7 +36,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -535,16 +534,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        if(signalMessage != null &&
-                signalMessage.getMessageInfo() != null &&
-                isNotBlank(signalMessage.getMessageInfo().getMessageId())) {
-            String msgId = signalMessage.getMessageInfo().getMessageId();
-            userMessageLogService.setSignalMessageAsDeleted(msgId);
-            LOG.debug("SignalMessage [{}] was set as DELETED.", msgId);
-        } else {
-            LOG.debug("SignalMessage?.messageInfo?.messageId is empty for messageId [{}]", messageId);
-        }
+        userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
     protected void deleteMessagePluginCallback(String messageId) {

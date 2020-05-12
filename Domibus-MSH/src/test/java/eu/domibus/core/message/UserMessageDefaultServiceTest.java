@@ -650,12 +650,6 @@ public class UserMessageDefaultServiceTest {
 
             messaging.getSignalMessage();
             result = signalMessage;
-
-            signalMessage.getMessageInfo();
-            result = messageInfo;
-
-            messageInfo.getMessageId();
-            result = MESSAGE_ID;
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
@@ -663,7 +657,7 @@ public class UserMessageDefaultServiceTest {
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            userMessageLogService.setSignalMessageAsDeleted(MESSAGE_ID);
+            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
         }};
     }
 
@@ -695,6 +689,7 @@ public class UserMessageDefaultServiceTest {
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            userMessageLogService.setSignalMessageAsDeleted(null);
         }};
     }
 
