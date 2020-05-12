@@ -135,7 +135,9 @@ export class PluginUserComponent extends mix(BaseListComponent)
     return filterParams;
   }
 
-  public setServerResults(result: { entries: PluginUserRO[], count: number }) {
+  public async setServerResults(result: { entries: PluginUserRO[], count: number }) {
+    await this.pluginUserService.checkConfiguredCorrectlyForMultitenancy(result.entries);
+
     super.rows = result.entries;
     super.count = result.entries.length;
 

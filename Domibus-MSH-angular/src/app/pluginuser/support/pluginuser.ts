@@ -16,4 +16,5 @@ export class PluginUserRO {
   status: string;
   active: boolean;
   suspended: boolean;
+  domain: string;
 }
