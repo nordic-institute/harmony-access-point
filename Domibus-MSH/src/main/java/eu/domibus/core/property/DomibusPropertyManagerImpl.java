@@ -108,7 +108,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
                 // propagate the exception to the client
                 throw ex;
             } catch (DomibusPropertyException ex2) {
-                LOGGER.error("An error occurred when executing property change listeners for property [{}].", propertyName, ex2);
+                LOGGER.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
                 // failed to revert!!! just report the error
                 throw ex2;
             }

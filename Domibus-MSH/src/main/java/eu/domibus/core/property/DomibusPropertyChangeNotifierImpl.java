@@ -38,7 +38,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
             } catch (Throwable ex) {
-                throw new DomibusPropertyException("Exception executing listener for property " + propertyName, ex);
+                throw new DomibusPropertyException("Exception executing listener " + listener.getClass().getName() + " for property " + propertyName, ex);
             }
         });
 
