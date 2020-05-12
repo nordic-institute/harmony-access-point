@@ -40,4 +40,11 @@
           c:connectionFactory-ref="domibusJMSPlugin-ConnectionFactory"
           p:sessionTransacted="true"
           p:sessionAcknowledgeMode="0"/>
+
+    <bean id="domibusJMSPlugin-ConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="lookupOnStartup" value="false"/>
+        <property name="jndiName" value="${jmsplugin.connectionfactory}"/>
+        <property name="proxyInterface" value="javax.jms.ConnectionFactory"/>
+    </bean>
+
 </beans>
