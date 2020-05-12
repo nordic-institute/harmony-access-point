@@ -70,7 +70,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Domain domain = domainCode != null ? domainService.getDomain(domainCode) : null;
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
@@ -81,12 +81,12 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String propertyName, String propertyValue) throws DomibusPropertyException {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
 
-    private void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
+    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
         if (propMeta == null) {
             throw new DomibusPropertyException("Property " + propertyName + " not found.");
@@ -102,6 +102,13 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         } catch (DomibusPropertyException ex) {
             LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
             domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
+            try {
+                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
+                throw ex;
+            } catch (DomibusPropertyException ex2) {
+                LOGGER.error("An error occurred when executing property change listeners for property [{}].", propertyName, ex2);
+                throw ex2;
+            }
         }
     }
 

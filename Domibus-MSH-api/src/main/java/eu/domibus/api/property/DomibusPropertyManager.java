@@ -34,7 +34,7 @@ public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
      */
-    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue);
+    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
      * Replaces/Sets the current property value in the current domain
@@ -42,7 +42,7 @@ public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
      */
-    void setKnownPropertyValue(String propertyName, String propertyValue);
+    void setKnownPropertyValue(String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
      * Replaces/Sets the current property value
@@ -52,5 +52,5 @@ public interface DomibusPropertyManager extends DomibusPropertyMetadataManager {
      * @param propertyValue the new property value
      * @param broadcast     Specifies if the property change needs to be broadcasted to all nodes in the cluster
      */
-    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast);
+    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
 }

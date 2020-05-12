@@ -27,6 +27,7 @@ public class AlertAccountDisabledConfigurationChangeListener implements DomibusP
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearAccountDisabledConfiguration();
+        throw new NullPointerException("bla bla");
+//        multiDomainAlertConfigurationService.clearAccountDisabledConfiguration();
     }
 }
