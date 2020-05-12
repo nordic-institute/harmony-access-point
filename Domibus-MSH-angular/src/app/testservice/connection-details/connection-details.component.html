@@ -5,7 +5,6 @@
         <mat-card-content>
           <div class="panel">
             <form name="filterForm" #filterForm="ngForm">
-
               <!-- Receiver Party -->
               <label class="receiver-party">
                 Party: {{ partyId }}
@@ -13,14 +12,14 @@
 
               <div class="buttonsRow">
                 <!-- Refresh Button -->
-                <button mat-raised-button color="primary" [disabled]="!sender || !messageInfoSent.messageId"
+                <button mat-raised-button color="primary" [disabled]="!sender || !messageInfoSent.messageId || isBusy"
                         id="updatebutton_id"
-                        (click)="update()" button-click-behaviour>
+                        (click)="onUpdateClick()" button-click-behaviour>
                   <mat-icon>refresh</mat-icon>
                   <span>Update</span>
                 </button>
                 <!-- Test Button -->
-                <button mat-raised-button color="primary" [disabled]="!sender" id="testbutton_id" (click)="test()"
+                <button mat-raised-button color="primary" [disabled]="!sender || isBusy" id="testbutton_id" (click)="test()"
                         button-click-behaviour>
                   <mat-icon>import_export</mat-icon>
                   <span>Test</span>
@@ -103,7 +102,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})"
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" [disabled]="isBusy" (click)="dialogRef.close({})"
           style="margin-top:10px">
     <mat-icon>close</mat-icon>
     <span>Close</span>
