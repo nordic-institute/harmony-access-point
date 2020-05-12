@@ -259,13 +259,14 @@ public class TestService {
     }
 
     protected String getErrorsDetails(String userMessageId) {
+        String result;
         String errorDetails = getErrorsForMessage(userMessageId);
         if (StringUtils.isEmpty(errorDetails)) {
-            errorDetails = "Please call the method again to see the details";
+            result = "Please call the method again to see the details.";
         } else {
-            errorDetails = "Error details are: " + errorDetails;
+            result = "Error details are: " + errorDetails;
         }
-        return errorDetails;
+        return result;
     }
 
     protected String getErrorsForMessage(String userMessageId) {
