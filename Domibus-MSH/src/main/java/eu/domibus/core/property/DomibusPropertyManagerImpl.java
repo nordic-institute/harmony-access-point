@@ -4,6 +4,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.*;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.util.Map;
 
 @Service(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
+
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyManagerImpl.class);
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -88,11 +92,17 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
             throw new DomibusPropertyException("Property " + propertyName + " not found.");
         }
 
+        String oldValue = domibusPropertyProvider.getProperty(domain, propertyName);
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        try {
+            propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        } catch (DomibusPropertyException ex) {
+            LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
+            domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
+        }
     }
 
     private void checkPropertyExists(String propertyName) {
