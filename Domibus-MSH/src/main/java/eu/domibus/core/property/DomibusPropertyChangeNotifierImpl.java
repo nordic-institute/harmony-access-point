@@ -37,7 +37,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         listeners.forEach(listener -> {
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 throw new DomibusPropertyException("Exception executing listener " + listener.getClass().getName() + " for property " + propertyName, ex);
             }
         });
@@ -46,7 +46,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         if (broadcast) {
             try {
                 signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
             }
         }
