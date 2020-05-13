@@ -689,7 +689,7 @@ public class UserMessageDefaultServiceTest {
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            userMessageLogService.setSignalMessageAsDeleted(null);
+            userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
         }};
     }
 
