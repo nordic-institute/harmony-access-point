@@ -123,7 +123,7 @@ public class UserMessageLogDefaultService {
         return true;
     }
 
-    private void setSignalMessageAsDeleted(final String signalMessageId) {
+    protected void setSignalMessageAsDeleted(final String signalMessageId) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
         signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
         uiReplicationSignalService.messageChange(signalMessageLog.getMessageId());
