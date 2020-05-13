@@ -4,7 +4,7 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.property.DomibusPropertyManager;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
@@ -52,8 +52,11 @@ public class CommandServiceImpl implements CommandService {
     @Autowired
     private ServerInfoService serverInfoService;
 
+//    @Autowired
+//    private List<DomibusPropertyManager> domibusPropertyManagers;
+
     @Autowired
-    private List<DomibusPropertyManager> domibusPropertyManagers;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {
@@ -115,18 +118,24 @@ public class CommandServiceImpl implements CommandService {
                 loggingService.setLoggingLevel(name, level);
                 break;
             case Command.DOMIBUS_PROPERTY_CHANGE:
-                final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
+//                final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
-                for (DomibusPropertyManager domibusPropertyManager : domibusPropertyManagers) {
-                    if (domibusPropertyManager.hasKnownProperty(propName)) {
-                        try {
-                            domibusPropertyManager.setProperty(domainCode, propName, propVal, false);
-                        } catch (Exception ex) {
-                            LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domainCode);
-                        }
-                    }
+                try {
+                    // or ConfPropService???
+                    domibusPropertyProvider.setProperty(domain, propName, propVal, false);
+                } catch (Exception ex) {
+                    LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain);
                 }
+//                for (DomibusPropertyManager domibusPropertyManager : domibusPropertyManagers) {
+//                    if (domibusPropertyManager.hasKnownProperty(propName)) {
+//                        try {
+//                            domibusPropertyManager.setProperty(domainCode, propName, propVal, false);
+//                        } catch (Exception ex) {
+//                            LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domainCode);
+//                        }
+//                    }
+//                }
                 break;
             default:
                 LOG.error("Unknown command received: {}", command);
@@ -145,7 +154,7 @@ public class CommandServiceImpl implements CommandService {
     @Override
     @Transactional
     public void executeAndDeleteCommand(Command command, Domain domain) {
-        if(command == null) {
+        if (command == null) {
             LOG.warn("Attempting to execute and delete a null command");
             return;
         }

@@ -18,6 +18,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -53,6 +54,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Lazy
     @Autowired
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
+
+    @Override
+    public Map<String, DomibusPropertyMetadata> getKnownProperties() {
+        return domibusPropertyMetadataManager.getKnownProperties();
+    }
+
+    @Override
+    public boolean hasKnownProperty(String name) {
+        return domibusPropertyMetadataManager.hasKnownProperty(name);
+    }
 
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.

@@ -14,7 +14,7 @@ import java.util.Map;
  * Abstract class that implements DomibusPropertyManager and delegates its methods to DomibusPropertyProvider
  * Used to derive server specific property managers that delegate to Domibus property manager. Ex: TomcatPropertyManager
  */
-public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusPropertyManager {
+public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusPropertyMetadataManager {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -27,53 +27,53 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
 
     public abstract Map<String, DomibusPropertyMetadata> getKnownProperties();
 
-    @Override
-    public String getProperty(String propertyName) {
-        checkPropertyExists(propertyName);
+//    @Override
+//    public String getProperty(String propertyName) {
+//        checkPropertyExists(propertyName);
+//
+//        return domibusPropertyProvider.getProperty(propertyName);
+//    }
 
-        return domibusPropertyProvider.getProperty(propertyName);
-    }
+//    @Override
+//    public String getProperty(String domainCode, String propertyName) {
+//        checkPropertyExists(propertyName);
+//
+//        final Domain domain = domainService.getDomain(domainCode);
+//        return domibusPropertyProvider.getProperty(domain, propertyName);
+//    }
+//
+//    @Override
+//    public void setProperty(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+//        checkPropertyExists(propertyName);
+//
+//        final Domain domain = domainService.getDomain(domainCode);
+//        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, broadcast);
+//    }
+//
+//    @Override
+//    public void setProperty(String propertyName, String propertyValue) {
+//        checkPropertyExists(propertyName);
+//
+//        Domain currentDomain = domainContextService.getCurrentDomainSafely();
+//        domibusPropertyProvider.setProperty(currentDomain, propertyName, propertyValue, false);
+//    }
 
-    @Override
-    public String getProperty(String domainCode, String propertyName) {
-        checkPropertyExists(propertyName);
-
-        final Domain domain = domainService.getDomain(domainCode);
-        return domibusPropertyProvider.getProperty(domain, propertyName);
-    }
-
-    @Override
-    public void setProperty(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        checkPropertyExists(propertyName);
-
-        final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, broadcast);
-    }
-
-    @Override
-    public void setProperty(String propertyName, String propertyValue) {
-        checkPropertyExists(propertyName);
-
-        Domain currentDomain = domainContextService.getCurrentDomainSafely();
-        domibusPropertyProvider.setProperty(currentDomain, propertyName, propertyValue, false);
-    }
-
-    @Override
-    public void setProperty(String domainCode, String propertyName, String propertyValue) {
-        checkPropertyExists(propertyName);
-
-        final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, false);
-    }
+//    @Override
+//    public void setProperty(String domainCode, String propertyName, String propertyValue) {
+//        checkPropertyExists(propertyName);
+//
+//        final Domain domain = domainService.getDomain(domainCode);
+//        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, false);
+//    }
 
     @Override
     public boolean hasKnownProperty(String name) {
         return getKnownProperties().containsKey(name);
     }
 
-    private void checkPropertyExists(String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new DomibusPropertyException("Unknown property: " + propertyName);
-        }
-    }
+//    private void checkPropertyExists(String propertyName) {
+//        if (!hasKnownProperty(propertyName)) {
+//            throw new DomibusPropertyException("Unknown property: " + propertyName);
+//        }
+//    }
 }

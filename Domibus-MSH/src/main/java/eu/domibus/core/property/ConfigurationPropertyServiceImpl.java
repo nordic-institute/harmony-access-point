@@ -44,7 +44,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomibusConfigurationService domibusConfigurationService;
 
     /**
-     * We inject here all property managers: one for each plugin, external module, specific server
+     * We inject here all property managers: one for each plugin, external module
      * and domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
      */
     @Autowired
@@ -75,7 +75,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
             DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
             // validate the property value against the type
-            // We are doing it here since it covers all properties, core and external and server specific
             validatePropertyValue(propMeta, value);
 
             if (isDomain) {

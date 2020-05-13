@@ -7,9 +7,10 @@ import java.util.function.Predicate;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
-public interface DomibusPropertyProvider {
+public interface DomibusPropertyProvider extends DomibusPropertyMetadataManager {
 
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
@@ -36,6 +37,7 @@ public interface DomibusPropertyProvider {
 
     /**
      * Returns all property names for which the given predicate is true
+     *
      * @param predicate the predicate to filter with
      * @return A set of property names
      */
@@ -119,7 +121,6 @@ public interface DomibusPropertyProvider {
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
      * @param broadcast     Specifies if the property change needs to be broadcasted to all nodes in the cluster
-     *
      */
     void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
 }

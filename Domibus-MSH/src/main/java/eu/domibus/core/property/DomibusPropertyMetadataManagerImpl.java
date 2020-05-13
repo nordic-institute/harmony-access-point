@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusPropertyManager;
+//import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.ext.delegate.services.property.DomibusPropertyManagerDelegate;
@@ -395,15 +395,15 @@ public class DomibusPropertyMetadataManagerImpl implements DomibusPropertyMetada
 
     protected void loadInternalProperties() {
         // load manually core/msh/common 'own' properties to avoid  infinite loop
-        loadProperties(this, DomibusPropertyManager.MSH_PROPERTY_MANAGER);
+        loadProperties(this, DomibusPropertyMetadataManager.MSH_PROPERTY_MANAGER);
 
         // server specific properties (and maybe others in the future)
-        String[] propertyManagerNames = applicationContext.getBeanNamesForType(DomibusPropertyManager.class);
+        String[] propertyManagerNames = applicationContext.getBeanNamesForType(DomibusPropertyMetadataManager.class);
         Arrays.asList(propertyManagerNames).stream()
                 //exclude me/this one
-                .filter(el -> !el.equals(DomibusPropertyManager.MSH_PROPERTY_MANAGER))
+                .filter(el -> !el.equals(DomibusPropertyMetadataManager.MSH_PROPERTY_MANAGER))
                 .forEach(managerName -> {
-                    DomibusPropertyManager propertyManager = applicationContext.getBean(managerName, DomibusPropertyManager.class);
+                    DomibusPropertyMetadataManager propertyManager = applicationContext.getBean(managerName, DomibusPropertyMetadataManager.class);
                     loadProperties(propertyManager, managerName);
                 });
     }
