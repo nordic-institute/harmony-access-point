@@ -174,7 +174,7 @@ public class DomibusPropertyManagerImplTest {
         domibusPropertyManager.setProperty(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
 
         new Verifications() {{
-            domibusPropertyProvider.setProperty(domain, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue);
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, false);
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
         }};
     }
@@ -194,7 +194,7 @@ public class DomibusPropertyManagerImplTest {
         domibusPropertyManager.setPropertyValue(domain, DOMIBUS_UI_TITLE_NAME, propValue, true);
 
         new Verifications() {{
-            domibusPropertyProvider.setProperty(domain, DOMIBUS_UI_TITLE_NAME, propValue);
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_UI_TITLE_NAME, propValue, false);
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_UI_TITLE_NAME, propValue, true);
         }};
     }

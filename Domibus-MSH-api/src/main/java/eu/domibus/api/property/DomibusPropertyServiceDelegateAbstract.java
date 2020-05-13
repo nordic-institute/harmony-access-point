@@ -35,7 +35,7 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
     }
 
     @Override
-    public String getProperty(String domainCode, String propertyName){
+    public String getProperty(String domainCode, String propertyName) {
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
@@ -47,7 +47,7 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
@@ -55,7 +55,7 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
         checkPropertyExists(propertyName);
 
         Domain currentDomain = domainContextService.getCurrentDomainSafely();
-        domibusPropertyProvider.setProperty(currentDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(currentDomain, propertyName, propertyValue, false);
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, false);
     }
 
     @Override

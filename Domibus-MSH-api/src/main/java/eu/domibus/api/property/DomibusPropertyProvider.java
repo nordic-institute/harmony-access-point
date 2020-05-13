@@ -105,12 +105,21 @@ public interface DomibusPropertyProvider {
     boolean containsPropertyKey(String propertyName);
 
     /**
+     * Replaces/Sets the current property value in the current domain
+     *
+     * @param propertyName  the property name whose value is set
+     * @param propertyValue the new property value
+     */
+    void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException;
+
+    /**
      * Changes the value of the given property key.
      *
      * @param domain        the domain of the property
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
+     * @param broadcast     Specifies if the property change needs to be broadcasted to all nodes in the cluster
+     *
      */
-    void setProperty(Domain domain, String propertyName, String propertyValue);
-
+    void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
 }

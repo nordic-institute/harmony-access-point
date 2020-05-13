@@ -1,11 +1,8 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.*;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,6 +10,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
@@ -51,6 +49,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     protected ConfigurableEnvironment environment;
+
+    @Lazy
+    @Autowired
+    private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.
@@ -147,12 +149,82 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getBooleanInternal(propertyName, domainValue);
     }
 
+    @Override
+    public Set<String> filterPropertiesName(Predicate<String> predicate) {
+        Set<String> result = new HashSet<>();
+        for (PropertySource propertySource : environment.getPropertySources()) {
+            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
+            result.addAll(propertySourceNames);
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
+        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
+        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
+        if (!domainPropertyKeyFound) {
+            domainPropertyKeyFound = environment.containsProperty(propertyName);
+        }
+        return domainPropertyKeyFound;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsPropertyKey(String propertyName) {
+        return environment.containsProperty(propertyName);
+    }
+
     /**
      * Sets a new property value for the given property, in the given domain.
      * Note: A null domain is used for global and super properties.
      */
     @Override
-    public void setProperty(Domain domain, String propertyName, String propertyValue) {
+    public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+        setPropertyValue(domain, propertyName, propertyValue, broadcast);
+    }
+
+    @Override
+    public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        setProperty(domain, propertyName, propertyValue, false);
+    }
+
+    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+        DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
+        if (propMeta == null) {
+            throw new DomibusPropertyException("Property " + propertyName + " not found.");
+        }
+
+        String oldValue = getProperty(domain, propertyName);
+        doSetPropertyValue(domain, propertyName, propertyValue);
+
+        String domainCode = domain != null ? domain.getCode() : null;
+        boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+        try {
+            propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        } catch (DomibusPropertyException ex) {
+            LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
+            try {
+                // revert to old value
+                doSetPropertyValue(domain, propertyName, oldValue);
+                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
+                // propagate the exception to the client
+                throw ex;
+            } catch (DomibusPropertyException ex2) {
+                LOGGER.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
+                // failed to revert!!! just report the error
+                throw ex2;
+            }
+        }
+    }
+
+    private void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         if (domibusConfigurationService.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
@@ -163,6 +235,24 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         setValueInDomibusPropertySource(propertyKey, propertyValue);
+    }
+
+    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
+        Set<String> filteredPropertyNames = new HashSet<>();
+        if (!(propertySource instanceof EnumerablePropertySource)) {
+            LOGGER.trace("PropertySource [{}] has been skipped", propertySource.getName());
+            return filteredPropertyNames;
+        }
+        LOGGER.trace("Filtering properties from propertySource [{}]", propertySource.getName());
+
+        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
+        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
+            if (predicate.test(propertyName)) {
+                LOGGER.trace("Predicate matched property [{}]", propertyName);
+                filteredPropertyNames.add(propertyName);
+            }
+        }
+        return filteredPropertyNames;
     }
 
     protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
@@ -205,56 +295,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
         return propertyKey;
     }
-
-    @Override
-    public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        Set<String> result = new HashSet<>();
-        for (PropertySource propertySource : environment.getPropertySources()) {
-            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
-            result.addAll(propertySourceNames);
-        }
-        return result;
-    }
-
-    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
-        Set<String> filteredPropertyNames = new HashSet<>();
-        if (!(propertySource instanceof EnumerablePropertySource)) {
-            LOGGER.trace("PropertySource [{}] has been skipped", propertySource.getName());
-            return filteredPropertyNames;
-        }
-        LOGGER.trace("Filtering properties from propertySource [{}]", propertySource.getName());
-
-        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
-        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
-            if (predicate.test(propertyName)) {
-                LOGGER.trace("Predicate matched property [{}]", propertyName);
-                filteredPropertyNames.add(propertyName);
-            }
-        }
-        return filteredPropertyNames;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
-        if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = environment.containsProperty(propertyName);
-        }
-        return domainPropertyKeyFound;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsPropertyKey(String propertyName) {
-        return environment.containsProperty(propertyName);
-    }
-
 
     /**
      * Get the value from the system environment properties;

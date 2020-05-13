@@ -353,7 +353,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
@@ -374,7 +374,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusPropertyProvider.setValueInDomibusPropertySource(domain.getCode() + "." + propertyName, propertyValue);
@@ -393,7 +393,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = prop;
         }};
 
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
@@ -414,7 +414,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusPropertyProvider.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
@@ -435,7 +435,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
         }};
 
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
@@ -454,7 +454,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = prop;
         }};
 
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue,false);
 
         new Verifications() {{
             domibusProperties.setProperty(propertyName, propertyValue);
