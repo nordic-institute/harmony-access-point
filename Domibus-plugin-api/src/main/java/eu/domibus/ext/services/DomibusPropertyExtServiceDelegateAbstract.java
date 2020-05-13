@@ -62,4 +62,14 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     public boolean hasKnownProperty(String name) {
         return getKnownProperties().containsKey(name);
     }
+
+    @Override
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
+        return getKnownPropertyValue(propertyName);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
 }
