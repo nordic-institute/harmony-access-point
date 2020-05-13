@@ -8,6 +8,7 @@ import eu.domibus.core.property.listeners.ConcurrencyChangeListener;
 import eu.domibus.core.property.listeners.CronExpressionChangeListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -78,10 +79,11 @@ public class DomibusPropertyChangeNotifierImplTest {
             blacklistChangeListener.handlesProperty(propertyName);
             result = true;
             blacklistChangeListener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            result = new Throwable("");
+            result = new Exception("");
         }};
 
         domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
+        Assert.fail();
 
         new Verifications() {{
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
@@ -102,10 +104,11 @@ public class DomibusPropertyChangeNotifierImplTest {
             blacklistChangeListener.handlesProperty(propertyName);
             result = true;
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
-            result = new Throwable("");
+            result = new Exception("");
         }};
 
         domibusPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
+        Assert.fail();
 
         new Verifications() {{
             blacklistChangeListener.handlesProperty(propertyName);
