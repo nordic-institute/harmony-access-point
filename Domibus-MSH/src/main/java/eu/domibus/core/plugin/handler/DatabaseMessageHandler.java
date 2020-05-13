@@ -11,12 +11,10 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
@@ -25,10 +23,12 @@ import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
@@ -50,7 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -163,13 +162,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
             // Sets the log status to deleted also for the signal messages (if present).
-
-            SignalMessage signalMessage = messaging.getSignalMessage();
-            if (signalMessage != null) {
-                String signalMessageId = signalMessage.getMessageInfo().getMessageId();
-                userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
-                LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
-            }
+            userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
         } else {
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
