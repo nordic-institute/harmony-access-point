@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
