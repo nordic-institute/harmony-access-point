@@ -5,23 +5,22 @@ import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +32,14 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.NoResultException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -154,8 +157,8 @@ public class TestService {
         }
 
         if (result.getTimeReceived() == null) {
-            Map<ErrorCode, String> errorMap = getErrorsForMessage(result.getMessageId());
-            throw new TestServiceException("No User Message found. Error Details in error log [" + errorMap + "]");
+            String errorDetails = getErrorsDetails(result.getMessageId());
+            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
         }
 
         return result;
@@ -211,14 +214,8 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
-            String errorCode = StringUtils.EMPTY;
-            String errorDetails = StringUtils.EMPTY;
-            Map<ErrorCode, String> errorMap = getErrorsForMessage(userMessageId);
-            for (Map.Entry<ErrorCode, String> entry : errorMap.entrySet()) {
-                errorCode = entry.getKey().getErrorCodeName();
-                errorDetails = entry.getValue();
-            }
-            throw new TestServiceException("No Signal Message found. Error Details in error log  [" + errorCode + " - " + errorDetails + "]");
+            String errorDetails = getErrorsDetails(userMessageId);
+            throw new TestServiceException("No Signal Message found." + errorDetails);
         }
 
         return result;
@@ -262,14 +259,23 @@ public class TestService {
         return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
-    protected Map<ErrorCode, String> getErrorsForMessage(String userMessageId) {
-        Map<ErrorCode, String> errorMap = new HashMap<ErrorCode, String>();
-
-        List<ErrorLogEntry> errorLogEntries = errorLogDao.getErrorsForMessage(userMessageId);
-        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
-            errorMap.put(errorLogEntry.getErrorCode(), errorLogEntry.getErrorDetail());
+    protected String getErrorsDetails(String userMessageId) {
+        String result;
+        String errorDetails = getErrorsForMessage(userMessageId);
+        if (StringUtils.isEmpty(errorDetails)) {
+            result = "Please call the method again to see the details.";
+        } else {
+            result = "Error details are: " + errorDetails;
         }
-        return errorMap;
+        return result;
+    }
+
+    protected String getErrorsForMessage(String userMessageId) {
+        List<ErrorLogEntry> errorLogEntries = errorLogDao.getErrorsForMessage(userMessageId);
+        String errors = errorLogEntries.stream()
+                .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
+                .collect(Collectors.joining(", "));
+        return errors;
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
