@@ -1,9 +1,8 @@
 package domibus.ui.rest;
 
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import ddsl.enums.DRoles;
+import rest.utilPojo.Param;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -28,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RestTest extends BaseTest {
 
@@ -108,6 +109,31 @@ public class RestTest extends BaseTest {
 
 		for (int i = 0; i < records.size(); i++) {
 			toRet[i][0] = records.get(i).toMap();
+		}
+
+		return toRet;
+	}
+
+
+	protected Object[][] readCSVMultiValued(String filename) throws IOException {
+		List<String> csvLines;
+		try (Stream<String> lines = Files.lines(Paths.get(filename))) {
+			csvLines = lines.collect(Collectors.toList());
+		}
+
+		Object[][] toRet = new Object[csvLines.size()-1][1];
+
+		String[] headers = csvLines.get(0).split("\\t");
+
+		for (int i = 1; i < csvLines.size(); i++) {
+			ArrayList<Param> listOfParams = new ArrayList<>();
+			String[] values = csvLines.get(i).split("\\t");
+			for (int j = 0; j < values.length; j++) {
+				String value = values[j].trim();
+				String header = headers[j].trim();
+				listOfParams.add(new Param(header, value));
+			}
+			toRet[i-1][0] = listOfParams;
 		}
 
 		return toRet;

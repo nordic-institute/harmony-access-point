@@ -12,11 +12,14 @@ import com.sun.jersey.multipart.MultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 import com.sun.jersey.multipart.file.StreamDataBodyPart;
 import com.sun.jersey.multipart.impl.MultiPartWriter;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.xmlbeans.impl.tool.Extension;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Entity;
+import rest.utilPojo.Param;
 import utils.TestRunData;
 
 import javax.ws.rs.core.Cookie;
@@ -26,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +42,8 @@ public class BaseRestClient {
 	protected Client client = Client.create();
 	public WebResource resource = client.resource(data.getUiBaseUrl());
 
-	protected List<NewCookie> cookies;
-	protected String token;
+	protected static List<NewCookie> cookies;
+	protected static String token;
 
 	//	---------------------------------------Default request methods -------------------------------------------------
 	public ClientResponse requestGET(WebResource resource, HashMap<String, String> params) {
@@ -50,6 +54,22 @@ public class BaseRestClient {
 
 		if (params != null) {
 			for (Map.Entry<String, String> param : params.entrySet()) {
+				resource = resource.queryParam(param.getKey(), param.getValue());
+			}
+		}
+
+		WebResource.Builder builder = decorateBuilder(resource);
+		return builder.get(ClientResponse.class);
+	}
+
+	public ClientResponse multivalueGET(WebResource resource, ArrayList<Param> params) {
+
+		if (!isLoggedIn()) {
+			refreshCookies();
+		}
+
+		if (params != null) {
+			for (Param param : params) {
 				resource = resource.queryParam(param.getKey(), param.getValue());
 			}
 		}
@@ -239,8 +259,6 @@ public class BaseRestClient {
 
 		return (response.getStatus() == 200);
 	}
-
-
 
 
 }

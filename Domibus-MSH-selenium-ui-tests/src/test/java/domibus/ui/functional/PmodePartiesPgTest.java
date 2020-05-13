@@ -723,7 +723,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 	private boolean isPartyPresentInConMon(String partyName) throws Exception{
 		log.info("Searching for party with name" + partyName);
-		JSONArray parties = rest.connMonitor().getConnectionMonitoringParties();
+		JSONArray parties = rest.connMonitor().getConnectionMonitoringParties(null);
 
 		for (int i = 0; i < parties.length(); i++) {
 			JSONObject party = parties.getJSONObject(i);

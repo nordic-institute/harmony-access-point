@@ -33,7 +33,7 @@ public class RestServicePaths {
 
 
 	public static final String CON_MON_PARTIES = "/rest/testservice/parties";
-
+	public static final String CON_MON_PARTIES_DETAILS = "/rest/testservice/connectionmonitor";
 
 	public static final String MESSAGE_LOG_CSV = "/rest/messagelog/csv";
 	public static final String MESSAGE_LOG_MESSAGE = "/rest/message/download";
@@ -57,6 +57,10 @@ public class RestServicePaths {
 	public static final String ERRORS ="/rest/errorlogs";
 	public static final String AUDIT_COUNT ="rest/audit/count";
 	public static final String AUDIT_LIST ="rest/audit/list";
+
+	public static final String ALERTS_LIST ="/rest/alerts";
+
+	public static final String LOGGING ="/rest/logging/loglevel";
 
 
 }

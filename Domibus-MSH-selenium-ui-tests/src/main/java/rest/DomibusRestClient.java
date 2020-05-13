@@ -169,6 +169,17 @@ public class DomibusRestClient extends BaseRestClient{
 		return new ConnectionMonitoringClient();
 	}
 
+	public AlertsRestClient alerts() {
+		return new AlertsRestClient();
+	}
+
+	public LoggingClient logging() {
+ 		return new LoggingClient();
+	}
+
+
+
+
 	public String getUsername(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) {
 		return getUser(domainCode, role, active, deleted, forceNew).getString("userName");
 	}
