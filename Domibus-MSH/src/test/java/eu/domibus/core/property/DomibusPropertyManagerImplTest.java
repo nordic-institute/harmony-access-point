@@ -1,13 +1,9 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyChangeNotifier;
-import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -125,7 +121,7 @@ public class DomibusPropertyManagerImplTest {
             domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
             result = true;
 
-            domibusPropertyProvider.getProperty((Domain)any, meta.getName());
+            domibusPropertyProvider.getProperty((Domain) any, meta.getName());
             result = propValue;
         }};
 
@@ -143,7 +139,7 @@ public class DomibusPropertyManagerImplTest {
             domibusPropertyMetadataManager.hasKnownProperty(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
             result = true;
 
-            domibusPropertyProvider.getProperty((Domain)any, meta.getName());
+            domibusPropertyProvider.getProperty((Domain) any, meta.getName());
             result = propValue;
         }};
 
@@ -180,6 +176,26 @@ public class DomibusPropertyManagerImplTest {
         new Verifications() {{
             domibusPropertyProvider.setPropertyValue(domain, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue);
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void setPropertyValue_error() {
+        String propValue = "prop_value";
+        new Expectations() {{
+            domibusPropertyMetadataManager.getKnownProperties();
+            result = props;
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_UI_TITLE_NAME);
+            result = propValue;
+            propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_UI_TITLE_NAME, propValue, true);
+            result = new DomibusPropertyException("Property change listener error");
+        }};
+
+        domibusPropertyManager.setPropertyValue(domain, DOMIBUS_UI_TITLE_NAME, propValue, true);
+
+        new Verifications() {{
+            domibusPropertyProvider.setPropertyValue(domain, DOMIBUS_UI_TITLE_NAME, propValue);
+            propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_UI_TITLE_NAME, propValue, true);
         }};
     }
 }
