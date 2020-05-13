@@ -19,7 +19,6 @@ public interface DomibusPropertyProvider {
      */
     String getProperty(String propertyName);
 
-
     /**
      * Look for a property in the provided domain configuration file. If the property is not found, it will search for the property in
      * the following locations and in the respective order:
@@ -112,6 +111,6 @@ public interface DomibusPropertyProvider {
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
      */
-    void setPropertyValue(Domain domain, String propertyName, String propertyValue);
+    void setProperty(Domain domain, String propertyName, String propertyValue);
 
 }

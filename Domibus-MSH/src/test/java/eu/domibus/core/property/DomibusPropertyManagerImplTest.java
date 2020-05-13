@@ -91,7 +91,7 @@ public class DomibusPropertyManagerImplTest {
             result = false;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue("nonExistingPropName");
+        String actual = domibusPropertyManager.getProperty("nonExistingPropName");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class DomibusPropertyManagerImplTest {
             result = propValue;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue(DOMIBUS_ALERT_SENDER_SMTP_PORT);
+        String actual = domibusPropertyManager.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT);
 
         Assert.assertEquals(propValue, actual);
     }
@@ -125,7 +125,7 @@ public class DomibusPropertyManagerImplTest {
             result = propValue;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue(domainCode, DOMIBUS_UI_TITLE_NAME);
+        String actual = domibusPropertyManager.getProperty(domainCode, DOMIBUS_UI_TITLE_NAME);
 
         Assert.assertEquals(propValue, actual);
     }
@@ -143,7 +143,7 @@ public class DomibusPropertyManagerImplTest {
             result = propValue;
         }};
 
-        String actual = domibusPropertyManager.getKnownPropertyValue(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
+        String actual = domibusPropertyManager.getProperty(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
 
         Assert.assertEquals(propValue, actual);
     }
@@ -156,7 +156,7 @@ public class DomibusPropertyManagerImplTest {
             result = props;
         }};
 
-        domibusPropertyManager.setKnownPropertyValue(domainCode, "nonExistingPropertyName", "val1", true);
+        domibusPropertyManager.setProperty(domainCode, "nonExistingPropertyName", "val1", true);
     }
 
     @Test
@@ -171,10 +171,10 @@ public class DomibusPropertyManagerImplTest {
             result = domain;
         }};
 
-        domibusPropertyManager.setKnownPropertyValue(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
+        domibusPropertyManager.setProperty(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
 
         new Verifications() {{
-            domibusPropertyProvider.setPropertyValue(domain, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue);
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue);
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, propValue, true);
         }};
     }
@@ -194,7 +194,7 @@ public class DomibusPropertyManagerImplTest {
         domibusPropertyManager.setPropertyValue(domain, DOMIBUS_UI_TITLE_NAME, propValue, true);
 
         new Verifications() {{
-            domibusPropertyProvider.setPropertyValue(domain, DOMIBUS_UI_TITLE_NAME, propValue);
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_UI_TITLE_NAME, propValue);
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, DOMIBUS_UI_TITLE_NAME, propValue, true);
         }};
     }

@@ -28,14 +28,14 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
     public abstract Map<String, DomibusPropertyMetadata> getKnownProperties();
 
     @Override
-    public String getKnownPropertyValue(String propertyName) {
+    public String getProperty(String propertyName) {
         checkPropertyExists(propertyName);
 
         return domibusPropertyProvider.getProperty(propertyName);
     }
 
     @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName){
+    public String getProperty(String domainCode, String propertyName){
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
@@ -43,27 +43,27 @@ public abstract class DomibusPropertyServiceDelegateAbstract implements DomibusP
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void setProperty(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
     }
 
     @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+    public void setProperty(String propertyName, String propertyValue) {
         checkPropertyExists(propertyName);
 
         Domain currentDomain = domainContextService.getCurrentDomainSafely();
-        domibusPropertyProvider.setPropertyValue(currentDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(currentDomain, propertyName, propertyValue);
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setProperty(String domainCode, String propertyName, String propertyValue) {
         checkPropertyExists(propertyName);
 
         final Domain domain = domainService.getDomain(domainCode);
-        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
     }
 
     @Override

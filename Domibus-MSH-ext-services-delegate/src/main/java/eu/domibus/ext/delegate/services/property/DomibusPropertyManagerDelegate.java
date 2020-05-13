@@ -38,17 +38,17 @@ public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
-        return domibusPropertyManager.getKnownPropertyValue(propertyName);
+        return domibusPropertyManager.getProperty(propertyName);
     }
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        domibusPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue, broadcast);
+        domibusPropertyManager.setProperty(domainCode, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
-        domibusPropertyManager.setKnownPropertyValue(propertyName, propertyValue);
+        domibusPropertyManager.setProperty(propertyName, propertyValue);
     }
 
     @Override

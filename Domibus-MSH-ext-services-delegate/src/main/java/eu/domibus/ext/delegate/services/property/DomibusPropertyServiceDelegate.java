@@ -55,7 +55,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
         final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
-        domibusPropertyProvider.setPropertyValue(domibusDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         DomainDTO currentDomain = domainContextService.getCurrentDomainSafely();
         Domain domibusDomain = domainConverter.convert(currentDomain, Domain.class);
 
-        domibusPropertyProvider.setPropertyValue(domibusDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override

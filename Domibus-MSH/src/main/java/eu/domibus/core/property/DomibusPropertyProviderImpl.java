@@ -152,7 +152,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * Note: A null domain is used for global and super properties.
      */
     @Override
-    public void setPropertyValue(Domain domain, String propertyName, String propertyValue) {
+    public void setProperty(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         if (domibusConfigurationService.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)

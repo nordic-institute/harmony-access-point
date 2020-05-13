@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -122,7 +121,7 @@ public class CommandServiceImpl implements CommandService {
                 for (DomibusPropertyManager domibusPropertyManager : domibusPropertyManagers) {
                     if (domibusPropertyManager.hasKnownProperty(propName)) {
                         try {
-                            domibusPropertyManager.setKnownPropertyValue(domainCode, propName, propVal, false);
+                            domibusPropertyManager.setProperty(domainCode, propName, propVal, false);
                         } catch (Exception ex) {
                             LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domainCode);
                         }

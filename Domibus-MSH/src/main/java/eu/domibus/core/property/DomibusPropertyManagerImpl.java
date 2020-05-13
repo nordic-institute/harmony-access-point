@@ -55,7 +55,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
+    public String getProperty(String domainCode, String propertyName) {
         checkPropertyExists(propertyName);
 
         Domain domain = domainCode == null ? null : domainService.getDomain(domainCode);
@@ -63,25 +63,25 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public String getKnownPropertyValue(String propertyName) {
+    public String getProperty(String propertyName) {
         checkPropertyExists(propertyName);
 
         return domibusPropertyProvider.getProperty(propertyName);
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+    public void setProperty(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Domain domain = domainCode != null ? domainService.getDomain(domainCode) : null;
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    public void setProperty(String domainCode, String propertyName, String propertyValue) {
+        setProperty(domainCode, propertyName, propertyValue, true);
     }
 
     @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) throws DomibusPropertyException {
+    public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
@@ -93,7 +93,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
         }
 
         String oldValue = domibusPropertyProvider.getProperty(domain, propertyName);
-        domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
 
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
@@ -103,7 +103,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
             LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
             try {
                 // revert to old value
-                domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
+                domibusPropertyProvider.setProperty(domain, propertyName, oldValue);
                 propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
                 // propagate the exception to the client
                 throw ex;
