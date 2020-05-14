@@ -96,4 +96,5 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
         LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, prefix);
         return firstLevelProperties;
     }
+
 }
