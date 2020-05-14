@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -9,6 +10,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -56,6 +58,9 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    @Autowired
+    ClassUtil classUtil;
+
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> allProperties = new ArrayList<>();
 
@@ -80,7 +85,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
-                propertyManager.setKnownPropertyValue(name, value);
+                setPropertyValue(propertyManager, name, value);
+//                propertyManager.setKnownPropertyValue(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
                     throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
@@ -88,11 +94,23 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
                     LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
-                    propertyManager.setKnownPropertyValue(name, value);
+                    setPropertyValue(propertyManager, name, value);
+//                    propertyManager.setKnownPropertyValue(name, value);
                 });
             }
         } catch (IllegalArgumentException ex) {
             LOG.error("Could not set property [{}].", name, ex);
+        }
+    }
+
+    private void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
+        if (isNewMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
+            LOG.info("Calling setKnownPropertyValue method");
+            propertyManager.setKnownPropertyValue(name, value);
+        } else {
+            LOG.info("Calling deprecated setKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
         }
     }
 
@@ -132,7 +150,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadataDTO p : knownProps) {
-            String value = propertyManager.getKnownPropertyValue(p.getName());
+            String propertyName = p.getName();
+            String value = getPropertyValue(propertyManager, propertyName);
             DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
             DomibusProperty prop = new DomibusProperty();
@@ -143,6 +162,37 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
 
         return list;
+    }
+
+    private String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
+        String value;
+        if (isNewMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
+            LOG.info("Calling getKnownPropertyValue method");
+            value = propertyManager.getKnownPropertyValue(propertyName);
+        } else {
+            LOG.info("Calling deprecated getKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+        }
+        return value;
+    }
+
+    private boolean isNewMethodDefined(DomibusPropertyManagerExt target, String methodName, Class[] paramTyes) {
+        final Class<?> clazz;
+        try {
+            clazz = classUtil.getTargetObjectClass(target);
+        } catch (ClassNotFoundException e) {
+            LOG.warn("Could not determine which variant of " + methodName + " method should be called. The deprecated method will be called.");
+            return false;
+        }
+        try {
+            clazz.getDeclaredMethod(methodName, paramTyes);
+        } catch (NoSuchMethodException e) {
+            LOG.debug("New " + methodName + " is not defined.");
+            return false;
+        }
+
+        return true;
     }
 
     private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
