@@ -33,11 +33,11 @@ public class BusinessProcessValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses()
-                .forEach(process -> performValidations(issues, process, pMode));
+                .forEach(process -> performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes()));
         return issues;
     }
 
-    protected void performValidations(List<ValidationIssue> issues, Process process, Configuration pMode) {
+    protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         //agreement
         if (process.getAgreement() == null) {
             String name = pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
@@ -71,8 +71,6 @@ public class BusinessProcessValidator implements PModeValidator {
             createIssue(issues, process, name, "Responder role [%s] of process [%s] not found in business process roles.");
         }
 
-
-        Set<PartyIdType> partyIdTypes= pMode.getBusinessProcesses().getPartyIdTypes();
         //initiator Parties
         Set<Party> validInitiatorParties = process.getInitiatorParties();
         InitiatorParties initiatorPartiesXml = process.getInitiatorPartiesXml();
