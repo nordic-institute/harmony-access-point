@@ -174,7 +174,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         String value;
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.info("Calling getKnownPropertyValue method");
+            LOG.debug("Calling getKnownPropertyValue method");
             value = propertyManager.getKnownPropertyValue(propertyName);
         } else {
             LOG.info("Calling deprecated getKnownPropertyValue method");
@@ -186,7 +186,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
         if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOG.info("Calling setKnownPropertyValue method");
+            LOG.debug("Calling setKnownPropertyValue method");
             propertyManager.setKnownPropertyValue(name, value);
         } else {
             LOG.info("Calling deprecated setKnownPropertyValue method");
