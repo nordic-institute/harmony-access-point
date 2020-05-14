@@ -103,17 +103,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
     }
 
-    private void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-        if (isNewMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOG.info("Calling setKnownPropertyValue method");
-            propertyManager.setKnownPropertyValue(name, value);
-        } else {
-            LOG.info("Calling deprecated setKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
-        }
-    }
-
     protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
         Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
                 .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
@@ -164,37 +153,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return list;
     }
 
-    private String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
-        String value;
-        if (isNewMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.info("Calling getKnownPropertyValue method");
-            value = propertyManager.getKnownPropertyValue(propertyName);
-        } else {
-            LOG.info("Calling deprecated getKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
-        }
-        return value;
-    }
-
-    private boolean isNewMethodDefined(DomibusPropertyManagerExt target, String methodName, Class[] paramTyes) {
-        final Class<?> clazz;
-        try {
-            clazz = classUtil.getTargetObjectClass(target);
-        } catch (ClassNotFoundException e) {
-            LOG.warn("Could not determine which variant of " + methodName + " method should be called. The deprecated method will be called.");
-            return false;
-        }
-        try {
-            clazz.getDeclaredMethod(methodName, paramTyes);
-        } catch (NoSuchMethodException e) {
-            LOG.debug("New " + methodName + " is not defined.");
-            return false;
-        }
-
-        return true;
-    }
-
     private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
         List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
                 .filter(p -> p.isWritable())
@@ -215,4 +173,45 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return knownProps;
     }
 
+    protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
+        String value;
+        if (isNewMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
+            LOG.info("Calling getKnownPropertyValue method");
+            value = propertyManager.getKnownPropertyValue(propertyName);
+        } else {
+            LOG.info("Calling deprecated getKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+        }
+        return value;
+    }
+
+    protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
+        if (isNewMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
+            LOG.info("Calling setKnownPropertyValue method");
+            propertyManager.setKnownPropertyValue(name, value);
+        } else {
+            LOG.info("Calling deprecated setKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
+        }
+    }
+
+    protected boolean isNewMethodDefined(DomibusPropertyManagerExt target, String methodName, Class[] paramTyes) {
+        final Class<?> clazz;
+        try {
+            clazz = classUtil.getTargetObjectClass(target);
+        } catch (ClassNotFoundException e) {
+            LOG.warn("Could not determine which variant of " + methodName + " method should be called. The deprecated method will be called.");
+            return false;
+        }
+        try {
+            clazz.getDeclaredMethod(methodName, paramTyes);
+        } catch (NoSuchMethodException e) {
+            LOG.debug("New " + methodName + " is not defined.");
+            return false;
+        }
+
+        return true;
+    }
 }
