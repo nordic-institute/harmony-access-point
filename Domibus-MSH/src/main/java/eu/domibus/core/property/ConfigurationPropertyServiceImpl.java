@@ -177,7 +177,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             LOG.debug("Calling getKnownPropertyValue method");
             value = propertyManager.getKnownPropertyValue(propertyName);
         } else {
-            LOG.info("Calling deprecated getKnownPropertyValue method");
+            LOG.debug("Calling deprecated getKnownPropertyValue method");
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
         }
@@ -189,7 +189,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             LOG.debug("Calling setKnownPropertyValue method");
             propertyManager.setKnownPropertyValue(name, value);
         } else {
-            LOG.info("Calling deprecated setKnownPropertyValue method");
+            LOG.debug("Calling deprecated setKnownPropertyValue method");
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
         }
