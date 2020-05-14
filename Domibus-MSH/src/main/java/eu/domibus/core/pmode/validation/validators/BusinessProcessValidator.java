@@ -33,12 +33,11 @@ public class BusinessProcessValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses()
-                .forEach(process -> performValidations(issues, process));
-
+                .forEach(process -> performValidations(issues, process, pMode));
         return issues;
     }
 
-    private void performValidations(List<ValidationIssue> issues, Process process) {
+    protected void performValidations(List<ValidationIssue> issues, Process process, Configuration pMode) {
         //agreement
         if (process.getAgreement() == null) {
             String name = pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
@@ -72,6 +71,8 @@ public class BusinessProcessValidator implements PModeValidator {
             createIssue(issues, process, name, "Responder role [%s] of process [%s] not found in business process roles.");
         }
 
+
+        Set<PartyIdType> partyIdTypes= pMode.getBusinessProcesses().getPartyIdTypes();
         //initiator Parties
         Set<Party> validInitiatorParties = process.getInitiatorParties();
         InitiatorParties initiatorPartiesXml = process.getInitiatorPartiesXml();
@@ -83,6 +84,15 @@ public class BusinessProcessValidator implements PModeValidator {
                         .forEach(party -> {
                             createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties");
                         });
+            }
+            if (!CollectionUtils.isEmpty(validInitiatorParties)) {
+                validInitiatorParties.forEach(e -> {
+                    e.getIdentifiers().forEach(f -> {
+                        if (!partyIdTypes.contains(f.getPartyIdType())) {
+                            createIssue(issues, process, e.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                        }
+                    });
+                });
             }
         }
 
@@ -97,6 +107,15 @@ public class BusinessProcessValidator implements PModeValidator {
                         .forEach(party -> {
                             createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties");
                         });
+            }
+            if (!CollectionUtils.isEmpty(validResponderParties)) {
+                validResponderParties.forEach(e -> {
+                    e.getIdentifiers().forEach(f -> {
+                        if (!partyIdTypes.contains(f.getPartyIdType())) {
+                            createIssue(issues, process, e.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                        }
+                    });
+                });
             }
         }
 
