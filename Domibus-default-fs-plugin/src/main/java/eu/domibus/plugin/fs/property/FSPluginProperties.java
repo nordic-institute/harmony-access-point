@@ -420,7 +420,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return this.getKnownProperties().containsKey(name);
     }
 
-    protected String getKnownPropertyValue(String domainCode, String propertyName) {
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
@@ -469,7 +469,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
-    protected void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
