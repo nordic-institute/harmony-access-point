@@ -37,10 +37,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.common.MessageStatus.*;
 
@@ -263,7 +260,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         String fileName = fsPayload.getFileName();
 
         //contentId file name - if the parsing of the received fileName fails we will return this
-        final String fileNameContentId = contentId.replaceFirst("cid:", StringUtils.EMPTY) + getFileNameExtension(fsPayload.getMimeType());
+        final String fileNameContentId = getFileNameContentIdBase(contentId) + getFileNameExtension(fsPayload.getMimeType());
 
         //received payloadName is empty, returning the content Id based one
         if (StringUtils.isBlank(fileName)) {
@@ -291,6 +288,13 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
         LOG.debug("returned fileName=[{}]", fileName);
         return fileName;
+    }
+
+    protected String getFileNameContentIdBase(String contentId) {
+        if(StringUtils.isBlank(contentId)){
+            return UUID.randomUUID().toString();
+        }
+        return contentId.replaceFirst("cid:", StringUtils.EMPTY);
     }
 
     protected String getFileNameExtension(String mimeType) {
