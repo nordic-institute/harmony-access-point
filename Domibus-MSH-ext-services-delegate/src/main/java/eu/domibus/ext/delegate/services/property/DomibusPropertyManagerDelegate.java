@@ -10,6 +10,7 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,14 +20,14 @@ import java.util.Map;
  * Delegate/adapter class that wraps the DomibusPropertyManager and exposes the DomibusPropertyManagerExt
  * Injected in ConfigurationPropertyServiceImpl to handle in a polymorphic way plugin and domibus property management
  */
-@Service(DomibusPropertyManagerDelegate.MSH_DELEGATE)
+@Service //(DomibusPropertyManagerDelegate.MSH_DELEGATE)
 public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt {
 
-    public static final String MSH_DELEGATE = "mshDelegate";
+//    public static final String MSH_DELEGATE = "mshDelegate";
 
 //    @Autowired
 //    @Qualifier(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
-//    private DomibusPropertyManager domibusPropertyManager;
+//    private DomibusPropertyProvider domibusPropertyManager;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -39,7 +40,7 @@ public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        Map<String, DomibusPropertyMetadata> res = domibusPropertyProvider.getKnownProperties();
+        Map<String, DomibusPropertyMetadata> res = new HashMap<>(); // domibusPropertyProvider.getKnownProperties();
         return domainConverter.convert(res, DomibusPropertyMetadataDTO.class);
     }
 
@@ -56,12 +57,14 @@ public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return domibusPropertyManager.getKnownPropertyValue(domainCode, propertyName);
+        final Domain domain = domainService.getDomain(domainCode);
+        return domibusPropertyProvider.getProperty(domain, propertyName);
     }
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        domibusPropertyManager.setKnownPropertyValue(domainCode, propertyName, propertyValue);
+        final Domain domain = domainService.getDomain(domainCode);
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, false);
     }
 
     @Override
@@ -71,6 +74,6 @@ public class DomibusPropertyManagerDelegate implements DomibusPropertyManagerExt
 
     @Override
     public boolean hasKnownProperty(String name) {
-        return domibusPropertyProvider.hasKnownProperty(name);
+        return getKnownProperties().containsKey(name);
     }
 }

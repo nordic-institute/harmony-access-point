@@ -47,7 +47,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     /**
      * We inject here all property managers: one for each plugin, external module
-     * and domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
      */
     @Autowired
     private List<DomibusPropertyManagerExt> propertyManagers;
@@ -195,5 +194,5 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
         }
     }
-    
+
 }

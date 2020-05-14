@@ -10,7 +10,7 @@ import java.util.function.Predicate;
  * @author Ion Perpegel
  * @since 4.0
  */
-public interface DomibusPropertyProvider extends DomibusPropertyMetadataManager {
+public interface DomibusPropertyProvider {
 
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
