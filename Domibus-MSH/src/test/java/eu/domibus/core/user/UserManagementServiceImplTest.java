@@ -1,16 +1,15 @@
 package eu.domibus.core.user;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.ui.*;
 import eu.domibus.core.user.ui.converters.UserConverter;
-import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
@@ -75,20 +74,21 @@ public class UserManagementServiceImplTest {
         List<User> userEntities = Arrays.asList(userEntity);
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
         List<eu.domibus.api.user.User> users = Arrays.asList(user);
+        String domainCode = "default";
 
         new Expectations() {{
             userDao.listUsers();
             result = userEntities;
             userConverter.convert(userEntities);
             result = users;
-            domainContextProvider.getCurrentDomainSafely();
-            result = new Domain("d1", "D1");
+            userDomainService.getDomainForUser(user.getUserName());
+            result = domainCode;
         }};
 
         List<eu.domibus.api.user.User> result = userManagementService.findUsers();
 
         Assert.assertEquals(users, result);
-        Assert.assertEquals("d1", result.get(0).getDomain());
+        Assert.assertEquals(domainCode, result.get(0).getDomain());
     }
 
     @Test
