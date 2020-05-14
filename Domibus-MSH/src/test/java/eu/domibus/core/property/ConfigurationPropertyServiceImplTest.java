@@ -118,7 +118,7 @@ public class ConfigurationPropertyServiceImplTest {
             domainConverter.convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME), DomibusPropertyMetadata.class);
             result = convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME));
 
-            configurationPropertyService.isNewMethodDefined((DomibusPropertyManagerExt) any, "getKnownPropertyValue", new Class[]{String.class});
+            classUtil.isMethodDefined((DomibusPropertyManagerExt) any, "getKnownPropertyValue", new Class[]{String.class});
             result = true;
         }};
 
@@ -138,7 +138,7 @@ public class ConfigurationPropertyServiceImplTest {
             result = propertyManager1;
             propertyManager1.getKnownProperties();
             result = props1;
-            configurationPropertyService.isNewMethodDefined((DomibusPropertyManagerExt) any, "setKnownPropertyValue", new Class[]{String.class, String.class});
+            classUtil.isMethodDefined((DomibusPropertyManagerExt) any, "setKnownPropertyValue", new Class[]{String.class, String.class});
             result = true;
         }};
 
@@ -219,7 +219,7 @@ public class ConfigurationPropertyServiceImplTest {
     public void getPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
         String propertyName = "prop1";
         new Expectations(configurationPropertyService) {{
-            configurationPropertyService.isNewMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
+            classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
             returns(true, false);
         }};
 
@@ -240,7 +240,7 @@ public class ConfigurationPropertyServiceImplTest {
         String propertyName = "prop1";
         String proertyValue = "propVal1";
         new Expectations(configurationPropertyService) {{
-            configurationPropertyService.isNewMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
+            classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
             returns(true, false);
         }};
 

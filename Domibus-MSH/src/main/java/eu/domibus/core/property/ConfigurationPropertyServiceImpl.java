@@ -86,7 +86,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
                 setPropertyValue(propertyManager, name, value);
-//                propertyManager.setKnownPropertyValue(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
                     throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
@@ -95,7 +94,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 domainTaskExecutor.submit(() -> {
                     LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
                     setPropertyValue(propertyManager, name, value);
-//                    propertyManager.setKnownPropertyValue(name, value);
                 });
             }
         } catch (IllegalArgumentException ex) {
@@ -175,7 +173,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         String value;
-        if (isNewMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
+        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
             LOG.info("Calling getKnownPropertyValue method");
             value = propertyManager.getKnownPropertyValue(propertyName);
         } else {
@@ -187,7 +185,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-        if (isNewMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
+        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
             LOG.info("Calling setKnownPropertyValue method");
             propertyManager.setKnownPropertyValue(name, value);
         } else {
@@ -197,21 +195,5 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
     }
 
-    protected boolean isNewMethodDefined(DomibusPropertyManagerExt target, String methodName, Class[] paramTyes) {
-        final Class<?> clazz;
-        try {
-            clazz = classUtil.getTargetObjectClass(target);
-        } catch (ClassNotFoundException e) {
-            LOG.warn("Could not determine which variant of " + methodName + " method should be called. The deprecated method will be called.");
-            return false;
-        }
-        try {
-            clazz.getDeclaredMethod(methodName, paramTyes);
-        } catch (NoSuchMethodException e) {
-            LOG.debug("New " + methodName + " is not defined.");
-            return false;
-        }
 
-        return true;
-    }
 }
