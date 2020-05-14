@@ -349,7 +349,6 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-//    @Ignore
     public void testCheckTimestampChangedRecently() throws InterruptedException {
         final String domain = "default";
         new Expectations(1, instance) {{
