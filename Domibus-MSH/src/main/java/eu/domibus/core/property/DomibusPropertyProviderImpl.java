@@ -206,6 +206,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setProperty(domain, propertyName, propertyValue, false);
     }
 
+    // former domibus property manager code
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getKnownProperties().get(propertyName);
         if (propMeta == null) {
@@ -213,8 +214,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         String oldValue = getProperty(domain, propertyName);
+
         doSetPropertyValue(domain, propertyName, propertyValue);
 
+        signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
+    }
+
+    private void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
         try {

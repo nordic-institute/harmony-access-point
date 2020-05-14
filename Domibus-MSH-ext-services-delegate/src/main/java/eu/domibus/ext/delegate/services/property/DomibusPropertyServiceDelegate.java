@@ -41,6 +41,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     public String getProperty(DomainDTO domain, String propertyName) {
         return getDomainProperty(domain, propertyName);
     }
+
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);

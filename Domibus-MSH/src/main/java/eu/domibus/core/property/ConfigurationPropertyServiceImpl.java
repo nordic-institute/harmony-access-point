@@ -61,6 +61,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     ClassUtil classUtil;
 
+    @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> allProperties = new ArrayList<>();
 
@@ -73,6 +74,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return allProperties;
     }
 
+    @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         try {
@@ -193,6 +195,5 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
         }
     }
-
-
+    
 }

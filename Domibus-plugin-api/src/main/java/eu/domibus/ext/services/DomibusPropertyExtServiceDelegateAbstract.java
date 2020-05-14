@@ -46,12 +46,6 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
     }
 
-    private void checkPropertyExists(String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new DomibusPropertyExtException("Unknown property: " + propertyName);
-        }
-    }
-
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
         checkPropertyExists(propertyName);
@@ -71,5 +65,11 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
+    }
+
+    private void checkPropertyExists(String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            throw new DomibusPropertyExtException("Unknown property: " + propertyName);
+        }
     }
 }
