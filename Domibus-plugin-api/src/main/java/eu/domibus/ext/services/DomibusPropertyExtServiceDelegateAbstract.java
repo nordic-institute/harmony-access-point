@@ -8,6 +8,7 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public abstract class DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     @Autowired
+    @Lazy
     protected DomibusPropertyExtService domibusPropertyExtService;
 
     @Autowired

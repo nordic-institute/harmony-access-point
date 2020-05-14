@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -25,6 +26,10 @@ public class DomibusPropertyMetadataManagerImpl {
 
     @Autowired
     private List<DomibusPropertyMetadataManager> propertyMetadataManagers;
+
+    @Autowired
+    @Lazy
+    private List<DomibusPropertyManagerExt> extPropertyManagers;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
     private volatile boolean internalPropertiesLoaded = false;
@@ -108,22 +113,22 @@ public class DomibusPropertyMetadataManagerImpl {
     }
 
     protected void loadInternalProperties() {
-        // load manually core/msh/common 'own' properties to avoid  infinite loop
-
         propertyMetadataManagers.stream()
                 .forEach(propertyManager -> loadProperties(propertyManager, propertyManager.toString()));
+    }
 
-//        loadProperties(this, DomibusPropertyMetadataManager.MSH_PROPERTY_MANAGER);
+    protected void loadExternalProperties() {
+        extPropertyManagers.stream().forEach(this::loadExternalProperties);
+    }
 
-        // server specific properties (and maybe others in the future)
-//        String[] propertyManagerNames = applicationContext.getBeanNamesForType(DomibusPropertyMetadataManager.class);
-//        Arrays.asList(propertyManagerNames).stream()
-//                //exclude me/this one
-//                .filter(el -> !el.equals(DomibusPropertyMetadataManager.MSH_PROPERTY_MANAGER))
-//                .forEach(managerName -> {
-//                    DomibusPropertyMetadataManager propertyManager = applicationContext.getBean(managerName, DomibusPropertyMetadataManager.class);
-//                    loadProperties(propertyManager, managerName);
-//                });
+    protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
+        LOGGER.trace("Loading property metadata for [{}] external property manager.", propertyManager);
+        for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
+            DomibusPropertyMetadataDTO extProp = entry.getValue();
+            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
+                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+            propertyMetadataMap.put(entry.getKey(), domibusProp);
+        }
     }
 
     protected void loadProperties(DomibusPropertyMetadataManager propertyManager, String managerName) {
@@ -133,24 +138,4 @@ public class DomibusPropertyMetadataManagerImpl {
             propertyMetadataMap.put(entry.getKey(), prop);
         }
     }
-
-    protected void loadExternalProperties() {
-        // we retrieve here all managers: one for each plugin and extension
-        Map<String, DomibusPropertyManagerExt> propertyManagers = applicationContext.getBeansOfType(DomibusPropertyManagerExt.class);
-        // We get also domibus property manager delegate (which adapts DomibusPropertyManager to DomibusPropertyManagerExt) which is already loaded so we remove it first
-//        propertyManagers.remove(DomibusPropertyManagerDelegate.MSH_DELEGATE);
-        propertyManagers.entrySet().forEach(this::loadExternalProperties);
-    }
-
-    protected void loadExternalProperties(Map.Entry<String, DomibusPropertyManagerExt> mapEntry) {
-        DomibusPropertyManagerExt propertyManager = mapEntry.getValue();
-        LOGGER.trace("Loading property metadata for [{}] external property manager.", mapEntry.getKey());
-        for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
-            DomibusPropertyMetadataDTO extProp = entry.getValue();
-            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
-            propertyMetadataMap.put(entry.getKey(), domibusProp);
-        }
-    }
-
 }
