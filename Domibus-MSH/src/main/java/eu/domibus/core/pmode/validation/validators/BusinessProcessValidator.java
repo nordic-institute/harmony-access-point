@@ -83,15 +83,7 @@ public class BusinessProcessValidator implements PModeValidator {
                             createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties");
                         });
             }
-            if (!CollectionUtils.isEmpty(validInitiatorParties)) {
-                validInitiatorParties.forEach(e -> {
-                    e.getIdentifiers().forEach(f -> {
-                        if (!partyIdTypes.contains(f.getPartyIdType())) {
-                            createIssue(issues, process, e.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
-                        }
-                    });
-                });
-            }
+            validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
         }
 
         //responder Parties
@@ -106,15 +98,7 @@ public class BusinessProcessValidator implements PModeValidator {
                             createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties");
                         });
             }
-            if (!CollectionUtils.isEmpty(validResponderParties)) {
-                validResponderParties.forEach(e -> {
-                    e.getIdentifiers().forEach(f -> {
-                        if (!partyIdTypes.contains(f.getPartyIdType())) {
-                            createIssue(issues, process, e.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
-                        }
-                    });
-                });
-            }
+            validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
         }
 
         //leg configuration
@@ -132,7 +116,31 @@ public class BusinessProcessValidator implements PModeValidator {
         }
     }
 
-    private void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
+    protected void validateResponderPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validResponderParties) {
+        if (!CollectionUtils.isEmpty(validResponderParties)) {
+            validResponderParties.forEach(e -> {
+                e.getIdentifiers().forEach(f -> {
+                    if (!partyIdTypes.contains(f.getPartyIdType())) {
+                        createIssue(issues, process, e.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                    }
+                });
+            });
+        }
+    }
+
+    protected void validateInitiatorPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validInitiatorParties) {
+        if (!CollectionUtils.isEmpty(validInitiatorParties)) {
+            validInitiatorParties.forEach(e -> {
+                e.getIdentifiers().forEach(f -> {
+                    if (!partyIdTypes.contains(f.getPartyIdType())) {
+                        createIssue(issues, process, e.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                    }
+                });
+            });
+        }
+    }
+
+    protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
     }
 
