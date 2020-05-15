@@ -61,6 +61,7 @@ public class RestServicePaths {
 	public static final String ALERTS_LIST ="/rest/alerts";
 
 	public static final String LOGGING ="/rest/logging/loglevel";
+	public static final String LOGGING_RESET ="rest/logging/reset";
 
 
 }

@@ -2,6 +2,8 @@ package utils;
 
 
 import ddsl.enums.DRoles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +21,8 @@ import java.util.Properties;
 
 public class TestRunData {
 	static Properties prop = new Properties();
+
+	Logger log = LoggerFactory.getLogger("TestRunData");
 
 	public static SimpleDateFormat UI_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	public static SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'GMT'Z");
@@ -70,7 +74,9 @@ public class TestRunData {
 	}
 
 	public String getUiBaseUrl() {
-		return prop.getProperty("UI_BASE_URL");
+		String url = prop.getProperty("UI_BASE_URL");
+		log.debug(url);
+		return url;
 	}
 
 	public Integer getTIMEOUT() {

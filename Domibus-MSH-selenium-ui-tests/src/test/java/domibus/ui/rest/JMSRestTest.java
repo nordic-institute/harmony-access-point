@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import utils.TestUtils;
 
-public class JMSRestTests extends RestTest {
+public class JMSRestTest extends RestTest {
 
 
 	@Test

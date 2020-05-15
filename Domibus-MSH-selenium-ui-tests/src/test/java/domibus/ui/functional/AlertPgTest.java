@@ -1,12 +1,11 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import domibus.ui.SeleniumTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
-import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
@@ -83,7 +82,7 @@ public class AlertPgTest extends SeleniumTest {
 	@Test(description = "ALRT-7", groups = {"multiTenancy", "singleTenancy"})
 	public void emptySearchResult() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		DomibusPage page = new DomibusPage(driver);
+
 		log.info("Login into application and navigate to Alerts page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
 		AlertPage apage = new AlertPage(driver);
@@ -278,13 +277,11 @@ public class AlertPgTest extends SeleniumTest {
 		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
-			HashMap<String, String> params = new HashMap<>();
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
-			params.put("name", propName);
-			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(params));
-			rest.properties().updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(propName));
+			rest.properties().updateDomibusProperty(propName, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(propName));
 		}
 
 		log.info("Send message using plugin user credentials");
@@ -326,13 +323,11 @@ public class AlertPgTest extends SeleniumTest {
 
 		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
-			HashMap<String, String> params = new HashMap<>();
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
-			params.put("name", propName);
-			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(params));
-			rest.properties().updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(propName));
+			rest.properties().updateDomibusProperty(propName, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(propName));
 		}
 
 		log.info("Send message using plugin user credentials");

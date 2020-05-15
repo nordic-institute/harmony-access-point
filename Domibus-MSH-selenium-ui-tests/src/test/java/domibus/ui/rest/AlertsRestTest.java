@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AlertsRestTests extends RestTest{
+public class AlertsRestTest extends RestTest{
 
 
 	List<String> excludedKeys = Arrays.asList(new String[]{"creationFrom", "creationTo", "reportingFrom", "reportingTo", "alertStatus", "alertId", "orderBy", "asc", "page", "pageSize", "dynamicFrom", "dynamicTo"});
@@ -64,7 +64,7 @@ public class AlertsRestTests extends RestTest{
 	}
 
 	@Test
-	public void markAlertAsProcessed() throws Exception {
+	public void markAlertAsProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		boolean showDomain = data.isMultiDomain();
@@ -88,7 +88,7 @@ public class AlertsRestTests extends RestTest{
 	}
 
 	@Test
-	public void markAlertAsNOTProcessed() throws Exception {
+	public void markAlertAsNOTProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		boolean showDomain = data.isMultiDomain();

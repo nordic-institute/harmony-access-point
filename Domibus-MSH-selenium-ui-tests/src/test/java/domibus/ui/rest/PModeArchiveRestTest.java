@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PModeArchiveRestTests extends RestTest {
+public class PModeArchiveRestTest extends RestTest {
 
 	@Test
 	public void listArchive() throws Exception {

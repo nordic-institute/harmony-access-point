@@ -12,7 +12,7 @@ import utils.Generator;
 
 import java.util.*;
 
-public class PluginUsersRestTests extends RestTest {
+public class PluginUsersRestTest extends RestTest {
 
 
 	@Test

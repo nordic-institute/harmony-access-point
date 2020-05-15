@@ -8,7 +8,7 @@ import org.testng.asserts.SoftAssert;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConnectionMonitoringRestTests extends RestTest {
+public class ConnectionMonitoringRestTest extends RestTest {
 
 	@Test //(dataProvider = "readInvalidStrings")
 	public void getPartiesTest() throws Exception {

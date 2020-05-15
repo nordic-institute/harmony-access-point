@@ -12,7 +12,7 @@ import utils.Generator;
 
 import java.util.List;
 
-public class UsersRestTests extends RestTest {
+public class UsersRestTest extends RestTest {
 
 	@Test
 	public void searchUsersTest() {

@@ -12,7 +12,7 @@ import rest.RestServicePaths;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class ErrorLogRestTests extends RestTest {
+public class ErrorLogRestTest extends RestTest {
 
 	@DataProvider
 	private Object[][] searchFilterCombinations() throws IOException {

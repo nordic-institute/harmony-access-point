@@ -16,7 +16,7 @@ import utils.TestUtils;
 import java.io.IOException;
 import java.util.*;
 
-public class MessagesRestTests extends RestTest {
+public class MessagesRestTest extends RestTest {
 
 	List<String> filterNames = Lists.newArrayList(new String[]{"notificationStatus", "fromPartyId", "originalSender", "conversationId", "messageId", "refToMessageId", "finalRecipient", "messageStatus", "messageType", "messageSubtype", "toPartyId", "mshRole"});
 	List<String> dateFilterNames = Lists.newArrayList(new String[]{"receivedTo", "receivedFrom"});

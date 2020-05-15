@@ -174,9 +174,9 @@
 						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-							<groups>multiTenancy</groups>
+<!--							<groups>multiTenancy</groups>-->
 							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
+								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>

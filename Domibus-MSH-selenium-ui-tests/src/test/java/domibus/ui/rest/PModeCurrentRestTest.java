@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class PModeCurrentRestTests extends RestTest {
+public class PModeCurrentRestTest extends RestTest {
 
 	@Test
 	public void uploadValidFileAndComment() throws Exception{

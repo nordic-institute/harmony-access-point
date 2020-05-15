@@ -6,7 +6,7 @@ import rest.RestServicePaths;
 
 import java.util.HashMap;
 
-public class TrustoreTests extends RestTest {
+public class TrustoreTest extends RestTest {
 
 	@Test
 	public void theFirstTests() throws Exception{

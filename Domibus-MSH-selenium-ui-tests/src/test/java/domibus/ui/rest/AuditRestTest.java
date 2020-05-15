@@ -14,7 +14,7 @@ import rest.RestServicePaths;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class AuditRestTests extends RestTest {
+public class AuditRestTest extends RestTest {
 
 	@DataProvider
 	private Object[][] auditFilterCombinations() throws IOException {
@@ -22,7 +22,7 @@ public class AuditRestTests extends RestTest {
 	}
 
 	@Test(dataProvider = "auditFilterCombinations")
-	public void searchAudit(HashMap<String, String> params) {
+	public void searchAuditTest(HashMap<String, String> params) {
 		SoftAssert soft = new SoftAssert();
 
 		params.remove("user");
@@ -53,7 +53,7 @@ public class AuditRestTests extends RestTest {
 	}
 
 	@Test(dataProvider = "readInvalidStrings")
-	public void auditSearchNegativeTests(String evilStr) {
+	public void auditSearchNegativeTest(String evilStr) {
 		SoftAssert soft = new SoftAssert();
 		String[] keys = {"auditTargetName", "user", "action", "pageSize", "max"};
 		HashMap<String, String> params = new HashMap<>();
@@ -70,7 +70,7 @@ public class AuditRestTests extends RestTest {
 	}
 
 	@Test(dataProvider = "readInvalidStrings")
-	public void auditCountNegativeTests(String evilStr) {
+	public void auditCountNegativeTest(String evilStr) {
 		SoftAssert soft = new SoftAssert();
 		String[] keys = {"auditTargetName", "user", "action", "pageSize", "max"};
 		HashMap<String, String> params = new HashMap<>();
