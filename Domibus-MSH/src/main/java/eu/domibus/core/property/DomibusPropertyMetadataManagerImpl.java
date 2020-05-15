@@ -22,7 +22,7 @@ public class DomibusPropertyMetadataManagerImpl {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManagerImpl.class);
 
     @Autowired
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     @Autowired
     private List<DomibusPropertyMetadataManager> propertyMetadataManagers;
@@ -32,9 +32,14 @@ public class DomibusPropertyMetadataManagerImpl {
     private List<DomibusPropertyManagerExt> extPropertyManagers;
 
     private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
+
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
+
+    public Map<String, DomibusPropertyMetadata> getAllProperties() {
+        return propertyMetadataMap;
+    }
 
     /**
      * Returns the metadata for a given propertyName,
@@ -127,6 +132,7 @@ public class DomibusPropertyMetadataManagerImpl {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
             DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
                     extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+            domibusProp.setType(extProp.getType());
             propertyMetadataMap.put(entry.getKey(), domibusProp);
         }
     }

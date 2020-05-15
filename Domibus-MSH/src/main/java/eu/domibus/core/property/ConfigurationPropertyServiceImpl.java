@@ -12,7 +12,6 @@ import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,11 +44,14 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    DomibusPropertyProviderImpl domibusPropertyProvider;
+
     /**
      * We inject here all property managers: one for each plugin, external module
      */
-    @Autowired
-    private List<DomibusPropertyManagerExt> propertyManagers;
+//    @Autowired
+//    private List<DomibusPropertyManagerExt> propertyManagers;
 
     @Autowired
     private AuthUtils authUtils;
@@ -64,11 +66,15 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> allProperties = new ArrayList<>();
 
-        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-            List<DomibusPropertyMetadataDTO> propertyMetadata = filterProperties(name, showDomain, propertyManager);
-            List<DomibusProperty> moduleProperties = createProperties(propertyManager, propertyMetadata);
-            allProperties.addAll(moduleProperties);
-        }
+        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, domibusPropertyProvider.getAllProperties());
+        List<DomibusProperty> properties = createProperties(propertiesMetadata);
+        allProperties.addAll(properties);
+
+//        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
+//            List<DomibusPropertyMetadataDTO> propertyMetadata = filterProperties(name, showDomain, propertyManager);
+//            List<DomibusProperty> moduleProperties = createProperties(propertyManager, propertyMetadata);
+//            allProperties.addAll(moduleProperties);
+//        }
 
         return allProperties;
     }
@@ -77,15 +83,18 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         try {
-            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
+//            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
+//            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
 
-            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
+            DomibusPropertyMetadata propMeta = domibusPropertyProvider.getAllProperties().get(name);
+
             // validate the property value against the type
             validatePropertyValue(propMeta, value);
 
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
-                setPropertyValue(propertyManager, name, value);
+//                setPropertyValue(propertyManager, name, value);
+                domibusPropertyProvider.setProperty(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
                     throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
@@ -93,7 +102,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
                     LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
-                    setPropertyValue(propertyManager, name, value);
+//                    setPropertyValue(propertyManager, name, value);
+                    domibusPropertyProvider.setProperty(name, value);
                 });
             }
         } catch (IllegalArgumentException ex) {
@@ -101,17 +111,17 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
     }
 
-    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
-        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
-                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
-        if (found.isPresent()) {
-            return found.get();
-        }
+//    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
+//        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
+//                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+//        if (found.isPresent()) {
+//            return found.get();
+//        }
+//
+//        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
+//    }
 
-        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
-    }
-
-    protected void validatePropertyValue(DomibusPropertyMetadataDTO propMeta, String propertyValue) throws DomibusPropertyException {
+    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
         if (propMeta == null) {
             LOG.warn("Property metadata is null; exiting validation.");
             return;
@@ -133,16 +143,18 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
     }
 
-    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
+    //    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
+    private List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
         List<DomibusProperty> list = new ArrayList<>();
 
-        for (DomibusPropertyMetadataDTO p : knownProps) {
-            String propertyName = p.getName();
-            String value = getPropertyValue(propertyManager, propertyName);
-            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+        for (DomibusPropertyMetadata propMeta : properties) {
+            String value = domibusPropertyProvider.getProperty(propMeta.getName());
+
+//            String value = getPropertyValue(propertyManager, propertyName);
+//            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
 
             DomibusProperty prop = new DomibusProperty();
-            prop.setMetadata(meta);
+            prop.setMetadata(propMeta);
             prop.setValue(value);
 
             list.add(prop);
@@ -151,8 +163,10 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return list;
     }
 
-    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
-        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
+    //    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
+    private List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertyMetadata) {
+//        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
+        List<DomibusPropertyMetadata> knownProps = propertyMetadata.values().stream()
                 .filter(p -> p.isWritable())
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
