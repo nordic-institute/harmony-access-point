@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.*;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
@@ -55,54 +56,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    public Map<String, DomibusPropertyMetadata> getAllProperties() {
-        return domibusPropertyMetadataManager.getAllProperties();
-    }
-
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.
      * If needed, it falls back to the default value provided in the global properties set.
      */
     @Override
     public String getProperty(String propertyName) {
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-
-        //prop is only global so the current domain doesn't matter
-        if (prop.isOnlyGlobal()) {
-            LOGGER.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
-            return getGlobalProperty(prop);
-        }
-
-        //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOGGER.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
-            return getGlobalProperty(prop);
-        }
-
-        //multi-tenancy mode
-        //domain or super property or a combination of 2 ( but not 3)
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        //we have a domain in context so try a domain property
-        if (currentDomain != null) {
-            if (prop.isDomain()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
-                return getDomainOrDefaultValue(prop, currentDomain);
-            }
-            LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
-            return null;
-        } else {
-            //current domain being null, it is super or global property (but not both)
-            if (prop.isGlobal()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
-                return getGlobalProperty(prop);
-            }
-            if (prop.isSuper()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
-                return getSuperOrDefaultValue(prop);
-            }
-            LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
-            return null;
-        }
+        return getOwnProperty(propertyName);
     }
 
     /**
@@ -111,23 +71,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(Domain domain, String propertyName) {
-        LOGGER.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
-        if (domain == null) {
-            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
-        }
-
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-        //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
-            return getGlobalProperty(prop);
-        }
-
-        if (!prop.isDomain()) {
-            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
-        }
-
-        return getDomainOrDefaultValue(prop, domain);
+        return getOwnProperty(domain, propertyName);
     }
 
     @Override
@@ -200,18 +144,103 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setProperty(domain, propertyName, propertyValue, false);
     }
 
-    // former domibus property manager code
+    private String getOwnProperty(String propertyName) {
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+
+        //prop is only global so the current domain doesn't matter
+        if (prop.isOnlyGlobal()) {
+            LOGGER.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
+            return getGlobalProperty(prop);
+        }
+
+        //single-tenancy mode
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOGGER.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
+            return getGlobalProperty(prop);
+        }
+
+        //multi-tenancy mode
+        //domain or super property or a combination of 2 ( but not 3)
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        //we have a domain in context so try a domain property
+        if (currentDomain != null) {
+            if (prop.isDomain()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
+                return getDomainOrDefaultValue(prop, currentDomain);
+            }
+            LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
+            return null;
+        } else {
+            //current domain being null, it is super or global property (but not both)
+            if (prop.isGlobal()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
+                return getGlobalProperty(prop);
+            }
+            if (prop.isSuper()) {
+                LOGGER.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
+                return getSuperOrDefaultValue(prop);
+            }
+            LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+            return null;
+        }
+    }
+
+    private String getOwnProperty(Domain domain, String propertyName) {
+        LOGGER.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
+        if (domain == null) {
+            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
+        }
+
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        //single-tenancy mode
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
+            return getGlobalProperty(prop);
+        }
+
+        if (!prop.isDomain()) {
+            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
+        }
+
+        return getDomainOrDefaultValue(prop, domain);
+    }
+    
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta == null) {
             throw new DomibusPropertyException("Property " + propertyName + " not found.");
         }
 
+        // validate the property value against the type
+        validatePropertyValue(propMeta, propertyValue);
+
         String oldValue = getProperty(domain, propertyName);
 
         doSetPropertyValue(domain, propertyName, propertyValue);
 
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
+    }
+
+    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
+        if (propMeta == null) {
+            LOGGER.warn("Property metadata is null; exiting validation.");
+            return;
+        }
+
+        try {
+            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+            DomibusPropertyValidator validator = type.getValidator();
+            if (validator == null) {
+                LOGGER.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+                return;
+            }
+
+            if (!validator.isValid(propertyValue)) {
+                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
+            }
+        } catch (IllegalArgumentException ex) {
+            LOGGER.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
+        }
     }
 
     private void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {

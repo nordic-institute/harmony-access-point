@@ -130,9 +130,11 @@ public class DomibusPropertyMetadataManagerImpl {
         LOGGER.trace("Loading property metadata for [{}] external property manager.", propertyManager);
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
+            //use converter
             DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
                     extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
             domibusProp.setType(extProp.getType());
+
             propertyMetadataMap.put(entry.getKey(), domibusProp);
         }
     }

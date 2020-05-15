@@ -8,7 +8,6 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -79,6 +78,9 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return allProperties;
     }
 
+    @Autowired
+    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
@@ -86,10 +88,10 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 //            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
 //            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
 
-            DomibusPropertyMetadata propMeta = domibusPropertyProvider.getAllProperties().get(name);
+            DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(name);
 
-            // validate the property value against the type
-            validatePropertyValue(propMeta, value);
+//            // validate the property value against the type
+//            validatePropertyValue(propMeta, value);
 
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
@@ -121,27 +123,27 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 //        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
 //    }
 
-    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
-        if (propMeta == null) {
-            LOG.warn("Property metadata is null; exiting validation.");
-            return;
-        }
-
-        try {
-            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
-            DomibusPropertyValidator validator = type.getValidator();
-            if (validator == null) {
-                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
-                return;
-            }
-
-            if (!validator.isValid(propertyValue)) {
-                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
-            }
-        } catch (IllegalArgumentException ex) {
-            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
-        }
-    }
+//    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
+//        if (propMeta == null) {
+//            LOG.warn("Property metadata is null; exiting validation.");
+//            return;
+//        }
+//
+//        try {
+//            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+//            DomibusPropertyValidator validator = type.getValidator();
+//            if (validator == null) {
+//                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+//                return;
+//            }
+//
+//            if (!validator.isValid(propertyValue)) {
+//                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
+//            }
+//        } catch (IllegalArgumentException ex) {
+//            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
+//        }
+//    }
 
     //    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
     private List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
