@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_JMS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/domibus/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_JMS" resourceRoot="" soapui-version="5.4.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/domibus/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
   <wsdl:types>
     <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
       <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
@@ -1157,7 +1157,106 @@ Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml" + suffix
 
 joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"\\red\\domibus-pmode-red.xml").toUri()
 Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix) 
-Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4" disabled="true">
+Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="84e70e71-809c-418e-8952-ea7b6e06d070" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Weblogic sending" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Submit message" id="b197905d-c863-42ad-a625-fed39934af47"><con:settings/><con:config><script>import org.apache.commons.io.IOUtils;  
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.security.auth.Subject;
+import java.io.InputStream;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.Hashtable;
+import java.util.Map;
+
+public class SendJMSMessageOnWeblogic {
+
+    private static final String PROVIDER_URL = "t3://localhost:7001"; //     "t3://89.37.56.158:7001"
+    private static final String USER = "weblogic";
+    private static final String PASSWORD = "weblogic1";
+    private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
+    private static final String QUEUE = "jms/domibus.backend.jms.inQueue";
+
+   public void run(log) throws RuntimeException {
+       log.info "starting"  
+ 
+  try{
+       InitialContext ic = getInitialContext(PROVIDER_URL, USER, PASSWORD);
+     
+       QueueConnectionFactory cf = (QueueConnectionFactory) ic.lookup(CONNECTION_FACTORY_JNDI);
+       QueueConnection qc = cf.createQueueConnection();
+       QueueSession qs = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+       
+       Queue queue = (Queue) ic.lookup( QUEUE);
+       QueueSender qsr = qs.createSender(queue);
+ 
+ final String messageContent = "&lt;hello>world&lt;/hello>";
+       qsr.send(createTestMessage(qs, messageContent));
+       ic.close();
+       log.info "Success"
+  } catch(Exception ex) {
+  log.info "Error " + ex
+  }
+    }
+
+    private Message createTestMessage(QueueSession session, String messageContent) throws Exception {
+        MapMessage messageMap = session.createMapMessage();
+
+        messageMap.setStringProperty("messageType", "submitMessage");
+        messageMap.setStringProperty("service", "bdx:noprocess");
+        messageMap.setStringProperty("serviceType", "tc1");
+        messageMap.setStringProperty("action", "TC1Leg1");
+        messageMap.setStringProperty("fromPartyId", "domibus-blue");
+        messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        messageMap.setStringProperty("toPartyId", "domibus-red");
+        messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+        messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+        messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
+        messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
+        messageMap.setStringProperty("protocol", "AS4");
+
+        // Optional
+        // messageMap.setStringProperty("conversationId", "123");
+        // messageMap.setStringProperty("refToMessageId", "11");
+  messageMap.setStringProperty("messageId", "c22-jms-" + new Date().getTime());
+        messageMap.setJMSCorrelationID("12345");
+
+        messageMap.setStringProperty("totalNumberOfPayloads", "1");
+        messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
+        messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+        messageMap.setStringProperty("payload_1_description", "message");
+ 
+        byte[] payload = messageContent.getBytes();
+        messageMap.setBytes("payload_1", payload);
+
+        return messageMap;
+    }
+
+    InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
+        InitialContext ic = null;
+        if (providerUrl != null) {
+            Hashtable&lt;String, String> env = new Hashtable&lt;String, String>();
+            env.put(Context.PROVIDER_URL, providerUrl);
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
+            if (userName != null) {
+                env.put(Context.SECURITY_PRINCIPAL, userName);
+            }
+            if (password != null) {
+                env.put(Context.SECURITY_CREDENTIALS, password);
+            }
+            ic = new InitialContext(env);
+        } else {
+            ic = new InitialContext();
+        }
+        return ic;
+    }
+ 
+}
+
+def smw = new SendJMSMessageOnWeblogic();
+
+smw.run(log)
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4" disabled="true">
             <con:settings/>
             
             
@@ -1203,19 +1302,14 @@ if (unsecureLoginAllowed == "false" || unsecureLoginAllowed == 0) {
             
             
             
-            <con:testStep type="groovy" name="Submit Message" id="b8f74188-9bae-4ec7-83e9-3a48f767da47"><con:settings/><con:config><script>import org.apache.activemq.ActiveMQConnectionFactory;
-import javax.jms.*;
-import javax.naming.NamingException;
+            <con:testStep type="groovy" name="Submit Message" id="b8f74188-9bae-4ec7-83e9-3a48f767da47"><con:settings/><con:config><script>import javax.jms.*
 
-ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-Connection connection = null;
-MessageProducer producer = null;
-connection = connectionFactory.createConnection("domibus", "changeit"); //username and password of the default JMS broker
-Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-Destination destination = session.createQueue("domibus.backend.jms.inQueue");
-producer = session.createProducer(destination);
-producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-MapMessage messageMap = session.createMapMessage();
+def MapMessage messageMap = null
+
+def domUtils = new Domibus(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitialize()
+Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1231,11 +1325,6 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
-
-// Optional
-
-
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
 messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
 messageMap.setStringProperty("payload_1_mimeType", "text/xml");
@@ -1245,11 +1334,8 @@ String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvc
 byte[] payload = pay1.getBytes();
 messageMap.setBytes("payload_1", payload);
 
-log.info "sending message"
-producer.send(messageMap);
-log.info "message sent"
-
-connection.close();</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="b11d4bed-efc5-4063-897a-9293c582303d" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="b11d4bed-efc5-4063-897a-9293c582303d" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS001-") // Message ID not set to fix value => test step disabled
 test.finalize()
 </script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
@@ -9622,4 +9708,4 @@ Domibus.removePluginUser("C2",context,log,"domibus_C2Dom2","userC1C2Dom2");
 Domibus.removePluginUser("C3",context,log,"Default","userC4");</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Message" id="55fc2258-e04a-46a1-b547-9728d6442e3f" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith(context.expand('-DomX60-'))
 test.finalize();	
-</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8080/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/domibus/sender/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/domibus/receiver/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_3_3_4_test_results.xlsx</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall2.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue_bugfix","dbUser":"root","dbPassword":"root"},  "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red_bugfix","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>Domibus-123</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>userC1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>c3_a1</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/ec/blue/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/ec/red/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_3_3_4_test_results.xlsx</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall2.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue","dbUser":"root","dbPassword":"root"}, "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red","dbUser":"root","dbPassword":"root"}, "thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green","dbUser":"root","dbPassword":"root"}, "C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1","dbUser":"root","dbPassword":"root"}, "C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2","dbUser":"root","dbPassword":"root"}, "C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3","dbUser":"root","dbPassword":"root"},  "C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1","dbUser":"root","dbPassword":"root"},  "C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2","dbUser":"root","dbPassword":"root"},  "C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3","dbUser":"root","dbPassword":"root"} }</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>Domibus-123</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>pa_c2dom1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>pa_c3dom1</con:value></con:property><con:property><con:name>jmsServer</con:name><con:value>Weblogic</con:value></con:property><con:property><con:name>activeMqUrlAddress</con:name><con:value>tcp://localhost:61616</con:value></con:property><con:property><con:name>activeMQBrokerUser</con:name><con:value>domibus</con:value></con:property><con:property><con:name>activeMQBrokerPassword</con:name><con:value>changeit</con:value></con:property><con:property><con:name>activeMQInQueue</con:name><con:value>domibus.backend.jms.inQueue</con:value></con:property><con:property><con:name>weblogicJmsUrl</con:name><con:value>t3://localhost:7001</con:value></con:property><con:property><con:name>weblogicJmsUser</con:name><con:value>weblogic</con:value></con:property><con:property><con:name>weblogicJmsPassword</con:name><con:value>weblogic1</con:value></con:property><con:property><con:name>weblogicJmsFactoryJndi</con:name><con:value>jms/ConnectionFactory</con:value></con:property><con:property><con:name>weblogicJmsQueue</con:name><con:value>jms/domibus.backend.jms.inQueue</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
