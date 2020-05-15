@@ -229,11 +229,11 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void sendMapMessageToQueue(JmsMessage message, Queue destination) {
-        sendMapMessageToQueue(message, destination, null);
+        sendMapMessageToQueue(message, destination);
     }
 
     protected void sendMessageToQueue(JmsMessage message, Queue destination, InternalJmsMessage.MessageType messageType) {
-        sendMessageToQueue(message, destination, messageType, null);
+        sendMessageToQueue(message, destination, messageType);
     }
 
     protected void sendMessageToQueue(JmsMessage message, Queue destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {

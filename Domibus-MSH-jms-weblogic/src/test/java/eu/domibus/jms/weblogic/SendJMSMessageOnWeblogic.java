@@ -1,5 +1,7 @@
 package eu.domibus.jms.weblogic;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import weblogic.security.Security;
 
@@ -15,6 +17,8 @@ import java.util.Map;
 
 public class SendJMSMessageOnWeblogic {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SendJMSMessageOnWeblogic.class);
+
     private static final String PROVIDER_URL = "t3://localhost:7001";
     private static final String USER = "weblogic";
     private static final String PASSWORD = "weblogic1";
@@ -23,17 +27,18 @@ public class SendJMSMessageOnWeblogic {
     private static final String QUEUE = "jms/domibus.backend.jms.inQueue";
 
     public static void main(String[] args) throws Exception {
-        try {
-            Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() {
-                    new SendJMSMessageOnWeblogic().run();
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw e;
-        }
+        LOG.info("ceva ~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//        try {
+//            Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
+//                @Override
+//                public Object run() {
+//                    new SendJMSMessageOnWeblogic().run();
+//                    return null;
+//                }
+//            });
+//        } catch (PrivilegedActionException e) {
+//            throw e;
+//        }
 
 
     }
@@ -52,7 +57,7 @@ public class SendJMSMessageOnWeblogic {
             Message testMessage = createTestMessage(qs, message);
             qsr.send(testMessage);
             ic.close();
-            System.out.println("Successfully sent message " + testMessage.getJMSMessageID());
+            LOG.info("Successfully sent message " + testMessage.getJMSMessageID());
         } catch (Throwable t) {
             t.printStackTrace();
         }
