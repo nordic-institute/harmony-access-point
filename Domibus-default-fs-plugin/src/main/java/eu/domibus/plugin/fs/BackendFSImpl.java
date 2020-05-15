@@ -292,7 +292,9 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
     protected String getFileNameContentIdBase(String contentId) {
         if(StringUtils.isBlank(contentId)){
-            return UUID.randomUUID().toString();
+            String randomUUID = UUID.randomUUID().toString();
+            LOG.debug("received contentId is blank, generating alternate FileNameContentIdBase: [{}]", randomUUID);
+            return randomUUID;
         }
         return contentId.replaceFirst("cid:", StringUtils.EMPTY);
     }
