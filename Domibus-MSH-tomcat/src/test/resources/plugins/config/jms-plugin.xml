@@ -28,7 +28,7 @@
     <bean id="backendJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory"
-                  ref="domibusJMSPlugin-ConnectionFactory"/>
+                  ref="domibusJMS-XAConnectionFactory"/>
         <property name="transactionManager" ref="transactionManager"/>
         <property name="concurrency" value="${jmsplugin.queue.in.concurrency}"/>
         <property name="sessionTransacted" value="true"/>
@@ -37,14 +37,7 @@
 
     <bean id="mshToBackendTemplate"
           class="org.springframework.jms.core.JmsTemplate"
-          c:connectionFactory-ref="domibusJMSPlugin-ConnectionFactory"
+          c:connectionFactory-ref="domibusJMS-XAConnectionFactory"
           p:sessionTransacted="true"
           p:sessionAcknowledgeMode="0"/>
-
-    <bean id="domibusJMSPlugin-ConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="lookupOnStartup" value="false"/>
-        <property name="jndiName" value="${jmsplugin.connectionfactory}"/>
-        <property name="proxyInterface" value="javax.jms.ConnectionFactory"/>
-    </bean>
-
 </beans>

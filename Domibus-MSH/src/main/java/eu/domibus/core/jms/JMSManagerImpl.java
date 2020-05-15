@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.jms.core.JmsOperations;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2

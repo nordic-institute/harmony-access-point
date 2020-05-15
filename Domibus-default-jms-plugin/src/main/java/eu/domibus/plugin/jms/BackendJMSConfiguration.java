@@ -8,12 +8,6 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jndi.JndiObjectFactoryBean;
-
-import javax.jms.ConnectionFactory;
-
-import static eu.domibus.plugin.jms.JMSMessageConstants.CONNECTIONFACTORY;
-import static eu.domibus.plugin.jms.JMSMessageConstants.JMS_PLUGIN_PROPERTY_PREFIX;
 
 /**
  * @author Cosmin Baciu
@@ -21,8 +15,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.JMS_PLUGIN_PROPERTY_PREF
  */
 @Configuration
 public class BackendJMSConfiguration {
-
-    public static final String DOMIBUS_JMS_PLUGIN_CONNECTION_FACTORY = "domibusJMSPlugin-ConnectionFactory";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSConfiguration.class);
 

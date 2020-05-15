@@ -37,6 +37,18 @@ public class JMSServiceServiceDelegate implements JMSExtService {
     }
 
     @Override
+    public void sendMapMessageToQueue(JmsMessageDTO message, String destination) {
+        final JmsMessage jmsMessage = domainConverter.convert(message, JmsMessage.class);
+        jmsManager.sendMapMessageToQueue(jmsMessage, destination);
+    }
+
+    @Override
+    public void sendMapMessageToQueue(JmsMessageDTO message, Queue destination) {
+        final JmsMessage jmsMessage = domainConverter.convert(message, JmsMessage.class);
+        jmsManager.sendMapMessageToQueue(jmsMessage, destination);
+    }
+
+    @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations) {
         final JmsMessage jmsMessage = domainConverter.convert(message, JmsMessage.class);
         jmsManager.sendMapMessageToQueue(jmsMessage, destination, jmsOperations);

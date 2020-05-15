@@ -49,7 +49,6 @@ public class SendJMSMessageOnWeblogic {
             InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jms/etrustexJmsMessage.xml");
             final String message = IOUtils.toString(resourceAsStream);
 
-            // Message testMessage = createTextMessage(qs, message, "", null);
             Message testMessage = createTestMessage(qs, message);
             qsr.send(testMessage);
             ic.close();

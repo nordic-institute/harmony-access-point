@@ -34,6 +34,14 @@ public interface JMSExtService {
      *
      * @param message The message to be sent
      * @param destination The JMS destination
+     */
+    void sendMapMessageToQueue(JmsMessageDTO message, String destination);
+
+    /**
+     * Sends a Map message to a specific queue
+     *
+     * @param message The message to be sent
+     * @param destination The JMS destination
      * @param jmsOperations the JMS operations to be used for sending
      */
     void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations);
@@ -43,6 +51,15 @@ public interface JMSExtService {
      *
      * @param message The message to be sent
      * @param destination The JMS destination
+     */
+    void sendMapMessageToQueue(JmsMessageDTO message, Queue destination);
+
+    /**
+     * Sends a Map message to a specific queue
+     *
+     * @param message The message to be sent
+     * @param destination The JMS destination
+     * @param jmsOperations the JMS operations to be used for sending
      */
     void sendMapMessageToQueue(JmsMessageDTO message, Queue destination, JmsOperations jmsOperations);
 

@@ -22,6 +22,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -411,9 +412,15 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
+    public void sendMessage(InternalJmsMessage message, String destName) {
+        sendMessage(message, destName, jmsSender);
+    }
+
+    @Override
     public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
-        if(jmsOperations == null) { // use default jmsSender with default connection factory
-            jmsOperations = jmsSender;
+        if(jmsOperations == null) {
+            LOG.warn("Cannot send, JmsOperations is null!");
+            return;
         }
         try {
             JmsMessageCreator messageCreator = new JmsMessageCreator(message);
@@ -424,9 +431,15 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
     public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
-        if(jmsOperations == null) { // use default jmsSender with default connection factory
-            jmsOperations = jmsSender;
+        if(jmsOperations == null) {
+            LOG.warn("Cannot send, JmsOperations is null!");
+            return;
         }
 
         jmsOperations.send(destination, new JmsMessageCreator(message));

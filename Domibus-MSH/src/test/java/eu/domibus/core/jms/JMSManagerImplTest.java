@@ -19,6 +19,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
@@ -139,7 +140,7 @@ public class JMSManagerImplTest {
             jmsMessageMapper.convert(message);
             times = 1;
 
-            internalJmsManager.sendMessage(messageSPI, "myqueue", null);
+            internalJmsManager.sendMessage(messageSPI, "myqueue", (JmsOperations) any);
 
             Assert.assertEquals(message.getProperty(JmsMessage.PROPERTY_ORIGINAL_QUEUE), "myqueue");
         }};
@@ -165,7 +166,7 @@ public class JMSManagerImplTest {
             jmsMessageMapper.convert(message);
             times = 1;
 
-            internalJmsManager.sendMessage(messageSPI, queue, null);
+            internalJmsManager.sendMessage(messageSPI, queue, (JmsOperations) any);
 
             Assert.assertEquals(message.getProperty(JmsMessage.PROPERTY_ORIGINAL_QUEUE), "myqueue");
         }};

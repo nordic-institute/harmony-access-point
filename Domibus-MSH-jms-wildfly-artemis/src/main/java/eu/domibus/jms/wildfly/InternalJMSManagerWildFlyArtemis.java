@@ -60,7 +60,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
      * The old Artemis 1.x JMS prefix.
      *
      * @see org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl#OLD_QUEUE_PREFIX
-      */
+     */
     public static final String JMS_QUEUE_PREFIX = "jms.queue.";
 
     protected Map<String, ObjectName> queueMap;
@@ -130,8 +130,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         long result;
         try {
             result = queueControl.getMessageCount();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new InternalJMSException("Failed to get messages count on JMS destination: " + queueControl.getName(), e);
         }
         return result;
@@ -173,7 +172,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                 LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
 
                 queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Just log the error and continue with the next address name
                 LOG.error("Error creating object name for address [" + addressName + "]", e);
             }
@@ -257,7 +256,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             destinationJndi = getJndiName(getQueueControl(objectName).getAddress());
         }
 
-        LOG.debug("Found JNDI [{}] for queue [{}]",  destinationJndi, destName);
+        LOG.debug("Found JNDI [{}] for queue [{}]", destinationJndi, destName);
         return InitialContext.doLookup(destinationJndi);
     }
 
@@ -268,9 +267,15 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
+    public void sendMessage(InternalJmsMessage message, String destName) {
+        sendMessage(message, destName, jmsSender);
+    }
+
+    @Override
     public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
         if(jmsOperations == null) {
-            jmsOperations = jmsSender;
+            LOG.warn("Cannot send, JmsOperations is null!");
+            return;
         }
         try {
             jmsOperations.send(lookupQueue(destName), new JmsMessageCreator(message));
@@ -280,9 +285,15 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
     public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
         if(jmsOperations == null) {
-            jmsOperations = jmsSender;
+            LOG.warn("Cannot send, JmsOperations is null!");
+            return;
         }
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
@@ -297,7 +308,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (excludeOrigin) {
             internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
-        sendMessage(internalJmsMessage, destination, null);
+        sendMessage(internalJmsMessage, destination);
     }
 
     @Override

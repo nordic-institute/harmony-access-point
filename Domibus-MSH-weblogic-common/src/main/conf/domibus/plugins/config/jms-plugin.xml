@@ -30,8 +30,7 @@
     </bean>
 
     <bean id="backendJmsListenerContainerFactory"
-          class="org.springframework.jms.config.DefaultJmsListenerContainerFactory"
-          depends-on="domibusJMSPlugin-ConnectionFactory">
+          class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
         <property name="connectionFactory"
                   ref="domibusJMSPlugin-ConnectionFactory"/>
         <property name="transactionManager" ref="transactionManager"/>
@@ -46,7 +45,7 @@
           c:connectionFactory-ref="domibusJMSPlugin-ConnectionFactory"
           p:destinationResolver-ref="jndiDestinationResolver"
           p:sessionTransacted="true"
-          p:sessionAcknowledgeMode="0" depends-on="domibusJMSPlugin-ConnectionFactory"/>
+          p:sessionAcknowledgeMode="0"/>
 
     <bean id="domibusJMSPlugin-ConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="lookupOnStartup" value="false"/>

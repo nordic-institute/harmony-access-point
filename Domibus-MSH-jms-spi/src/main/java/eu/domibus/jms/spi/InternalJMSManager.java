@@ -25,6 +25,10 @@ public interface InternalJMSManager {
 
     Map<String, InternalJMSDestination> findDestinationsGroupedByFQName();
 
+    void sendMessage(InternalJmsMessage message, String destination);
+
+    void sendMessage(InternalJmsMessage message, Destination destination);
+
     void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations);
 
     void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations);
