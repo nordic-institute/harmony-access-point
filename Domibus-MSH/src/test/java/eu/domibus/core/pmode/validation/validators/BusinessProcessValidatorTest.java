@@ -11,9 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Ion Perpegel
@@ -81,4 +79,73 @@ public class BusinessProcessValidatorTest {
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() == 5);
     }
+
+    @Test
+    public void testValidateInitiatorPartyIdType(@Injectable ValidationIssue issue, @Injectable PartyIdType partyIdType,
+                                                 @Injectable Process process, @Injectable Party party,
+                                                 @Injectable Identifier identifier) {
+
+        Set<PartyIdType> partyIdTypes = new HashSet<>();
+        Set<Identifier> identifiers = new HashSet<>();
+        Identifier identifier1 = new Identifier();
+        PartyIdType partyIdType1 = new PartyIdType();
+        partyIdType1.setName("partyIdTypeUrn1");
+        PartyIdType partyIdType2 = new PartyIdType();
+        partyIdType1.setName("partyIdTypeUrn");
+        partyIdTypes.add(partyIdType2);
+        identifier1.setPartyIdType(partyIdType1);
+        identifiers.add(identifier1);
+        Set<Party> validInitiatorParties = new HashSet<>();
+        Party party1 = new Party();
+        party1.setIdentifiers(identifiers);
+        validInitiatorParties.add(party1);
+
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(issue);
+
+        //tested method
+        businessProcessValidator.validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
+
+
+        new Verifications() {{
+            businessProcessValidator.createIssue(issues, process, party1.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+            times = 1;
+        }};
+
+    }
+
+    @Test
+    public void testValidateResponderPartyIdType(@Injectable ValidationIssue issue, @Injectable PartyIdType partyIdType,
+                                                 @Injectable Process process, @Injectable Party party,
+                                                 @Injectable Identifier identifier) {
+
+        Set<PartyIdType> partyIdTypes = new HashSet<>();
+        Set<Identifier> identifiers = new HashSet<>();
+        Identifier identifier1 = new Identifier();
+        PartyIdType partyIdType1 = new PartyIdType();
+        partyIdType1.setName("partyIdTypeUrn1");
+        PartyIdType partyIdType2 = new PartyIdType();
+        partyIdType1.setName("partyIdTypeUrn");
+        partyIdTypes.add(partyIdType2);
+        identifier1.setPartyIdType(partyIdType1);
+        identifiers.add(identifier1);
+        Set<Party> validResponderParties = new HashSet<>();
+        Party party1 = new Party();
+        party1.setIdentifiers(identifiers);
+        validResponderParties.add(party1);
+
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(issue);
+
+        //tested method
+        businessProcessValidator.validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
+
+
+        new Verifications() {{
+            businessProcessValidator.createIssue(issues, process, party1.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+            times = 1;
+        }};
+
+    }
+
 }
