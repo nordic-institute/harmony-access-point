@@ -221,6 +221,7 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setSuspended(true);
         convertedBack.setStatus("status");
         convertedBack.setAuthenticationType("authenticationType");
+        convertedBack.setDomain("domain");
         objectService.assertObjects(convertedBack, toConvert);
     }
 

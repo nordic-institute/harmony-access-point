@@ -4,8 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.api.property.DomibusPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
-
     @Autowired
     protected List<DomibusPropertyChangeListener> propertyChangeListeners;
 
@@ -32,7 +29,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
 
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
-    public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         //notify interested listeners that the property changed
         List<DomibusPropertyChangeListener> listeners = propertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
@@ -41,13 +38,17 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
             try {
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
             } catch (Exception ex) {
-                LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
+                throw new DomibusPropertyException("Exception executing listener " + listener.getClass().getName() + " for property " + propertyName, ex);
             }
         });
 
         //signal for other nodes in the cluster
         if (broadcast) {
-            signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
+            try {
+                signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
+            } catch (Exception ex) {
+                throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
+            }
         }
     }
 }

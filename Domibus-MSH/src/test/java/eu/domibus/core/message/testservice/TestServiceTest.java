@@ -1,20 +1,19 @@
 package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
-
+import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -505,5 +504,20 @@ public class TestServiceTest {
         Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
         Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
+
+    protected void testGetErrorsDetails() {
+        String userMessageId = "mess_id_1", errorDetails = "DOM005-Cannot find party";
+
+        new Expectations(testService) {{
+            testService.getErrorsForMessage(userMessageId);
+            returns(null, errorDetails);
+        }};
+
+        String result = testService.getErrorsDetails(userMessageId);
+        Assert.assertTrue(result.equals("Please call the method again to see the details."));
+
+        result = testService.getErrorsDetails(userMessageId);
+        Assert.assertTrue(result.equals("Error details are: " + errorDetails));
     }
 }

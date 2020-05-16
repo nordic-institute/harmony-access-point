@@ -10,5 +10,5 @@ public interface ClassUtil {
 
     Class getTargetObjectClass(Object proxy) throws ClassNotFoundException;
 
-
+    boolean isMethodDefined(Object target, String methodName, Class[] paramTyes);
 }
