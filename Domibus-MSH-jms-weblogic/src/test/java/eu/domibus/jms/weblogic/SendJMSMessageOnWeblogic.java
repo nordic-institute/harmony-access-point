@@ -27,20 +27,17 @@ public class SendJMSMessageOnWeblogic {
     private static final String QUEUE = "jms/domibus.backend.jms.inQueue";
 
     public static void main(String[] args) throws Exception {
-        LOG.info("ceva ~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//        try {
-//            Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
-//                @Override
-//                public Object run() {
-//                    new SendJMSMessageOnWeblogic().run();
-//                    return null;
-//                }
-//            });
-//        } catch (PrivilegedActionException e) {
-//            throw e;
-//        }
-
-
+        try {
+            Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() {
+                    new SendJMSMessageOnWeblogic().run();
+                    return null;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw e;
+        }
     }
 
     public void run() throws RuntimeException {
