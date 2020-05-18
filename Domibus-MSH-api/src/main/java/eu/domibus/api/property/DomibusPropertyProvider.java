@@ -21,13 +21,7 @@ public interface DomibusPropertyProvider {
     String getProperty(String propertyName);
 
     /**
-     * Look for a property in the provided domain configuration file. If the property is not found, it will search for the property in
-     * the following locations and in the respective order:
-     * conf/domibus.properties, classpath://domibus.properties, classpath://domibus-default.properties
-     * <p>
-     * When actions are executed under a super admin user, there is no domain set on the current thread.
-     * Nevertheless we need to retrieve some default properties. So if no domain is found, this method will retrieve
-     * properties from the default one.
+     * Retrieves the property value from the requested domain. If not found, fall back to the property value from the global properties set.
      *
      * @param domain       the domain.
      * @param propertyName the property name.
@@ -115,7 +109,8 @@ public interface DomibusPropertyProvider {
     void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
-     * Changes the value of the given property key.
+     * Sets a new property value for the given property, in the given domain.
+     * Note: A null domain is used for global and super properties.
      *
      * @param domain        the domain of the property
      * @param propertyName  the name of the property

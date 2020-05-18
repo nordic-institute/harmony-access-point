@@ -122,20 +122,10 @@ public class CommandServiceImpl implements CommandService {
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
                 try {
-                    // or ConfPropService???
                     domibusPropertyProvider.setProperty(domain, propName, propVal, false);
                 } catch (Exception ex) {
                     LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain);
                 }
-//                for (DomibusPropertyManager domibusPropertyManager : domibusPropertyManagers) {
-//                    if (domibusPropertyManager.hasKnownProperty(propName)) {
-//                        try {
-//                            domibusPropertyManager.setProperty(domainCode, propName, propVal, false);
-//                        } catch (Exception ex) {
-//                            LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domainCode);
-//                        }
-//                    }
-//                }
                 break;
             default:
                 LOG.error("Unknown command received: {}", command);
