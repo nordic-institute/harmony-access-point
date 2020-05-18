@@ -140,7 +140,7 @@ public class JMSManagerImplTest {
             jmsMessageMapper.convert(message);
             times = 1;
 
-            internalJmsManager.sendMessage(messageSPI, "myqueue", (JmsOperations) any);
+            internalJmsManager.sendMessage(messageSPI, "myqueue");
 
             Assert.assertEquals(message.getProperty(JmsMessage.PROPERTY_ORIGINAL_QUEUE), "myqueue");
         }};
@@ -166,7 +166,7 @@ public class JMSManagerImplTest {
             jmsMessageMapper.convert(message);
             times = 1;
 
-            internalJmsManager.sendMessage(messageSPI, queue, (JmsOperations) any);
+            internalJmsManager.sendMessage(messageSPI, queue);
 
             Assert.assertEquals(message.getProperty(JmsMessage.PROPERTY_ORIGINAL_QUEUE), "myqueue");
         }};
