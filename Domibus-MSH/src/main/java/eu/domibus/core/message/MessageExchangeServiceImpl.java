@@ -231,7 +231,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                         .property(MPC, mpcQualifiedName)
                         .property(PMODE_KEY, messageExchangeConfiguration.getReversePmodeKey())
                         .property(PullContext.NOTIFY_BUSINNES_ON_ERROR, String.valueOf(legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()))
-                        .build(), pullMessageQueue, null);
+                        .build(), pullMessageQueue);
             }
 
         }
