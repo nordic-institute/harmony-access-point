@@ -200,7 +200,7 @@ public class MessageExchangeServiceImplTest {
         ArgumentCaptor<JmsMessage> mapArgumentCaptor = ArgumentCaptor.forClass(JmsMessage.class);
         messageExchangeService.initiatePullRequest();
         verify(pModeProvider, times(1)).getGatewayParty();
-        verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class), any(JmsOperations.class));
+        verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class));
         String pModeKeyResult = "party1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "responder" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
                 "service1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
