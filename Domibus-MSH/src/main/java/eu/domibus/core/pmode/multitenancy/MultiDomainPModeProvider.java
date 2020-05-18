@@ -279,6 +279,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         getCurrentPModeProvider().removePMode(id);
     }
 
+    @Transactional
     @Override
     public List<PModeArchiveInfo> getRawConfigurationList() {
         return getCurrentPModeProvider().getRawConfigurationList();
