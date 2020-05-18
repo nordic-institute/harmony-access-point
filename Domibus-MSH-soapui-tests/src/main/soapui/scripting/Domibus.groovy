@@ -35,11 +35,9 @@ class Domibus{
 
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-	static def FS_DEF_SENDER="domibus-blue"; static def FS_DEF_RECEIVER="domibus-red"; static def FS_DEF_AGR_TYPE="DUM";
-	static def FS_DEF_AGR="DummyAgr"; static def FS_DEF_SRV_TYPE="tc20"; static def FS_DEF_SRV="bdx:noprocess";
-	static def FS_DEF_ACTION="TC20Leg1"; static def FS_DEF_CID="cid:message"; static def FS_DEF_PAY_NAME="PayloadName.xml"; static def FS_DEF_MIME="text/xml";
-	static def FS_DEF_OR_SENDER="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"; static def FS_DEF_FIN_RECEIVER="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-	static def FS_DEF_LIST=[FS_DEF_SENDER,FS_DEF_RECEIVER,FS_DEF_AGR_TYPE,FS_DEF_AGR,FS_DEF_SRV_TYPE,FS_DEF_SRV,FS_DEF_ACTION,FS_DEF_OR_SENDER,FS_DEF_FIN_RECEIVER,FS_DEF_CID,FS_DEF_MIME,FS_DEF_PAY_NAME];
+	static def FS_DEF_MAP=[FS_DEF_SENDER:"domibus-blue",FS_DEF_RECEIVER:"domibus-red",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"];
+	
+	
 	
     static def backup_file_sufix = "_backup_for_soapui_tests";
     static def DEFAULT_LOG_LEVEL = 0;
@@ -2410,8 +2408,8 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 
             while ( (i < usersMap.items.size()) && (propValue == null) ) {
                 assert(usersMap.items[i] != null),"Error:getPropertyAtRuntime: Error while parsing the list of returned properties.";
-                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].metadata.name + "--.", log)
-                if (usersMap.items[i].metadata.name == propName) {
+                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].name + "--.", log)
+                if (usersMap.items[i].name == propName) {
 					propValue = usersMap.items[i].value;
                 }
                 i++;
@@ -3358,15 +3356,16 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		return mapValue[side+number];
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-	def static submitFSmessage(String side,String configuration,String domain,parametersList,context,log,testRunner,boolean twoFiles=true,String authUser = null, authPwd = null){
+	// Copy metadat + payload files to submit fs plugin messages
+	// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+	def static submitFSmessage(String side,String configuration,String domain,parametersMap,context,log,testRunner,boolean twoFiles=true,String subFolder="",String authUser = null, authPwd = null){
 		debugLog("  ====  Calling \"submitFSmessage\".", log);
 		def messageMetadata=null;
 		def fspluginPath=null;
 		def source=null;
 		def dest=null;
 		def metadataFile=null;
-		// After testing of 4.1.4 change to "fsplugin.messages.location"
-		def messageLocationPrpertyName="fsplugin.domains.default.messages.location";
+		def messageLocationPrpertyName="fsplugin.messages.location";
 		def i=0;
 		
 		def multitenancyOn = getMultitenancyFromSide(side, context, log);
@@ -3374,38 +3373,43 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
 		}
 	
+		// Extract the suitable template for metadata.xml file
 	    switch (configuration.toLowerCase()) {
 			case  "standard":
-				assert(parametersList.size>=9),"Error: submitFSmessage: number of parameters provided must be at least 9. Provided: " +parametersList.size;
 				messageMetadata=getProjectCustProp("fsMetadataStandard",context,log,testRunner);
                 break;
             case "withmime":
-				assert(parametersList.size>=11),"Error: submitFSmessage: number of parameters provided must be at least 11. Provided: " +parametersList.size;
 				messageMetadata=getProjectCustProp("fsMetadataWithMimeType",context,log,testRunner);
-				messageMetadata=messageMetadata.replace(FS_DEF_CID,parametersList[9]).replace(FS_DEF_MIME,parametersList[10]);
                 break;
             case "withpname":
-				assert(parametersList.size>=11),"Error: submitFSmessage: number of parameters provided must be at least 11. Provided: " +parametersList.size;
 				messageMetadata=getProjectCustProp("fsMetadataWithPayloadName",context,log,testRunner);
-				messageMetadata=messageMetadata.replace(FS_DEF_CID,parametersList[9]).replace(FS_DEF_PAY_NAME,parametersList[10]);
                 break;
             default:
-				assert(parametersList.size>=9),"Error: submitFSmessage: number of parameters provided must be at least 9. Provided: " +parametersList.size;
                 log.warn "Unknown type of configuration: assume standard ..."
 				messageMetadata=getProjectCustProp("fsPluginPrototype",context,log,testRunner);
                 break;
         }
-		for(i=0;i<=8;i++){
-			messageMetadata=messageMetadata.replace(FS_DEF_LIST[i],parametersList[i]);
+		
+		// Update the targeted values in the template 
+		parametersMap.each { entry ->
+			messageMetadata=messageMetadata.replace(FS_DEF_MAP["FS_DEF_"+entry.key],entry.value);
 		}
+
+		// Get the path to the fsplugin sending location
 		fspluginPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/OUT/";
+		if(!subFolder.equals("")){
+			fspluginPath=fspluginPath+subFolder+"/"
+		}
 		fspluginPath=formatPathSlashes(fspluginPath);
+		
 		debugLog("  submitFSmessage  [][]  fspluginPath=\"$fspluginPath\"", log);
 		
+		// Copy the file
 		source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml");
 		dest=fspluginPath+"Test_file.xml";
 		copyFile(source,dest,log);
 
+		// Copy a second file in case needed 
 		if(twoFiles){
 			source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf");
 			dest=fspluginPath+"fileSmall.pdf";
@@ -3428,9 +3432,8 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		debugLog("  ====  Calling \"checkFSpayloadPresent\".", log);
 		def fsPayloadPath=null;
 		def i=0;
-		def testFile=null;
-		// After testing of 4.1.4 change to "fsplugin.messages.location"	
-		def messageLocationPrpertyName="fsplugin.domains.default.messages.location";
+		def testFile=null;	
+		def messageLocationPrpertyName="fsplugin.messages.location";
 		
 		def multitenancyOn = getMultitenancyFromSide(side, context, log);
 		if(multitenancyOn){
