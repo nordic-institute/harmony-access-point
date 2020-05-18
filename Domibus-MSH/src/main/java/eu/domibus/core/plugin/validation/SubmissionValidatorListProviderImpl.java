@@ -19,7 +19,6 @@ import java.util.List;
  * Created by Cosmin Baciu on 04-Aug-16.
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SubmissionValidatorListProviderImpl implements SubmissionValidatorListProvider, ApplicationContextAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionValidatorListProviderImpl.class);

@@ -24,7 +24,6 @@ public class MessageSenderFactory {
     @Autowired
     SourceMessageSender sourceMessageSender;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public MessageSender getMessageSender(final UserMessage userMessage) {
         if (userMessage.isSplitAndJoin()) {
             if (userMessage.getMessageFragment() != null) {

@@ -244,7 +244,6 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 
@@ -322,7 +321,6 @@ public abstract class PModeProvider {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
@@ -359,7 +357,6 @@ public abstract class PModeProvider {
 
     public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getCollaborationInfo().getAction();
         final String actionName = findActionName(actionValue);

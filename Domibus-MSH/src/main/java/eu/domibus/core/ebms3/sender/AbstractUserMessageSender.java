@@ -68,7 +68,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected ReliabilityService reliabilityService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
     @Counter(OUTGOING_USER_MESSAGE)

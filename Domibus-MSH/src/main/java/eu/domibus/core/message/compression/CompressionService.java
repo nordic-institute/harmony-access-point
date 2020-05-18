@@ -29,7 +29,6 @@ import java.io.OutputStream;
  * @since 3.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class CompressionService {
     public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
     public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";

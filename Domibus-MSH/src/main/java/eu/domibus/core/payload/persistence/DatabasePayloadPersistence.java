@@ -27,7 +27,6 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class DatabasePayloadPersistence implements PayloadPersistence {
 

@@ -39,7 +39,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     @Autowired
     protected DomainService domainService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleEncryption() {
         if (useLockForEncryption()) {
