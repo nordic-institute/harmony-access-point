@@ -1,7 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -10,7 +9,6 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.ClassUtil;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +32,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyServiceImpl.class);
 
-//    @Autowired
-//    protected DomainExtConverter domainConverter;
-
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
@@ -46,9 +41,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    /**
-     * We inject here all property managers: one for each plugin, external module
-     */
 //    @Autowired
 //    private List<DomibusPropertyManagerExt> propertyManagers;
 
@@ -59,44 +51,29 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    ClassUtil classUtil;
-
-    @Autowired
     @Lazy
-    GlobalPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
 
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
-        List<DomibusProperty> allProperties = new ArrayList<>();
+        List<DomibusProperty> result = new ArrayList<>();
 
-        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, domibusPropertyMetadataManager.getAllProperties());
+        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, globalPropertyMetadataManager.getAllProperties());
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
-        allProperties.addAll(properties);
 
-//        for (DomibusPropertyManagerExt propertyManager : propertyManagers) {
-//            List<DomibusPropertyMetadataDTO> propertyMetadata = filterProperties(name, showDomain, propertyManager);
-//            List<DomibusProperty> moduleProperties = createProperties(propertyManager, propertyMetadata);
-//            allProperties.addAll(moduleProperties);
-//        }
+        result.addAll(properties);
 
-        return allProperties;
+        return result;
     }
 
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         try {
-//            DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
-//            DomibusPropertyMetadataDTO propMeta = propertyManager.getKnownProperties().get(name);
-
-            DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(name);
-
-//            // validate the property value against the type
-//            validatePropertyValue(propMeta, value);
+            DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(name);
 
             if (isDomain) {
                 LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
-//                setPropertyValue(propertyManager, name, value);
                 domibusPropertyProvider.setProperty(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
@@ -105,7 +82,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
                     LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
-//                    setPropertyValue(propertyManager, name, value);
                     domibusPropertyProvider.setProperty(name, value);
                 });
             }
@@ -114,51 +90,15 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
     }
 
-//    protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
-//        Optional<DomibusPropertyManagerExt> found = propertyManagers.stream()
-//                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
-//        if (found.isPresent()) {
-//            return found.get();
-//        }
-//
-//        throw new DomibusPropertyException("Property manager not found for property " + propertyName);
-//    }
-
-//    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
-//        if (propMeta == null) {
-//            LOG.warn("Property metadata is null; exiting validation.");
-//            return;
-//        }
-//
-//        try {
-//            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
-//            DomibusPropertyValidator validator = type.getValidator();
-//            if (validator == null) {
-//                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
-//                return;
-//            }
-//
-//            if (!validator.isValid(propertyValue)) {
-//                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
-//            }
-//        } catch (IllegalArgumentException ex) {
-//            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
-//        }
-//    }
-
-    //    private List<DomibusProperty> createProperties(DomibusPropertyManagerExt propertyManager, List<DomibusPropertyMetadataDTO> knownProps) {
     private List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadata propMeta : properties) {
-            String value = domibusPropertyProvider.getProperty(propMeta.getName());
-
-//            String value = getPropertyValue(propertyManager, propertyName);
-//            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+            String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
 
             DomibusProperty prop = new DomibusProperty();
             prop.setMetadata(propMeta);
-            prop.setValue(value);
+            prop.setValue(propertyValue);
 
             list.add(prop);
         }
@@ -166,10 +106,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return list;
     }
 
-    //    private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {
-    private List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertyMetadata) {
-//        List<DomibusPropertyMetadataDTO> knownProps = propertyManager.getKnownProperties().values().stream()
-        List<DomibusPropertyMetadata> knownProps = propertyMetadata.values().stream()
+    private List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertiesMap) {
+        List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(p -> p.isWritable())
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
@@ -187,30 +125,5 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         }
         return knownProps;
     }
-
-    // todo: to be moved also
-//    protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
-//        String value;
-//        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-//            LOG.debug("Calling getKnownPropertyValue method");
-//            value = propertyManager.getKnownPropertyValue(propertyName);
-//        } else {
-//            LOG.debug("Calling deprecated getKnownPropertyValue method");
-//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
-//        }
-//        return value;
-//    }
-//
-//    protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-//        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-//            LOG.debug("Calling setKnownPropertyValue method");
-//            propertyManager.setKnownPropertyValue(name, value);
-//        } else {
-//            LOG.debug("Calling deprecated setKnownPropertyValue method");
-//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
-//        }
-//    }
 
 }

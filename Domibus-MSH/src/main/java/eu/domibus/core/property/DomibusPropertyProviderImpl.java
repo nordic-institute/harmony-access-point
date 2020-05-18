@@ -164,7 +164,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 String propertyValue;
                 if (domain == null) {
                     propertyValue = getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
-                } else { // is this correct???
+                } else { // is this correct??? get current domain, compare it with the param and throw in case of difference???
                     propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
                 }
                 //save the value locally/sync
@@ -262,7 +262,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
             setInternalPropertyValue(domain, propertyName, propertyValue, false);
-        } else {
+        } else { //get current domain, compare it with the param and throw in case of difference???
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
         }
 
@@ -271,7 +271,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (manager != null) {
             if (domain == null) {
                 setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
-            } else { //is this correct? 
+            } else { //is this correct?
                 manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
             }
         }
