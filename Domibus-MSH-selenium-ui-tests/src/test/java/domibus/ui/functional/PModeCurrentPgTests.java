@@ -2,7 +2,7 @@ package domibus.ui.functional;
 
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -14,7 +14,7 @@ import pages.pmode.current.PModeCurrentPage;
 
  * @since 4.1
  */
-public class PModeCurrentPgTests extends BaseTest {
+public class PModeCurrentPgTests extends SeleniumTest {
 
 	/*	PMC-1 - Login as super admin and open PMode - Current page	*/
 	@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})
@@ -29,7 +29,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is not enabled when first opening the page");
 		soft.assertTrue(page.getUploadBtn().isEnabled(), "Upload button is enabled when first opening the page");
 
-		if(rest.isPmodeUploaded(null)){
+		if(rest.pmode().isPmodeUploaded(null)){
 			soft.assertTrue(page.getTextArea().isEnabled(), "If at least one PMode file was uploaded, text area is present and enabled when first opening the page");
 			soft.assertTrue(page.getDownloadBtn().isEnabled(), "Download button button is enabled when first opening the page");
 		}else {
@@ -48,7 +48,7 @@ public class PModeCurrentPgTests extends BaseTest {
 		String expectedErrorMess = "Failed to upload the PMode file due to: WstxUnexpectedCharException: Unexpected character";
 
 		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -83,7 +83,7 @@ public class PModeCurrentPgTests extends BaseTest {
 	public void editPModeValidXML() throws Exception{
 
 		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -118,13 +118,13 @@ public class PModeCurrentPgTests extends BaseTest {
 	@Test(description = "PMC-7", groups = {"multiTenancy"})
 	public void domainSegregationPMode() throws Exception{
 
-		String domainName = getNonDefaultDomain();
-		String domainCode = rest.getDomainCodeForName(domainName);
+		String domainName = rest.getNonDefaultDomain();
+		String domaincode = rest.getDomainCodeForName(domainName);
 
 		log.info("uploading different pmodes on 2 different domains");
 
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-		rest.uploadPMode("pmodes/multipleParties.xml", domainCode);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/multipleParties.xml", domaincode);
 
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);

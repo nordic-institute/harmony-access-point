@@ -30,7 +30,7 @@ import java.util.List;
  */
 
 
-public class MessageFilterPgTest extends BaseTest {
+public class MessageFilterPgTest extends SeleniumTest {
 
 	@BeforeMethod(alwaysRun = true)
 	private void login() throws Exception {
@@ -113,7 +113,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Generator.randomAlphaNumeric(5);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
 
@@ -141,7 +141,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("Delete the created filters");
 		for (int i = 0; i < actionNames.size(); i++) {
-			rest.deleteMessageFilter(actionNames.get(i), null);
+			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
 		}
 		soft.assertAll();
 	}
@@ -195,7 +195,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create 5 filters");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Generator.randomAlphaNumeric(5);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
 
@@ -216,7 +216,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("Delete the created filters");
 		for (int i = 0; i < actionNames.size(); i++) {
-			rest.deleteMessageFilter(actionNames.get(i), null);
+			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
 		}
 
 		soft.assertAll();
@@ -229,7 +229,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Generator.randomAlphaNumeric(5);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
 
@@ -294,7 +294,7 @@ public class MessageFilterPgTest extends BaseTest {
 		soft.assertTrue(page.getDeleteBtn().isEnabled(), "Delete button is enabled for middle last row");
 
 		for (int i = 0; i < actionNames.size(); i++) {
-			rest.deleteMessageFilter(actionNames.get(i), null);
+			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
 		}
 		log.info("deleted the created filters");
 
@@ -308,7 +308,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Generator.randomAlphaNumeric(5);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
 
@@ -345,7 +345,7 @@ public class MessageFilterPgTest extends BaseTest {
 				"After the save the row is still on one position higher than before");
 
 		for (int i = 0; i < actionNames.size(); i++) {
-			rest.deleteMessageFilter(actionNames.get(i), null);
+			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
 		}
 		log.info("deleted the created filters");
 
@@ -357,7 +357,7 @@ public class MessageFilterPgTest extends BaseTest {
 	public void editAndCancel() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 
@@ -385,7 +385,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("delete created filter");
-		rest.deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 	}
@@ -396,7 +396,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
 		String newActionValue = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -423,7 +423,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("delete created filter");
-		rest.deleteMessageFilter(newActionValue, null);
+		rest.messFilters().deleteMessageFilter(newActionValue, null);
 
 		soft.assertAll();
 	}
@@ -433,7 +433,7 @@ public class MessageFilterPgTest extends BaseTest {
 	public void deleteAndCancel() throws Exception {
 		log.info("Create a filter to delete");
 		String actionName = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 
@@ -462,7 +462,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("cleanup the filter");
-		rest.deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 	}
@@ -472,7 +472,7 @@ public class MessageFilterPgTest extends BaseTest {
 	public void deleteAndSave() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 
@@ -530,6 +530,7 @@ public class MessageFilterPgTest extends BaseTest {
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
 
 		log.info("changing domain to 1");
+		page.getDomainSelector().selectOptionByText(rest.getNonDefaultDomain());
 		page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
 		page.grid().waitForRowsToLoad();
 
@@ -537,7 +538,7 @@ public class MessageFilterPgTest extends BaseTest {
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid on other domains then default");
 
 		log.info("delete created filter");
-		rest.deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
 		soft.assertAll();
 	}
 
@@ -547,9 +548,9 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
 		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 		log.debug("filter with action "+actionName+" created");
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -635,7 +636,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("cleanup the filter");
-		rest.deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 	}
@@ -646,7 +647,7 @@ public class MessageFilterPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = new MessageFilterPage(driver);
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -658,7 +659,7 @@ public class MessageFilterPgTest extends BaseTest {
 	public void doubleClickRow() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -681,7 +682,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("deleting the created filter");
-		rest.deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 	}
@@ -693,7 +694,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Generator.randomAlphaNumeric(5);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
 
@@ -724,7 +725,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		log.info("Delete the created filters");
 		for (int i = 0; i < actionNames.size(); i++) {
-			rest.deleteMessageFilter(actionNames.get(i), null);
+			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
 		}
 		soft.assertAll();
 	}
@@ -735,7 +736,7 @@ public class MessageFilterPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		log.info("checking if there are any empty message filters");
-		JSONArray msgfs = rest.getMessageFilters(null);
+		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		String pluginName = "";
 		for (int i = 0; i < msgfs.length(); i++) {
 			JSONObject msgf = msgfs.getJSONObject(i);
@@ -821,7 +822,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("deleting created filter");
-		rest.deleteMessageFilter(partyString, null);
+		rest.messFilters().deleteMessageFilter(partyString, null);
 
 		soft.assertAll();
 	}
@@ -834,8 +835,8 @@ public class MessageFilterPgTest extends BaseTest {
 
 		String actionName = Generator.randomAlphaNumeric(5);
 		String anotherActionName = Generator.randomAlphaNumeric(5);
-		rest.createMessageFilter(actionName, null);
-		rest.createMessageFilter(anotherActionName, null);
+		rest.messFilters().createMessageFilter(actionName, null);
+		rest.messFilters().createMessageFilter(anotherActionName, null);
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
@@ -864,8 +865,8 @@ public class MessageFilterPgTest extends BaseTest {
 
 //		Delete created filter
 		log.info("deleting created filters");
-		rest.deleteMessageFilter(actionName, null);
-		rest.deleteMessageFilter(anotherActionName, null);
+		rest.messFilters().deleteMessageFilter(actionName, null);
+		rest.messFilters().deleteMessageFilter(anotherActionName, null);
 
 		soft.assertAll();
 	}
@@ -892,7 +893,7 @@ public class MessageFilterPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = new MessageFilterPage(driver);
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 

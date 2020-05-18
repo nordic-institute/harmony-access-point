@@ -5,7 +5,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 
 
-public class PluginUsersPgTest extends BaseTest {
+public class PluginUsersPgTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);
 
@@ -101,7 +101,7 @@ public class PluginUsersPgTest extends BaseTest {
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled after new user persisted");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled after new user persisted");
 
-		rest.deletePluginUser(username, null);
+		rest.pluginUsers().deletePluginUser(username, null);
 
 		soft.assertAll();
 	}
@@ -109,7 +109,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-16 - Admin changes a user role	*/
 	@Test(description = "PU-16", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRole() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -147,7 +147,7 @@ public class PluginUsersPgTest extends BaseTest {
 	public void editAndCancel() throws Exception {
 
 		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -193,7 +193,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "PU-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
 		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -235,7 +235,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-8 - Admin deletes user and presses Cancel	*/
 	@Test(description = "PU-8", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndCancel() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -265,7 +265,7 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-9 - Admin deletes user and presses Save	*/
 	@Test(description = "PU-9", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndSave() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -363,12 +363,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*PU-18 - Admin tries to create users with the same username on multiple domains*/
 	@Test(description = "PU-18", groups = {"multiTenancy"} )
 	public void duplicatePluginUsersDifferentDomain() throws Exception {
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = getPluginUser(domainCode, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(domainCode, DRoles.USER, true, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -388,14 +388,14 @@ public class PluginUsersPgTest extends BaseTest {
 				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, domainCode),
 				"Error message is shown");
 
-		rest.deletePluginUser(username, domainCode);
+		rest.pluginUsers().deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 
 	/* PU-19 - Admin tries to create plugin user with the same name as a normal user from his domain */
 	@Test(description = "PU-19", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnSameDomain() throws Exception {
-		String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+		String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -422,12 +422,12 @@ public class PluginUsersPgTest extends BaseTest {
 	/*	PU-20 - Admin tries to create plugin user with the same name as a normal user from another domain	*/
 	@Test(description = "PU-20", groups = {"multiTenancy"})
 	public void sameUsernameAsUserOnDifferentDomain() throws Exception {
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		if (StringUtils.isEmpty(domainName)) {
 			throw new SkipException("could not get domains");
 		}
 		String domainCode = rest.getDomainCodeForName(domainName);
-		String username = getUser(domainCode, DRoles.USER, true, false, false).getString("userName");
+		String username = rest.getUser(domainCode, DRoles.USER, true, false, false).getString("userName");
 		log.info("testing for username " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -498,7 +498,7 @@ public class PluginUsersPgTest extends BaseTest {
 	@Test(description = "*****", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicatePluginUsersSameDomain() throws Exception {
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
@@ -514,7 +514,7 @@ public class PluginUsersPgTest extends BaseTest {
 				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
 				"Error message is shown");
 
-		rest.deletePluginUser(username, null);
+		rest.pluginUsers().deletePluginUser(username, null);
 		soft.assertAll();
 	}
 
@@ -524,9 +524,9 @@ public class PluginUsersPgTest extends BaseTest {
 
 		String username = Generator.randomAlphaNumeric(10);
 
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
-		rest.createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
+		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
 		log.debug("Plugin user created: " + username);
 
 //		go to plugin users page
@@ -541,7 +541,7 @@ public class PluginUsersPgTest extends BaseTest {
 
 		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1.");
 
-		rest.deletePluginUser(username, domainCode);
+		rest.pluginUsers().deletePluginUser(username, domainCode);
 		soft.assertAll();
 	}
 

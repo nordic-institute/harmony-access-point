@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +22,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class TruststorePgUXTests extends BaseTest {
+public class TruststorePgUXTests extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORE);
 
@@ -79,7 +79,7 @@ public class TruststorePgUXTests extends BaseTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -245,7 +245,7 @@ public class TruststorePgUXTests extends BaseTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 
-		String fileName = rest.downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

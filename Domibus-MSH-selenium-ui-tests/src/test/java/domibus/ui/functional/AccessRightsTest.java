@@ -3,10 +3,9 @@ package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
 import utils.Generator;
 
 
@@ -16,14 +15,14 @@ import utils.Generator;
  */
 
 
-public class AccessRightsTest extends BaseTest {
+public class AccessRightsTest extends SeleniumTest {
 
 	/* Login with valid user with role ROLE_USER */
 	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
@@ -40,7 +39,7 @@ public class AccessRightsTest extends BaseTest {
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
@@ -61,7 +60,7 @@ public class AccessRightsTest extends BaseTest {
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());
@@ -78,7 +77,7 @@ public class AccessRightsTest extends BaseTest {
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Generator.randomAlphaNumeric(10);
-		rest.createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());

@@ -1,7 +1,7 @@
 package domibus.ui.ux;
 
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;
@@ -9,12 +9,12 @@ import pages.pmode.parties.PModePartiesPage;
 import java.util.HashMap;
 import java.util.List;
 
-public class PmodePartiesPgUXTest  extends BaseTest{
+public class PmodePartiesPgUXTest  extends SeleniumTest {
 
     @Test(description = "PMP-1", groups = {"multiTenancy", "singleTenancy"})
     public void openPModePartiesPage() throws Exception {
 
-        rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+        rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);
@@ -43,7 +43,7 @@ public class PmodePartiesPgUXTest  extends BaseTest{
     @Test(description = "PMP-1.1", groups = {"multiTenancy", "singleTenancy"})
     public void selectRow() throws Exception {
 
-        rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+        rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
         SoftAssert soft = new SoftAssert();
         PModePartiesPage Ppage=new PModePartiesPage(driver);

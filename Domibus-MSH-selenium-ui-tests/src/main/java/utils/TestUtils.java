@@ -16,11 +16,18 @@ import org.testng.asserts.SoftAssert;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 
 /**
@@ -162,5 +169,73 @@ public class TestUtils {
         return ListUtils.isEqualList(l1, l2);
     }
 
+
+    public static HashMap<String, String> unzip(String zipFilePath) throws Exception {
+
+        String destDir = zipFilePath.replaceAll(".zip", "");
+
+        HashMap<String, String> zipContent = new HashMap<>();
+
+        File dir = new File(destDir);
+        // create output directory if it doesn't exist
+        if(!dir.exists()) dir.mkdirs();
+
+
+        FileInputStream fis;
+        //buffer for read and write data to file
+        byte[] buffer = new byte[1024];
+
+        fis = new FileInputStream(zipFilePath);
+        ZipInputStream zis = new ZipInputStream(fis);
+        ZipEntry ze = zis.getNextEntry();
+        while (ze != null) {
+
+            String fileName = ze.getName();
+            File newFile = new File(destDir + File.separator + fileName);
+
+            System.out.println("Unzipping to " + newFile.getAbsolutePath());
+            //create directories for sub directories in zip
+            new File(newFile.getParent()).mkdirs();
+            FileOutputStream fos = new FileOutputStream(newFile);
+            int len;
+            while ((len = zis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+            fos.close();
+            //close this ZipEntry
+            zis.closeEntry();
+
+            String fileContent = new String(Files.readAllBytes(Paths.get(newFile.getAbsolutePath())));
+            zipContent.put(fileName, fileContent);
+
+            ze = zis.getNextEntry();
+        }
+
+        //close last ZipEntry
+        zis.closeEntry();
+        zis.close();
+        fis.close();
+
+        return zipContent;
+    }
+
+    public static String getValueFromXMLString(String xmlString, String key){
+        String start = key + ">";
+        String end = "<\\/eb:" + key ;
+
+        Pattern p = Pattern.compile(start+"(.*?)"+end);
+        Matcher m = p.matcher(xmlString);
+        m.find();
+        return m.group(1);
+    }
+
+    public static String jmsDateStrFromTimestamp(Long timestamp){
+        Date date  = new Date();
+        date.setTime(timestamp);
+
+        TestRunData.REST_JMS_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String dateStr = TestRunData.REST_JMS_DATE_FORMAT.format(date);
+        return dateStr;
+    }
 
 }

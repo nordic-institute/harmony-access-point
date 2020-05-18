@@ -1,7 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 
-public class TestServicePgTest extends BaseTest {
+public class TestServicePgTest extends SeleniumTest {
 
 	/* TS-1 - Login as super admin and open Connections Monitoring page */
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
@@ -28,7 +28,7 @@ public class TestServicePgTest extends BaseTest {
 		log.info("checking page ..");
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
 
-		if (!rest.isPmodeUploaded(null)) {
+		if (!rest.pmode().isPmodeUploaded(null)) {
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
@@ -40,7 +40,7 @@ public class TestServicePgTest extends BaseTest {
 	public void availableParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading PMode");
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestServicePage page = new TestServicePage(driver);
@@ -59,7 +59,7 @@ public class TestServicePgTest extends BaseTest {
 	public void testBlueParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("uploading pmode");
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestServicePage page = new TestServicePage(driver);

@@ -1,5 +1,6 @@
-package utils.customReporter;
+package domibus;
 
+import domibus.ui.SeleniumTest;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
-import utils.BaseTest;
+
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -44,12 +45,12 @@ public class FailListener implements ITestListener {
 		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
-		String outputPath = ((BaseTest) result.getInstance()).data.getReportsFolder();
+		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
 		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
 
 		try {
-			WebDriver driver = ((BaseTest) result.getInstance()).driver;
-			((BaseTest) result.getInstance()).log.info("copying screenshot to " + filename);
+			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
+			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
 			TakesScreenshot scrShot = ((TakesScreenshot) driver);
 			File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
 			FileUtils.copyFile(srcFile, new File(filename));

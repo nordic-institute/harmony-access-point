@@ -5,7 +5,7 @@ import ddsl.enums.PAGES;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -13,8 +13,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import rest.RestServicePaths;
-import utils.Generator;
-import utils.Order;
 import utils.TestUtils;
 
 import java.io.Reader;
@@ -28,7 +26,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class AuditPgUXTest extends BaseTest {
+public class AuditPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);
 
@@ -141,7 +139,7 @@ public class AuditPgUXTest extends BaseTest {
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
 
 		log.info("Download all grid record csv");
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 
 		log.info("downloaded audit logs to file :" + fileName);
 		System.out.println(page.grid().getRowsNo());
@@ -162,7 +160,7 @@ public class AuditPgUXTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		page.grid().waitForRowsToLoad();
 
-		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

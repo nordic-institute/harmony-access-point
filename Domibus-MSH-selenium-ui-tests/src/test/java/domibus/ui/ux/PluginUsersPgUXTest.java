@@ -4,7 +4,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 
-public class PluginUsersPgUXTest extends BaseTest {
+public class PluginUsersPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);
 
@@ -61,7 +61,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		if(page.grid().getRowsNo()==0){
-			getPluginUser(null, DRoles.USER, true, true);
+			rest.getPluginUser(null, DRoles.USER, true, true);
 			page.refreshPage();
 		}
 
@@ -84,7 +84,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
 	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editPassErrMess() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -119,7 +119,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 	/*	PU-10 - Admin wants to edit username	*/
 	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editUsername() throws Exception {
-		String username = getPluginUser(null, DRoles.USER, true, false).getString("userName");
+		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -145,7 +145,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		String certName = Generator.randomAlphaNumeric(5);
 		String id = Generator.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, id);
-		rest.createCertPluginUser(username, DRoles.USER, null);
+		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, null);
 		log.info("testing for user " + username);
 
 		SoftAssert soft = new SoftAssert();
@@ -228,7 +228,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			String username = Generator.randomAlphaNumeric(10);
-			rest.createPluginUser(username, DRoles.USER, data.defaultPass(), null);
+			rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 			usernames.add(username);
 		}
 
@@ -249,7 +249,7 @@ public class PluginUsersPgUXTest extends BaseTest {
 		}
 
 		for (int i = 0; i < usernames.size(); i++) {
-			rest.deletePluginUser(usernames.get(i), null);
+			rest.pluginUsers().deletePluginUser(usernames.get(i), null);
 		}
 		soft.assertAll();
 	}

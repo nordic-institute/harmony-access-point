@@ -12,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 
-public class UsersPgUXTest extends BaseTest {
+public class UsersPgUXTest extends SeleniumTest {
 
     JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.USERS);
 
@@ -56,7 +56,7 @@ public class UsersPgUXTest extends BaseTest {
     public void openDoubleClickModal() throws Exception {
         SoftAssert soft = new SoftAssert();
 
-        String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("found user " + username);
 
         UsersPage page = new UsersPage(driver);
@@ -72,17 +72,17 @@ public class UsersPgUXTest extends BaseTest {
         soft.assertEquals(um.getUserNameInput().getText(), username, "Usernames match");
         soft.assertEquals(um.getRoleSelect().getSelectedValue(), DRoles.USER, "Roles match");
 
-        if (data.isIsMultiDomain()) {
-            soft.assertTrue(StringUtils.equalsIgnoreCase(um.getDomainSelect().getSelectedValue(), "Default"), "Domain matches selected domain in page header");
+        if (data.isMultiDomain()) {
+            soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
         }
         soft.assertAll();
     }
 
     /* Doubleclick on one user (deleted) */
-    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void doubleclickDeletedUser() throws Exception {
         SoftAssert soft = new SoftAssert();
-        String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, true, false).getString("userName");
 
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
@@ -110,7 +110,7 @@ public class UsersPgUXTest extends BaseTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("test for user " + username);
 
         page.grid().scrollToAndDoubleClick("Username", username);
@@ -127,7 +127,7 @@ public class UsersPgUXTest extends BaseTest {
         SoftAssert soft = new SoftAssert();
 
 //		edit scenario
-        String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("found user " + username);
 
         UsersPage page = new UsersPage(driver);
@@ -167,7 +167,7 @@ public class UsersPgUXTest extends BaseTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
         page.grid().getGridCtrl().showCtrls();
@@ -179,13 +179,13 @@ public class UsersPgUXTest extends BaseTest {
     }
 
     /* USR-30 - Download all lists of users */
-    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"})
+    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void csvFileDownload() throws Exception {
         SoftAssert soft = new SoftAssert();
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, null);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
         page.includeDeletedUsers();
@@ -330,7 +330,7 @@ public class UsersPgUXTest extends BaseTest {
     public void selectDeletedUserRow() throws Exception {
         SoftAssert soft = new SoftAssert();
 
-        String username = getUser(null, DRoles.USER, true, true, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, true, false).getString("userName");
         log.info("checking for username " + username);
 
         UsersPage page = new UsersPage(driver);
@@ -353,7 +353,7 @@ public class UsersPgUXTest extends BaseTest {
     /* USR-23 - Active user row selection on single click */
     @Test(description = "USR-23", groups = {"multiTenancy", "singleTenancy"})
     public void selectUserRow() throws Exception {
-        String username = getUser(null, DRoles.USER, true, false, false).getString("userName");
+        String username = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
         log.info("checking for username " + username);
 
         SoftAssert soft = new SoftAssert();
@@ -372,7 +372,7 @@ public class UsersPgUXTest extends BaseTest {
     @Test(description = "USR-18", groups = {"multiTenancy"}, enabled = false)
     public void csvFileDownloadDomain() throws Exception {
         SoftAssert soft = new SoftAssert();
-        String domainName = getNonDefaultDomain();
+        String domainName = rest.getNonDefaultDomain();
         String domainCode = rest.getDomainCodeForName(domainName);
         log.info("checking download for domain " + domainName);
 
@@ -380,13 +380,12 @@ public class UsersPgUXTest extends BaseTest {
         page.getSidebar().goToPage(PAGES.USERS);
         page.getDomainSelector().selectOptionByText(domainName);
 
-        String fileName = rest.downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
+        String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
         log.info("downloaded file with name " + fileName);
 
         page.includeDeletedUsers();
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
-        page.grid().getGridCtrl().uncheckBoxWithLabel("Password");
 
         log.info("checking info in grid against the file");
         page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);

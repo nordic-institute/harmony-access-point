@@ -2,6 +2,8 @@ package utils;
 
 
 import ddsl.enums.DRoles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,8 +22,12 @@ import java.util.Properties;
 public class TestRunData {
 	static Properties prop = new Properties();
 
+	Logger log = LoggerFactory.getLogger("TestRunData");
+
 	public static SimpleDateFormat UI_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	public static SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'GMT'Z");
+	public static SimpleDateFormat REST_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	public static SimpleDateFormat REST_JMS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	public static SimpleDateFormat TESTSERVICE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss");
 	public static SimpleDateFormat DATEWIDGET_DATE_FORMAT = new SimpleDateFormat(" dd/MM/yyyy HH:mm");
 
@@ -61,14 +67,16 @@ public class TestRunData {
 	}
 
 	public HashMap<String, String> getAdminUser() {
-		if (isIsMultiDomain()) {
+		if (isMultiDomain()) {
 			return getUser(DRoles.SUPER);
 		}
 		return getUser(DRoles.ADMIN);
 	}
 
 	public String getUiBaseUrl() {
-		return prop.getProperty("UI_BASE_URL");
+		String url = prop.getProperty("UI_BASE_URL");
+		log.debug(url);
+		return url;
 	}
 
 	public Integer getTIMEOUT() {
@@ -83,7 +91,7 @@ public class TestRunData {
 		return prop.getProperty("reports.folder");
 	}
 
-	public boolean isIsMultiDomain() {
+	public boolean isMultiDomain() {
 		return Boolean.valueOf(prop.getProperty("isMultiDomain"));
 	}
 
@@ -133,6 +141,8 @@ public class TestRunData {
 		Date date = UI_DATE_FORMAT.parse(uiDate);
 		return DATEWIDGET_DATE_FORMAT.format(date);
 	}
+
+
 
 
 }

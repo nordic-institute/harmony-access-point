@@ -2,7 +2,7 @@ package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
-import utils.BaseTest;;
+;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.SplitAndJoin.SplitAndJoinPage;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class SplitAndJoinFunctionalTest extends BaseTest {
+public class SplitAndJoinFunctionalTest extends SeleniumTest {
     //This method will verify presence of splitting configuration and along with its activation
 
     @Test(description = "SJ-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void splittingConfPresence() throws Exception {
-        rest.uploadPMode("pmodes/splitPmode.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode.xml", null);
         SoftAssert soft = new SoftAssert();
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
@@ -47,7 +47,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     @Test(description = "SJ-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkFragmentCount() throws Exception {
         SoftAssert soft = new SoftAssert();
-        rest.uploadPMode("pmodes/splitPmode.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -105,7 +105,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     public void checkFragmentPresenceAndStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Upload pmode");
-        rest.uploadPMode("pmodes/splitPmode.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode.xml", null);
         log.info("Login into application");
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
@@ -174,7 +174,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     @Test(description = "SJ-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkDownloadButtonStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
-        rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -238,7 +238,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     public void checkResendButtonStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
         log.info("Upload pmode");
-        rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -301,7 +301,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     @Test(description = "SJ-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkActionIconStatus() throws Exception {
         SoftAssert soft = new SoftAssert();
-        rest.uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode_NoRetry.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -360,7 +360,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     @Test(description = "SJ-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkfragForSmallSize() throws Exception {
         SoftAssert soft = new SoftAssert();
-        rest.uploadPMode("pmodes/splitPmode.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -412,7 +412,7 @@ public class SplitAndJoinFunctionalTest extends BaseTest {
     @Test(description = "SJ-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void checkConservationId() throws Exception {
         SoftAssert soft = new SoftAssert();
-        rest.uploadPMode("pmodes/splitPmode.xml", null);
+        rest.pmode().uploadPMode("pmodes/splitPmode.xml", null);
         login(data.getAdminUser());
         DomibusPage page = new DomibusPage(driver);
         page.getSidebar().goToPage(PAGES.MESSAGES);

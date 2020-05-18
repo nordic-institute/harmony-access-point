@@ -12,7 +12,7 @@ import rest.DomibusRestClient;
 import utils.Generator;
 import utils.TestRunData;
 import java.sql.*;
-import static utils.BaseTest.messageSender;
+import static domibus.ui.SeleniumTest.messageSender;
 
 /**
  * This file is referred for ticket 4839
@@ -60,11 +60,11 @@ public class UiReplicationTest {
         log.info("Generate random conversation id");
         String conversationID = Generator.randomAlphaNumeric(10);
         log.info("Create plugin user with rest call");
-        rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+        rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
         for (int i = 0; i < 50; i++) {
             log.info("Upload pmode");
-            rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+            rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
             log.info("send message through rest call");
             String messageID = messageSender.sendMessage(user, data.defaultPass(), messageRefID, conversationID);
         }

@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 
-public class ErrorLogPgUXTest extends BaseTest {
+public class ErrorLogPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ERROR_LOG);
 
@@ -231,7 +231,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		log.info("downloaded errors to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -396,7 +396,7 @@ public class ErrorLogPgUXTest extends BaseTest {
 		params.put("orderBy", "timestamp");
 		params.put("asc", "false");
 
-		String fileName = rest.downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

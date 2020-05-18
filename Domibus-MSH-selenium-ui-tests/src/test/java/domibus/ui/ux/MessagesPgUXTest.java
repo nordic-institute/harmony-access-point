@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,7 +14,6 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,7 +21,7 @@ import java.util.List;
 
  * @since 4.1
  */
-public class MessagesPgUXTest extends BaseTest {
+public class MessagesPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
@@ -58,7 +57,7 @@ public class MessagesPgUXTest extends BaseTest {
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String messID = getMessageIDs(null, 1, false).get(0);
+		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -81,7 +80,7 @@ public class MessagesPgUXTest extends BaseTest {
 	public void selectAnotherRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> messIds = getMessageIDs(null, 2, false);
+		List<String> messIds = rest.getMessageIDs(null, 2, false);
 		String messID1 = messIds.get(0);
 		String messID2 = messIds.get(1);
 
@@ -122,11 +121,7 @@ public class MessagesPgUXTest extends BaseTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		HashMap<String, String> params = new HashMap<>();
-		params.put("orderBy",  "received");
-		params.put("asc", "false");
-
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, params, null);
+		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -305,7 +300,7 @@ public class MessagesPgUXTest extends BaseTest {
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

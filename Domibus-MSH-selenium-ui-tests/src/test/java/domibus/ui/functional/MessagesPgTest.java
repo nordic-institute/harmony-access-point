@@ -4,7 +4,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -13,27 +13,19 @@ import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import pages.messages.MessageFilters;
 import utils.Generator;
+import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author Catalin Comanici
 
  * @since 4.1
  */
-public class MessagesPgTest extends BaseTest {
+public class MessagesPgTest extends SeleniumTest {
 
 
 	/*Doubleclik on one message*/
@@ -41,7 +33,7 @@ public class MessagesPgTest extends BaseTest {
 	public void doubleclickMessageRow() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String messID = getMessageIDs(null, 1, false).get(0);
+		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -69,7 +61,7 @@ public class MessagesPgTest extends BaseTest {
 	public void filterUsingBasicFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		List<String> messageIDs = getMessageIDs(null, 5, false);
+		List<String> messageIDs = rest.getMessageIDs(null, 5, false);
 
 		log.info("Login with admin");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -100,7 +92,7 @@ public class MessagesPgTest extends BaseTest {
 	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessagesAdvancedFilters() throws Exception{
 		SoftAssert soft = new SoftAssert();
-		List<String> messageIDs = getMessageIDs(null, 5, false);
+		List<String> messageIDs = rest.getMessageIDs(null, 5, false);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -206,7 +198,7 @@ public class MessagesPgTest extends BaseTest {
 	public void downloadMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String pluginUsername = getPluginUser(null, DRoles.ADMIN, true, true).getString("userName");
+		String pluginUsername = rest.getPluginUser(null, DRoles.ADMIN, true, true).getString("userName");
 		String messageID = messageSender.sendMessage(pluginUsername, data.defaultPass(), Generator.randomAlphaNumeric(10), Generator.randomAlphaNumeric(10));
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -216,10 +208,10 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().scrollToAndDoubleClick("Message Id", messageID);
 		log.info("double clicked messag with id " + messageID);
 
-		String zipPath = rest.downloadMessage(messageID, null);
+		String zipPath = rest.messages().downloadMessage(messageID, null);
 		log.info("downloaded message to zip with path " + zipPath);
 
-		HashMap<String, String> zipContent = unzip(zipPath);
+		HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
 		log.info("checking zip for files message and message.xml");
 		boolean foundXMLfile = false;
 		boolean foundMessfile = false;
@@ -238,11 +230,11 @@ public class MessagesPgTest extends BaseTest {
 		log.info("checking the message metadata");
 		MessageDetailsModal modal = new MessageDetailsModal(driver);
 		soft.assertEquals(modal.getValue("Message Id"),
-				getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
 		soft.assertEquals(modal.getValue("Conversation Id"),
-				getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
 		soft.assertEquals(modal.getValue("Ref To Message Id"),
-				getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
+				TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
 
 		soft.assertTrue(xmlString.contains("name=\"originalSender\">"+modal.getValue("Original Sender"))
 				, "Original Sender - value matches");
@@ -258,11 +250,11 @@ public class MessagesPgTest extends BaseTest {
 	public void resendMessage() throws Exception{
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(),null);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(),null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageID =  messageSender.sendMessage(user, data.defaultPass(), null, null);
 
-		rest.uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
@@ -303,27 +295,27 @@ public class MessagesPgTest extends BaseTest {
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 		log.info(String.format("Domain name = %s", domainName));
 
 		String userDomain = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(),domain);
+		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(),domain);
 		log.info("created plugin user " + userDomain);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
 		String messageIDDomain =  messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDomain);
 
 		log.info("Switching to default domain");
 		String userDefault = Generator.randomAlphaNumeric(10);
-		rest.createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(),null);
+		rest.pluginUsers().createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(),null);
 		log.info("created plugin user " + userDefault);
-		rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageIDDefault =  messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDefault);
 
 		String userAdmin = Generator.randomAlphaNumeric(10);
-		rest.createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
+		rest.users().createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created admin with username " + userAdmin);
 
 		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
@@ -353,9 +345,9 @@ public class MessagesPgTest extends BaseTest {
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Super admin sees the domain message while on the proper domain (5)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)<0, "Super admin doesn't see the default domain message when on domain (6)");
 
-		rest.deletePluginUser(userDefault, null);
-		rest.deletePluginUser(userDomain, domain);
-		rest.deletePluginUser(userAdmin, domain);
+		rest.pluginUsers().deletePluginUser(userDefault, null);
+		rest.pluginUsers().deletePluginUser(userDomain, domain);
+		rest.pluginUsers().deletePluginUser(userAdmin, domain);
 		log.info("delete admin and plugin users");
 		soft.assertAll();
 	}
@@ -365,11 +357,11 @@ public class MessagesPgTest extends BaseTest {
 	public void superSelectMessageChangeDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
-		String domainName = getNonDefaultDomain();
+		String domainName = rest.getNonDefaultDomain();
 		String domain = rest.getDomainCodeForName(domainName);
 
-		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);
-		String messageIDDefault =  getMessageIDs(null, 1, false).get(0);
+		String messageIDDomain =  rest.getMessageIDs(domain, 1, false).get(0);
+		String messageIDDefault =  rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 
@@ -404,65 +396,6 @@ public class MessagesPgTest extends BaseTest {
 
 
 
-
-	private HashMap<String, String> unzip(String zipFilePath) throws Exception {
-
-		String destDir = zipFilePath.replaceAll(".zip", "");
-
-		HashMap<String, String> zipContent = new HashMap<>();
-
-		File dir = new File(destDir);
-		// create output directory if it doesn't exist
-		if(!dir.exists()) dir.mkdirs();
-
-
-		FileInputStream fis;
-		//buffer for read and write data to file
-		byte[] buffer = new byte[1024];
-
-		fis = new FileInputStream(zipFilePath);
-		ZipInputStream zis = new ZipInputStream(fis);
-		ZipEntry ze = zis.getNextEntry();
-		while (ze != null) {
-
-			String fileName = ze.getName();
-			File newFile = new File(destDir + File.separator + fileName);
-
-			System.out.println("Unzipping to " + newFile.getAbsolutePath());
-			//create directories for sub directories in zip
-			new File(newFile.getParent()).mkdirs();
-			FileOutputStream fos = new FileOutputStream(newFile);
-			int len;
-			while ((len = zis.read(buffer)) > 0) {
-				fos.write(buffer, 0, len);
-			}
-			fos.close();
-			//close this ZipEntry
-			zis.closeEntry();
-
-			String fileContent = new String(Files.readAllBytes(Paths.get(newFile.getAbsolutePath())));
-			zipContent.put(fileName, fileContent);
-
-			ze = zis.getNextEntry();
-		}
-
-		//close last ZipEntry
-		zis.closeEntry();
-		zis.close();
-		fis.close();
-
-		return zipContent;
-	}
-
-	private String getValueFromXMLString(String xmlString, String key){
-		String start = key + ">";
-		String end = "<\\/eb:" + key ;
-
-		Pattern p = Pattern.compile(start+"(.*?)"+end);
-		Matcher m = p.matcher(xmlString);
-		m.find();
-		return m.group(1);
-	}
 
 
 }

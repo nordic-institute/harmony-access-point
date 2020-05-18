@@ -5,7 +5,7 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.Select;
 import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +27,7 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1
  */
-public class JMSMessPgUXTest extends BaseTest {
+public class JMSMessPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.JMS_MONITORING);
 
@@ -275,7 +275,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -313,7 +313,7 @@ public class JMSMessPgUXTest extends BaseTest {
 			HashMap<String, String> params = new HashMap<>();
 			params.put("source", qName);
 
-			String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, domain);
+			String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, domain);
 			log.info("downloaded file " + fileName);
 
 			page.grid().getGridCtrl().showCtrls();
@@ -487,7 +487,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("source", qName);
 
-		String fileName = rest.downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
 		log.info("downloaded file " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();

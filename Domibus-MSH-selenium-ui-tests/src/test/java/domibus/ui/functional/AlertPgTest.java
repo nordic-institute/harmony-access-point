@@ -1,12 +1,11 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import domibus.ui.SeleniumTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
-import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
@@ -16,19 +15,19 @@ import utils.Generator;
 import java.util.HashMap;
 import java.util.List;
 
-public class AlertPgTest extends BaseTest {
+public class AlertPgTest extends SeleniumTest {
 
 	//This method will do Search using Basic filters
 	@Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
 	public void searchBasicFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
 		AlertPage apage = new AlertPage(driver);
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			apage.filters().showDomainAlert();
 		}
 
@@ -54,15 +53,13 @@ public class AlertPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 
 
-		String username = getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
-		AlertPage page = new AlertPage(driver);
-		page.getSidebar().goToPage(PAGES.ALERTS);
-
-		if (data.isIsMultiDomain()) {
-			page.filters().showDomainAlert();
-			page.grid().waitForRowsToLoad();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+		AlertPage apage = new AlertPage(driver);
+		if (data.isMultiDomain()) {
+			apage.filters().showDomainAlert();
 		}
 
 		log.info("Getting all listed alert info");
@@ -87,7 +84,7 @@ public class AlertPgTest extends BaseTest {
 	@Test(description = "ALRT-7", groups = {"multiTenancy", "singleTenancy"})
 	public void emptySearchResult() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		DomibusPage page = new DomibusPage(driver);
+
 		log.info("Login into application and navigate to Alerts page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
 		AlertPage apage = new AlertPage(driver);
@@ -125,7 +122,7 @@ public class AlertPgTest extends BaseTest {
 
 		log.info("Refresh page");
 		page.refreshPage();
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			page.filters().showDomainAlert();
 		}
 
@@ -151,7 +148,7 @@ public class AlertPgTest extends BaseTest {
 		log.info("Logout from application");
 		logout();
 		log.info("Login with admin credentials");
-		login(getUser(null, DRoles.ADMIN, true, false, true).getString("userName"), data.defaultPass())
+		login(rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName"), data.defaultPass())
 				.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Validate non availability of Show domain alert checkbox for Admin user");
 		soft.assertFalse(filters.getShowDomainCheckbox().isPresent(), "CheckBox is not present in case of Admin User");
@@ -163,7 +160,7 @@ public class AlertPgTest extends BaseTest {
 	public void msgStatusChangeAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> ids = getMessageIDsWithStatus(null, "SEND_FAILURE");
+		List<String> ids = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
 		if (ids.size() < 1) {
 			throw new SkipException("no messages in SEND_FAILURE state");
 		}
@@ -179,7 +176,7 @@ public class AlertPgTest extends BaseTest {
 		apage.filters().getMsgIdInput().fill(messID);
 
 		log.info("Check if Multidomain exists");
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			log.info("Click on Show domain checkbox");
 			apage.filters().getShowDomainCheckbox().click();
 		}
@@ -203,7 +200,7 @@ public class AlertPgTest extends BaseTest {
 	public void userLoginFailureAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
 		log.info("Login into application");
@@ -214,7 +211,7 @@ public class AlertPgTest extends BaseTest {
 		log.info("Search data using basic filter for user_login_failure alert type");
 		apage.filters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
 		log.info("Check if multidomain exists");
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			log.info("Select show domain check box");
 			apage.filters().getShowDomainCheckbox().click();
 		}
@@ -235,13 +232,13 @@ public class AlertPgTest extends BaseTest {
 	public void userDisableAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String username = getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		log.info("Try to login with wrong password for 5 times so that user account gets disabled");
 		for (int i = 0; i < 6; i++) {
 			rest.login(username, "wrong");
 		}
 
-		JSONArray users = rest.getUsers(null);
+		JSONArray users = rest.users().getUsers(null);
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject obj = users.getJSONObject(i);
 			if (obj.getString("userName").equalsIgnoreCase(username)) {
@@ -258,7 +255,7 @@ public class AlertPgTest extends BaseTest {
 		apage.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
 
 		log.info("Check if multi domain exists");
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			log.info("Check show domain alert checkbox");
 			apage.filters().getShowDomainCheckbox().click();
 			log.info("Click on search button");
@@ -280,16 +277,14 @@ public class AlertPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create plugin user");
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
-		if (!data.isIsMultiDomain()) {
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
-			HashMap<String, String> params = new HashMap<>();
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
-			params.put("name", propName);
-			log.info("Property details before modification" + rest.getDomibusPropertyDetail(params));
-			rest.updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(propName));
+			rest.properties().updateDomibusProperty(propName, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(propName));
 		}
 
 		log.info("Send message using plugin user credentials");
@@ -308,7 +303,7 @@ public class AlertPgTest extends BaseTest {
 		page.filters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
 
 		log.info("Check if multidomain exists");
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			log.info("Select show domain check box");
 			page.filters().showDomainAlert();
 		}
@@ -327,17 +322,15 @@ public class AlertPgTest extends BaseTest {
 
 		String user = Generator.randomAlphaNumeric(10);
 		log.info("Create plugin users");
-		rest.createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 
-		if (!data.isIsMultiDomain()) {
+		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
-			HashMap<String, String> params = new HashMap<>();
 			String propName = "domibus.auth.unsecureLoginAllowed";
 			String payload = "false";
-			params.put("name", propName);
-			log.info("Property details before modification" + rest.getDomibusPropertyDetail(params));
-			rest.updateDomibusProperty(propName, params, payload);
-			log.info("Property details after modification" + rest.getDomibusPropertyDetail(params));
+			log.info("Property details before modification" + rest.properties().getDomibusPropertyDetail(propName));
+			rest.properties().updateDomibusProperty(propName, payload);
+			log.info("Property details after modification" + rest.properties().getDomibusPropertyDetail(propName));
 		}
 
 		log.info("Send message using plugin user credentials");
@@ -358,7 +351,7 @@ public class AlertPgTest extends BaseTest {
 		page.filters().basicFilterBy(null, "PLUGIN_USER_ACCOUNT_DISABLED", null, null, null, null);
 
 		log.info("Check if multidomain exists");
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			log.info("Select show domain check box");
 			page.filters().showDomainAlert();
 		}
