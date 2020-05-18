@@ -161,7 +161,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         if (excludeOrigin) {
             internalJmsMessage.setProperty(CommandProperty.ORIGIN_SERVER, serverInfoService.getServerName());
         }
-        sendMessage(internalJmsMessage, destination, null);
+        sendMessage(internalJmsMessage, destination);
     }
 
     @Override
