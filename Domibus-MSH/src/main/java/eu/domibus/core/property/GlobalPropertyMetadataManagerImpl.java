@@ -21,9 +21,6 @@ import java.util.Optional;
 public class GlobalPropertyMetadataManagerImpl {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
-//    @Autowired
-//    private ApplicationContext applicationContext;
-
     @Autowired
     @Lazy
     private List<DomibusPropertyMetadataManager> propertyMetadataManagers;
@@ -145,8 +142,6 @@ public class GlobalPropertyMetadataManagerImpl {
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
             DomibusPropertyMetadata domibusProp = domainConverter.convert(extProp, DomibusPropertyMetadata.class);
-//            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-//                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
             domibusProp.setType(extProp.getType());
 
             allPropertyMetadataMap.put(entry.getKey(), domibusProp);
@@ -166,6 +161,7 @@ public class GlobalPropertyMetadataManagerImpl {
         // save prop manager on property itself??
         initializeIfNeeded(propertyName);
         if (internlPropertyMetadataMap.containsKey(propertyName)) {
+            //core property, no external manager involved
             return null;
         }
 

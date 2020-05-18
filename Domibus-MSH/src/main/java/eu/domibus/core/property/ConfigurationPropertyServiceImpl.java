@@ -188,6 +188,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return knownProps;
     }
 
+    // todo: to be moved also
     protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         String value;
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {

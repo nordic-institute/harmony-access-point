@@ -24,6 +24,10 @@ public class DomibusPropertiesPropertySource extends PropertiesPropertySource {
     }
 
     public void setProperty(String name, String value) {
-        this.source.put(name, value);
+        try {
+            this.source.put(name, value);
+        } catch (Exception ex){
+            int i = 1;
+        }
     }
 }

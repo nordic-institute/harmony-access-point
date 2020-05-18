@@ -33,6 +33,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
+    private Set<String> requestedProperties = new HashSet<>();
+
     @Autowired
     @Qualifier("domibusDefaultProperties")
     protected Properties domibusDefaultProperties;
@@ -63,12 +65,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(String propertyName) {
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        if (manager == null) {
-            return getOwnProperty(propertyName);
-        } else {
-            return manager.getKnownPropertyValue(propertyName);
-        }
+        return getInternalOrExternalPropertyValue(propertyName, null);
     }
 
     /**
@@ -77,12 +74,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(Domain domain, String propertyName) {
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        if (manager == null) {
-            return getOwnProperty(domain, propertyName);
-        } else {
-            return manager.getKnownPropertyValue(domain.getCode(), propertyName);
+        if (domain == null) {
+            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
+        return getInternalOrExternalPropertyValue(propertyName, domain);
     }
 
     @Override
@@ -165,7 +160,51 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    private String getOwnProperty(String propertyName) {
+    private String getInternalOrExternalPropertyValue(String propertyName, Domain domain) {
+        //determine if it is an external or internal property
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (manager == null) {
+            // it is an internal property
+            if (domain == null) {
+                return getLocalProperty(propertyName);
+            } else {
+                return getLocalProperty(domain, propertyName);
+            }
+        } else {
+            //external module property so...
+            //already requested?-> get local value
+            if (isPropertyRequested(propertyName)) {
+                return getLocalProperty(propertyName);
+            } else {
+                //mark requested so that it will be provided internally next time it is requested
+                markPropertyRequested(propertyName);
+                //call manager for the value
+                String propertyValue;
+                if (domain == null) {
+                    domain = domainContextProvider.getCurrentDomainSafely();
+                    propertyValue = manager.getKnownPropertyValue(propertyName);
+                } else {
+                    propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
+                }
+                //save the value locally/sync
+                if (propertyValue != null) {
+                    doSetPropertyValue(domain, propertyName, propertyValue);
+                }
+                //return it
+                return propertyValue;
+            }
+        }
+    }
+
+    private void markPropertyRequested(String propertyName) {
+        requestedProperties.add(propertyName);
+    }
+
+    private boolean isPropertyRequested(String propertyName) {
+        return requestedProperties.contains(propertyName);
+    }
+
+    private String getLocalProperty(String propertyName) {
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
@@ -206,11 +245,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    private String getOwnProperty(Domain domain, String propertyName) {
+    private String getLocalProperty(Domain domain, String propertyName) {
         LOGGER.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
-        if (domain == null) {
-            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
-        }
+//        if (domain == null) {
+//            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
+//        }
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
