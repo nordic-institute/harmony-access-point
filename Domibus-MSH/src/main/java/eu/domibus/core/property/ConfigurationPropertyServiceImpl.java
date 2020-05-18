@@ -10,11 +10,11 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.ClassUtil;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +34,8 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyServiceImpl.class);
 
-    @Autowired
-    protected DomainExtConverter domainConverter;
+//    @Autowired
+//    protected DomainExtConverter domainConverter;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -61,11 +61,15 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     ClassUtil classUtil;
 
+    @Autowired
+    @Lazy
+    GlobalPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> allProperties = new ArrayList<>();
 
-        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, domibusPropertyProvider.getAllProperties());
+        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, domibusPropertyMetadataManager.getAllProperties());
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
         allProperties.addAll(properties);
 
@@ -77,9 +81,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
         return allProperties;
     }
-
-    @Autowired
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)

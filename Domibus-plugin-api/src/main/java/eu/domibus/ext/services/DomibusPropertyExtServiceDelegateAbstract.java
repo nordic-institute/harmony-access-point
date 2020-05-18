@@ -2,18 +2,11 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
-import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel

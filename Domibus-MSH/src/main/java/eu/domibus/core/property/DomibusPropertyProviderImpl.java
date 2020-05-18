@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.*;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
@@ -19,7 +20,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -47,14 +47,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
-
-    @Autowired
     protected ConfigurableEnvironment environment;
 
     @Lazy
     @Autowired
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
+
+    @Autowired
+    @Lazy
+    GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
 
     /**
      * Retrieves the property value, taking into account the property usages and the current domain.
@@ -62,7 +63,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(String propertyName) {
-        return getOwnProperty(propertyName);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (manager == null) {
+            return getOwnProperty(propertyName);
+        } else {
+            return manager.getKnownPropertyValue(propertyName);
+        }
     }
 
     /**
@@ -71,7 +77,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public String getProperty(Domain domain, String propertyName) {
-        return getOwnProperty(domain, propertyName);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (manager == null) {
+            return getOwnProperty(domain, propertyName);
+        } else {
+            return manager.getKnownPropertyValue(domain.getCode(), propertyName);
+        }
     }
 
     @Override
@@ -135,17 +146,27 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      */
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        setPropertyValue(domain, propertyName, propertyValue, broadcast);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (manager == null) {
+            setPropertyValue(domain, propertyName, propertyValue, broadcast);
+        } else {
+            manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
+        }
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-        setProperty(domain, propertyName, propertyValue, false);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (manager == null) {
+            Domain domain = domainContextProvider.getCurrentDomainSafely();
+            setProperty(domain, propertyName, propertyValue, false);
+        } else {
+            manager.setKnownPropertyValue(propertyName, propertyValue);
+        }
     }
 
     private String getOwnProperty(String propertyName) {
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
         if (prop.isOnlyGlobal()) {
@@ -191,7 +212,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
 
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
@@ -204,12 +225,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         return getDomainOrDefaultValue(prop, domain);
     }
-    
+
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (propMeta == null) {
-            throw new DomibusPropertyException("Property " + propertyName + " not found.");
-        }
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type
         validatePropertyValue(propMeta, propertyValue);
@@ -303,7 +321,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
             propertyKey = calculatePropertyKeyForDomain(domain, propertyName, prop);
         } else {
