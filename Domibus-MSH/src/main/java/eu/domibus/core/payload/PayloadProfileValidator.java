@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,10 +47,10 @@ public class PayloadProfileValidator {
     }
 
     public void validateCompressPayloads(final boolean isCompressEnabledInPmode, final UserMessage userMessage) throws EbMS3Exception {
-        if(userMessage.getPayloadInfo() == null) {
+        if (userMessage.getPayloadInfo() == null) {
             return;
         }
-         for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
+        for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
             validatePartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageInfo().getMessageId());
         }
 
@@ -57,8 +58,8 @@ public class PayloadProfileValidator {
 
     protected void validatePartInfo(final boolean isCompressEnabledInPmode, final PartInfo partInfo, String messageId) throws EbMS3Exception {
 
-        if(partInfo.getPartProperties() == null) {
-            if(isCompressEnabledInPmode) {
+        if (partInfo.getPartProperties() == null) {
+            if (isCompressEnabledInPmode) {
                 LOG.warn("Compression is enabled in the pMode, CompressionType and MimeType properties are not present in [{}]", partInfo.getHref());
             }
             return;
@@ -66,27 +67,27 @@ public class PayloadProfileValidator {
 
         boolean compress = false;
         String mimeType = null;
-        for(Property property : partInfo.getPartProperties().getProperties()) {
-            if(CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
-                if(!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+        for (Property property : partInfo.getPartProperties().getProperties()) {
+            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
+                if (!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue(), messageId, null);
                 }
                 compress = true;
             }
-            if(Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+            if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
                 mimeType = property.getValue();
             }
         }
 
 
-        if(compress == true && mimeType == null) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", messageId, null);
+        if (compress && mimeType == null) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", messageId, null);
         }
     }
 
-    public void validatePayloadProfile(final LegConfiguration legConfiguration, final UserMessage userMessage) throws EbMS3Exception {
+    protected void validatePayloadProfile(final LegConfiguration legConfiguration, final UserMessage userMessage) throws EbMS3Exception {
         final List<Payload> modifiableProfileList = new ArrayList<>();
-        final boolean profileCompress = legConfiguration.isCompressPayloads();
+        final String messageId = userMessage.getMessageInfo().getMessageId();
 
         final PayloadProfile profile = legConfiguration.getPayloadProfile();
         if (profile == null) {
@@ -95,14 +96,19 @@ public class PayloadProfileValidator {
             return;
         }
 
+        int profileMaxSize = profile.getMaxSize();
+        if (profileMaxSize < 0) {
+            LOG.warn("Payload profile [{}] has a negative maxSize value [{}]", profile.getName(), profileMaxSize);
+        }
+
         modifiableProfileList.addAll(profile.getPayloads());
         List<PartInfo> partInfos = new ArrayList<>();
-        if(userMessage.getPayloadInfo() != null) {
+        if (userMessage.getPayloadInfo() != null) {
             partInfos = userMessage.getPayloadInfo().getPartInfo();
         }
         for (final PartInfo partInfo : partInfos) {
             Payload profiled = null;
-            final String cid = (partInfo.getHref() == null ? "" : partInfo.getHref());
+            final String cid = (partInfo.getHref() == null ? StringUtils.EMPTY : partInfo.getHref());
             for (final Payload p : modifiableProfileList) {
                 String payloadCid = StringUtils.trimToEmpty(p.getCid());
                 if (StringUtils.equalsIgnoreCase(payloadCid, cid)) {
@@ -127,21 +133,39 @@ public class PayloadProfileValidator {
                 }
             }
 
-            if (profiled.getMimeType() != null) {
-                if ((!StringUtils.equalsIgnoreCase(profiled.getMimeType(), mime)) ||
-                        (partInfo.isInBody() != profiled.isInBody()))//|| (profiled.getMaxSize() > 0 && profiled.getMaxSize() < partInfo.getBinaryData().length)) {
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error: expected: " + profiled + ", got " + partInfo, userMessage.getMessageInfo().getMessageId(), null);
+            if (profiled.getMimeType() != null && (!StringUtils.equalsIgnoreCase(profiled.getMimeType(), mime)) ||
+                    (partInfo.isInBody() != profiled.isInBody())) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error: expected: " + profiled + ", got " + partInfo, messageId, null);
             }
+
+            //validate the size of the payload
+            validatePartInfoMaxSize(profileMaxSize, partInfo, messageId);
 
         }
         for (final Payload payload : modifiableProfileList) {
             if (payload.isRequired()) {
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_MISSING, payload);
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error, missing payload:" + payload, userMessage.getMessageInfo().getMessageId(), null);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error, missing payload:" + payload, messageId, null);
 
             }
         }
 
         LOG.businessInfo(DomibusMessageCode.BUS_PAYLOAD_PROFILE_VALIDATION, profile.getName());
+    }
+
+
+    protected void validatePartInfoMaxSize(int profileMaxSize, PartInfo partInfo, final String messageId) throws EbMS3Exception {
+        int partInfoSize = -1;
+
+        try {
+            partInfoSize = partInfo.getPayloadDatahandler().getDataSource().getInputStream().available();
+        } catch (IOException e) {
+            LOG.warn("Unable to get the size of the payload [{}]", partInfo.getFileName());
+        }
+
+        if (partInfoSize > profileMaxSize) {
+            //LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_MISSING, payload);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload size [" + partInfoSize + "] is greater than the maximum value defined [" + profileMaxSize + "]", messageId, null);
+        }
     }
 }
