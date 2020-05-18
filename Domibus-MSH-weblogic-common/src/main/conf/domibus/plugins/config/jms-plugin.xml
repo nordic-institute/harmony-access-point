@@ -49,7 +49,7 @@
 
     <bean id="domibusJMSPlugin-ConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="lookupOnStartup" value="false"/>
-        <property name="jndiName" value="${jmsplugin.connectionfactory}"/>
+        <property name="jndiName" value="${jmsplugin.connection.factory}"/>
         <property name="proxyInterface" value="javax.jms.ConnectionFactory"/>
     </bean>
 
