@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.*;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
+import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -59,6 +60,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     @Lazy
     GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
+
+    @Autowired
+    ClassUtil classUtil;
+
+    //public interface methods
 
     @Override
     public String getProperty(String propertyName) {
@@ -157,8 +163,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 //call manager for the value
                 String propertyValue;
                 if (domain == null) {
-                    propertyValue = manager.getKnownPropertyValue(propertyName);
-                } else { //???
+                    propertyValue = getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
+                } else { // is this correct???
                     propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
                 }
                 //save the value locally/sync
@@ -224,11 +230,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private String getInternalProperty(Domain domain, String propertyName) {
-        LOGGER.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
-//        if (domain == null) {
-//            throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
-//        }
-
+        LOGGER.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
@@ -268,8 +270,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         //if it is an external property, call setProperty on the manager now
         if (manager != null) {
             if (domain == null) {
-                manager.setKnownPropertyValue(propertyName, propertyValue);
-            } else {
+                setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
+            } else { //is this correct? 
                 manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
             }
         }
@@ -530,4 +532,27 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return defaultValue;
     }
 
+    protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
+        String value;
+        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
+            LOGGER.debug("Calling getKnownPropertyValue method");
+            value = propertyManager.getKnownPropertyValue(propertyName);
+        } else {
+            LOGGER.debug("Calling deprecated getKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+        }
+        return value;
+    }
+
+    protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
+        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
+            LOGGER.debug("Calling setKnownPropertyValue method");
+            propertyManager.setKnownPropertyValue(name, value);
+        } else {
+            LOGGER.debug("Calling deprecated setKnownPropertyValue method");
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
+        }
+    }
 }

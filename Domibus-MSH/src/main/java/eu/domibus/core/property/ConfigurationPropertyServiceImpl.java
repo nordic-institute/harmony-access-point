@@ -189,28 +189,28 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     // todo: to be moved also
-    protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
-        String value;
-        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.debug("Calling getKnownPropertyValue method");
-            value = propertyManager.getKnownPropertyValue(propertyName);
-        } else {
-            LOG.debug("Calling deprecated getKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
-        }
-        return value;
-    }
-
-    protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOG.debug("Calling setKnownPropertyValue method");
-            propertyManager.setKnownPropertyValue(name, value);
-        } else {
-            LOG.debug("Calling deprecated setKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
-        }
-    }
+//    protected String getPropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
+//        String value;
+//        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
+//            LOG.debug("Calling getKnownPropertyValue method");
+//            value = propertyManager.getKnownPropertyValue(propertyName);
+//        } else {
+//            LOG.debug("Calling deprecated getKnownPropertyValue method");
+//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+//            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+//        }
+//        return value;
+//    }
+//
+//    protected void setPropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
+//        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
+//            LOG.debug("Calling setKnownPropertyValue method");
+//            propertyManager.setKnownPropertyValue(name, value);
+//        } else {
+//            LOG.debug("Calling deprecated setKnownPropertyValue method");
+//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+//            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
+//        }
+//    }
 
 }
