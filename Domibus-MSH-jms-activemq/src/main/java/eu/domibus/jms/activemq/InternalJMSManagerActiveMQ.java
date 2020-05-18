@@ -148,10 +148,6 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
-        if(jmsOperations == null) {
-            LOG.warn("Cannot send, JmsOperations is null!");
-            return;
-        }
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
