@@ -2,13 +2,13 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -22,23 +22,23 @@ public class DomibusPropertyMetadataManagerImpl {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManagerImpl.class);
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
+    @Lazy
     private List<DomibusPropertyMetadataManager> propertyMetadataManagers;
 
     @Autowired
     @Lazy
     private List<DomibusPropertyManagerExt> extPropertyManagers;
 
-    private Map<String, DomibusPropertyMetadata> propertyMetadataMap;
+    private Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
+    private Map<String, DomibusPropertyMetadata> internlPropertyMetadataMap;
 
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
 
     public Map<String, DomibusPropertyMetadata> getAllProperties() {
-        return propertyMetadataMap;
+        loadExternalPropertiesIfNeeded();
+        return allPropertyMetadataMap;
     }
 
     /**
@@ -52,14 +52,14 @@ public class DomibusPropertyMetadataManagerImpl {
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         initializeIfNeeded(propertyName);
 
-        DomibusPropertyMetadata prop = propertyMetadataMap.get(propertyName);
+        DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
         if (prop != null) {
             LOGGER.trace("Found property [{}], returning its metadata.", propertyName);
             return prop;
         }
 
         // try to see if it is a compose-able property, i.e. propertyName+suffix
-        Optional<DomibusPropertyMetadata> propMeta = propertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
+        Optional<DomibusPropertyMetadata> propMeta = allPropertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
             LOGGER.trace("Found compose-able property [{}], returning its metadata.", propertyName);
             DomibusPropertyMetadata meta = propMeta.get();
@@ -72,7 +72,8 @@ public class DomibusPropertyMetadataManagerImpl {
         LOGGER.warn("Creating on-the-fly global metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
         synchronized (propertyMetadataMapLock) {
             DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
-            propertyMetadataMap.put(propertyName, newProp);
+            allPropertyMetadataMap.put(propertyName, newProp);
+            internlPropertyMetadataMap.put(propertyName, prop);
             return newProp;
         }
     }
@@ -84,12 +85,11 @@ public class DomibusPropertyMetadataManagerImpl {
      */
     protected void initializeIfNeeded(String propertyName) {
         // add domibus-core and specific server  properties first, to avoid infinite loop of bean creation (due to DB properties)
-        if (propertyMetadataMap == null) {
+        if (allPropertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
                     LOGGER.trace("Initializing core properties");
 
-                    propertyMetadataMap = new HashMap<>();
                     loadInternalProperties();
 
                     LOGGER.trace("Finished loading property metadata for internal property managers.");
@@ -97,12 +97,16 @@ public class DomibusPropertyMetadataManagerImpl {
                 }
             }
         }
-        if (propertyMetadataMap.containsKey(propertyName)) {
+        if (allPropertyMetadataMap.containsKey(propertyName)) {
             LOGGER.trace("Found property metadata [{}] in core properties. Returning.", propertyName);
             return;
         }
 
-        // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
+        loadExternalPropertiesIfNeeded();
+    }
+
+    // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
+    private void loadExternalPropertiesIfNeeded() {
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
                 if (!externalPropertiesLoaded) { // double-check locking
@@ -118,6 +122,9 @@ public class DomibusPropertyMetadataManagerImpl {
     }
 
     protected void loadInternalProperties() {
+        allPropertyMetadataMap = new HashMap<>();
+        internlPropertyMetadataMap = new HashMap<>();
+
         propertyMetadataManagers.stream()
                 .forEach(propertyManager -> loadProperties(propertyManager, propertyManager.toString()));
     }
@@ -126,16 +133,18 @@ public class DomibusPropertyMetadataManagerImpl {
         extPropertyManagers.stream().forEach(this::loadExternalProperties);
     }
 
+    @Autowired
+    @Lazy
+    protected DomainCoreConverter domainConverter;
+
     protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
         LOGGER.trace("Loading property metadata for [{}] external property manager.", propertyManager);
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
-            //use converter
-            DomibusPropertyMetadata domibusProp = new DomibusPropertyMetadata(extProp.getName(), extProp.getModule(), extProp.isWritable(), extProp.getUsage(), extProp.isWithFallback(),
-                    extProp.isClusterAware(), extProp.isEncrypted(), extProp.isComposable());
+            DomibusPropertyMetadata domibusProp = domainConverter.convert(extProp, DomibusPropertyMetadata.class);
             domibusProp.setType(extProp.getType());
 
-            propertyMetadataMap.put(entry.getKey(), domibusProp);
+            allPropertyMetadataMap.put(entry.getKey(), domibusProp);
         }
     }
 
@@ -143,7 +152,25 @@ public class DomibusPropertyMetadataManagerImpl {
         LOGGER.trace("Loading property metadata for [{}] property manager.", managerName);
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadata prop = entry.getValue();
-            propertyMetadataMap.put(entry.getKey(), prop);
+            allPropertyMetadataMap.put(entry.getKey(), prop);
+            internlPropertyMetadataMap.put(entry.getKey(), prop);
         }
+    }
+
+    public DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
+        // save prop manager on property itself??
+        initializeIfNeeded(propertyName);
+        if (internlPropertyMetadataMap.containsKey(propertyName)) {
+            //core property, no external manager involved
+            return null;
+        }
+
+        Optional<DomibusPropertyManagerExt> found = extPropertyManagers.stream()
+                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+
+        if (found.isPresent()) {
+            return found.get();
+        }
+        return null;
     }
 }

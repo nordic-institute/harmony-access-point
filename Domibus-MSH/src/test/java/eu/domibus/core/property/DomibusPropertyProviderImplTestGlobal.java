@@ -50,7 +50,7 @@ public class DomibusPropertyProviderImplTestGlobal {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    GlobalPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     @Injectable
     ConfigurableEnvironment environment;

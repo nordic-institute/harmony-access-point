@@ -59,7 +59,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     @Lazy
-    GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
+    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     @Autowired
     ClassUtil classUtil;
@@ -144,7 +144,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     //internal methods
     private String getInternalOrExternalProperty(String propertyName, Domain domain) {
         //determine if it is an external or internal property
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
             // it is an internal property
             if (domain == null) {
@@ -189,7 +189,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private String getInternalProperty(String propertyName) {
-        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
         if (prop.isOnlyGlobal()) {
@@ -231,7 +231,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private String getInternalProperty(Domain domain, String propertyName) {
         LOGGER.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
-        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
@@ -266,7 +266,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
         }
 
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
         //if it is an external property, call setProperty on the manager now
         if (manager != null) {
             if (domain == null) {
@@ -279,7 +279,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         //code moved from DomibusPropertyManager
-        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type
         validatePropertyValue(propMeta, propertyValue);
@@ -378,7 +378,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
-        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
             propertyKey = calculatePropertyKeyForDomain(domain, propertyName, prop);
         } else {

@@ -8,7 +8,6 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.ClassUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
 
     @Autowired
     @Lazy
-    GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
+    DomibusPropertyMetadataManagerImpl globalPropertyMetadataManager;
 
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
