@@ -36,6 +36,8 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
 
 /**
+ * Tests that use a non-initialized SUT (the #init() method is intentionally stubbed out).
+ *
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
@@ -1125,4 +1127,96 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
            domainCryptoService.setTrustStore(trustStore);
         }};
     }
+
+    @Test
+    public void getKeystoreProperties_missingKeystoreTypePropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the keystore properties for domain");
+
+        // When
+        domainCryptoService.getKeystoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingKeystorePasswordPropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the keystore properties for domain");
+
+        // When
+        domainCryptoService.getKeystoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingKeystorePrivateKeyAliasPropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the keystore properties for domain");
+
+        // When
+        domainCryptoService.getKeystoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingKeystoreLocationPropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the keystore properties for domain");
+
+        // When
+        domainCryptoService.getKeystoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingTruststoreTypePropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the truststore properties for domain");
+
+        // When
+        domainCryptoService.getTrustStoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingTruststorePasswordPropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the truststore properties for domain");
+
+        // When
+        domainCryptoService.getTrustStoreProperties();
+    }
+
+    @Test
+    public void getKeystoreProperties_missingTruststoreLocationPropertyConfigurationException() {
+        // Given
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION); result = null;
+        }};
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the truststore properties for domain");
+
+        // When
+        domainCryptoService.getTrustStoreProperties();
+    }
+
 }

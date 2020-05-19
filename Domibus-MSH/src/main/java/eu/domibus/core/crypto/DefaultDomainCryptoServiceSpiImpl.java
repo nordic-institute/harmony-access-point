@@ -164,7 +164,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             truststore.store(fileOutputStream, getTrustStorePassword().toCharArray());
         } catch (FileNotFoundException ex) {
             LOG.error("Could not persist truststore:", ex);
-            //we address this exception separately 
+            //we address this exception separately
             //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
             throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
         } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
@@ -269,6 +269,12 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
         final String keystoreLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
 
+        if(StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias, keystoreLocation)) {
+            LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}], keystoreLocation=[{}]",
+                    domain, keystoreType, privateKeyAlias, keystoreLocation);
+            throw new ConfigurationException("Error while trying to load the keystore properties for domain " + domain);
+        }
+
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
         final String keyStorePasswordProperty = Merlin.PREFIX + Merlin.KEYSTORE_PASSWORD; //NOSONAR
@@ -288,6 +294,12 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String trustStoreType = getTrustStoreType();
         final String trustStorePassword = getTrustStorePassword();
         final String trustStoreLocation = getTrustStoreLocation();
+
+        if(StringUtils.isAnyEmpty(trustStoreType, trustStorePassword, trustStoreLocation)) {
+            LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword, trustStoreLocation=[{}]",
+                    domain, trustStoreType, trustStoreLocation);
+            throw new ConfigurationException("Error while trying to load the truststore properties for domain " + domain);
+        }
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.TRUSTSTORE_TYPE, trustStoreType);
