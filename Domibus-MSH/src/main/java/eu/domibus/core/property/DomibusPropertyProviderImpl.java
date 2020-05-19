@@ -30,12 +30,10 @@ import java.util.function.Predicate;
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
-@Service//("domibusPropertyProvider")
+@Service
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
-
-    private Set<String> requestedProperties = new HashSet<>();
 
     @Autowired
     @Qualifier("domibusDefaultProperties")
@@ -62,13 +60,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
 
     @Autowired
-    ClassUtil classUtil;
-
-    //public interface methods
+    @Lazy
+    DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
     @Override
     public String getProperty(String propertyName) {
-        return getInternalOrExternalProperty(propertyName, null);
+        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
     }
 
     @Override
@@ -76,7 +73,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
-        return getInternalOrExternalProperty(propertyName, domain);
+        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
     }
 
     @Override
@@ -133,62 +130,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be set without a domain");
         }
-        setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        setInternalOrExternalProperty(null, propertyName, propertyValue, false);
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, false);
     }
 
-    //internal methods
-    private String getInternalOrExternalProperty(String propertyName, Domain domain) {
-        //determine if it is an external or internal property
-        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
-        if (manager == null) {
-            // it is an internal property
-            if (domain == null) {
-                return getInternalProperty(propertyName);
-            } else {
-                return getInternalProperty(domain, propertyName);
-            }
-        } else {
-            //external module property so...
-            //if it was already requested -> get local value (as we saved it locally too)
-            if (isPropertySavedLocally(propertyName)) {
-                return getInternalProperty(propertyName);
-            } else {
-                //mark requested so that it will be provided internally next time it is requested
-                markPropertyAsSavedLocally(propertyName);
-                //call manager for the value
-                String propertyValue;
-                if (domain == null) {
-                    propertyValue = getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
-                } else { // is this correct??? get current domain, compare it with the param and throw in case of difference???
-                    propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
-                }
-                //save the value locally/sync
-                if (propertyValue != null) {
-                    if (domain == null) {
-                        domain = domainContextProvider.getCurrentDomainSafely();
-                    }
-                    doSetPropertyValue(domain, propertyName, propertyValue);
-                }
-                //return it
-                return propertyValue;
-            }
-        }
-    }
-
-    private void markPropertyAsSavedLocally(String propertyName) {
-        requestedProperties.add(propertyName);
-    }
-
-    private boolean isPropertySavedLocally(String propertyName) {
-        return requestedProperties.contains(propertyName);
-    }
-
-    private String getInternalProperty(String propertyName) {
+    protected String getInternalProperty(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
@@ -229,7 +179,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    private String getInternalProperty(Domain domain, String propertyName) {
+    protected String getInternalProperty(Domain domain, String propertyName) {
         LOGGER.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
@@ -243,38 +193,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         return getDomainOrDefaultValue(prop, domain);
-    }
-
-    private void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
-        //get current value
-        String currentValue;
-        if (domain == null) {
-            currentValue = getInternalProperty(propertyName);
-        } else {
-            currentValue = getInternalProperty(domain, propertyName);
-        }
-        //if they are equal, nothing to do
-        if (StringUtils.equals(currentValue, propertyValue)) {
-            return;
-        }
-        //if not:
-        // save the new value locally also, no matter if it is an internal or external property
-        if (domain == null) {
-            domain = domainContextProvider.getCurrentDomainSafely();
-            setInternalPropertyValue(domain, propertyName, propertyValue, false);
-        } else { //get current domain, compare it with the param and throw in case of difference???
-            setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
-        }
-
-        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
-        //if it is an external property, call setProperty on the manager now
-        if (manager != null) {
-            if (domain == null) {
-                setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
-            } else { //is this correct?
-                manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
-            }
-        }
     }
 
     protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
@@ -316,7 +234,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    private void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
+    protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         //calculate property key
         if (domibusConfigurationService.isMultiTenantAware()) {
@@ -532,27 +450,4 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return defaultValue;
     }
 
-    protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
-        String value;
-        if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOGGER.debug("Calling getKnownPropertyValue method");
-            value = propertyManager.getKnownPropertyValue(propertyName);
-        } else {
-            LOGGER.debug("Calling deprecated getKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
-        }
-        return value;
-    }
-
-    protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOGGER.debug("Calling setKnownPropertyValue method");
-            propertyManager.setKnownPropertyValue(name, value);
-        } else {
-            LOGGER.debug("Calling deprecated setKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
-        }
-    }
 }
