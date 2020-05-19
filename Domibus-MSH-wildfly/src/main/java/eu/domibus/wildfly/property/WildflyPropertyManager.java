@@ -2,7 +2,6 @@ package eu.domibus.wildfly.property;
 
 import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyServiceDelegateAbstract;
 import eu.domibus.ext.domain.Module;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +16,7 @@ import java.util.stream.Collectors;
  * Property manager for the Wildfly Artemis specific properties.
  */
 @Service("serverPropertyManager")
-public class WildflyPropertyManager extends DomibusPropertyServiceDelegateAbstract
-        implements DomibusPropertyManager {
+public class WildflyPropertyManager implements DomibusPropertyManager {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
             ACTIVE_MQ_ARTEMIS_BROKER
@@ -31,4 +29,8 @@ public class WildflyPropertyManager extends DomibusPropertyServiceDelegateAbstra
         return knownProperties;
     }
 
+    @Override
+    public boolean hasKnownProperty(String name) {
+        return getKnownProperties().containsKey(name);
+    }
 }
