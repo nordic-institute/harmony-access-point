@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * <p>
  * Property manager for the Tomcat servers specific properties.
  */
-@Service("serverPropertyManager")
+@Service//("serverPropertyManager")
 public class TomcatPropertyManager implements DomibusPropertyMetadataManager {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.asList(

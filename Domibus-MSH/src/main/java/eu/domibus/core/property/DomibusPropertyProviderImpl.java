@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
-@Service("domibusPropertyProvider")
+@Service//("domibusPropertyProvider")
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);

@@ -18,7 +18,7 @@ import static eu.domibus.weblogic.security.ECASUserDetailsService.*;
  * <p>
  * Property manager for the Weblogic ECAS specific properties.
  */
-@Service("serverPropertyManager")
+@Service//("serverPropertyManager")
 public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
     private Map<String, DomibusPropertyMetadata> allProperties;
 
