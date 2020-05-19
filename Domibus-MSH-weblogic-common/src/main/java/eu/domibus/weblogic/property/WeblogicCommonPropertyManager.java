@@ -1,7 +1,7 @@
 package eu.domibus.weblogic.property;
 
-import eu.domibus.api.property.DomibusPropertyManager;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyMetadataManager;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Common property manager for the Weblogic servers/implementations specific properties.
  * Weblogic and ECAS managers derive from this
  */
-public class WeblogicCommonPropertyManager implements DomibusPropertyManager {
+public class WeblogicCommonPropertyManager implements DomibusPropertyMetadataManager {
 
     String module;
 
