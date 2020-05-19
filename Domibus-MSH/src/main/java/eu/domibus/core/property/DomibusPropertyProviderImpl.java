@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
+ * Single entry point for getting and setting internal and external domibus properties
+ *
  * @author Cosmin Baciu, Ion Perpegel
  * @since 4.0
  */
@@ -195,7 +197,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return getDomainOrDefaultValue(prop, domain);
     }
 
-    protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+    protected void setInternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         //code moved from DomibusPropertyManager
         DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 

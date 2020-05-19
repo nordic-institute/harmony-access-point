@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Helper class involved in dispatching the class to get and set domibus property values to the core or external property managers
  *
  * @author Ion Perpegel
  * @since 4.2
@@ -94,9 +95,9 @@ public class DomibusPropertyProviderDispatcher {
         // save the new value locally also, no matter if it is an internal or external property
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
-            domibusPropertyProvider.setInternalPropertyValue(domain, propertyName, propertyValue, false);
+            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, false);
         } else { //get current domain, compare it with the param and throw in case of difference???
-            domibusPropertyProvider.setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
+            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, broadcast);
         }
 
         DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);

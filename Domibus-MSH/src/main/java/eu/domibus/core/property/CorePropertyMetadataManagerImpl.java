@@ -17,6 +17,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Property metadata holder class of core properties ( common to all servers)
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataManager {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CorePropertyMetadataManagerImpl.class);

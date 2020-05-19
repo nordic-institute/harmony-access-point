@@ -17,6 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Helper class involved in managing the property metadata of core or external property managers ( metadata integrator)
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class DomibusPropertyMetadataManagerImpl {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManagerImpl.class);
