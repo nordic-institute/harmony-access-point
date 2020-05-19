@@ -38,10 +38,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     @Autowired
-    @Qualifier("domibusDefaultProperties")
-    protected Properties domibusDefaultProperties;
-
-    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
@@ -65,6 +61,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Lazy
     DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
+    @Autowired
+    PrimitiveTypesManager primitiveTypesManager;
+
     @Override
     public String getProperty(String propertyName) {
         return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
@@ -81,25 +80,25 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public Integer getIntegerProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return getIntegerInternal(propertyName, value);
+        return primitiveTypesManager.getIntegerInternal(propertyName, value);
     }
 
     @Override
     public Long getLongProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return getLongInternal(propertyName, value);
+        return primitiveTypesManager.getLongInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return getBooleanInternal(propertyName, value);
+        return primitiveTypesManager.getBooleanInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(Domain domain, String propertyName) {
         String domainValue = getProperty(domain, propertyName);
-        return getBooleanInternal(propertyName, domainValue);
+        return primitiveTypesManager.getBooleanInternal(propertyName, domainValue);
     }
 
     @Override
@@ -183,6 +182,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String getInternalProperty(Domain domain, String propertyName) {
         LOGGER.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
+
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
@@ -198,14 +198,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected void setInternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        //code moved from DomibusPropertyManager
+        //code moved from DomibusPropertyManagerImpl
         DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type
         validatePropertyValue(propMeta, propertyValue);
 
-        //kep old value in case of an exception
-        String oldValue = getProperty(domain, propertyName);
+        //keep old value in case of an exception
+        String oldValue = getInternalProperty(domain, propertyName);
 
         //try to set the new value
         doSetPropertyValue(domain, propertyName, propertyValue);
@@ -251,7 +251,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setValueInDomibusPropertySource(propertyKey, propertyValue);
     }
 
-    private void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
+    protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
         try {
@@ -389,67 +389,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
         return domain.getCode() + "." + propertyName;
-    }
-
-    private Integer getIntegerInternal(String propertyName, String customValue) {
-        if (customValue != null) {
-            try {
-                return Integer.valueOf(customValue);
-            } catch (final NumberFormatException e) {
-                LOGGER.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to an integer value", e);
-                return getDefaultIntegerValue(propertyName);
-            }
-        }
-        return getDefaultIntegerValue(propertyName);
-    }
-
-    protected Long getLongInternal(String propertyName, String customValue) {
-        if (customValue != null) {
-            try {
-                return Long.valueOf(customValue);
-            } catch (final NumberFormatException e) {
-                LOGGER.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to a Long value", e);
-                return getDefaultLongValue(propertyName);
-            }
-        }
-        return getDefaultLongValue(propertyName);
-    }
-
-    protected Integer getDefaultIntegerValue(String propertyName) {
-        Integer defaultValue = MapUtils.getInteger(domibusDefaultProperties, propertyName);
-        return checkDefaultValue(propertyName, defaultValue);
-    }
-
-    protected Long getDefaultLongValue(String propertyName) {
-        Long defaultValue = MapUtils.getLong(domibusDefaultProperties, propertyName);
-        return checkDefaultValue(propertyName, defaultValue);
-    }
-
-    private Boolean getBooleanInternal(String propertyName, String customValue) {
-        if (customValue != null) {
-            Boolean customBoolean = BooleanUtils.toBooleanObject(customValue);
-            if (customBoolean != null) {
-                return customBoolean;
-            }
-            LOGGER.warn("Could not parse the property [{}] custom value [{}] to a boolean value", propertyName, customValue);
-            return getDefaultBooleanValue(propertyName);
-        }
-        return getDefaultBooleanValue(propertyName);
-    }
-
-    private Boolean getDefaultBooleanValue(String propertyName) {
-        // We need to fetch the Boolean value in two steps as the MapUtils#getBoolean(Properties, String) does not return "null" when the value is an invalid Boolean.
-        String defaultValue = MapUtils.getString(domibusDefaultProperties, propertyName);
-        Boolean defaultBooleanValue = BooleanUtils.toBooleanObject(defaultValue);
-        return checkDefaultValue(propertyName, defaultBooleanValue);
-    }
-
-    private <T> T checkDefaultValue(String propertyName, T defaultValue) {
-        if (defaultValue == null) {
-            throw new IllegalStateException("The default property [" + propertyName + "] is required but was either not found inside the default properties or found having an invalid value");
-        }
-        LOGGER.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
-        return defaultValue;
     }
 
 }

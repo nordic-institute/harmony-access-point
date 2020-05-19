@@ -28,14 +28,14 @@ public class DomibusPropertyProviderDispatcher {
     private Set<String> requestedProperties = new HashSet<>();
 
     @Autowired
+    ClassUtil classUtil;
+
+    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
     @Lazy
     DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
-
-    @Autowired
-    ClassUtil classUtil;
 
     @Autowired
     @Lazy
