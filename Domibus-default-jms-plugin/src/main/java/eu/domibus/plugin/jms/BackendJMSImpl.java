@@ -175,7 +175,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         final String queueValue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
         LOG.info("Sending message to queue [{}]", queueValue);
-        jmsExtService.sendMapMessageToQueue(message, queueValue);
+        jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
     }
 
     @Override

@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.jms.core.JmsOperations;
+
 /**
  * // TODO Documentation
  *
@@ -26,6 +28,10 @@ public interface InternalJMSManager {
     void sendMessage(InternalJmsMessage message, String destination);
 
     void sendMessage(InternalJmsMessage message, Destination destination);
+
+    void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations);
+
+    void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations);
 
     void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination);
 

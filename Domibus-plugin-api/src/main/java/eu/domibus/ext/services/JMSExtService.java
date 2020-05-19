@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.JmsMessageDTO;
+import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.Queue;
 
@@ -41,7 +42,25 @@ public interface JMSExtService {
      *
      * @param message The message to be sent
      * @param destination The JMS destination
+     * @param jmsOperations the JMS operations to be used for sending
+     */
+    void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations);
+
+    /**
+     * Sends a Map message to a specific queue
+     *
+     * @param message The message to be sent
+     * @param destination The JMS destination
      */
     void sendMapMessageToQueue(JmsMessageDTO message, Queue destination);
+
+    /**
+     * Sends a Map message to a specific queue
+     *
+     * @param message The message to be sent
+     * @param destination The JMS destination
+     * @param jmsOperations the JMS operations to be used for sending
+     */
+    void sendMapMessageToQueue(JmsMessageDTO message, Queue destination, JmsOperations jmsOperations);
 
 }
