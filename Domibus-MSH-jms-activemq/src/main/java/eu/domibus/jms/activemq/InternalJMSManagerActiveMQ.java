@@ -57,7 +57,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     JMSDestinationHelper jmsDestinationHelper;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     JMSSelectorUtil jmsSelectorUtil;
@@ -132,12 +132,22 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, String destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations) {
         ActiveMQQueue activeMQQueue = new ActiveMQQueue(destination);
-        sendMessage(message, activeMQQueue);
+        sendMessage(message, activeMQQueue, jmsOperations);
     }
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
@@ -339,7 +349,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             return new ArrayList<>();
         }
 
-        return jmsOperations.browseSelected(queue, selector, (session, browser) -> {
+        return jmsSender.browseSelected(queue, selector, (session, browser) -> {
             List<InternalJmsMessage> result = new ArrayList<>();
             Enumeration enumeration = browser.getEnumeration();
             while (enumeration.hasMoreElements()) {
