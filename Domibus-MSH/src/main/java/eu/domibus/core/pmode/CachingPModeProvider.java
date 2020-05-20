@@ -277,7 +277,8 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     //@Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
-        String partyIdType = "";
+        String partyIdType = StringUtils.EMPTY;
+        String partyIdValue = StringUtils.EMPTY;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
                 for (final Identifier identifier : party.getIdentifiers()) {
@@ -286,12 +287,13 @@ public class CachingPModeProvider extends PModeProvider {
                         try {
                             URI.create(partyIdType);
                         } catch (final IllegalArgumentException e) {
-                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found [" + partyId + "]", null, e);
+                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
                             ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
                             throw ex;
                         }
                     }
                     String identifierPartyIdType = "";
+                    partyIdValue = id.getValue();
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
@@ -303,7 +305,7 @@ public class CachingPModeProvider extends PModeProvider {
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found [" + partyId + "]", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
     }
 
     @Override
