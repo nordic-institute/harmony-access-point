@@ -115,11 +115,10 @@ public class CommandServiceImpl implements CommandService {
                 loggingService.setLoggingLevel(name, level);
                 break;
             case Command.DOMIBUS_PROPERTY_CHANGE:
-//                final String domainCode = commandProperties.get(MessageConstants.DOMAIN);
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
                 try {
-                    domibusPropertyProvider.setProperty(domain, propName, propVal, false);
+                    domibusPropertyProvider.setProperty(domain, propName, propVal);
                 } catch (Exception ex) {
                     LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain);
                 }

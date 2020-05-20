@@ -102,6 +102,7 @@ public interface DomibusPropertyProvider {
 
     /**
      * Replaces/Sets the current property value in the current domain
+     * In case the value cannot be set because the property change listener fails, the DomibusPropertyException is raised
      *
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
@@ -110,7 +111,17 @@ public interface DomibusPropertyProvider {
 
     /**
      * Sets a new property value for the given property, in the given domain.
-     * Note: A null domain is used for global and super properties.
+     * In case the value cannot be set because the property change listener fails or if the domain is null, the DomibusPropertyException is raised
+     *
+     * @param domain        the domain of the property
+     * @param propertyName  the name of the property
+     * @param propertyValue the new value of the property
+     */
+    void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException;
+
+    /**
+     * Sets a new property value for the given property, in the given domain.
+     * In case the value cannot be set because the property change listener fails or if the domain is null, the DomibusPropertyException is raised
      *
      * @param domain        the domain of the property
      * @param propertyName  the name of the property

@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  * <p>
  * Property manager for the Wildfly Artemis specific properties.
  */
-@Service//("serverPropertyManager")
-public class WildflyPropertyManager implements DomibusPropertyMetadataManager {
+@Service
+public class WildflyPropertyMetadataManager implements DomibusPropertyMetadataManager {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
             ACTIVE_MQ_ARTEMIS_BROKER

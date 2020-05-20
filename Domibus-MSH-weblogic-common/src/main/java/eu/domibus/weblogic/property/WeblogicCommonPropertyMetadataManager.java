@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
  * Common property manager for the Weblogic servers/implementations specific properties.
  * Weblogic and ECAS managers derive from this
  */
-public class WeblogicCommonPropertyManager implements DomibusPropertyMetadataManager {
+public class WeblogicCommonPropertyMetadataManager implements DomibusPropertyMetadataManager {
 
     String module;
 
-    public WeblogicCommonPropertyManager(String module) {
+    public WeblogicCommonPropertyMetadataManager(String module) {
         this.module = module;
     }
 

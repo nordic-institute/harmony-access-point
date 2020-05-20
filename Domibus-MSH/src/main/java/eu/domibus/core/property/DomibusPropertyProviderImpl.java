@@ -132,6 +132,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, false);
     }
 
+    @Override
+    public void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException {
+        setProperty(domain, propertyName, propertyValue);
+    }
+
     protected String getInternalProperty(String propertyName) {
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 

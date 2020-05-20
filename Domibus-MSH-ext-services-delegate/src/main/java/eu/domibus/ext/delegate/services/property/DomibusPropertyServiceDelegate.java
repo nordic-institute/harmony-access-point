@@ -22,7 +22,6 @@ import java.util.function.Predicate;
 public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService {
 
     @Autowired
-    @Lazy
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
@@ -66,7 +65,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         DomainDTO currentDomain = domainContextService.getCurrentDomainSafely();
         Domain domibusDomain = domainConverter.convert(currentDomain, Domain.class);
 
-        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue, false);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
