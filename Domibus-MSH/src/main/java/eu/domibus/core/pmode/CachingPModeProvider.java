@@ -236,7 +236,7 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found for service [" + service + "] and action [" + action + "]", null, null);
     }
 
     @Override
@@ -246,7 +246,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return action1.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching action found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching action found [" + action + "]", null, null);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc;
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcValue + "]", null, null);
     }
 
     @Override
@@ -271,13 +271,14 @@ public class CachingPModeProvider extends PModeProvider {
                     return service1.getName();
                 }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + service.getType() + "] and value [" + service.getValue() + "]", null, null);
     }
 
     @Override
     //@Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     protected String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
-        String partyIdType = "";
+        String partyIdType = StringUtils.EMPTY;
+        String partyIdValue = StringUtils.EMPTY;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
                 for (final Identifier identifier : party.getIdentifiers()) {
@@ -292,6 +293,7 @@ public class CachingPModeProvider extends PModeProvider {
                         }
                     }
                     String identifierPartyIdType = "";
+                    partyIdValue = id.getValue();
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
@@ -303,7 +305,7 @@ public class CachingPModeProvider extends PModeProvider {
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
     }
 
     @Override
@@ -318,7 +320,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return agreement.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found for type [" + agreementRef.getType() + "] and value [" + agreementRef.getValue() + "]", null, null);
     }
 
     @Override
@@ -702,7 +704,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc.getQualifiedName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcName + "]", null, null);
     }
 
     @Nullable
