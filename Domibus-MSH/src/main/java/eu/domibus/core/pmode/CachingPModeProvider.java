@@ -246,7 +246,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return action1.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching action found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching action found [" + action + "]", null, null);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc;
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcValue + "]", null, null);
     }
 
     @Override
@@ -271,7 +271,7 @@ public class CachingPModeProvider extends PModeProvider {
                     return service1.getName();
                 }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found [" + service + "]", null, null);
     }
 
     @Override
@@ -286,7 +286,7 @@ public class CachingPModeProvider extends PModeProvider {
                         try {
                             URI.create(partyIdType);
                         } catch (final IllegalArgumentException e) {
-                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
+                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found [" + partyId + "]", null, e);
                             ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
                             throw ex;
                         }
@@ -303,7 +303,7 @@ public class CachingPModeProvider extends PModeProvider {
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found [" + partyId + "]", null, null);
     }
 
     @Override
@@ -318,7 +318,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return agreement.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found [" + agreementRef + "]", null, null);
     }
 
     @Override
@@ -702,7 +702,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc.getQualifiedName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcName + "]", null, null);
     }
 
     @Nullable
