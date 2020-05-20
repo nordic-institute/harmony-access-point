@@ -72,7 +72,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(name);
 
             if (isDomain) {
-                LOG.trace("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
+                LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
                 domibusPropertyProvider.setProperty(name, value);
             } else {
                 if (!authUtils.isSuperAdmin()) {
@@ -80,7 +80,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 }
                 // for non-domain properties, we set the value in the null-domain context:
                 domainTaskExecutor.submit(() -> {
-                    LOG.trace("Setting the value [{}] for the global/super property [{}].", value, name);
+                    LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
                     domibusPropertyProvider.setProperty(name, value);
                 });
             }

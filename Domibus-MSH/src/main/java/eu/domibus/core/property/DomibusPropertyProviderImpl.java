@@ -5,15 +5,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.*;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
-import eu.domibus.api.util.ClassUtil;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -22,7 +16,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -35,7 +28,7 @@ import java.util.function.Predicate;
 @Service
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -144,13 +137,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         //prop is only global so the current domain doesn't matter
         if (prop.isOnlyGlobal()) {
-            LOGGER.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
+            LOG.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
             return getGlobalProperty(prop);
         }
 
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOGGER.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
+            LOG.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
             return getGlobalProperty(prop);
         }
 
@@ -160,33 +153,33 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
             if (prop.isDomain()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
+                LOG.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
                 return getDomainOrDefaultValue(prop, currentDomain);
             }
-            LOGGER.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
+            LOG.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
         } else {
             //current domain being null, it is super or global property (but not both)
             if (prop.isGlobal()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
+                LOG.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
                 return getGlobalProperty(prop);
             }
             if (prop.isSuper()) {
-                LOGGER.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
+                LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
                 return getSuperOrDefaultValue(prop);
             }
-            LOGGER.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+            LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
             return null;
         }
     }
 
     protected String getInternalProperty(Domain domain, String propertyName) {
-        LOGGER.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
+        LOG.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOGGER.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
+            LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
 
@@ -198,7 +191,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected void setInternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        //code moved from DomibusPropertyManagerImpl
         DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type
@@ -216,7 +208,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
         if (propMeta == null) {
-            LOGGER.warn("Property metadata is null; exiting validation.");
+            LOG.warn("Property metadata is null; exiting validation.");
             return;
         }
 
@@ -224,7 +216,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
             DomibusPropertyValidator validator = type.getValidator();
             if (validator == null) {
-                LOGGER.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
+                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
                 return;
             }
 
@@ -232,7 +224,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
             }
         } catch (IllegalArgumentException ex) {
-            LOGGER.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
+            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
         }
     }
 
@@ -241,7 +233,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         //calculate property key
         if (domibusConfigurationService.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
-            propertyKey = calculatePropertyKeyInMultiTenancy(domain, propertyName);
+            propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
         } else {
             // in single-tenancy mode - the property key is always the property name
             propertyKey = propertyName;
@@ -254,20 +246,20 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
+        LOG.debug("Property [{}] changed its value on domain [{}], broadcasting is [{}]", propMeta, domainCode, shouldBroadcast);
+
         try {
             propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
         } catch (DomibusPropertyException ex) {
-            LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
+            LOG.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
             try {
                 // revert to old value
                 doSetPropertyValue(domain, propertyName, oldValue);
                 propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
-                // propagate the exception to the client
-                throw ex;
+                throw ex; // propagate the exception to the client
             } catch (DomibusPropertyException ex2) {
-                LOGGER.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
-                // failed to revert!!! just report the error
-                throw ex2;
+                LOG.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
+                throw ex2; // failed to revert, just report the error
             }
         }
     }
@@ -275,15 +267,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
         Set<String> filteredPropertyNames = new HashSet<>();
         if (!(propertySource instanceof EnumerablePropertySource)) {
-            LOGGER.trace("PropertySource [{}] has been skipped", propertySource.getName());
+            LOG.trace("PropertySource [{}] has been skipped", propertySource.getName());
             return filteredPropertyNames;
         }
-        LOGGER.trace("Filtering properties from propertySource [{}]", propertySource.getName());
+        LOG.trace("Filtering properties from propertySource [{}]", propertySource.getName());
 
         EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
         for (String propertyName : enumerablePropertySource.getPropertyNames()) {
             if (predicate.test(propertyName)) {
-                LOGGER.trace("Predicate matched property [{}]", propertyName);
+                LOG.trace("Predicate matched property [{}]", propertyName);
                 filteredPropertyNames.add(propertyName);
             }
         }
@@ -296,18 +288,18 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
     }
 
-    protected String calculatePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
+    protected String computePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
         DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
-            propertyKey = calculatePropertyKeyForDomain(domain, propertyName, prop);
+            propertyKey = computePropertyKeyForDomain(domain, propertyName, prop);
         } else {
-            propertyKey = calculatePropertyKeyWithoutDomain(propertyName, prop);
+            propertyKey = computePropertyKeyWithoutDomain(propertyName, prop);
         }
         return propertyKey;
     }
 
-    private String calculatePropertyKeyWithoutDomain(String propertyName, DomibusPropertyMetadata prop) {
+    private String computePropertyKeyWithoutDomain(String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey = propertyName;
         if (prop.isSuper()) {
             propertyKey = getPropertyKeyForSuper(propertyName);
@@ -320,7 +312,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return propertyKey;
     }
 
-    private String calculatePropertyKeyForDomain(Domain domain, String propertyName, DomibusPropertyMetadata prop) {
+    private String computePropertyKeyForDomain(Domain domain, String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey;
         if (prop.isDomain()) {
             propertyKey = getPropertyKeyForDomain(domain, propertyName);
@@ -344,7 +336,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         String result = environment.getProperty(propertyName);
 
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
-            LOGGER.debug("Decrypting property [{}]", propertyName);
+            LOG.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
         }
 
@@ -368,18 +360,18 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
         String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
         if (propValue != null) { // found a value->return it
-            LOGGER.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
+            LOG.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
             return propValue;
         }
         // didn't find a domain-specific value, try to fallback if acceptable
-        if (prop.isWithFallback()) {    //fall-back to the default value from global properties file
+        if (prop.isWithFallback()) {    // fall-back to the default value from global properties file
             propValue = getPropertyValue(prop.getName(), domain, prop.isEncrypted());
             if (propValue != null) { // found a value->return it
-                LOGGER.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
+                LOG.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
                 return propValue;
             }
         }
-        LOGGER.debug("Could not find a value for property [{}] on domain [{}].", prop.getName(), domain);
+        LOG.debug("Could not find a value for property [{}] on domain [{}].", prop.getName(), domain);
         return null;
     }
 

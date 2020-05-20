@@ -95,7 +95,7 @@ public class DomibusPropertyProviderDispatcher {
         // save the new value locally also, no matter if it is an internal or external property
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
-            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, false);
+            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, true);
         } else { //get current domain, compare it with the param and throw in case of difference???
             domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, broadcast);
         }

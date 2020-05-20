@@ -5,6 +5,7 @@ import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.property.validators.RegexpValidator;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * @author Ion Perpegel
@@ -278,6 +279,21 @@ public class DomibusPropertyMetadata {
         return new HashCodeBuilder(17, 37)
                 .append(name)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", this.name)
+                .append("module", this.module)
+                .append("type", this.type)
+                .append("usage", this.getUsageText())
+                .append("withFallback", this.withFallback)
+                .append("encrypted", this.encrypted)
+                .append("isComposable", this.isComposable)
+                .append("clusterAware", this.clusterAware)
+                .append("writable", this.writable)
+                .toString();
     }
 
     /**
