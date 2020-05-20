@@ -1,19 +1,17 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -27,7 +25,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
+//@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class DatabasePayloadPersistence implements PayloadPersistence {
 
@@ -83,6 +81,10 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
     public void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception {
         LOG.debug("Saving outgoing payload [{}] to database", partInfo.getHref());
 
+        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
+        final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
+        final String messageId = userMessage.getMessageInfo().getMessageId();
+
         try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
             final String originalFileName = partInfo.getFileName();
 
@@ -91,12 +93,17 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
 
             byte[] binaryData = getOutgoingBinaryData(partInfo, is, userMessage, legConfiguration, encryptionActive);
+            int partInfoLength = binaryData.length;
             partInfo.setBinaryData(binaryData);
-            partInfo.setLength(binaryData.length);
+            partInfo.setLength(partInfoLength);
             partInfo.setFileName(null);
             partInfo.setEncrypted(encryptionActive);
 
             LOG.debug("Finished saving outgoing payload [{}] to database", partInfo.getHref());
+
+            if (payloadProfileMaxSize != 0 && partInfoLength > payloadProfileMaxSize) {
+                throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile ["+payloadProfileName+"]");
+            }
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
         }

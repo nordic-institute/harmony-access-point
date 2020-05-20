@@ -6,16 +6,16 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -174,6 +174,14 @@ public class MessagingServiceImpl implements MessagingService {
         } catch (IOException | EbMS3Exception exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref());
             throw new CompressionException("Could not store binary data for message " + exc.getMessage(), exc);
+//        } catch (EbMS3Exception exc) {
+//            if (ErrorCode.EbMS3ErrorCode.EBMS_0010 == exc.getErrorCode()) {
+//                //invalid payload size?
+//                messagingDao.clearPayloadData(messaging.getUserMessage());
+//            }
+
+//            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref());
+//            throw new CompressionException("Could not store binary data for message " + exc.getMessage(), exc);
         }
     }
 
@@ -197,6 +205,8 @@ public class MessagingServiceImpl implements MessagingService {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION, partInfo.getHref());
         }
     }
+
+
 
     protected void setContentType(PartInfo partInfo) {
         String contentType = partInfo.getPayloadDatahandler().getContentType();

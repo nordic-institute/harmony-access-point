@@ -51,12 +51,12 @@ public class PayloadProfileValidator {
             return;
         }
         for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
-            validatePartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageInfo().getMessageId());
+            validateCompressPartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageInfo().getMessageId());
         }
 
     }
 
-    protected void validatePartInfo(final boolean isCompressEnabledInPmode, final PartInfo partInfo, String messageId) throws EbMS3Exception {
+    protected void validateCompressPartInfo(final boolean isCompressEnabledInPmode, final PartInfo partInfo, String messageId) throws EbMS3Exception {
 
         if (partInfo.getPartProperties() == null) {
             if (isCompressEnabledInPmode) {
@@ -79,7 +79,6 @@ public class PayloadProfileValidator {
             }
         }
 
-
         if (compress && mimeType == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", messageId, null);
         }
@@ -94,11 +93,6 @@ public class PayloadProfileValidator {
             LOG.businessInfo(DomibusMessageCode.BUS_PAYLOAD_PROFILE_VALIDATION_SKIP, legConfiguration.getName());
             // no profile means everything is valid
             return;
-        }
-
-        int profileMaxSize = profile.getMaxSize();
-        if (profileMaxSize < 0) {
-            LOG.warn("Payload profile [{}] has a negative maxSize value [{}]", profile.getName(), profileMaxSize);
         }
 
         modifiableProfileList.addAll(profile.getPayloads());
@@ -139,7 +133,7 @@ public class PayloadProfileValidator {
             }
 
             //validate the size of the payload
-            validatePartInfoMaxSize(profileMaxSize, partInfo, messageId);
+            //validatePayloadProfileMaxSize(profile, partInfo, messageId);
 
         }
         for (final Payload payload : modifiableProfileList) {
@@ -154,9 +148,14 @@ public class PayloadProfileValidator {
     }
 
 
-    protected void validatePartInfoMaxSize(int profileMaxSize, PartInfo partInfo, final String messageId) throws EbMS3Exception {
-        int partInfoSize = -1;
+    protected void validatePayloadProfileMaxSize(PayloadProfile payloadProfile, PartInfo partInfo, final String messageId) throws EbMS3Exception {
+        int profileMaxSize = payloadProfile.getMaxSize();
+        if (profileMaxSize <= 0) {
+            LOG.debug("No validation will be done based on maxSize=[{}]", profileMaxSize);
+            return;
+        }
 
+        int partInfoSize = -1;
         try {
             partInfoSize = partInfo.getPayloadDatahandler().getDataSource().getInputStream().available();
         } catch (IOException e) {
@@ -164,7 +163,7 @@ public class PayloadProfileValidator {
         }
 
         if (partInfoSize > profileMaxSize) {
-            //LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_MISSING, payload);
+            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, partInfoSize, profileMaxSize, payloadProfile.getName());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload size [" + partInfoSize + "] is greater than the maximum value defined [" + profileMaxSize + "]", messageId, null);
         }
     }
