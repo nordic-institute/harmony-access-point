@@ -1,7 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @since 4.2
  */
 @Service
-public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataManager {
+public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataManagerSPI {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CorePropertyMetadataManagerImpl.class);
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new DomibusPropertyMetadata[]{

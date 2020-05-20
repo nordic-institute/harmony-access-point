@@ -3,7 +3,7 @@ package eu.domibus.tomcat.transaction;
 import com.atomikos.icatch.config.UserTransactionServiceImp;
 import com.atomikos.icatch.jta.J2eeUserTransaction;
 import com.atomikos.icatch.jta.UserTransactionManager;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -30,21 +30,21 @@ public class TomcatTransactionConfiguration {
         Properties properties = new Properties();
         properties.setProperty("com.atomikos.icatch.service", "com.atomikos.icatch.standalone.UserTransactionServiceFactory");
 
-        String icatchOutputDirectory = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_OUTPUT_DIR);
+        String icatchOutputDirectory = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_OUTPUT_DIR);
         properties.setProperty("com.atomikos.icatch.output_dir", icatchOutputDirectory);
 
-        String logBaseDirectory = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_LOG_BASE_DIR);
+        String logBaseDirectory = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_LOG_BASE_DIR);
         properties.setProperty("com.atomikos.icatch.log_base_dir", logBaseDirectory);
 
         properties.setProperty("com.atomikos.icatch.force_shutdown_on_vm_exit", "true");
 
-        String defaultJtaTimeout = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT);
+        String defaultJtaTimeout = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT);
         properties.setProperty("com.atomikos.icatch.default_jta_timeout", defaultJtaTimeout);
 
-        String maxTimeout = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_MAX_TIMEOUT);
+        String maxTimeout = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_MAX_TIMEOUT);
         properties.setProperty("com.atomikos.icatch.max_timeout", maxTimeout);
 
-        String maxActives = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_MAX_ACTIVES);
+        String maxActives = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_MAX_ACTIVES);
         properties.setProperty("com.atomikos.icatch.max_actives", maxActives);
 
         LOGGER.debug("Configured UserTransactionService with the following properties [{}]", properties);

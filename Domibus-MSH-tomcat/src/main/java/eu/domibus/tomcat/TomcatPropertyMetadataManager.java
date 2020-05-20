@@ -1,7 +1,7 @@
 package eu.domibus.tomcat;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.ext.domain.Module;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Property manager for the Tomcat servers specific properties.
  */
 @Service
-public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataManager {
+public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataManagerSPI {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.asList(
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME, Module.TOMCAT),

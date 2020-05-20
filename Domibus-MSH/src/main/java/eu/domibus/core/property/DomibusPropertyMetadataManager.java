@@ -1,7 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
@@ -24,16 +24,19 @@ import java.util.Optional;
  * @since 4.2
  */
 @Service
-public class DomibusPropertyMetadataManagerImpl {
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManagerImpl.class);
+public class DomibusPropertyMetadataManager {
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManager.class);
 
     @Autowired
     @Lazy
-    private List<DomibusPropertyMetadataManager> propertyMetadataManagers;
+    private List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
     @Autowired
     @Lazy
     private List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    @Autowired
+    protected DomainCoreConverter domainConverter;
 
     private Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     private Map<String, DomibusPropertyMetadata> internlPropertyMetadataMap;
@@ -139,10 +142,6 @@ public class DomibusPropertyMetadataManagerImpl {
         extPropertyManagers.stream().forEach(this::loadExternalProperties);
     }
 
-    @Autowired
-    @Lazy
-    protected DomainCoreConverter domainConverter;
-
     protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
         LOGGER.trace("Loading property metadata for [{}] external property manager.", propertyManager);
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
@@ -154,7 +153,7 @@ public class DomibusPropertyMetadataManagerImpl {
         }
     }
 
-    protected void loadProperties(DomibusPropertyMetadataManager propertyManager, String managerName) {
+    protected void loadProperties(DomibusPropertyMetadataManagerSPI propertyManager, String managerName) {
         LOGGER.trace("Loading property metadata for [{}] property manager.", managerName);
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadata prop = entry.getValue();

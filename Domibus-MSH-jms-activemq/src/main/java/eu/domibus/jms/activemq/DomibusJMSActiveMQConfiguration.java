@@ -2,7 +2,7 @@ package eu.domibus.jms.activemq;
 
 import com.atomikos.jms.AtomikosConnectionFactoryBean;
 import eu.domibus.api.jms.JMSConstants;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,8 +40,8 @@ public class DomibusJMSActiveMQConfiguration {
         AtomikosConnectionFactoryBean atomikosConnectionFactoryBean = new AtomikosConnectionFactoryBean();
         atomikosConnectionFactoryBean.setUniqueResourceName("domibusJMS-XA");
         atomikosConnectionFactoryBean.setXaConnectionFactory(activeMQXAConnectionFactory);
-        int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManager.DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE);
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, maxPoolSize);
+        int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, maxPoolSize);
 
         atomikosConnectionFactoryBean.setMaxPoolSize(maxPoolSize);
         return atomikosConnectionFactoryBean;
@@ -50,8 +50,8 @@ public class DomibusJMSActiveMQConfiguration {
     @Bean("mbeanServerConnection")
     public MBeanServerConnectionFactoryBean mBeanServerConnectionFactoryBean(DomibusPropertyProvider domibusPropertyProvider) throws MalformedURLException {
         MBeanServerConnectionFactoryBean result = new MBeanServerConnectionFactoryBean();
-        String activeMQJMXURL = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_JMXURL);
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.ACTIVE_MQ_JMXURL, activeMQJMXURL);
+        String activeMQJMXURL = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL, activeMQJMXURL);
         result.setServiceUrl(activeMQJMXURL);
         result.setConnectOnStartup(false);
 
@@ -63,7 +63,7 @@ public class DomibusJMSActiveMQConfiguration {
                                                        DomibusPropertyProvider domibusPropertyProvider) throws MalformedObjectNameException {
         MBeanProxyFactoryBean result = new MBeanProxyFactoryBean();
 
-        String activeMQBrokerName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_BROKER_NAME);
+        String activeMQBrokerName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_BROKER_NAME);
         String objectName = MQ_BROKER_NAME + activeMQBrokerName;
         LOGGER.debug("Configured property [objectName] with [{}]", objectName);
 

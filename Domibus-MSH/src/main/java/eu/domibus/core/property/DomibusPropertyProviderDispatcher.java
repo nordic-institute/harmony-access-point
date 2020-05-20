@@ -35,7 +35,7 @@ public class DomibusPropertyProviderDispatcher {
 
     @Autowired
     @Lazy
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    DomibusPropertyMetadataManager domibusPropertyMetadataManager;
 
     @Autowired
     @Lazy
@@ -110,11 +110,11 @@ public class DomibusPropertyProviderDispatcher {
         }
     }
 
-    private void markPropertyAsSavedLocally(String propertyName) {
+    protected void markPropertyAsSavedLocally(String propertyName) {
         requestedProperties.add(propertyName);
     }
 
-    private boolean isPropertySavedLocally(String propertyName) {
+    protected boolean isPropertySavedLocally(String propertyName) {
         return requestedProperties.contains(propertyName);
     }
 

@@ -1,6 +1,6 @@
 package eu.domibus.core.jms;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -40,7 +40,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         String concurrency = "2-3";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_INTERNAL_QUEUE_CONCURENCY);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_INTERNAL_QUEUE_CONCURENCY);
             this.result = concurrency;
         }};
 

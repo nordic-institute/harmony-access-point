@@ -48,7 +48,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     @Lazy
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    DomibusPropertyMetadataManager domibusPropertyMetadataManager;
 
     @Autowired
     @Lazy

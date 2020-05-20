@@ -2,7 +2,7 @@ package eu.domibus.core.certificate.crl;
 
 import eu.domibus.SpringTestConfiguration;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
-import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
+import eu.domibus.core.property.DomibusPropertyMetadataManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.pki.PKIUtil;
@@ -53,8 +53,8 @@ public class CRLServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager() {
-            return Mockito.mock(DomibusPropertyMetadataManagerImpl.class);
+        public DomibusPropertyMetadataManager domibusPropertyMetadataManager() {
+            return Mockito.mock(DomibusPropertyMetadataManager.class);
         }
     }
 

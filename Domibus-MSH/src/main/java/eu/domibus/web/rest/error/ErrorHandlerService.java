@@ -19,7 +19,7 @@ import org.springframework.validation.ObjectError;
 import javax.validation.ValidationException;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXCEPTIONS_REST_ENABLE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXCEPTIONS_REST_ENABLE;
 
 /**
  * @author Ion Perpegel

@@ -1,7 +1,7 @@
 package eu.domibus.wildfly.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.ext.domain.Module;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Property manager for the Wildfly Artemis specific properties.
  */
 @Service
-public class WildflyPropertyMetadataManager implements DomibusPropertyMetadataManager {
+public class WildflyPropertyMetadataManager implements DomibusPropertyMetadataManagerSPI {
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new String[]{
             ACTIVE_MQ_ARTEMIS_BROKER

@@ -3,15 +3,11 @@ package eu.domibus.core.property;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.api.property.DomibusPropertyException;
-import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +34,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     private AuthUtils authUtils;
@@ -47,8 +43,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    @Lazy
-    DomibusPropertyMetadataManagerImpl globalPropertyMetadataManager;
+    DomibusPropertyMetadataManager globalPropertyMetadataManager;
 
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {

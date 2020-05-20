@@ -16,7 +16,7 @@ import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
-import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
+import eu.domibus.core.property.DomibusPropertyMetadataManager;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
@@ -67,8 +67,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager() {
-            return Mockito.mock(DomibusPropertyMetadataManagerImpl.class);
+        public DomibusPropertyMetadataManager domibusPropertyMetadataManager() {
+            return Mockito.mock(DomibusPropertyMetadataManager.class);
         }
 
         @Bean(name = "domibusDefaultProperties")
