@@ -52,9 +52,6 @@ public class CommandServiceImpl implements CommandService {
     @Autowired
     private ServerInfoService serverInfoService;
 
-//    @Autowired
-//    private List<DomibusPropertyManager> domibusPropertyManagers;
-
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 

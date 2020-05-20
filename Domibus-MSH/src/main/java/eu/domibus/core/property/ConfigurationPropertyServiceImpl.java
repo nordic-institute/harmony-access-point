@@ -40,9 +40,6 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     DomibusPropertyProviderImpl domibusPropertyProvider;
 
-//    @Autowired
-//    private List<DomibusPropertyManagerExt> propertyManagers;
-
     @Autowired
     private AuthUtils authUtils;
 
