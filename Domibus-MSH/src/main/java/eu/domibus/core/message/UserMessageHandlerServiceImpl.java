@@ -375,7 +375,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         } catch (InvalidPayloadSizeException e) {
             LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, e.getMessage());
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
-            ex.setMshRole(MSHRole.SENDING);
+            ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
 
