@@ -63,7 +63,7 @@ public class DomibusPropertyProviderDispatcher {
                 String propertyValue;
                 if (domain == null) {
                     propertyValue = getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
-                } else { // is this correct??? get current domain, compare it with the param and throw in case of difference???
+                } else {
                     propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
                 }
                 //save the value locally/sync
@@ -73,7 +73,6 @@ public class DomibusPropertyProviderDispatcher {
                     }
                     domibusPropertyProvider.doSetPropertyValue(domain, propertyName, propertyValue);
                 }
-                //return it
                 return propertyValue;
             }
         }
@@ -105,7 +104,7 @@ public class DomibusPropertyProviderDispatcher {
         if (manager != null) {
             if (domain == null) {
                 setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
-            } else { //is this correct?
+            } else {
                 manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
             }
         }
