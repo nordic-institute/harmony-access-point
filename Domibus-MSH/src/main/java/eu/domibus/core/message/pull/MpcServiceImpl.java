@@ -19,7 +19,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PUL
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class MpcServiceImpl implements MpcService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
 

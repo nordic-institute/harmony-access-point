@@ -65,9 +65,9 @@ public class RetryDefaultService implements RetryService {
     UpdateRetryLoggingService updateRetryLoggingService;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
+
         for (final String messageId : messagesNotAlreadyQueued) {
             try {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

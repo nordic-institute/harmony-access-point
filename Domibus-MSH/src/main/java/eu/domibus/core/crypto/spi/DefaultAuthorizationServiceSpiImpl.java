@@ -38,7 +38,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Default authorization implementation.
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceSpi {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAuthorizationServiceSpiImpl.class);

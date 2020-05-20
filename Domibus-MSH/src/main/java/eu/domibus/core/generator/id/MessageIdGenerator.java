@@ -23,7 +23,6 @@ public class MessageIdGenerator {
     @Autowired
     protected NoArgGenerator uuidGenerator;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public String generateMessageId() {
         String messageIdSuffix = domibusPropertyProvider.getProperty(MESSAGE_ID_SUFFIX_PROPERTY);
         return uuidGenerator.generate() + "@" + messageIdSuffix;

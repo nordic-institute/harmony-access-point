@@ -50,7 +50,6 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
@@ -72,7 +71,6 @@ public class MSHDispatcher {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatchLocal(final UserMessage userMessage, final SOAPMessage soapMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
         Domain domain = domainContextProvider.getCurrentDomain();
         String endpoint = LOCAL_MSH_ENDPOINT;

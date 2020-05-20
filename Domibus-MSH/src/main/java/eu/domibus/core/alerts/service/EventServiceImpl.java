@@ -41,7 +41,6 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);

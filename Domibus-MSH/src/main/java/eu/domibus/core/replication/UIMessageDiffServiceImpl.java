@@ -37,7 +37,6 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     private UIMessageService uiMessageService;
 
     @Override
-    @Transactional(readOnly = true, propagation=Propagation.SUPPORTS)
     public int countAll() {
         LOG.debug("start to count UIMessages to be synced");
         long startTime = System.currentTimeMillis();
@@ -49,7 +48,6 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     }
 
     @Override
-    @Transactional(readOnly = true, propagation=Propagation.SUPPORTS)
     public List<UIMessageDiffEntity> findAll() {
         LOG.debug("start to find UIMessages to be synced");
         long startTime = System.currentTimeMillis();
