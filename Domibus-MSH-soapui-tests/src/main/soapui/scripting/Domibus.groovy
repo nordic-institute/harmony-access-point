@@ -3444,8 +3444,8 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		debugLog("  checkFSpayloadPresent  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
 		for(i=0;i<payloadName.size;i++){
 			testFile = new File(fsPayloadPath+payloadName[i]);
-			assert(testFile.exists()),"Error: checkFSpayloadPresent: file \"${payloadName[i]}\" was not found in path \"$fsPayloadPath\" ...";
-			log.info "File file \"{$payloadName[i]}\" was not found in path \"$fsPayloadPath\"."
+			assert(testFile.exists()),"Error: checkFSpayloadPresent: file \""+payloadName[i]+"\" was not found in path \"$fsPayloadPath\" ...";
+			log.info "File \""+payloadName[i]+"\" was found in path \"$fsPayloadPath\"."
 		}
 		debugLog("  ====  \"checkFSpayloadPresent\" DONE.", log);
 	}
