@@ -166,7 +166,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.addCertificate(certificates, overwrite);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public X509Certificate getCertificateFromTruststore(Domain domain, String alias) throws KeyStoreException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);

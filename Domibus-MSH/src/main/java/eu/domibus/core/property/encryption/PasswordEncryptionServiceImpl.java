@@ -185,7 +185,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = DomibusEncryptionException.class)
     @Override
     public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);

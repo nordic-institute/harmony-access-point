@@ -83,6 +83,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void reset(final UserMessageLog userMessageLog) {
         final MessageStatus readyToPull = MessageStatus.READY_TO_PULL;

@@ -20,7 +20,6 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHandlerFactory {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingMessageHandlerDefaultFactory.class);

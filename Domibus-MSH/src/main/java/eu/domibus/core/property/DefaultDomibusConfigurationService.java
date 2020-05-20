@@ -24,7 +24,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENT
  * @since 3.3
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DefaultDomibusConfigurationService implements DomibusConfigurationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomibusConfigurationService.class);

@@ -42,7 +42,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEN
  */
 
 @Service
-@Transactional(noRollbackFor = {IllegalArgumentException.class}, propagation = Propagation.SUPPORTS)
 public class BackendMessageValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);

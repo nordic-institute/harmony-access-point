@@ -37,7 +37,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LOG
  * @since 3.2.5
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SoapUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);

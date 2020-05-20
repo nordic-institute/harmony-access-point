@@ -58,7 +58,6 @@ public class ResponseHandler {
     @Autowired
     protected ReliabilityService reliabilityService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public ResponseResult verifyResponse(final SOAPMessage response) throws EbMS3Exception {
         LOGGER.debug("Verifying response");
 
@@ -81,7 +80,6 @@ public class ResponseHandler {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         nonRepudiationService.saveResponse(response, signalMessage);

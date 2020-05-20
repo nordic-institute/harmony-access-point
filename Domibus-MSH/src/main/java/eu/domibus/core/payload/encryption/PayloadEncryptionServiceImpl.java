@@ -48,7 +48,6 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
         LOG.debug("Creating encryption key for all domains if not yet exists");

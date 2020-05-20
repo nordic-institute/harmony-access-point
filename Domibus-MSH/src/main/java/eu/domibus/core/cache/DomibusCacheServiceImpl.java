@@ -26,7 +26,6 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     private CacheManager cacheManager;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void clearCache(String refreshCacheName) {
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {

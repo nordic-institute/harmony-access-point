@@ -71,7 +71,6 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     DomibusProxyService domibusProxyService;
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
-    @Transactional(noRollbackFor = IllegalStateException.class, propagation = Propagation.SUPPORTS)
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
                                           final String participantIdScheme,

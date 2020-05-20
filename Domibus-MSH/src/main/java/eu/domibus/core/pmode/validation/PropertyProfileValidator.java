@@ -30,7 +30,6 @@ import java.util.Set;
  */
 
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class PropertyProfileValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProfileValidator.class);
 

@@ -21,7 +21,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
  * Domibus uses the same proxy configuration for requests on all domains
  */
 @Service("domibusProxyService")
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusProxyServiceImpl implements DomibusProxyService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImpl.class);

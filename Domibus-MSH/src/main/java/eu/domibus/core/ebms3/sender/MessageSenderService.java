@@ -52,7 +52,6 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void sendUserMessage(final String messageId, int retryCount, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
