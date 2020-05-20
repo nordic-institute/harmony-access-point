@@ -47,15 +47,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     @Autowired
-    @Lazy
     DomibusPropertyMetadataManager domibusPropertyMetadataManager;
 
     @Autowired
-    @Lazy
     DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
     @Autowired
-    PrimitiveTypesManager primitiveTypesManager;
+    PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     @Override
     public String getProperty(String propertyName) {
@@ -73,25 +71,25 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public Integer getIntegerProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return primitiveTypesManager.getIntegerInternal(propertyName, value);
+        return primitivePropertyTypesManager.getIntegerInternal(propertyName, value);
     }
 
     @Override
     public Long getLongProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return primitiveTypesManager.getLongInternal(propertyName, value);
+        return primitivePropertyTypesManager.getLongInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(String propertyName) {
         String value = getProperty(propertyName);
-        return primitiveTypesManager.getBooleanInternal(propertyName, value);
+        return primitivePropertyTypesManager.getBooleanInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(Domain domain, String propertyName) {
         String domainValue = getProperty(domain, propertyName);
-        return primitiveTypesManager.getBooleanInternal(propertyName, domainValue);
+        return primitivePropertyTypesManager.getBooleanInternal(propertyName, domainValue);
     }
 
     @Override

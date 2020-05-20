@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -23,7 +22,7 @@ import java.util.Set;
 @Service
 public class DomibusPropertyProviderDispatcher {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
     private Set<String> requestedProperties = new HashSet<>();
 
@@ -34,11 +33,9 @@ public class DomibusPropertyProviderDispatcher {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
-    @Lazy
     DomibusPropertyMetadataManager domibusPropertyMetadataManager;
 
     @Autowired
-    @Lazy
     private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     protected String getInternalOrExternalProperty(String propertyName, Domain domain) {
@@ -121,10 +118,10 @@ public class DomibusPropertyProviderDispatcher {
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         String value;
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOGGER.debug("Calling getKnownPropertyValue method");
+            LOG.debug("Calling getKnownPropertyValue method");
             value = propertyManager.getKnownPropertyValue(propertyName);
         } else {
-            LOGGER.debug("Calling deprecated getKnownPropertyValue method");
+            LOG.debug("Calling deprecated getKnownPropertyValue method");
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
         }
@@ -133,10 +130,10 @@ public class DomibusPropertyProviderDispatcher {
 
     protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
         if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOGGER.debug("Calling setKnownPropertyValue method");
+            LOG.debug("Calling setKnownPropertyValue method");
             propertyManager.setKnownPropertyValue(name, value);
         } else {
-            LOGGER.debug("Calling deprecated setKnownPropertyValue method");
+            LOG.debug("Calling deprecated setKnownPropertyValue method");
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
         }

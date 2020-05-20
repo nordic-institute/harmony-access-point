@@ -9,7 +9,6 @@ import java.util.Map;
  * The interface implemented by MSH to expose metadata for all of the configuration properties
  */
 public interface DomibusPropertyMetadataManagerSPI {
-    public static final String MSH_PROPERTY_MANAGER = "mshPropertyManager";
 
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.user.account_disabled.";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.cert.imminent_expiration.";

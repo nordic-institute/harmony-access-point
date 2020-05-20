@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.Properties;
 
 @Service
-public class PrimitiveTypesManager {
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PrimitiveTypesManager.class);
+public class PrimitivePropertyTypesManager {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrimitivePropertyTypesManager.class);
 
     @Autowired
     @Qualifier("domibusDefaultProperties")
@@ -23,7 +23,7 @@ public class PrimitiveTypesManager {
             try {
                 return Integer.valueOf(customValue);
             } catch (final NumberFormatException e) {
-                LOGGER.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to an integer value", e);
+                LOG.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to an integer value", e);
                 return getDefaultIntegerValue(propertyName);
             }
         }
@@ -35,7 +35,7 @@ public class PrimitiveTypesManager {
             try {
                 return Long.valueOf(customValue);
             } catch (final NumberFormatException e) {
-                LOGGER.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to a Long value", e);
+                LOG.warn("Could not parse the property [" + propertyName + "] custom value [" + customValue + "] to a Long value", e);
                 return getDefaultLongValue(propertyName);
             }
         }
@@ -58,7 +58,7 @@ public class PrimitiveTypesManager {
             if (customBoolean != null) {
                 return customBoolean;
             }
-            LOGGER.warn("Could not parse the property [{}] custom value [{}] to a boolean value", propertyName, customValue);
+            LOG.warn("Could not parse the property [{}] custom value [{}] to a boolean value", propertyName, customValue);
             return getDefaultBooleanValue(propertyName);
         }
         return getDefaultBooleanValue(propertyName);
@@ -75,7 +75,7 @@ public class PrimitiveTypesManager {
         if (defaultValue == null) {
             throw new IllegalStateException("The default property [" + propertyName + "] is required but was either not found inside the default properties or found having an invalid value");
         }
-        LOGGER.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
+        LOG.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
         return defaultValue;
     }
 }

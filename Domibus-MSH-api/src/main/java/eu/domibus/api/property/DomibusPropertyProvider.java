@@ -106,7 +106,8 @@ public interface DomibusPropertyProvider {
      *
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
-     */
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
+     * */
     void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
@@ -116,7 +117,8 @@ public interface DomibusPropertyProvider {
      * @param domain        the domain of the property
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
-     */
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
+     * */
     void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
@@ -127,6 +129,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
      * @param broadcast     Specifies if the property change needs to be broadcasted to all nodes in the cluster
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails or if the domain is null
      */
     void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
 }
