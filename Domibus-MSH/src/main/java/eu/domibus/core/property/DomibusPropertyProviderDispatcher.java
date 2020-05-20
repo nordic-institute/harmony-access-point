@@ -43,68 +43,74 @@ public class DomibusPropertyProviderDispatcher {
         DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
             // it is an internal property
-            if (domain == null) {
-                return domibusPropertyProvider.getInternalProperty(propertyName);
-            } else {
-                return domibusPropertyProvider.getInternalProperty(domain, propertyName);
-            }
-        } else {
-            //external module property so...
-            //if it was already requested -> get local value (as we saved it locally too)
-            if (isPropertySavedLocally(propertyName)) {
-                return domibusPropertyProvider.getInternalProperty(propertyName);
-            } else {
-                //mark requested so that it will be provided internally next time it is requested
-                markPropertyAsSavedLocally(propertyName);
-                //call manager for the value
-                String propertyValue;
-                if (domain == null) {
-                    propertyValue = getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
-                } else {
-                    propertyValue = manager.getKnownPropertyValue(domain.getCode(), propertyName);
-                }
-                //save the value locally/sync
-                if (propertyValue != null) {
-                    if (domain == null) {
-                        domain = domainContextProvider.getCurrentDomainSafely();
-                    }
-                    domibusPropertyProvider.doSetPropertyValue(domain, propertyName, propertyValue);
-                }
-                return propertyValue;
-            }
+            return getInternalPropertyValue(domain, propertyName);
         }
+        //external module property so...
+        //if it was already requested -> get local value (as we saved it locally too)
+        if (isPropertySavedLocally(propertyName)) {
+            return getInternalPropertyValue(domain, propertyName);
+        }
+        //mark requested so that it will be provided internally next time it is requested
+        markPropertyAsSavedLocally(propertyName);
+        //call manager for the value
+        String propertyValue = getExternalPropertyValue(propertyName, domain, manager);
+        //save the value locally/sync
+        if (propertyValue != null) {
+            if (domain == null) {
+                domain = domainContextProvider.getCurrentDomainSafely();
+            }
+            domibusPropertyProvider.doSetPropertyValue(domain, propertyName, propertyValue);
+        }
+        return propertyValue;
     }
 
     protected void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         //get current value
-        String currentValue;
-        if (domain == null) {
-            currentValue = domibusPropertyProvider.getInternalProperty(propertyName);
-        } else {
-            currentValue = domibusPropertyProvider.getInternalProperty(domain, propertyName);
-        }
+        String currentValue = getInternalPropertyValue(domain, propertyName);
         //if they are equal, nothing to do
         if (StringUtils.equals(currentValue, propertyValue)) {
             return;
         }
         //if not:
         // save the new value locally also, no matter if it is an internal or external property
+        setPropertyValue(domain, propertyName, propertyValue, broadcast);
+
+        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
+        //if it is an external property, call setProperty on the manager now
+        if (manager != null) {
+            setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
+        }
+    }
+
+    protected String getExternalPropertyValue(String propertyName, Domain domain, DomibusPropertyManagerExt manager) {
+        if (domain == null) {
+            return getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
+        }
+        return manager.getKnownPropertyValue(domain.getCode(), propertyName);
+    }
+
+    protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
+        if (domain == null) {
+            setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
+        } else {
+            manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
+        }
+    }
+
+    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
             domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, true);
         } else { //get current domain, compare it with the param and throw in case of difference???
             domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, broadcast);
         }
+    }
 
-        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
-        //if it is an external property, call setProperty on the manager now
-        if (manager != null) {
-            if (domain == null) {
-                setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
-            } else {
-                manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
-            }
+    protected String getInternalPropertyValue(Domain domain, String propertyName) {
+        if (domain == null) {
+            return domibusPropertyProvider.getInternalProperty(propertyName);
         }
+        return domibusPropertyProvider.getInternalProperty(domain, propertyName);
     }
 
     protected void markPropertyAsSavedLocally(String propertyName) {
