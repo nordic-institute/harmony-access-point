@@ -271,7 +271,7 @@ public class CachingPModeProvider extends PModeProvider {
                     return service1.getName();
                 }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found [" + service + "]", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found [" + service.getValue() + "]", null, null);
     }
 
     @Override
@@ -318,7 +318,7 @@ public class CachingPModeProvider extends PModeProvider {
                 return agreement.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found [" + agreementRef + "]", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found [" + agreementRef.getValue() + "]", null, null);
     }
 
     @Override
