@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
 public class InvalidPayloadSizeException extends DomibusCoreException {
+
     public InvalidPayloadSizeException(DomibusCoreErrorCode dce, String message) {
         super(dce, message);
     }
@@ -13,6 +14,6 @@ public class InvalidPayloadSizeException extends DomibusCoreException {
     }
 
     public InvalidPayloadSizeException(String message) {
-        super(message);
+        super(DomibusCoreErrorCode.DOM_007, message);
     }
 }

@@ -1,12 +1,12 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -78,7 +78,7 @@ public class DatabasePayloadPersistenceTest {
             IOUtils.copy(inputStream, cipherOutputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
         }};
 
-        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage, null);
 
         new Verifications() {{
             partInfo.setBinaryData(binaryData);

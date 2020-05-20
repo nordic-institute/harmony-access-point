@@ -25,7 +25,6 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-//@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class DatabasePayloadPersistence implements PayloadPersistence {
 
@@ -44,7 +43,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
     protected PayloadEncryptionService encryptionService;
 
     @Override
-    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         LOG.debug("Saving incoming payload [{}] to database", partInfo.getHref());
 
         OutputStream outputStream = null;
@@ -71,19 +70,18 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             }
         }
         byte[] binaryData = byteArrayOutputStream.toByteArray();
+        final int partInfoLength = binaryData.length;
         partInfo.setBinaryData(binaryData);
-        partInfo.setLength(binaryData.length);
+        partInfo.setLength(partInfoLength);
         partInfo.setFileName(null);
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
+
+        validatePayloadSize(legConfiguration, partInfoLength);
     }
 
     @Override
     public void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception {
         LOG.debug("Saving outgoing payload [{}] to database", partInfo.getHref());
-
-        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
-        final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
-        final String messageId = userMessage.getMessageInfo().getMessageId();
 
         try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
             final String originalFileName = partInfo.getFileName();
@@ -101,9 +99,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
             LOG.debug("Finished saving outgoing payload [{}] to database", partInfo.getHref());
 
-            if (payloadProfileMaxSize != 0 && partInfoLength > payloadProfileMaxSize) {
-                throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile ["+payloadProfileName+"]");
-            }
+            validatePayloadSize(legConfiguration, partInfoLength);
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
         }
@@ -139,5 +135,18 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             }
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    private void validatePayloadSize(LegConfiguration legConfiguration, int partInfoLength) {
+        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
+        final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
+
+        if (payloadProfileMaxSize <= 0) {
+            LOG.warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
+        }
+
+        if (payloadProfileMaxSize != 0 && partInfoLength > payloadProfileMaxSize) {
+            throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile ["+payloadProfileName+"]");
+        }
     }
 }

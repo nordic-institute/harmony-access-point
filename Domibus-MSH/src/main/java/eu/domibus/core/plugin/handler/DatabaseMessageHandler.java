@@ -443,10 +443,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
-
-////                LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, partInfoLength, payloadProfileMaxSize, payloadProfileName);
-//                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "]",
-////                        messageId, null);
             }
 
             if (messageStatus == null) {

@@ -167,27 +167,19 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storePayload(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
         try {
             if (MSHRole.RECEIVING.equals(mshRole)) {
-                storeIncomingPayload(partInfo, messaging.getUserMessage());
+                storeIncomingPayload(partInfo, messaging.getUserMessage(), legConfiguration);
             } else {
                 storeOutgoingPayload(partInfo, messaging.getUserMessage(), legConfiguration, backendName);
             }
         } catch (IOException | EbMS3Exception exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref());
             throw new CompressionException("Could not store binary data for message " + exc.getMessage(), exc);
-//        } catch (EbMS3Exception exc) {
-//            if (ErrorCode.EbMS3ErrorCode.EBMS_0010 == exc.getErrorCode()) {
-//                //invalid payload size?
-//                messagingDao.clearPayloadData(messaging.getUserMessage());
-//            }
-
-//            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref());
-//            throw new CompressionException("Could not store binary data for message " + exc.getMessage(), exc);
         }
     }
 
-    protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+    protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
-        payloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        payloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         // Log Payload size
         String messageId = userMessage.getMessageInfo().getMessageId();
