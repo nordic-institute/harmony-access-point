@@ -137,16 +137,8 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private void validatePayloadSize(LegConfiguration legConfiguration, int partInfoLength) {
-        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
-        final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
-
-        if (payloadProfileMaxSize < 0) {
-            LOG.warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
-        }
-
-        if (partInfoLength > payloadProfileMaxSize) {
-            throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile ["+payloadProfileName+"]");
-        }
+    @Override
+    public DomibusLogger getLogger() {
+        return LOG;
     }
 }

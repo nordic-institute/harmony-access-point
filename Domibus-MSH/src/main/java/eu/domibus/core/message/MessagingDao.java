@@ -3,7 +3,10 @@ package eu.domibus.core.message;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -103,7 +106,7 @@ public class MessagingDao extends BasicDao<Messaging> {
      *
      * @param userMessage
      */
-    protected void clearFileSystemPayloads(final UserMessage userMessage) {
+    public void clearFileSystemPayloads(final UserMessage userMessage) {
         List<PartInfo> fileSystemPayloads = getFileSystemPayloads(userMessage);
         if (CollectionUtils.isEmpty(fileSystemPayloads)) {
             LOG.debug("No file system payloads to clear");

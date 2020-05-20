@@ -15,8 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -28,7 +26,6 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class FileSystemPayloadPersistence implements PayloadPersistence {
 
@@ -60,6 +57,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         } else {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }
+
+        validatePayloadSize(legConfiguration, partInfo.getLength());
     }
 
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
@@ -105,6 +104,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         if (!userMessage.isUserMessageFragment()) {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
+            validatePayloadSize(legConfiguration, partInfo.getLength());
         }
     }
 
@@ -158,6 +158,11 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
                 outputStream.close();
             }
         }
-
     }
+
+    @Override
+    public DomibusLogger getLogger() {
+        return LOG;
+    }
+
 }

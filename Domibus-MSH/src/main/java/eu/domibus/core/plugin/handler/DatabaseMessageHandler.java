@@ -439,6 +439,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }  catch (InvalidPayloadSizeException e) {
+                if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
+                    messagingDao.clearFileSystemPayloads(userMessage);
+                }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, e.getMessage());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
                 ex.setMshRole(MSHRole.SENDING);
@@ -526,4 +529,5 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         return party;
     }
+
 }

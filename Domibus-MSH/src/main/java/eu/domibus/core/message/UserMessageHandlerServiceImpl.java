@@ -134,6 +134,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected PayloadFileStorageProvider storageProvider;
 
+    @Autowired
+    protected MessagingDao messagingDao;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
@@ -373,6 +376,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         } catch (InvalidPayloadSizeException e) {
+            if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
+                messagingDao.clearFileSystemPayloads(userMessage);
+            }
             LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, e.getMessage());
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
             ex.setMshRole(MSHRole.RECEIVING);
