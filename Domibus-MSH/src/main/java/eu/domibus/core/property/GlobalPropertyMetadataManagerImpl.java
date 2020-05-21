@@ -29,11 +29,11 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
     @Autowired
-    private List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
+    protected List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
     @Autowired
     @Lazy
-    private List<DomibusPropertyManagerExt> extPropertyManagers;
+    protected List<DomibusPropertyManagerExt> extPropertyManagers;
 
     @Autowired
     protected DomainCoreConverter domainConverter;
@@ -66,9 +66,14 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         if (propMeta.isPresent()) {
             LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
             DomibusPropertyMetadata meta = propMeta.get();
+            // clone TODO
+            DomibusPropertyMetadata meta2 = new DomibusPropertyMetadata();
+            meta2.setUsage(meta.getUsage());
             // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
-            meta.setName(propertyName);
-            return meta;
+            meta2.setName(propertyName);
+            allPropertyMetadataMap.put(propertyName, meta2);
+            internlPropertyMetadataMap.put(propertyName, meta2);
+            return meta2;
         }
 
         // if still not found, initialize metadata on-the-fly
@@ -81,10 +86,20 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         }
     }
 
+    protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+        if (map.containsKey(propertyName)) {
+            return true;
+        }
+
+        Optional<DomibusPropertyMetadata> propMeta = map.values().stream().filter(
+                p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
+        return propMeta.isPresent();
+    }
+
     @Override
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         initializeIfNeeded(propertyName);
-        if (internlPropertyMetadataMap.containsKey(propertyName)) {
+        if (hasProperty(internlPropertyMetadataMap, propertyName)) {
             //core property, no external manager involved
             LOG.trace("Property [{}] is internal, returning null as the manager.", propertyName);
             return null;
@@ -97,7 +112,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             LOG.trace("Property [{}] is external, returning its manager [{}].", propertyName, found.get());
             return found.get();
         }
-        
+
         throw new DomibusPropertyException("Property" + propertyName + "could not be found anywhere.");
     }
 
@@ -120,7 +135,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                 }
             }
         }
-        if (allPropertyMetadataMap.containsKey(propertyName)) {
+        if (hasProperty(allPropertyMetadataMap, propertyName)) {
             LOG.trace("Found property metadata [{}] in core properties. Returning.", propertyName);
             return;
         }

@@ -234,6 +234,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_MIN_POOL_SIZE = "domibus.datasource.minPoolSize";
     String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY = "domibus.entityManagerFactory.jpaProperty";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT = "domibus.entityManagerFactory.jpaProperty.hibernate.dialect";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS = "domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings";

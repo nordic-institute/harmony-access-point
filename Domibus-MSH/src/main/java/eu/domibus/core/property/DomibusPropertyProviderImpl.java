@@ -44,13 +44,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected ConfigurableEnvironment environment;
 
     @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    protected GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
-    DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
+    protected DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
     @Autowired
-    PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     @Override
     public String getProperty(String propertyName) throws DomibusPropertyException {

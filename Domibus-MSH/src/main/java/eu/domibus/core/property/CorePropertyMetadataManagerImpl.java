@@ -43,6 +43,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE, DomibusPropertyMetadata.Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE, DomibusPropertyMetadata.Type.NUMERIC),
 
+            new DomibusPropertyMetadata(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY, DomibusPropertyMetadata.Type.STRING, Module.MSH, false, DomibusPropertyMetadata.Usage.GLOBAL, false, false, false, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT),
