@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -50,8 +51,7 @@ public class DomibusPropertyMetadataManager {
     }
 
     /**
-     * Returns the metadata for a given propertyName,
-     * by interrogating all property managers known to Domibus in order to find it.
+     * Returns the metadata for a given propertyName by interrogating all property managers known to Domibus in order to find it.
      * If not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
      *
      * @param propertyName
@@ -77,13 +77,39 @@ public class DomibusPropertyMetadataManager {
         }
 
         // if still not found, initialize metadata on-the-fly
-        LOG.warn("Creating on-the-fly global metadata for unknown property: [{}]", propertyName); //TODO: lower log level after testing
+        LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
         synchronized (propertyMetadataMapLock) {
             DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
             allPropertyMetadataMap.put(propertyName, newProp);
             internlPropertyMetadataMap.put(propertyName, prop);
             return newProp;
         }
+    }
+
+    /**
+     * Determines if a property is managed internally by the domibus property provider or by an external property manager (like dss or plugins)
+     *
+     * @param propertyName the name of the property
+     * @return null in case it is an internal property; external module property manager, in case of an external property
+     * @throws DomibusPropertyException in case the property is not found anywhere
+     */
+    public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
+        initializeIfNeeded(propertyName);
+        if (internlPropertyMetadataMap.containsKey(propertyName)) {
+            //core property, no external manager involved
+            LOG.trace("Property [{}] is internal, returning null as the manager.", propertyName);
+            return null;
+        }
+
+        Optional<DomibusPropertyManagerExt> found = extPropertyManagers.stream()
+                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
+
+        if (found.isPresent()) {
+            LOG.trace("Property [{}] is external, returning its manager [{}].", propertyName, found.get());
+            return found.get();
+        }
+        
+        throw new DomibusPropertyException("Property" + propertyName + "could not be found anywhere.");
     }
 
     /**
@@ -161,20 +187,4 @@ public class DomibusPropertyMetadataManager {
         }
     }
 
-    public DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
-        // save prop manager on property itself??
-        initializeIfNeeded(propertyName);
-        if (internlPropertyMetadataMap.containsKey(propertyName)) {
-            //core property, no external manager involved
-            return null;
-        }
-
-        Optional<DomibusPropertyManagerExt> found = extPropertyManagers.stream()
-                .filter(manager -> manager.hasKnownProperty(propertyName)).findFirst();
-
-        if (found.isPresent()) {
-            return found.get();
-        }
-        return null;
-    }
 }

@@ -45,7 +45,6 @@ public class DomibusPropertyProviderDispatcher {
             // it is an internal property
             return getInternalPropertyValue(domain, propertyName);
         }
-        //external module property so...
         //if it was already requested -> get local value (as we saved it locally too)
         if (isPropertySavedLocally(propertyName)) {
             return getInternalPropertyValue(domain, propertyName);
@@ -71,7 +70,6 @@ public class DomibusPropertyProviderDispatcher {
         if (StringUtils.equals(currentValue, propertyValue)) {
             return;
         }
-        //if not:
         // save the new value locally also, no matter if it is an internal or external property
         setPropertyValue(domain, propertyName, propertyValue, broadcast);
 
@@ -101,7 +99,7 @@ public class DomibusPropertyProviderDispatcher {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
             domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, true);
-        } else { //get current domain, compare it with the param and throw in case of difference???
+        } else {
             domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, broadcast);
         }
     }

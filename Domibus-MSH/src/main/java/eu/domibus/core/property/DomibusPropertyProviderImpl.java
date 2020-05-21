@@ -259,10 +259,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 // revert to old value
                 doSetPropertyValue(domain, propertyName, oldValue);
                 propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
-                throw ex; // propagate the exception to the client
+                throw ex;
             } catch (DomibusPropertyException ex2) {
                 LOG.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
-                throw ex2; // failed to revert, just report the error
+                throw ex2;
             }
         }
     }
