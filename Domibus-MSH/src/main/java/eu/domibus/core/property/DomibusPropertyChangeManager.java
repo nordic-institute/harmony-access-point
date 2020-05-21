@@ -40,7 +40,7 @@ public class DomibusPropertyChangeManager {
     @Autowired
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    protected void setInternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type

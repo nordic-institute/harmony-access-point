@@ -1,9 +1,9 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import mockit.Expectations;
@@ -18,7 +18,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
-import java.util.*;
+import java.util.Properties;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +28,8 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(JMockit.class)
 public class DomibusPropertyProviderImplTestGlobal {
+    @Tested
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Injectable
     @Qualifier("domibusProperties")
@@ -55,8 +57,11 @@ public class DomibusPropertyProviderImplTestGlobal {
     @Injectable
     ConfigurableEnvironment environment;
 
-    @Tested
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    @Injectable
+    DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
+
+    @Injectable
+    PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     private String propertyName = "domibus.property.name";
     private String propertyValue = "domibus.property.value";
@@ -74,7 +79,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -100,7 +105,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -129,7 +134,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -157,7 +162,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = domain;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(null, result);
 
         new Verifications() {{
@@ -188,7 +193,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -219,7 +224,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -247,7 +252,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = null;
         }};
 
-        String result = domibusPropertyProvider.getProperty(propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(propertyName);
         assertEquals(null, result);
 
         new Verifications() {{
@@ -285,7 +290,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(domain, propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(domain, propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{
@@ -308,7 +313,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = true;
         }};
 
-        String result = domibusPropertyProvider.getProperty(domain, propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(domain, propertyName);
 
         new Verifications() {{
             domibusConfigurationService.isMultiTenantAware();
@@ -333,7 +338,7 @@ public class DomibusPropertyProviderImplTestGlobal {
             result = propertyValue;
         }};
 
-        String result = domibusPropertyProvider.getProperty(domain, propertyName);
+        String result = domibusPropertyProvider.getInternalProperty(domain, propertyName);
         assertEquals(propertyValue, result);
 
         new Verifications() {{

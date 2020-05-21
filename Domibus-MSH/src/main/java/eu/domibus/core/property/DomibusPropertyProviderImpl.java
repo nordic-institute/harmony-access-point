@@ -249,14 +249,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
         String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
-        if (propValue != null) { // found a value->return it
+        if (propValue != null) {
+            // found a value->return it
             LOG.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
             return propValue;
         }
         // didn't find a domain-specific value, try to fallback if acceptable
-        if (prop.isWithFallback()) {    // fall-back to the default value from global properties file
+        if (prop.isWithFallback()) {
+            // fall-back to the default value from global properties file
             propValue = getPropertyValue(prop.getName(), domain, prop.isEncrypted());
-            if (propValue != null) { // found a value->return it
+            if (propValue != null) {
+                // found a value->return it
                 LOG.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
                 return propValue;
             }

@@ -53,7 +53,7 @@ public class DomibusPropertyProviderDispatcher {
         if (isPropertySavedLocally(propertyName)) {
             return getInternalPropertyValue(domain, propertyName);
         }
-        //mark requested so that it will be provided internally next time it is requested
+        //mark as availible locally so that it will be provided internally next time it is requested
         markPropertyAsSavedLocally(propertyName);
         //call manager for the value
         String propertyValue = getExternalPropertyValue(propertyName, domain, manager);
@@ -78,7 +78,7 @@ public class DomibusPropertyProviderDispatcher {
         setPropertyValue(domain, propertyName, propertyValue, broadcast);
 
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        //if it is an external property, call setProperty on the manager now
+        //if it is an external property, call setProperty on the manager too
         if (manager != null) {
             setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
         }
@@ -102,9 +102,9 @@ public class DomibusPropertyProviderDispatcher {
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
-            domibusPropertyChangeManager.setInternalProperty(domain, propertyName, propertyValue, true);
+            domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, true);
         } else {
-            domibusPropertyChangeManager.setInternalProperty(domain, propertyName, propertyValue, broadcast);
+            domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
         }
     }
 
