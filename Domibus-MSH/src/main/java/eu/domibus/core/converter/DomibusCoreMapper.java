@@ -271,4 +271,6 @@ public interface DomibusCoreMapper {
 
     @InheritInverseConfiguration
     DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
+
+    DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
 }

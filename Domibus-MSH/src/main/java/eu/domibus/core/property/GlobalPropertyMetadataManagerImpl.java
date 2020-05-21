@@ -66,13 +66,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         if (propMeta.isPresent()) {
             LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
             DomibusPropertyMetadata meta = propMeta.get();
-            // clone TODO
-            DomibusPropertyMetadata meta2 = new DomibusPropertyMetadata();
-            meta2.setUsage(meta.getUsage());
-            // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
-            meta2.setName(propertyName);
-            allPropertyMetadataMap.put(propertyName, meta2);
-            internlPropertyMetadataMap.put(propertyName, meta2);
+            DomibusPropertyMetadata meta2 = addMetadataForAPrefixedProperty(propertyName, meta);
             return meta2;
         }
 
@@ -189,6 +183,18 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             allPropertyMetadataMap.put(entry.getKey(), prop);
             internlPropertyMetadataMap.put(entry.getKey(), prop);
         }
+    }
+
+    protected DomibusPropertyMetadata addMetadataForAPrefixedProperty(String propertyName, DomibusPropertyMetadata propMeta) {
+        //make a clone
+        DomibusPropertyMetadata newPropMeta = domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
+        // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
+        newPropMeta.setName(propertyName);
+
+        allPropertyMetadataMap.put(propertyName, newPropMeta);
+        internlPropertyMetadataMap.put(propertyName, newPropMeta);
+        
+        return newPropMeta;
     }
 
 }
