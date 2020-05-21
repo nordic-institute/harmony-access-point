@@ -4,11 +4,14 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.util.ClassUtil;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.*;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
@@ -120,8 +123,37 @@ public class PModeValidationServiceImplIT {
 
         @Bean
         public List<PModeValidator> pModeValidatorList() {
-//            return Arrays.asList(new TwoWayMepValidator(), new ConfigurablePModeValidator() );
             return Arrays.asList(new TwoWayMepValidator());
+        }
+
+        @Bean
+        public List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers() {
+            return Arrays.asList(Mockito.mock(DomibusPropertyMetadataManagerSPI.class));
+        }
+
+        @Bean
+        public DomainCoreConverter domainConverter() {
+            return Mockito.mock(DomainCoreConverter.class);
+        }
+
+        @Bean
+        public DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher() {
+            return Mockito.mock(DomibusPropertyProviderDispatcher.class);
+        }
+
+        @Bean
+        public ClassUtil classUtil() {
+            return Mockito.mock(ClassUtil.class);
+        }
+
+        @Bean
+        public DomibusPropertyChangeManager domibusPropertyChangeManager() {
+            return Mockito.mock(DomibusPropertyChangeManager.class);
+        }
+
+        @Bean
+        public PrimitivePropertyTypesManager primitivePropertyTypesManager() {
+            return Mockito.mock(PrimitivePropertyTypesManager.class);
         }
     }
 

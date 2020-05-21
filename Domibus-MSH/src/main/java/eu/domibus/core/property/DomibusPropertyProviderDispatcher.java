@@ -67,7 +67,7 @@ public class DomibusPropertyProviderDispatcher {
         return propertyValue;
     }
 
-    protected void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException{
+    protected void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         //get current value
         String currentValue = getInternalPropertyValue(domain, propertyName);
         //if they are equal, nothing to do

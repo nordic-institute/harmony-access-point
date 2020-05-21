@@ -1,12 +1,14 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.SpringTestConfiguration;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.util.ClassUtil;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
-import eu.domibus.core.property.GlobalPropertyMetadataManager;
-import eu.domibus.core.property.GlobalPropertyMetadataManagerImpl;
+import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.pki.PKIUtil;
+import eu.domibus.core.property.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.pki.PKIUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +28,7 @@ import java.security.Security;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Integration test for {@code CRLServiceImpl} class
@@ -56,6 +59,36 @@ public class CRLServiceImplIT {
         @Bean
         public GlobalPropertyMetadataManager domibusPropertyMetadataManager() {
             return Mockito.mock(GlobalPropertyMetadataManagerImpl.class);
+        }
+
+        @Bean
+        public List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers() {
+            return Arrays.asList(Mockito.mock(DomibusPropertyMetadataManagerSPI.class));
+        }
+
+        @Bean
+        public DomainCoreConverter domainConverter() {
+            return Mockito.mock(DomainCoreConverter.class);
+        }
+
+        @Bean
+        public DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher() {
+            return Mockito.mock(DomibusPropertyProviderDispatcher.class);
+        }
+
+        @Bean
+        public ClassUtil classUtil() {
+            return Mockito.mock(ClassUtil.class);
+        }
+
+        @Bean
+        public DomibusPropertyChangeManager domibusPropertyChangeManager() {
+            return Mockito.mock(DomibusPropertyChangeManager.class);
+        }
+
+        @Bean
+        public PrimitivePropertyTypesManager primitivePropertyTypesManager() {
+            return Mockito.mock(PrimitivePropertyTypesManager.class);
         }
     }
 
