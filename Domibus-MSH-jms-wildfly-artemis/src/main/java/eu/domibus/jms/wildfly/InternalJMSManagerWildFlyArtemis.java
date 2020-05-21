@@ -3,7 +3,6 @@ package eu.domibus.jms.wildfly;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
@@ -40,6 +39,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
@@ -159,7 +159,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         LOG.debug("Retrieving the {} map from the server", routingType == RoutingType.ANYCAST ? "queue" : "topic");
 
         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(),
-                domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER), true);
+                domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER), true);
 
         String[] addressNames = activeMQServerControl.getAddressNames();
         LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
