@@ -350,173 +350,70 @@ public class DomibusPropertyProviderImplTestGlobal {
     }
 
     @Test()
-    public void setPropertyValue_SingleTenancy() {
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
-
-            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
-        }};
-
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
-            times = 1;
-        }};
-    }
-
-    @Test()
-    public void setPropertyValue_MultiTenancy_Domain_DomainProp() {
-        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
-
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = prop;
-
-            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
-        }};
-
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusPropertyProvider.setValueInDomibusPropertySource(domain.getCode() + "." + propertyName, propertyValue);
-            times = 1;
-        }};
-    }
-
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_MultiTenancy_Domain_NoDomainProp() {
-        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL, false);
-
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = prop;
-        }};
-
-        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
-            times = 0;
-        }};
-    }
-
-    @Test()
-    public void setPropertyValue_MultiTenancy_NoDomain_SuperProp() {
-        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
-
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = prop;
-
-            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
-        }};
-
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusPropertyProvider.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
-            times = 1;
-        }};
-    }
-
-    @Test()
-    public void setPropertyValue_MultiTenancy_NoDomain_GlobalProp() {
-        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true);
-
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = prop;
-
-            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
-        }};
-
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
-            times = 1;
-        }};
-    }
-
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_MultiTenancy_NoDomain_DomainProp() {
-        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
-
-        new Expectations(domibusPropertyProvider) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = prop;
-        }};
-
-        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
-
-        new Verifications() {{
-            domibusProperties.setProperty(propertyName, propertyValue);
-            times = 0;
-        }};
-    }
-
-    @Test()
     public void getIntegerProperty() {
         String val = "2";
+        Integer intVal = Integer.valueOf(val);
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
+            primitivePropertyTypesManager.getIntegerInternal(propertyName, val);
+            result = intVal;
         }};
 
         Integer res = domibusPropertyProvider.getIntegerProperty(propertyName);
 
-        assertEquals(Integer.valueOf(val), res);
+        assertEquals(intVal, res);
     }
 
     @Test()
     public void getLongProperty() {
         String val = "2";
+        Long longVal = Long.valueOf(val);
+
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
+            primitivePropertyTypesManager.getLongInternal(propertyName, val);
+            result = longVal;
         }};
 
         Long res = domibusPropertyProvider.getLongProperty(propertyName);
 
-        assertEquals(Long.valueOf(val), res);
+        assertEquals(longVal, res);
     }
 
     @Test()
     public void getBooleanProperty() {
         String val = "true";
+        boolean boolVal = Boolean.valueOf(val);
+
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
+            primitivePropertyTypesManager.getBooleanInternal(propertyName, val);
+            result = boolVal;
         }};
 
         Boolean res = domibusPropertyProvider.getBooleanProperty(propertyName);
 
-        assertEquals(Boolean.valueOf(val), res);
+        assertEquals(boolVal, res);
     }
 
     @Test()
     public void getBooleanDomainProperty() {
         String val = "true";
+        boolean boolVal = Boolean.valueOf(val);
+
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(domain, propertyName);
             result = val;
+            primitivePropertyTypesManager.getBooleanInternal(propertyName, val);
+            result = boolVal;
         }};
 
         Boolean res = domibusPropertyProvider.getBooleanProperty(domain, propertyName);
 
-        assertEquals(Boolean.valueOf(val), res);
+        assertEquals(boolVal, res);
     }
 
     @Test()

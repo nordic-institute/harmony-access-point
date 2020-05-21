@@ -14,9 +14,11 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -42,9 +44,16 @@ public class DomibusPropertyChangeManagerTest {
     @Injectable
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
+    @Injectable
+    @Qualifier("domibusProperties")
+    protected Properties domibusProperties;
+
     Map<String, DomibusPropertyMetadata> props;
     String domainCode = "domain1";
     Domain domain = new Domain(domainCode, "DomainName1");
+
+    private String propertyName = "domibus.property.name";
+    private String propertyValue = "domibus.property.value";
 
     @Before
     public void setUp() {
@@ -103,6 +112,124 @@ public class DomibusPropertyChangeManagerTest {
             domibusPropertyChangeManager.doSetPropertyValue(domain, propertyName, propValue);
             times = 0;
 
+        }};
+    }
+
+    @Test()
+    public void setPropertyValue_MultiTenancy_Domain_DomainProp() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
+        }};
+
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusPropertyProvider.setValueInDomibusPropertySource(domain.getCode() + "." + propertyName, propertyValue);
+            times = 1;
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void setPropertyValue_MultiTenancy_Domain_NoDomainProp() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL, false);
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = prop;
+        }};
+
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
+            times = 0;
+        }};
+    }
+
+    @Test()
+    public void setPropertyValue_MultiTenancy_NoDomain_SuperProp() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
+        }};
+
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusPropertyProvider.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
+            times = 1;
+        }};
+    }
+
+    @Test()
+    public void setPropertyValue_MultiTenancy_NoDomain_GlobalProp() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true);
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = prop;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
+        }};
+
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
+            times = 1;
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void setPropertyValue_MultiTenancy_NoDomain_DomainProp() {
+        DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = prop;
+        }};
+
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusProperties.setProperty(propertyName, propertyValue);
+            times = 0;
+        }};
+    }
+
+    @Test()
+    public void setPropertyValue_SingleTenancy() {
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            domibusPropertyProvider.setValueInDomibusPropertySource(anyString, anyString);
+        }};
+
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
+            times = 1;
         }};
     }
 }
