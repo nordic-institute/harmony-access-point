@@ -18,8 +18,6 @@
 //import java.util.Map;
 //import java.util.stream.Collectors;
 //
-//import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
-//
 //@RunWith(JMockit.class)
 //public class DomibusPropertyManagerImplTest {
 //

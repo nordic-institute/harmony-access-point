@@ -18,7 +18,7 @@ public interface DomibusPropertyProvider {
      * Retrieves the property value, taking into account the property usages and the current domain.
      * If needed, it falls back to the default value provided in the global properties set.
      */
-    String getProperty(String propertyName);
+    String getProperty(String propertyName) throws DomibusPropertyException;
 
     /**
      * Retrieves the property value from the requested domain. If not found, fall back to the property value from the global properties set.
@@ -27,7 +27,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName the property name.
      * @return the value for that property.
      */
-    String getProperty(Domain domain, String propertyName);
+    String getProperty(Domain domain, String propertyName) throws DomibusPropertyException;
 
     /**
      * Returns all property names for which the given predicate is true
@@ -107,7 +107,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
      * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
-     * */
+     */
     void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**
@@ -118,7 +118,7 @@ public interface DomibusPropertyProvider {
      * @param propertyName  the name of the property
      * @param propertyValue the new value of the property
      * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
-     * */
+     */
     void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException;
 
     /**

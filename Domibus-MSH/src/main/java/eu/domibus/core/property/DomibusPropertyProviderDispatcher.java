@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Helper class involved in dispatching the class to get and set domibus property values to the core or external property managers
+ * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
  *
  * @author Ion Perpegel
  * @since 4.2
@@ -38,7 +39,10 @@ public class DomibusPropertyProviderDispatcher {
     @Autowired
     private DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    protected String getInternalOrExternalProperty(String propertyName, Domain domain) {
+    @Autowired
+    DomibusPropertyChangeManager domibusPropertyChangeManager;
+
+    protected String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
         //determine if it is an external or internal property
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
@@ -58,12 +62,12 @@ public class DomibusPropertyProviderDispatcher {
             if (domain == null) {
                 domain = domainContextProvider.getCurrentDomainSafely();
             }
-            domibusPropertyProvider.doSetPropertyValue(domain, propertyName, propertyValue);
+            domibusPropertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);
         }
         return propertyValue;
     }
 
-    protected void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
+    protected void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException{
         //get current value
         String currentValue = getInternalPropertyValue(domain, propertyName);
         //if they are equal, nothing to do
@@ -98,9 +102,9 @@ public class DomibusPropertyProviderDispatcher {
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
-            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, true);
+            domibusPropertyChangeManager.setInternalProperty(domain, propertyName, propertyValue, true);
         } else {
-            domibusPropertyProvider.setInternalProperty(domain, propertyName, propertyValue, broadcast);
+            domibusPropertyChangeManager.setInternalProperty(domain, propertyName, propertyValue, broadcast);
         }
     }
 
