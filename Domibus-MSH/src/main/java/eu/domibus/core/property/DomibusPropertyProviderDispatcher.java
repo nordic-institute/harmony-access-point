@@ -33,14 +33,14 @@ public class DomibusPropertyProviderDispatcher {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
-    DomibusPropertyMetadataManager domibusPropertyMetadataManager;
+    GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
     private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     protected String getInternalOrExternalProperty(String propertyName, Domain domain) {
         //determine if it is an external or internal property
-        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
             // it is an internal property
             return getInternalPropertyValue(domain, propertyName);
@@ -73,7 +73,7 @@ public class DomibusPropertyProviderDispatcher {
         // save the new value locally also, no matter if it is an internal or external property
         setPropertyValue(domain, propertyName, propertyValue, broadcast);
 
-        DomibusPropertyManagerExt manager = domibusPropertyMetadataManager.getManagerForProperty(propertyName);
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         //if it is an external property, call setProperty on the manager now
         if (manager != null) {
             setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);

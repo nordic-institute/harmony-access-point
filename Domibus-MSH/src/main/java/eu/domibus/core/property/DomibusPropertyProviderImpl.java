@@ -47,7 +47,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     @Autowired
-    DomibusPropertyMetadataManager domibusPropertyMetadataManager;
+    GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
     DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
@@ -136,7 +136,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected String getInternalProperty(String propertyName) {
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
         if (prop.isOnlyGlobal()) {
@@ -179,7 +179,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected String getInternalProperty(Domain domain, String propertyName) {
         LOG.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
@@ -194,7 +194,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected void setInternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        DomibusPropertyMetadata propMeta = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         // validate the property value against the type
         validatePropertyValue(propMeta, propertyValue);
@@ -293,7 +293,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     protected String computePropertyKeyInMultiTenancy(Domain domain, String propertyName) {
         String propertyKey = null;
-        DomibusPropertyMetadata prop = domibusPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (domain != null) {
             propertyKey = computePropertyKeyForDomain(domain, propertyName, prop);
         } else {

@@ -25,8 +25,8 @@ import java.util.Optional;
  * @since 4.2
  */
 @Service
-public class DomibusPropertyMetadataManager {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyMetadataManager.class);
+public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadataManager {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
     @Autowired
     private List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
@@ -45,18 +45,13 @@ public class DomibusPropertyMetadataManager {
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
 
+    @Override
     public Map<String, DomibusPropertyMetadata> getAllProperties() {
         loadExternalPropertiesIfNeeded();
         return allPropertyMetadataMap;
     }
 
-    /**
-     * Returns the metadata for a given propertyName by interrogating all property managers known to Domibus in order to find it.
-     * If not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
-     *
-     * @param propertyName
-     * @return DomibusPropertyMetadata
-     */
+    @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         initializeIfNeeded(propertyName);
 
@@ -86,13 +81,7 @@ public class DomibusPropertyMetadataManager {
         }
     }
 
-    /**
-     * Determines if a property is managed internally by the domibus property provider or by an external property manager (like dss or plugins)
-     *
-     * @param propertyName the name of the property
-     * @return null in case it is an internal property; external module property manager, in case of an external property
-     * @throws DomibusPropertyException in case the property is not found anywhere
-     */
+    @Override
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         initializeIfNeeded(propertyName);
         if (internlPropertyMetadataMap.containsKey(propertyName)) {

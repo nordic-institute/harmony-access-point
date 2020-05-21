@@ -43,7 +43,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    DomibusPropertyMetadataManager globalPropertyMetadataManager;
+    GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {

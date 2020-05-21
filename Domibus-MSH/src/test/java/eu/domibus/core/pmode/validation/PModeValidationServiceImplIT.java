@@ -9,16 +9,13 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.property.DefaultDomibusConfigurationService;
+import eu.domibus.core.property.*;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
-import eu.domibus.core.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.property.DomibusPropertyProviderImpl;
-import eu.domibus.core.property.PropertyResolver;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
@@ -67,8 +64,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyMetadataManager domibusPropertyMetadataManager() {
-            return Mockito.mock(DomibusPropertyMetadataManager.class);
+        public GlobalPropertyMetadataManager domibusPropertyMetadataManager() {
+            return Mockito.mock(GlobalPropertyMetadataManagerImpl.class);
         }
 
         @Bean(name = "domibusDefaultProperties")
