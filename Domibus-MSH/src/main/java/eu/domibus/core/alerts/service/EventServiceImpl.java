@@ -206,7 +206,7 @@ public class EventServiceImpl implements EventService {
             }
 
             final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
-            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty);
+            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty.getName());
             event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
             event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
         } catch (EbMS3Exception e) {

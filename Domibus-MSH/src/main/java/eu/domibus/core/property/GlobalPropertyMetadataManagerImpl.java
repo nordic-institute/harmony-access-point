@@ -157,12 +157,11 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         allPropertyMetadataMap = new HashMap<>();
         internlPropertyMetadataMap = new HashMap<>();
 
-        propertyMetadataManagers.stream()
-                .forEach(propertyManager -> loadProperties(propertyManager, propertyManager.toString()));
+        propertyMetadataManagers.forEach(propertyManager -> loadProperties(propertyManager, propertyManager.toString()));
     }
 
     protected void loadExternalProperties() {
-        extPropertyManagers.stream().forEach(this::loadExternalProperties);
+        extPropertyManagers.forEach(this::loadExternalProperties);
     }
 
     protected void loadExternalProperties(DomibusPropertyManagerExt propertyManager) {
@@ -193,7 +192,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
         allPropertyMetadataMap.put(propertyName, newPropMeta);
         internlPropertyMetadataMap.put(propertyName, newPropMeta);
-        
+
         return newPropMeta;
     }
 
