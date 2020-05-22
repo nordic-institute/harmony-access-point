@@ -75,7 +75,7 @@ public class DomibusPropertyProviderDispatcher {
             return;
         }
         // save the new value locally also, no matter if it is an internal or external property
-        setPropertyValue(domain, propertyName, propertyValue, broadcast);
+        setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
 
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         //if it is an external property, call setProperty on the manager too
@@ -86,26 +86,24 @@ public class DomibusPropertyProviderDispatcher {
 
     protected String getExternalPropertyValue(String propertyName, Domain domain, DomibusPropertyManagerExt manager) {
         if (domain == null) {
-            return getExternalModulePropertyValue(manager, propertyName); // manager.getKnownPropertyValue(propertyName);
+            return getExternalModulePropertyValue(manager, propertyName);
         }
         return manager.getKnownPropertyValue(domain.getCode(), propertyName);
     }
 
     protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
         if (domain == null) {
-            setExternalModulePropertyValue(manager, propertyName, propertyValue); //manager.setKnownPropertyValue(propertyName, propertyValue);
+            setExternalModulePropertyValue(manager, propertyName, propertyValue);
         } else {
             manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
         }
     }
 
-    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
+    protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             domain = domainContextProvider.getCurrentDomainSafely();
-            domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, true);
-        } else {
-            domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
         }
+        domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
     }
 
     protected String getInternalPropertyValue(Domain domain, String propertyName) {

@@ -215,44 +215,5 @@
 //        configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
 //    }
 //
-//    @Test
-//    public void getPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
-//        String propertyName = "prop1";
-//        new Expectations(configurationPropertyService) {{
-//            classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
-//            returns(true, false);
-//        }};
-//
-//        configurationPropertyService.getPropertyValue(propertyManager, propertyName);
-//        new Verifications() {{
-//            propertyManager.getKnownPropertyValue(propertyName);
-//        }};
-//
-//        configurationPropertyService.getPropertyValue(propertyManager, propertyName);
-//        new Verifications() {{
-//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//            propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
-//        }};
-//    }
-//
-//    @Test
-//    public void setPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
-//        String propertyName = "prop1";
-//        String proertyValue = "propVal1";
-//        new Expectations(configurationPropertyService) {{
-//            classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
-//            returns(true, false);
-//        }};
-//
-//        configurationPropertyService.setPropertyValue(propertyManager, propertyName, proertyValue);
-//        new Verifications() {{
-//            propertyManager.setKnownPropertyValue(propertyName, proertyValue);
-//        }};
-//
-//        configurationPropertyService.setPropertyValue(propertyManager, propertyName, proertyValue);
-//        new Verifications() {{
-//            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-//            propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
-//        }};
-//    }
+
 //}
