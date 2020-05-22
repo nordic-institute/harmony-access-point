@@ -109,6 +109,21 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
     }
 
+    //
+//    @Test
+//    public void getManagerForProperty() {
+//        new Expectations(configurationPropertyService) {{
+//            propertyManager1.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
+//            result = false;
+//            propertyManager2.hasKnownProperty(DOMIBUS_UI_TITLE_NAME);
+//            result = true;
+//        }};
+//
+//        DomibusPropertyManagerExt manager = configurationPropertyService.getManagerForProperty(DOMIBUS_UI_TITLE_NAME);
+//
+//        Assert.assertEquals(propertyManager2, manager);
+//    }
+
 //    @Test
 //    public void loadInternalPropertiesTest() {
 //        final String MSH_PROPERTY_MANAGER = "mshPropertyManager";

@@ -60,28 +60,22 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Override
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
-        try {
-            DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(name);
-
-            if (isDomain) {
-                LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
-                domibusPropertyProvider.setProperty(name, value);
-            } else {
-                if (!authUtils.isSuperAdmin()) {
-                    throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
-                }
-                // for non-domain properties, we set the value in the null-domain context:
-                domainTaskExecutor.submit(() -> {
-                    LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
-                    domibusPropertyProvider.setProperty(name, value);
-                });
+        if (isDomain) {
+            LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
+            domibusPropertyProvider.setProperty(name, value);
+        } else {
+            if (!authUtils.isSuperAdmin()) {
+                throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
             }
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Could not set property [{}].", name, ex);
+            // for non-domain properties, we set the value in the null-domain context:
+            domainTaskExecutor.submit(() -> {
+                LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
+                domibusPropertyProvider.setProperty(name, value);
+            });
         }
     }
 
-    private List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
+    protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadata propMeta : properties) {
@@ -97,7 +91,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         return list;
     }
 
-    private List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertiesMap) {
+    protected List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertiesMap) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(p -> p.isWritable())
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))

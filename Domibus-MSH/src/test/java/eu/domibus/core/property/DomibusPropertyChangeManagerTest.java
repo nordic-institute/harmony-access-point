@@ -229,4 +229,45 @@ public class DomibusPropertyChangeManagerTest {
             times = 1;
         }};
     }
+
+    //
+//
+//    @Test
+//    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadata propMeta) {
+//        new Expectations(configurationPropertyService) {{
+//            propMeta.getType();
+//            returns("NON_EXISTING", "STRING");
+//        }};
+//
+//        try {
+//            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+//            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+//        } catch (DomibusPropertyException ex) {
+//            Assert.fail();
+//        }
+//    }
+//
+//    @Test
+//    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadata propMeta) {
+//        new Expectations(configurationPropertyService) {{
+//            propMeta.getType();
+//            returns("NUMERIC");
+//        }};
+//
+//        try {
+//            configurationPropertyService.validatePropertyValue(propMeta, "123");
+//        } catch (DomibusPropertyException ex) {
+//            Assert.fail();
+//        }
+//    }
+//
+//    @Test(expected = DomibusPropertyException.class)
+//    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadata propMeta) {
+//        new Expectations(configurationPropertyService) {{
+//            propMeta.getType();
+//            result = "NUMERIC";
+//        }};
+//
+//        configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
+//    }
 }
