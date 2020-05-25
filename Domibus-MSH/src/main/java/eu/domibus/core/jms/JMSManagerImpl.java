@@ -292,29 +292,29 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        int i = internalJmsManager.deleteMessages(source, messageIds);
-        if (i == 0) {
+        int deleteMessages = internalJmsManager.deleteMessages(source, messageIds);
+        if (deleteMessages == 0) {
             throw new IllegalStateException("Failed to delete messages from source [" + source + "]: " + Arrays.toString(messageIds));
         }
-        if (i != messageIds.length) {
+        if (deleteMessages != messageIds.length) {
             LOG.warn("Not all the JMS messages Ids [{}] were deleted from the source queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", messageIds, source, i, messageIds.length);
+                    "Actual: [{}], Expected [{}]", messageIds, source, deleteMessages, messageIds.length);
         }
-        LOG.debug("{} Jms Message Ids [{}] deleted from the source queue [{}] ", i, messageIds, source);
+        LOG.debug("{} Jms Message Ids [{}] deleted from the source queue [{}] ", deleteMessages, messageIds, source);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        int i = internalJmsManager.moveMessages(source, destination, messageIds);
-        if (i == 0) {
+        int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
+        if (moveMessages == 0) {
             throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
         }
-        if (i != messageIds.length) {
+        if (moveMessages != messageIds.length) {
             LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", messageIds, source, destination, i, messageIds.length);
+                    "Actual: [{}], Expected [{}]", messageIds, source, destination, moveMessages, messageIds.length);
         }
-        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", i, messageIds, source, destination);
+        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", moveMessages, messageIds, source, destination);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
     }
 

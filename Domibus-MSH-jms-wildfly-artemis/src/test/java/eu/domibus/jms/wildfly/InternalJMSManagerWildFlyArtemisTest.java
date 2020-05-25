@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -64,6 +64,21 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
     @Injectable
     private ServerInfoService serverInfoService;
+
+    @Test
+    public void createFilterFromJMSSelector_null() {
+        assertNull(InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector(null));
+    }
+
+    @Test
+    public void createFilterFromJMSSelector_empty() {
+        assertNull(InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector(""));
+    }
+
+    @Test
+    public void createFilterFromJMSSelector_OK() {
+        assertEquals("AMQUserID",InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector("JMSMessageID"));
+    }
 
     @Test
     public void testConvertMapMessage(final @Injectable MapMessage mapMessage) throws Exception {

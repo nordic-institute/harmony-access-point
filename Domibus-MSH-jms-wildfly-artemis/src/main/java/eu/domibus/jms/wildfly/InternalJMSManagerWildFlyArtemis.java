@@ -100,7 +100,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
      * Returns null if the string is null or empty
      */
     public static String createFilterFromJMSSelector(final String selectorStr) {
-        return selectorStr == null || selectorStr.trim().length() == 0 ? null : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
+        if(StringUtils.isBlank(selectorStr)){
+            return null;
+        }
+        return SelectorTranslator.convertToActiveMQFilterString(selectorStr);
     }
 
     @Override
