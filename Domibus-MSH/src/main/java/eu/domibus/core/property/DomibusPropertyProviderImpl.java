@@ -129,7 +129,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException {
-        setProperty(domain, propertyName, propertyValue);
+        setProperty(domain, propertyName, propertyValue, false);
     }
 
     protected String getInternalProperty(String propertyName) {
@@ -177,17 +177,22 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        //single-tenancy mode
+
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
 
-        if (!prop.isDomain()) {
-            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
+        if (prop.isDomain()) {
+            if (domain == null) {
+                throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
+            }
+            return getDomainOrDefaultValue(prop, domain);
+        } else if (prop.isSuper()) {
+            return getSuperOrDefaultValue(prop);
+        } else {
+            return getGlobalProperty(prop);
         }
-
-        return getDomainOrDefaultValue(prop, domain);
     }
 
     protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {

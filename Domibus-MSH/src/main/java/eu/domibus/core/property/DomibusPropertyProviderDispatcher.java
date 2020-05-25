@@ -3,6 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
@@ -53,13 +54,14 @@ public class DomibusPropertyProviderDispatcher {
         if (isPropertySavedLocally(propertyName)) {
             return getInternalPropertyValue(domain, propertyName);
         }
-        //mark as availible locally so that it will be provided internally next time it is requested
+        //mark as available locally so that it will be provided internally next time it is requested
         markPropertyAsSavedLocally(propertyName);
         //call manager for the value
         String propertyValue = getExternalPropertyValue(propertyName, domain, manager);
         //save the value locally/sync
         if (propertyValue != null) {
-            if (domain == null) {
+            DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            if (prop.isDomain() && domain == null) {
                 domain = domainContextProvider.getCurrentDomainSafely();
             }
             domibusPropertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);

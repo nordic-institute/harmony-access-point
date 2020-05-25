@@ -131,7 +131,7 @@ public class DomibusPropertyChangeManager {
             propertyKey = domibusPropertyProvider.getPropertyKeyForSuper(propertyName);
         } else {
             if (!prop.isGlobal()) {
-                String error = String.format("Property [{}] is not applicable for global usage so it cannot be set.", propertyName);
+                String error = String.format("Property %s is not applicable for global usage so it cannot be set.", propertyName);
                 throw new DomibusPropertyException(error);
             }
         }
@@ -143,7 +143,7 @@ public class DomibusPropertyChangeManager {
         if (prop.isDomain()) {
             propertyKey = domibusPropertyProvider.getPropertyKeyForDomain(domain, propertyName);
         } else {
-            String error = String.format("Property [{}] is not applicable for a specific domain so it cannot be set.", propertyName);
+            String error = String.format("Property %s is not applicable for a specific domain so it cannot be set.", propertyName);
             throw new DomibusPropertyException(error);
         }
         return propertyKey;

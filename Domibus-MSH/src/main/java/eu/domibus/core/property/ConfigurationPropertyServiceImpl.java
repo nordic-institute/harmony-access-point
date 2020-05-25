@@ -63,6 +63,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
             domibusPropertyProvider.setProperty(name, value);
+            LOG.info("Property [{}] updated.", name);
         } else {
             if (!authUtils.isSuperAdmin()) {
                 throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
@@ -71,6 +72,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
             domainTaskExecutor.submit(() -> {
                 LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
                 domibusPropertyProvider.setProperty(name, value);
+                LOG.info("Property [{}] updated.", name);
             });
         }
     }
