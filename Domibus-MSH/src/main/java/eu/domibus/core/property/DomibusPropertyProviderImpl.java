@@ -158,19 +158,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             }
             LOG.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
-        } else {
-            //current domain being null, it is super or global property (but not both)
-            if (prop.isGlobal()) {
-                LOG.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
-                return getGlobalProperty(prop);
-            }
-            if (prop.isSuper()) {
-                LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
-                return getSuperOrDefaultValue(prop);
-            }
-            LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
-            return null;
         }
+        //current domain being null, it is super or global property (but not both)
+        if (prop.isGlobal()) {
+            LOG.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
+            return getGlobalProperty(prop);
+        }
+        if (prop.isSuper()) {
+            LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
+            return getSuperOrDefaultValue(prop);
+        }
+        LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+        return null;
+
     }
 
     protected String getInternalProperty(Domain domain, String propertyName) {
@@ -188,11 +188,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
                 throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
             }
             return getDomainOrDefaultValue(prop, domain);
-        } else if (prop.isSuper()) {
-            return getSuperOrDefaultValue(prop);
-        } else {
-            return getGlobalProperty(prop);
         }
+        if (prop.isSuper()) {
+            return getSuperOrDefaultValue(prop);
+        }
+        return getGlobalProperty(prop);
     }
 
     protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
