@@ -38,8 +38,8 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected DomainCoreConverter domainConverter;
 
-    private Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
-    private Map<String, DomibusPropertyMetadata> internlPropertyMetadataMap;
+    protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
+    protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
@@ -53,7 +53,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-        initializeIfNeeded(propertyName);
+        loadPropertiesIfNotFound(propertyName);
 
         DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
         if (prop != null) {
@@ -65,8 +65,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         Optional<DomibusPropertyMetadata> propMeta = allPropertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
         if (propMeta.isPresent()) {
             LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-            DomibusPropertyMetadata meta = propMeta.get();
-            DomibusPropertyMetadata meta2 = addMetadataForAPrefixedProperty(propertyName, meta);
+            DomibusPropertyMetadata meta2 = addMetadataForAPrefixedProperty(propertyName, propMeta.get());
             return meta2;
         }
 
@@ -75,7 +74,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         synchronized (propertyMetadataMapLock) {
             DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
             allPropertyMetadataMap.put(propertyName, newProp);
-            internlPropertyMetadataMap.put(propertyName, prop);
+            internalPropertyMetadataMap.put(propertyName, prop);
             return newProp;
         }
     }
@@ -92,8 +91,8 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
-        initializeIfNeeded(propertyName);
-        if (hasProperty(internlPropertyMetadataMap, propertyName)) {
+        loadPropertiesIfNotFound(propertyName);
+        if (hasProperty(internalPropertyMetadataMap, propertyName)) {
             //core property, no external manager involved
             LOG.trace("Property [{}] is internal, returning null as the manager.", propertyName);
             return null;
@@ -115,9 +114,9 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
      * Initially, during the bean creation stage, only a few domibus-core properties are needed;
      * later on, the properties from all managers will be added to the map.
      */
-    protected void initializeIfNeeded(String propertyName) {
+    protected void loadPropertiesIfNotFound(String propertyName) {
         // add domibus-core and specific server  properties first, to avoid infinite loop of bean creation (due to DB properties)
-        if (allPropertyMetadataMap == null) {
+        if (internalPropertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
                     LOG.trace("Initializing core properties");
@@ -138,7 +137,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
-    private void loadExternalPropertiesIfNeeded() {
+    protected void loadExternalPropertiesIfNeeded() {
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
                 if (!externalPropertiesLoaded) { // double-check locking
@@ -155,7 +154,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     protected void loadInternalProperties() {
         allPropertyMetadataMap = new HashMap<>();
-        internlPropertyMetadataMap = new HashMap<>();
+        internalPropertyMetadataMap = new HashMap<>();
 
         propertyMetadataManagers.forEach(propertyManager -> loadProperties(propertyManager, propertyManager.toString()));
     }
@@ -180,7 +179,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         for (Map.Entry<String, DomibusPropertyMetadata> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadata prop = entry.getValue();
             allPropertyMetadataMap.put(entry.getKey(), prop);
-            internlPropertyMetadataMap.put(entry.getKey(), prop);
+            internalPropertyMetadataMap.put(entry.getKey(), prop);
         }
     }
 
@@ -191,7 +190,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         newPropMeta.setName(propertyName);
 
         allPropertyMetadataMap.put(propertyName, newPropMeta);
-        internlPropertyMetadataMap.put(propertyName, newPropMeta);
+        internalPropertyMetadataMap.put(propertyName, newPropMeta);
 
         return newPropMeta;
     }

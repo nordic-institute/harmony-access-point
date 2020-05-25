@@ -68,6 +68,66 @@ public class DomibusPropertyProviderImplTestGlobal {
     private Domain domain = new Domain("domain1", "Domain 1");
 
     @Test()
+    public void getProperty() {
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
+            result = propertyValue;
+        }};
+
+        String result = domibusPropertyProvider.getProperty(propertyName);
+        assertEquals(propertyValue, result);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
+        }};
+    }
+
+    @Test()
+    public void getPropertyWithDomain() {
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+            result = propertyValue;
+        }};
+
+        String result = domibusPropertyProvider.getProperty(domain, propertyName);
+        assertEquals(propertyValue, result);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+        }};
+    }
+
+    @Test()
+    public void setProperty() {
+
+        domibusPropertyProvider.setProperty(propertyName, propertyValue);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, false);
+        }};
+    }
+
+    @Test()
+    public void setPropertyWithDomain() {
+
+        domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, true);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, true);
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void setPropertyWithDomainNull() {
+
+        domibusPropertyProvider.setProperty(null, propertyName, propertyValue, true);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
+        }};
+    }
+
+    @Test()
     public void getPropertyOnlyGlobal() {
         DomibusPropertyMetadata global = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName);
 
@@ -497,4 +557,42 @@ public class DomibusPropertyProviderImplTestGlobal {
             times = 0;
         }};
     }
+
+    @Test()
+    public void setValueInDomibusPropertySource(@Injectable MutablePropertySources propertySources,
+                                                @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) {
+        new Expectations(domibusPropertyProvider) {{
+            environment.getPropertySources();
+            result = propertySources;
+            propertySources.get(DomibusPropertiesPropertySource.NAME);
+            result = domibusPropertiesPropertySource;
+        }};
+
+        domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
+
+        new Verifications() {{
+            environment.getPropertySources();
+            propertySources.get(DomibusPropertiesPropertySource.NAME);
+            domibusPropertiesPropertySource.setProperty(propertyName, propertyValue);
+        }};
+    }
+
+    @Test()
+    public void getPropertyValue() {
+
+        new Expectations(domibusPropertyProvider) {{
+            environment.getProperty(propertyName);
+            result = propertyValue;
+            passwordEncryptionService.isValueEncrypted(anyString);
+            result = true;
+        }};
+
+        domibusPropertyProvider.getPropertyValue(propertyName, domain, true);
+
+        new Verifications() {{
+            passwordEncryptionService.decryptProperty(domain, propertyName, propertyValue);
+        }};
+
+    }
+
 }

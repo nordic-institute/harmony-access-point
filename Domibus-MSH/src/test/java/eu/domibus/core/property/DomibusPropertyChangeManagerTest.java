@@ -6,11 +6,9 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -230,44 +228,41 @@ public class DomibusPropertyChangeManagerTest {
         }};
     }
 
-    //
-//
-//    @Test
-//    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadata propMeta) {
-//        new Expectations(configurationPropertyService) {{
-//            propMeta.getType();
-//            returns("NON_EXISTING", "STRING");
-//        }};
-//
-//        try {
-//            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
-//            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
-//        } catch (DomibusPropertyException ex) {
-//            Assert.fail();
-//        }
-//    }
-//
-//    @Test
-//    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadata propMeta) {
-//        new Expectations(configurationPropertyService) {{
-//            propMeta.getType();
-//            returns("NUMERIC");
-//        }};
-//
-//        try {
-//            configurationPropertyService.validatePropertyValue(propMeta, "123");
-//        } catch (DomibusPropertyException ex) {
-//            Assert.fail();
-//        }
-//    }
-//
-//    @Test(expected = DomibusPropertyException.class)
-//    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadata propMeta) {
-//        new Expectations(configurationPropertyService) {{
-//            propMeta.getType();
-//            result = "NUMERIC";
-//        }};
-//
-//        configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
-//    }
+    @Test
+    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadata propMeta) {
+        new Expectations() {{
+            propMeta.getType();
+            returns("NON_EXISTING", "STRING");
+        }};
+
+        try {
+            domibusPropertyChangeManager.validatePropertyValue(propMeta, "doesn't matter");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadata propMeta) {
+        new Expectations(domibusPropertyChangeManager) {{
+            propMeta.getType();
+            returns("NUMERIC");
+        }};
+
+        try {
+            domibusPropertyChangeManager.validatePropertyValue(propMeta, "123");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadata propMeta) {
+        new Expectations(domibusPropertyChangeManager) {{
+            propMeta.getType();
+            result = "NUMERIC";
+        }};
+
+        domibusPropertyChangeManager.validatePropertyValue(propMeta, "non_numeric_value");
+    }
 }
