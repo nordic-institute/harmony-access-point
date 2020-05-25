@@ -1,12 +1,13 @@
 import {AlertService} from '../alert/alert.service';
 import {DownloadService} from '../download.service';
-import {OnInit} from '@angular/core';
+import {OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
 import {ApplicationContextService} from '../application-context.service';
+import {NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -39,7 +40,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
-    const z = this.applicationService;
   }
 
   public get name(): string {

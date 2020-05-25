@@ -144,8 +144,14 @@ public class DomibusRestClient {
 		if (getDomainCodes().contains(domainCode)) {
 			WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.SESSION_DOMAIN));
 
-			builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
+			ClientResponse response = builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
 					.put(ClientResponse.class, domainCode);
+
+
+			if (response.getStatus() != 204) {
+				log.debug(response.getEntity(String.class));
+				throw new RuntimeException("could not change domains");
+			}
 		}
 
 	}
@@ -690,12 +696,12 @@ public class DomibusRestClient {
 
 	// -------------------------------------------- PMODE PARTIES -----------------------------------------------------------
 
-	public void deleteParty(String name) throws Exception{
+	public void deleteParty(String name) throws Exception {
 		JSONArray parties = getParties();
 
 		for (int i = 0; i < parties.length(); i++) {
 			JSONObject party = parties.getJSONObject(i);
-			if(StringUtils.equalsIgnoreCase(name, party.getString("name"))){
+			if (StringUtils.equalsIgnoreCase(name, party.getString("name"))) {
 				parties.remove(i);
 				break;
 			}
@@ -703,30 +709,30 @@ public class DomibusRestClient {
 
 		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 
-		if(updatePartiesResp.getStatus() != 200){
-			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
+		if (updatePartiesResp.getStatus() != 200) {
+			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus());
 		}
 	}
 
-	public JSONArray getParties() throws Exception{
+	public JSONArray getParties() throws Exception {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("pageSize", "0");
 		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.GET_PARTIES), params);
 
-		if(getPartiesResp.getStatus() != 200){
-			throw new Exception("delete party failed with status " + getPartiesResp.getStatus() );
+		if (getPartiesResp.getStatus() != 200) {
+			throw new Exception("delete party failed with status " + getPartiesResp.getStatus());
 		}
 		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
 		return parties;
 	}
 
-	public void updatePartyURL(String name) throws Exception{
+	public void updatePartyURL(String name) throws Exception {
 		JSONArray parties = getParties();
 		String generatedURL = String.format("http://testhost.com/%s", Generator.randomAlphaNumeric(10));
 
 		for (int i = 0; i < parties.length(); i++) {
 			JSONObject party = parties.getJSONObject(i);
-			if(StringUtils.equalsIgnoreCase(name, party.getString("name"))){
+			if (StringUtils.equalsIgnoreCase(name, party.getString("name"))) {
 				parties.getJSONObject(i).put("endpoint", generatedURL);
 				break;
 			}
@@ -734,28 +740,26 @@ public class DomibusRestClient {
 
 		ClientResponse updatePartiesResp = requestPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 
-		if(updatePartiesResp.getStatus() != 200){
-			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus() );
+		if (updatePartiesResp.getStatus() != 200) {
+			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus());
 		}
 	}
 
 
-
 	// -------------------------------------------- CONNECTION MONITORING -----------------------------------------------------------
 
-	public JSONArray getConnectionMonitoringParties() throws Exception{
+	public JSONArray getConnectionMonitoringParties() throws Exception {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("pageSize", "0");
 		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.CON_MON_PARTIES), params);
 
-		if(getPartiesResp.getStatus() != 200){
-			throw new Exception("get connection monitoring parties failed with status " + getPartiesResp.getStatus() );
+		if (getPartiesResp.getStatus() != 200) {
+			throw new Exception("get connection monitoring parties failed with status " + getPartiesResp.getStatus());
 		}
 
 		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
 		return parties;
 	}
-
 
 
 }

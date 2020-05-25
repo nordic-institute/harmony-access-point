@@ -127,7 +127,7 @@ public class ReliabilityChecker {
                         return CheckResult.OK;
                     }
 
-                    final Iterator<Element> elementIterator = response.getSOAPHeader().getChildElements(new QName(WSConstants.WSSE_NS, WSConstants.WSSE_LN));
+                    final Iterator elementIterator = response.getSOAPHeader().getChildElements(new QName(WSConstants.WSSE_NS, WSConstants.WSSE_LN));
 
                     if (!elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
@@ -136,7 +136,7 @@ public class ReliabilityChecker {
                         ex.setSignalMessageId(messageId);
                         throw ex;
                     }
-                    final Element securityHeaderResponse = elementIterator.next();
+                    final Element securityHeaderResponse = (Element) elementIterator.next();
 
                     if (elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MULTIPLE_SECURITY_HEADERS, messageId);

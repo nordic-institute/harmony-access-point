@@ -5,49 +5,44 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
+                        id="jmsQueueSelector" style="width:40%;">
+              <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
+                {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+              </mat-option>
+            </mat-select>
+            <md2-datepicker id="jmsFromDatePicker" appClearInvalid
+                            placeholder="Received From:"
+                            [(ngModel)]="filter.fromDate"
+                            name="receivedFrom"
+                            [type]="'datetime'"
+                            [max]="timestampFromMaxDate"
+                            (change)='onTimestampFromChange($event)'
+                            #timestampControl="ngModel">
+            </md2-datepicker>
+            <md2-datepicker id="jmsToDatePicker" appClearInvalid
+                            placeholder="Received Up To:"
+                            [(ngModel)]="filter.toDate"
+                            name="receivedTo"
+                            [min]="timestampToMinDate"
+                            [max]="timestampToMaxDate"
+                            (change)='onTimestampToChange($event)'
+                            [type]="'datetime'"
+                            #timestampControl="ngModel">
+            </md2-datepicker>
 
-          <mat-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
-                      id="jmsQueueSelector" style="width:40%;">
-            <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
-              {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
-            </mat-option>
-          </mat-select>
-          <md2-datepicker id="jmsFromDatePicker" appClearInvalid
-                          placeholder="Received From:"
-                          [(ngModel)]="filter.fromDate"
-                          name="receivedFrom"
-                          [type]="'datetime'"
-                          [max]="timestampFromMaxDate"
-                          (change)='onTimestampFromChange($event)'
-                          #timestampControl="ngModel">
-          </md2-datepicker>
-          <md2-datepicker id="jmsToDatePicker" appClearInvalid
-                          placeholder="Received Up To:"
-                          [(ngModel)]="filter.toDate"
-                          name="receivedTo"
-                          [min]="timestampToMinDate"
-                          [max]="timestampToMaxDate"
-                          (change)='onTimestampToChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel">
-          </md2-datepicker>
+            <mat-form-field id="jmsSelector">
+              <input id="jmsSelectorinput" name="selector" matInput placeholder="Selector" [(ngModel)]="filter.selector">
+            </mat-form-field>
 
-          <mat-form-field id="jmsSelector">
-            <input id="jmsSelectorinput" matInput placeholder="Selector" [(ngModel)]="filter.selector">
-          </mat-form-field>
+            <mat-form-field id="jmsType">
+              <input id="jmsTypeInput" name="jmsType" matInput placeholder="JMS Type" [(ngModel)]="filter.jmsType">
+            </mat-form-field>
 
-          <mat-form-field id="jmsType">
-            <input id="jmsTypeInput" matInput placeholder="JMS Type" [(ngModel)]="filter.jmsType">
-          </mat-form-field>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
-          <div class="searchArea">
-            <button id="jmsSearchButton" mat-raised-button color="primary" (click)="tryFilter()"
-                    [disabled]="!canSearch()"
-                    button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-          </div>
+          </form>
         </div>
       </mat-card-content>
     </mat-card>

@@ -5,37 +5,32 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType"
+                        (selectionChange)="changeAuthType($event.value)" id="authType_id" name="authType">
+              <mat-option *ngFor="let t of authenticationTypes" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-          <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType"
-                      (selectionChange)="changeAuthType($event.value)" id="authType_id">
-            <mat-option *ngFor="let t of authenticationTypes" [value]="t">
-              {{t}}
-            </mat-option>
-          </mat-select>
+            <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id" name="endPoint">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let t of userRoles" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-          <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id">
-            <mat-option [value]=""></mat-option>
-            <mat-option *ngFor="let t of userRoles" [value]="t">
-              {{t}}
-            </mat-option>
-          </mat-select>
+            <mat-form-field>
+              <input matInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id" name="process">
+            </mat-form-field>
 
-          <mat-form-field>
-            <input matInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id">
-          </mat-form-field>
+            <mat-form-field *ngIf="inBasicMode()">
+              <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id" name="partyId">
+            </mat-form-field>
 
-          <mat-form-field *ngIf="inBasicMode()">
-            <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id">
-          </mat-form-field>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
-          <div class="searchArea">
-            <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()"
-                    button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-          </div>
-
+          </form>
         </div>
       </mat-card-content>
     </mat-card>

@@ -1,13 +1,11 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyChangeNotifier;
-import eu.domibus.api.property.DomibusPropertyManager;
-import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.*;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +20,8 @@ import java.util.Map;
 
 @Service(DomibusPropertyManager.MSH_PROPERTY_MANAGER)
 public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
+
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusPropertyManagerImpl.class);
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -70,7 +70,7 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Domain domain = domainCode != null ? domainService.getDomain(domainCode) : null;
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
@@ -81,22 +81,38 @@ public class DomibusPropertyManagerImpl implements DomibusPropertyManager {
     }
 
     @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String propertyName, String propertyValue) throws DomibusPropertyException {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         this.setPropertyValue(domain, propertyName, propertyValue, true);
     }
 
-    private void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
+    protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = this.getKnownProperties().get(propertyName);
         if (propMeta == null) {
             throw new DomibusPropertyException("Property " + propertyName + " not found.");
         }
 
+        String oldValue = domibusPropertyProvider.getProperty(domain, propertyName);
         domibusPropertyProvider.setPropertyValue(domain, propertyName, propertyValue);
 
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
-        propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        try {
+            propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, shouldBroadcast);
+        } catch (DomibusPropertyException ex) {
+            LOGGER.error("An error occurred when executing property change listeners for property [{}]. Reverting to the former value.", propertyName, ex);
+            try {
+                // revert to old value
+                domibusPropertyProvider.setPropertyValue(domain, propertyName, oldValue);
+                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
+                // propagate the exception to the client
+                throw ex;
+            } catch (DomibusPropertyException ex2) {
+                LOGGER.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
+                // failed to revert!!! just report the error
+                throw ex2;
+            }
+        }
     }
 
     private void checkPropertyExists(String propertyName) {

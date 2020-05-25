@@ -35,6 +35,7 @@ public class MessageFilterPgTest extends BaseTest {
 	@BeforeMethod(alwaysRun = true)
 	private void login() throws Exception {
 		new DomibusPage(driver).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
+		new MessageFilterPage(driver).grid().waitForRowsToLoad();
 	}
 
 	/* Login as super admin and open Messages Filter page */
@@ -510,9 +511,10 @@ public class MessageFilterPgTest extends BaseTest {
 
 		MessageFilterPage page = new MessageFilterPage(driver);
 
+
 		page.getNewBtn().click();
 		MessageFilterModal popup = new MessageFilterModal(driver);
-		popup.getPluginSelect().selectOptionByIndex(0);
+//		popup.getPluginSelect().selectOptionByIndex(0);
 		popup.actionInput.sendKeys(actionName);
 		popup.clickOK();
 		log.info("created new filter with action" + actionName);
@@ -522,12 +524,14 @@ public class MessageFilterPgTest extends BaseTest {
 
 		page.saveAndConfirmChanges();
 		log.info("saved the changes");
+		soft.assertFalse(page.getAlertArea().isError(), "Success message is shown!!");
 
 		log.info("check if filter is present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > -1, "New filter is present in the grid");
 
 		log.info("changing domain to 1");
 		page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+		page.grid().waitForRowsToLoad();
 
 		log.info("check if filter is NOT present");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == -1, "New filter is NOT present in the grid on other domains then default");
@@ -549,6 +553,7 @@ public class MessageFilterPgTest extends BaseTest {
 
 		SoftAssert soft = new SoftAssert();
 		MessageFilterPage page = new MessageFilterPage(driver);
+		String defaultDomainName = page.getDomainFromTitle();
 		page.refreshPage();
 
 		int index = page.grid().scrollTo("Action", actionName);
@@ -566,8 +571,12 @@ public class MessageFilterPgTest extends BaseTest {
 		String listedAction = page.grid().getRowInfo(index).get("Action");
 		soft.assertEquals(listedAction, anotherActionName, "Action is changed after edit form is closed");
 
-		log.info("changing domain");
-		page.getDomainSelector().selectOptionByText(domainName);
+		try {
+			log.info("changing domain");
+			page.getDomainSelector().selectOptionByText(domainName);
+		} catch (Exception e) {
+			soft.assertEquals(page.getDomainFromTitle().toLowerCase(), defaultDomainName, "Domain has not changed while changes are not saved");
+		}
 
 		log.info("check that cancel all changes dialog appears");
 		Dialog dialog = new Dialog(driver);
@@ -578,8 +587,12 @@ public class MessageFilterPgTest extends BaseTest {
 
 		soft.assertEquals(page.getDomainSelector().getSelectedValue(), domainName, "Domain was changed");
 
-		log.info("change domain back to default");
-		page.getDomainSelector().selectOptionByText("Default");
+		try {
+			log.info("change domain back to default");
+			page.getDomainSelector().selectOptionByText(defaultDomainName);
+		} catch (Exception e) {
+			soft.assertEquals(page.getDomainFromTitle().toLowerCase(), defaultDomainName, "Domain has not changed while changes are not saved");
+		}
 
 		log.info("check that changes were canceled");
 		listedAction = page.grid().getRowInfo(index).get("Action");
@@ -597,8 +610,12 @@ public class MessageFilterPgTest extends BaseTest {
 		modal.clickOK();
 		modal.wait.forXMillis(150);
 
-		log.info("changing domain");
-		page.getDomainSelector().selectOptionByText(domainName);
+		try {
+			log.info("changing domain");
+			page.getDomainSelector().selectOptionByText(domainName);
+		} catch (Exception e) {
+			soft.assertEquals(page.getDomainFromTitle().toLowerCase(), defaultDomainName, "Domain has not changed while changes are not saved");
+		}
 
 		log.info("check that cancel all changes dialog appears");
 		dialog = new Dialog(driver);
@@ -608,7 +625,7 @@ public class MessageFilterPgTest extends BaseTest {
 		log.info("Press cancel in the dialog");
 		dialog.cancel();
 		log.info("check that the domain is not changed");
-		soft.assertEquals(page.getDomainSelector().getSelectedValue(), "Default", "Domain was NOT changed");
+		soft.assertEquals(page.getDomainSelector().getSelectedValue(), defaultDomainName, "Domain was NOT changed");
 
 		log.info("check info for filter is still updated");
 		listedAction = page.grid().getRowInfo(index).get("Action");

@@ -5,7 +5,7 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
-          <form name="filterForm" #filterForm="ngForm">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <mat-form-field>
               <input matInput placeholder="Message Id" name="messageId" [(ngModel)]="filter.messageId"
                      #messageId="ngModel" id="messageid_id">
@@ -96,7 +96,7 @@
               </mat-checkbox>
             </ng-container>
 
-            <filter-area-footer [parent]="this"></filter-area-footer>
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>

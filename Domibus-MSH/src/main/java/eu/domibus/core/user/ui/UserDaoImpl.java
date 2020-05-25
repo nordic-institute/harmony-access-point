@@ -105,4 +105,11 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
         return namedQuery.getResultList().stream().collect(Collectors.toList());
     }
 
+    @Override
+    public boolean existsWithId(String userID) {
+        TypedQuery<User> namedQuery = em.createNamedQuery("User.findAllByUserName", User.class);
+        namedQuery.setParameter("USER_NAME", userID);
+        return namedQuery.getResultList().size() > 0;
+    }
+
 }

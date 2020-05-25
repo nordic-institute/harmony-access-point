@@ -5,7 +5,7 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
-          <form name="filterForm" #filterForm="ngForm">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <mat-form-field>
               <input matInput placeholder="Signal Message Id" name="errorSignalMessageId"
                      [(ngModel)]="filter.errorSignalMessageId" #errorSignalMessageId="ngModel" id="signalmessageid_id"
@@ -75,7 +75,7 @@
                             *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
 
-            <filter-area-footer [parent]="this"></filter-area-footer>
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>

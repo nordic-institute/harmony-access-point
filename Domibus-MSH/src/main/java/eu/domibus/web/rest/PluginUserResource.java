@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -46,6 +47,9 @@ public class PluginUserResource extends BaseResource {
     @Autowired
     private ErrorHandlerService errorHandlerService;
 
+    @Autowired
+    protected UserDomainService userDomainService;
+    
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
@@ -129,12 +133,14 @@ public class PluginUserResource extends BaseResource {
 
             boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
             userRO.setSuspended(isSuspended);
+
+            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
+            userRO.setDomain(domainCode);
         }
 
         PluginUserResultRO result = new PluginUserResultRO();
 
         result.setEntries(userROs);
-//        result.setCount(count);
         result.setPage(pageStart);
         result.setPageSize(pageSize);
 

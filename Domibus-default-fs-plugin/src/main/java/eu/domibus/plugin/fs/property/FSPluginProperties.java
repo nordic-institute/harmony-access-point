@@ -401,7 +401,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
                     LOG.debug("Multiplying the domain property [{}] for each domain.", prop.getName());
                     for (String domain : getDomains()) {
                         String name = getDomainPropertyName(domain, prop.getName());
-                        DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, prop.isWithFallback());
+                        DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, prop.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, prop.isWithFallback());
                         knownProperties.put(p.getName(), p);
                     }
                 } else {
@@ -420,7 +420,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return this.getKnownProperties().containsKey(name);
     }
 
-    protected String getKnownPropertyValue(String domainCode, String propertyName) {
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
@@ -469,7 +469,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
-    protected void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 

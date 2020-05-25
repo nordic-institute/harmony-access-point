@@ -492,5 +492,25 @@ public class UserSecurityPolicyManagerTest {
         }};
 
         securityPolicyManager.validateUniqueUser(addedUser);
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            userDomainService.getDomainForUser(testUsername);
+            result = null;
+            userDomainService.getPreferredDomainForUser(testUsername);
+            result = testDomain;
+        }};
+
+        securityPolicyManager.validateUniqueUser(addedUser);
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+            securityPolicyManager.getUserDao().existsWithId(testUsername);
+            result = true;
+        }};
+
+        securityPolicyManager.validateUniqueUser(addedUser);
     }
 }

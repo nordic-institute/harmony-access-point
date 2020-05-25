@@ -32,8 +32,8 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     Endpoint backendInterfaceEndpoint;
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
-            new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-            new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
@@ -77,6 +77,16 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
         setKnownPropertyValue(propertyName, propertyValue);
+    }
+
+    @Override
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
+        return getKnownPropertyValue(propertyName);
+    }
+
+    @Override
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
     private Boolean isMtomEnabled() {

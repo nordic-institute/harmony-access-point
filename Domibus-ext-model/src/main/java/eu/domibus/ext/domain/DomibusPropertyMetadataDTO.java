@@ -20,14 +20,6 @@ public class DomibusPropertyMetadataDTO {
         return (getUsage() & Usage.DOMAIN) == Usage.DOMAIN;
     }
 
-    public class Usage {
-        public static final int GLOBAL = 1;
-        public static final int DOMAIN = 2;
-        public static final int SUPER = 4;
-        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
-        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
-    }
-
     /**
      * The name of the property, corresponds to the value in the domibus.properties files
      * ex: domibus.ui.replication.sync.cron, domibus.ui.replication.sync.cron.max.rows
@@ -35,8 +27,8 @@ public class DomibusPropertyMetadataDTO {
     private String name;
 
     /**
-     *  The technical type of the property which dictates the way it is handled at runtime
-     *  ex:  numeric, cron expr, regexp, string, concurrency
+     * The technical type of the property which dictates the way it is handled at runtime
+     * ex:  numeric, cron expr, regexp, string, concurrency
      */
     private String type;
 
@@ -91,15 +83,16 @@ public class DomibusPropertyMetadataDTO {
 
     private boolean encrypted;
 
-    public static DomibusPropertyMetadataDTO getReadOnlyGlobalProperty(String name, String module) {
-        return new DomibusPropertyMetadataDTO(name, module, false, Usage.GLOBAL, false, false, false, false);
-    }
-
     public DomibusPropertyMetadataDTO() {
     }
 
     public DomibusPropertyMetadataDTO(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
+        this(name, Type.STRING, module, writable, usage, withFallback, clusterAware, encrypted, isComposable);
+    }
+
+    public DomibusPropertyMetadataDTO(String name, String type, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
+        this.type = type;
         this.writable = writable;
         this.usage = usage;
         this.withFallback = withFallback;
@@ -113,8 +106,16 @@ public class DomibusPropertyMetadataDTO {
         this(name, module, true, usage, false, true, false, false);
     }
 
+    public DomibusPropertyMetadataDTO(String name, String type, String module, int usage) {
+        this(name, type, module, true, usage, false, true, false, false);
+    }
+
     public DomibusPropertyMetadataDTO(String name, String module, int usage, boolean withFallback) {
         this(name, module, true, usage, withFallback, true, false, false);
+    }
+
+    public DomibusPropertyMetadataDTO(String name, String type, String module, int usage, boolean withFallback) {
+        this(name, type, module, true, usage, withFallback, true, false, false);
     }
 
     public DomibusPropertyMetadataDTO(String name, int usage, boolean withFallback) {
@@ -129,6 +130,7 @@ public class DomibusPropertyMetadataDTO {
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
         this(name, module, domainSpecific ? DomibusPropertyMetadataDTO.Usage.DOMAIN : Usage.GLOBAL, withFallback);
     }
+
     @Deprecated
     public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
         this(name, module, domainSpecific ? DomibusPropertyMetadataDTO.Usage.DOMAIN : Usage.GLOBAL, false);
@@ -236,5 +238,25 @@ public class DomibusPropertyMetadataDTO {
 
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
+    }
+
+    public class Usage {
+        public static final int GLOBAL = 1;
+        public static final int DOMAIN = 2;
+        public static final int SUPER = 4;
+        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
+        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+    }
+
+    /**
+     * Metadata being used by third-party modules, here I added the type just as a string and not an enum
+     */
+    public class Type {
+        public static final String NUMERIC = "NUMERIC";
+        public static final String BOOLEAN = "BOOLEAN";
+        public static final String STRING = "STRING";
+        public static final String CRON = "CRON";
+        public static final String CONCURRENCY = "CONCURRENCY";
+        public static final String EMAIL = "EMAIL";
     }
 }

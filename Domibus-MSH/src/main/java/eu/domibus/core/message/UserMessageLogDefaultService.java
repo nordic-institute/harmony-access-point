@@ -10,6 +10,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @author Cosmin Baciu
@@ -94,8 +97,36 @@ public class UserMessageLogDefaultService {
         updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
     }
 
-    public void setSignalMessageAsDeleted(final String signalMessageid) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageid);
+    /**
+     * Find the {@link SignalMessageLog} and set to {@link MessageStatus#DELETED}
+     * Propagate the change to the UiReplication
+     *
+     */
+    public boolean setSignalMessageAsDeleted(final SignalMessage signalMessage) {
+
+        if (signalMessage == null) {
+            LOG.debug("Could not delete SignalMessage: received SignalMessage is null ");
+            return false;
+        }
+        if (signalMessage.getMessageInfo() == null) {
+            LOG.debug("Could not delete SignalMessage: received messageInfo is null [{}]", signalMessage);
+            return false;
+        }
+        if (isBlank(signalMessage.getMessageInfo().getMessageId())) {
+            LOG.debug("Could not delete SignalMessage: received messageId is empty [{}|{}]",
+                    signalMessage,
+                    signalMessage.getMessageInfo());
+            return false;
+        }
+
+        String msgId = signalMessage.getMessageInfo().getMessageId();
+        setSignalMessageAsDeleted(msgId);
+        LOG.debug("SignalMessage [{}] was set as DELETED.", msgId);
+        return true;
+    }
+
+    protected void setSignalMessageAsDeleted(final String signalMessageId) {
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
         signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
         uiReplicationSignalService.messageChange(signalMessageLog.getMessageId());
     }

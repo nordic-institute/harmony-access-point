@@ -24,13 +24,13 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
-    private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.stream(new String[]{
-            QUEUE_NOTIFICATION,
-            QUEUE_IN,
-            QUEUE_IN_CONCURRENCY
-    })
-            .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false))
-            .collect(Collectors.toList());
+    private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTION_FACTORY, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN_CONCURRENCY, DomibusPropertyMetadataDTO.Type.CONCURRENCY, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false)
+            );
+
 
     private List<DomibusPropertyMetadataDTO> readOnlyDomainProperties = Arrays.stream(new String[]{
             JMSPLUGIN_QUEUE_OUT,
@@ -49,6 +49,7 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     })
             .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, false, false, true))
             .collect(Collectors.toList());
+
     private List<DomibusPropertyMetadataDTO> writableProperties = Arrays.stream(new String[]{
             FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
             TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
@@ -79,7 +80,7 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
      * @return
      */
     public List<String> getNestedProperties(String prefix) {
-        List<String> result = new ArrayList<>(); 
+        List<String> result = new ArrayList<>();
         Set<String> propertiesStartingWithPrefix = domibusPropertyExtService.filterPropertiesName(property -> property.startsWith(prefix));
         if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
             LOG.debug("No properties found starting with prefix [{}]", prefix);
@@ -96,4 +97,5 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
         LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, prefix);
         return firstLevelProperties;
     }
+
 }

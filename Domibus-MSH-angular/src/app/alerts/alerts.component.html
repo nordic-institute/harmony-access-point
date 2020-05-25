@@ -5,7 +5,7 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
-          <form name="filterForm" #filterForm="ngForm">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <!-- Processed -->
             <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
               <mat-option [value]="''"></mat-option>
@@ -126,7 +126,7 @@
               </mat-card>
             </div>
 
-            <filter-area-footer [parent]="this"></filter-area-footer>
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>

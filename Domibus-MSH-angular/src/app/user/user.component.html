@@ -5,30 +5,26 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id" name="roleId">
+              <mat-option [value]="''"></mat-option>
+              <mat-option *ngFor="let t of userRoles" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-          <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id">
-            <mat-option [value]="''"></mat-option>
-            <mat-option *ngFor="let t of userRoles" [value]="t">
-              {{t}}
-            </mat-option>
-          </mat-select>
+            <mat-form-field>
+              <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="username_id" name="userName">
+            </mat-form-field>
 
-          <mat-form-field>
-            <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="username_id">
-          </mat-form-field>
+            <span style="margin-left: 20px;">
+              <mat-checkbox [(ngModel)]="filter.deleted" [(indeterminate)]="filter.deleted_notSet" (click)="setState()"
+                        id="deleted_id" name="deleted">Deleted</mat-checkbox>
+            </span>
 
-          <span style="margin-left: 20px;">
-          <mat-checkbox [(ngModel)]="filter.deleted" [(indeterminate)]="filter.deleted_notSet" (click)="setState()"
-                        id="deleted_id">Deleted</mat-checkbox>
-        </span>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
-          <div class="searchArea">
-            <button mat-raised-button color="primary" id="searchbutton_id" (click)="tryFilter()" button-click-behaviour>
-              <mat-icon>search</mat-icon>
-              <span>Search</span>
-            </button>
-          </div>
-
+          </form>
         </div>
       </mat-card-content>
     </mat-card>
@@ -52,7 +48,7 @@
     <ng-template #checkBoxTpl let-row="row" ngx-datatable-cell-template>
       <mat-checkbox [checked]="row['active']" disabled></mat-checkbox>
       <ng-container *ngIf="row['suspended']">
-        <span>(Suspended)</span>
+        <span> (Suspended)</span>
       </ng-container>
     </ng-template>
 

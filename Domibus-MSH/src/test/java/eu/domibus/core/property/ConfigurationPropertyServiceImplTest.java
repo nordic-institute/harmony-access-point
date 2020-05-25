@@ -1,13 +1,14 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -32,6 +33,9 @@ public class ConfigurationPropertyServiceImplTest {
     @Injectable
     protected DomainContextProvider domainContextProvider;
 
+    @Tested
+    ConfigurationPropertyServiceImpl configurationPropertyService;
+
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
@@ -44,15 +48,15 @@ public class ConfigurationPropertyServiceImplTest {
     @Injectable
     private DomainTaskExecutor domainTaskExecutor;
 
+    @Injectable
+    ClassUtil classUtil;
+
     @Mocked
     @Spy
     private DomibusPropertyManagerExt propertyManager1;
 
     @Mocked
     private DomibusPropertyManagerExt propertyManager2;
-
-    @Tested
-    ConfigurationPropertyServiceImpl configurationPropertyService;
 
     Map<String, DomibusPropertyMetadataDTO> props1, props2;
     String domainCode = "domain1";
@@ -85,7 +89,7 @@ public class ConfigurationPropertyServiceImplTest {
 
     @Test
     public void getProperties() {
-        new Expectations() {{
+        new Expectations(configurationPropertyService) {{
 
             propertyManager1.getKnownProperties();
             result = props1;
@@ -113,6 +117,9 @@ public class ConfigurationPropertyServiceImplTest {
 
             domainConverter.convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME), DomibusPropertyMetadata.class);
             result = convert(props2.get(DOMIBUS_UI_SUPPORT_TEAM_NAME));
+
+            classUtil.isMethodDefined((DomibusPropertyManagerExt) any, "getKnownPropertyValue", new Class[]{String.class});
+            result = true;
         }};
 
         List<DomibusProperty> actual = configurationPropertyService.getAllWritableProperties("domibus.UI", true);
@@ -129,6 +136,10 @@ public class ConfigurationPropertyServiceImplTest {
         new Expectations(configurationPropertyService) {{
             configurationPropertyService.getManagerForProperty(DOMIBUS_UI_TITLE_NAME);
             result = propertyManager1;
+            propertyManager1.getKnownProperties();
+            result = props1;
+            classUtil.isMethodDefined((DomibusPropertyManagerExt) any, "setKnownPropertyValue", new Class[]{String.class, String.class});
+            result = true;
         }};
 
         configurationPropertyService.setPropertyValue(DOMIBUS_UI_TITLE_NAME, true, "val11");
@@ -155,7 +166,6 @@ public class ConfigurationPropertyServiceImplTest {
     @Test(expected = DomibusPropertyException.class)
     public void setPropertyValue_notMatch() {
         new Expectations() {{
-
             propertyManager1.hasKnownProperty("non_existing_prop");
             result = false;
 
@@ -164,5 +174,85 @@ public class ConfigurationPropertyServiceImplTest {
         }};
 
         configurationPropertyService.setPropertyValue("non_existing_prop", true, "val11");
+    }
+
+    @Test
+    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            returns("NON_EXISTING", "STRING");
+        }};
+
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+            configurationPropertyService.validatePropertyValue(propMeta, "doesn't matter");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            returns("NUMERIC");
+        }};
+
+        try {
+            configurationPropertyService.validatePropertyValue(propMeta, "123");
+        } catch (DomibusPropertyException ex) {
+            Assert.fail();
+        }
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        new Expectations(configurationPropertyService) {{
+            propMeta.getType();
+            result = "NUMERIC";
+        }};
+
+        configurationPropertyService.validatePropertyValue(propMeta, "non_numeric_value");
+    }
+
+    @Test
+    public void getPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
+        String propertyName = "prop1";
+        new Expectations(configurationPropertyService) {{
+            classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
+            returns(true, false);
+        }};
+
+        configurationPropertyService.getPropertyValue(propertyManager, propertyName);
+        new Verifications() {{
+            propertyManager.getKnownPropertyValue(propertyName);
+        }};
+
+        configurationPropertyService.getPropertyValue(propertyManager, propertyName);
+        new Verifications() {{
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+        }};
+    }
+
+    @Test
+    public void setPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
+        String propertyName = "prop1";
+        String proertyValue = "propVal1";
+        new Expectations(configurationPropertyService) {{
+            classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
+            returns(true, false);
+        }};
+
+        configurationPropertyService.setPropertyValue(propertyManager, propertyName, proertyValue);
+        new Verifications() {{
+            propertyManager.setKnownPropertyValue(propertyName, proertyValue);
+        }};
+
+        configurationPropertyService.setPropertyValue(propertyManager, propertyName, proertyValue);
+        new Verifications() {{
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
+        }};
     }
 }

@@ -36,7 +36,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -61,6 +60,8 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @author Cosmin Baciu
@@ -524,7 +525,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
+        if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
@@ -537,8 +538,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
+        userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
     protected void deleteMessagePluginCallback(String messageId) {

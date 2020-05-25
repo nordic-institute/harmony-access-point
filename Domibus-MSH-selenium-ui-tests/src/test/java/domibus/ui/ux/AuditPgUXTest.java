@@ -40,6 +40,7 @@ public class AuditPgUXTest extends BaseTest {
 
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -118,6 +119,8 @@ public class AuditPgUXTest extends BaseTest {
 
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
+
 		log.info("checking available filters in expanded state");
 		page.filters().expandArea();
 		advancedFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
@@ -130,20 +133,21 @@ public class AuditPgUXTest extends BaseTest {
 	public void downloadCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		AuditPage auditPage = new AuditPage(driver);
-		auditPage.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		log.info("Validate Audit page");
-		soft.assertEquals(auditPage.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
+		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "page is loaded successfully");
 
 		log.info("Download all grid record csv");
 		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 
 		log.info("downloaded audit logs to file :" + fileName);
-		System.out.println(auditPage.grid().getRowsNo());
+		System.out.println(page.grid().getRowsNo());
 
 		log.info("comparing any random row data from downloaded csv and grid");
-		csvCheck(fileName, auditPage.grid(), soft);
+		csvCheck(fileName, page.grid(), soft);
 
 
 		soft.assertAll();
@@ -156,6 +160,7 @@ public class AuditPgUXTest extends BaseTest {
 
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		String fileName = rest.downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
@@ -175,6 +180,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		log.info("Getting column names");
@@ -183,8 +189,9 @@ public class AuditPgUXTest extends BaseTest {
 			log.info("sorting by column " + column);
 			grid.sortBy(column);
 
+			String sortCol = grid.getSortedColumnName();
 			log.info("checking sorting");
-			soft.assertNull(grid.getSortedColumnName(), "After sorting by "+ column +", no column is marked as sorted");
+			soft.assertEquals(sortCol, "Changed", "After sorting page is sorted by " + sortCol);
 		}
 
 		soft.assertAll();
@@ -196,6 +203,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		grid.checkChangeNumberOfRows(soft);
@@ -209,6 +217,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 
@@ -224,6 +233,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		String colName = "Id";
 
@@ -259,6 +269,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -283,6 +294,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -299,6 +311,7 @@ public class AuditPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
 
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();

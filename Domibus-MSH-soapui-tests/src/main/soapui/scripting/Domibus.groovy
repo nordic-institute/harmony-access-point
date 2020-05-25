@@ -15,13 +15,14 @@ import groovy.json.JsonOutput
 import groovy.json.JsonBuilder
 
 
+
 class Domibus{
     def messageExchange = null;
     def context = null;
     def log = null;
 
-    def allDomainsProperties = null
-    def allDomains = null
+    def allDomainsProperties = null;
+    def allDomains = null;
 
     // sleepDelay value is increased from 2000 to 6000 because of pull request take longer ...
     def sleepDelay = 6000
@@ -34,7 +35,10 @@ class Domibus{
 
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-
+	static def FS_DEF_MAP=[FS_DEF_SENDER:"domibus-blue",FS_DEF_RECEIVER:"domibus-red",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"];
+	
+	
+	
     static def backup_file_sufix = "_backup_for_soapui_tests";
     static def DEFAULT_LOG_LEVEL = 0;
     static def DEFAULT_PASSWORD = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
@@ -2072,8 +2076,11 @@ static def void copyFile(String source, String destination, log, overwriteOpt=tr
 // replace slashes in project custom properties values
 static def String formatPathSlashes(String source) {
     if ( (source != null) && (source != "") ) {
-        return source.replaceAll("/", "\\\\")
+		if (System.properties['os.name'].toLowerCase().contains('windows')){
+			return source.replaceAll("/", "\\\\");
+		}
     }
+	return source;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2401,8 +2408,8 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 
             while ( (i < usersMap.items.size()) && (propValue == null) ) {
                 assert(usersMap.items[i] != null),"Error:getPropertyAtRuntime: Error while parsing the list of returned properties.";
-                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].metadata.name + "--.", log)
-                if (usersMap.items[i].metadata.name == propName) {
+                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].name + "--.", log)
+                if (usersMap.items[i].name == propName) {
 					propValue = usersMap.items[i].value;
                 }
                 i++;
@@ -2443,6 +2450,17 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 		assert(retPropVal!=null),"Error:getTestCaseCustProp: Couldn't fetch property \"$custPropName\" value";
 		log.info "Test case level custom property fetched \"$custPropName\"= \"$retPropVal\"."
 		debugLog("  ====  End \"getTestCaseCustProp\".", log);
+		return retPropVal;
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getProjectCustProp(custPropName,context,log, testRunner){
+		def retPropVal=null;
+        debugLog("  ====  Calling \"getProjectCustProp\".", log);		
+		retPropVal=testRunner.testCase.testSuite.project.getPropertyValue(custPropName);
+		assert(retPropVal!=null),"Error:getProjectCustProp: Couldn't fetch property \"$custPropName\" value";
+		assert(retPropVal.trim()!=""),"Error:getProjectCustProp: Property \"$custPropName\" returned value is empty.";
+		log.info "Project level custom property fetched \"$custPropName\"= \"$retPropVal\"."
+		debugLog("  ====  End \"getProjectCustProp\".", log);
 		return retPropVal;
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -3337,8 +3355,209 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
         def mapValue = jsonSlurper.parseText(stringValue);
 		return mapValue[side+number];
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+	// Copy metadat + payload files to submit fs plugin messages
+	// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+	def static submitFSmessage(String side,String configuration,String domain,parametersMap,context,log,testRunner,boolean twoFiles=true,String subFolder="",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"submitFSmessage\".", log);
+		def messageMetadata=null;
+		def fspluginPath=null;
+		def source=null;
+		def dest=null;
+		def metadataFile=null;
+		def messageLocationPrpertyName="fsplugin.messages.location";
+		def i=0;
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+	
+		// Extract the suitable template for metadata.xml file
+	    switch (configuration.toLowerCase()) {
+			case  "standard":
+				messageMetadata=getProjectCustProp("fsMetadataStandard",context,log,testRunner);
+                break;
+            case "withmime":
+				messageMetadata=getProjectCustProp("fsMetadataWithMimeType",context,log,testRunner);
+                break;
+            case "withpname":
+				messageMetadata=getProjectCustProp("fsMetadataWithPayloadName",context,log,testRunner);
+                break;
+            default:
+                log.warn "Unknown type of configuration: assume standard ..."
+				messageMetadata=getProjectCustProp("fsPluginPrototype",context,log,testRunner);
+                break;
+        }
+		
+		// Update the targeted values in the template 
+		parametersMap.each { entry ->
+			messageMetadata=messageMetadata.replace(FS_DEF_MAP["FS_DEF_"+entry.key],entry.value);
+		}
 
+		// Get the path to the fsplugin sending location
+		fspluginPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/OUT/";
+		if(!subFolder.equals("")){
+			fspluginPath=fspluginPath+subFolder+"/"
+		}
+		fspluginPath=formatPathSlashes(fspluginPath);
+		
+		debugLog("  submitFSmessage  [][]  fspluginPath=\"$fspluginPath\"", log);
+		
+		// Copy the file
+		source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml");
+		dest=fspluginPath+"Test_file.xml";
+		copyFile(source,dest,log);
 
+		// Copy a second file in case needed 
+		if(twoFiles){
+			source=formatPathSlashes(context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf");
+			dest=fspluginPath+"fileSmall.pdf";
+			copyFile(source,dest,log);
+		}
+		
 
+		metadataFile = new File(fspluginPath+"metadata.xml")
+		metadataFile.newWriter().withWriter { w ->
+			w << messageMetadata
+		}
+
+		
+		debugLog("  ====  \"submitFSmessage\" DONE.", log);
+		
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+
+	def static checkFSpayloadPresent(String side,String finalRecipient,String messageID,payloadName,String domain="default",context,log,testRunner,boolean confirmPresent=true,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"checkFSpayloadPresent\".", log);
+		def fsPayloadPath=null;
+		def i=0;
+		def testFile=null;	
+		def messageLocationPrpertyName="fsplugin.messages.location";
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+		fsPayloadPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/IN/"+finalRecipient+"/"+messageID+"/";
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  checkFSpayloadPresent  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
+		for(i=0;i<payloadName.size;i++){
+			testFile = new File(fsPayloadPath+payloadName[i]);
+			assert(testFile.exists()),"Error: checkFSpayloadPresent: file \""+payloadName[i]+"\" was not found in path \"$fsPayloadPath\" ...";
+			log.info "File \""+payloadName[i]+"\" was found in path \"$fsPayloadPath\"."
+		}
+		debugLog("  ====  \"checkFSpayloadPresent\" DONE.", log);
+	}
+	
+//---------------------------------------------------------------------------------------------------------------------------------
+// Domibus text reporting
+//---------------------------------------------------------------------------------------------------------------------------------
+
+/*
+	static final def TC_ID_COLUMN = 1			// Test Case ID (assuming  everything before first dash in test case name is test case ID)
+	static final def TC_PROJECT_COLUMN = 2				// SoapUI project name
+	static final def TC_TEST_SUITE_COLUMN = 3	// Test Suite Name 
+	static final def TC_NAME_COLUMN = 4			// Full Test Case Name (with test case ID)
+	static final def TC_RESULT_COLUMN = 5		// Last Result of test case execution [see bellow REPORT_PASS_STRING/REPORT_FAIL_STRING]
+	static final def TC_DISABLED_COLUMN = 6		// Is Test Case Disabled in SoapUI project
+	static final def TC_TIME_COLUMN = 7			// Time of last Execution was Started 
+	static final def TC_EXEC_TIME_COLUMN = 8	// Test case execution time in seconds 
+	static final def TC_COMMENT_COLUMN = 9		// Collected information about failed assertion, empty for passing TCs
+*/
+	static final def REPORT_PASS_STRING = "PASS"
+	static final def REPORT_FAIL_STRING = "FAIL"
+	static final def COLUMN_LIST = ["TC_ID_COLUMN", "TC_PROJECT", "TC_TEST_SUITE_COLUMN", "TC_NAME_COLUMN", "TC_DISABLED_COLUMN", "TC_RESULT_COLUMN", "TC_TIME_COLUMN", "TC_EXEC_TIME_COLUMN", "TC_COMMENT_COLUMN"]
+	static final def CSV_DELIMETER = ','
+	static final def newLine = System.getProperty("line.separator") 
+
+	static def reportTestCaseCsv(testRunner, log) {
+		// check update report property is not true or '1' 
+		def updateReport = testRunner.getRunContext().expand( '${#Project#updateReport}' )
+		if (updateReport == null || updateReport.trim().isEmpty() || !(updateReport.toLowerCase().equals('true') || updateReport == '1'))
+		{
+			log.warn "Reporting disabled, please refer to SoapUI Project level property updateReport"
+			return
+		}
+		
+		//check report file exist
+		log.debug "check report file exist"
+		def outputReportFilePath = testRunner.getRunContext().expand( '${#Project#txtReportFilePath}' ) as String
+		
+		File file = new File(outputReportFilePath)
+		if ( file.isDirectory()) {
+			log.error "Error: report file is directory on path:" + outputReportFilePath
+			return
+		}
+		if ( !file.exists() ) {
+			log.warn "Warning: text report file doesn't exist, would create file with header:" + outputReportFilePath
+			file.createNewFile()
+			def header = COLUMN_LIST.join(CSV_DELIMETER)
+			file.write(header)
+		}
+		
+		// project name it should same as worksheet name
+		def projectName = testRunner.testCase.testSuite.project.name
+		def testSuiteName = testRunner.testCase.testSuite.getLabel()
+		// extract test case ID 
+		def tcName = testRunner.testCase.getLabel()
+		def searchedID = tcName.split("-").getAt(0).trim()
+
+		def tcStatus = testRunner.getStatus().toString().equals("FINISHED")? REPORT_PASS_STRING : REPORT_FAIL_STRING
+		def startTime = new Date(testRunner.getStartTime()).format("dd-MM-yyyy HH:mm:ss")
+		def timeTaken = testRunner.getTimeTaken()/1000 + "s"
+		def comment = ""
+
+		testRunner.getResults().each{ t->
+			def stepStatus = t.status.toString()
+			def stepName = t.getTestStep().getLabel()
+			def stepNum = (testRunner.getResults().indexOf(t) as Integer) +1
+			def executionStart = new Date(t.getTimeStamp()).format("dd-MM-yyyy HH:mm:ss")
+
+			log.debug "Check status of step " + stepNum + " - " + stepName + " --> " + stepStatus
+
+			if (!(stepStatus == "OK" || comment == "")) {
+			comment += " || "
+			}
+
+			if (stepStatus == "FAILED")
+			{
+				log.debug "Found test step with FAILED status try extract error messages"
+				def messages = ""
+				t.getMessages().each() { msg -> messages += " || " + " |" + msg + "| " }
+
+				comment += executionStart + ": Test case FAILED on step " + stepNum + ": " + stepName + "|| Returned error message[s]: " + messages
+			}
+			if (stepStatus == "CANCELED")
+			{
+				log.debug "Found test step with CANCELED status"
+				comment += executionStart + ": Test case CANCELED on step " + stepNum + ": " + stepName
+			}
+
+		}
+		//update values
+		log.debug "REPORTING Test case: \"" + tcName + "\" " +  tcStatus + "ED, details in the report file"
+		def row = []
+		row.add(searchedID)
+		row.add(projectName)
+		row.add(testSuiteName)
+		row.add(tcName)
+		row.add(testRunner.testCase.isDisabled())
+		row.add(tcStatus)
+		row.add(startTime)
+		row.add(timeTaken)
+		row.add('"' + comment.replaceAll("\r\n|\n\r|\n|\r"," | ") + '"')
+		
+		// new row debug values 
+		//showResultRow(row, log)
+		log.info "Reporting status for '${tcName}' from test suite: '${testSuiteName}' with result: '${tcStatus}'" 
+
+		// Write the output to a file
+		def stringRow = row.join(CSV_DELIMETER)
+		file.append(newLine + stringRow)
+		file.finalize()
+
+	}
+	
 } // Domibus class end
 

@@ -29,6 +29,8 @@ import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.jms.core.JmsOperations;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -172,16 +174,6 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    public void sendMessageToQueue(JmsMessage message, String destination) {
-        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
-    }
-
-    @Override
-    public void sendMapMessageToQueue(JmsMessage message, String destination) {
-        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
-    }
-
-    @Override
     public void convertAndSendToQueue(final Object message, final Queue destination, final String selector) {
         jmsTemplate.convertAndSend(destination, message, message1 -> {
             final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
@@ -197,14 +189,29 @@ public class JMSManagerImpl implements JMSManager {
         });
     }
 
+    @Override
+    public void sendMessageToQueue(JmsMessage message, String destination) {
+        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
+    }
+
+    @Override
+    public void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations) {
+        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
+    }
+
+    @Override
+    public void sendMapMessageToQueue(JmsMessage message, String destination) {
+        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
+    }
 
     protected void sendMessageToQueue(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType) {
-        final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination);
-        message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
-        InternalJmsMessage internalJmsMessage = jmsMessageMapper.convert(message);
-        internalJmsMessage.setMessageType(messageType);
+        InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, destination, messageType);
         internalJmsManager.sendMessage(internalJmsMessage, destination);
+    }
+
+    protected void sendMessageToQueue(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {
+        InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, destination, messageType);
+        internalJmsManager.sendMessage(internalJmsMessage, destination, jmsOperations);
     }
 
     @Override
@@ -213,17 +220,28 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
+    public void sendMapMessageToQueue(JmsMessage message, Queue destination, JmsOperations jmsOperations) {
+        sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
+    }
+
+    @Override
     public void sendMapMessageToQueue(JmsMessage message, Queue destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
     }
 
     protected void sendMessageToQueue(JmsMessage message, Queue destination, InternalJmsMessage.MessageType messageType) {
-        try {
-            message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination.getQueueName());
-        } catch (JMSException e) {
-            LOG.warn("Could not add the property [" + JmsMessage.PROPERTY_ORIGINAL_QUEUE + "] on the destination", e);
-        }
+        addOriginalQueueToMessage(message, destination);
         sendMessageToDestination(message, destination, messageType);
+    }
+
+    protected void sendMessageToQueue(JmsMessage message, Queue destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {
+        addOriginalQueueToMessage(message, destination);
+        sendMessageToDestination(message, destination, messageType, jmsOperations);
+    }
+
+    protected void sendMessageToDestination(JmsMessage message, Destination destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {
+        InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, messageType);
+        internalJmsManager.sendMessage(internalJmsMessage, destination, jmsOperations);
     }
 
     protected void sendMessageToDestination(JmsMessage message, Destination destination, InternalJmsMessage.MessageType messageType) {
@@ -231,12 +249,30 @@ public class JMSManagerImpl implements JMSManager {
         internalJmsManager.sendMessage(internalJmsMessage, destination);
     }
 
-    private InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
+    protected void addOriginalQueueToMessage(JmsMessage message, Queue destination) {
+        try {
+            message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination.getQueueName());
+        } catch (JMSException e) {
+            LOG.warn("Could not add the property [" + JmsMessage.PROPERTY_ORIGINAL_QUEUE + "] on the destination", e);
+        }
+    }
+
+    protected void addOriginalQueueToMessage(JmsMessage message, String destination) {
+        LOG.debug("Adding property originalQueue [{}]", destination);
+        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination);
+    }
+
+    protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
         InternalJmsMessage internalJmsMessage = jmsMessageMapper.convert(message);
         internalJmsMessage.setMessageType(messageType);
         return internalJmsMessage;
+    }
+
+    protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType) {
+        addOriginalQueueToMessage(message, destination);
+        return getInternalJmsMessage(message, messageType);
     }
 
     @Override
@@ -246,7 +282,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void sendMessageToTopic(JmsMessage message, Topic destination, boolean excludeOrigin) {
-        InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, InternalJmsMessage.MessageType.TEXT_MESSAGE);
+        InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, null, InternalJmsMessage.MessageType.TEXT_MESSAGE);
         internalJmsManager.sendMessageToTopic(internalJmsMessage, destination, excludeOrigin);
     }
 

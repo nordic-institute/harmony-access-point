@@ -5,33 +5,35 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
-          <mat-select matInput placeholder="Table" id="table_id" multiple [(ngModel)]="filter.auditTargetName">
-            <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
-          </mat-select>
-          <mat-select matInput placeholder="User" id="user_id" multiple [(ngModel)]="filter.user">
-            <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
-          </mat-select>
-          <mat-select matInput placeholder="Action" id="action_id" multiple [(ngModel)]="filter.action">
-            <mat-option *ngFor="let item of existingActions" [value]="item">{{item}}</mat-option>
-          </mat-select>
-          <md2-datepicker placeholder="Changed from:" appClearInvalid
-                          [(ngModel)]="filter.from" name="from" [type]="'datetime'"
-                          [max]="timestampFromMaxDate"
-                          (change)='onTimestampFromChange($event)'
-                          #timestampControl="ngModel" id="from_id" *ngIf="advancedSearch"
-                          advanced-filter-behaviour [parent]="this">
-          </md2-datepicker>
-          <md2-datepicker placeholder=" Changed to:" appClearInvalid
-                          [(ngModel)]="filter.to" name="to" [type]="'datetime'"
-                          [min]="timestampToMinDate"
-                          [max]="timestampToMaxDate"
-                          (change)='onTimestampToChange($event)'
-                          #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch"
-                          advanced-filter-behaviour [parent]="this">
-          </md2-datepicker>
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
 
-          <filter-area-footer [parent]="this"></filter-area-footer>
+            <mat-select matInput placeholder="Table" id="table_id" name="table" multiple [(ngModel)]="filter.auditTargetName">
+              <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
+            </mat-select>
+            <mat-select matInput placeholder="User" id="user_id" name="userId" multiple [(ngModel)]="filter.user">
+              <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
+            </mat-select>
+            <mat-select matInput placeholder="Action" id="action_id" name="action" multiple [(ngModel)]="filter.action">
+              <mat-option *ngFor="let item of existingActions" [value]="item">{{item}}</mat-option>
+            </mat-select>
+            <md2-datepicker placeholder="Changed from:" appClearInvalid
+                            [(ngModel)]="filter.from" name="from" [type]="'datetime'"
+                            [max]="timestampFromMaxDate"
+                            (change)='onTimestampFromChange($event)'
+                            #timestampControl="ngModel" id="from_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
+            <md2-datepicker placeholder=" Changed to:" appClearInvalid
+                            [(ngModel)]="filter.to" name="to" [type]="'datetime'"
+                            [min]="timestampToMinDate"
+                            [max]="timestampToMaxDate"
+                            (change)='onTimestampToChange($event)'
+                            #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
 
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
+          </form>
         </div>
       </mat-card-content>
     </mat-card>

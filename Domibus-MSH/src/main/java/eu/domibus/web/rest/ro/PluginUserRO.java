@@ -33,6 +33,8 @@ public class PluginUserRO implements Serializable {
 
     private boolean suspended;
 
+    private String domain;
+
     public Integer getEntityId() {
         return entityId;
     }
@@ -111,5 +113,13 @@ public class PluginUserRO implements Serializable {
 
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 }

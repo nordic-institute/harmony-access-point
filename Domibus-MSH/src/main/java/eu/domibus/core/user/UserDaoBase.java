@@ -21,4 +21,10 @@ public interface UserDaoBase<U extends UserEntityBase> {
 
     List<U> findByRole(String roleName);
 
+    /**
+     * Checks if there is a user with the specified name
+     * @param userId the name of the user to check
+     * @return true if exists already, false otherwise
+     */
+    boolean existsWithId(String userId);
 }

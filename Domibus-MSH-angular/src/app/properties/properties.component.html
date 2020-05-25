@@ -5,23 +5,23 @@
     <mat-card>
       <mat-card-content>
         <div class="panel">
-          <form name="filterForm">
-          <span>
-            <mat-form-field>
-              <input matInput id="filterPropertyName_id" name="filterPropertyName" [(ngModel)]="filter.name"
-                     placeholder="Property Name...">
-            </mat-form-field>
-          </span>
-
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <span>
-          <ng-container *ngIf="showGlobalPropertiesControl">
-            <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
-              Show Domain Properties
-            </mat-checkbox>
-          </ng-container>
-          </span>
+              <mat-form-field>
+                <input matInput id="filterPropertyName_id" name="filterPropertyName" [(ngModel)]="filter.name"
+                       placeholder="Property Name...">
+              </mat-form-field>
+            </span>
 
-            <filter-area-footer [parent]="this" [isAdvancedVisible]="false"></filter-area-footer>
+              <span>
+            <ng-container *ngIf="showGlobalPropertiesControl">
+              <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
+                Show Domain Properties
+              </mat-checkbox>
+            </ng-container>
+            </span>
+
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>
@@ -30,23 +30,23 @@
   </div>
 
   <div style="height: calc(100% - 150px);">
-        <div class="panel full-height">
-          <grid-header [parent]="this"></grid-header>
+    <div class="panel full-height">
+      <grid-header [parent]="this"></grid-header>
 
-          <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
-            <page-grid [parent]="this"></page-grid>
-          </div>
+      <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
+        <page-grid [parent]="this"></page-grid>
+      </div>
 
-          <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-            <div class="input-group property-edit">
-              <input matInput type="text" autocomplete="off" class="form-control property-value"
-                     [(ngModel)]="row.value"
-                     (focus)="onPropertyValueFocus(row)"
-                     (blur)="onPropertyValueBlur(row)"
-                     (keydown.enter)="updateProperty(row)"
-                     (keydown.escape)="revertProperty(row)">
+      <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <div class="input-group property-edit">
+          <input matInput type="text" autocomplete="off" class="form-control property-value"
+                 [(ngModel)]="row.value"
+                 (focus)="onPropertyValueFocus(row)"
+                 (blur)="onPropertyValueBlur(row)"
+                 (keydown.enter)="updateProperty(row)"
+                 (keydown.escape)="revertProperty(row)">
 
-              <span class="property-edit-buttons input-group-addon">
+          <span class="property-edit-buttons input-group-addon">
               <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
                 <mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon>
               </button>
@@ -54,14 +54,14 @@
                 <mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon>
               </button>
             </span>
-            </div>
-
-          </ng-template>
-
-          <ng-template #propertyUsageTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-            <span>{{row.usageText}}</span>
-          </ng-template>
-
         </div>
+
+      </ng-template>
+
+      <ng-template #propertyUsageTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <span>{{row.usageText}}</span>
+      </ng-template>
+
+    </div>
   </div>
 </div>

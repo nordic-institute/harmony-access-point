@@ -18,14 +18,12 @@
               Show Classes
             </mat-checkbox>
 
-            <div class="searchArea">
-              <button mat-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
-                      type="submit">
-                <mat-icon>search</mat-icon>
-                <span>Search</span>
-              </button>
+            <div class="searchArea" style="position: relative;">
 
-              <button mat-raised-button color="primary" id="resetbutton_id" (click)="resetLogging()" style="float:right"
+              <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+
+              <button mat-raised-button color="primary" id="resetbutton_id" (click)="resetLogging()"
+                      style="position: absolute;right: 0;top: 0;"
                       tooltip="Click to reset logging configuration"
                       type="button">
                 <mat-icon>cached</mat-icon>

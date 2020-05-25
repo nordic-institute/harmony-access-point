@@ -192,7 +192,7 @@ public class BaseTest {
 		log.info("Created plugin user " + user + " on domain " + domainCode);
 
 		log.info("Uploading PMODE ");
-		rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		rest.uploadPMode("pmodes/pmode-blue.xml", domainCode);
 
 		for (int i = 0; i < noOf; i++) {
 			messIDs.add(messageSender.sendMessage(user, data.defaultPass(), messageRefID, conversationID));

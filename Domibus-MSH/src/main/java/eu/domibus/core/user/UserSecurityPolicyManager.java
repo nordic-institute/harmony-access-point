@@ -1,11 +1,11 @@
 package eu.domibus.core.user;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
@@ -153,7 +153,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
 
         if (warningDaysBeforeExpiration >= maxPasswordAgeInDays) {
-            LOG.warn("Password policy: days until expiration for user [{}] is greater that max age.", userName);
+            LOG.warn("Password policy: days until expiration for user [{}] is greater than max age.", userName);
             return null;
         }
 
@@ -253,7 +253,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             user.setActive(false);
             user.setSuspensionDate(new Date(System.currentTimeMillis()));
             LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
-
+            userSessionsService.invalidateSessions(user);
             getUserAlertsService().triggerDisabledEvent(user);
         }
 
@@ -302,20 +302,27 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     /**
      * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
      */
-    public void validateUniqueUser(UserBase user) {
+    public void validateUniqueUser(UserBase user) throws UserManagementException {
+        String userId = user.getUniqueIdentifier();
         if (domibusConfigurationService.isMultiTenantAware()) {
             //check to see if it is a domain user
-            String domain = userDomainService.getDomainForUser(user.getUniqueIdentifier());
+            String domain = userDomainService.getDomainForUser(userId);
             if (domain != null) {
-                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because it already exists in the " + domain + " domain.";
+                String errorMessage = "Cannot add user " + userId + " because it already exists in the " + domain + " domain.";
                 throw new UserManagementException(errorMessage);
             }
             //if no luck, check also if it is super-user/AP admin
-            String preferredDomain = userDomainService.getPreferredDomainForUser(user.getUniqueIdentifier());
+            String preferredDomain = userDomainService.getPreferredDomainForUser(userId);
             if (preferredDomain != null) {
-                String errorMessage = "Cannot add user " + user.getUniqueIdentifier() + " because an AP admin with this name already exists.";
+                String errorMessage = "Cannot add user " + userId + " because an AP admin with this name already exists.";
+                throw new UserManagementException(errorMessage);
+            }
+        } else {
+            if (getUserDao().existsWithId(userId)) {
+                String errorMessage = "Cannot add user " + userId + " because it already exists.";
                 throw new UserManagementException(errorMessage);
             }
         }
     }
+
 }
