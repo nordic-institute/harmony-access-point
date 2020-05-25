@@ -177,22 +177,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-
+        //single-tenancy mode
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
 
-        if (prop.isDomain()) {
-            if (domain == null) {
-                throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
-            }
-            return getDomainOrDefaultValue(prop, domain);
+        if (!prop.isDomain()) {
+            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
         }
-        if (prop.isSuper()) {
-            return getSuperOrDefaultValue(prop);
-        }
-        return getGlobalProperty(prop);
+
+        return getDomainOrDefaultValue(prop, domain);
     }
 
     protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {

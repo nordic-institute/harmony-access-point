@@ -47,13 +47,20 @@ public class DomibusPropertyChangeManager {
         validatePropertyValue(propMeta, propertyValue);
 
         //keep old value in case of an exception
-        String oldValue = domibusPropertyProvider.getInternalProperty(domain, propertyName);
+        String oldValue = getInternalPropertyValue(domain, propertyName);
 
         //try to set the new value
         doSetPropertyValue(domain, propertyName, propertyValue);
 
         //let the custom property listeners to do their job
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
+    }
+
+    private String getInternalPropertyValue(Domain domain, String propertyName) {
+        if (domain == null) {
+            return domibusPropertyProvider.getInternalProperty(propertyName);
+        }
+        return domibusPropertyProvider.getInternalProperty(domain, propertyName);
     }
 
     protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
