@@ -10,18 +10,18 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.dao.ConfigurationDAO;
 import eu.domibus.common.dao.ProcessDao;
 import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.services.impl.DynamicDiscoveryServiceOASIS;
 import eu.domibus.common.services.impl.DynamicDiscoveryServicePEPPOL;
 import eu.domibus.common.util.EndpointInfo;
-import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.Service;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -268,7 +268,7 @@ public class DynamicDiscoveryPModeProviderTest {
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("No matching party found", ex.getErrorDetail());
+            assertEquals("No matching party found for type [" + UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE + "] and value [" + UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE + "]", ex.getErrorDetail());
         }
 
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getDomainProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
