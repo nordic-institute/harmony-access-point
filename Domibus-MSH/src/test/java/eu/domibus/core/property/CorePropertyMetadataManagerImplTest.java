@@ -14,7 +14,7 @@ import java.util.Map;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 
 @RunWith(JMockit.class)
-public class DomibusPropertyMetadataManagerImplTest {
+public class CorePropertyMetadataManagerImplTest {
 
     @Tested
     CorePropertyMetadataManagerImpl corePropertyMetadataManager;
