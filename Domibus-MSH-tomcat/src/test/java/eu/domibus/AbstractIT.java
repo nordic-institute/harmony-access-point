@@ -5,19 +5,19 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.core.spring.DomibusRootConfiguration;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -283,11 +283,7 @@ public abstract class AbstractIT {
         attachment.setContentId("cid:message");
         message.addAttachmentPart(attachment);
 
-        String pModeKey = "blue_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "red_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "testService1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "tc1Action" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
+        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc1Action", "", "pushTestcase1tc1Action");
 
         message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         return message;
@@ -323,4 +319,13 @@ public abstract class AbstractIT {
                         .withBody(body)));
     }
 
+
+    public String composePModeKey(final String senderParty, final String receiverParty, final String service, final String action, final String agreement, final String legName) {
+        return senderParty + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+                receiverParty + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+                service + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+                action + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+                agreement + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+                legName;
+    }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.payload.persistence;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -24,8 +25,14 @@ public interface PayloadPersistence {
     DomibusLogger getLogger();
 
     default void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength) {
+        final PayloadProfile profile = legConfiguration.getPayloadProfile();
+        if (profile == null) {
+            getLogger().debug("payload profile is not defined for leg [{}]", legConfiguration.getName());
+            return;
+        }
+        final String payloadProfileName = profile.getName();
         final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
-        final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
+
 
         if (payloadProfileMaxSize < 0) {
             getLogger().warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
