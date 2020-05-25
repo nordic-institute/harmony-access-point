@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
-public class ConfigurationPropertyServiceImplTest {
+public class ConfigurationPropertyResourceHelperImplTest {
 
     @Tested
-    ConfigurationPropertyServiceImpl configurationPropertyService;
+    ConfigurationPropertyResourceHelperImpl configurationPropertyService;
 
     @Injectable
     protected DomainContextProvider domainContextProvider;

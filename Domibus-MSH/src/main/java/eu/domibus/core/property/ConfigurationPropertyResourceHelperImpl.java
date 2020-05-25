@@ -1,7 +1,5 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
@@ -9,7 +7,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +20,9 @@ import java.util.stream.Collectors;
  * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 @Service
-public class ConfigurationPropertyServiceImpl implements ConfigurationPropertyService {
+public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPropertyResourceHelper {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyServiceImpl.class);
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -58,23 +52,22 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", value, name);
             domibusPropertyProvider.setProperty(name, value);
             LOG.info("Property [{}] updated.", name);
-        } else {
-            if (!authUtils.isSuperAdmin()) {
-                throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
-            }
-            // for non-domain properties, we set the value in the null-domain context:
-            domainTaskExecutor.submit(() -> {
-                LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
-                domibusPropertyProvider.setProperty(name, value);
-                LOG.info("Property [{}] updated.", name);
-            });
+            return;
         }
+        if (!authUtils.isSuperAdmin()) {
+            throw new DomibusPropertyException("Cannot set global or super properties if not a super user.");
+        }
+        // for non-domain properties, we set the value in the null-domain context:
+        domainTaskExecutor.submit(() -> {
+            LOG.debug("Setting the value [{}] for the global/super property [{}].", value, name);
+            domibusPropertyProvider.setProperty(name, value);
+            LOG.info("Property [{}] updated.", name);
+        });
     }
 
     protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
@@ -99,18 +92,19 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
 
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            if (showDomain) {
-                knownProps = knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
-            } else {
-                if (authUtils.isSuperAdmin()) {
-                    knownProps = knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
-                } else {
-                    throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
-                }
-            }
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            return knownProps;
         }
-        return knownProps;
+
+        if (showDomain) {
+            return knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
+        }
+
+        if (authUtils.isSuperAdmin()) {
+            return knownProps.stream().filter(p -> p.isGlobal() || p.isSuper()).collect(Collectors.toList());
+        }
+
+        throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
     }
 
 }

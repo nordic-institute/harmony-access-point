@@ -3,7 +3,7 @@ package eu.domibus.rest;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
-import eu.domibus.core.property.ConfigurationPropertyService;
+import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +16,15 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class ConfigurationPropertyResourceIT extends AbstractIT {
 
     @Autowired
-    ConfigurationPropertyService configurationPropertyService;
+    ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
 
     @Test
     public void testFind() {
 
-        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties("title", true);
+        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllWritableProperties("title", true);
         Assert.assertTrue(list.size() > 0);
 
-        List<DomibusProperty> list2 = configurationPropertyService.getAllWritableProperties("domibus.ui.title.name", true);
+        List<DomibusProperty> list2 = configurationPropertyResourceHelper.getAllWritableProperties("domibus.ui.title.name", true);
         Assert.assertEquals(1, list2.size());
     }
 
@@ -33,15 +33,15 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
         String name = DOMIBUS_UI_TITLE_NAME;
 
-        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, true);
+        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         Assert.assertEquals(1, list.size());
 
         String originalValue = list.get(0).getValue();
         String newValue = originalValue + "MODIFIED";
 
-        configurationPropertyService.setPropertyValue(name, true, newValue);
+        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        list = configurationPropertyService.getAllWritableProperties(name, true);
+        list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -54,9 +54,9 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;
         String newValue = "0 0/5 * * * ?"; // every 5 minutes
 
-        configurationPropertyService.setPropertyValue(name, true, newValue);
+        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, true);
+        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -69,22 +69,22 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
         String newValue = "1-1";
 
-        configurationPropertyService.setPropertyValue(name, true, newValue);
+        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, true);
+        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         Assert.assertEquals(1, list.size());
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
 
         //wrong value
-        list = configurationPropertyService.getAllWritableProperties(name, true);
+        list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         String oldValue = list.get(0).getValue();
         String wrongValue = "1-1-";
 
         try {
-            configurationPropertyService.setPropertyValue(name, true, wrongValue);
+            configurationPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
         } catch (DomibusPropertyException ex) {
-            list = configurationPropertyService.getAllWritableProperties(name, true);
+            list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
             Assert.assertEquals(1, list.size());
             actualValue = list.get(0).getValue();
             Assert.assertEquals(oldValue, actualValue);
@@ -98,22 +98,22 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
         //correct value
         String newValue = "-15";
 
-        configurationPropertyService.setPropertyValue(name, true, newValue);
+        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyService.getAllWritableProperties(name, true);
+        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         Assert.assertEquals(1, list.size());
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
 
         //wrong value
-        list = configurationPropertyService.getAllWritableProperties(name, true);
+        list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
         String oldValue = list.get(0).getValue();
         String wrongValue = "11q";
 
         try {
-            configurationPropertyService.setPropertyValue(name, true, wrongValue);
+            configurationPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
         } catch (DomibusPropertyException ex) {
-            list = configurationPropertyService.getAllWritableProperties(name, true);
+            list = configurationPropertyResourceHelper.getAllWritableProperties(name, true);
             Assert.assertEquals(1, list.size());
             actualValue = list.get(0).getValue();
             Assert.assertEquals(oldValue, actualValue);
