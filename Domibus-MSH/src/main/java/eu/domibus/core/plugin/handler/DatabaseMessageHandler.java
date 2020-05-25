@@ -438,7 +438,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
-            }  catch (InvalidPayloadSizeException e) {
+            } catch (InvalidPayloadSizeException e) {
                 if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
                     messagingDao.clearFileSystemPayloads(userMessage);
                 }

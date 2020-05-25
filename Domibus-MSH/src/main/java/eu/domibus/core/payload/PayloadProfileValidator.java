@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -131,10 +130,6 @@ public class PayloadProfileValidator {
                     (partInfo.isInBody() != profiled.isInBody())) {
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error: expected: " + profiled + ", got " + partInfo, messageId, null);
             }
-
-            //validate the size of the payload
-            //validatePayloadProfileMaxSize(profile, partInfo, messageId);
-
         }
         for (final Payload payload : modifiableProfileList) {
             if (payload.isRequired()) {
@@ -147,24 +142,4 @@ public class PayloadProfileValidator {
         LOG.businessInfo(DomibusMessageCode.BUS_PAYLOAD_PROFILE_VALIDATION, profile.getName());
     }
 
-
-    protected void validatePayloadProfileMaxSize(PayloadProfile payloadProfile, PartInfo partInfo, final String messageId) throws EbMS3Exception {
-        int profileMaxSize = payloadProfile.getMaxSize();
-        if (profileMaxSize <= 0) {
-            LOG.debug("No validation will be done based on maxSize=[{}]", profileMaxSize);
-            return;
-        }
-
-        int partInfoSize = -1;
-        try {
-            partInfoSize = partInfo.getPayloadDatahandler().getDataSource().getInputStream().available();
-        } catch (IOException e) {
-            LOG.warn("Unable to get the size of the payload [{}]", partInfo.getFileName());
-        }
-
-        if (partInfoSize > profileMaxSize) {
-            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, partInfoSize, profileMaxSize, payloadProfile.getName());
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload size [" + partInfoSize + "] is greater than the maximum value defined [" + profileMaxSize + "]", messageId, null);
-        }
-    }
 }

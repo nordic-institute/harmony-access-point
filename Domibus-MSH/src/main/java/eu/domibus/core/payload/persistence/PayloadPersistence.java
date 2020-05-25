@@ -6,6 +6,7 @@ import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 /**
@@ -22,7 +23,7 @@ public interface PayloadPersistence {
 
     DomibusLogger getLogger();
 
-    default void validatePayloadSize(LegConfiguration legConfiguration, long partInfoLength) {
+    default void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength) {
         final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
         final String payloadProfileName = legConfiguration.getPayloadProfile().getName();
 
