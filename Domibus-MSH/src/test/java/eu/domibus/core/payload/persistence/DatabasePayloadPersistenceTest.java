@@ -56,7 +56,10 @@ public class DatabasePayloadPersistenceTest {
                                          @Mocked IOUtils ioUtils) throws IOException {
         final byte[] binaryData = "test".getBytes();
 
-        new Expectations(){{
+        new Expectations(databasePayloadPersistence){{
+            legConfiguration.getPayloadProfile().getMaxSize();
+            result = 400;
+
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -78,18 +81,20 @@ public class DatabasePayloadPersistenceTest {
             IOUtils.copy(inputStream, cipherOutputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
         }};
 
-        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage, null);
+        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         new Verifications() {{
             partInfo.setBinaryData(binaryData);
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
             partInfo.setEncrypted(true);
+
+            databasePayloadPersistence.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
     @Test
-    public void storeOutgoingPayload(@Injectable PartInfo partInfo,
+    public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
                                      @Injectable UserMessage userMessage,
                                      @Injectable LegConfiguration legConfiguration,
                                      @Injectable String backendName,
@@ -99,6 +104,9 @@ public class DatabasePayloadPersistenceTest {
         byte[] binaryData = "fileContent".getBytes();
 
         new Expectations(databasePayloadPersistence) {{
+            legConfiguration.getPayloadProfile().getMaxSize();
+            result = 400;
+
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
@@ -122,11 +130,13 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
             partInfo.setEncrypted(false);
+
+            databasePayloadPersistence.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
     @Test
-    public void getOutgoingBinaryData(@Injectable PartInfo partInfo,
+    public void testGetOutgoingBinaryData(@Injectable PartInfo partInfo,
                                       @Injectable UserMessage userMessage,
                                       @Injectable LegConfiguration legConfiguration,
                                       @Injectable String backendName,

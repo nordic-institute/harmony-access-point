@@ -57,13 +57,20 @@ public class FileSystemPayloadPersistenceTest {
     FileSystemPayloadPersistence fileSystemPayloadPersistence;
 
     @Test
-    public void storeIncomingPayload(@Injectable PartInfo partInfo,
+    public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
                                      @Injectable UserMessage userMessage,
-                                     @Injectable PayloadFileStorage currentStorage) throws IOException {
+                                     @Injectable PayloadFileStorage currentStorage,
+                                     @Injectable LegConfiguration legConfiguration) throws IOException {
 
         new Expectations(fileSystemPayloadPersistence) {{
+            legConfiguration.getPayloadProfile().getMaxSize();
+            result = 10;
+
             partInfo.getFileName();
             result = null;
+
+            partInfo.getLength();
+            result = 4;
 
             storageProvider.getCurrentStorage();
             result = currentStorage;
@@ -74,10 +81,12 @@ public class FileSystemPayloadPersistenceTest {
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
         }};
 
-        fileSystemPayloadPersistence.storeIncomingPayload(partInfo, userMessage, null);
+        fileSystemPayloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
-        new Verifications() {{
+        new FullVerifications(fileSystemPayloadPersistence) {{
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
+
+            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, anyLong);
         }};
     }
 
@@ -113,7 +122,7 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
-    public void storeOutgoingPayload(@Injectable PartInfo partInfo,
+    public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
                                      @Injectable UserMessage userMessage,
                                      @Injectable PayloadFileStorage currentStorage,
                                      @Injectable LegConfiguration legConfiguration,
@@ -130,10 +139,14 @@ public class FileSystemPayloadPersistenceTest {
         }};
 
         fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
+
+        new Verifications() {{
+            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());;
+        }};
     }
 
     @Test
-    public void saveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
+    public void testSaveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
                                           @Injectable UserMessage userMessage,
                                           @Injectable PayloadFileStorage currentStorage,
                                           @Injectable LegConfiguration legConfiguration,
