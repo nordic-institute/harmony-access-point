@@ -37,7 +37,6 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Transactional(noRollbackFor = DomibusCRLException.class)
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 

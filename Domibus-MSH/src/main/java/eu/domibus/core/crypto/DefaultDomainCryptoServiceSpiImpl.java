@@ -192,7 +192,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
 
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class)
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {
         LOG.debug("Checking certificate validation for [{}]", alias);
         KeyStore trustStore = getTrustStore();

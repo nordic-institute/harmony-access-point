@@ -141,7 +141,6 @@ public class UserManagementServiceImpl implements UserService {
     /**
      * {@inheritDoc}
      */
-    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     @Override
     public void validateExpiredPassword(final String userName) {
         UserEntityBase user = getUserWithName(userName);
