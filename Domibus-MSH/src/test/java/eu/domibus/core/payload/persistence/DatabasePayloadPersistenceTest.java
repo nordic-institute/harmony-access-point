@@ -10,6 +10,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,7 +44,6 @@ public class DatabasePayloadPersistenceTest {
     DatabasePayloadPersistence databasePayloadPersistence;
 
 
-
     @Test
     public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
                                          @Injectable UserMessage userMessage,
@@ -56,7 +56,7 @@ public class DatabasePayloadPersistenceTest {
                                          @Mocked IOUtils ioUtils) throws IOException {
         final byte[] binaryData = "test".getBytes();
 
-        new Expectations(databasePayloadPersistence){{
+        new Expectations(databasePayloadPersistence) {{
             legConfiguration.getPayloadProfile().getMaxSize();
             result = 400;
 
@@ -95,10 +95,10 @@ public class DatabasePayloadPersistenceTest {
 
     @Test
     public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable LegConfiguration legConfiguration,
-                                     @Injectable String backendName,
-                                     @Injectable InputStream inputStream) throws IOException, EbMS3Exception {
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable LegConfiguration legConfiguration,
+                                         @Injectable String backendName,
+                                         @Injectable InputStream inputStream) throws IOException, EbMS3Exception {
 
         final String myfile = "myfile";
         byte[] binaryData = "fileContent".getBytes();
@@ -137,16 +137,16 @@ public class DatabasePayloadPersistenceTest {
 
     @Test
     public void testGetOutgoingBinaryData(@Injectable PartInfo partInfo,
-                                      @Injectable UserMessage userMessage,
-                                      @Injectable LegConfiguration legConfiguration,
-                                      @Injectable String backendName,
-                                      @Injectable InputStream inputStream,
-                                      @Mocked ByteArrayOutputStream byteArrayOutputStream,
-                                      @Injectable Cipher encryptCipherForPayload,
-                                      @Mocked CipherOutputStream cipherOutputStream,
-                                      @Mocked GZIPOutputStream gzipOutputStream,
-                                      @Mocked IOUtils ioUtils) throws IOException, EbMS3Exception {
-        new Expectations(){{
+                                          @Injectable UserMessage userMessage,
+                                          @Injectable LegConfiguration legConfiguration,
+                                          @Injectable String backendName,
+                                          @Injectable InputStream inputStream,
+                                          @Mocked ByteArrayOutputStream byteArrayOutputStream,
+                                          @Injectable Cipher encryptCipherForPayload,
+                                          @Mocked CipherOutputStream cipherOutputStream,
+                                          @Mocked GZIPOutputStream gzipOutputStream,
+                                          @Mocked IOUtils ioUtils) throws IOException, EbMS3Exception {
+        new Expectations() {{
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -169,4 +169,31 @@ public class DatabasePayloadPersistenceTest {
         databasePayloadPersistence.getOutgoingBinaryData(partInfo, inputStream, userMessage, legConfiguration, Boolean.TRUE);
     }
 
+    @Test
+    public void testValidatePayloadSize_PayloadSizeGreater_ExpectedException(
+            final @Mocked LegConfiguration legConfiguration,
+            final @Mocked PartInfo partInfo) {
+        final int partInfoLength = 100;
+        final int payloadProfileMaxSize = 40;
+        final String payloadProfileName = "testProfile";
+        new Expectations() {{
+            legConfiguration.getPayloadProfile().getName();
+            result = payloadProfileName;
+
+            legConfiguration.getPayloadProfile().getMaxSize();
+            result = payloadProfileMaxSize;
+
+            partInfo.getLength();
+            result = partInfoLength;
+        }};
+
+        try {
+            databasePayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());
+            Assert.fail("exception expected");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof InvalidPayloadSizeException);
+            Assert.assertEquals("[DOM_007]:Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]",
+                    e.getMessage());
+        }
+    }
 }

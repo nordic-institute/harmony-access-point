@@ -58,9 +58,9 @@ public class FileSystemPayloadPersistenceTest {
 
     @Test
     public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable PayloadFileStorage currentStorage,
-                                     @Injectable LegConfiguration legConfiguration) throws IOException {
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable PayloadFileStorage currentStorage,
+                                         @Injectable LegConfiguration legConfiguration) throws IOException {
 
         new Expectations(fileSystemPayloadPersistence) {{
             legConfiguration.getPayloadProfile().getMaxSize();
@@ -123,10 +123,10 @@ public class FileSystemPayloadPersistenceTest {
 
     @Test
     public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable PayloadFileStorage currentStorage,
-                                     @Injectable LegConfiguration legConfiguration,
-                                     @Injectable String backendName) throws IOException, EbMS3Exception {
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable PayloadFileStorage currentStorage,
+                                         @Injectable LegConfiguration legConfiguration,
+                                         @Injectable String backendName) throws IOException, EbMS3Exception {
 
         new Expectations(fileSystemPayloadPersistence) {{
             userMessage.isUserMessageFragment();
@@ -141,19 +141,20 @@ public class FileSystemPayloadPersistenceTest {
         fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
         new Verifications() {{
-            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());;
+            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());
+            ;
         }};
     }
 
     @Test
     public void testSaveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
-                                          @Injectable UserMessage userMessage,
-                                          @Injectable PayloadFileStorage currentStorage,
-                                          @Injectable LegConfiguration legConfiguration,
-                                          @Injectable String backendName,
-                                          @Injectable InputStream inputStream,
-                                          @Mocked File file,
-                                          @Mocked UUID uuid
+                                              @Injectable UserMessage userMessage,
+                                              @Injectable PayloadFileStorage currentStorage,
+                                              @Injectable LegConfiguration legConfiguration,
+                                              @Injectable String backendName,
+                                              @Injectable InputStream inputStream,
+                                              @Mocked File file,
+                                              @Mocked UUID uuid
     ) throws IOException, EbMS3Exception {
 
         final String myfile = "myfile";
