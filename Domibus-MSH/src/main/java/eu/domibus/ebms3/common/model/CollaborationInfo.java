@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Objects;
 
 /**
  * This REQUIRED element
@@ -191,10 +192,6 @@ public class CollaborationInfo {
 
     @Override
     public int hashCode() {
-        int result = this.conversationId.hashCode();
-        result = 31 * result + this.action.hashCode();
-        result = 31 * result + (this.agreementRef != null ? this.agreementRef.hashCode() : 0);
-        result = 31 * result + this.service.hashCode();
-        return result;
+        return Objects.hash(conversationId, action, agreementRef, service);
     }
 }
