@@ -26,7 +26,7 @@ public class SendJMSMessageOnWeblogic {
 
         Thread threadHigh = new Thread(() -> {
             try {
-                sendJMSMessageOnWeblogic.sendMessages("10");
+                sendJMSMessageOnWeblogic.sendMessages("9");
             } catch (PrivilegedActionException e) {
                 e.printStackTrace();
             }
@@ -79,7 +79,7 @@ public class SendJMSMessageOnWeblogic {
             Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() {
-                    sendMessagesWithPriority(priority, 5);
+                    sendMessagesWithPriority(priority, 10000);
                     return null;
                 }
             });
@@ -103,10 +103,13 @@ public class SendJMSMessageOnWeblogic {
 
             for (int index = 0; index < limit; index++) {
                 Map<String, String> properties = new HashedMap();
-                properties.put("messagePriority", priority);
+//                properties.put("messagePriority", priority);
+//                properties.put("JMSPriority", priority);
                 properties.put("DOMAIN", "default");
                 properties.put("MESSAGE_ID", System.currentTimeMillis() + "");
-                TextMessage textMessage = createTextMessage(qs, null, "", properties);
+                Integer jmsPriority = Integer.valueOf(priority);
+                TextMessage textMessage = createTextMessage(qs, jmsPriority, "", properties);
+                qsr.setPriority(jmsPriority);
                 qsr.send(textMessage);
             }
 
@@ -143,12 +146,13 @@ public class SendJMSMessageOnWeblogic {
         return ic;
     }
 
-    TextMessage createTextMessage(Session session, String message, String messageType, Map<String, String> messageProperties) throws JMSException {
+    TextMessage createTextMessage(Session session, int jmsPriority, String messageType, Map<String, String> messageProperties) throws JMSException {
         TextMessage textMessage = session.createTextMessage();
 //        textMessage.setText(message != null ? message : "");
         if (messageType != null) {
             textMessage.setJMSType(messageType);
         }
+        textMessage.setJMSPriority(jmsPriority);
         if (messageProperties != null) {
             for (String messageProperty : messageProperties.keySet()) {
                 String value = messageProperties.get(messageProperty);

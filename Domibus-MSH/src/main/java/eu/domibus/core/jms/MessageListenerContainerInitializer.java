@@ -115,22 +115,22 @@ public class MessageListenerContainerInitializer {
             instances.add(priorityListener);
         }*/
 
-        DomainMessageListenerContainer lowPriority = messageListenerContainerFactory.createDlqListenerContainerLowPriority(domain, "messagePriority = '1'", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_LOW);
+        DomainMessageListenerContainer lowPriority = messageListenerContainerFactory.createDlqListenerContainerLowPriority(domain, "JMSPriority = 1", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_LOW);
         removeInstance(domain, lowPriority.getName());
         lowPriority.start();
         instances.add(lowPriority);
 
-        DomainMessageListenerContainer mediumPriority = messageListenerContainerFactory.createDlqListenerContainerMediumPriority(domain, "messagePriority = '5'", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_MEDIUM);
+        DomainMessageListenerContainer mediumPriority = messageListenerContainerFactory.createDlqListenerContainerMediumPriority(domain, "JMSPriority = 5", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_MEDIUM);
         removeInstance(domain, mediumPriority.getName());
         mediumPriority.start();
         instances.add(mediumPriority);
 
-        DomainMessageListenerContainer highPriority = messageListenerContainerFactory.createDlqListenerContainerHighPriority(domain, "messagePriority = '10'", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_HIGH);
+        DomainMessageListenerContainer highPriority = messageListenerContainerFactory.createDlqListenerContainerHighPriority(domain, "JMSPriority = 9", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_HIGH);
         removeInstance(domain, highPriority.getName());
         highPriority.start();
         instances.add(highPriority);
 
-        DomainMessageListenerContainer defaultPriority = messageListenerContainerFactory.createDlqListenerContainerDefaultPriority(domain, "(messagePriority is null or (messagePriority <>'1' and messagePriority <> '5' and messagePriority <> '10'))", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_HIGH);
+        DomainMessageListenerContainer defaultPriority = messageListenerContainerFactory.createDlqListenerContainerDefaultPriority(domain, "(JMSPriority is null or (JMSPriority <> 1 and JMSPriority <> 5 and JMSPriority <> 9))", DomibusPropertyMetadataManager.DOMIBUS_DLQ_CONCURENCY_HIGH);
         removeInstance(domain, defaultPriority.getName());
         defaultPriority.start();
         instances.add(defaultPriority);
