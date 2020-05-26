@@ -10,7 +10,6 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,7 +88,7 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setFileName(null);
             partInfo.setEncrypted(true);
 
-            databasePayloadPersistence.validatePayloadSize(legConfiguration, binaryData.length);
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
@@ -131,7 +130,7 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setFileName(null);
             partInfo.setEncrypted(false);
 
-            databasePayloadPersistence.validatePayloadSize(legConfiguration, binaryData.length);
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
@@ -167,33 +166,5 @@ public class DatabasePayloadPersistenceTest {
 
 
         databasePayloadPersistence.getOutgoingBinaryData(partInfo, inputStream, userMessage, legConfiguration, Boolean.TRUE);
-    }
-
-    @Test
-    public void testValidatePayloadSize_PayloadSizeGreater_ExpectedException(
-            final @Mocked LegConfiguration legConfiguration,
-            final @Mocked PartInfo partInfo) {
-        final int partInfoLength = 100;
-        final int payloadProfileMaxSize = 40;
-        final String payloadProfileName = "testProfile";
-        new Expectations() {{
-            legConfiguration.getPayloadProfile().getName();
-            result = payloadProfileName;
-
-            legConfiguration.getPayloadProfile().getMaxSize();
-            result = payloadProfileMaxSize;
-
-            partInfo.getLength();
-            result = partInfoLength;
-        }};
-
-        try {
-            databasePayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());
-            Assert.fail("exception expected");
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof InvalidPayloadSizeException);
-            Assert.assertEquals("[DOM_007]:Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]",
-                    e.getMessage());
-        }
     }
 }

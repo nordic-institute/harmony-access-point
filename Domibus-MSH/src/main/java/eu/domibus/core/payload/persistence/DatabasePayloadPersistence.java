@@ -76,7 +76,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         partInfo.setFileName(null);
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
 
-        validatePayloadSize(legConfiguration, partInfoLength);
+        payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
             LOG.debug("Finished saving outgoing payload [{}] to database", partInfo.getHref());
 
-            validatePayloadSize(legConfiguration, partInfoLength);
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
         }
@@ -135,10 +135,5 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             }
         }
         return byteArrayOutputStream.toByteArray();
-    }
-
-    @Override
-    public DomibusLogger getLogger() {
-        return LOG;
     }
 }

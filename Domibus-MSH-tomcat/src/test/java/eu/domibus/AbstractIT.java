@@ -22,6 +22,7 @@ import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -320,12 +321,13 @@ public abstract class AbstractIT {
     }
 
 
-    public String composePModeKey(final String senderParty, final String receiverParty, final String service, final String action, final String agreement, final String legName) {
-        return senderParty + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                receiverParty + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                service + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                action + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                agreement + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                legName;
+    public String composePModeKey(final String senderParty, final String receiverParty, final String service,
+                                  final String action, final String agreement, final String legName) {
+        return StringUtils.join(senderParty, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
+                receiverParty, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
+                service, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
+                action, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
+                agreement, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
+                legName);
     }
 }

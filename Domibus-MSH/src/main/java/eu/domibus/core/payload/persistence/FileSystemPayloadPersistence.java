@@ -58,7 +58,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }
 
-        validatePayloadSize(legConfiguration, partInfo.getLength());
+        payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
     }
 
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
@@ -104,7 +104,6 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         if (!userMessage.isUserMessageFragment()) {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
-            validatePayloadSize(legConfiguration, partInfo.getLength());
         }
     }
 
@@ -124,6 +123,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             partInfo.setLength(fileLength);
             partInfo.setEncrypted(encryptionActive);
 
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
             LOG.debug("Finished saving outgoing payload [{}] to file disk", partInfo.getHref());
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
@@ -158,11 +158,6 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
                 outputStream.close();
             }
         }
-    }
-
-    @Override
-    public DomibusLogger getLogger() {
-        return LOG;
     }
 
 }

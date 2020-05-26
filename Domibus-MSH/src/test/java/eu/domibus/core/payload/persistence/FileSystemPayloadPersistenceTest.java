@@ -86,7 +86,7 @@ public class FileSystemPayloadPersistenceTest {
         new FullVerifications(fileSystemPayloadPersistence) {{
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
 
-            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, anyLong);
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, anyLong);
         }};
     }
 
@@ -141,8 +141,7 @@ public class FileSystemPayloadPersistenceTest {
         fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
         new Verifications() {{
-            fileSystemPayloadPersistence.validatePayloadSize(legConfiguration, partInfo.getLength());
-            ;
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
         }};
     }
 
