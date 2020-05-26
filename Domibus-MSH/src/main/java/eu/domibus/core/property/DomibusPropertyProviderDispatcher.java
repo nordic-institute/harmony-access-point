@@ -79,17 +79,17 @@ public class DomibusPropertyProviderDispatcher {
             return getExternalModulePropertyValue(manager, propertyName);
         }
         LOG.debug("Getting property [{}] on domain [{}] of manager [{}].", propertyName, domain, manager);
-        return manager.getKnownPropertyValue(domain.getCode(), propertyName);
+        return manager.getKnownPropertyValue(propertyName);
     }
 
     protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
         if (domain == null) {
             LOG.debug("Setting property [{}] of manager [{}] without domain.", propertyName, manager);
             setExternalModulePropertyValue(manager, propertyName, propertyValue);
-        } else {
-            LOG.debug("Setting property [{}] of manager [{}] on domain [{}].", propertyName, manager, domain);
-            manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
+            return;
         }
+        LOG.debug("Setting property [{}] of manager [{}] on domain [{}].", propertyName, manager, domain);
+        manager.setKnownPropertyValue(domain.getCode(), propertyName, propertyValue, broadcast);
     }
 
     protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
@@ -111,26 +111,23 @@ public class DomibusPropertyProviderDispatcher {
     }
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
-        String value;
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
             LOG.debug("Calling getKnownPropertyValue method");
-            value = propertyManager.getKnownPropertyValue(propertyName);
-        } else {
-            LOG.debug("Calling deprecated getKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            value = propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+            return propertyManager.getKnownPropertyValue(propertyName);
         }
-        return value;
+        LOG.debug("Calling deprecated getKnownPropertyValue method");
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
     }
 
     protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
         if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
             LOG.debug("Calling setKnownPropertyValue method");
             propertyManager.setKnownPropertyValue(name, value);
-        } else {
-            LOG.debug("Calling deprecated setKnownPropertyValue method");
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
+            return;
         }
+        LOG.debug("Calling deprecated setKnownPropertyValue method");
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
     }
 }

@@ -85,6 +85,10 @@ public class DomibusPropertyMetadata {
 
     private boolean encrypted;
 
+    /**
+     * Used here to copy the corresponding info from the DomibusPropertyMetadataDTO class, aka the external modules metadata
+     * It is used to specify if the value is stored in its own (external module) property bag or in the core property bag
+     */
     private boolean storedGlobally = true;
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
