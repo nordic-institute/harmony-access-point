@@ -60,7 +60,6 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (jobName == null) {
