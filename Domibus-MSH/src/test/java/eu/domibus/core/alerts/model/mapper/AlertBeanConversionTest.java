@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.model.mapper;
 
-import eu.domibus.core.alerts.model.common.AuthenticationEvent;
+import eu.domibus.core.alerts.model.common.AccountEventKey;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 import org.junit.Assert;
@@ -44,9 +44,9 @@ public class AlertBeanConversionTest {
         event.setType(EventType.USER_LOGIN_FAILURE);
         event.setReportingTime(reportingTime);
 
-        event.addDateKeyValue(AuthenticationEvent.LOGIN_TIME.name(), loginTime);
-        event.addStringKeyValue(AuthenticationEvent.USER.name(), user);
-        event.addStringKeyValue(AuthenticationEvent.ACCOUNT_DISABLED.name(), accountDisabled);
+        event.addDateKeyValue(AccountEventKey.LOGIN_TIME.name(), loginTime);
+        event.addStringKeyValue(AccountEventKey.USER.name(), user);
+        event.addStringKeyValue(AccountEventKey.ACCOUNT_DISABLED.name(), accountDisabled);
 
         EventMapperImpl eventMapper = new EventMapperImpl();
         eventMapper.setDelegate(new EventMapperImpl_());
@@ -55,8 +55,8 @@ public class AlertBeanConversionTest {
         Assert.assertEquals(EventType.USER_LOGIN_FAILURE, persistEvent.getType());
         Assert.assertEquals(reportingTime, persistEvent.getReportingTime());
 
-        Assert.assertEquals(loginTime, persistEvent.getProperties().get(AuthenticationEvent.LOGIN_TIME.name()).getValue());
-        Assert.assertEquals(user, persistEvent.getProperties().get(AuthenticationEvent.USER.name()).getValue());
-        Assert.assertEquals(accountDisabled, persistEvent.getProperties().get(AuthenticationEvent.ACCOUNT_DISABLED.name()).getValue());
+        Assert.assertEquals(loginTime, persistEvent.getProperties().get(AccountEventKey.LOGIN_TIME.name()).getValue());
+        Assert.assertEquals(user, persistEvent.getProperties().get(AccountEventKey.USER.name()).getValue());
+        Assert.assertEquals(accountDisabled, persistEvent.getProperties().get(AccountEventKey.ACCOUNT_DISABLED.name()).getValue());
     }
 }

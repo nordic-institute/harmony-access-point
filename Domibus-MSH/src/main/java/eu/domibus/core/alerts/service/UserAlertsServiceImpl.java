@@ -2,14 +2,15 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserEntityBase;
-import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.model.service.AccountEnabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -94,6 +95,15 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         if (accountDisabledConfiguration.isActive()) {
             LOG.debug("Sending account disabled event for user:[{}]", user.getUserName());
             eventService.enqueueAccountDisabledEvent(getUserType(), user.getUserName(), new Date());
+        }
+    }
+
+    @Override
+    public void triggerEnabledEvent(UserBase user) {
+        final AccountEnabledModuleConfiguration accountEnabledConfiguration = alertsConfiguration.getAccountEnabledConfiguration();
+        if (accountEnabledConfiguration.isActive()) {
+            LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
+            eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());
         }
     }
 

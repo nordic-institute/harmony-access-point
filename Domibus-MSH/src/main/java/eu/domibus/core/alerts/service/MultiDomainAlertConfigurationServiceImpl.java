@@ -46,7 +46,13 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     private ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledConfigurationLoader;
 
     @Autowired
+    private ConfigurationLoader<AccountEnabledModuleConfiguration> accountEnabledConfigurationLoader;
+
+    @Autowired
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
+
+    @Autowired
+    private ConfigurationLoader<AccountEnabledModuleConfiguration> pluginAccountEnabledConfigurationLoader;
 
     @Autowired
     private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
@@ -86,6 +92,14 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return accountDisabledConfigurationLoader.getConfiguration(new ConsoleAccountDisabledConfigurationReader()::readConfiguration);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AccountEnabledModuleConfiguration getAccountEnabledConfiguration() {
+        return accountEnabledConfigurationLoader.getConfiguration(new ConsoleAccountEnabledConfigurationReader()::readConfiguration);
     }
 
     /**
@@ -201,8 +215,12 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
                 return getMessageCommunicationConfiguration();
             case USER_ACCOUNT_DISABLED:
                 return getAccountDisabledConfiguration();
+            case USER_ACCOUNT_ENABLED:
+                return getAccountEnabledConfiguration();
             case PLUGIN_USER_ACCOUNT_DISABLED:
                 return getPluginAccountDisabledConfiguration();
+            case PLUGIN_USER_ACCOUNT_ENABLED:
+                return getPluginAccountEnabledConfiguration();
             case USER_LOGIN_FAILURE:
                 return getLoginFailureConfiguration();
             case PLUGIN_USER_LOGIN_FAILURE:
@@ -388,6 +406,46 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
     }
 
+    abstract class AccountEnabledConfigurationReader implements UserAuthenticationConfiguration {
+        protected abstract AlertType getAlertType();
+
+        protected abstract String getModuleName();
+
+        protected abstract String getAlertActivePropertyName();
+
+        protected abstract String getAlertLevelPropertyName();
+
+        protected abstract String getAlertMomentPropertyName();
+
+        protected abstract String getAlertEmailSubjectPropertyName();
+
+        protected AccountEnabledModuleConfiguration readConfiguration() {
+            //todo
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            try {
+
+                final Boolean alertActive = isAlertModuleEnabled();
+                final Boolean accountEnabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
+                if (!alertActive || !accountEnabledActive) {
+                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
+                            , currentDomain, getModuleName(), alertActive, accountEnabledActive);
+                    return new AccountEnabledModuleConfiguration(getAlertType());
+                }
+
+                final AlertLevel level = AlertLevel.valueOf(domibusPropertyProvider.getProperty(getAlertLevelPropertyName()));
+                final AccountDisabledMoment moment = AccountDisabledMoment.valueOf(domibusPropertyProvider.getProperty(getAlertMomentPropertyName()));
+                final String mailSubject = domibusPropertyProvider.getProperty(getAlertEmailSubjectPropertyName());
+
+                LOG.info("[{}] module activated for domain:[{}]", getModuleName(), currentDomain);
+                return new AccountEnabledModuleConfiguration(getAlertType(), level, moment, mailSubject);
+
+            } catch (Exception e) {
+                LOG.warn("An error occurred while reading [{}] module configuration for domain:[{}], ", getModuleName(), currentDomain, e);
+                return new AccountEnabledModuleConfiguration(getAlertType());
+            }
+        }
+    }
+
     class ConsoleAccountDisabledConfigurationReader extends AccountDisabledConfigurationReader {
 
         @Override
@@ -426,6 +484,44 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
     }
 
+    class ConsoleAccountEnabledConfigurationReader extends AccountEnabledConfigurationReader {
+
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.USER_ACCOUNT_ENABLED;
+        }
+
+        @Override
+        protected String getModuleName() {
+            return "Alert account enabled";
+        }
+
+        @Override
+        protected String getAlertActivePropertyName() {
+            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_ACTIVE;
+        }
+
+        @Override
+        protected String getAlertLevelPropertyName() {
+            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_LEVEL;
+        }
+
+        @Override
+        protected String getAlertMomentPropertyName() {
+            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_MOMENT;
+        }
+
+        @Override
+        protected String getAlertEmailSubjectPropertyName() {
+            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_SUBJECT;
+        }
+
+        @Override
+        public boolean shouldCheckExtAuthEnabled() {
+            return domibusConfigurationService.isExtAuthProviderEnabled();
+        }
+    }
+
     class PluginAccountDisabledConfigurationReader extends AccountDisabledConfigurationReader {
 
         @Override
@@ -456,6 +552,43 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT;
+        }
+
+        @Override
+        public boolean shouldCheckExtAuthEnabled() {
+            return false;
+        }
+    }
+    class PluginAccountEnabledConfigurationReader extends AccountEnabledConfigurationReader {
+
+        @Override
+        protected AlertType getAlertType() {
+            return AlertType.PLUGIN_USER_ACCOUNT_ENABLED;
+        }
+
+        @Override
+        protected String getModuleName() {
+            return "Alert plugin account disabled";
+        }
+
+        @Override
+        protected String getAlertActivePropertyName() {
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_ACTIVE;
+        }
+
+        @Override
+        protected String getAlertLevelPropertyName() {
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_LEVEL;
+        }
+
+        @Override
+        protected String getAlertMomentPropertyName() {
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_MOMENT;
+        }
+
+        @Override
+        protected String getAlertEmailSubjectPropertyName() {
+            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT;
         }
 
         @Override
@@ -671,6 +804,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
         return pluginAccountDisabledConfigurationLoader.getConfiguration(new PluginAccountDisabledConfigurationReader()::readConfiguration);
+    }
+
+    @Override
+    public AccountEnabledModuleConfiguration getPluginAccountEnabledConfiguration() {
+        return pluginAccountEnabledConfigurationLoader.getConfiguration(new PluginAccountEnabledConfigurationReader()::readConfiguration);
     }
 
     abstract class LoginFailConfigurationReader implements UserAuthenticationConfiguration {
