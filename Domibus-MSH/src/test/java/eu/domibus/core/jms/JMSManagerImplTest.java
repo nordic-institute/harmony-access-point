@@ -1,16 +1,13 @@
 package eu.domibus.core.jms;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.jms.JMSDestinationMapper;
-import eu.domibus.core.jms.JMSManagerImpl;
-import eu.domibus.core.jms.JMSMessageMapper;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
@@ -19,12 +16,14 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.*;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Cosmin Baciu
@@ -67,7 +66,7 @@ public class JMSManagerImplTest {
     private DomainService domainService;
 
     @Test
-    public void testGetDestinations() throws Exception {
+    public void testGetDestinations() {
 
         final Map<String, InternalJMSDestination> destinations = new HashMap<>();
 
@@ -85,7 +84,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testGetMessage() throws Exception {
+    public void testGetMessage() {
         final String source = "source";
         final String messageId = "messageId";
         final InternalJmsMessage internalJmsMessage = new InternalJmsMessage();
@@ -104,7 +103,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testBrowseMessages() throws Exception {
+    public void testBrowseMessages() {
         final String source = "source";
         final String jmsType = "jmsType";
         final Date fromDate = new Date();
@@ -113,7 +112,7 @@ public class JMSManagerImplTest {
         final List<InternalJmsMessage> internalJmsMessage = new ArrayList<>();
 
         new Expectations() {{
-            internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, (String)any);
+            internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, (String) any);
             result = internalJmsMessage;
         }};
 
@@ -125,7 +124,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testSendMessageToQueue() throws Exception {
+    public void testSendMessageToQueue() {
         final JmsMessage message = new JmsMessage();
         final InternalJmsMessage messageSPI = new InternalJmsMessage();
 
@@ -147,7 +146,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testSendMessageToJmsQueue(@Injectable final Queue queue) throws Exception {
+    public void testSendMessageToJmsQueue(@Injectable final Queue queue) throws JMSException {
         final JmsMessage message = new JmsMessage();
         final InternalJmsMessage messageSPI = new InternalJmsMessage();
 
@@ -173,14 +172,39 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testDeleteMessages() throws Exception {
+    public void testDeleteMessages_ok() {
         final String source = "myqueue";
-        final String[] messageIds = new String[] {"1", "2"};
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations(){{
+            internalJmsManager.deleteMessages(source, messageIds);
+            result = 2;
+            times = 1;
+        }};
 
         jmsManager.deleteMessages(source, messageIds);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            auditService.addJmsMessageDeletedAudit("1", source);
+            times = 1;
+            auditService.addJmsMessageDeletedAudit("2", source);
+            times = 1;
+        }};
+    }
+    @Test
+    public void testDeleteMessages_warning() {
+        final String source = "myqueue";
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations(){{
             internalJmsManager.deleteMessages(source, messageIds);
+            result = 1;
+            times = 1;
+        }};
+
+        jmsManager.deleteMessages(source, messageIds);
+
+        new FullVerifications() {{
             auditService.addJmsMessageDeletedAudit("1", source);
             times = 1;
             auditService.addJmsMessageDeletedAudit("2", source);
@@ -189,20 +213,88 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testMoveMessages(@Injectable final Queue queue) throws Exception {
+    public void testDeleteMessages_error() {
+        final String source = "myqueue";
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations(){{
+            internalJmsManager.deleteMessages(source, messageIds);
+            result = 0;
+            times = 1;
+        }};
+
+        try {
+            jmsManager.deleteMessages(source, messageIds);
+            fail();
+        } catch (IllegalStateException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testMoveMessages_ok(@Injectable final Queue queue) {
         final String source = "myqueue";
         final String destination = "destinationQueue";
-        final String[] messageIds = new String[] {"1", "2"};
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations() {{
+            internalJmsManager.moveMessages(source, destination, messageIds);
+            result = 2;
+        }};
 
         jmsManager.moveMessages(source, destination, messageIds);
 
-        new Verifications() {{
-            internalJmsManager.moveMessages(source, destination, messageIds);
+        new FullVerifications() {{
             auditService.addJmsMessageMovedAudit("1", source, destination);
             times = 1;
             auditService.addJmsMessageMovedAudit("2", source, destination);
             times = 1;
         }};
+    }
+
+    @Test
+    public void testMoveMessages_warning(@Injectable final Queue queue) {
+        final String source = "myqueue";
+        final String destination = "destinationQueue";
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations() {{
+            internalJmsManager.moveMessages(source, destination, messageIds);
+            result = 1;
+        }};
+
+        jmsManager.moveMessages(source, destination, messageIds);
+
+        new FullVerifications() {{
+            auditService.addJmsMessageMovedAudit("1", source, destination);
+            times = 1;
+            auditService.addJmsMessageMovedAudit("2", source, destination);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testMoveMessages_error(@Injectable final Queue queue) {
+        final String source = "myqueue";
+        final String destination = "destinationQueue";
+        final String[] messageIds = new String[]{"1", "2"};
+
+        new Expectations() {{
+            internalJmsManager.moveMessages(source, destination, messageIds);
+            result = 0;
+        }};
+
+        try {
+            jmsManager.moveMessages(source, destination, messageIds);
+            fail();
+        } catch (IllegalStateException e) {
+            //Do nothing
+        }
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -221,9 +313,8 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals(selector, jmsManager.getDomainSelector(selector));
 
-        new FullVerifications(){{
-
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -245,7 +336,8 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals(selector + " AND DOMAIN ='digit'", jmsManager.getDomainSelector(selector));
 
-        new FullVerifications(){{}};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -264,7 +356,8 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals("DOMAIN ='digit1'", jmsManager.getDomainSelector(null));
 
-        new FullVerifications(){{}};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -340,10 +433,6 @@ public class JMSManagerImplTest {
     public void testJmsQueueInOtherDomain_NonMultitenancy() {
         final String jmsQueueInternalName = "domain1.domibus.backend.jms.outQueue";
 
-        final List<Domain> domains = new ArrayList<>();
-        domains.add(DomainService.DEFAULT_DOMAIN);
-
-
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
@@ -354,20 +443,20 @@ public class JMSManagerImplTest {
 
     @Test
     public void sortQueuesInClusterTest() {
-        Map<String, JMSDestination> queues = new HashMap();
-        queues.put("cluster2@queueX", new JMSDestination(){{
+        Map<String, JMSDestination> queues = new HashMap<>();
+        queues.put("cluster2@queueX", new JMSDestination() {{
             setName("cluster2@queueX");
         }});
-        queues.put("cluster2@queueY", new JMSDestination(){{
+        queues.put("cluster2@queueY", new JMSDestination() {{
             setName("cluster2@queueY");
         }});
-        queues.put("cluster1@queueX", new JMSDestination(){{
+        queues.put("cluster1@queueX", new JMSDestination() {{
             setName("cluster1@queueX");
         }});
-        queues.put("cluster1@queueY", new JMSDestination(){{
+        queues.put("cluster1@queueY", new JMSDestination() {{
             setName("cluster1@queueY");
         }});
-        queues.put("queueXY", new JMSDestination(){{
+        queues.put("queueXY", new JMSDestination() {{
             setName("queueXY");
         }});
         JMSDestination[] sortedValues = jmsManager.sortQueues(queues).values().toArray(new JMSDestination[0]);

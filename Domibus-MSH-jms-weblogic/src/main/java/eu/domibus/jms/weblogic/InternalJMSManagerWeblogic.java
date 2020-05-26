@@ -482,10 +482,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
-    public void deleteMessages(String source, String[] messageIds) {
+    public int deleteMessages(String source, String[] messageIds) {
         String selector = jmsSelectorUtil.getSelector(messageIds);
-        int n = deleteMessages(getMessageDestinationName(removeJmsModule(source)), selector);
-        LOG.debug("{} messages have been successfully deleted from [{}]", n, source);
+        return deleteMessages(getMessageDestinationName(removeJmsModule(source)), selector);
     }
 
     @Override
@@ -724,13 +723,12 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
-    public void moveMessages(String sourceFrom, String sourceTo, String[] messageIds) {
+    public int moveMessages(String sourceFrom, String sourceTo, String[] messageIds) {
 
         ObjectName fromDestination = getMessageDestinationName(removeJmsModule(sourceFrom));
         ObjectName toDestination = getMessageDestinationName(removeJmsModule(sourceTo));
         String selector = jmsSelectorUtil.getSelector(messageIds);
-        int n = moveMessages(fromDestination, toDestination, selector);
-        LOG.debug("{} messages have been successfully moved to [{}]", n, sourceTo);
+        return moveMessages(fromDestination, toDestination, selector);
     }
 
     protected int moveMessages(final ObjectName from, final ObjectName to, final String selector) {

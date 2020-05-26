@@ -63,10 +63,14 @@ public class JmsResource extends BaseResource {
         List<String> messageIds = request.getSelectedMessages();
         String[] ids = messageIds.toArray(new String[0]);
 
+        if (ids.length == 0 || Arrays.stream(ids).allMatch(StringUtils::isBlank)) {
+            throw new IllegalArgumentException("No IDs provided for messages/action");
+        }
+
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
             Map<String, JMSDestination> destinations = jmsManager.getDestinations();
             String destName = request.getDestination();
-            if (!destinations.values().stream().anyMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
+            if (destinations.values().stream().noneMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
                 throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
             }
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
