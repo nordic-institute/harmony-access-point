@@ -141,7 +141,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class)
     @Cacheable(value = "certValidationByAlias", key = "#domain.code + #alias")
     public boolean isCertificateChainValid(Domain domain, String alias) throws DomibusCertificateException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);

@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -42,6 +43,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     UserMessageServiceHelper userMessageServiceHelper;
 
 
+    @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
         final UserMessage userMessage = getUserMessage(messageId);
@@ -58,11 +60,13 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
         return userMessage;
     }
 
+    @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp) throws MessageAcknowledgeException {
         return acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
     }
 
+    @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
         final UserMessage userMessage = getUserMessage(messageId);
@@ -71,6 +75,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties);
     }
 
+    @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp) throws MessageAcknowledgeException {
         return acknowledgeMessageProcessed(messageId, acknowledgeTimestamp, null);
