@@ -56,9 +56,6 @@ public class DatabasePayloadPersistenceTest {
         final byte[] binaryData = "test".getBytes();
 
         new Expectations(databasePayloadPersistence) {{
-            legConfiguration.getPayloadProfile().getMaxSize();
-            result = 400;
-
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -103,8 +100,6 @@ public class DatabasePayloadPersistenceTest {
         byte[] binaryData = "fileContent".getBytes();
 
         new Expectations(databasePayloadPersistence) {{
-            legConfiguration.getPayloadProfile().getMaxSize();
-            result = 400;
 
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;

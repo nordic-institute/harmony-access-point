@@ -63,8 +63,6 @@ public class FileSystemPayloadPersistenceTest {
                                          @Injectable LegConfiguration legConfiguration) throws IOException {
 
         new Expectations(fileSystemPayloadPersistence) {{
-            legConfiguration.getPayloadProfile().getMaxSize();
-            result = 10;
 
             partInfo.getFileName();
             result = null;
@@ -141,7 +139,7 @@ public class FileSystemPayloadPersistenceTest {
         fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
         new Verifications() {{
-            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
+            fileSystemPayloadPersistence.saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
         }};
     }
 
