@@ -121,7 +121,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -187,7 +187,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
-		log.info("getting available columns berfor modification " + columnsPre);
+		log.info("getting available columns before modification " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
 

@@ -40,7 +40,7 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Navigate to Audit page");
 
 		AuditPage page = new AuditPage(driver);
-		page.getSidebar().goToPage(PAGES.AUDIT);;
+		page.getSidebar().goToPage(PAGES.AUDIT);
 		page.grid().waitForRowsToLoad();
 
 		page.getFilters().setFilterData("table", "User");
@@ -134,7 +134,7 @@ public class AuditPgTest extends SeleniumTest {
 			SoftAssert soft = new SoftAssert();
 			String actionName = Generator.randomAlphaNumeric(5);
 			log.info("Create one message filter with action field value as :" + actionName);
-			rest.createMessageFilter(actionName, null);
+			rest.messFilters().createMessageFilter(actionName, null);
 
 			AuditPage page = new AuditPage(driver);
 
@@ -313,6 +313,8 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Upload pmode");
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		log.info("Login into application with Admin credentials and navigate to Audit page");
+
+		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		page.grid().waitForRowsToLoad();
 
@@ -434,7 +436,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
-	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
+	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void pmodeDownload() throws Exception {
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
@@ -479,8 +481,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 
 		log.info("upload pmode");
-		SoftAssert soft = new SoftAssert();
-		for (int i = rest.getPmodesList(null).length(); i < 3; i++) {
+		for (int i = rest.pmode().getPmodesList(null).length(); i < 3; i++) {
 			rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		}
 
@@ -589,8 +590,8 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Validate non zero Search result count ");
 		soft.assertTrue(auditPage.getFilters().getPagination().getTotalItems() > 0, "Search has records");
 		log.info("Validate top record Action as Created");
-		Boolean result1 = auditPage.grid().getRowInfo(0).containsValue("Created");
-		Boolean result = auditPage.grid().getRowInfo(0).containsValue("User");
+		boolean result1 = auditPage.grid().getRowInfo(0).containsValue("Created");
+		boolean result = auditPage.grid().getRowInfo(0).containsValue("User");
 
 		soft.assertTrue(result, "Top row shows Action as created ");
 		soft.assertTrue(result1, "Top row has Table value as User");

@@ -95,10 +95,6 @@ public class PModeArchivePage extends DomibusPage {
 		return new Dialog(driver);
 	}
 
-	public PModeCurrentPage getPage() {
-		return new PModeCurrentPage(driver);
-	}
-
 	public DInput getXml() {
 		return new DInput(driver, XmlTextArea);
 	}
@@ -134,21 +130,6 @@ public class PModeArchivePage extends DomibusPage {
 
 		log.debug("Pmode Archive page is loaded");
 		return true;
-	}
-
-	public void getPmodeStatus() throws Exception {
-		log.debug("wait for grid container to be visible");
-		wait.forElementToBeVisible(archiveGridContainer);
-		if (isArchiveGridEmpty()) {
-			log.debug("Navigate to pmode current page as grid container is empty on Pmode archive page");
-			getPage().getSidebar().goToPage(PAGES.PMODE_CURRENT);
-
-			log.debug("Info text shown on Pmode current page " + getPage().infoTxt.getText().trim());
-
-		} else {
-
-			log.debug("Uploaded Pmode count:" + getpagination().getTotalItems());
-		}
 	}
 
 	public Boolean getCurDescTxt() {

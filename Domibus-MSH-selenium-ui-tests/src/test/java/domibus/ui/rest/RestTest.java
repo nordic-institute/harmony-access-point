@@ -93,7 +93,9 @@ public class RestTest extends BaseTest {
 
 		for (int i = 0; i < msgfs.length(); i++) {
 			JSONObject msgf = msgfs.getJSONObject(i);
-			uniqPluginNames.add(msgf.getString("backendName"));
+			if (StringUtils.isNotEmpty(msgf.optString("backendName"))) {
+				uniqPluginNames.add(msgf.optString("backendName"));
+			}
 		}
 		messageFilterPlugins.addAll(uniqPluginNames);
 
@@ -121,7 +123,7 @@ public class RestTest extends BaseTest {
 			csvLines = lines.collect(Collectors.toList());
 		}
 
-		Object[][] toRet = new Object[csvLines.size()-1][1];
+		Object[][] toRet = new Object[csvLines.size() - 1][1];
 
 		String[] headers = csvLines.get(0).split("\\t");
 
@@ -133,7 +135,7 @@ public class RestTest extends BaseTest {
 				String header = headers[j].trim();
 				listOfParams.add(new Param(header, value));
 			}
-			toRet[i-1][0] = listOfParams;
+			toRet[i - 1][0] = listOfParams;
 		}
 
 		return toRet;

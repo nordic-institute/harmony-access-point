@@ -62,7 +62,8 @@ public class Pagination extends DComponent {
 	public boolean hasNextPage() {
 
 		try {
-			return !(StringUtils.equalsIgnoreCase("disabled", getNextPageLnk().getAttribute("class")));
+			String attr = getNextPageLnk().getAttribute("class");
+			return !(StringUtils.equalsIgnoreCase("disabled", attr));
 		} catch (Exception e) {
 		}
 		return false;

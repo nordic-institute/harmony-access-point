@@ -28,128 +28,10 @@
 		<jersey-client_version>1.19.4</jersey-client_version>
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
 		<json_version>20190722</json_version>
+		<jackson_version>2.11.0</jackson_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
 		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
-
-	<dependencies>
-
-		<!--USED ONLY FOR SOAP REQUEST CLASSES-->
-		<dependency>
-			<groupId>com.bluecatcode.junit</groupId>
-			<artifactId>junit-4.10-extended</artifactId>
-			<version>${junit_version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-
-		<!--**************************************-->
-		<!--FOR DATA DRIVEN TESTS-->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-csv</artifactId>
-			<version>${commons-csv_version}</version>
-		</dependency>
-
-		<!--**************************************-->
-
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-chrome-driver</artifactId>
-			<version>${selenium-chrome-driver_version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>${selenium-java_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>${testng_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>${poi-ooxml_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-<!--			<version>${reflections_version}</version>-->
-			<version>0.9.12</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>${jersey-client_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-multipart</artifactId>
-			<version>${jersey-multipart_version}</version>
-<!--			<version>1.19.4</version>-->
-		</dependency>
-
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>${json_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>${javax.ws.rs-api_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>eu.domibus</groupId>
-			<artifactId>domibus-ws-stubs</artifactId>
-			<version>${domibus-ws-stubs_version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-configuration</groupId>
-			<artifactId>commons-configuration</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
-		<dependency>
-			<groupId>xmlunit</groupId>
-			<artifactId>xmlunit</artifactId>
-			<version>1.6</version>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -161,6 +43,48 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>local_e2</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<groups>multiTenancy</groups>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/myLocalE2.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+							<target>1.8</target>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 		<profile>
 			<id>selenium_local</id>
 			<activation>
@@ -242,5 +166,139 @@
 			</build>
 		</profile>
 	</profiles>
+
+	<dependencies>
+
+		<!--USED ONLY FOR SOAP REQUEST CLASSES-->
+		<dependency>
+			<groupId>com.bluecatcode.junit</groupId>
+			<artifactId>junit-4.10-extended</artifactId>
+			<version>${junit_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<!--**************************************-->
+		<!--FOR DATA DRIVEN TESTS-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${commons-csv_version}</version>
+		</dependency>
+
+		<!--**************************************-->
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chrome-driver</artifactId>
+			<version>${selenium-chrome-driver_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium-java_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${testng_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi-ooxml_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<!--			<version>${reflections_version}</version>-->
+			<version>0.9.12</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey-client_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>${jersey-multipart_version}</version>
+			<!--			<version>1.19.4</version>-->
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${json_version}</version>
+		</dependency>
+
+		<!-- *********************************************************************************** -->
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+		<!-- *********************************************************************************** -->
+
+
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>${javax.ws.rs-api_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.domibus</groupId>
+			<artifactId>domibus-ws-stubs</artifactId>
+			<version>${domibus-ws-stubs_version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<version>1.6</version>
+		</dependency>
+	</dependencies>
 
 </project>

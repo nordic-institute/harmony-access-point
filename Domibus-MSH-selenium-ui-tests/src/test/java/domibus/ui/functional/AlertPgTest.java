@@ -56,10 +56,11 @@ public class AlertPgTest extends SeleniumTest {
 		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
 		if (data.isMultiDomain()) {
-			apage.filters().showDomainAlert();
+			page.filters().showDomainAlert();
 		}
 
 		log.info("Getting all listed alert info");
@@ -103,7 +104,7 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Login into application and navigate to Alerts page");
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
-		if (data.isIsMultiDomain()) {
+		if (data.isMultiDomain()) {
 			page.filters().showDomainAlert();
 		}
 

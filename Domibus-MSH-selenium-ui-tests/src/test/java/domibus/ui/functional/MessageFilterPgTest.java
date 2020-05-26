@@ -4,15 +4,14 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import domibus.ui.SeleniumTest;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.BaseTest;
-import org.apache.commons.collections4.ListUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.login.LoginPage;
 import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
@@ -531,7 +530,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		log.info("changing domain to 1");
 		page.getDomainSelector().selectOptionByText(rest.getNonDefaultDomain());
-		page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+		page.getDomainSelector().selectOptionByText(rest.getNonDefaultDomain());
 		page.grid().waitForRowsToLoad();
 
 		log.info("check if filter is NOT present");
@@ -785,11 +784,12 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		log.info("creating filter");
-		String partyString = Generator.randomAlphaNumeric(5) + ":" + Generator.randomAlphaNumeric(5);
-		modal.getFromInput().fill(partyString);
-		modal.getToInput().fill(partyString);
-		modal.getActionInput().fill(partyString);
-		modal.getServiceInput().fill(partyString);
+		String generatedStr = Generator.randomAlphaNumeric(5) + ":" + Generator.randomAlphaNumeric(5);
+		modal.getPluginSelect().selectOptionByIndex(0);
+		modal.getFromInput().fill(generatedStr);
+		modal.getToInput().fill(generatedStr);
+		modal.getActionInput().fill(generatedStr);
+		modal.getServiceInput().fill(generatedStr);
 
 		modal.clickOK();
 
@@ -803,11 +803,11 @@ public class MessageFilterPgTest extends SeleniumTest {
 		log.info("creating the same filter");
 		modal = new MessageFilterModal(driver);
 		soft.assertTrue(modal.isLoaded(), "New button opens the new/edit message filter modal");
-
-		modal.getFromInput().fill(partyString);
-		modal.getToInput().fill(partyString);
-		modal.getActionInput().fill(partyString);
-		modal.getServiceInput().fill(partyString);
+		modal.getPluginSelect().selectOptionByIndex(0);
+		modal.getFromInput().fill(generatedStr);
+		modal.getToInput().fill(generatedStr);
+		modal.getActionInput().fill(generatedStr);
+		modal.getServiceInput().fill(generatedStr);
 
 		modal.clickOK();
 
@@ -822,7 +822,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 //		Delete created filter
 		log.info("deleting created filter");
-		rest.messFilters().deleteMessageFilter(partyString, null);
+		rest.messFilters().deleteMessageFilter(generatedStr, null);
 
 		soft.assertAll();
 	}

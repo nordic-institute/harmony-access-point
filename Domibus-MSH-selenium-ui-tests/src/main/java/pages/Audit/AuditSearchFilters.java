@@ -76,10 +76,6 @@ public class AuditSearchFilters extends DComponent {
         return new DLink(driver, basicSearchLnk);
     }
 
-    public DomibusPage getPage() {
-        return new DomibusPage(driver);
-    }
-
     public String getXpathOfSearchFilter(String fieldLabel) {
         return ".//*[@placeholder='" + fieldLabel + "']";
     }

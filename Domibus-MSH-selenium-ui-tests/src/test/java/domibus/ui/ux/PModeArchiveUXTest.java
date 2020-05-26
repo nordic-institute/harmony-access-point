@@ -181,8 +181,8 @@ public class PModeArchiveUXTest extends SeleniumTest {
 	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteOldFile() throws Exception {
 
-		while (rest.getPmodesList(null).length() < 3){
-			rest.uploadPMode("pmodes/pmode-blue.xml", null);
+		while (rest.pmode().getPmodesList(null).length() < 3){
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 		}
 
 		SoftAssert soft = new SoftAssert();

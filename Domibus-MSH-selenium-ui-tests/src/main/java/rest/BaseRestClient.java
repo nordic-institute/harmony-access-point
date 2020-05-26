@@ -102,8 +102,7 @@ public class BaseRestClient {
 
 		WebResource.Builder builder = decorateBuilder(resource);
 
-		ClassLoader classLoader = getClass().getClassLoader();
-		File file = new File(classLoader.getResource(filePath).getFile());
+		File file = new File(getClass().getClassLoader().getResource(filePath).getFile());
 		FileDataBodyPart filePart = new FileDataBodyPart("file", file);
 		FormDataMultiPart multipartEntity = new FormDataMultiPart();
 		for (String s : fields.keySet()) {
@@ -175,8 +174,6 @@ public class BaseRestClient {
 				.type(type)
 				.put(ClientResponse.class, params);
 	}
-
-
 
 
 	// -------------------------------------------- Login --------------------------------------------------------------
@@ -259,6 +256,5 @@ public class BaseRestClient {
 
 		return (response.getStatus() == 200);
 	}
-
-
+	
 }

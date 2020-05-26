@@ -106,7 +106,7 @@ public class ConnectionMonitoringClient extends DomibusRestClient {
 		return value;
 	}
 
-	private List<String> getMonitoredParties(String domain) throws Exception {
+	public List<String> getMonitoredParties(String domain) throws Exception {
 		List<String> toret = new ArrayList<>();
 
 		String value = getMonitoredPartiesStr(domain);
