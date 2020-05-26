@@ -27,7 +27,6 @@ import java.io.OutputStreamWriter;
  * @author Cosmin Baciu
  */
 @Component
-@Transactional(noRollbackFor = FSSetUpException.class)
 public class FSFilesManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);

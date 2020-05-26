@@ -28,7 +28,6 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
     private SignalService signalService;
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         //notify interested listeners that the property changed
         List<DomibusPropertyChangeListener> listeners = propertyChangeListeners.stream()

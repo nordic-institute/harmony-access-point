@@ -53,7 +53,6 @@ public class SuperCronExpressionChangeListener implements DomibusPropertyChangeL
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String[] jobNames = propertyToJobMap.get(propertyName);
         if (jobNames == null) {

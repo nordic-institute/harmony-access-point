@@ -1,6 +1,12 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.ebms3.common.model.*;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.w3c.dom.Document;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.InputStream;
 
 /**
  * @author Thomas Dussart
@@ -82,4 +88,9 @@ public class MessageTestUtility {
         return aProperty;
     }
 
+
+    public static Document readDocument(String name) throws XMLStreamException, ParserConfigurationException {
+        InputStream inStream = MessageTestUtility.class.getResourceAsStream(name);
+        return StaxUtils.read(inStream);
+    }
 }
