@@ -67,17 +67,17 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
     @Test
     public void createFilterFromJMSSelector_null() {
-        assertNull(InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector(null));
+        assertNull(jmsManager.createFilterFromJMSSelector(null));
     }
 
     @Test
     public void createFilterFromJMSSelector_empty() {
-        assertNull(InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector(""));
+        assertNull(jmsManager.createFilterFromJMSSelector(""));
     }
 
     @Test
     public void createFilterFromJMSSelector_OK() {
-        assertEquals("AMQUserID",InternalJMSManagerWildFlyArtemis.createFilterFromJMSSelector("JMSMessageID"));
+        assertEquals("AMQUserID",jmsManager.createFilterFromJMSSelector("JMSMessageID"));
     }
 
     @Test

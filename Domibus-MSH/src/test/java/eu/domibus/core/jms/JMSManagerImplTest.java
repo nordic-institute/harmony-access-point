@@ -226,7 +226,7 @@ public class JMSManagerImplTest {
         try {
             jmsManager.deleteMessages(source, messageIds);
             fail();
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             //do nothing
         }
 
@@ -443,7 +443,7 @@ public class JMSManagerImplTest {
 
     @Test
     public void sortQueuesInClusterTest() {
-        HashMap<String, JMSDestination> queues = new HashMap<>();
+        Map<String, JMSDestination> queues = new HashMap<>();
         queues.put("cluster2@queueX", new JMSDestination() {{
             setName("cluster2@queueX");
         }});

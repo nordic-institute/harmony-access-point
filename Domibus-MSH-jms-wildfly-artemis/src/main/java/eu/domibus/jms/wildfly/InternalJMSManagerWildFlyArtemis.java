@@ -99,7 +99,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     /**
      * Returns null if the string is null or empty
      */
-    public static String createFilterFromJMSSelector(final String selectorStr) {
+    protected String createFilterFromJMSSelector(final String selectorStr) {
         if(StringUtils.isBlank(selectorStr)){
             return null;
         }
@@ -471,8 +471,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                 intJmsMsg = messages.get(0);
                 // Deletes it
                 QueueControl queue = getQueueControl(source);
-                int i = queue.removeMessages(selector);
-                LOG.debug("{} Jms Messages Id [{}] deleted from the source queue [{}] ", i, customMessageId, source);
+                int removeMessages = queue.removeMessages(selector);
+                LOG.debug("{} Jms Messages Id [{}] deleted from the source queue [{}] ", removeMessages, customMessageId, source);
             }
         } catch (Exception ex) {
             throw new InternalJMSException("Failed to consume message [" + customMessageId + "] from source [" + source + "]", ex);
