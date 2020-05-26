@@ -378,7 +378,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
                 messagingDao.clearFileSystemPayloads(userMessage);
             }
-            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, e.getMessage());
+            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;

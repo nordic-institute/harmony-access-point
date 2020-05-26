@@ -84,7 +84,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_RECEIVER_PARTY_ID_FOUND("BUS-073", "Receiver Party id [{}] found for value [{}]"),
     BUS_RECEIVER_PARTY_ID_NOT_FOUND("BUS-074", "Receiver Party id not found for value [{}]"),
     BUS_PROPERTY_DUPLICATE("BUS-075", "Duplicate Message Property found for property name [{}]"),
-    BUS_PAYLOAD_INVALID_SIZE("BUS-076", "Payload size [{}] is greater than maximum size [{}] defined in payload profile [{}]"),
+    BUS_PAYLOAD_INVALID_SIZE("BUS-076", "Payload size is greater than maximum size [{}] defined in payload profile [{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
