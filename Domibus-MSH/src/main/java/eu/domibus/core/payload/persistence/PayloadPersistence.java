@@ -22,9 +22,14 @@ public interface PayloadPersistence {
 
     void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, final LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception;
 
-    DomibusLogger getLogger();
-
-    default void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength) {
+    /**
+     * I will validate the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
+     *
+     * @param legConfiguration
+     * @param partInfoLength
+     * @throws InvalidPayloadSizeException Exception thrown if payload size is greather than the maxSize defined in PMode
+     */
+    default void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength) throws InvalidPayloadSizeException {
         final PayloadProfile profile = legConfiguration.getPayloadProfile();
         if (profile == null) {
             getLogger().debug("payload profile is not defined for leg [{}]", legConfiguration.getName());
@@ -32,7 +37,6 @@ public interface PayloadPersistence {
         }
         final String payloadProfileName = profile.getName();
         final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
-
 
         if (payloadProfileMaxSize < 0) {
             getLogger().warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
@@ -42,4 +46,6 @@ public interface PayloadPersistence {
             throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]");
         }
     }
+
+    DomibusLogger getLogger();
 }
