@@ -89,7 +89,7 @@ public class JMSDestinationHelperImplTest {
     @Test
     public void testTomcatQueueNameIsInternal() {
         final String queueName = "domibus.backend.jms.outQueue";
-        final String INTERNALQUEUE_EXPRESSION = ".*jms.queue.(Domibus[a-zA-Z]|DLQ|ExpiryQueue|internal|backend.jms|notification.jms|notification.webservice|notification.kerkovi|notification.filesystem).*";
+        final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
         new Expectations() {{
             domibusPropertyProvider.getProperty(anyString);
             result = INTERNALQUEUE_EXPRESSION;
