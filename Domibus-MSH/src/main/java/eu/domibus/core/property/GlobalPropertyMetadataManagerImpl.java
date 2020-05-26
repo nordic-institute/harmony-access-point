@@ -168,7 +168,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
             DomibusPropertyMetadata domibusProp = domainConverter.convert(extProp, DomibusPropertyMetadata.class);
-            domibusProp.setType(extProp.getType());
+//            domibusProp.setType(extProp.getType());
 
             allPropertyMetadataMap.put(entry.getKey(), domibusProp);
         }

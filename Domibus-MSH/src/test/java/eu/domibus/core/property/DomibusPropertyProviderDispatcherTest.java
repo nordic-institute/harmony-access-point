@@ -38,23 +38,23 @@ public class DomibusPropertyProviderDispatcherTest {
     private String propertyValue = "domibus.property.value";
     private Domain domain = new Domain("domain1", "Domain 1");
 
-//    @Test()
-//    public void getInternalOrExternalPproperty_internal() {
-//        new Expectations(domibusPropertyProviderDispatcher) {{
-////            globalPropertyMetadataManager.getManagerForProperty(propertyName);
-////            result = null;
-//            domibusPropertyProviderDispatcher.getInternalPropertyValue(domain, propertyName);
-//            result = propertyValue;
-//        }};
-//
-//        String result = domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
-//        assertEquals(propertyValue, result);
-//
-//        new Verifications() {{
-////            globalPropertyMetadataManager.getManagerForProperty(propertyName);
-////            times = 0;
-//        }};
-//    }
+    @Test()
+    public void getInternalOrExternalPproperty_internal() {
+        new Expectations(domibusPropertyProviderDispatcher) {{
+//            globalPropertyMetadataManager.getManagerForProperty(propertyName);
+//            result = null;
+            domibusPropertyProviderDispatcher.getInternalPropertyValue(domain, propertyName);
+            result = propertyValue;
+        }};
+
+        String result = domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+        assertEquals(propertyValue, result);
+
+        new Verifications() {{
+//            globalPropertyMetadataManager.getManagerForProperty(propertyName);
+//            times = 0;
+        }};
+    }
 
     @Test() //todo
     public void getInternalOrExternalPproperty_external(@Mocked DomibusPropertyManagerExt manager) {

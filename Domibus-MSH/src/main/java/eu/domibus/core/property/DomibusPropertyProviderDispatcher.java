@@ -45,14 +45,13 @@ public class DomibusPropertyProviderDispatcher {
             return getInternalPropertyValue(domain, propertyName);
         }
 
-        //determine if it is an external or internal property
+        //external property then so find the property manager
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
-            // just return it
-            return getInternalPropertyValue(domain, propertyName);
+            throw new DomibusPropertyException("Could not find manager for not globally stored property " + propertyName);
         }
 
-        //external property then, so call manager for the value
+        // call manager for the value
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
@@ -64,14 +63,13 @@ public class DomibusPropertyProviderDispatcher {
             return;
         }
 
-        //determine if it is an external or internal property
+        //external property then so find the property manager
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
-            setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
-            return;
+            throw new DomibusPropertyException("Could not find manager for not globally stored property " + propertyName);
         }
 
-        //external property then, so call manager to set the value
+        //call manager to set the value
         setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
     }
 
