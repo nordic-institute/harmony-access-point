@@ -2,7 +2,6 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.core.jms.JMSDestinationHelperImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -53,5 +52,53 @@ public class JMSDestinationHelperImplTest {
         boolean internal = jmsDestinationHelper.isInternal(queueName);
         Assert.assertTrue(internal);
 
+    }
+
+    @Test
+    public void testWildflyQueueNameIsInternal() {
+        final String queueName = "jms.queue.DomibusAlertMessageQueue";
+        final String INTERNALQUEUE_EXPRESSION = ".*jms.queue.(Domibus[a-zA-Z]|DLQ|ExpiryQueue|internal|backend.jms|notification.jms|notification.webservice|notification.kerkovi|notification.filesystem).*";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(anyString);
+            result = INTERNALQUEUE_EXPRESSION;
+
+            regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
+            result = true;
+        }};
+
+        boolean internal = jmsDestinationHelper.isInternal(queueName);
+        Assert.assertTrue(internal);
+    }
+
+    @Test
+    public void testWeblogicQueueNameIsInternal() {
+        final String queueName = "domibus.backend.jms.inQueue ";
+        final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(anyString);
+            result = INTERNALQUEUE_EXPRESSION;
+
+            regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
+            result = true;
+        }};
+
+        boolean internal = jmsDestinationHelper.isInternal(queueName);
+        Assert.assertTrue(internal);
+    }
+
+    @Test
+    public void testTomcatQueueNameIsInternal() {
+        final String queueName = "domibus.backend.jms.outQueue";
+        final String INTERNALQUEUE_EXPRESSION = ".*jms.queue.(Domibus[a-zA-Z]|DLQ|ExpiryQueue|internal|backend.jms|notification.jms|notification.webservice|notification.kerkovi|notification.filesystem).*";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(anyString);
+            result = INTERNALQUEUE_EXPRESSION;
+
+            regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
+            result = true;
+        }};
+
+        boolean internal = jmsDestinationHelper.isInternal(queueName);
+        Assert.assertTrue(internal);
     }
 }
