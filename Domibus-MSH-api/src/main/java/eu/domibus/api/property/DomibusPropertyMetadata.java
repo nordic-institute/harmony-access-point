@@ -85,6 +85,8 @@ public class DomibusPropertyMetadata {
 
     private boolean encrypted;
 
+    private boolean storedGlobally = true;
+
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return getGlobalProperty(name, Type.STRING);
     }
@@ -242,6 +244,14 @@ public class DomibusPropertyMetadata {
 
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
+    }
+
+    public boolean isStoredGlobally() {
+        return storedGlobally;
+    }
+
+    public void setStoredGlobally(boolean storedGlobally) {
+        this.storedGlobally = storedGlobally;
     }
 
     public String getUsageText() {

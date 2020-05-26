@@ -8,12 +8,8 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
@@ -25,8 +21,6 @@ import java.util.Set;
 public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
-
-    private Set<String> requestedProperties = new HashSet<>();
 
     @Autowired
     ClassUtil classUtil;
@@ -44,48 +38,41 @@ public class DomibusPropertyProviderDispatcher {
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        // determine if the property is stored in core or in the module manager
+        if (propMeta.isStoredGlobally()) {
+            // just return it
+            return getInternalPropertyValue(domain, propertyName);
+        }
+
         //determine if it is an external or internal property
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
-            // it is an internal property
+            // just return it
             return getInternalPropertyValue(domain, propertyName);
         }
-        //if it was already requested -> get local value (as we saved it locally too)
-        if (isPropertySavedLocally(propertyName)) {
-            return getInternalPropertyValue(domain, propertyName);
-        }
-        //mark as available locally so that it will be provided internally next time it is requested
-        markPropertyAsSavedLocally(propertyName);
-        //call manager for the value
-        String propertyValue = getExternalPropertyValue(propertyName, domain, manager);
-        //save the value locally/sync
-        if (propertyValue != null) {
-            DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            if (prop.isDomain() && domain == null) {
-                domain = domainContextProvider.getCurrentDomainSafely();
-            }
-            LOG.debug("Setting locally the value [{}] for property [{}] on domain [{}].", propertyValue, propertyName, domain);
-            domibusPropertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);
-        }
-        return propertyValue;
+
+        //external property then, so call manager for the value
+        return getExternalPropertyValue(propertyName, domain, manager);
     }
 
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        //get current value
-        String currentValue = getInternalPropertyValue(domain, propertyName);
-        //if they are equal, nothing to do
-        if (StringUtils.equals(currentValue, propertyValue)) {
-            LOG.debug("Exiting the method setProperty for property [{}] as the current value is equal to the one to set [{}].", propertyName, propertyValue);
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        // determine if the property is stored in core or in the module manager
+        if (propMeta.isStoredGlobally()) {
+            setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
             return;
         }
-        // save the new value locally also, no matter if it is an internal or external property
-        setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
 
+        //determine if it is an external or internal property
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        //if it is an external property, call setProperty on the manager too
-        if (manager != null) {
-            setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
+        if (manager == null) {
+            setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
+            return;
         }
+
+        //external property then, so call manager to set the value
+        setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
     }
 
     protected String getExternalPropertyValue(String propertyName, Domain domain, DomibusPropertyManagerExt manager) {
@@ -123,14 +110,6 @@ public class DomibusPropertyProviderDispatcher {
         }
         LOG.debug("Getting internal property [{}] on domain [{}].", propertyName, domain);
         return domibusPropertyProvider.getInternalProperty(domain, propertyName);
-    }
-
-    protected void markPropertyAsSavedLocally(String propertyName) {
-        requestedProperties.add(propertyName);
-    }
-
-    protected boolean isPropertySavedLocally(String propertyName) {
-        return requestedProperties.contains(propertyName);
     }
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {

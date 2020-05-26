@@ -83,6 +83,8 @@ public class DomibusPropertyMetadataDTO {
 
     private boolean encrypted;
 
+    private boolean storedGlobally = true;
+
     public DomibusPropertyMetadataDTO() {
     }
 
@@ -240,6 +242,14 @@ public class DomibusPropertyMetadataDTO {
         this.encrypted = encrypted;
     }
 
+    public boolean isStoredGlobally() {
+        return storedGlobally;
+    }
+
+    public void setStoredGlobally(boolean storedGlobally) {
+        this.storedGlobally = storedGlobally;
+    }
+
     public class Usage {
         public static final int GLOBAL = 1;
         public static final int DOMAIN = 2;
@@ -249,7 +259,7 @@ public class DomibusPropertyMetadataDTO {
     }
 
     /**
-     * Metadata being used by third-party modules, here I added the type just as a string and not an enum
+     * Metadata being used by third-party modules, here we added the type just as a string and not an enum
      */
     public class Type {
         public static final String NUMERIC = "NUMERIC";

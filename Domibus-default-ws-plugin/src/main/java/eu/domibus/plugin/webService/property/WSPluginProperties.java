@@ -34,7 +34,7 @@ public class WSPluginProperties implements DomibusPropertyManagerExt {
     private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
             new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
             new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-    }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }).peek(el -> el.setStoredGlobally(false)).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public boolean hasKnownProperty(String name) {
