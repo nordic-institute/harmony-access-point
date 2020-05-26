@@ -46,7 +46,6 @@ public class FSProcessFileService {
     protected FSFileNameHelper fsFileNameHelper;
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void processFile(FileObject processableFile, String domain) throws FileSystemException, JAXBException, MessagingProcessingException {
         LOG.debug("processFile start for file: {}", processableFile);
 

@@ -111,7 +111,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");

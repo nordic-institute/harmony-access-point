@@ -28,7 +28,6 @@ import java.util.List;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class PayloadProfileValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadProfileValidator.class);

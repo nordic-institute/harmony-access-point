@@ -83,13 +83,11 @@ public class ReliabilityChecker {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration) throws EbMS3Exception {
         return check(request, response, responseResult, legConfiguration, pushMatcher);
     }
 
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
     }

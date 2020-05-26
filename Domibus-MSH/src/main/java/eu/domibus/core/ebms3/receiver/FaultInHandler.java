@@ -33,7 +33,6 @@ import java.util.Set;
  *
  * @author Christian Koch, Stefan Mueller
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class FaultInHandler extends AbstractFaultHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultInHandler.class);
 

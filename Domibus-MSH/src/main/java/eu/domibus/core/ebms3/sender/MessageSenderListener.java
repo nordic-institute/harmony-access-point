@@ -21,7 +21,6 @@ import javax.jms.Message;
 public class MessageSenderListener extends AbstractMessageSenderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     public void onMessage(final Message message) {

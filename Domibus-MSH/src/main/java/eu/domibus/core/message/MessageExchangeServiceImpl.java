@@ -304,7 +304,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
 
     @Override
-    @Transactional(noRollbackFor = ReliabilityException.class)
     public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId) {
         final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
         if (rawXmlByMessageId == null) {
@@ -334,7 +333,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
@@ -377,7 +375,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = ChainCertificateInvalidException.class)
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
         if (policyService.isNoSecurityPolicy(policy)) {

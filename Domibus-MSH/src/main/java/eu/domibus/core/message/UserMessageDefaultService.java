@@ -200,6 +200,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
         LOG.info("Restoring message [{}]", messageId);
@@ -294,6 +295,7 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
+    @Transactional
     @Override
     public void scheduleSending(String messageId, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
@@ -475,6 +477,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
+    @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
@@ -498,6 +501,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return restoredMessages;
     }
 
+    @Transactional
     @Override
     public void deleteFailedMessage(String messageId) {
         getFailedMessage(messageId);

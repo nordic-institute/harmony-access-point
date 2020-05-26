@@ -53,7 +53,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void submit(Runnable task, Runnable errorHandler, File lockFile) {
         LOG.trace("Submitting task with lock file [{}]", lockFile);
@@ -65,7 +64,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void submit(Runnable task, Domain domain) {
         submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);

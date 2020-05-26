@@ -373,7 +373,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
@@ -387,7 +386,6 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(final String pModeKey) {
         final String partyKey = this.getSenderPartyNameFromPModeKey(pModeKey);
@@ -399,7 +397,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching sender party found with name: " + partyKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
@@ -411,7 +408,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching receiver party found with name: " + partyKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Service getService(final String pModeKey) {
         final String serviceKey = this.getServiceNameFromPModeKey(pModeKey);
@@ -423,7 +419,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching service found with name: " + serviceKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Action getAction(final String pModeKey) {
         final String actionKey = this.getActionNameFromPModeKey(pModeKey);
@@ -435,7 +430,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching action found with name: " + actionKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Agreement getAgreement(final String pModeKey) {
         final String agreementKey = this.getAgreementRefNameFromPModeKey(pModeKey);
@@ -447,7 +441,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching agreement found with name: " + agreementKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);

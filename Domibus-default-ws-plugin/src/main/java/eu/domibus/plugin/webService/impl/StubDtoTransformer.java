@@ -153,7 +153,6 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
 
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS,noRollbackFor = {IllegalArgumentException.class,IllegalStateException.class})
     public Submission transformToSubmission(final Messaging messageData) {
         return transformFromMessaging(messageData.getUserMessage());
     }

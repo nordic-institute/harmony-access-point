@@ -72,7 +72,6 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Qualifier("domibusProxyService")
     protected DomibusProxyService domibusProxyService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {

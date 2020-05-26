@@ -22,6 +22,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -93,7 +94,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     private JMXTemplate jmxTemplate;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     private JMSDestinationHelper jmsDestinationHelper;
@@ -412,6 +413,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, String destName) {
+        sendMessage(message, destName, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
         try {
             JmsMessageCreator messageCreator = new JmsMessageCreator(message);
             jmsOperations.send(lookupDestination(destName), messageCreator);
@@ -422,6 +428,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 

@@ -106,7 +106,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         return iamProvider.getCertificateFromKeyStore(alias);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public X509Certificate getCertificateFromTrustStore(String alias) throws KeyStoreException {
         return iamProvider.getCertificateFromTrustStore(alias);

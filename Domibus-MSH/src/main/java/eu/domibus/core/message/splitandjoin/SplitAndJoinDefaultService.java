@@ -70,7 +70,6 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     private static final Long MB_IN_BYTES = 1048576L;
@@ -150,7 +149,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected ErrorService errorService;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
@@ -303,7 +301,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         return temporaryDirectoryLocation + "/" + uuid;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public File rejoinMessageFragments(String groupId) {
         LOG.debug("Rejoining the SourceMessage for group [{}]", groupId);
@@ -344,7 +341,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         return getUserMessage(sourceMessageFile, contentType);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage getUserMessage(File sourceMessageFileName, String contentTypeString) {
         LOG.debug("Parsing the SOAPMessage from file [{}]", sourceMessageFileName);
 

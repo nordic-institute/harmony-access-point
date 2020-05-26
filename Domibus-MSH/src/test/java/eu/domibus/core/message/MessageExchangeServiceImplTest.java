@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.Queue;
 import java.util.ArrayList;

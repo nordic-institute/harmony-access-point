@@ -78,7 +78,6 @@ public class EbMS3MessageBuilder {
         return buildSOAPMessage(signalMessage);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage buildSOAPMessage(final UserMessage userMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPUserMessage(userMessage, null);
     }
@@ -102,7 +101,6 @@ public class EbMS3MessageBuilder {
     }
 
     //TODO: If Leg is used in future releases we have to update this method
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage buildSOAPFaultMessage(final Error ebMS3error) throws EbMS3Exception {
         final SignalMessage signalMessage = new SignalMessage();
         signalMessage.getError().add(ebMS3error);
