@@ -323,11 +323,7 @@ public abstract class AbstractIT {
 
     public String composePModeKey(final String senderParty, final String receiverParty, final String service,
                                   final String action, final String agreement, final String legName) {
-        return StringUtils.join(senderParty, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
-                receiverParty, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
-                service, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
-                action, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
-                agreement, MessageExchangeConfiguration.PMODEKEY_SEPARATOR,
-                legName);
+        return StringUtils.joinWith(MessageExchangeConfiguration.PMODEKEY_SEPARATOR, senderParty,
+                receiverParty, service, action, agreement, legName);
     }
 }
