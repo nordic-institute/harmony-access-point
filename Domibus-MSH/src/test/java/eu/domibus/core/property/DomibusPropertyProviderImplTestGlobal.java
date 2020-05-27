@@ -103,7 +103,7 @@ public class DomibusPropertyProviderImplTestGlobal {
         domibusPropertyProvider.setProperty(propertyName, propertyValue);
 
         new Verifications() {{
-            domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, false);
+            domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
         }};
     }
 

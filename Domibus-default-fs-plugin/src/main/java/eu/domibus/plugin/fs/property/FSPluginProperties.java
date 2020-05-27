@@ -379,11 +379,11 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     private String getBasePropertyName(String propName) {
         String baseName = propName;
         if (baseName.startsWith(DOMAIN_PREFIX)) { // fsplugin.domains.x.baseName
-            LOG.debug("Processing a domain property name [{}]", baseName);
+            LOG.trace("Processing a domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, DOMAIN_PREFIX);
             baseName = StringUtils.substringAfter(baseName, DOT); // remove the domain name
         } else if (baseName.startsWith(PROPERTY_PREFIX)) { // fsplugin.baseName
-            LOG.debug("Processing a non-domain property name [{}]", baseName);
+            LOG.trace("Processing a non-domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
         }
         return baseName;
@@ -473,7 +473,6 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         this.properties.setProperty(propertyKey, propertyValue);
 
         LOG.debug("Signaling property value changed for [{}] property, broadcast: [{}]", propertyName, broadcast);
-
         pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
     }
 
