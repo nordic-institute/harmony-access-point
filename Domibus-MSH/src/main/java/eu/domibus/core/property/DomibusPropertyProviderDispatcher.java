@@ -39,37 +39,30 @@ public class DomibusPropertyProviderDispatcher {
 
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        // determine if the property is stored in core or in the module manager
         if (propMeta.isStoredGlobally()) {
-            // just return it
             return getInternalPropertyValue(domain, propertyName);
         }
 
-        //external property then so find the property manager
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
             throw new DomibusPropertyException("Could not find manager for not globally stored property " + propertyName);
         }
 
-        // call manager for the value
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        // determine if the property is stored in core or in the module manager
         if (propMeta.isStoredGlobally()) {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
             return;
         }
 
-        //external property then so find the property manager
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
         if (manager == null) {
             throw new DomibusPropertyException("Could not find manager for not globally stored property " + propertyName);
         }
 
-        //call manager to set the value
         setExternalPropertyValue(domain, propertyName, propertyValue, broadcast, manager);
     }
 

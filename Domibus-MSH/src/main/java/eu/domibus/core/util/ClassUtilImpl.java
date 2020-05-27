@@ -54,7 +54,7 @@ public class ClassUtilImpl implements ClassUtil {
         try {
             clazz.getDeclaredMethod(methodName, paramTyes);
         } catch (NoSuchMethodException e) {
-            LOG.debug(methodName + " is not defined with the specified arguments.");
+            LOG.debug("[{}] is not defined with the specified arguments [{}].", methodName, paramTyes);
             return false;
         }
 
