@@ -57,7 +57,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
         final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
-        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue, false);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override

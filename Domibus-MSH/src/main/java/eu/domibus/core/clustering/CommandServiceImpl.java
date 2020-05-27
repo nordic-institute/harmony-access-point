@@ -118,7 +118,8 @@ public class CommandServiceImpl implements CommandService {
                 final String propName = commandProperties.get(CommandProperty.PROPERTY_NAME);
                 final String propVal = commandProperties.get(CommandProperty.PROPERTY_VALUE);
                 try {
-                    domibusPropertyProvider.setProperty(domain, propName, propVal);
+                    LOG.trace("Updating the value of [{}] property on domain [{}], no broadcast", propName, domain);
+                    domibusPropertyProvider.setProperty(domain, propName, propVal, false);
                 } catch (Exception ex) {
                     LOG.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain);
                 }

@@ -124,12 +124,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, false);
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
     }
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException {
-        setProperty(domain, propertyName, propertyValue, false);
+        setProperty(domain, propertyName, propertyValue, true);
     }
 
     protected String getInternalProperty(String propertyName) {
@@ -174,7 +174,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected String getInternalProperty(Domain domain, String propertyName) {
-        LOG.debug("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
+        LOG.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode

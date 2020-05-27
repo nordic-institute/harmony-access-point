@@ -103,19 +103,19 @@ public class DomibusPropertyProviderDispatcher {
 
     protected String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
-            LOG.debug("Getting internal property [{}] without domain.", propertyName, domain);
+            LOG.trace("Getting internal property [{}] without domain.", propertyName, domain);
             return domibusPropertyProvider.getInternalProperty(propertyName);
         }
-        LOG.debug("Getting internal property [{}] on domain [{}].", propertyName, domain);
+        LOG.trace("Getting internal property [{}] on domain [{}].", propertyName, domain);
         return domibusPropertyProvider.getInternalProperty(domain, propertyName);
     }
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.debug("Calling getKnownPropertyValue method");
+            LOG.trace("Calling getKnownPropertyValue method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        LOG.debug("Calling deprecated getKnownPropertyValue method");
+        LOG.trace("Calling deprecated getKnownPropertyValue method");
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
     }

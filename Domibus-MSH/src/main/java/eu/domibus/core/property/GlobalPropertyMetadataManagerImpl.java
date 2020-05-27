@@ -84,9 +84,14 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             return true;
         }
 
-        Optional<DomibusPropertyMetadata> propMeta = map.values().stream().filter(
-                p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
-        return propMeta.isPresent();
+        try {
+            Optional<DomibusPropertyMetadata> propMeta = map.values().stream().filter(
+                    p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
+            return propMeta.isPresent();
+        } catch (Exception ex) {
+            LOG.error("Could not find metadata of [{}] property in property map [{}]", propertyName, map);
+            return false;
+        }
     }
 
     @Override
@@ -168,8 +173,6 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
             DomibusPropertyMetadata domibusProp = domainConverter.convert(extProp, DomibusPropertyMetadata.class);
-//            domibusProp.setType(extProp.getType());
-
             allPropertyMetadataMap.put(entry.getKey(), domibusProp);
         }
     }
