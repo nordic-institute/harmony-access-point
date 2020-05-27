@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * @since 4.2
  * @author Catalin Enache
+ * @since 4.2
  */
 @RunWith(JMockit.class)
 public class PayloadPersistenceHelperTest {
@@ -50,8 +50,7 @@ public class PayloadPersistenceHelperTest {
         try {
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
             Assert.fail("exception expected");
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof InvalidPayloadSizeException);
+        } catch (InvalidPayloadSizeException e) {
             Assert.assertEquals("[DOM_007]:Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]",
                     e.getMessage());
         }
