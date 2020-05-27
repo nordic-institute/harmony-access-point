@@ -6,16 +6,16 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -167,7 +167,7 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storePayload(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
         try {
             if (MSHRole.RECEIVING.equals(mshRole)) {
-                storeIncomingPayload(partInfo, messaging.getUserMessage());
+                storeIncomingPayload(partInfo, messaging.getUserMessage(), legConfiguration);
             } else {
                 storeOutgoingPayload(partInfo, messaging.getUserMessage(), legConfiguration, backendName);
             }
@@ -177,9 +177,9 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
-    protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+    protected void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
-        payloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        payloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         // Log Payload size
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -197,6 +197,8 @@ public class MessagingServiceImpl implements MessagingService {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION, partInfo.getHref());
         }
     }
+
+
 
     protected void setContentType(PartInfo partInfo) {
         String contentType = partInfo.getPayloadDatahandler().getContentType();
