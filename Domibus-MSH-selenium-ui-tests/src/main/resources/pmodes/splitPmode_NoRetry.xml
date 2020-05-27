@@ -58,7 +58,7 @@
 					cid="cid:attachment" 
 					required="false"
 					mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
+			<payloadProfile name="MessageProfile" maxSize="40894464">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
