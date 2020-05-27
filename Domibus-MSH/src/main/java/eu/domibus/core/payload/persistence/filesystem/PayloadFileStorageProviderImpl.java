@@ -66,4 +66,9 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
         final PayloadFileStorage currentStorage = getCurrentStorage();
         return currentStorage.getStorageDirectory() == null || currentStorage.getStorageDirectory().getName() == null;
     }
+
+    @Override
+    public boolean isPayloadsPersistenceFileSystemConfigured() {
+        return !isPayloadsPersistenceInDatabaseConfigured();
+    }
 }
