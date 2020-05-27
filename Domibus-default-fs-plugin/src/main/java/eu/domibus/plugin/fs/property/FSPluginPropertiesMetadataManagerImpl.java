@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
-    protected static final String PROPERTY_PREFIX = "fsplugin.";
+    public static final String PROPERTY_PREFIX = "fsplugin.";
 
     protected static final String DOMAIN_PREFIX = "fsplugin.domains.";
 

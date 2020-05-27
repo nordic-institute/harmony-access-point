@@ -463,17 +463,13 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         }
 
         String propertyKey = propertyName;
-        String baseName = propertyName;
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             propertyKey = getDomainPropertyName(domainCode, propertyName);
-            if (domainCode == null) {
-                baseName = getBasePropertyName(propertyName);
-            }
         }
         this.properties.setProperty(propertyKey, propertyValue);
 
         LOG.debug("Signaling property value changed for [{}] property, broadcast: [{}]", propertyName, broadcast);
-        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
+        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
     }
 
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
