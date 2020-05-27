@@ -165,12 +165,12 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
-    public void deleteMessages(String source, String[] messageIds) {
+    public int deleteMessages(String source, String[] messageIds) {
         try {
             QueueViewMBean queue = getQueueViewMBean(source);
-            queue.removeMatchingMessages(jmsSelectorUtil.getSelector(messageIds));
+            return queue.removeMatchingMessages(jmsSelectorUtil.getSelector(messageIds));
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + Arrays.toString(messageIds), e);
         }
     }
 
@@ -299,12 +299,12 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
-    public void moveMessages(String source, String destination, String[] messageIds) {
+    public int moveMessages(String source, String destination, String[] messageIds) {
         try {
             QueueViewMBean queue = getQueueViewMBean(source);
-            queue.moveMatchingMessagesTo(jmsSelectorUtil.getSelector(messageIds), destination);
+            return queue.moveMatchingMessagesTo(jmsSelectorUtil.getSelector(messageIds), destination);
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + Arrays.toString(messageIds), e);
         }
     }
 

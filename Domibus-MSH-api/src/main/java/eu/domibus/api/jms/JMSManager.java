@@ -1,15 +1,15 @@
 package eu.domibus.api.jms;
 
+import org.springframework.jms.core.JmsOperations;
+
 import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 
-import org.springframework.jms.core.JmsOperations;
-
 /**
- * // TODO Documentation
+ * Handle all JMS operations
  *
  * @author Cosmin Baciu
  * @see JmsMessage
@@ -101,8 +101,23 @@ public interface JMSManager {
      */
     void sendMessageToTopic(JmsMessage message, Topic destination, boolean excludeOrigin);
 
+    /**
+     * Delete a list of JMS Messages from {@code source}
+     *
+     * @param source JMS Queue
+     * @param messageIds cannot be empty and at least one none blank value
+     * @throws IllegalArgumentException if no message deleted
+     */
     void deleteMessages(String source, String[] messageIds);
 
+    /**
+     * Move a list of messages from {@code source} to {@code destination}
+     *
+     * @param source JMS Queue
+     * @param destination JMS Queue
+     * @param messageIds cannot be empty and at least one none blank value
+     * @throws IllegalArgumentException if no message moved
+     */
     void moveMessages(String source, String destination, String[] messageIds);
 
     /**
@@ -125,7 +140,7 @@ public interface JMSManager {
     /**
      * Return the number of jms messages in the destination.
      *
-     * @param jmsDestination
+     * @param jmsDestination JMS Queue
      * @return the number of messages contained in the destination.
      */
     long getDestinationSize(JMSDestination jmsDestination);
