@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.Set;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Thomas Dussart

@@ -8,7 +8,7 @@ import java.util.Map;
  * <p>
  * The interface implemented by MSH to expose metadata for all of the configuration properties
  */
-public interface DomibusPropertyMetadataManager {
+public interface DomibusPropertyMetadataManagerSPI {
 
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.user.account_disabled.";
     String DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.cert.imminent_expiration.";
@@ -234,6 +234,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_DATASOURCE_MIN_POOL_SIZE = "domibus.datasource.minPoolSize";
     String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY = "domibus.entityManagerFactory.jpaProperty";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT = "domibus.entityManagerFactory.jpaProperty.hibernate.dialect";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS = "domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings";
@@ -287,7 +288,8 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
-
+    String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
+    String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     /**
      * Get all the properties metadata that support changing at runtime
      *

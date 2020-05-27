@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class AlertAccountDisabledConfigurationChangeListener implements DomibusP
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX);
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX);
     }
 
     @Override

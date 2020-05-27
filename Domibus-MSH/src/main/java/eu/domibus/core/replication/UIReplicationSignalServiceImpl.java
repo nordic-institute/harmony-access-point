@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_ENABLED;
 
 /**
  * Implementation for {@code UIReplicationSignalService}

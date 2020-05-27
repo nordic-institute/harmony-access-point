@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ public class AlertPasswordExpiredConfigurationChangeListener implements DomibusP
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX);
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX);
     }
 
     @Override

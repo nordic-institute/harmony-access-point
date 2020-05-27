@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.message.pull.DomainPullFrequencyHelper.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC_PREFIX;
 
 /**

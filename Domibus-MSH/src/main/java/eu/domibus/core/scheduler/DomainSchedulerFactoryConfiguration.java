@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
@@ -49,7 +49,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu, Tiago Miguel
@@ -525,7 +525,7 @@ public class DomainSchedulerFactoryConfiguration {
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_DEPLOYMENT_CLUSTERED));
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");

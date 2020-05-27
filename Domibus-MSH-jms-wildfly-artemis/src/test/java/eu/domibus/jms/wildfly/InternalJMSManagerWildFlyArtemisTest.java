@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 import static org.junit.Assert.*;
 

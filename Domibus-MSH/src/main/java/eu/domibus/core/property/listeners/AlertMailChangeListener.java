@@ -1,14 +1,14 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.alerts.MailSender;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
 
 /**
  * @author Ion Perpegel
@@ -24,7 +24,7 @@ public class AlertMailChangeListener implements DomibusPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_SENDER_SMTP_PREFIX)
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_SENDER_SMTP_PREFIX)
                 || StringUtils.equalsAnyIgnoreCase(propertyName, DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);
     }
 

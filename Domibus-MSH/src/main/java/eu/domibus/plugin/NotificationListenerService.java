@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
 
 /**
  * @author Christian Koch, Stefan Mueller
