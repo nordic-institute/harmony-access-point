@@ -1,8 +1,4 @@
-##### ORA-12519, TNS:no appropriate service handler found
-##### for cluster execute as sysdba and restart
-# alter system set processes=150 scope=spfile;
-# commit;
-
+##### This is an SQL example script to create all Domibus queues in the Oracle AQ database #####
 BEGIN
 dbms_aqadm.create_queue_table (queue_table => 'OUTQUEUE',  queue_payload_type => 'sys.aq$_jms_message',multiple_consumers => false);
 dbms_aqadm.create_queue_table (queue_table => 'REPLYQUEUE', queue_payload_type => 'sys.aq$_jms_message',multiple_consumers => false);
