@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_MOMENT;
 import static org.junit.Assert.*;
 
 /**
@@ -39,7 +38,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     private ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledConfigurationLoader;
 
     @Injectable
-    private ConfigurationLoader<AccountEnabledModuleConfiguration> accountEnabledConfigurationLoader;
+    private ConfigurationLoader<AlertModuleConfigurationBase> accountEnabledConfigurationLoader;
 
     @Injectable
     private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
@@ -72,7 +71,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
 
     @Injectable
-    ConfigurationLoader<AccountEnabledModuleConfiguration> pluginAccountEnabledConfigurationLoader;
+    ConfigurationLoader<AlertModuleConfigurationBase> pluginAccountEnabledConfigurationLoader;
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
@@ -194,7 +193,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     }
 
     @Test
-    public void getMailSubjectForAccountEnabled(final @Mocked AccountEnabledModuleConfiguration accountEnabledConfiguration) {
+    public void getMailSubjectForAccountEnabled(final @Mocked AlertModuleConfigurationBase accountEnabledConfiguration) {
         new Expectations(configurationService) {{
             configurationService.getAccountEnabledConfiguration();
             this.result = accountEnabledConfiguration;
@@ -414,7 +413,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             this.result = false;
         }};
-        final AccountEnabledModuleConfiguration accountEnabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
+        final AlertModuleConfigurationBase accountEnabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
         assertFalse(accountEnabledConfiguration.isActive());
 
     }
@@ -455,12 +454,10 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             result = true;
             domibusPropertyProvider.getProperty( DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_LEVEL);
             result = "HIGH";
-            domibusPropertyProvider.getProperty( DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_MOMENT);
-            result = "AT_LOGON";
             domibusPropertyProvider.getProperty( DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_SUBJECT);
             this.result = mailSubject;
         }};
-        final AccountEnabledModuleConfiguration accountEnabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
+        final AlertModuleConfigurationBase accountEnabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
         assertTrue(accountEnabledConfiguration.isActive());
         assertEquals(mailSubject, accountEnabledConfiguration.getMailSubject());
         Alert alert = new Alert();
@@ -518,12 +515,10 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             result = true;
             domibusPropertyProvider.getProperty( DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_LEVEL);
             result = "HIGH";
-            domibusPropertyProvider.getProperty( DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_MOMENT);
-            result = "AT_LOGON";
             domibusPropertyProvider.getProperty( DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT);
             this.result = mailSubject;
         }};
-        final AccountEnabledModuleConfiguration accountEnabledConfiguration = configurationService.new
+        final AlertModuleConfigurationBase accountEnabledConfiguration = configurationService.new
                 PluginAccountEnabledConfigurationReader().readConfiguration();
 
         assertTrue(accountEnabledConfiguration.isActive());
@@ -559,7 +554,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
             domibusPropertyProvider.getProperty( DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_LEVEL);
             result = "HIGHPP";
         }};
-        final AccountEnabledModuleConfiguration accountDisabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
+        final AlertModuleConfigurationBase accountDisabledConfiguration = configurationService.new ConsoleAccountEnabledConfigurationReader().readConfiguration();
         assertFalse(accountDisabledConfiguration.isActive());
     }
 

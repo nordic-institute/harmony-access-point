@@ -5,7 +5,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.model.service.AccountEnabledModuleConfiguration;
+import eu.domibus.core.alerts.model.service.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.user.UserDaoBase;
@@ -100,7 +100,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerEnabledEvent(UserBase user) {
-        final AccountEnabledModuleConfiguration accountEnabledConfiguration = alertsConfiguration.getAccountEnabledConfiguration();
+        final AlertModuleConfigurationBase accountEnabledConfiguration = alertsConfiguration.getAccountEnabledConfiguration();
         if (accountEnabledConfiguration.isActive()) {
             LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
             eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());

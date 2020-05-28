@@ -46,13 +46,13 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     private ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledConfigurationLoader;
 
     @Autowired
-    private ConfigurationLoader<AccountEnabledModuleConfiguration> accountEnabledConfigurationLoader;
+    private ConfigurationLoader<AlertModuleConfigurationBase> accountEnabledConfigurationLoader;
 
     @Autowired
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
 
     @Autowired
-    private ConfigurationLoader<AccountEnabledModuleConfiguration> pluginAccountEnabledConfigurationLoader;
+    private ConfigurationLoader<AlertModuleConfigurationBase> pluginAccountEnabledConfigurationLoader;
 
     @Autowired
     private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
@@ -98,7 +98,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
      * {@inheritDoc}
      */
     @Override
-    public AccountEnabledModuleConfiguration getAccountEnabledConfiguration() {
+    public AlertModuleConfigurationBase getAccountEnabledConfiguration() {
         return accountEnabledConfigurationLoader.getConfiguration(new ConsoleAccountEnabledConfigurationReader()::readConfiguration);
     }
 
@@ -208,7 +208,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         passwordExpirationAlertsConfigurationHolder.clearConfiguration();
     }
 
-    // TODO: refactor to avoid these repetitions cause we can easily miss to add here the newly added alert types
     private AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
         switch (alertType) {
             case MSG_STATUS_CHANGED:
@@ -406,7 +405,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
     }
 
-    abstract class AccountEnabledConfigurationReader implements UserAuthenticationConfiguration {
+    abstract class AccountEnabledConfigurationReader {
         protected abstract AlertType getAlertType();
 
         protected abstract String getModuleName();
@@ -415,33 +414,29 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         protected abstract String getAlertLevelPropertyName();
 
-        protected abstract String getAlertMomentPropertyName();
-
         protected abstract String getAlertEmailSubjectPropertyName();
 
-        protected AccountEnabledModuleConfiguration readConfiguration() {
-            //todo
+        protected AlertModuleConfigurationBase readConfiguration() {
+
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             try {
-
                 final Boolean alertActive = isAlertModuleEnabled();
                 final Boolean accountEnabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
                 if (!alertActive || !accountEnabledActive) {
                     LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
                             , currentDomain, getModuleName(), alertActive, accountEnabledActive);
-                    return new AccountEnabledModuleConfiguration(getAlertType());
+                    return new AlertModuleConfigurationBase(getAlertType());
                 }
 
                 final AlertLevel level = AlertLevel.valueOf(domibusPropertyProvider.getProperty(getAlertLevelPropertyName()));
-                final AccountDisabledMoment moment = AccountDisabledMoment.valueOf(domibusPropertyProvider.getProperty(getAlertMomentPropertyName()));
                 final String mailSubject = domibusPropertyProvider.getProperty(getAlertEmailSubjectPropertyName());
 
                 LOG.info("[{}] module activated for domain:[{}]", getModuleName(), currentDomain);
-                return new AccountEnabledModuleConfiguration(getAlertType(), level, moment, mailSubject);
+                return new AlertModuleConfigurationBase(getAlertType(), level, mailSubject);
 
             } catch (Exception e) {
                 LOG.warn("An error occurred while reading [{}] module configuration for domain:[{}], ", getModuleName(), currentDomain, e);
-                return new AccountEnabledModuleConfiguration(getAlertType());
+                return new AlertModuleConfigurationBase(getAlertType());
             }
         }
     }
@@ -507,19 +502,10 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        protected String getAlertMomentPropertyName() {
-            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_MOMENT;
-        }
-
-        @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_SUBJECT;
         }
 
-        @Override
-        public boolean shouldCheckExtAuthEnabled() {
-            return domibusConfigurationService.isExtAuthProviderEnabled();
-        }
     }
 
     class PluginAccountDisabledConfigurationReader extends AccountDisabledConfigurationReader {
@@ -568,7 +554,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
         @Override
         protected String getModuleName() {
-            return "Alert plugin account disabled";
+            return "Alert plugin account enabled";
         }
 
         @Override
@@ -582,18 +568,8 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
 
         @Override
-        protected String getAlertMomentPropertyName() {
-            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_MOMENT;
-        }
-
-        @Override
         protected String getAlertEmailSubjectPropertyName() {
             return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT;
-        }
-
-        @Override
-        public boolean shouldCheckExtAuthEnabled() {
-            return false;
         }
     }
 
@@ -807,7 +783,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public AccountEnabledModuleConfiguration getPluginAccountEnabledConfiguration() {
+    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
         return pluginAccountEnabledConfigurationLoader.getConfiguration(new PluginAccountEnabledConfigurationReader()::readConfiguration);
     }
 

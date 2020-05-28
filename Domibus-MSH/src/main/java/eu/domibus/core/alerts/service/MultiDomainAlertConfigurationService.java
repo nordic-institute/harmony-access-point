@@ -30,7 +30,7 @@ public interface MultiDomainAlertConfigurationService {
     /**
      * @return account enabled module configuration
      */
-    AccountEnabledModuleConfiguration getAccountEnabledConfiguration();
+    AlertModuleConfigurationBase getAccountEnabledConfiguration();
 
     /**
      * Clears/removes the account disabled configuration so that a new one will be created when calls to it are made
@@ -130,7 +130,7 @@ public interface MultiDomainAlertConfigurationService {
     /**
      * @return account enabled module configuration for plugin users
      */
-    AccountEnabledModuleConfiguration getPluginAccountEnabledConfiguration();
+    AlertModuleConfigurationBase getPluginAccountEnabledConfiguration();
 
     /**
      * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made

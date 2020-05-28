@@ -228,8 +228,8 @@ public class UserAlertsServiceImplTest {
             setUserName("user1");
             setPassword("anypassword");
         }};
-        AccountEnabledModuleConfiguration conf = new AccountEnabledModuleConfiguration(AlertType.USER_ACCOUNT_ENABLED,
-                AlertLevel.MEDIUM, AccountDisabledMoment.AT_LOGON, "");
+        AlertModuleConfigurationBase conf = new AlertModuleConfigurationBase(AlertType.USER_ACCOUNT_ENABLED,
+                AlertLevel.MEDIUM, "");
         new Expectations() {{
             alertsConfiguration.getAccountEnabledConfiguration();
             result = conf;
