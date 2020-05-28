@@ -712,7 +712,7 @@ public class CachingPModeProvider extends PModeProvider {
             // add only one id for the party, not all aliases
             List<Identifier> ids = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(ids)) {
-                LOG.info("No party ids for party [{}]", party.getName());
+                LOG.warn("No party ids for party [{}]", party.getName());
                 continue;
             }
             String id = ids.get(0).getPartyId();
