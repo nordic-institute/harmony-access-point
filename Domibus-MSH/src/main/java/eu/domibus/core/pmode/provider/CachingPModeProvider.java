@@ -709,8 +709,15 @@ public class CachingPModeProvider extends PModeProvider {
     private void handleProcessParties(Process process, List result) {
         Comparator<Identifier> comp = (Identifier a, Identifier b) -> StringUtils.compare(a.getPartyId(), b.getPartyId());
         for (Party party : process.getResponderParties()) {
+            // add only one id for the party, not all aliases
             List<Identifier> ids = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
-            result.add(ids.get(0).getPartyId());
+            if (CollectionUtils.isEmpty(ids)) {
+                LOG.info("No party ids for party [{}]", party.getName());
+                continue;
+            }
+            String id = ids.get(0).getPartyId();
+            LOG.trace("Add matching party [{}] from process [{}]", id, process.getName());
+            result.add(id);
         }
     }
 
