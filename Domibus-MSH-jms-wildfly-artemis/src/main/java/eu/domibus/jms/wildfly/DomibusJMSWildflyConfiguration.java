@@ -1,7 +1,6 @@
 package eu.domibus.jms.wildfly;
 
 import eu.domibus.api.jms.JMSConstants;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,6 +16,8 @@ import javax.jms.Session;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import java.lang.management.ManagementFactory;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 
 /**
  * @author Cosmin Baciu
@@ -39,7 +40,7 @@ public class DomibusJMSWildflyConfiguration {
                                                        DomibusPropertyProvider domibusPropertyProvider) throws MalformedObjectNameException {
         MBeanProxyFactoryBean result = new MBeanProxyFactoryBean();
 
-        String artemisBroker = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER);
+        String artemisBroker = domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
         String objectName = String.format(MQ_BROKER_NAME, artemisBroker);
         LOGGER.debug("Configured property [objectName] with [{}]", objectName);
 

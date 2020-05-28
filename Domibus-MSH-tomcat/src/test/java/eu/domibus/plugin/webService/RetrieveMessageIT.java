@@ -5,12 +5,13 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationType;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -111,6 +112,11 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     }
 
     private void retrieveMessage(String messageId) throws Exception {
+        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
+                "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
+        final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+
+
         final String sanitazedMessageId = StringUtils.trim(messageId).replace("\t", "");
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
@@ -119,7 +125,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         userMessage.getMessageInfo().setMessageId(sanitazedMessageId);
         eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, null, "backendWebservice");
+        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);

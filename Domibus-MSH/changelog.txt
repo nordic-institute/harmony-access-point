@@ -15,6 +15,7 @@ Domibus 4.2
 - Added JDK 11 support
 - Added Foreign Servers support in Weblogic
 - Add alert for account enabled.
+- maxSize attribute defined in payload profile in PMode is taken in account for standard messages (non Split&Join)
 Domibus 4.1.4
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.

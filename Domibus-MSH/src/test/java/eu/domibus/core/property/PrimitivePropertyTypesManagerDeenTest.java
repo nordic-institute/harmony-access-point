@@ -13,7 +13,7 @@ import java.util.Properties;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DomibusPropertyProviderImplTest {
+public class PrimitivePropertyTypesManagerDeenTest {
 
     private String customValue;
 
@@ -21,15 +21,13 @@ public class DomibusPropertyProviderImplTest {
 
     private String propertyName = "domibus.property.name";
 
-    private Properties domibusProperties = new Properties();
-
     private Properties domibusDefaultProperties = new Properties();
 
-    private DomibusPropertyProviderImpl domibusPropertyProvider = new DomibusPropertyProviderImpl();
+    private PrimitivePropertyTypesManager primitivePropertyTypesManager = new PrimitivePropertyTypesManager();
 
     @Before
     public void setUp() {
-        Deencapsulation.setField(domibusPropertyProvider, "domibusDefaultProperties", domibusDefaultProperties);
+        Deencapsulation.setField(primitivePropertyTypesManager, "domibusDefaultProperties", domibusDefaultProperties);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -188,11 +186,11 @@ public class DomibusPropertyProviderImplTest {
     }
 
     private void whenRetrievingTheIntegerProperty() {
-        result = Deencapsulation.invoke(domibusPropertyProvider, "getIntegerInternal", new Class[] {String.class, String.class}, propertyName, customValue);
+        result = Deencapsulation.invoke(primitivePropertyTypesManager, "getIntegerInternal", new Class[]{String.class, String.class}, propertyName, customValue);
     }
 
     private void whenRetrievingTheBooleanProperty() {
-        result = Deencapsulation.invoke(domibusPropertyProvider, "getBooleanInternal", new Class[] {String.class, String.class}, propertyName, customValue);
+        result = Deencapsulation.invoke(primitivePropertyTypesManager, "getBooleanInternal", new Class[]{String.class, String.class}, propertyName, customValue);
     }
 
     private void thenPropertyValueTakenFromDefaults(String message, Object expectedValue) {

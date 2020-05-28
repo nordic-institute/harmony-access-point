@@ -44,8 +44,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 

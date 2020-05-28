@@ -6,11 +6,11 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
-import eu.domibus.core.message.UserMessageLogEntityBuilder;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogEntityBuilder;
+import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.core.party.PartyDao;
 import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * @author Thomas Dussart
  * @since 3.3
  */
-public class MessagingDaoTestIT extends AbstractIT{
+public class MessagingDaoTestIT extends AbstractIT {
 
     @Autowired
     private MessagingDao messagingDao;
@@ -69,13 +69,12 @@ public class MessagingDaoTestIT extends AbstractIT{
         UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
                 .setMessageId(messageInfo.getMessageId())
                 .setMessageStatus(MessageStatus.READY_TO_PULL)
-                .setMshRole(MSHRole.SENDING)
-                ;
+                .setMshRole(MSHRole.SENDING);
         userMessageLogDao.create(umlBuilder.build());
 
-        List<MessagePullDto> testParty = messagingDao.findMessagingOnStatusReceiverAndMpc("RED_MSH", MessageStatus.READY_TO_PULL,"http://mpc" );
-        assertEquals(1,testParty.size());
-        assertEquals("123456",testParty.get(0).getMessageId());
+        List<MessagePullDto> testParty = messagingDao.findMessagingOnStatusReceiverAndMpc("RED_MSH", MessageStatus.READY_TO_PULL, "http://mpc");
+        assertEquals(1, testParty.size());
+        assertEquals("123456", testParty.get(0).getMessageId());
     }
 
 }

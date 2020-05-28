@@ -4,6 +4,7 @@ package eu.domibus.plugin.jms;
 
 import eu.domibus.AbstractBackendJMSIT;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -82,6 +83,11 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     @Test
     @Transactional(propagation = Propagation.REQUIRED)
     public void testDownloadMessageOk() throws Exception {
+        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
+                "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
+        final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+
+
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
@@ -91,7 +97,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessage.getMessageInfo().setMessageId(messageId);
         eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, null, "backendWebservice");
+        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);

@@ -1,12 +1,12 @@
 package eu.domibus.core.jms;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
@@ -15,9 +15,11 @@ import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +30,6 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.springframework.jms.core.JmsOperations;
 
 /**
  * @author Cosmin Baciu
@@ -51,17 +51,21 @@ public class JMSManagerImpl implements JMSManager {
     /**
      * multi-tenancy mode - JMS plugin queues suffixes per domain
      */
-    private static final String[] JMS_QUEUE_NAMES = {"domibus.backend.jms.outQueue", "domibus.backend.jms.replyQueue",
-            "domibus.backend.jms.errorNotifyConsumer", "domibus.backend.jms.errorNotifyProducer"};
+    private static final String[] JMS_QUEUE_NAMES = {
+            "domibus.backend.jms.outQueue",
+            "domibus.backend.jms.replyQueue",
+            "domibus.backend.jms.errorNotifyConsumer",
+            "domibus.backend.jms.errorNotifyProducer"
+    };
 
     @Autowired
-    InternalJMSManager internalJmsManager;
+    private InternalJMSManager internalJmsManager;
 
     @Autowired
-    JMSDestinationMapper jmsDestinationMapper;
+    private JMSDestinationMapper jmsDestinationMapper;
 
     @Autowired
-    JMSMessageMapper jmsMessageMapper;
+    private JMSMessageMapper jmsMessageMapper;
 
     @Autowired
     private AuditService auditService;
@@ -288,21 +292,35 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        internalJmsManager.deleteMessages(source, messageIds);
-        LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
+        int deleteMessages = internalJmsManager.deleteMessages(source, messageIds);
+        if (deleteMessages == 0) {
+            throw new IllegalStateException("Failed to delete messages from source [" + source + "]: " + Arrays.toString(messageIds));
+        }
+        if (deleteMessages != messageIds.length) {
+            LOG.warn("Not all the JMS messages Ids [{}] were deleted from the source queue [{}]. " +
+                    "Actual: [{}], Expected [{}]", messageIds, source, deleteMessages, messageIds.length);
+        }
+        LOG.debug("{} Jms Message Ids [{}] deleted from the source queue [{}] ", deleteMessages, messageIds, source);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        internalJmsManager.moveMessages(source, destination, messageIds);
-        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
+        int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
+        if (moveMessages == 0) {
+            throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
+        }
+        if (moveMessages != messageIds.length) {
+            LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
+                    "Actual: [{}], Expected [{}]", messageIds, source, destination, moveMessages, messageIds.length);
+        }
+        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", moveMessages, messageIds, source, destination);
         Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
     }
 
     @Override
     public JmsMessage consumeMessage(String source, String messageId) {
-        messageId = StringUtils.replaceAll(messageId, "'", "''");
+        messageId = RegExUtils.replaceAll(messageId, "'", "''");
         InternalJmsMessage internalJmsMessage = internalJmsManager.consumeMessage(source, messageId);
         return jmsMessageMapper.convert(internalJmsMessage);
     }
@@ -327,12 +345,9 @@ public class JMSManagerImpl implements JMSManager {
     /**
      * tests if the given queue {@code jmsQueueInternalName} should be excluded from current queues of JMS Monitoring page
      * - when the user is logged as Admin domain and queue is defined as JMS Plugin queue
-     *
-     * @param jmsQueueInternalName
-     * @return
      */
     protected boolean jmsQueueInOtherDomain(final String jmsQueueInternalName) {
-        /** multi-tenancy but not super-admin*/
+        /* multi-tenancy but not super-admin*/
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             List<Domain> domainsList = domainService.getDomains();
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();

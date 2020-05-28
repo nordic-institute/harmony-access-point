@@ -83,6 +83,13 @@ public class DomibusPropertyMetadataDTO {
 
     private boolean encrypted;
 
+    /**
+     * It is used to mark that the the value is stored in its own property bag or in the core property bag
+     * In case of true, the get/set property method delegate to the domibus property provider(ex: jms plugin and dss module_
+     * In case of false, the value is set/get using its own property bag( ex: ws and fs plugins)
+     */
+    private boolean storedGlobally = true;
+
     public DomibusPropertyMetadataDTO() {
     }
 
@@ -240,6 +247,14 @@ public class DomibusPropertyMetadataDTO {
         this.encrypted = encrypted;
     }
 
+    public boolean isStoredGlobally() {
+        return storedGlobally;
+    }
+
+    public void setStoredGlobally(boolean storedGlobally) {
+        this.storedGlobally = storedGlobally;
+    }
+
     public class Usage {
         public static final int GLOBAL = 1;
         public static final int DOMAIN = 2;
@@ -249,7 +264,7 @@ public class DomibusPropertyMetadataDTO {
     }
 
     /**
-     * Metadata being used by third-party modules, here I added the type just as a string and not an enum
+     * Metadata being used by third-party modules, here we added the type just as a string and not an enum
      */
     public class Type {
         public static final String NUMERIC = "NUMERIC";

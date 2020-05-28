@@ -1,7 +1,7 @@
 package eu.domibus.core.clustering;
 
 import eu.domibus.api.jms.JMSConstants;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,8 +39,8 @@ public class ControllerListenerConfiguration {
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
 
-        String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
-        LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);
+        String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
+        LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);
 
         messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);

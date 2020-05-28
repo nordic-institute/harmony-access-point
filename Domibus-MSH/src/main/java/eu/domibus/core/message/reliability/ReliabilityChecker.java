@@ -47,8 +47,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
-
 /**
  * @author Christian Koch, Stefan Mueller
  */

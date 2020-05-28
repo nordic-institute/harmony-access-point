@@ -21,8 +21,6 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
@@ -31,7 +29,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *

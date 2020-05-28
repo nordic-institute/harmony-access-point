@@ -24,13 +24,17 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.PayloadProfileValidator;
+import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.MessageInfo;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -434,6 +438,14 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
+            } catch (InvalidPayloadSizeException e) {
+                if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
+                    messagingDao.clearFileSystemPayloads(userMessage);
+                }
+                LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
+                ex.setMshRole(MSHRole.SENDING);
+                throw ex;
             }
 
             if (messageStatus == null) {
@@ -517,4 +529,5 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         return party;
     }
+
 }

@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 
 /**
  * @author Cosmin Baciu, Ion Perpegel

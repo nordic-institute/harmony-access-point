@@ -44,17 +44,17 @@ public class ClassUtilImpl implements ClassUtil {
 
     @Override
     public boolean isMethodDefined(Object target, String methodName, Class[] paramTyes) {
-        final Class<?> clazz;
+        Class<?> clazz;
         try {
             clazz = getTargetObjectClass(target);
         } catch (ClassNotFoundException e) {
-            LOG.warn("Could not determine the target class of [{}]", target);
-            return false;
+            LOG.debug("Could not determine the target class of [{}]", target, e);
+            clazz = target.getClass();
         }
         try {
             clazz.getDeclaredMethod(methodName, paramTyes);
         } catch (NoSuchMethodException e) {
-            LOG.debug(methodName + " is not defined with the specified arguments.");
+            LOG.debug("[{}] is not defined with the specified arguments [{}].", methodName, paramTyes);
             return false;
         }
 
