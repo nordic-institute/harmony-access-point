@@ -55,7 +55,7 @@ public class PayloadProfilesValidator implements PModeValidator {
         int maxSize = payloadProfile.getMaxSize();
         if (maxSize <0 ) {
             createIssue(issues, payloadProfile, String.valueOf(maxSize),
-                    "maxSize value [%s] of payload profile [%s] should not be < 0");
+                    "the maxSize value [%s] of payload profile [%s] should be neither negative neither a positive value greater than " + Integer.MAX_VALUE);
         }
     }
 
