@@ -88,8 +88,8 @@ public class PayloadProfile extends AbstractBaseEntity {
      * @param value allowed object is
      *              {@link BigInteger }
      */
-    public void setMaxSize(final int value) {
-        this.maxSize = value;
+    public void setMaxSize(final long value) {
+        this.maxSize = Math.toIntExact(value);
     }
 
     void init(final Configuration configuration) {

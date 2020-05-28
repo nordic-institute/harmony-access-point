@@ -149,8 +149,6 @@ public class BusinessProcessValidator implements PModeValidator {
         }
     }
 
-
-
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
     }
