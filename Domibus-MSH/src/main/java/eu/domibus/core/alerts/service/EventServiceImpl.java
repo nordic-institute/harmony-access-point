@@ -50,7 +50,7 @@ public class EventServiceImpl implements EventService {
 
     static final String ACCOUNT_DISABLED = "accountDisabled";
 
-    static final String ACCOUNT_ENABLED = "accountDisabled";
+    static final String ACCOUNT_ENABLED = "accountEnabled";
 
     static final String CERTIFICATE_EXPIRED = "certificateExpired";
 

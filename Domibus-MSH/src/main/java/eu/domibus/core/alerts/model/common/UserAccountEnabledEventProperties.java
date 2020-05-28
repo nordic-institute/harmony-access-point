@@ -5,5 +5,5 @@ package eu.domibus.core.alerts.model.common;
  */
 public enum UserAccountEnabledEventProperties {
     USER,
-    LOGIN_TIME,
+    LOGIN_TIME
 }
