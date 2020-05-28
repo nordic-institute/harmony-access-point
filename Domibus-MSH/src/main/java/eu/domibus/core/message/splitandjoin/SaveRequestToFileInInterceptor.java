@@ -54,7 +54,6 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
     protected DomainService domainService;
 
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleMessage(Message message) throws Fault {
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);

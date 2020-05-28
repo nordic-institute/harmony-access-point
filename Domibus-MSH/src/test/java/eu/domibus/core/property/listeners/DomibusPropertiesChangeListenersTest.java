@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.alerts.MailSender;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -19,7 +20,6 @@ import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
@@ -120,7 +120,7 @@ public class DomibusPropertiesChangeListenersTest {
 
     @Tested
     @Injectable
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    CorePropertyMetadataManagerImpl corePropertyMetadataManager;
 
     @Injectable
     List<BlacklistValidator> blacklistValidators;
@@ -213,10 +213,10 @@ public class DomibusPropertiesChangeListenersTest {
             result = mockStorage;
         }};
 
-        Map<String, DomibusPropertyMetadata> properties = domibusPropertyMetadataManager.getKnownProperties();
+        Map<String, DomibusPropertyMetadata> properties = corePropertyMetadataManager.getKnownProperties();
 
         for (String propertyName : properties.keySet()) {
-            if (domibusPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            if (corePropertyMetadataManager.hasKnownProperty(propertyName)) {
                 for (DomibusPropertyChangeListener listener : domibusPropertyChangeListeners) {
                     if (listener.handlesProperty(propertyName)) {
                         String testValue = testPropertyValue(propertyName);

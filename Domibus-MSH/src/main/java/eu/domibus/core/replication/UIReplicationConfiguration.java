@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.jms.JMSConstants;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -36,8 +36,8 @@ public class UIReplicationConfiguration {
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
 
-        String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY);
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY, concurrency);
+        String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY, concurrency);
         result.setConcurrency(concurrency);
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

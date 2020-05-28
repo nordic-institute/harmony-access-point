@@ -1,22 +1,20 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -28,7 +26,6 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class FileSystemPayloadPersistence implements PayloadPersistence {
 
@@ -52,7 +49,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected PayloadEncryptionService encryptionService;
 
     @Override
-    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         if (StringUtils.isBlank(partInfo.getFileName())) {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
@@ -60,6 +57,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         } else {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }
+
+        payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
     }
 
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
@@ -124,6 +123,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             partInfo.setLength(fileLength);
             partInfo.setEncrypted(encryptionActive);
 
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
             LOG.debug("Finished saving outgoing payload [{}] to file disk", partInfo.getHref());
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
@@ -158,6 +158,6 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
                 outputStream.close();
             }
         }
-
     }
+
 }

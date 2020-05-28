@@ -19,7 +19,6 @@ import java.util.Set;
  * @since 3.3
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper {
 
 

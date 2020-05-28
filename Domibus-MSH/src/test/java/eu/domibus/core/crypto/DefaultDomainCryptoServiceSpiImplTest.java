@@ -9,7 +9,6 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.*;
@@ -20,10 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
 import java.util.Properties;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**

@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
 
 /**
  * @author Cosmin Baciu

@@ -113,7 +113,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     public void validatePasswordExpired(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
         LOG.debug("Validating if password expired for user [{}]", userName);
 

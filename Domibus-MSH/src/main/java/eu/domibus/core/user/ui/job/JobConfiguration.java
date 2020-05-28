@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICIES_CHECK_CRON;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICIES_CHECK_CRON;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON;
 
 /**
  * @author Ion Perpegel

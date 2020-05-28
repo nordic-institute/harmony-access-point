@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.configuration;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -41,7 +41,7 @@ public class AlertContextConfigurationTest {
         String concurrency = "2-3";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_ALERT_QUEUE_CONCURRENCY);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_QUEUE_CONCURRENCY);
             this.result = concurrency;
         }};
 

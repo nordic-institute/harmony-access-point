@@ -21,7 +21,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import java.util.concurrent.Executor;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
 
 /**
  * @author Cosmin Baciu

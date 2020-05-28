@@ -44,7 +44,6 @@ import java.util.*;
  * @since 3.3
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class MessageUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageUtil.class);

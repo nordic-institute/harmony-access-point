@@ -2,7 +2,7 @@ package eu.domibus.api.multitenancy;
 
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
 
 /**
  * @author Cosmin Baciu

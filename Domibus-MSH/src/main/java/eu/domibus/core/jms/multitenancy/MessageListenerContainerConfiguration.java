@@ -27,7 +27,7 @@ import javax.jms.MessageListener;
 import javax.jms.Queue;
 import java.util.Optional;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel

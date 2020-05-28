@@ -84,7 +84,7 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue) {
-
+        LOG.debug("Signaling [{}] property change on [{}] domain", propertyName, domainCode);
         Map<String, Object> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.DOMIBUS_PROPERTY_CHANGE);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);

@@ -3,7 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertLevel;
@@ -15,7 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 
 /**
@@ -218,7 +218,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         }};
         final String mailSubject = configurationService.getMailSubject(AlertType.CERT_IMMINENT_EXPIRATION);
         Assert.assertNotNull(mailSubject);
-        Assert.assertTrue(mailSubject.contains(DomibusPropertyMetadataManager.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX));
+        Assert.assertTrue(mailSubject.contains(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX));
         new Verifications() {{
             imminentExpirationCertificateConfiguration.getMailSubject();
             times = 1;

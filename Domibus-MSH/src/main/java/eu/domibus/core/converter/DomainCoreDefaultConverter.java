@@ -40,6 +40,7 @@ import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.PartPropertiesDTO;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -378,6 +379,14 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         if (typeOfT == DomibusPropertyTypeRO.class && source.getClass() == DomibusPropertyMetadata.Type.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.domibusPropertyMetadataTypeTOdomibusPropertyTypeRO((DomibusPropertyMetadata.Type) source);
+        }
+        if (typeOfT == DomibusPropertyMetadata.class && source.getClass() == DomibusPropertyMetadataDTO.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.propertyMetadataDTOTopropertyMetadata((DomibusPropertyMetadataDTO) source);
+        }
+        if (typeOfT == DomibusPropertyMetadata.class && source.getClass() == DomibusPropertyMetadata.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.propertyMetadataTopropertyMetadata((DomibusPropertyMetadata) source);
         }
 
         String errorMsg = String.format("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());

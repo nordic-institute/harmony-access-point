@@ -22,7 +22,6 @@ import java.util.Optional;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class TLSReader {
     public static final String CLIENT_AUTHENTICATION_XML = "clientauthentication.xml";
 

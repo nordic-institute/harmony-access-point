@@ -41,7 +41,6 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
@@ -207,7 +206,7 @@ public class EventServiceImpl implements EventService {
             }
 
             final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
-            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty);
+            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty.getName());
             event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
             event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
         } catch (EbMS3Exception e) {

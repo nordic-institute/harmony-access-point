@@ -2,7 +2,7 @@ package eu.domibus.weblogic;
 
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.weblogic.property.WeblogicCommonPropertyManager;
+import eu.domibus.weblogic.property.WeblogicCommonPropertyMetadataManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,8 +18,8 @@ import static eu.domibus.weblogic.security.ECASUserDetailsService.*;
  * <p>
  * Property manager for the Weblogic ECAS specific properties.
  */
-@Service("serverPropertyManager")
-public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
+@Service
+public class WeblogicECASPropertyMetadataManager extends WeblogicCommonPropertyMetadataManager {
     private Map<String, DomibusPropertyMetadata> allProperties;
 
     private Map<String, DomibusPropertyMetadata> myProperties = Arrays.stream(new String[]{
@@ -31,7 +31,7 @@ public class WeblogicECASPropertyManager extends WeblogicCommonPropertyManager {
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
 
-    public WeblogicECASPropertyManager() {
+    public WeblogicECASPropertyMetadataManager() {
         super(Module.WEBLOGIC_ECAS);
     }
 

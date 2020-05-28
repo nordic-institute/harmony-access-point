@@ -13,8 +13,6 @@ import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
@@ -25,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_CACHEABLE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CACHEABLE;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -50,7 +48,6 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
@@ -72,7 +69,6 @@ public class MSHDispatcher {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public SOAPMessage dispatchLocal(final UserMessage userMessage, final SOAPMessage soapMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
         Domain domain = domainContextProvider.getCurrentDomain();
         String endpoint = LOCAL_MSH_ENDPOINT;
