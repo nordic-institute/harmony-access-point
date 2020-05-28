@@ -288,7 +288,7 @@ public class BusinessProcesses extends AbstractBaseEntity {
         this.actions = new HashSet<>();
         this.actions.addAll(this.actionsXml.getAction());
         for (final ReceptionAwareness receptionAwareness : this.as4Xml.getReceptionAwareness()) {
-            receptionAwareness.init(configuration);
+            receptionAwareness.init();
         }
         this.as4ConfigReceptionAwareness = new HashSet<>();
         this.as4ConfigReceptionAwareness.addAll(this.as4Xml.getReceptionAwareness());

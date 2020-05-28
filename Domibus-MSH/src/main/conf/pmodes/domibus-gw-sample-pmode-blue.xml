@@ -88,6 +88,7 @@
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionAwarenessTest" retry="0;0;CONSTANT" duplicateDetection="true"/>
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
 		<splittingConfigurations>
@@ -118,7 +119,7 @@
 							  defaultMpc="defaultMpc"
 							  reliability="AS4Reliability"
 							  security="eDeliveryAS4Policy"
-							  receptionAwareness="receptionAwareness"
+							  receptionAwareness="receptionAwarenessTest"
 							  propertySet="eDeliveryPropertySet"
 							  payloadProfile="MessageProfile"
 							  errorHandling="demoErrorHandling"

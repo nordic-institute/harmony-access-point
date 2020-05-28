@@ -141,12 +141,17 @@ public class ReceptionAwareness extends AbstractBaseEntity {
         return result;
     }
 
-    public void init(final Configuration configuration) {
-        if (this.retryXml != null) {
-            final String[] retryValues = this.retryXml.split(";");
-            this.retryTimeout = Integer.parseInt(retryValues[0]);
-            this.retryCount = Integer.parseInt(retryValues[1]);
-            this.strategy = RetryStrategy.valueOf(retryValues[2]);
+    public void init() {
+        try {
+            if (this.retryXml != null) {
+                final String[] retryValues = this.retryXml.split(";");
+                this.retryTimeout = Integer.parseInt(retryValues[0]);
+                this.retryCount = Integer.parseInt(retryValues[1]);
+                this.strategy = RetryStrategy.valueOf(retryValues[2]);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("The format of the recpetionAwareness/retry is incorrect :[" + retryXml + "]. " +
+                    "Format \"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)", e);
         }
 
     }
