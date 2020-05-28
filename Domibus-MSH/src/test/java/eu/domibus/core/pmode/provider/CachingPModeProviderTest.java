@@ -1021,4 +1021,30 @@ public class CachingPModeProviderTest {
 
         Assert.assertEquals(-1, cachingPModeProvider.getRetentionUndownloadedByMpcURI(NONEXISTANTMPC));
     }
+
+    @Test
+    public void handleProcessParties(@Mocked Process process,  @Mocked Party party) {
+        Set<Party> parties = new HashSet<>();
+        parties.add(party);
+        Set<Identifier> ids = new HashSet<>();
+        Identifier id1 = new Identifier();
+        id1.setPartyId("id1");
+        ids.add(id1);
+        Identifier id2 = new Identifier();
+        id2.setPartyId("id2");
+        ids.add(id2);
+        List result = new ArrayList();
+
+        new Expectations() {{
+            process.getResponderParties();
+            result = parties;
+            party.getIdentifiers();
+            result = ids;
+        }};
+
+        cachingPModeProvider.handleProcessParties(process, result);
+
+        Assert.assertTrue(result.size() == 1);
+        Assert.assertTrue(result.get(0).equals(id1.getPartyId()));
+    }
 }
