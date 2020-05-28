@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.*;
 @Entity
 @Table(name = "TB_PARTY_IDENTIFIER")
 @NamedQuery(name = "Identifier.findByTypeAndPartyId", query = "select i from Identifier i where i.partyId = :PARTY_ID and ((:PARTY_ID_TYPE is null and i.partyIdType.value is null) or i.partyIdType.value  = :PARTY_ID_TYPE)")
-public class Identifier extends AbstractBaseEntity {
+public class Identifier extends AbstractBaseEntity implements Comparable<Identifier> {
 
     @XmlAttribute(name = "partyId", required = true)
     @Column(name = "PARTY_ID")
@@ -128,4 +128,11 @@ public class Identifier extends AbstractBaseEntity {
                 .toString();
     }
 
+    @Override
+    public int compareTo(Identifier o) {
+        if (o == null) {
+            return 1;
+        }
+        return o.getPartyId().compareTo(o.getPartyId());
+    }
 }

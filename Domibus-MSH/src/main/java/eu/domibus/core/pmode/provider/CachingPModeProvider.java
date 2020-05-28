@@ -708,9 +708,10 @@ public class CachingPModeProvider extends PModeProvider {
 
     private void handleProcessParties(Process process, List result) {
         for (Party party : process.getResponderParties()) {
-            for (Identifier identifier : party.getIdentifiers()) {
-                LOG.trace("Add matching party [{}] from process [{}]", identifier.getPartyId(), process.getName());
-                result.add(identifier.getPartyId());
+            Optional<Identifier> id = party.getIdentifiers().stream().sorted().findFirst();
+            if (id.isPresent()) {
+                result.add(id.get().getPartyId());
+                LOG.trace("Add matching party [{}] from process [{}]", id.get().getPartyId(), process.getName());
             }
         }
     }
