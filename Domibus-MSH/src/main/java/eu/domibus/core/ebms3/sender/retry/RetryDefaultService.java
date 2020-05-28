@@ -36,14 +36,6 @@ public class RetryDefaultService implements RetryService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    @Qualifier("sendMessageQueue")
-    private Queue dispatchQueue;
-
-    @Autowired
-    @Qualifier("sendLargeMessageQueue")
-    private Queue sendLargeMessageQueue;
-
-    @Autowired
     UserMessageService userMessageService;
 
     @Autowired
@@ -72,7 +64,7 @@ public class RetryDefaultService implements RetryService {
             try {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
                 final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-                if (!failIfExpired(userMessage)) {
+                if (!updateRetryLoggingService.failIfExpired(userMessage)) {
                     userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
                 }
             } finally {
@@ -81,33 +73,7 @@ public class RetryDefaultService implements RetryService {
         }
     }
 
-    protected boolean failIfExpired(UserMessage userMessage) {
 
-        final String messageId = userMessage.getMessageInfo().getMessageId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-        eu.domibus.common.model.configuration.LegConfiguration legConfiguration;
-        final String pModeKey;
-
-        try {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            LOG.debug("PMode key found : {}", pModeKey);
-            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
-        } catch (EbMS3Exception exc) {
-            LOG.warn("Could not find LegConfiguration for message [{}]", messageId);
-            return false;
-        }
-        if (updateRetryLoggingService.isExpired(legConfiguration, userMessageLog)) {
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
-
-            if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
-
-            }
-            return true;
-        }
-        return false;
-    }
 
     protected List<String> getMessagesNotAlreadyScheduled() {
         List<String> result = new ArrayList<>();
