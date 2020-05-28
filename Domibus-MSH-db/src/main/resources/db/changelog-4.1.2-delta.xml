@@ -563,6 +563,46 @@
         <modifyDataType columnName="ID_PK" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
     </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595">
+        <modifyDataType columnName="CONFIGURATION_DATE" newDataType="TIMESTAMP" tableName="TB_CONFIGURATION_RAW" />
+        <modifyDataType columnName="NOTIFIED" newDataType="TIMESTAMP" tableName="TB_ERROR_LOG" />
+        <modifyDataType columnName="TIME_STAMP" newDataType="TIMESTAMP" tableName="TB_ERROR_LOG" />
+        <modifyDataType columnName="ACKNOWLEDGE_DATE" newDataType="TIMESTAMP" tableName="TB_MESSAGE_ACKNW" />
+        <modifyDataType columnName="CREATE_DATE" newDataType="TIMESTAMP" tableName="TB_MESSAGE_ACKNW" />
+        <modifyDataType columnName="TIME_STAMP" newDataType="TIMESTAMP" tableName="TB_MESSAGE_INFO" />
+        <modifyDataType columnName="DELETED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="DOWNLOADED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="FAILED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="NEXT_ATTEMPT" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="RECEIVED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="RESTORED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_LOG" />
+        <modifyDataType columnName="DELETED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_UI" />
+        <modifyDataType columnName="FAILED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_UI" />
+        <modifyDataType columnName="NEXT_ATTEMPT" newDataType="TIMESTAMP" tableName="TB_MESSAGE_UI" />
+        <modifyDataType columnName="RECEIVED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_UI" />
+        <modifyDataType columnName="RESTORED" newDataType="TIMESTAMP" tableName="TB_MESSAGE_UI" />
+        <modifyDataType columnName="MESSAGE_RECEIVED" newDataType="TIMESTAMP" tableName="TB_MESSAGING_LOCK" />
+        <modifyDataType columnName="MESSAGE_STALED" newDataType="TIMESTAMP" tableName="TB_MESSAGING_LOCK" />
+        <modifyDataType columnName="NEXT_ATTEMPT" newDataType="TIMESTAMP" tableName="TB_MESSAGING_LOCK" />
+
+        <addNotNullConstraint columnDataType="BIGINT" columnName="FK_COMMAND" tableName="TB_COMMAND_PROPERTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="FK_EVENT" tableName="TB_EVENT_PROPERTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="FK_PAYLOAD" tableName="TB_JOIN_PAYLOAD_PROFILE" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="FK_PROFILE" tableName="TB_JOIN_PAYLOAD_PROFILE" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PARTY_FK" tableName="TB_JOIN_PROCESS_INIT_PARTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PROCESS_FK" tableName="TB_JOIN_PROCESS_INIT_PARTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="LEG_FK" tableName="TB_JOIN_PROCESS_LEG" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PROCESS_FK" tableName="TB_JOIN_PROCESS_LEG" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PARTY_FK" tableName="TB_JOIN_PROCESS_RESP_PARTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PROCESS_FK" tableName="TB_JOIN_PROCESS_RESP_PARTY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="PROPERTY_FK" tableName="TB_JOIN_PROPERTY_SET" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="SET_FK" tableName="TB_JOIN_PROPERTY_SET" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="partyMpcMap_ID_PK" tableName="TB_LEG_TB_MPC" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="USER_ID" tableName="TB_PLUGIN_USER_PASSWD_HISTORY" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="RECEIPT_ID" tableName="TB_RECEIPT_DATA" />
+    </changeSet>
+
     <changeSet id="EDELIVEREY-5414" author="Catalin Enache" dbms="mysql">
         <comment>add back AUTO_INCREMENT for MySQL</comment>
         <sql>
