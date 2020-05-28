@@ -40,7 +40,7 @@ export class ConnectionsMonitorService {
 
     return allParties.map(p => {
       let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers[0].partyId;
+      m.partyId = p.identifiers.map(el => el.partyId).join('/');
       Object.assign(m, monitors[m.partyId]);
       return m;
     });
@@ -79,10 +79,12 @@ export class ConnectionsMonitorService {
     let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
     let r = (await this.http.get<any>(url).toPromise()).items[0].value; // TODO
     let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
-    if (enabled) enabledParties += ',' + partyId;
+    if (enabled) {
+      enabledParties += ',' + partyId;
+    }
 
     url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties || " ").toPromise();
+    return await this.http.put(url, enabledParties || ' ').toPromise();
   }
 
 }

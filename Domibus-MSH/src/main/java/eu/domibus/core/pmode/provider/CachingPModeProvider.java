@@ -3,17 +3,17 @@ package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.AgreementRef;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
@@ -212,7 +212,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String findPullLegName(final String agreementName, final String senderParty,
-                                     final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
+                                  final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(
                 MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
@@ -250,7 +250,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     //FIXME: only works for the first leg, as sender=initiator
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                                 final String service, final String action) throws EbMS3Exception {
+                              final String service, final String action) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         //TODO Refactor the nested for loop and conditions
         for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
@@ -707,12 +707,10 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     private void handleProcessParties(Process process, List result) {
+        Comparator<Identifier> comp = (Identifier a, Identifier b) -> StringUtils.compare(a.getPartyId(), b.getPartyId());
         for (Party party : process.getResponderParties()) {
-            Optional<Identifier> id = party.getIdentifiers().stream().sorted().findFirst();
-            if (id.isPresent()) {
-                result.add(id.get().getPartyId());
-                LOG.trace("Add matching party [{}] from process [{}]", id.get().getPartyId(), process.getName());
-            }
+            List<Identifier> ids = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
+            result.add(ids.get(0).getPartyId());
         }
     }
 
