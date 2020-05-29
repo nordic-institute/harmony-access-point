@@ -721,7 +721,7 @@ public class CachingPModeProvider extends PModeProvider {
         Comparator<Identifier> comp = (Identifier party1, Identifier party2) -> StringUtils.compare(party1.getPartyId(), party2.getPartyId());
         List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(partyIds)) {
-            LOG.warn("No party ids for party [{}]", party.getName());
+            LOG.warn("No party identifiers for party [{}]", party.getName());
             return null;
         }
         String partyId = partyIds.get(0).getPartyId();

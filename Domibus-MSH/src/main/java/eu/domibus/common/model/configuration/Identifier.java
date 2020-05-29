@@ -127,5 +127,4 @@ public class Identifier extends AbstractBaseEntity {
                 .append("partyIdType", partyIdType)
                 .toString();
     }
-    
 }
