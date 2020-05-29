@@ -10,6 +10,7 @@ import eu.domibus.core.pmode.validation.PModeValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +46,14 @@ public class PayloadProfilesValidator implements PModeValidator {
 
         List<Attachment> attachmentList = pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
 
+
         // attachments should correspond to existing payloads
-        attachmentList.stream()
-                .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equals(attachment.getName())))
-                .forEach(attachment -> createIssue(issues, payloadProfile, attachment.getName(),
-                        "Attachment [%s] of payload profile [%s] not found among the defined payloads"));
+        if (!CollectionUtils.isEmpty(attachmentList)) {
+            attachmentList.stream()
+                    .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equals(attachment.getName())))
+                    .forEach(attachment -> createIssue(issues, payloadProfile, attachment.getName(),
+                            "Attachment [%s] of payload profile [%s] not found among the defined payloads"));
+        }
 
         //validate max Size
         int maxSize = payloadProfile.getMaxSize();

@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.common.model.configuration.Attachment;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
@@ -10,6 +11,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +61,20 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
-    public void test_validatePayloadProfile() {
+    public void test_validatePayloadProfile(final @Mocked PayloadProfile payloadProfile,
+                                            final @Mocked Set<Payload> validPayloads,
+                                            final @Mocked List<ValidationIssue> issues) {
+        final List<Attachment> attachmentList = new ArrayList<>();
+
+        new Expectations() {{
+            pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
+            result = attachmentList;
+
+            payloadProfile.getMaxSize();
+            result = 400;
+        }};
+
+        payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads, issues);
     }
 
     @Test
