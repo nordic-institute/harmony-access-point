@@ -88,7 +88,7 @@ public class BusinessProcessValidator implements PModeValidator {
             List<InitiatorParty> allInitiatorParties = initiatorPartiesXml.getInitiatorParty();
             if (!CollectionUtils.isEmpty(allInitiatorParties) && allInitiatorParties.size() != validInitiatorParties.size()) {
                 allInitiatorParties.stream()
-                        .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> validInitiatorParty.getName().equals(initiatorParty.getName())))
+                        .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> StringUtils.equals(validInitiatorParty.getName(), initiatorParty.getName())))
                         .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
             }
             validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
