@@ -123,7 +123,7 @@ public class RetryDefaultServiceTest {
 
         retryService.doEnqueueMessage(messageId);
 
-        new Verifications() {{
+        new FullVerifications() {{
             userMessageService.scheduleSending(messageId, false);
             times = 0;
         }};
@@ -143,8 +143,9 @@ public class RetryDefaultServiceTest {
 
         retryService.doEnqueueMessage(messageId);
 
-        new Verifications() {{
+        new FullVerifications() {{
             userMessageService.scheduleSending(messageId, false);
+            userMessage.isSplitAndJoin();
         }};
     }
 
@@ -153,11 +154,13 @@ public class RetryDefaultServiceTest {
         new Expectations(retryService) {{
             retryService.getMessagesNotAlreadyScheduled();
             result = QUEUED_MESSAGEIDS;
+
+            retryService.enqueueMessage(anyString);
         }};
 
         retryService.enqueueMessages();
 
-        new Verifications() {{
+        new FullVerifications() {{
             retryService.enqueueMessage(MESSAGE_ID_1);
             retryService.enqueueMessage(MESSAGE_ID_2);
             retryService.enqueueMessage(MESSAGE_ID_3);
