@@ -86,7 +86,7 @@ public class UpdateRetryLoggingService {
     }
 
     /**
-     * Set a message as failed in the it has expired
+     * Set a message as failed if it has expired
      *
      * @param userMessage The userMessage to be checked for expiration
      * @return true in case the message was set as expired
