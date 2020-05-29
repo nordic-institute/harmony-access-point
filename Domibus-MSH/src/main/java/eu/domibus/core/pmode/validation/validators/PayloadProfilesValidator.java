@@ -37,33 +37,34 @@ public class PayloadProfilesValidator implements PModeValidator {
         Set<Payload> validPayloads = pMode.getBusinessProcesses().getPayloads();
 
         payloadProfiles.forEach(
-                payloadProfile -> validatePayloadProfile(payloadProfile, validPayloads, issues));
+                payloadProfile -> issues.addAll(validatePayloadProfile(payloadProfile, validPayloads)));
 
         return issues;
     }
 
-    protected void validatePayloadProfile(PayloadProfile payloadProfile, Set<Payload> validPayloads, List<ValidationIssue> issues) {
-
+    protected List<ValidationIssue> validatePayloadProfile(PayloadProfile payloadProfile, Set<Payload> validPayloads) {
+        List<ValidationIssue> issues = new ArrayList<>();
         List<Attachment> attachmentList = pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
-
 
         // attachments should correspond to existing payloads
         if (!CollectionUtils.isEmpty(attachmentList)) {
             attachmentList.stream()
                     .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equals(attachment.getName())))
-                    .forEach(attachment -> createIssue(issues, payloadProfile, attachment.getName(),
-                            "Attachment [%s] of payload profile [%s] not found among the defined payloads"));
+                    .forEach(attachment -> issues.add(createIssue(payloadProfile, attachment.getName(),
+                            "Attachment [%s] of payload profile [%s] not found among the defined payloads")));
         }
 
         //validate max Size
         int maxSize = payloadProfile.getMaxSize();
-        if (maxSize <0 ) {
-            createIssue(issues, payloadProfile, String.valueOf(maxSize),
-                    "the maxSize value [%s] of payload profile [%s] should be neither negative neither a positive value greater than " + Integer.MAX_VALUE);
+        if (maxSize < 0) {
+            issues.add(createIssue(payloadProfile, String.valueOf(maxSize),
+                    "the maxSize value [%s] of payload profile [%s] should be neither negative neither a positive value greater than " + Integer.MAX_VALUE));
         }
+
+        return issues;
     }
 
-    protected void createIssue(List<ValidationIssue> issues, PayloadProfile payloadProfile, String name, String message) {
-        issues.add(pModeValidationHelper.createValidationIssue(message, name, payloadProfile.getName()));
+    protected ValidationIssue createIssue(PayloadProfile payloadProfile, String name, String message) {
+        return pModeValidationHelper.createValidationIssue(message, name, payloadProfile.getName());
     }
 }
