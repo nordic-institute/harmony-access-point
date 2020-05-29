@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Validator for Payload Profile
+ * Validator for Payload Profiles section of PMode
  *
  * @author Catalin Enache
  * @since 4.2
@@ -59,7 +59,7 @@ public class PayloadProfilesValidator implements PModeValidator {
         }
     }
 
-    private void createIssue(List<ValidationIssue> issues, PayloadProfile payloadProfile, String name, String message) {
+    protected void createIssue(List<ValidationIssue> issues, PayloadProfile payloadProfile, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, payloadProfile.getName()));
     }
 }
