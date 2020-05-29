@@ -82,13 +82,14 @@ export class ConnectionsMonitorService {
     let propName = 'domibus.monitoring.connection.party.enabled';
     let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
     let r = (await this.http.get<any>(url).toPromise()).items[0].value;
-    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
+    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p && p != partyId);
     if (enabled) {
-      enabledParties += ',' + partyId;
+      enabledParties.push(partyId);
     }
 
+    let payload = enabledParties.join(',') || ' ';
     url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties || ' ').toPromise();
+    return await this.http.put(url, payload).toPromise();
   }
 
 }
