@@ -225,6 +225,7 @@ public class UploadPModeIT extends AbstractIT {
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-invalid", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
         } catch (PModeValidationException ex) {
             assertEquals(1, ex.getIssues().size());
             assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-40894464] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 2147483647"));
