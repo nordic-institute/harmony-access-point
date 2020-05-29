@@ -1,5 +1,7 @@
 package eu.domibus.common.model.configuration;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
@@ -141,7 +143,8 @@ public class ReceptionAwareness extends AbstractBaseEntity {
         return result;
     }
 
-    public void init() {
+    @SuppressWarnings("unused")
+    public void init(final Configuration configuration) {
         try {
             if (this.retryXml != null) {
                 final String[] retryValues = this.retryXml.split(";");
@@ -149,9 +152,10 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                 this.retryCount = Integer.parseInt(retryValues[1]);
                 this.strategy = RetryStrategy.valueOf(retryValues[2]);
             }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("The format of the recpetionAwareness/retry is incorrect :[" + retryXml + "]. " +
-                    "Format \"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)", e);
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003,
+                    "The format of the receptionAwareness.retry is incorrect :[" + retryXml + "]. " +
+                            "Format: \"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)", e);
         }
 
     }

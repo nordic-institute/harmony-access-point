@@ -88,7 +88,7 @@
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
-			<receptionAwareness name="receptionAwarenessTest" retry="1;1;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionAwarenessTest" retry="0;0;SEND_ONCE" duplicateDetection="true"/>
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
 		<splittingConfigurations>

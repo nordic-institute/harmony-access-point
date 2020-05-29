@@ -1,5 +1,8 @@
 package eu.domibus.common.model.configuration;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +12,7 @@ import static eu.domibus.core.ebms3.sender.retry.RetryStrategy.SEND_ONCE;
 
 /**
  * @author François Gautier
- * @since 4.1.4
+ * @since 4.2.0
  */
 public class ReceptionAwarenessTest {
 
@@ -22,7 +25,7 @@ public class ReceptionAwarenessTest {
 
     @Test
     public void init_null() {
-        receptionAwareness.init();
+        receptionAwareness.init(null);
 
         Assert.assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
         Assert.assertEquals(0, receptionAwareness.getRetryTimeout());
@@ -31,7 +34,7 @@ public class ReceptionAwarenessTest {
 
     @Test
     public void init_okEmpty() {
-        receptionAwareness.init();
+        receptionAwareness.init(null);
 
         Assert.assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
         Assert.assertEquals(0, receptionAwareness.getRetryTimeout());
@@ -41,7 +44,7 @@ public class ReceptionAwarenessTest {
     @Test
     public void init_ok() {
         receptionAwareness.retryXml = "2;3;CONSTANT";
-        receptionAwareness.init();
+        receptionAwareness.init(null);
 
         Assert.assertEquals(CONSTANT, receptionAwareness.getStrategy());
         Assert.assertEquals(2, receptionAwareness.getRetryTimeout());
@@ -52,10 +55,10 @@ public class ReceptionAwarenessTest {
     public void init_ExceptionWrongStrategy() {
         receptionAwareness.retryXml = "2;3;TEST";
         try {
-            receptionAwareness.init();
+            receptionAwareness.init(null);
             Assert.fail();
-        } catch (Exception e) {
-            //Exception is expected
+        } catch (DomibusCoreException e) {
+            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         Assert.assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
@@ -68,10 +71,10 @@ public class ReceptionAwarenessTest {
         receptionAwareness.retryXml = "";
 
         try {
-            receptionAwareness.init();
+            receptionAwareness.init(null);
             Assert.fail();
-        } catch (IllegalArgumentException e) {
-            //Exception is expected
+        } catch (DomibusCoreException e) {
+            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         Assert.assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
@@ -84,10 +87,10 @@ public class ReceptionAwarenessTest {
         receptionAwareness.retryXml = ";;";
 
         try {
-            receptionAwareness.init();
+            receptionAwareness.init(null);
             Assert.fail();
-        } catch (IllegalArgumentException e) {
-            //Exception is expected
+        } catch (DomibusCoreException e) {
+            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         Assert.assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
