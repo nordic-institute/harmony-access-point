@@ -5,15 +5,10 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
@@ -22,7 +17,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,18 +24,23 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Ioana Dragusanu,
  * @author Catalin Enache
+ * @author Cosmin Baciu
  * @since 4.1
  */
 @RunWith(JMockit.class)
 public class RetryDefaultServiceTest {
-    private static List<String> QUEUED_MESSAGEIDS = Arrays.asList("queued123@domibus.eu", "queued456@domibus.eu", "queued789@domibus.eu");
+
+    public static final String MESSAGE_ID_1 = "queued123@domibus.eu";
+    public static final String MESSAGE_ID_2 = "queued456@domibus.eu";
+    public static final String MESSAGE_ID_3 = "queued789@domibus.eu";
+
+    private static List<String> QUEUED_MESSAGEIDS = Arrays.asList(MESSAGE_ID_1, MESSAGE_ID_2, MESSAGE_ID_3);
 
     @Tested
     private RetryDefaultService retryService;
@@ -108,5 +107,60 @@ public class RetryDefaultServiceTest {
         assertEquals(3, result.size());
 
         assertEquals(result, retryMessageIds);
+    }
+
+    @Test
+    public void doEnqueueMessageWithExpiredMessage(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        String messageId = "123";
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            updateRetryLoggingService.failIfExpired(userMessage);
+            result = true;
+        }};
+
+        retryService.doEnqueueMessage(messageId);
+
+        new Verifications() {{
+            userMessageService.scheduleSending(messageId, false);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void doEnqueueMessage(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        String messageId = "123";
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            updateRetryLoggingService.failIfExpired(userMessage);
+            result = false;
+        }};
+
+        retryService.doEnqueueMessage(messageId);
+
+        new Verifications() {{
+            userMessageService.scheduleSending(messageId, false);
+        }};
+    }
+
+    @Test
+    public void enqueueMessages() {
+        new Expectations(retryService) {{
+            retryService.getMessagesNotAlreadyScheduled();
+            result = QUEUED_MESSAGEIDS;
+        }};
+
+        retryService.enqueueMessages();
+
+        new Verifications() {{
+            retryService.enqueueMessage(MESSAGE_ID_1);
+            retryService.enqueueMessage(MESSAGE_ID_2);
+            retryService.enqueueMessage(MESSAGE_ID_3);
+        }};
     }
 }
