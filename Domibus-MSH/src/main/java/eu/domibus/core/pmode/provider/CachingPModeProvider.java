@@ -718,7 +718,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     protected String getOnePartyId(Party party) {
         // add only one id for the party, not all aliases
-        Comparator<Identifier> comp = (Identifier party1, Identifier party2) -> StringUtils.compare(party1.getPartyId(), party2.getPartyId());
+        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
         List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(partyIds)) {
             LOG.warn("No party identifiers for party [{}]", party.getName());
