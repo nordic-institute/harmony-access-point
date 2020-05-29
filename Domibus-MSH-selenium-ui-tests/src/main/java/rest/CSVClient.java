@@ -9,6 +9,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 
 public class CSVClient extends DomibusRestClient {
+
+	public CSVClient(String username, String password) {
+		super(username, password);
+	}
+
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
 	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {
 		switchDomain(domain);

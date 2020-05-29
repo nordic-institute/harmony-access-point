@@ -29,7 +29,7 @@ public class AuditRestTest extends RestTest {
 
 		log.debug("Using filters: " + params.toString());
 
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.AUDIT_LIST), params);
+		ClientResponse response = rest.audit().getAuditLog(params, null);
 		soft.assertTrue(response.getStatus() == 200, "Response status was " + response.getStatus());
 
 		try {
@@ -63,8 +63,8 @@ public class AuditRestTest extends RestTest {
 		}
 
 		log.debug("used params"  + params.toString());
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.AUDIT_LIST), params);
-		validateInvalidResponse(response, soft, 400);
+		ClientResponse response = rest.audit().getAuditLog(params, null);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -80,8 +80,8 @@ public class AuditRestTest extends RestTest {
 		}
 
 		log.debug("used params"  + params.toString());
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.AUDIT_COUNT), params);
-		validateInvalidResponse(response, soft, 400);
+		ClientResponse response = rest.audit().getAuditLog(params, null);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

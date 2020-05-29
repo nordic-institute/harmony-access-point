@@ -12,7 +12,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class PmodePartiesClient extends DomibusRestClient {
+public class PmodePartiesClient extends BaseRestClient {
+	public PmodePartiesClient(String username, String password) {
+		super(username, password);
+	}
+
 	// -------------------------------------------- PMODE PARTIES -----------------------------------------------------------
 	public void deleteParty(String name) throws Exception {
 		JSONArray parties = getParties();

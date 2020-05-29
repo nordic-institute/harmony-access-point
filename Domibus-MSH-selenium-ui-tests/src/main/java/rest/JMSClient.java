@@ -11,7 +11,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class JMSClient extends DomibusRestClient {
+public class JMSClient extends BaseRestClient {
+
+	public JMSClient(String username, String password) {
+		super(username, password);
+	}
 
 	public JSONArray getQueues() throws JSONException {
 		JSONArray queues = new JSONArray();

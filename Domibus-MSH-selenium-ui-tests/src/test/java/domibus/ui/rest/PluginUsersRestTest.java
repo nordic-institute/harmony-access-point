@@ -7,10 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.RestServicePaths;
 import utils.Generator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PluginUsersRestTest extends RestTest {
 
@@ -109,7 +111,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(obj);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		JSONArray users = rest.pluginUsers().getPluginUsers(null, "BASIC");
 		soft.assertTrue(users.toString().contains(username), "user found in list of users");
@@ -134,7 +136,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(obj);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		int status = response.getStatus();
 		log.debug("Status = " + status);
@@ -166,9 +168,9 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(obj);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
 
@@ -178,7 +180,7 @@ public class PluginUsersRestTest extends RestTest {
 
 
 		ClientResponse response = rest.pluginUsers().searchPluginUsers(null, evilStr, evilStr, evilStr, evilStr, evilStr, evilStr);
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -197,7 +199,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		soft.assertTrue(response.getStatus() == 204, "Response status is success");
 
@@ -227,7 +229,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		soft.assertTrue(response.getStatus() == 400, "Response status is error");
 
@@ -252,7 +254,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		soft.assertTrue(response.getStatus() == 400, "Response status is error " + response.getStatus());
 
@@ -276,7 +278,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
 		soft.assertTrue(response.getStatus() == 204, "Response status is success");
 
@@ -311,9 +313,9 @@ public class PluginUsersRestTest extends RestTest {
 			JSONArray array = new JSONArray();
 			array.put(pluginUser);
 
-			ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+			ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 		}
 
 		soft.assertAll();
@@ -339,9 +341,9 @@ public class PluginUsersRestTest extends RestTest {
 			JSONArray array = new JSONArray();
 			array.put(pluginUser);
 
-			ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+			ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 		}
 
 		soft.assertAll();
@@ -357,7 +359,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 		soft.assertTrue(response.getStatus() == 204, "Response status was " + response.getStatus());
 		JSONArray users = rest.pluginUsers().getPluginUsers(null, "BASIC");
 
@@ -376,7 +378,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONArray array = new JSONArray();
 		array.put(pluginUser);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
+		ClientResponse response = rest.pluginUsers().updatePluginUserList(array, null); //.jsonPUT(rest.resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 		soft.assertTrue(response.getStatus() == 204, "Response status was " + response.getStatus());
 		JSONArray users = rest.pluginUsers().getPluginUsers(null, "CERTIFICATE");
 

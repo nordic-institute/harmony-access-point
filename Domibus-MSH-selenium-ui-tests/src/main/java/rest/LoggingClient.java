@@ -6,10 +6,15 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class LoggingClient extends DomibusRestClient {
+public class LoggingClient extends BaseRestClient {
 
+	public LoggingClient(String username, String password) {
+		super(username, password);
+	}
 
-	public JSONObject searchLogLevels(HashMap<String, String> params) throws Exception {
+	public JSONObject searchLogLevels(HashMap<String, String> params, String domain) throws Exception {
+		switchDomain(domain);
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.LOGGING), params);
 
 		int status = response.getStatus();
@@ -89,4 +94,8 @@ public class LoggingClient extends DomibusRestClient {
 		return content;
 	}
 
+	public ClientResponse searchLevels(HashMap<String, String> params, String  domain) {
+		switchDomain(domain);
+		return requestGET(resource.path(RestServicePaths.LOGGING), params);
+	}
 }

@@ -82,7 +82,7 @@ public class PropertiesTest extends RestTest {
 			String newValue = evilStr;
 
 			ClientResponse response = rest.properties().updateDomibusProperty(name, newValue);
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -97,7 +97,7 @@ public class PropertiesTest extends RestTest {
 		params.put("pageSize", "10000");
 
 		ClientResponse response = rest.properties().searchProperties(params);
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

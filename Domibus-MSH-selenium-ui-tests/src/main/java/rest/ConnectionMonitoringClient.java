@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ConnectionMonitoringClient extends DomibusRestClient {
+public class ConnectionMonitoringClient extends BaseRestClient {
+
+	public ConnectionMonitoringClient(String username, String password) {
+		super(username, password);
+	}
 
 	private String propName = "domibus.monitoring.connection.party.enabled";
 

@@ -25,13 +25,16 @@ public class DriverManager {
 	static TestRunData data = new TestRunData();
 
 	public static WebDriver getDriver() {
-		if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "chrome")) {
-			return getChromeDriver();
-		} else if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "firefox")) {
-			return getFirefoxDriver();
-		}
 
-		return getChromeDriver();
+		WebDriver driver;
+		if (StringUtils.equalsIgnoreCase(data.getRunBrowser(), "firefox")) {
+			driver = getFirefoxDriver();
+		}else {
+			driver = getChromeDriver();
+		}
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
+		return driver;
 	}
 
 	private static WebDriver getChromeDriver() {
@@ -42,10 +45,7 @@ public class DriverManager {
 			options.setCapability(CapabilityType.PROXY, getProxy());
 		}
 
-		WebDriver driver = new ChromeDriver(options);
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
-		return driver;
+		return new ChromeDriver(options);
 	}
 
 	private static WebDriver getFirefoxDriver() {
@@ -55,12 +55,7 @@ public class DriverManager {
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());
 		}
-
-		WebDriver driver = new FirefoxDriver(options);
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
-
-		return driver;
+		return  new FirefoxDriver(options);
 	}
 
 	private static Proxy getProxy() {

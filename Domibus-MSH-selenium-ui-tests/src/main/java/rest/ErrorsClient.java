@@ -6,7 +6,11 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class ErrorsClient extends DomibusRestClient {
+public class ErrorsClient extends BaseRestClient {
+
+	public ErrorsClient(String username, String password) {
+		super(username, password);
+	}
 
 	public JSONArray getErrors(String domain) throws Exception {
 		switchDomain(domain);
@@ -24,5 +28,15 @@ public class ErrorsClient extends DomibusRestClient {
 
 		return new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("errorLogEntries");
 	}
+
+	public ClientResponse getErrors(String domain, HashMap<String, String> params) {
+		switchDomain(domain);
+
+		ClientResponse response = requestGET(resource.path(RestServicePaths.ERRORS), params);
+
+		return response;
+	}
+
+
 
 }

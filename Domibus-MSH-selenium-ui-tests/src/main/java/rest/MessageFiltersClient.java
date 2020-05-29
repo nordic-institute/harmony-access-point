@@ -5,7 +5,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MessageFiltersClient extends DomibusRestClient{
+public class MessageFiltersClient extends BaseRestClient{
+
+	public MessageFiltersClient(String username, String password) {
+		super(username, password);
+	}
+
 	// -------------------------------------------- Message Filters ----------------------------------------------------
 	public void createMessageFilter(String actionName, String domain) throws JSONException {
 
@@ -79,5 +84,14 @@ public class MessageFiltersClient extends DomibusRestClient{
 			e.printStackTrace();
 		}
 		return currentMSGF;
+	}
+
+	public ClientResponse updateFilterList(JSONArray toSendMSGFS, String domain) {
+		switchDomain(domain);
+		return jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
+	}
+	public ClientResponse updateFilterList(String toSend, String domain) {
+		switchDomain(domain);
+		return jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), toSend);
 	}
 }

@@ -7,7 +7,6 @@ import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.RestServicePaths;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,11 +36,9 @@ public class ErrorLogRestTest extends RestTest {
 				params.put(key, value);
 			}
 		}
-
-
 		log.debug("Using filters: " + params.toString());
 
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.ERRORS), params);
+		ClientResponse response = rest.errors().getErrors(null, params);
 		soft.assertTrue(response.getStatus() == 200, "Response status was " + response.getStatus());
 
 		JSONObject obj = null;
@@ -86,8 +83,8 @@ public class ErrorLogRestTest extends RestTest {
 		}
 
 		log.debug("used params"  + params.toString());
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.ERRORS), params);
-		validateInvalidResponse(response, soft, 400);
+		ClientResponse response = rest.errors().getErrors(null, params); //requestGET(rest.resource.path(RestServicePaths.ERRORS), params);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

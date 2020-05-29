@@ -86,7 +86,7 @@ public class PModeArchiveRestTest extends RestTest {
 
 			JSONArray newarchive = rest.pmode().getPmodesList(domain);
 
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 
 			soft.assertEquals(oldarchive.length(), newarchive.length(), "No elements were deleted");
 		}
@@ -138,7 +138,7 @@ public class PModeArchiveRestTest extends RestTest {
 			archive = rest.pmode().getPmodesList(domain);
 
 			ClientResponse response = rest.pmode().restorePmode(domain, evilStr);
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 
 			JSONArray newarchive = rest.pmode().getPmodesList(domain);
 

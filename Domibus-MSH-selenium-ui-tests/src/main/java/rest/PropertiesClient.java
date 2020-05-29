@@ -6,8 +6,11 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class PropertiesClient extends DomibusRestClient{
+public class PropertiesClient extends BaseRestClient{
 
+	public PropertiesClient(String username, String password) {
+		super(username, password);
+	}
 
 	// -------------------------------------------- Domibus Properties -----------------------------------------------------------
 	public JSONArray getDomibusPropertyDetail(String propName) throws Exception {

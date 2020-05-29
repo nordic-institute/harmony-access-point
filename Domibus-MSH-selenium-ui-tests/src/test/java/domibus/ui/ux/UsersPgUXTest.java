@@ -62,6 +62,7 @@ public class UsersPgUXTest extends SeleniumTest {
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
         page.refreshPage();
+        page.grid().waitForRowsToLoad();
 
         log.info("double clicking on user");
         page.grid().scrollToAndDoubleClick("Username", username);
@@ -73,22 +74,24 @@ public class UsersPgUXTest extends SeleniumTest {
         soft.assertEquals(um.getRoleSelect().getSelectedValue(), DRoles.USER, "Roles match");
 
         if (data.isMultiDomain()) {
-            soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
+            soft.assertTrue(um.getDomainSelect().getSelectedValue().equalsIgnoreCase("Default"), "Domain matches selected domain in page header");
         }
         soft.assertAll();
     }
 
     /* Doubleclick on one user (deleted) */
-    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "USR-3", groups = {"multiTenancy", "singleTenancy"})
     public void doubleclickDeletedUser() throws Exception {
         SoftAssert soft = new SoftAssert();
         String username = rest.getUser(null, DRoles.USER, true, true, false).getString("userName");
 
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
+        page.grid().waitForRowsToLoad();
 
         page.getDeletedChk().check();
         page.getSearchBtn().click();
+        page.grid().waitForRowsToLoad();
 
         log.info("double clicking on user");
         page.grid().scrollToAndDoubleClick("Username", username);
@@ -179,21 +182,24 @@ public class UsersPgUXTest extends SeleniumTest {
     }
 
     /* USR-30 - Download all lists of users */
-    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+    @Test(description = "USR-30", groups = {"multiTenancy", "singleTenancy"})
     public void csvFileDownload() throws Exception {
         SoftAssert soft = new SoftAssert();
         UsersPage page = new UsersPage(driver);
         page.getSidebar().goToPage(PAGES.USERS);
+        page.grid().waitForRowsToLoad();
 
         String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
         log.info("downloaded file with name " + fileName);
 
         page.includeDeletedUsers();
+        page.grid().waitForRowsToLoad();
         page.grid().getGridCtrl().showCtrls();
         page.grid().getGridCtrl().getAllLnk().click();
 
         log.info("checking info in grid against the file");
         page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+
         soft.assertAll();
     }
 

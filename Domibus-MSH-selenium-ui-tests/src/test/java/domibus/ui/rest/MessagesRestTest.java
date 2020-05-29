@@ -1,7 +1,6 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import javafx.beans.binding.MapExpression;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +9,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import org.testng.collections.Lists;
-import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.io.IOException;
@@ -36,7 +34,7 @@ public class MessagesRestTest extends RestTest {
 	public void filterUsingBasicFilters(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		if(params.containsKey("messageId")
+		if (params.containsKey("messageId")
 				&& StringUtils.isNotEmpty(params.get("messageId"))
 				&& StringUtils.equalsIgnoreCase(params.get("messageId"), "<FILL>")) {
 
@@ -46,9 +44,7 @@ public class MessagesRestTest extends RestTest {
 
 		eliminateEmptyValues(params);
 
-		ClientResponse response = rest.requestGET(
-				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
-				, params);
+		ClientResponse response = rest.messages().getMessages(params, ""); //requestGET(rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), params);
 
 		assertPositiveResponse(response, soft, params);
 		soft.assertAll();
@@ -58,32 +54,21 @@ public class MessagesRestTest extends RestTest {
 	public void filterUsingBasicFiltersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String[] keys = {"fromPartyId", "toPartyId", "messageId",  "messageStatus",  "messageType",  "isTestMessage",  "page",  "pageSize",  "orderBy",  "asc"};
+		String[] keys = {"fromPartyId", "toPartyId", "messageId", "messageStatus", "messageType", "isTestMessage", "page", "pageSize", "orderBy", "asc"};
 		HashMap<String, String> params = new HashMap<>();
 		for (int i = 0; i < keys.length; i++) {
 			String key = keys[i];
 			params.put(key, evilStr);
 		}
 
-		ClientResponse response = rest.requestGET(
-				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
-				, params);
-
-		soft.assertEquals(response.getStatus(), 400, "Response message is " + response.getStatus());
-
-		try {
-			String respContent = getSanitizedStringResponse(response);
-			log.debug("respContent: " + respContent);
-			new JSONObject(respContent);
-		}catch (JSONException e){
-			soft.fail("Response is not in JSON format");
-		}
+		ClientResponse response = rest.messages().getMessages(params, "");
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
 
 	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
-	public void filterUsingAdvancedFiltersNegativeTest(String evilStr) throws Exception {
+	public void filterUsingAdvancedFiltersNegativeTest(String evilStr) {
 		SoftAssert soft = new SoftAssert();
 
 		String[] keys = {"fromPartyId", "toPartyId", "originalSender", "finalRecipient", "messageSubtype", "receivedFrom", "receivedTo", "notificationStatus", "messageStatus", "messageType", "mshRole", "isTestMessage", "page", "pageSize", "orderBy", "asc"};
@@ -93,20 +78,8 @@ public class MessagesRestTest extends RestTest {
 			params.put(key, evilStr);
 		}
 
-		ClientResponse response = rest.requestGET(
-				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
-				, params);
-
-		soft.assertEquals(response.getStatus(), 400, "Response message is " + response.getStatus());
-
-		try {
-			String respContent = getSanitizedStringResponse(response);
-			log.debug("respContent: " + respContent);
-			new JSONObject(respContent);
-		}catch (JSONException e){
-			soft.fail("Response is not in JSON format");
-		}
-
+		ClientResponse response = rest.messages().getMessages(params, "");
+		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
 
@@ -119,9 +92,7 @@ public class MessagesRestTest extends RestTest {
 
 		log.debug("------------" + params.toString());
 
-		ClientResponse response = rest.requestGET(
-				rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
-				, params);
+		ClientResponse response = rest.messages().getMessages(params, "");
 
 		assertPositiveResponse(response, soft, params);
 
@@ -228,9 +199,19 @@ public class MessagesRestTest extends RestTest {
 		soft.assertAll();
 	}
 
+	/* Resend message */
+	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	public void resendMessageNegativeTest(String evilId) throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		ClientResponse response = rest.messages().resendMessage(evilId);
+		validateInvalidResponse(response, soft);
+
+		soft.assertAll();
+	}
 
 	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
-	public void downloadMessageNegativeTest(String evilId) throws Exception {
+	public void downloadMessageNegativeTest(String evilId) {
 		SoftAssert soft = new SoftAssert();
 
 		for (String domain : domains) {
@@ -239,41 +220,15 @@ public class MessagesRestTest extends RestTest {
 			HashMap<String, String> params = new HashMap<>();
 			params.put("messageId", evilId);
 
-			ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
+			ClientResponse response = rest.messages().getMessages(params, ""); //requestGET(rest.resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
 			int status = response.getStatus();
 			log.debug("Response status is " + status);
 
-			soft.assertTrue(status == 400
-					|| status == 404 ,
-					"Status found " + response.getStatus());
-
-			try{
-				String responseContent = getSanitizedStringResponse(response);
-				log.debug("Response content = " + responseContent);
-				new JSONObject(responseContent);
-			}catch (JSONException e){
-				soft.fail("Response is not JSON valid");
-			}
+			validateInvalidResponse(response, soft);
 		}
-
 
 		soft.assertAll();
 	}
-
-	/* Resend message */
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
-	public void resendMessageNegativeTest(String evilId) throws Exception {
-		SoftAssert soft = new SoftAssert();
-
-
-		for (String domain : domains) {
-//TODO
-		}
-
-
-		soft.assertAll();
-	}
-
 
 	private void assertPositiveResponse(ClientResponse response, SoftAssert soft, HashMap<String, String> params) throws Exception {
 
@@ -356,7 +311,7 @@ public class MessagesRestTest extends RestTest {
 
 	}
 
-	private void eliminateEmptyValues(HashMap<String, String> params){
+	private void eliminateEmptyValues(HashMap<String, String> params) {
 		List<String> torem = new ArrayList<>();
 
 		Iterator<String> it = params.keySet().iterator();

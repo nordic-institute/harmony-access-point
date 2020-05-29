@@ -36,8 +36,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 
 		log.info("Login with Admin credentials and navigate to Pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page = navigateToPage();
 
 		log.info("Validate presence of filter party name");
 		soft.assertTrue(page.filters().getNameInput().isEnabled(), "Page contains filter for party name");
@@ -72,8 +71,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		}
 
 		log.info("Login into application and navigate to Pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page = navigateToPage();
 
 		log.info("Extract row info for 0th row");
 		HashMap<String, String> firstParty = page.grid().getRowInfo(0);
@@ -107,9 +105,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		PModeXMLUtils pModeXMLUtils = new PModeXMLUtils(file);
 		String currentParty = pModeXMLUtils.getCurrentPartyName();
 
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
+		PModePartiesPage page  = navigateToPage();
 
 		List<HashMap<String, String>> partyInfo = page.grid().getListedRowInfo();
 		HashMap<String, String> partyToDelete = null;
@@ -167,9 +163,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		String newPatyName = Generator.randomAlphaNumeric(5);
 
 		log.info("login into application and navigate to Pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
+		PModePartiesPage page  = navigateToPage();
 
 		log.info("Click on New button");
 		page.getNewButton().click();
@@ -208,17 +202,14 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		String currentParty = pModeXMLUtils.getCurrentPartyName();
 
 		log.info("Login and navigate to pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
+		PModePartiesPage page  = navigateToPage();
 
 		int index = page.grid().scrollTo(partyName, currentParty);
 		String newPartyName = Generator.randomAlphaNumeric(5);
 		int toEditIndex = 0;
-		if(toEditIndex == index){
+		if (toEditIndex == index) {
 			toEditIndex = 1;
 		}
-
 
 
 		log.info("select row " + toEditIndex);
@@ -258,10 +249,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 		String newPartyName = Generator.randomAlphaNumeric(5);
 
-		log.info("login into application and navigate to pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-
+		PModePartiesPage page  = navigateToPage();
 		log.info("select row 0");
 		page.grid().selectRow(0);
 
@@ -296,9 +284,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		rest.pmode().uploadPMode("pmodes/doNothingSelfSending.xml", domainCode);
 
-		log.info("login into application and navigate to pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page  = navigateToPage();
 
 		log.info("Count total no of parties present");
 		int noOfParties = page.grid().getRowsNo();
@@ -348,10 +334,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 		soft.assertFalse(pmcPage.getAlertArea().isError(), "Success mess is shown");
 
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
-		soft.assertTrue(page.grid().scrollTo(partyName, myPartyName)>=0, "New party is present in parties page");
+		PModePartiesPage page  = navigateToPage();
+
+		soft.assertTrue(page.grid().scrollTo(partyName, myPartyName) >= 0, "New party is present in parties page");
 
 		soft.assertFalse(rest.connMonitor().getConnectionMonitoringParties(null).toString().contains(myPartyName), "New party listed in connection parties");
 
@@ -359,7 +344,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 	}
 
-	@Test(description = "PMP-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false) //---------------------------------
+	@Test(description = "PMP-22", groups = {"multiTenancy", "singleTenancy"})
 	public void partyRemovalCurrentPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -391,9 +376,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertFalse(pmcPage.getAlertArea().isError(), "Success mess is shown");
 
 
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
+		PModePartiesPage page = navigateToPage();
 
 		soft.assertTrue(page.grid().scrollTo("Party Name", oldPartyName) < 0, "Red_gw party is not available");
 
@@ -408,10 +391,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
-		log.info("Navigate to Pmode parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
+		PModePartiesPage page = navigateToPage();
 
 		log.info("Validate whether New button is enabled ");
 		soft.assertTrue(page.getNewButton().isEnabled(), "New button is enabled");
@@ -462,9 +442,8 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
-		log.info("Navigate to Current Pmode");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page = navigateToPage();
+
 		log.info("Select row for red_gw other than current system party name");
 		page.grid().scrollToAndSelect(partyName, "red_gw");
 
@@ -500,9 +479,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload Pmode");
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 
-		PModePartiesPage page = new PModePartiesPage(driver);
-		log.info("Navigate to Pmode parties page");
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page  = navigateToPage();
 
 		log.info("Find index of row having party name red_gw on Pmode parties page and select row");
 		page.grid().scrollToAndSelect(partyName, oldPartyName);
@@ -521,7 +498,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
 
-		soft.assertTrue( !page.getAlertArea().isError(), "Success message is shown");
+		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
 
 		log.info("Navigate to Pmode Current page");
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -535,7 +512,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Validate absence of red_gw as Responder party");
 		soft.assertFalse(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is not present in pmode");
 
-		soft.assertTrue( !rest.connMonitor().getMonitoredParties(null).contains(oldPartyName) , "Paerty is not present in connection monitor page anymore");
+		soft.assertTrue(!rest.connMonitor().getMonitoredParties(null).contains(oldPartyName), "Paerty is not present in connection monitor page anymore");
 
 		soft.assertAll();
 	}
@@ -547,11 +524,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/NoResponderInitiator.xml", null);
 
-		log.info("Navigate to Pmode Parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
-
+		PModePartiesPage page = navigateToPage();
 		log.info("Find row number for party with name red_gw and select it");
 		page.grid().scrollToAndSelect(partyName, oldPartyName);
 
@@ -580,7 +553,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Validate presence of red_gw as responder party");
 		soft.assertTrue(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is  present in pmode");
 
-		soft.assertFalse(rest.connMonitor().getMonitoredParties(null).contains(oldPartyName) , oldPartyName + " is not in the connection monitor party list");
+		soft.assertFalse(rest.connMonitor().getMonitoredParties(null).contains(oldPartyName), oldPartyName + " is not in the connection monitor party list");
 
 		soft.assertAll();
 	}
@@ -598,7 +571,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		String updatedPmodeInit = pModeXMLUtils.printDoc();
 
 		log.info("Navigate to Pmode Current page");
-
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
 		pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
@@ -619,12 +591,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Validate non presence of responder red_gw");
 		soft.assertFalse(pmcPage.getTextArea().getText().contains("<responderParty name=\"red_gw\"/>"), "red_gw is not present as Responder");
 
-		log.info("navigate to Pmode parties page");
-		pmcPage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-
 		log.info("Get index of row  with party detail red_gw");
 
-		PModePartiesPage pPage = new PModePartiesPage(driver);
+		PModePartiesPage pPage = navigateToPage();
 		pPage.grid().scrollToAndSelect(partyName, oldPartyName);
 
 		log.info("Click on Edit button");
@@ -639,7 +608,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertFalse(pmPage.getCheckboxStatus("Responder"), "Responder checkbox is unchecked");
 
 		String monitoredParties = rest.connMonitor().getConnectionMonitoringParties(null).toString();
-		soft.assertTrue(!monitoredParties.contains(oldPartyName) , oldPartyName + " is not available for monitoring in Connection Monitoring page ");
+		soft.assertTrue(!monitoredParties.contains(oldPartyName), oldPartyName + " is not available for monitoring in Connection Monitoring page ");
 		soft.assertAll();
 	}
 
@@ -650,11 +619,8 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload Pmode");
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 
-		log.info("Navigate to Pmode Parties page");
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage page = navigateToPage();
 
-		page.grid().waitForRowsToLoad();
 		page.grid().scrollToAndDoubleClick("Party Name", "red_gw");
 
 		PPartyModal modal = new PPartyModal(driver);
@@ -665,10 +631,10 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
 
-		soft.assertTrue( !page.getAlertArea().isError() , "Success message shown");
+		soft.assertTrue(!page.getAlertArea().isError(), "Success message shown");
 
 		String monitoredParties = rest.connMonitor().getConnectionMonitoringParties(null).toString();
-		soft.assertTrue(!monitoredParties.contains(oldPartyName) , oldPartyName + " is not available for monitoring in Connection Monitoring page ");
+		soft.assertTrue(!monitoredParties.contains(oldPartyName), oldPartyName + " is not available for monitoring in Connection Monitoring page ");
 
 		soft.assertAll();
 	}
@@ -702,11 +668,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Click on Ok button");
 		modal.clickOK();
 
-		soft.assertTrue(!pcPage.getAlertArea().isError() , "Success message is shown");
+		soft.assertTrue(!pcPage.getAlertArea().isError(), "Success message is shown");
 
-		PModePartiesPage ppPage = new PModePartiesPage(driver);
-		log.info("navigate to Pmode parties page");
-		ppPage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		PModePartiesPage ppPage  = navigateToPage();
 
 		log.info("Get index of row  with party detail " + mypartyName);
 		int index = ppPage.grid().scrollTo(partyName, mypartyName);
@@ -724,11 +688,22 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		modal1.clickCancel();
 
 
-
 		log.info("Validate presence of " + myPartId);
 		String monitoredParties = rest.connMonitor().getConnectionMonitoringParties(null).toString();
 		soft.assertTrue(monitoredParties.contains(myPartId), myPartId + " is  present");
 		soft.assertAll();
+	}
+
+	private PModePartiesPage navigateToPage() throws Exception {
+		log.info("Navigate to Pmode Parties page");
+		PModePartiesPage page = new PModePartiesPage(driver);
+		if (page.getTitle().contains("Parties")) {
+			page.refreshPage();
+		} else {
+			page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		}
+		page.grid().waitForRowsToLoad();
+		return page;
 	}
 
 }

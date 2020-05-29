@@ -29,7 +29,6 @@ import java.util.List;
  * @author Catalin Comanici
  * @version 4.1
  */
-@Listeners(FailListener.class)
 public class SeleniumTest extends BaseTest {
 
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());

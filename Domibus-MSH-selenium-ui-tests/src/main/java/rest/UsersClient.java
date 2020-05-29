@@ -10,7 +10,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UsersClient extends DomibusRestClient {
+public class UsersClient extends BaseRestClient {
+
+	public UsersClient(String username, String password) {
+		super(username, password);
+	}
+
 	// -------------------------------------------- Users --------------------------------------------------------------
 	public JSONArray getUsers(String domain ) {
 
@@ -119,6 +124,11 @@ public class UsersClient extends DomibusRestClient {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "false");
 		updateUser(username, toUpdate, domain);
+	}
+
+	public ClientResponse putUser(JSONArray toUpdate, String domain) {
+		switchDomain(domain);
+		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());
 	}
 }
 

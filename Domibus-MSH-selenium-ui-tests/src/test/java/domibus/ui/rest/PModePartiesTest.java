@@ -64,7 +64,7 @@ public class PModePartiesTest extends RestTest {
 			String[] evilProcs = {evilStr};
 
 			ClientResponse response = rest.pmodeParties().createParty(null, evilStr, evilStr, evilProcs, evilProcs, evilStr, evilStr, evilStr);
-			validateInvalidResponse(response, soft, 400);
+			validateInvalidResponse(response, soft);
 
 			soft.assertTrue( rest.pmodeParties().getParties().length()==2, "2 parties listed");
 

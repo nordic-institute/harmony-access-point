@@ -1,19 +1,16 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import net.bytebuddy.build.HashCodeAndEqualsPlugin;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.RestServicePaths;
 import utils.Generator;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class LoggingRestTest extends RestTest {
 
@@ -28,7 +25,7 @@ public class LoggingRestTest extends RestTest {
 	public void search(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		JSONObject logging = rest.logging().searchLogLevels(params);
+		JSONObject logging = rest.logging().searchLogLevels(params, null);
 
 		soft.assertTrue(logging.has("levels"), "response has levels listed");
 
@@ -70,9 +67,9 @@ public class LoggingRestTest extends RestTest {
 		params.put("orderBy", evilStr);
 		params.put("asc", evilStr);
 
-		ClientResponse response = rest.requestGET(rest.resource.path(RestServicePaths.LOGGING), params);
+		ClientResponse response = rest.logging().searchLevels(params, null);
 
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

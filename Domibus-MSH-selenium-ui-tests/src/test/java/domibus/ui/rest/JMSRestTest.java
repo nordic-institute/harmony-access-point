@@ -66,7 +66,7 @@ public class JMSRestTest extends RestTest {
 
 		ClientResponse response = rest.jms().searchMessages(source, jmsType, fromDate, toDate, selector);
 
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -176,7 +176,7 @@ public class JMSRestTest extends RestTest {
 
 		ClientResponse response = rest.jms().moveMessages(source, destination, evilStr);
 
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -185,7 +185,7 @@ public class JMSRestTest extends RestTest {
 	public void deleteNegativeTest(String evilStr) {
 		SoftAssert soft = new SoftAssert();
 		ClientResponse response = rest.jms().deleteMessages(evilStr, evilStr);
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
 

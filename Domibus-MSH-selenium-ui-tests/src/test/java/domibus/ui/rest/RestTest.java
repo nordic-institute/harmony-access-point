@@ -1,5 +1,7 @@
 package domibus.ui.rest;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
 import rest.utilPojo.Param;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RestTest extends BaseTest {
+
+	ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private String invalidStringsFile = "src/test/resources/rest_csv/invalidStrings.txt";
@@ -155,14 +159,14 @@ public class RestTest extends BaseTest {
 		return toRet;
 	}
 
-	protected void validateInvalidResponse(ClientResponse response, SoftAssert soft, Integer... acceptedResponseCodes) {
+	protected void validateInvalidResponse(ClientResponse response, SoftAssert soft) {
 		Integer status = response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
 
 		log.debug("Response status: " + status);
 		log.debug("Response content: " + responseContent);
 
-		soft.assertTrue(Lists.newArrayList(acceptedResponseCodes).contains(status), "Response status not as expected, found: " + status);
+		soft.assertTrue(status<500, "Response status not as expected, found: " + status);
 
 		if (StringUtils.isNotEmpty(responseContent)) {
 			try {

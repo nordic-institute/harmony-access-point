@@ -10,8 +10,43 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 
-public class MessageClient extends DomibusRestClient {
-	// -------------------------------------------- Message ------------------------------------------------------------
+public class MessageClient extends BaseRestClient {
+
+	public MessageClient(String username, String password) {
+		super(username, password);
+	}
+
+	// -------------------------------------------- Low level methods ------------------------------------------------------------
+
+	public ClientResponse callGetListOfMessages(String domain) {
+		switchDomain(domain);
+		HashMap<String, String> par = new HashMap<>();
+		par.put("pageSize", "10000");
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
+		return clientResponse;
+	}
+
+	public ClientResponse callDownloadMessage(String id, String domain) throws Exception {
+		switchDomain(domain);
+
+		HashMap<String, String> params = new HashMap<>();
+		params.put("messageId", id);
+
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGE), params);
+		return clientResponse;
+	}
+
+	public ClientResponse callResendMessage(String id, String domain) {
+		switchDomain(domain);
+
+		ClientResponse response = jsonPUT(resource.path(
+				RestServicePaths.MESSAGE_LOG_RESEND).queryParam("messageId", id),
+				"{}");
+		return response;
+	}
+
+	// -------------------------------------------- High level methods ------------------------------------------------------------
+
 	public String downloadMessage(String id, String domain) throws Exception {
 		switchDomain(domain);
 
@@ -44,15 +79,18 @@ public class MessageClient extends DomibusRestClient {
 		return false;
 	}
 
-	public JSONArray getListOfMessages(String domain) {
-		switchDomain(domain);
-		HashMap<String, String> par = new HashMap<>();
-		par.put("pageSize", "100");
-		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
-		if (clientResponse.getStatus() != 200) {
-			return new JSONArray();
-		}
+	public ClientResponse resendMessage(String id) {
+		ClientResponse response = jsonPUT(resource.path(
+				RestServicePaths.MESSAGE_LOG_RESEND).queryParam("messageId", id),
+				"{}");
+		return response;
+	}
 
+	public JSONArray getListOfMessages(String domain) throws Exception {
+		ClientResponse clientResponse = callGetListOfMessages(domain);
+		if (clientResponse.getStatus() != 200) {
+			throw new Exception("Could not get messages");
+		}
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
 	}
 
@@ -68,5 +106,12 @@ public class MessageClient extends DomibusRestClient {
 		}
 
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries").getJSONObject(0);
+	}
+
+	public ClientResponse getMessages(HashMap<String, String> params, String domain) {
+		switchDomain(domain);
+		return requestGET(
+				resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES)
+				, params);
 	}
 }

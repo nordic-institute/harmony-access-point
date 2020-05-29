@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="TestAll">
+
+	<test name="REST">
+		<packages>
+			<package name="domibus.ui.rest.*" />
+		</packages>
+	</test>
+
+
+</suite>

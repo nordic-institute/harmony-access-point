@@ -2,16 +2,12 @@ package rest;
 
 
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Generator;
-import utils.soap_client.DomibusC1;
 
-import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,95 +20,13 @@ import java.util.List;
 
 public class DomibusRestClient extends BaseRestClient{
 
-
-	public static DomibusC1 messageSender = new DomibusC1();
-	protected ObjectProvider provider = new ObjectProvider();
-
+	public DomibusRestClient(String username, String password) {
+		super(username, password);
+	}
 
 	public DomibusRestClient() {
-		refreshCookies();
+		super();
 	}
-
-	public String sanitizeResponse(String response) {
-		return response.replaceFirst("\\)]}',\n", "");
-	}
-
-
-	public void switchDomain(String domainCode) {
-		if (StringUtils.isEmpty(domainCode)) {
-			domainCode = "default";
-		}
-
-		if (getDomainCodes().contains(domainCode)) {
-			WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.SESSION_DOMAIN));
-
-			builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
-					.put(ClientResponse.class, domainCode);
-		}
-
-	}
-
-
-	// -------------------------------------------- Domains -----------------------------------------------------a-------
-	public JSONArray getDomains() {
-		JSONArray domainArray = null;
-		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMAINS), null);
-		try {
-			if (response.getStatus() == 200) {
-				String rawStringResponse = response.getEntity(String.class);
-				domainArray = new JSONArray(sanitizeResponse(rawStringResponse));
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return domainArray;
-	}
-
-	public List<String> getDomainNames() {
-		List<String> toReturn = new ArrayList<>();
-		try {
-			JSONArray domainArray = getDomains();
-			for (int i = 0; i < domainArray.length(); i++) {
-				toReturn.add(domainArray.getJSONObject(i).getString("name"));
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return toReturn;
-	}
-
-	public List<String> getDomainCodes() {
-
-		List<String> toReturn = new ArrayList<>();
-
-		try {
-			JSONArray domainArray = getDomains();
-			if (null != domainArray) {
-				for (int i = 0; i < domainArray.length(); i++) {
-					toReturn.add(domainArray.getJSONObject(i).getString("code"));
-				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return toReturn;
-	}
-
-	public String getDomainCodeForName(String name) {
-		try {
-			JSONArray domainArray = getDomains();
-			for (int i = 0; i < domainArray.length(); i++) {
-				String currentName = domainArray.getJSONObject(i).getString("name");
-				if (StringUtils.equalsIgnoreCase(currentName, name)) {
-					return domainArray.getJSONObject(i).getString("code");
-				}
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 
 	// -------------------------------------------- UI Replication -----------------------------------------------------------
 	public void syncRecord() {
@@ -124,57 +38,60 @@ public class DomibusRestClient extends BaseRestClient{
 		}
 	}
 
-
+	// -------------------------------------------- get clients -----------------------------------------------------------
 	public PmodePartiesClient pmodeParties() {
-		return new PmodePartiesClient();
+		return new PmodePartiesClient(username, password);
 	}
 
 	public PropertiesClient properties() {
-		return new PropertiesClient();
+		return new PropertiesClient(username, password);
 	}
 
 	public MessageClient messages() {
-		return new MessageClient();
+		return new MessageClient(username, password);
 	}
 	public ErrorsClient errors() {
-		return new ErrorsClient();
+		return new ErrorsClient(username, password);
 	}
 
 
 	public CSVClient csv() {
-		return new CSVClient();
+		return new CSVClient(username, password);
 	}
 
 	public PModeClient pmode() {
-		return new PModeClient();
+		return new PModeClient(username, password);
 	}
 
 	public JMSClient jms() {
-		return new JMSClient();
+		return new JMSClient(username, password);
 	}
 
 	public MessageFiltersClient messFilters() {
-		return new MessageFiltersClient();
+		return new MessageFiltersClient(username, password);
 	}
 
 	public PluginUsersClient pluginUsers() {
-		return new PluginUsersClient();
+		return new PluginUsersClient(username, password);
 	}
 
 	public UsersClient users() {
-		return new UsersClient();
+		return new UsersClient(username, password);
 	}
 
 	public ConnectionMonitoringClient connMonitor() {
-		return new ConnectionMonitoringClient();
+		return new ConnectionMonitoringClient(username, password);
 	}
 
 	public AlertsRestClient alerts() {
-		return new AlertsRestClient();
+		return new AlertsRestClient(username, password);
+	}
+	public AuditRestClient audit() {
+		return new AuditRestClient(username, password);
 	}
 
 	public LoggingClient logging() {
- 		return new LoggingClient();
+ 		return new LoggingClient(username, password);
 	}
 
 
@@ -204,7 +121,7 @@ public class DomibusRestClient extends BaseRestClient{
 		return messIDs;
 	}
 
-	public List<String> getMessageIDsWithStatus(String domainCode, String status) {
+	public List<String> getMessageIDsWithStatus(String domainCode, String status) throws Exception {
 		JSONArray mess = messages().getListOfMessages(domainCode);
 		List<String> messIDs = new ArrayList<>();
 

@@ -436,11 +436,12 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 	/*   AU-25 - Login as domain admin, go to page PMode Archive and Download old/current  PModes   */
-	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"})
 	public void pmodeDownload() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
-		SoftAssert soft = new SoftAssert();
 		log.info("getting pmode id");
 		Integer pmodeID = rest.pmode().getLatestPModeID(null);
 		log.info("downloading PMODE with id " + pmodeID);

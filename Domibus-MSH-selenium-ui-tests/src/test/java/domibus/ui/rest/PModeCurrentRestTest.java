@@ -1,23 +1,12 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import org.testng.collections.Lists;
-import rest.RestServicePaths;
-import utils.Generator;
-import utils.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
 
 public class PModeCurrentRestTest extends RestTest {
 
@@ -48,7 +37,7 @@ public class PModeCurrentRestTest extends RestTest {
 	public void downloadInvalidStrings(String evilStr) throws Exception{
 		SoftAssert soft = new SoftAssert();
 		ClientResponse response = rest.pmode().downloadPmode(null, evilStr);
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
 
@@ -56,7 +45,7 @@ public class PModeCurrentRestTest extends RestTest {
 	public void uploadFileInvalidComments(String evilStr) throws Exception{
 		SoftAssert soft = new SoftAssert();
 		ClientResponse response = rest.pmode().uploadPMode("rest_pmodes/pmode-blue.xml", evilStr, null);
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
 

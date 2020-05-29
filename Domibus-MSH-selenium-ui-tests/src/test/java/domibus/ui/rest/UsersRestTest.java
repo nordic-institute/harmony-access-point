@@ -7,10 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.RestServicePaths;
 import utils.Generator;
-
-import java.util.List;
 
 public class UsersRestTest extends RestTest {
 
@@ -62,7 +59,7 @@ public class UsersRestTest extends RestTest {
 		JSONArray toUpdate = new JSONArray();
 		toUpdate.put(user);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toUpdate.toString());
+		ClientResponse response = rest.users().putUser(toUpdate, null);
 
 		int status = response.getStatus();
 		log.debug("Status: " + status);
@@ -97,7 +94,7 @@ public class UsersRestTest extends RestTest {
 		JSONArray toDelete = new JSONArray();
 		toDelete.put(user);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toDelete.toString());
+		ClientResponse response = rest.users().putUser(toDelete, null);
 
 		int status = response.getStatus();
 		log.debug("Status: " + status);
@@ -136,8 +133,8 @@ public class UsersRestTest extends RestTest {
 		JSONArray toUpdate = new JSONArray();
 		toUpdate.put(user);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toUpdate.toString());
-		validateInvalidResponse(response, soft, 400);
+		ClientResponse response = rest.users().putUser(toUpdate, null);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}
@@ -147,9 +144,8 @@ public class UsersRestTest extends RestTest {
 		SoftAssert soft = new SoftAssert();
 
 		JSONArray toCreate = createUserObj(null, evilStr, evilStr, evilStr, true);
-		toCreate.toString();
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.USERS), toCreate.toString());
-		validateInvalidResponse(response, soft, 400);
+		ClientResponse response = rest.users().putUser(toCreate, null);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

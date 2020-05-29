@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.RestServicePaths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +39,7 @@ public class AlertsRestTest extends RestTest{
 			}
 		}
 
-		ClientResponse response = rest.multivalueGET(rest.resource.path(RestServicePaths.ALERTS_LIST), params);
+		ClientResponse response = rest.alerts().filterAlerts(params, null); //multivalueGET(rest.resource.path(RestServicePaths.ALERTS_LIST), params);
 
 		int status = response.getStatus();
 		String content = response.getEntity(String.class);
@@ -72,7 +71,7 @@ public class AlertsRestTest extends RestTest{
 
 		JSONObject alert = alerts.getJSONObject(0);
 		alerts.getJSONObject(0).put("processed", true);
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.ALERTS_LIST), alerts.toString());
+		ClientResponse response = rest.alerts().markAlert(alerts, null);
 
 		JSONArray processedAlerts = rest.alerts().getAlerts(null, true, showDomain);
 
@@ -87,7 +86,7 @@ public class AlertsRestTest extends RestTest{
 		soft.assertAll();
 	}
 
-	@Test
+	@Test(dependsOnMethods = "markAlertAsProcessedTest")
 	public void markAlertAsNOTProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -96,7 +95,7 @@ public class AlertsRestTest extends RestTest{
 
 		JSONObject alert = processedAlerts.getJSONObject(0);
 		processedAlerts.getJSONObject(0).put("processed", false);
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.ALERTS_LIST), processedAlerts.toString());
+		ClientResponse response = rest.alerts().markAlert(processedAlerts, null);
 
 		JSONArray rawAlerts = rest.alerts().getAlerts(null, false, showDomain);
 
@@ -115,14 +114,15 @@ public class AlertsRestTest extends RestTest{
 
 	@Test(dataProvider = "readInvalidStrings")
 	public void searchTest(String evilStr) throws Exception {
+		log.debug("evilStr= " + evilStr);
 		SoftAssert soft = new SoftAssert();
 		ArrayList<Param> params = new ArrayList<>();
 		for (String allKey : allKeys) {
 			params.add(new Param(allKey, evilStr));
 		}
-		ClientResponse response = rest.multivalueGET(rest.resource.path(RestServicePaths.ALERTS_LIST), params);
+		ClientResponse response = rest.alerts().filterAlerts(params, null);
 
-		validateInvalidResponse(response, soft, 400);
+		validateInvalidResponse(response, soft);
 
 		soft.assertAll();
 	}

@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -9,7 +8,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.testng.annotations.BeforeMethod;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.msgFilter.MessageFilterGrid;
@@ -31,10 +30,15 @@ import java.util.List;
 
 public class MessageFilterPgTest extends SeleniumTest {
 
-	@BeforeMethod(alwaysRun = true)
-	private void login() throws Exception {
-		new DomibusPage(driver).getSidebar().goToPage(PAGES.MESSAGE_FILTER);
-		new MessageFilterPage(driver).grid().waitForRowsToLoad();
+	private MessageFilterPage navigateToPage() throws Exception {
+		MessageFilterPage page = new MessageFilterPage(driver);
+		if (page.getTitle().contains("Filter")) {
+			page.refreshPage();
+		} else {
+			page.getSidebar().goToPage(PAGES.MESSAGE_FILTER);
+		}
+		page.grid().waitForRowsToLoad();
+		return page;
 	}
 
 	/* Login as super admin and open Messages Filter page */
@@ -42,7 +46,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void openMessagesFilterPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
+
 		log.info("checking that all expected elements appear");
 		soft.assertTrue(page.isLoaded(), "All elements are loaded");
 		soft.assertAll();
@@ -55,7 +60,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		String actionName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		page.getNewBtn().click();
 		MessageFilterModal popup = new MessageFilterModal(driver);
@@ -83,7 +88,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		String actionName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		page.getNewBtn().click();
 		MessageFilterModal popup = new MessageFilterModal(driver);
@@ -108,6 +113,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/*User shuffles filters using Move Up and Move Down buttons and presses Cancel*/
 	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void shuffleAndCancel() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
@@ -116,10 +123,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 			actionNames.add(actionName);
 		}
 
-		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		log.info("Switch row 0 and row 1");
 		page.grid().selectRow(1);
@@ -150,7 +155,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void selectFirstRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		log.info("selecting row 0");
 		page.grid().selectRow(0);
@@ -170,7 +175,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void selectLastRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		log.info("selecting last row");
 		int lastRowIndex = page.grid().getRowsNo() - 1;
@@ -189,6 +194,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* User selects row other than first and last */
 	@Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void selectMiddleRow() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters");
@@ -198,9 +204,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 			actionNames.add(actionName);
 		}
 
-		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		log.info("selecting middle row");
 		int rowIndex = page.grid().getRowsNo() / 2;
@@ -234,8 +239,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 //		move up
 		int index = page.grid().getRowsNo() / 2;
@@ -303,6 +307,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* User reshuffles filters using Move Up and Move Down buttons and presses Save */
 	@Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void shuffleAndSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
@@ -311,10 +317,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 			actionNames.add(actionName);
 		}
 
-		SoftAssert soft = new SoftAssert();
-
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		int index = page.grid().scrollTo("Action", actionNames.get(0));
 
@@ -360,8 +363,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
+
 
 		MessageFilterGrid grid = page.grid();
 		int index = grid.scrollTo("Action", actionName);
@@ -392,14 +395,14 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* User selects a filter and chooses to edit it then press save */
 	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
 		String newActionValue = Generator.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 
-		SoftAssert soft = new SoftAssert();
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		log.info("editing filter");
 		int index = page.grid().scrollTo("Action", actionName);
@@ -430,18 +433,18 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* User chooses to delete a filter and presses Cancel */
 	@Test(description = "MSGF-15", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndCancel() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("Create a filter to delete");
 		String actionName = Generator.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 
-		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = navigateToPage();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
 
 		int index = page.grid().scrollTo("Action", actionName);
 		if (index < 0) {
-			throw new RuntimeException("Could not find created filter");
+			throw new SkipException("Could not find created filter");
 		}
 
 		log.info("deleting filter");
@@ -469,18 +472,18 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* User chooses to delete a filter and presses Save */
 	@Test(description = "MSGF-17", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteAndSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 
-		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		int index = page.grid().scrollTo("Action", actionName);
 		if (index < 0) {
-			throw new RuntimeException("Could not find created filter");
+			throw new SkipException("Could not find created filter");
 		}
 
 		log.info("deleting filter");
@@ -505,11 +508,11 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* Create new filter on default domain and change domains */
 	@Test(description = "MSGF-18", groups = {"multiTenancy"})
 	public void newFilterAndChangeDomains() throws Exception {
-		String actionName = Generator.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		String actionName = Generator.randomAlphaNumeric(5);
 
+		MessageFilterPage page = navigateToPage();
 
 		page.getNewBtn().click();
 		MessageFilterModal popup = new MessageFilterModal(driver);
@@ -544,17 +547,17 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* Operate a change in the list of filters and don't press Save or Cancel Change domain */
 	@Test(description = "MSGF-19", groups = {"multiTenancy"})
 	public void editAndChangeDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("Create a filter to edit");
 		String actionName = Generator.randomAlphaNumeric(5);
 		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
 		rest.messFilters().createMessageFilter(actionName, null);
-		log.debug("filter with action "+actionName+" created");
+		log.debug("filter with action " + actionName + " created");
 		String domainName = rest.getNonDefaultDomain();
 
-		SoftAssert soft = new SoftAssert();
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 		String defaultDomainName = page.getDomainFromTitle();
-		page.refreshPage();
 
 		int index = page.grid().scrollTo("Action", actionName);
 		page.grid().selectRow(index);
@@ -645,7 +648,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
+
 		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
@@ -657,12 +661,13 @@ public class MessageFilterPgTest extends SeleniumTest {
 	@Test(description = "MSGF-24", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickRow() throws Exception {
 		log.info("Create a filter to edit");
+		SoftAssert soft = new SoftAssert();
+
 		String actionName = Generator.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 
-		SoftAssert soft = new SoftAssert();
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
+
 
 		int index = page.grid().scrollTo("Action", actionName);
 		HashMap<String, String> rowInfo = page.grid().getRowInfo(index);
@@ -687,7 +692,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 
 	/* Perform two action and press cancel */
-	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
+	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"})
 	public void twoActionsAndCancel() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -699,8 +704,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
 
@@ -739,15 +743,15 @@ public class MessageFilterPgTest extends SeleniumTest {
 		String pluginName = "";
 		for (int i = 0; i < msgfs.length(); i++) {
 			JSONObject msgf = msgfs.getJSONObject(i);
-			if(msgf.getJSONArray("routingCriterias").length() == 0){
+			if (msgf.getJSONArray("routingCriterias").length() == 0) {
 				pluginName = msgf.getString("backendName");
 				break;
 			}
 		}
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
-		if(StringUtils.isEmpty(pluginName)){
+		if (StringUtils.isEmpty(pluginName)) {
 			log.info("Try to create empty filter");
 			page.getNewBtn().click();
 			MessageFilterModal modal = new MessageFilterModal(driver);
@@ -779,7 +783,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void duplicateFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 		page.getNewBtn().click();
 
 		MessageFilterModal modal = new MessageFilterModal(driver);
@@ -831,6 +835,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* Create a duplicate by editing another filter */
 	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editToDuplicate() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
 		log.info("Create 2 filters to edit");
 
 		String actionName = Generator.randomAlphaNumeric(5);
@@ -838,9 +844,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		rest.messFilters().createMessageFilter(actionName, null);
 		rest.messFilters().createMessageFilter(anotherActionName, null);
 
-		SoftAssert soft = new SoftAssert();
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.refreshPage();
+		MessageFilterPage page = navigateToPage();
 
 		int index = page.grid().scrollTo("Action", actionName);
 		page.grid().selectRow(index);
@@ -876,7 +880,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void persistedCheckbox() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 
 		MessageFilterGrid grid = page.grid();
 		log.info("check persisted checkbox cannot be edited by the user");
@@ -888,11 +892,11 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 
 	/* Verify headers in downloaded CSV sheet  */
-	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void csvFileHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessageFilterPage page = new MessageFilterPage(driver);
+		MessageFilterPage page = navigateToPage();
 		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);

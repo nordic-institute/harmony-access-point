@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ConnectionMonitoringRestTest extends RestTest {
 
-	@Test //(dataProvider = "readInvalidStrings")
+	@Test
 	public void getPartiesTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -39,7 +39,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 		log.debug(connParties.toString());
 
 		String partyID = connParties.getString(0);
-		soft.assertTrue(rest.connMonitor().monitorParty(partyID, null), "Monitoring party" + partyID);;
+		soft.assertTrue(rest.connMonitor().monitorParty(partyID, null), "Monitoring party" + partyID);
 
 		JSONObject partyDetail = rest.connMonitor().getMonitoringPartiesDetails(partyID, null);
 		soft.assertTrue(partyDetail.getBoolean("monitored"), "party "+partyID+" is monitored");
@@ -56,7 +56,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 		log.debug(connParties.toString());
 
 		String partyID = connParties.getString(0);
-		soft.assertTrue(rest.connMonitor().disableMonitorParty(partyID, null), "Disable monitoring for party" + partyID);;
+		soft.assertTrue(rest.connMonitor().disableMonitorParty(partyID, null), "Disable monitoring for party" + partyID);
 
 		JSONObject partyDetail = rest.connMonitor().getMonitoringPartiesDetails(partyID, null);
 		soft.assertFalse(partyDetail.getBoolean("monitored"), "party "+partyID+" is monitored");
@@ -65,7 +65,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 	}
 
 
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(dataProvider = "readInvalidStrings", enabled = false)
 	public void enableMonitoringNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 

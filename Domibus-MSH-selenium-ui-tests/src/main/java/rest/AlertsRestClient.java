@@ -3,10 +3,16 @@ package rest;
 import com.sun.jersey.api.client.ClientResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import rest.utilPojo.Param;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class AlertsRestClient extends DomibusRestClient{
+public class AlertsRestClient extends BaseRestClient{
+
+	public AlertsRestClient(String username, String password) {
+		super(username, password);
+	}
 
 	public JSONArray getAlerts(String domain, boolean processed, boolean showDomain) throws Exception {
 
@@ -35,4 +41,13 @@ public class AlertsRestClient extends DomibusRestClient{
 		return object.getJSONArray("alertsEntries");
 	}
 
+	public ClientResponse filterAlerts(ArrayList<Param> params, String domain) {
+		switchDomain(domain);
+		return multivalueGET(resource.path(RestServicePaths.ALERTS_LIST), params);
+	}
+
+	public ClientResponse markAlert(JSONArray alerts, String domain) {
+		switchDomain(domain);
+		return jsonPUT(resource.path(RestServicePaths.ALERTS_LIST), alerts.toString());
+	}
 }

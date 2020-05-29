@@ -12,7 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PluginUsersClient extends DomibusRestClient {
+public class PluginUsersClient extends BaseRestClient {
+
+	public PluginUsersClient(String username, String password) {
+		super(username, password);
+	}
+
 	public void createPluginUser(String username, String role, String pass, String domain) throws JSONException {
 		String payload = provider.createPluginUserObj(username, role, pass);
 
@@ -102,5 +107,10 @@ public class PluginUsersClient extends DomibusRestClient {
 
 		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		return response;
+	}
+
+	public ClientResponse updatePluginUserList(JSONArray array, String domain) {
+		switchDomain(domain);
+		return jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 	}
 }

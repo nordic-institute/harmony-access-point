@@ -55,8 +55,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>3.0.0-M4</version>
 						<configuration>
-							<failIfNoTests>true</failIfNoTests>
-							<groups>multiTenancy</groups>
+							
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
 							</suiteXmlFiles>
@@ -98,7 +97,6 @@
 						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-<!--							<groups>multiTenancy</groups>-->
 							<suiteXmlFiles>
 								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
@@ -137,7 +135,6 @@
 						<version>3.0.0-M4</version>
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
-							<groups>multiTenancy</groups>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
 							</suiteXmlFiles>

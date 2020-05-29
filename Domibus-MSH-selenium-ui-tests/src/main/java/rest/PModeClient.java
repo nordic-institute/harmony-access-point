@@ -16,7 +16,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 
-public class PModeClient extends DomibusRestClient {
+public class PModeClient extends BaseRestClient {
+
+	public PModeClient(String username, String password) {
+		super(username, password);
+	}
 
 	// -------------------------------------------- PMode --------------------------------------------------------------
 	public void uploadPMode(String pmodeFilePath, String domain) throws Exception {

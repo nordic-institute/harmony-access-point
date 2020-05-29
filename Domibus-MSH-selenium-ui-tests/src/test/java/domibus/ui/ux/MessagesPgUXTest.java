@@ -127,8 +127,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-//		log.info("sorting after column Received");
-//		page.grid().sortBy("Received");
 
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");

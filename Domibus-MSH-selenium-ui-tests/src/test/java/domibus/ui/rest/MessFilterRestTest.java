@@ -34,7 +34,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
-		rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
+		rest.messFilters().updateFilterList(toSendMSGFS, null);
 
 		JSONArray newMsgfs = rest.messFilters().getMessageFilters(null);
 
@@ -78,7 +78,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
+		ClientResponse response = rest.messFilters().updateFilterList(toSendMSGFS, null);
 
 		Integer status=  response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
@@ -114,7 +114,7 @@ public class MessFilterRestTest extends RestTest {
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
 		String toSend = StringUtils.substring(toSendMSGFS.toString(), 0, -5);
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSend);
+		ClientResponse response = rest.messFilters().updateFilterList(toSend, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSend);
 
 		Integer status=  response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
@@ -147,7 +147,7 @@ public class MessFilterRestTest extends RestTest {
 
 		msgfs.put(duplicato);
 
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), msgfs.toString());
+		ClientResponse response = rest.messFilters().updateFilterList(msgfs, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), msgfs.toString());
 
 		Integer status=  response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
@@ -187,7 +187,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
-		rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
+		rest.messFilters().updateFilterList(toSendMSGFS, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
 
 		JSONArray newMsgfs = rest.messFilters().getMessageFilters(null);
 
@@ -245,7 +245,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
 		System.out.println("msgfs = " + toSendMSGFS);
-		ClientResponse response = rest.jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
+		ClientResponse response = rest.messFilters().updateFilterList(toSendMSGFS, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
 
 		Integer status=  response.getStatus();
 		String responseContent = getSanitizedStringResponse(response);
