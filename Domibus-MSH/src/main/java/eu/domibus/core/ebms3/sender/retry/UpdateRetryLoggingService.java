@@ -111,7 +111,7 @@ public class UpdateRetryLoggingService {
         messageFailed(userMessage, userMessageLog);
 
         if (userMessage.isUserMessageFragment()) {
-            userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
+            userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
 
         }
         return true;
@@ -137,7 +137,7 @@ public class UpdateRetryLoggingService {
             messageFailed(userMessage, userMessageLog);
 
             if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
+                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
             }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
