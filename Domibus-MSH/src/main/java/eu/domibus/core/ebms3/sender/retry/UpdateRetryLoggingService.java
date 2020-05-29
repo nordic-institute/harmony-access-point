@@ -85,32 +85,37 @@ public class UpdateRetryLoggingService {
         updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
     }
 
+    /**
+     * Set a message as failed in the it has expired
+     *
+     * @param userMessage The userMessage to be checked for expiration
+     * @return true in case the message was set as expired
+     * @throws EbMS3Exception If the LegConfiguration could not found
+     */
     @Transactional
-    public boolean failIfExpired(UserMessage userMessage) {
+    public boolean failIfExpired(UserMessage userMessage) throws EbMS3Exception {
         final String messageId = userMessage.getMessageInfo().getMessageId();
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-        eu.domibus.common.model.configuration.LegConfiguration legConfiguration;
-        final String pModeKey;
 
-        try {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            LOG.debug("PMode key found : {}", pModeKey);
-            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
-        } catch (EbMS3Exception exc) {
-            LOG.warn("Could not find LegConfiguration for message [{}]", messageId);
+        final String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        LOG.debug("PMode key found : [{}]", pModeKey);
+        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+        LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+        boolean expired = isExpired(legConfiguration, userMessageLog);
+        if (!expired) {
+            LOG.debug("Message [{}] is not expired", messageId);
             return false;
         }
-        if (isExpired(legConfiguration, userMessageLog)) {
-            messageFailed(userMessage, userMessageLog);
+        LOG.debug("Message [{}] is expired", messageId);
+        messageFailed(userMessage, userMessageLog);
 
-            if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
+        if (userMessage.isUserMessageFragment()) {
+            userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
 
-            }
-            return true;
         }
-        return false;
+        return true;
+
     }
 
 

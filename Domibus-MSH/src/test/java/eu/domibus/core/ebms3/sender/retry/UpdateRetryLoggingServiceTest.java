@@ -118,7 +118,6 @@ public class UpdateRetryLoggingServiceTest {
     }
 
 
-
     /**
      * Message was restored
      * NextAttempt is set correctly
@@ -444,7 +443,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void test_failIfExpired_ExceptionThrown(final @Mocked UserMessage userMessage) throws Exception {
+    public void test_failIfExpired_ExceptionThrown(final @Mocked UserMessage userMessage) throws EbMS3Exception {
         final String messageId = "expired123@domibus.eu";
         final String pModeKey = "pModeKey";
 
@@ -468,8 +467,12 @@ public class UpdateRetryLoggingServiceTest {
         }};
 
         //tested method
-        boolean result = updateRetryLoggingService.failIfExpired(userMessage);
-        Assert.assertFalse(result);
+        try {
+            updateRetryLoggingService.failIfExpired(userMessage);
+            Assert.fail("EbMS3Exception should have been raised");
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+        }
 
         new FullVerifications() {{
         }};
