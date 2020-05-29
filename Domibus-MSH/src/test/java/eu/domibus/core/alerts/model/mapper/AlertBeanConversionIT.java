@@ -23,7 +23,7 @@ import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-public class AlertBeanConversionTest {
+public class AlertBeanConversionIT {
 
     @Configuration
     static class ContextConfiguration {
@@ -34,7 +34,7 @@ public class AlertBeanConversionTest {
         final String user = "user";
         final String accountDisabled = "false";
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date reportingTime = parser.parse("25/10/2001 00:00:00");
         final Date loginTime = parser.parse("26/10/2001 00:00:00");
 
