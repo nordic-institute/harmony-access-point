@@ -278,6 +278,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_LEVEL, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_MOMENT, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_SUBJECT, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_LEVEL, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
