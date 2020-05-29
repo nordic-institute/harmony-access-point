@@ -7,10 +7,12 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -66,6 +68,9 @@ public class UpdateRetryLoggingService {
     @Autowired
     protected MessageAttemptService messageAttemptService;
 
+    @Autowired
+    protected PModeProvider pModeProvider;
+
 
     /**
      * This method is responsible for the handling of retries for a given sent message.
@@ -78,6 +83,39 @@ public class UpdateRetryLoggingService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updatePushedMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt) {
         updateRetryLogging(messageId, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
+    }
+
+    /**
+     * Set a message as failed if it has expired
+     *
+     * @param userMessage The userMessage to be checked for expiration
+     * @return true in case the message was set as expired
+     * @throws EbMS3Exception If the LegConfiguration could not found
+     */
+    @Transactional
+    public boolean failIfExpired(UserMessage userMessage) throws EbMS3Exception {
+        final String messageId = userMessage.getMessageInfo().getMessageId();
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+
+        final String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        LOG.debug("PMode key found : [{}]", pModeKey);
+        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+        LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+        boolean expired = isExpired(legConfiguration, userMessageLog);
+        if (!expired) {
+            LOG.debug("Message [{}] is not expired", messageId);
+            return false;
+        }
+        LOG.debug("Message [{}] is expired", messageId);
+        messageFailed(userMessage, userMessageLog);
+
+        if (userMessage.isUserMessageFragment()) {
+            userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
+
+        }
+        return true;
+
     }
 
 
@@ -99,7 +137,7 @@ public class UpdateRetryLoggingService {
             messageFailed(userMessage, userMessageLog);
 
             if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
+                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
             }
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
