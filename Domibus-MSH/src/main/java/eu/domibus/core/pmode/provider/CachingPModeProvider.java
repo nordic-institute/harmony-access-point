@@ -707,18 +707,22 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void handleProcessParties(Process process, List result) {
-        Comparator<Identifier> comp = (Identifier a, Identifier b) -> StringUtils.compare(a.getPartyId(), b.getPartyId());
+        Comparator<Identifier> comp = (Identifier party1, Identifier party2) -> StringUtils.compare(party1.getPartyId(), party2.getPartyId());
         for (Party party : process.getResponderParties()) {
-            // add only one id for the party, not all aliases
-            List<Identifier> ids = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(ids)) {
-                LOG.warn("No party ids for party [{}]", party.getName());
-                continue;
-            }
-            String id = ids.get(0).getPartyId();
-            LOG.trace("Add matching party [{}] from process [{}]", id, process.getName());
-            result.add(id);
+            getOnePartyId(process, result, comp, party);
         }
+    }
+
+    private void getOnePartyId(Process process, List result, Comparator<Identifier> comp, Party party) {
+        // add only one id for the party, not all aliases
+        List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(partyIds)) {
+            LOG.warn("No party ids for party [{}]", party.getName());
+            return;
+        }
+        String partyId = partyIds.get(0).getPartyId();
+        LOG.trace("Add matching party [{}] from process [{}]", partyId, process.getName());
+        result.add(partyId);
     }
 
     @Override

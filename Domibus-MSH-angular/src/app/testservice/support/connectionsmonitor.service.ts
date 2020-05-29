@@ -38,11 +38,11 @@ export class ConnectionsMonitorService {
     let monitors = await this.getMonitorsForParties(parties);
     console.log('monitors ', monitors);
 
-    return allParties.map(p => {
-      let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers.map(el => el.partyId).join('/');
-      Object.assign(m, monitors[m.partyId]);
-      return m;
+    return allParties.map(party => {
+      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+      cmEntry.partyId = party.identifiers.map(id => id.partyId).join('/');
+      Object.assign(cmEntry, monitors[cmEntry.partyId]);
+      return cmEntry;
     });
   }
 
