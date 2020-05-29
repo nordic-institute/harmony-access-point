@@ -1023,9 +1023,29 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void handleProcessParties(@Mocked Process process,  @Mocked Party party) {
+    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
         Set<Party> parties = new HashSet<>();
-        parties.add(party);
+        parties.add(party1);
+        parties.add(party2);
+        String partyId1 = "partyId1", partyId2 = "partyId2";
+
+        new Expectations(cachingPModeProvider) {{
+            process.getResponderParties();
+            result = parties;
+            cachingPModeProvider.getOnePartyId(party1);
+            result = partyId1;
+            cachingPModeProvider.getOnePartyId(party2);
+            result = partyId2;
+        }};
+
+        List<String> result = cachingPModeProvider.handleProcessParties(process);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
+    }
+
+    @Test
+    public void getOnePartyId(@Mocked Party party) {
         Set<Identifier> ids = new HashSet<>();
         Identifier id1 = new Identifier();
         id1.setPartyId("id1");
@@ -1033,18 +1053,14 @@ public class CachingPModeProviderTest {
         Identifier id2 = new Identifier();
         id2.setPartyId("id2");
         ids.add(id2);
-        List result = new ArrayList();
 
         new Expectations() {{
-            process.getResponderParties();
-            result = parties;
             party.getIdentifiers();
             result = ids;
         }};
 
-        cachingPModeProvider.handleProcessParties(process, result);
+        String result = cachingPModeProvider.getOnePartyId(party);
 
-        Assert.assertTrue(result.size() == 1);
-        Assert.assertTrue(result.get(0).equals(id1.getPartyId()));
+        Assert.assertTrue(result.equals("id1"));
     }
 }

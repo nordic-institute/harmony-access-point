@@ -697,32 +697,36 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String
-            service, String action) {
-        List result = new ArrayList<String>();
-        if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service) && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-            handleProcessParties(process, result);
+    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
+        if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+            return handleProcessParties(process);
+        }
+        return new ArrayList<String>();
+    }
+
+    protected List<String> handleProcessParties(Process process) {
+        List<String> result = new ArrayList<String>();
+        for (Party party : process.getResponderParties()) {
+            String partyId = getOnePartyId(party);
+            if (partyId != null) {
+                result.add(partyId);
+            }
         }
         return result;
     }
 
-    protected void handleProcessParties(Process process, List result) {
-        Comparator<Identifier> comp = (Identifier party1, Identifier party2) -> StringUtils.compare(party1.getPartyId(), party2.getPartyId());
-        for (Party party : process.getResponderParties()) {
-            getOnePartyId(process, result, comp, party);
-        }
-    }
-
-    private void getOnePartyId(Process process, List result, Comparator<Identifier> comp, Party party) {
+    protected String getOnePartyId(Party party) {
         // add only one id for the party, not all aliases
+        Comparator<Identifier> comp = (Identifier party1, Identifier party2) -> StringUtils.compare(party1.getPartyId(), party2.getPartyId());
         List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(partyIds)) {
             LOG.warn("No party ids for party [{}]", party.getName());
-            return;
+            return null;
         }
         String partyId = partyIds.get(0).getPartyId();
-        LOG.trace("Add matching party [{}] from process [{}]", partyId, process.getName());
-        result.add(partyId);
+        LOG.trace("Getting party [{}] from process.", partyId);
+        return partyId;
     }
 
     @Override

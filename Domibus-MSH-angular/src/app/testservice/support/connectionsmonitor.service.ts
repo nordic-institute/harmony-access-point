@@ -67,8 +67,12 @@ export class ConnectionsMonitorService {
     console.log('sending test message to ', receiverPartyId);
 
     if (!sender) {
-      sender = await this.getSenderParty();
-      // TODO: exception handling
+      try {
+        sender = await this.getSenderParty();
+      } catch (ex) {
+        this.alertService.exception('Error getting the sender party:', ex);
+        return;
+      }
     }
     const payload = {sender: sender, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
@@ -77,7 +81,7 @@ export class ConnectionsMonitorService {
   async setMonitorState(partyId: string, enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.enabled';
     let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
-    let r = (await this.http.get<any>(url).toPromise()).items[0].value; // TODO
+    let r = (await this.http.get<any>(url).toPromise()).items[0].value;
     let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
     if (enabled) {
       enabledParties += ',' + partyId;
