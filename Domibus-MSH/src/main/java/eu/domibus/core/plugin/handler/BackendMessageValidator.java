@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -157,7 +158,9 @@ public class BackendMessageValidator {
         Validate.notNull(from, "Initiator party was not found");
 
         if (!gatewayParty.equals(from)) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name [" + from.getName() + "] does not correspond to the access point's name [" + gatewayParty.getName() + "]", null, null);
+            EbMS3Exception exc = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name [" + from.getName() + "] does not correspond to the access point's name [" + gatewayParty.getName() + "]", null, null);
+            exc.setMshRole(MSHRole.SENDING);
+            throw exc;
         }
     }
 
