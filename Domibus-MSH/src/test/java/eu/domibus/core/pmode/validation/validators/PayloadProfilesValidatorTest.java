@@ -85,7 +85,7 @@ public class PayloadProfilesValidatorTest {
 
         payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
 
-        new FullVerifications() {{
+        new FullVerifications(payloadProfilesValidator) {{
             payloadProfilesValidator.createIssue(payloadProfile, anyString, anyString);
         }};
     }
