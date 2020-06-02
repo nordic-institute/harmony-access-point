@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class PluginPasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
+public class PluginPasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
     private ConfigurationLoader<RepetitiveAlertModuleConfiguration> loader;

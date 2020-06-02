@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class ConsoleAccountEnabledConfigurationManager implements AlertConfigurationManager {
+public class ConsoleAccountEnabledConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
     private ConfigurationLoader<AlertModuleConfigurationBase> loader;

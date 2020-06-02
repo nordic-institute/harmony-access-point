@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @Service
-public abstract class ExpiredCertificateConfigurationManager implements AlertConfigurationManager {
+public class ExpiredCertificateConfigurationManager implements AlertConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ExpiredCertificateConfigurationManager.class);
 
     @Autowired

@@ -29,9 +29,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
     @Autowired
-    private DomainContextProvider domainContextProvider;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired

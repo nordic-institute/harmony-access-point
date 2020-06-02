@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class PluginLoginFailConfigurationManager implements AlertConfigurationManager {
+public class PluginLoginFailConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
     private ConfigurationLoader<LoginFailureModuleConfiguration> loader;

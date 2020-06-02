@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class PluginAccountEnabledConfigurationManager implements AlertConfigurationManager {
+public class PluginAccountEnabledConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
     private ConfigurationLoader<AlertModuleConfigurationBase> loader;

@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @Service
-public abstract class MessagingConfigurationManager implements AlertConfigurationManager {
+public class MessagingConfigurationManager implements AlertConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MessagingConfigurationManager.class);
 
     @Autowired

@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @Service
-public abstract class CommonConfigurationManager {
+public class CommonConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(CommonConfigurationManager.class);
 
     @Autowired
