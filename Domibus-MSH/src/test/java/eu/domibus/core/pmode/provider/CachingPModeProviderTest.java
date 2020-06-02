@@ -1024,6 +1024,48 @@ public class CachingPModeProviderTest {
     }
 
     @Test
+    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
+        Set<Party> parties = new HashSet<>();
+        parties.add(party1);
+        parties.add(party2);
+        String partyId1 = "partyId1", partyId2 = "partyId2";
+
+        new Expectations(cachingPModeProvider) {{
+            process.getResponderParties();
+            result = parties;
+            cachingPModeProvider.getOnePartyId(party1);
+            result = partyId1;
+            cachingPModeProvider.getOnePartyId(party2);
+            result = partyId2;
+        }};
+
+        List<String> result = cachingPModeProvider.handleProcessParties(process);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
+    }
+
+    @Test
+    public void getOnePartyId(@Mocked Party party) {
+        Set<Identifier> ids = new HashSet<>();
+        Identifier id1 = new Identifier();
+        id1.setPartyId("id1");
+        ids.add(id1);
+        Identifier id2 = new Identifier();
+        id2.setPartyId("id2");
+        ids.add(id2);
+
+        new Expectations() {{
+            party.getIdentifiers();
+            result = ids;
+        }};
+
+        String result = cachingPModeProvider.getOnePartyId(party);
+
+        Assert.assertTrue(result.equals("id1"));
+    }
+
+    @Test
     public void testFindUserMessageExchangeContextSenderNotFound(@Injectable UserMessage userMessage, @Injectable MSHRole mshRole, @Injectable PartyId partyId) throws EbMS3Exception {
 
         final Set<PartyId> fromPartyId = new HashSet<>();
