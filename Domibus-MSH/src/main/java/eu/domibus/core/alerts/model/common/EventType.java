@@ -19,8 +19,10 @@ public enum EventType {
 
     USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, "loginFailure", UserLoginFailedEventProperties.class, true),
     USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, "accountDisabled", UserAccountDisabledEventProperties.class, true),
+    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, "accountEnabled", UserAccountEnabledEventProperties.class, true),
     PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, "loginFailure", UserLoginFailedEventProperties.class),
     PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, "accountDisabled", UserAccountDisabledEventProperties.class),
+    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, "accountEnabled", UserAccountEnabledEventProperties.class),
 
     PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, "PASSWORD_EXPIRATION", PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
