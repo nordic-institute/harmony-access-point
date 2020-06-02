@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -37,7 +37,7 @@ public class PModeValidationServiceImpl implements PModeValidationService {
                 allIssues.addAll(issues1);
             }
 
-            if (allIssues != null && allIssues.stream().anyMatch(x -> x.getLevel() == ValidationIssue.Level.ERROR)) {
+            if (!allIssues.isEmpty() && allIssues.stream().anyMatch(x -> x.getLevel() == ValidationIssue.Level.ERROR)) {
                 throw new PModeValidationException(allIssues);
             }
         }
