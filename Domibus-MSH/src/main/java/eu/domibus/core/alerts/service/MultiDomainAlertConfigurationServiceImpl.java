@@ -4,26 +4,18 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
-import eu.domibus.core.alerts.configuration.manager.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.manager.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.reader.ConsoleLoginFailConfigurationReader;
-import eu.domibus.core.alerts.configuration.reader.PluginAccountDisabledConfigurationReader;
-import eu.domibus.core.alerts.configuration.reader.PluginLoginFailConfigurationReader;
+import eu.domibus.core.alerts.configuration.manager.*;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.List;
+import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -43,38 +35,37 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private ConfigurationLoader<MessagingModuleConfiguration> messagingConfigurationLoader;
-
-    @Autowired
     List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Autowired
+    private MessagingConfigurationManager messagingConfigurationManager;
+
+    @Autowired
     ConsoleAccountDisabledConfigurationManager accountDisabledConfigurationManager;
-//    private ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledConfigurationLoader;
 
     @Autowired
     private ConfigurationLoader<AlertModuleConfigurationBase> accountEnabledConfigurationLoader;
 
     @Autowired
-    private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
+    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
     @Autowired
     private ConfigurationLoader<AlertModuleConfigurationBase> pluginAccountEnabledConfigurationLoader;
 
     @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> loginFailureConfigurationLoader;
+    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> pluginLoginFailureConfigurationLoader;
+    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
 
     @Autowired
-    private ConfigurationLoader<ImminentExpirationCertificateModuleConfiguration> imminentExpirationCertificateConfigurationLoader;
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
     @Autowired
-    private ConfigurationLoader<ExpiredCertificateModuleConfiguration> expiredCertificateConfigurationLoader;
+    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
     @Autowired
-    private ConfigurationLoader<CommonConfiguration> commonConfigurationConfigurationLoader;
+    private CommonConfigurationManager commonConfigurationManager;
 
     @Autowired
     private RepetitiveAlertConfigurationHolder passwordExpirationAlertsConfigurationHolder;
@@ -85,71 +76,49 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
-        return messagingConfigurationLoader.getConfiguration(this::readMessageConfiguration);
+        return messagingConfigurationManager.getConfiguration();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return accountDisabledConfigurationManager.getConfiguration();
-//        return accountDisabledConfigurationLoader.getConfiguration(new ConsoleAccountDisabledConfigurationReader()::readConfiguration);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public AlertModuleConfigurationBase getAccountEnabledConfiguration() {
         return accountEnabledConfigurationLoader.getConfiguration(new ConsoleAccountEnabledConfigurationReader()::readConfiguration);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return loginFailureConfigurationLoader.getConfiguration(new ConsoleLoginFailConfigurationReader()::readConfiguration);
+        return consoleLoginFailConfigurationManager.getConfiguration();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration() {
-        return imminentExpirationCertificateConfigurationLoader.getConfiguration(this::readImminentExpirationCertificateConfiguration);
+        return imminentExpirationCertificateConfigurationManager.getConfiguration();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration() {
-        return expiredCertificateConfigurationLoader.getConfiguration(this::readExpiredCertificateConfiguration);
+        return expiredCertificateConfigurationManager.getConfiguration();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CommonConfiguration getCommonConfiguration() {
-        return commonConfigurationConfigurationLoader.getConfiguration(this::readCommonConfiguration);
+        return commonConfigurationManager.getConfiguration();
     }
 
     @Override
     public void clearCommonConfiguration() {
-        commonConfigurationConfigurationLoader.resetConfiguration();
+        commonConfigurationManager.reset();
     }
 
     @Override
     public void clearLoginFailureConfiguration() {
-        loginFailureConfigurationLoader.resetConfiguration();
+        consoleLoginFailConfigurationManager.reset();
     }
 
     @Override
@@ -159,46 +128,39 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public void clearPluginLoginFailureConfiguration() {
-        this.pluginLoginFailureConfigurationLoader.resetConfiguration();
+        pluginLoginFailConfigurationManager.reset();
     }
 
     @Override
     public void clearImminentExpirationCertificateConfiguration() {
-        this.imminentExpirationCertificateConfigurationLoader.resetConfiguration();
+        imminentExpirationCertificateConfigurationManager.reset();
     }
 
     @Override
     public void clearExpiredCertificateConfiguration() {
-        this.expiredCertificateConfigurationLoader.resetConfiguration();
+        expiredCertificateConfigurationManager.reset();
     }
 
     @Override
     public void clearPluginAccountDisabledConfiguration() {
-        this.pluginAccountDisabledConfigurationLoader.resetConfiguration();
+        pluginAccountDisabledConfigurationManager.reset();
     }
 
     @Override
     public void clearAccountDisabledConfiguration() {
         accountDisabledConfigurationManager.reset();
-//        accountDisabledConfigurationLoader.resetConfiguration();
     }
 
     @Override
     public void clearMessageCommunicationConfiguration() {
-        messagingConfigurationLoader.resetConfiguration();
+        messagingConfigurationManager.reset();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public AlertLevel getAlertLevel(Alert alert) {
         return getModuleConfiguration(alert.getAlertType()).getAlertLevel(alert);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getMailSubject(AlertType alertType) {
         return getModuleConfiguration(alertType).getMailSubject();
@@ -241,92 +203,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     public String getAlertSuperServerNameSubjectPropertyName() {
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
-
-    protected CommonConfiguration readCommonConfiguration() {
-        final boolean emailActive = domibusPropertyProvider.getBooleanProperty(getSendEmailActivePropertyName());
-        final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
-
-        if (!emailActive) {
-            return new CommonConfiguration(alertLifeTimeInDays);
-        }
-
-        return readDomainEmailConfiguration(alertLifeTimeInDays);
-    }
-
-    private CommonConfiguration readDomainEmailConfiguration(Integer alertLifeTimeInDays) {
-        final String alertEmailSender = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
-        final String alertEmailReceiver = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
-
-        boolean misConfigured = false;
-        if (StringUtils.isEmpty(alertEmailReceiver) || StringUtils.isEmpty(alertEmailSender)) {
-            misConfigured = true;
-        } else {
-            List<String> emailsToValidate = new ArrayList<>(Arrays.asList(alertEmailSender));
-            emailsToValidate.addAll(Arrays.asList(alertEmailReceiver.split(";")));
-            for (String email : emailsToValidate) {
-                misConfigured = !isValidEmail(email);
-                if (misConfigured) {
-                    break;
-                }
-            }
-        }
-        if (misConfigured) {
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in the domain [{}].",
-                    DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, currentDomain);
-            throw new IllegalArgumentException("Invalid email address configured for the alert module.");
-        }
-        return new CommonConfiguration(alertLifeTimeInDays, alertEmailSender, alertEmailReceiver);
-    }
-
-    private boolean isValidEmail(String email) {
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-            return true;
-        } catch (AddressException ae) {
-            LOG.trace("Email address [{}] is not valid:", email, ae);
-            return false;
-        }
-    }
-
-    protected MessagingModuleConfiguration readMessageConfiguration() {
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        try {
-            final Boolean alertActive = isAlertModuleEnabled();
-            final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
-            if (!alertActive || !messageAlertActive) {
-                LOG.debug("domain:[{}] Alert message status change module is inactive for the following reason:global alert module active[{}], message status change module active[{}]",
-                        currentDomain, alertActive, messageAlertActive);
-                return new MessagingModuleConfiguration();
-            }
-            final String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            final String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
-            final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
-
-            if (StringUtils.isEmpty(messageCommunicationStates) || StringUtils.isEmpty(messageCommunicationLevels)) {
-                LOG.warn("Message status change alert module misconfiguration -> states[{}], levels[{}]", messageCommunicationStates, messageCommunicationLevels);
-                return new MessagingModuleConfiguration();
-            }
-            final String[] states = messageCommunicationStates.split(",");
-            final String[] levels = messageCommunicationLevels.split(",");
-            final boolean eachStatusHasALevel = (states.length == levels.length);
-            LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
-
-            MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
-            IntStream.
-                    range(0, states.length).
-                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(states[i]), AlertLevel.valueOf(levels[eachStatusHasALevel ? i : 0]))).
-                    forEach(entry -> messagingConfiguration.addStatusLevelAssociation(entry.getKey(), entry.getValue())); //NOSONAR
-            LOG.info("Alert message status change module activated for domain:[{}]", currentDomain);
-            return messagingConfiguration;
-        } catch (Exception ex) {
-            LOG.warn("Error while configuring message communication alerts for domain:[{}], message alert module will be discarded.", currentDomain, ex);
-            return new MessagingModuleConfiguration();
-        }
-
-    }
-
 
     abstract class AccountEnabledConfigurationReader {
         protected abstract AlertType getAlertType();
@@ -421,67 +297,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
     }
 
-
-    protected ImminentExpirationCertificateModuleConfiguration readImminentExpirationCertificateConfiguration() {
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-        try {
-            final Boolean alertActive = isAlertModuleEnabled();
-            final Boolean imminentExpirationActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE);
-            if (!alertActive || !imminentExpirationActive) {
-                LOG.debug("domain:[{}] Alert certificate imminent expiration module is inactive for the following reason:global alert module active[{}], certificate imminent expiration module active[{}]",
-                        domain, alertActive, imminentExpirationActive);
-                return new ImminentExpirationCertificateModuleConfiguration();
-            }
-            final Integer imminentExpirationDelay = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS);
-            final Integer imminentExpirationFrequency = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_FREQUENCY_DAYS);
-            final AlertLevel imminentExpirationAlertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_LEVEL));
-            final String imminentExpirationMailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_MAIL_SUBJECT);
-
-            LOG.info("Alert certificate imminent expiration module activated for domain:[{}]", domain);
-            return new ImminentExpirationCertificateModuleConfiguration(
-                    imminentExpirationDelay,
-                    imminentExpirationFrequency,
-                    imminentExpirationAlertLevel,
-                    imminentExpirationMailSubject);
-
-        } catch (Exception e) {
-            LOG.warn("An error occurred while reading certificate scanner alert module configuration for domain:[{}], ", domain, e);
-            return new ImminentExpirationCertificateModuleConfiguration();
-        }
-
-    }
-
-    protected ExpiredCertificateModuleConfiguration readExpiredCertificateConfiguration() {
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-        try {
-            final Boolean alertActive = isAlertModuleEnabled();
-            final Boolean expiredActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_CERT_EXPIRED_ACTIVE);
-            if (!alertActive || !expiredActive) {
-                LOG.debug("domain:[{}] Alert certificate expired module is inactive for the following reason:global alert module active[{}], certificate expired module active[{}]",
-                        domain, alertActive, expiredActive);
-                return new ExpiredCertificateModuleConfiguration();
-            }
-            final Integer revokedFrequency = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CERT_EXPIRED_FREQUENCY_DAYS);
-            final Integer revokedDuration = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CERT_EXPIRED_DURATION_DAYS);
-            final AlertLevel revocationLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CERT_EXPIRED_LEVEL));
-            final String expiredMailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CERT_EXPIRED_MAIL_SUBJECT);
-
-            LOG.info("Alert certificate expired activated for domain:[{}]", domain);
-            return new ExpiredCertificateModuleConfiguration(
-                    revokedFrequency,
-                    revokedDuration,
-                    revocationLevel,
-                    expiredMailSubject);
-
-        } catch (Exception e) {
-            LOG.error("An error occurred while reading certificate scanner alert module configuration for domain:[{}], ", domain, e);
-            return new ExpiredCertificateModuleConfiguration();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
 //        ConfigurationLoader<RepetitiveAlertModuleConfiguration> configurationLoader = passwordExpirationAlertsConfigurationHolder.get(alertType);
@@ -587,17 +402,14 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public LoginFailureModuleConfiguration getPluginLoginFailureConfiguration() {
-        return pluginLoginFailureConfigurationLoader.getConfiguration(new PluginLoginFailConfigurationReader()::readConfiguration);
+        return pluginLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
     public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
-        return pluginAccountDisabledConfigurationLoader.getConfiguration(new PluginAccountDisabledConfigurationReader()::readConfiguration);
+        return pluginAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
@@ -612,34 +424,5 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             throw new IllegalArgumentException("Invalid alert type");
         }
         return res.get().getConfiguration();
-
-//        switch (alertType) {
-//            case MSG_STATUS_CHANGED:
-//                return getMessageCommunicationConfiguration();
-//            case USER_ACCOUNT_DISABLED:
-//                return getAccountDisabledConfiguration();
-//            case USER_ACCOUNT_ENABLED:
-//                return getAccountEnabledConfiguration();
-//            case PLUGIN_USER_ACCOUNT_DISABLED:
-//                return getPluginAccountDisabledConfiguration();
-//            case PLUGIN_USER_ACCOUNT_ENABLED:
-//                return getPluginAccountEnabledConfiguration();
-//            case USER_LOGIN_FAILURE:
-//                return getLoginFailureConfiguration();
-//            case PLUGIN_USER_LOGIN_FAILURE:
-//                return getPluginLoginFailureConfiguration();
-//            case CERT_IMMINENT_EXPIRATION:
-//                return getImminentExpirationCertificateConfiguration();
-//            case CERT_EXPIRED:
-//                return getExpiredCertificateConfiguration();
-//            case PASSWORD_IMMINENT_EXPIRATION:
-//            case PASSWORD_EXPIRED:
-//            case PLUGIN_PASSWORD_IMMINENT_EXPIRATION:
-//            case PLUGIN_PASSWORD_EXPIRED:
-//                return getRepetitiveAlertConfiguration(alertType);
-//            default:
-//                LOG.error("Invalid alert type[{}]", alertType);
-//                throw new IllegalArgumentException("Invalid alert type");
-//        }
     }
 }
