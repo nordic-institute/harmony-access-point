@@ -11,6 +11,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -24,13 +25,11 @@ import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.ebms3.common.model.AgreementRef;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.util.PojoInstaciatorUtil;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -46,6 +45,8 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Arun Raj, Soumya Chandran
@@ -1020,5 +1021,119 @@ public class CachingPModeProviderTest {
         }};
 
         Assert.assertEquals(-1, cachingPModeProvider.getRetentionUndownloadedByMpcURI(NONEXISTANTMPC));
+    }
+
+    @Test
+    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
+        Set<Party> parties = new HashSet<>();
+        parties.add(party1);
+        parties.add(party2);
+        String partyId1 = "partyId1", partyId2 = "partyId2";
+
+        new Expectations(cachingPModeProvider) {{
+            process.getResponderParties();
+            result = parties;
+            cachingPModeProvider.getOnePartyId(party1);
+            result = partyId1;
+            cachingPModeProvider.getOnePartyId(party2);
+            result = partyId2;
+        }};
+
+        List<String> result = cachingPModeProvider.handleProcessParties(process);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
+    }
+
+    @Test
+    public void getOnePartyId(@Mocked Party party) {
+        Set<Identifier> ids = new HashSet<>();
+        Identifier id1 = new Identifier();
+        id1.setPartyId("id1");
+        ids.add(id1);
+        Identifier id2 = new Identifier();
+        id2.setPartyId("id2");
+        ids.add(id2);
+
+        new Expectations() {{
+            party.getIdentifiers();
+            result = ids;
+        }};
+
+        String result = cachingPModeProvider.getOnePartyId(party);
+
+        Assert.assertTrue(result.equals("id1"));
+    }
+
+    @Test
+    public void testFindUserMessageExchangeContextSenderNotFound(@Injectable UserMessage userMessage, @Injectable MSHRole mshRole, @Injectable PartyId partyId) throws EbMS3Exception {
+
+        final Set<PartyId> fromPartyId = new HashSet<>();
+        MSHRole mshRole1 = MSHRole.SENDING;
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getPartyId();
+            result = fromPartyId;
+            cachingPModeProvider.findPartyName(fromPartyId);
+            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Sender party could not found for the value ", null, null);
+
+        }};
+        try {
+            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true);
+            Assert.fail();
+        } catch (EbMS3Exception ex) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals(ex.getMshRole(), mshRole1);
+        }
+        new Verifications() {{
+            userMessage.getPartyInfo().getFrom().getPartyId();
+            times = 1;
+            cachingPModeProvider.findPartyName(fromPartyId);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testFindUserMessageExchangeContextReceiverNotFound(@Injectable UserMessage userMessage, @Injectable MSHRole mshRole, @Injectable PartyId partyId) throws EbMS3Exception {
+
+        final Set<PartyId> fromPartyId = new HashSet<>();
+        PartyId partyId1 = new PartyId();
+        partyId1.setValue("domibus-blue");
+        fromPartyId.add(partyId1);
+        final Set<PartyId> toPartyId = new HashSet<>();
+        MSHRole mshRole1 = MSHRole.SENDING;
+
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getPartyId();
+            result = fromPartyId;
+
+            userMessage.getPartyInfo().getTo().getPartyId();
+            result = toPartyId;
+
+            cachingPModeProvider.findPartyName(fromPartyId);
+            result = "domibus-blue";
+
+            cachingPModeProvider.findPartyName(toPartyId);
+            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Receiver party could not found for the value ", null, null);
+
+        }};
+
+        try {
+            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true);
+            Assert.fail();
+        } catch (EbMS3Exception ex) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals(ex.getMshRole(), mshRole1);
+        }
+
+        new Verifications() {{
+            userMessage.getPartyInfo().getTo().getPartyId();
+            times = 1;
+            userMessage.getPartyInfo().getFrom().getPartyId();
+            times = 1;
+            cachingPModeProvider.findPartyName(fromPartyId);
+            times = 1;
+            cachingPModeProvider.findPartyName(toPartyId);
+            times = 1;
+        }};
     }
 }
