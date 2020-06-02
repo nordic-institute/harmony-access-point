@@ -1,6 +1,7 @@
 package eu.domibus.jms.weblogic;
 
 import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -30,7 +31,7 @@ public class DomibusJMSWebLogicQueueConfiguration {
     public ConnectionFactory connectionFactory(@Qualifier(WEBLOGIC_CONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
-        Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty("domibus.jms.connectionFactory.session.cache.size");
+        Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
         cachingConnectionFactory.setSessionCacheSize(sessionCacheSize);
         cachingConnectionFactory.setTargetConnectionFactory(weblogicConnectionFactory);
