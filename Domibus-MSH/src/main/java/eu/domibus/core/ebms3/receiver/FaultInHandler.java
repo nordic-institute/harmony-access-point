@@ -3,21 +3,20 @@ package eu.domibus.core.ebms3.receiver;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
-import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.util.SoapUtil;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -44,6 +43,9 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
+
+    @Autowired
+    SoapUtil soapUtil;
 
     @Override
     public Set<QName> getHeaders() {
@@ -142,6 +144,8 @@ public class FaultInHandler extends AbstractFaultHandler {
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
         LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, messaging.getSignalMessage().getMessageInfo().getMessageId());
 
+        //log ebms3 exception in the logs
+        soapUtil.logEbMS3Error(soapMessageWithEbMS3Error);
         errorService.createErrorLog(ErrorLogEntry.parse(messaging, MSHRole.RECEIVING));
     }
 
