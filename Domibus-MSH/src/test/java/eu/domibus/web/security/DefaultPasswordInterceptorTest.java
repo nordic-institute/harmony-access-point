@@ -1,7 +1,6 @@
 package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.security.UserDetailServiceImpl;
 import mockit.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

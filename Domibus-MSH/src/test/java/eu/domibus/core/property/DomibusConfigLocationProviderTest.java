@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -26,7 +26,7 @@ public class DomibusConfigLocationProviderTest {
     public void getDomibusConfigLocationWithServletInitParameterConfigured(@Injectable ServletContext servletContext) {
         String domibusConfigLocationInitParameter = "servletConfigLocation";
         new Expectations() {{
-            servletContext.getInitParameter(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
+            servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
             result = domibusConfigLocationInitParameter;
         }};
 
@@ -38,10 +38,10 @@ public class DomibusConfigLocationProviderTest {
                                          @Mocked System system) {
         String systemConfigLocation = "systemConfigLocation";
         new Expectations() {{
-            servletContext.getInitParameter(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
+            servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
             result = null;
 
-            system.getProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
+            system.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
             result = systemConfigLocation;
         }};
 

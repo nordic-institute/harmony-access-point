@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_BLACK_LIST;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_USER_INPUT_WHITE_LIST;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_BLACK_LIST;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_WHITE_LIST;
 
 /**
  * @author Ion Perpegel

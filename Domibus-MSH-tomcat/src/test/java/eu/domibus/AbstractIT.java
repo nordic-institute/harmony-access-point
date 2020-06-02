@@ -71,8 +71,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_CONNECTOR_PORT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 import static org.awaitility.Awaitility.with;
 
@@ -134,7 +134,7 @@ public abstract class AbstractIT {
     }
 
     @After
-    public void cleanTransactionsLog()  {
+    public void cleanTransactionsLog() {
         deleteTransactionLock();
     }
 
@@ -149,7 +149,7 @@ public abstract class AbstractIT {
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
         String pmodeText = IOUtils.toString(inputStream, "UTF-8");
-        if(redHttpPort != null) {
+        if (redHttpPort != null) {
             LOG.info("Using wiremock http port [{}]", redHttpPort);
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
         }

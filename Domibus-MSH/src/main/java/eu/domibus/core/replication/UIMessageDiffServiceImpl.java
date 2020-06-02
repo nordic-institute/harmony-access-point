@@ -8,13 +8,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
 
 @Service
 public class UIMessageDiffServiceImpl implements UIMessageDiffService {

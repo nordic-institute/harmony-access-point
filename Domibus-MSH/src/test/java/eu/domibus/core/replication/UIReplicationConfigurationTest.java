@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -40,7 +40,7 @@ public class UIReplicationConfigurationTest {
         String concurrency = "2-3";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY);
             this.result = concurrency;
         }};
 

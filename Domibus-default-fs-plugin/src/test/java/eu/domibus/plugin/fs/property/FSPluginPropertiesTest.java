@@ -6,6 +6,7 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -13,7 +14,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 
 import java.util.*;
 
@@ -39,7 +39,7 @@ public class FSPluginPropertiesTest {
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    protected ApplicationContext applicationContext;
+    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     @Injectable
     DomainContextExtService domainContextExtService;

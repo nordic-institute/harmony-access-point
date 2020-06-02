@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import org.apache.commons.lang3.StringUtils;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
 
 /**
  * @author Ion Perpegel
@@ -32,8 +32,8 @@ public class CryptoChangeListener implements DomibusPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManager.DOMIBUS_SECURITY_KEYSTORE_PREFIX,
-                DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_PREFIX)
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_PREFIX,
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_PREFIX)
                 || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
     }
 

@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -281,6 +282,7 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception ex) {
             assert (ex.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
             assert (ex.getErrorDetail().contains("does not correspond to the access point's name"));
+            assert(ex.getMshRole().equals(MSHRole.SENDING));
         }
 
     }

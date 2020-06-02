@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.COM_ATOMIKOS_ICATCH_OUTPUT_DIR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_OUTPUT_DIR;
 
 /**
  * This class executes before the beans from the Application Context are initialized

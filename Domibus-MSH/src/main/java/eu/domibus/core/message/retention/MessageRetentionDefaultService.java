@@ -22,7 +22,7 @@ import javax.jms.Queue;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages, including signal messages.

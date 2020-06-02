@@ -22,7 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Thomas Dussart

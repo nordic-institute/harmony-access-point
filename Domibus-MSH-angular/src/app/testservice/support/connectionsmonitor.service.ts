@@ -38,11 +38,11 @@ export class ConnectionsMonitorService {
     let monitors = await this.getMonitorsForParties(parties);
     console.log('monitors ', monitors);
 
-    return allParties.map(p => {
-      let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers[0].partyId;
-      Object.assign(m, monitors[m.partyId]);
-      return m;
+    return allParties.map(party => {
+      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+      cmEntry.partyId = party.identifiers.map(id => id.partyId).join('/');
+      Object.assign(cmEntry, monitors[cmEntry.partyId]);
+      return cmEntry;
     });
   }
 
@@ -67,8 +67,12 @@ export class ConnectionsMonitorService {
     console.log('sending test message to ', receiverPartyId);
 
     if (!sender) {
-      sender = await this.getSenderParty();
-      // TODO: exception handling
+      try {
+        sender = await this.getSenderParty();
+      } catch (ex) {
+        this.alertService.exception('Error getting the sender party:', ex);
+        return;
+      }
     }
     const payload = {sender: sender, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
@@ -77,12 +81,15 @@ export class ConnectionsMonitorService {
   async setMonitorState(partyId: string, enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.enabled';
     let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
-    let r = (await this.http.get<any>(url).toPromise()).items[0].value; // TODO
-    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
-    if (enabled) enabledParties += ',' + partyId;
+    let r = (await this.http.get<any>(url).toPromise()).items[0].value;
+    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p && p != partyId);
+    if (enabled) {
+      enabledParties.push(partyId);
+    }
 
+    let payload = enabledParties.join(',') || ' ';
     url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties || " ").toPromise();
+    return await this.http.put(url, payload).toPromise();
   }
 
 }
