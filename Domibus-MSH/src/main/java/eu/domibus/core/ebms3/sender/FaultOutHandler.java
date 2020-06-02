@@ -8,12 +8,10 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.util.Collections;
@@ -57,17 +55,8 @@ public class FaultOutHandler extends AbstractFaultHandler {
         final Messaging messaging = this.extractMessaging(soapMessage);
         final String messageId = messaging.getSignalMessage().getMessageInfo().getMessageId();
 
-        if (LOG.isErrorEnabled()) {
-            String xmlMessage = null;
-            try {
-                xmlMessage = soapUtil.getRawXMLMessage(soapMessage);
-            } catch (TransformerException e) {
-                LOG.warn("Unable to extract the raw message XML due to: ", e);
-            }
-            if (StringUtils.isNotBlank( xmlMessage)) {
-                LOG.error("An ebMS3 error was received: {}", System.lineSeparator() + xmlMessage);
-            }
-        }
+        //log the error
+        soapUtil.logEbMS3Error(soapMessage);
 
         //save to database
         LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
