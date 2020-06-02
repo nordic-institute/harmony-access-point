@@ -42,7 +42,8 @@ export class ConnectionsMonitorService {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
       cmEntry.partyId = party.identifiers.map(id => id.partyId).join('/');
 
-      let monitorKey = Object.keys(monitors).find(k => party.identifiers.find(id => id.partyId == k));
+      let monitorKey = Object.keys(monitors)
+        .find(partyId => party.identifiers.find(id => id.partyId == partyId));
       Object.assign(cmEntry, monitors[monitorKey]);
       return cmEntry;
     });
