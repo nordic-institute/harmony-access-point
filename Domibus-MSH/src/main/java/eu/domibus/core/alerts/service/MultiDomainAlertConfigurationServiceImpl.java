@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.manager.*;
@@ -24,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAlertConfigurationService {
-
+// todo: call clear loaders on enabled property changed
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
@@ -42,16 +41,16 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     private MessagingConfigurationManager messagingConfigurationManager;
 
     @Autowired
-    ConsoleAccountDisabledConfigurationManager accountDisabledConfigurationManager;
-
-    @Autowired
-    private ConfigurationLoader<AlertModuleConfigurationBase> accountEnabledConfigurationLoader;
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Autowired
     private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
     @Autowired
-    private ConfigurationLoader<AlertModuleConfigurationBase> pluginAccountEnabledConfigurationLoader;
+    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
+
+    @Autowired
+    private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
 
     @Autowired
     private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
@@ -92,12 +91,12 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return accountDisabledConfigurationManager.getConfiguration();
+        return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
     public AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-        return accountEnabledConfigurationLoader.getConfiguration(new ConsoleAccountEnabledConfigurationReader()::readConfiguration);
+        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
@@ -158,7 +157,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public void clearAccountDisabledConfiguration() {
-        accountDisabledConfigurationManager.reset();
+        consoleAccountDisabledConfigurationManager.reset();
     }
 
     @Override
@@ -186,6 +185,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         clearMessageCommunicationConfiguration();
         clearExpiredCertificateConfiguration();
         clearImminentExpirationCertificateConfiguration();
+        // todo: do not forget clear enabled alert
         // todo: reset all by scanning alert types
 //        passwordExpirationAlertsConfigurationHolder.clearConfiguration();
     }
@@ -215,99 +215,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
 
-    abstract class AccountEnabledConfigurationReader {
-        protected abstract AlertType getAlertType();
-
-        protected abstract String getModuleName();
-
-        protected abstract String getAlertActivePropertyName();
-
-        protected abstract String getAlertLevelPropertyName();
-
-        protected abstract String getAlertEmailSubjectPropertyName();
-
-        protected AlertModuleConfigurationBase readConfiguration() {
-
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            try {
-                final Boolean alertActive = isAlertModuleEnabled();
-                final Boolean accountEnabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
-                if (!alertActive || !accountEnabledActive) {
-                    LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
-                            , currentDomain, getModuleName(), alertActive, accountEnabledActive);
-                    return new AlertModuleConfigurationBase(getAlertType());
-                }
-
-                final AlertLevel level = AlertLevel.valueOf(domibusPropertyProvider.getProperty(getAlertLevelPropertyName()));
-                final String mailSubject = domibusPropertyProvider.getProperty(getAlertEmailSubjectPropertyName());
-
-                LOG.info("[{}] module activated for domain:[{}]", getModuleName(), currentDomain);
-                return new AlertModuleConfigurationBase(getAlertType(), level, mailSubject);
-
-            } catch (Exception e) {
-                LOG.warn("An error occurred while reading [{}] module configuration for domain:[{}], ", getModuleName(), currentDomain, e);
-                return new AlertModuleConfigurationBase(getAlertType());
-            }
-        }
-    }
-
-    class ConsoleAccountEnabledConfigurationReader extends AccountEnabledConfigurationReader {
-
-        @Override
-        protected AlertType getAlertType() {
-            return AlertType.USER_ACCOUNT_ENABLED;
-        }
-
-        @Override
-        protected String getModuleName() {
-            return "Alert account enabled";
-        }
-
-        @Override
-        protected String getAlertActivePropertyName() {
-            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_ACTIVE;
-        }
-
-        @Override
-        protected String getAlertLevelPropertyName() {
-            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_LEVEL;
-        }
-
-        @Override
-        protected String getAlertEmailSubjectPropertyName() {
-            return DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_SUBJECT;
-        }
-
-    }
-
-    class PluginAccountEnabledConfigurationReader extends AccountEnabledConfigurationReader {
-
-        @Override
-        protected AlertType getAlertType() {
-            return AlertType.PLUGIN_USER_ACCOUNT_ENABLED;
-        }
-
-        @Override
-        protected String getModuleName() {
-            return "Alert plugin account enabled";
-        }
-
-        @Override
-        protected String getAlertActivePropertyName() {
-            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_ACTIVE;
-        }
-
-        @Override
-        protected String getAlertLevelPropertyName() {
-            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_LEVEL;
-        }
-
-        @Override
-        protected String getAlertEmailSubjectPropertyName() {
-            return DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT;
-        }
-    }
-
     @Override
     public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
         // todo: try to get rid of cast or even of get by AlertType
@@ -326,7 +233,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
-        return pluginAccountEnabledConfigurationLoader.getConfiguration(new PluginAccountEnabledConfigurationReader()::readConfiguration);
+        return pluginAccountEnabledConfigurationManager.getConfiguration();
     }
 
     private AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
