@@ -40,8 +40,12 @@ export class ConnectionsMonitorService {
 
     return allParties.map(party => {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      cmEntry.partyId = party.identifiers.map(id => id.partyId).join('/');
-      Object.assign(cmEntry, monitors[cmEntry.partyId]);
+      let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+      cmEntry.partyId = allIdentifiers[0].partyId;
+      cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
+
+      let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
+      Object.assign(cmEntry, monitors[monitorKey]);
       return cmEntry;
     });
   }
@@ -96,6 +100,7 @@ export class ConnectionsMonitorService {
 
 export class ConnectionMonitorEntry {
   partyId: string;
+  partyName?: string;
   testable: boolean;
   monitored: boolean;
   status: string;
