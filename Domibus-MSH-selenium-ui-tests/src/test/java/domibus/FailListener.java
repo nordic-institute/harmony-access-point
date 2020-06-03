@@ -24,20 +24,39 @@ import java.util.Calendar;
 public class FailListener implements ITestListener {
 
 	Logger log = LoggerFactory.getLogger("ROOT");
+	static int test_count = 0;
+	static int passed_count = 0;
+	static int failed_count = 0;
+	static int skipped_count = 0;
+	static int total_test_count = 0;
 
 	@Override
 	public void onStart(ITestContext context) {
-		 log.info("Tests methods to run - " + context.getSuite().getAllMethods().size());
+		total_test_count = context.getSuite().getAllMethods().size();
+		 log.info("Tests methods to run - " + total_test_count);
+	}
+
+	@Override
+	public void onTestSuccess(ITestResult result) {
+		test_count++;
+		passed_count++;
+		logTestCounts();
 	}
 
 
 	@Override
 	public void onTestFailure(ITestResult result) {
+		test_count++;
+		failed_count++;
+		logTestCounts();
 		takeScreenshot(result);
 	}
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		test_count++;
+		skipped_count++;
+		logTestCounts();
 		takeScreenshot(result);
 	}
 
@@ -58,5 +77,13 @@ public class FailListener implements ITestListener {
 			e.printStackTrace();
 		}
 	}
+
+	private void logTestCounts(){
+		log.info(String.format("-------- Passed - %s --------", passed_count));
+		log.info(String.format("-------- Failed - %s --------", failed_count));
+		log.info(String.format("-------- Skipped - %s --------", skipped_count));
+		log.info(String.format("-------- Ran %s tests out of %s --------", test_count, total_test_count));
+	}
+
 
 }
