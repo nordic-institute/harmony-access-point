@@ -208,7 +208,7 @@ public class UserAlertsServiceImplTest {
         AccountDisabledModuleConfiguration conf = new AccountDisabledModuleConfiguration(AlertType.USER_ACCOUNT_DISABLED,
                 AlertLevel.MEDIUM, AccountDisabledMoment.AT_LOGON, "");
         new Expectations() {{
-            alertsConfiguration.getAccountDisabledConfiguration();
+            alertsConfiguration.getConsoleAccountDisabledConfiguration();
             result = conf;
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
@@ -231,7 +231,7 @@ public class UserAlertsServiceImplTest {
         AlertModuleConfigurationBase conf = new AlertModuleConfigurationBase(AlertType.USER_ACCOUNT_ENABLED,
                 AlertLevel.MEDIUM, "");
         new Expectations() {{
-            alertsConfiguration.getAccountEnabledConfiguration();
+            alertsConfiguration.getConsoleAccountEnabledConfiguration();
             result = conf;
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;

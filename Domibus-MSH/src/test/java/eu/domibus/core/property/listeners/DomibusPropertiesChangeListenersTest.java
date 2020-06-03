@@ -241,11 +241,11 @@ public class DomibusPropertiesChangeListenersTest {
 
             mailSender.reset();
             multiDomainAlertConfigurationService.clearAllConfigurations();
-            multiDomainAlertConfigurationService.clearAccountDisabledConfiguration();
+            multiDomainAlertConfigurationService.clearConsoleAccountDisabledConfiguration();
             multiDomainAlertConfigurationService.clearExpiredCertificateConfiguration();
             multiDomainAlertConfigurationService.clearImminentExpirationCertificateConfiguration();
             multiDomainAlertConfigurationService.clearCommonConfiguration();
-            multiDomainAlertConfigurationService.clearLoginFailureConfiguration();
+            multiDomainAlertConfigurationService.clearConsoleLoginFailureConfiguration();
             mailSender.reset();
             multiDomainAlertConfigurationService.clearMessageCommunicationConfiguration();
             multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PASSWORD_EXPIRED);

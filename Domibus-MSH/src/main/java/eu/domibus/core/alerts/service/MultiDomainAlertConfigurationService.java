@@ -17,6 +17,10 @@ public interface MultiDomainAlertConfigurationService {
      */
     MessagingModuleConfiguration getMessageCommunicationConfiguration();
 
+    void clearPluginAccountEnabledConfiguration();
+
+    void clearConsoleAccountEnabledConfiguration();
+
     /**
      * Clears/removes the message communication configuration so that a new one will be created when calls to it are made
      */
@@ -25,27 +29,27 @@ public interface MultiDomainAlertConfigurationService {
     /**
      * @return account disabled module configuration
      */
-    AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
+    AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration();
 
     /**
      * @return account enabled module configuration
      */
-    AlertModuleConfigurationBase getAccountEnabledConfiguration();
+    AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration();
 
     /**
      * Clears/removes the account disabled configuration so that a new one will be created when calls to it are made
      */
-    void clearAccountDisabledConfiguration();
+    void clearConsoleAccountDisabledConfiguration();
 
     /**
      * @return login failure module configuration
      */
-    LoginFailureModuleConfiguration getLoginFailureConfiguration();
+    LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration();
 
     /**
      * Clear login failure module configuration
      */
-    void clearLoginFailureConfiguration();
+    void clearConsoleLoginFailureConfiguration();
 
     /**
      * @return certificate imminent expiration module configuration

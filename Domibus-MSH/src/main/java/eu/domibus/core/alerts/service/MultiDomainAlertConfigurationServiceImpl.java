@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -82,17 +82,17 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
+    public AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration() {
         return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
-    public AlertModuleConfigurationBase getAccountEnabledConfiguration() {
+    public AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration() {
         return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
-    public LoginFailureModuleConfiguration getLoginFailureConfiguration() {
+    public LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration() {
         return consoleLoginFailConfigurationManager.getConfiguration();
     }
 
@@ -152,6 +152,11 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
+    @Override
+    public void clearAllConfigurations() {
+        clearCommonConfiguration();
+        Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
+    }
 
     @Override
     public void clearCommonConfiguration() {
@@ -159,14 +164,13 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public void clearLoginFailureConfiguration() {
+    public void clearConsoleLoginFailureConfiguration() {
         consoleLoginFailConfigurationManager.reset();
     }
 
     @Override
     public void clearPasswordExpirationAlertConfiguration(AlertType alertType) {
         getModuleConfigurationManager(alertType).reset();
-//        this.passwordExpirationAlertsConfigurationHolder.clearConfiguration(alertType);
     }
 
     @Override
@@ -190,8 +194,18 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public void clearAccountDisabledConfiguration() {
+    public void clearConsoleAccountDisabledConfiguration() {
         consoleAccountDisabledConfigurationManager.reset();
+    }
+
+    @Override
+    public void clearPluginAccountEnabledConfiguration() {
+        pluginAccountEnabledConfigurationManager.reset();
+    }
+
+    @Override
+    public void clearConsoleAccountEnabledConfiguration() {
+        consoleAccountEnabledConfigurationManager.reset();
     }
 
     @Override
@@ -207,21 +221,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public String getMailSubject(AlertType alertType) {
         return getModuleConfiguration(alertType).getMailSubject();
-    }
-
-    @Override
-    public void clearAllConfigurations() {
-        clearCommonConfiguration();
-        clearLoginFailureConfiguration();
-        clearAccountDisabledConfiguration();
-        clearPluginLoginFailureConfiguration();
-        clearPluginAccountDisabledConfiguration();
-        clearMessageCommunicationConfiguration();
-        clearExpiredCertificateConfiguration();
-        clearImminentExpirationCertificateConfiguration();
-        // todo: do not forget clear enabled alert
-        // todo: reset all by scanning alert types
-//        passwordExpirationAlertsConfigurationHolder.clearConfiguration();
     }
 
     @Override
@@ -248,13 +247,12 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     public String getAlertSuperServerNameSubjectPropertyName() {
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
-
-
-    private AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
+    
+    protected AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
         return getModuleConfigurationManager(alertType).getConfiguration();
     }
 
-    private AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
+    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         Optional<AlertConfigurationManager> res = alertConfigurationManagers.stream().filter(el -> el.getAlertType() == alertType).findFirst();
         if (!res.isPresent()) {
             LOG.error("Invalid alert type[{}]", alertType);

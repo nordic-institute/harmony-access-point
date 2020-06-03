@@ -67,12 +67,12 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return alertsConfiguration.getAccountDisabledConfiguration();
+        return alertsConfiguration.getConsoleAccountDisabledConfiguration();
     }
 
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return alertsConfiguration.getLoginFailureConfiguration();
+        return alertsConfiguration.getConsoleLoginFailureConfiguration();
     }
 
 }

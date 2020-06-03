@@ -83,7 +83,7 @@ public class ConsoleUserAlertsServiceImplTest {
         AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
 
         new VerificationsInOrder() {{
-            alertsConfiguration.getAccountDisabledConfiguration();
+            alertsConfiguration.getConsoleAccountDisabledConfiguration();
             times = 1;
         }};
     }

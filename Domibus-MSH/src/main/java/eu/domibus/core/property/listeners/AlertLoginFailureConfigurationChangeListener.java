@@ -27,7 +27,7 @@ public class AlertLoginFailureConfigurationChangeListener implements DomibusProp
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearLoginFailureConfiguration();
+        multiDomainAlertConfigurationService.clearConsoleLoginFailureConfiguration();
     }
 
 }

@@ -14,7 +14,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.USER_ACCOUNT_DISABLED);
         new Expectations(configurationService) {{
-            configurationService.getAccountDisabledConfiguration();
+            configurationService.getConsoleAccountDisabledConfiguration();
             this.result = accountDisabledConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -110,7 +109,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.USER_LOGIN_FAILURE);
         new Expectations(configurationService) {{
-            configurationService.getLoginFailureConfiguration();
+            configurationService.getConsoleLoginFailureConfiguration();
             this.result = loginFailureConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -173,7 +172,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForAccountDisabled(final @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getAccountDisabledConfiguration();
+            configurationService.getConsoleAccountDisabledConfiguration();
             this.result = accountDisabledConfiguration;
 
             accountDisabledConfiguration.getMailSubject();
@@ -193,7 +192,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForAccountEnabled(final @Mocked AlertModuleConfigurationBase accountEnabledConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getAccountEnabledConfiguration();
+            configurationService.getConsoleAccountEnabledConfiguration();
             this.result = accountEnabledConfiguration;
 
             accountEnabledConfiguration.getMailSubject();
@@ -214,7 +213,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForLoginFailure(final @Mocked LoginFailureModuleConfiguration loginFailureConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getLoginFailureConfiguration();
+            configurationService.getConsoleLoginFailureConfiguration();
             this.result = loginFailureConfiguration;
 
             loginFailureConfiguration.getMailSubject();
