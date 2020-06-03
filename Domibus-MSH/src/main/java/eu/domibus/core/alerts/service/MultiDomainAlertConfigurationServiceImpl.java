@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.manager.*;
 import eu.domibus.core.alerts.model.common.AlertLevel;
@@ -23,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAlertConfigurationService {
-// todo: call clear loaders on enabled property changed
+    // todo: call clear loaders on enabled property changed
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
@@ -64,21 +63,17 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Autowired
     private CommonConfigurationManager commonConfigurationManager;
 
-//    @Autowired
-//    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-//
-//    @Autowired
-//    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
-//
-//    @Autowired
-//    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
-//
-//    @Autowired
-//    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
+    @Autowired
+    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
 
+    @Autowired
+    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
 
-//    @Autowired
-//    private RepetitiveAlertConfigurationHolder passwordExpirationAlertsConfigurationHolder;
+    @Autowired
+    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
+
+    @Autowired
+    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
 
     @Override
@@ -115,6 +110,48 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     public CommonConfiguration getCommonConfiguration() {
         return commonConfigurationManager.getConfiguration();
     }
+
+    @Override
+    public LoginFailureModuleConfiguration getPluginLoginFailureConfiguration() {
+        return pluginLoginFailConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
+        return pluginAccountDisabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
+        return pluginAccountEnabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
+        // todo: try to get rid of cast or even of get by AlertType???
+        return (RepetitiveAlertModuleConfiguration) getModuleConfiguration(alertType);
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
+        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
+        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
+        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
+        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    }
+
 
     @Override
     public void clearCommonConfiguration() {
@@ -212,26 +249,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
 
-    @Override
-    public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
-        // todo: try to get rid of cast or even of get by AlertType
-        return (RepetitiveAlertModuleConfiguration) getModuleConfiguration(alertType);
-    }
-
-    @Override
-    public LoginFailureModuleConfiguration getPluginLoginFailureConfiguration() {
-        return pluginLoginFailConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
-        return pluginAccountDisabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
-        return pluginAccountEnabledConfigurationManager.getConfiguration();
-    }
 
     private AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
         return getModuleConfigurationManager(alertType).getConfiguration();

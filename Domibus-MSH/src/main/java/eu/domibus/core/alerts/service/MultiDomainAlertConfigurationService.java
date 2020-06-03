@@ -132,6 +132,14 @@ public interface MultiDomainAlertConfigurationService {
      */
     AlertModuleConfigurationBase getPluginAccountEnabledConfiguration();
 
+    RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
+
+    RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager();
+
+    RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager();
+
+    RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
+
     /**
      * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made
      */
