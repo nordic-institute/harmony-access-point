@@ -1,9 +1,11 @@
-package eu.domibus.core.alerts.model.service;
+package eu.domibus.core.alerts.configuration.model;
 
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.MessageEvent;
+import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 

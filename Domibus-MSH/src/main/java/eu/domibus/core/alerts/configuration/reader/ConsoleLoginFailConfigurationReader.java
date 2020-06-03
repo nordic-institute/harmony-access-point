@@ -3,16 +3,18 @@ package eu.domibus.core.alerts.configuration.reader;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+@Service
 public class ConsoleLoginFailConfigurationReader extends LoginFailConfigurationReader {
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
     @Override
-    protected AlertType getAlertType() {
+    public AlertType getAlertType() {
         return AlertType.USER_LOGIN_FAILURE;
     }
 

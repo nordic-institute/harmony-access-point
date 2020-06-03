@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.configuration.manager;
 
+import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.reader.ConsolePasswordImminentExpirationAlertConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +11,19 @@ import org.springframework.stereotype.Service;
 public class ConsolePasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
+    private ConsolePasswordImminentExpirationAlertConfigurationReader reader;
+
+    @Autowired
     private ConfigurationLoader<RepetitiveAlertModuleConfiguration> loader;
 
     @Override
     public AlertType getAlertType() {
-        return AlertType.PASSWORD_IMMINENT_EXPIRATION;
+        return reader.getAlertType();
     }
 
     @Override
     public RepetitiveAlertModuleConfiguration getConfiguration() {
-        return loader.getConfiguration(new ConsolePasswordImminentExpirationAlertConfigurationReader()::readConfiguration);
+        return loader.getConfiguration(reader::readConfiguration);
     }
 
     @Override

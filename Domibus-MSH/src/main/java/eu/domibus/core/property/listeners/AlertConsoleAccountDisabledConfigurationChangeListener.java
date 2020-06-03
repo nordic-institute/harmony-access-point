@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * Handles the change of alert properties that are related to login failure configuration for console users
  */
 @Service
-public class AlertLoginFailureConfigurationChangeListener implements DomibusPropertyChangeListener {
+public class AlertConsoleAccountDisabledConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
     private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
@@ -22,12 +22,11 @@ public class AlertLoginFailureConfigurationChangeListener implements DomibusProp
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX);
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearConsoleLoginFailureConfiguration();
+        multiDomainAlertConfigurationService.clearConsoleAccountDisabledConfiguration();
     }
-
 }

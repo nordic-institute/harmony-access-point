@@ -1,10 +1,12 @@
 package eu.domibus.core.alerts.configuration.reader;
 
 import eu.domibus.core.alerts.model.common.AlertType;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PluginPasswordExpiredAlertConfigurationReader extends RepetitiveAlertConfigurationReader {
     @Override
-    protected AlertType getAlertType() {
+    public AlertType getAlertType() {
         return AlertType.PLUGIN_PASSWORD_EXPIRED;
     }
 

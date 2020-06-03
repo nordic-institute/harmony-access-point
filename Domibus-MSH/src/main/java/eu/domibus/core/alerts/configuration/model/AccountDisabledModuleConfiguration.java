@@ -1,7 +1,8 @@
-package eu.domibus.core.alerts.model.service;
+package eu.domibus.core.alerts.configuration.model;
 
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 

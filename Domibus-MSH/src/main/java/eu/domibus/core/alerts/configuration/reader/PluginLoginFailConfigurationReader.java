@@ -1,12 +1,14 @@
 package eu.domibus.core.alerts.configuration.reader;
 
 import eu.domibus.core.alerts.model.common.AlertType;
+import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+@Service
 public class PluginLoginFailConfigurationReader extends LoginFailConfigurationReader {
     @Override
-    protected AlertType getAlertType() {
+    public AlertType getAlertType() {
         return AlertType.PLUGIN_USER_LOGIN_FAILURE;
     }
 

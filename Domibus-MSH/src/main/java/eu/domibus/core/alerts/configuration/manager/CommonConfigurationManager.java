@@ -3,12 +3,8 @@ package eu.domibus.core.alerts.configuration.manager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.CommonConfiguration;
+import eu.domibus.core.alerts.configuration.model.CommonConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,11 +13,9 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -57,7 +51,7 @@ public class CommonConfigurationManager {
         return readDomainEmailConfiguration(alertLifeTimeInDays);
     }
 
-    private CommonConfiguration readDomainEmailConfiguration(Integer alertLifeTimeInDays) {
+    protected CommonConfiguration readDomainEmailConfiguration(Integer alertLifeTimeInDays) {
         final String alertEmailSender = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
         final String alertEmailReceiver = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
 
@@ -83,7 +77,7 @@ public class CommonConfigurationManager {
         return new CommonConfiguration(alertLifeTimeInDays, alertEmailSender, alertEmailReceiver);
     }
 
-    private boolean isValidEmail(String email) {
+    protected boolean isValidEmail(String email) {
         try {
             InternetAddress address = new InternetAddress(email);
             address.validate();
@@ -94,7 +88,7 @@ public class CommonConfigurationManager {
         }
     }
 
-    public String getSendEmailActivePropertyName() {
+    private String getSendEmailActivePropertyName() {
         return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
     }
 }

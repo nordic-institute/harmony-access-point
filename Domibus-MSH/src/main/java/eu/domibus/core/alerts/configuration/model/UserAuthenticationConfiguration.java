@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration;
+package eu.domibus.core.alerts.configuration.model;
 
 public interface UserAuthenticationConfiguration {
     /**

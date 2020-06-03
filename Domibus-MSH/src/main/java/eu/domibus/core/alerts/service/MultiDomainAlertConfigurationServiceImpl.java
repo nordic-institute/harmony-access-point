@@ -1,7 +1,9 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.model.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.manager.*;
+import eu.domibus.core.alerts.configuration.model.*;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;

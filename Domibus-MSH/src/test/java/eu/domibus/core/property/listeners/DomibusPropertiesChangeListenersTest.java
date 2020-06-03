@@ -9,7 +9,7 @@ import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.alerts.MailSender;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -80,7 +80,7 @@ public class DomibusPropertiesChangeListenersTest {
     AlertActiveChangeListener alertActiveChangeListener;
 
     @Tested
-    AlertAccountDisabledConfigurationChangeListener alertAccountDisabledConfigurationChangeListener;
+    AlertConsoleAccountDisabledConfigurationChangeListener alertConsoleAccountDisabledConfigurationChangeListener;
 
     @Tested
     AlertCertificateExpiredConfigurationChangeListener alertCertificateExpiredConfigurationChangeListener;
@@ -92,7 +92,7 @@ public class DomibusPropertiesChangeListenersTest {
     AlertCommonConfigurationChangeListener alertCommonConfigurationChangeListener;
 
     @Tested
-    AlertLoginFailureConfigurationChangeListener alertLoginFailureConfigurationChangeListener;
+    AlertConsoleLoginFailureConfigurationChangeListener alertConsoleLoginFailureConfigurationChangeListener;
 
     @Tested
     AlertMailChangeListener alertMailChangeListener;
@@ -193,11 +193,11 @@ public class DomibusPropertiesChangeListenersTest {
                 storageChangeListener,
 
                 alertActiveChangeListener,
-                alertAccountDisabledConfigurationChangeListener,
+                alertConsoleAccountDisabledConfigurationChangeListener,
                 alertCertificateExpiredConfigurationChangeListener,
                 alertCertificateImminentExpirationConfigurationChangeListener,
                 alertCommonConfigurationChangeListener,
-                alertLoginFailureConfigurationChangeListener,
+                alertConsoleLoginFailureConfigurationChangeListener,
                 alertMailChangeListener,
                 alertMessagingConfigurationChangeListener,
                 alertPasswordExpiredConfigurationChangeListener,

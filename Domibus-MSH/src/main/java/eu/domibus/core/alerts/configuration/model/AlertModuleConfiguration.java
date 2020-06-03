@@ -1,12 +1,13 @@
-package eu.domibus.core.alerts.model.service;
+package eu.domibus.core.alerts.configuration.model;
 
 import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.core.alerts.model.service.Alert;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-public interface AlertModuleConfiguration{
+public interface AlertModuleConfiguration {
 
     String getMailSubject();
 
