@@ -154,7 +154,7 @@ public class SoapUtil {
             return;
         }
 
-        LOG.error("An ebMS3 error was received: {}", xmlMessage);
+        LOG.error("An ebMS3 error was received check the details: {}", xmlMessage);
     }
 
 }

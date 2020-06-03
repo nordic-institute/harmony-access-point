@@ -1,15 +1,19 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -22,11 +26,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_EBMS3_ERROR_PRINT;
+
 /**
  * @author idragusa
  * @since 3.2.5
  */
+@RunWith(JMockit.class)
 public class SoapUtilTest {
+
+    @Tested
+    SoapUtil soapUtil;
+
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
 
     @Test
@@ -86,6 +100,26 @@ public class SoapUtilTest {
         SOAPMessage soapMessage = new SoapUtil().createSOAPMessage(expectedRawMessage);
         final SOAPElement messaging = (SOAPElement) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         Assert.assertNotNull(messaging);
+    }
+
+    @Test
+    public void test_logEbMS3Error(final @Mocked SOAPMessage soapMessage) throws  Exception {
+        final String rawXmlMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><env:Envelope xmlns:env=\"http://www.w3.org/2003/05/soap-envelope\"><env:Header><eb:Messaging xmlns:eb=\"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/\" env:mustUnderstand=\"true\"><eb:SignalMessage><eb:MessageInfo><eb:Timestamp>2020-06-03T12:59:13.453Z</eb:Timestamp><eb:MessageId>062005ed-a59a-11ea-9306-0242ac150004@domibus.eu</eb:MessageId></eb:MessageInfo><eb:Error category=\"CONTENT\" errorCode=\"EBMS:0004\" origin=\"ebMS\" severity=\"failure\" shortDescription=\"Other\"><eb:Description xml:lang=\"\">Other</eb:Description><eb:ErrorDetail>unknown error occurred</eb:ErrorDetail></eb:Error></eb:SignalMessage></eb:Messaging></env:Header><env:Body><env:Fault><env:Code><env:Value>env:Receiver</env:Value></env:Code><env:Reason><env:Text xml:lang=\"en\">An error occurred while processing your request. Please check the message header for more details.</env:Text></env:Reason></env:Fault></env:Body></env:Envelope>";
+
+        new Expectations(soapUtil) {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT);
+            result = true;
+
+            soapUtil.getRawXMLMessage(soapMessage);
+            result = rawXmlMessage;
+        }};
+
+        soapUtil.logEbMS3Error(soapMessage);
+
+        new Verifications() {{
+            LOG.error(anyString, any);
+        }};
+
     }
 
 }
