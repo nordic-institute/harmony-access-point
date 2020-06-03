@@ -1,0 +1,26 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="SELENIUM">
+
+	<groups>
+		<run>
+			<include name="multiTenancy"/>
+		</run>
+	</groups>
+
+	<test name="UX">
+		<packages>
+			<package name="domibus.ui.ux.*"/>
+		</packages>
+	</test>
+	<test name="FUNC">
+		<packages>
+			<package name="domibus.ui.functional.*"/>
+		</packages>
+	</test>
+
+	<listeners>
+		<listener class-name="utils.customReporter.ExcelReportReporter"/>
+		<listener class-name="domibus.FailListener"/>
+	</listeners>
+</suite>
