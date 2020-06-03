@@ -564,7 +564,7 @@
         <modifyDataType columnName="REV" newDataType="BIGINT" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
     </changeSet>
 
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595">
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-1">
         <modifyDataType columnName="CONFIGURATION_DATE" newDataType="TIMESTAMP" tableName="TB_CONFIGURATION_RAW" />
         <modifyDataType columnName="NOTIFIED" newDataType="TIMESTAMP" tableName="TB_ERROR_LOG" />
         <modifyDataType columnName="TIME_STAMP" newDataType="TIMESTAMP" tableName="TB_ERROR_LOG" />

@@ -83,7 +83,7 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER"/>
     </changeSet>
 
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595">
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-1">
         <addNotNullConstraint columnDataType="BIGINT" columnName="FK_EVENT" tableName="TB_EVENT_PROPERTY" />
         <addNotNullConstraint columnDataType="BIGINT" columnName="ID_PK" tableName="TB_USER_AUD" />
         <addNotNullConstraint columnDataType="BIGINT" columnName="REV" tableName="TB_USER_AUD" />
