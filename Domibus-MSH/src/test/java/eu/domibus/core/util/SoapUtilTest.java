@@ -35,13 +35,13 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @RunWith(JMockit.class)
 public class SoapUtilTest {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
+
     @Tested
     SoapUtil soapUtil;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
 
     @Test
     public void getRawXMLMessageTest() throws Exception {
