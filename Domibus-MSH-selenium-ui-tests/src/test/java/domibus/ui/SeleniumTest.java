@@ -33,6 +33,8 @@ public class SeleniumTest extends BaseTest {
 
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
+	static int methodCount = 0;
+
 	public String logFilename;
 //	private void makeLoggerLog() throws Exception{
 //		PatternLayout layout = new PatternLayout("%d{ISO8601} [%C.%M] - %m%n");
@@ -70,7 +72,8 @@ public class SeleniumTest extends BaseTest {
 
 	@BeforeMethod(alwaysRun = true)
 	protected void logSeparator() throws Exception {
-		log.info("---------------------------");
+		log.info("--------------------------- Running test number: " + methodCount);
+		methodCount++;
 		login(data.getAdminUser());
 	}
 
