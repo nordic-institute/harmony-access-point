@@ -82,7 +82,14 @@ public class LegConfigurationValidator implements PModeValidator {
                 }
             }
 
-
+            //payload profile
+            if (leg.getPayloadProfile() == null) {
+                String name = pModeValidationHelper.getAttributeValue(leg, "payloadProfileXml", String.class);
+                //payload profile can be null
+                if (StringUtils.isNotEmpty(name)) {
+                    createIssue(issues, leg, name, "PayloadProfile [%s] of leg configuration [%s] not found among payload profiles.");
+                }
+            }
         });
 
         return issues;

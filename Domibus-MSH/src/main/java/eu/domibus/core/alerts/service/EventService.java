@@ -42,6 +42,14 @@ public interface EventService {
     void enqueueAccountDisabledEvent(UserEntityBase.Type type, String userName, Date accountDisabledTime);
 
     /**
+     * Will create a account enabled event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param userName            the user name enabled
+     * @param accountEnabledTime  the account enabled time.
+     */
+    void enqueueAccountEnabledEvent(UserEntityBase.Type type, String userName, Date accountEnabledTime);
+
+    /**
      * Will create a certificate imminent expiration event and enqueue it to the alert/event monitoring queue.
      *
      * @param accessPoint    the access point at which the certificate will expire.

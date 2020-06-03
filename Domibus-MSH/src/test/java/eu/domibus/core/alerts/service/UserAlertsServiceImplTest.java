@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.model.service.*;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.UserDaoBase;
@@ -15,10 +16,6 @@ import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
-import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -221,6 +218,29 @@ public class UserAlertsServiceImplTest {
 
         new VerificationsInOrder() {{
             eventService.enqueueAccountDisabledEvent(UserEntityBase.Type.CONSOLE, user1.getUserName(), (Date)any);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void triggerEnabledEventTest() {
+        final User user1 = new User() {{
+            setUserName("user1");
+            setPassword("anypassword");
+        }};
+        AlertModuleConfigurationBase conf = new AlertModuleConfigurationBase(AlertType.USER_ACCOUNT_ENABLED,
+                AlertLevel.MEDIUM, "");
+        new Expectations() {{
+            alertsConfiguration.getAccountEnabledConfiguration();
+            result = conf;
+            userAlertsService.getUserType();
+            result = UserEntityBase.Type.CONSOLE;
+        }};
+
+        userAlertsService.triggerEnabledEvent(user1);
+
+        new VerificationsInOrder() {{
+            eventService.enqueueAccountEnabledEvent(UserEntityBase.Type.CONSOLE, user1.getUserName(), (Date)any);
             times = 1;
         }};
     }
