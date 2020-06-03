@@ -37,7 +37,7 @@
 			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="white_gw" endpoint="http://localhost:8380/domibus/services/msh" allowChunking="false">
+			<party name="white_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-white" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="black_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
@@ -490,10 +490,12 @@
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
 				<initiatorParty name="red_gw"/>
+				<initiatorParty name="black_gw"/>				
 			</initiatorParties>
 			<responderParties>
 				<responderParty name="blue_gw"/>
 				<responderParty name="red_gw"/>
+				<responderParty name="white_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase20tc20Action"/>
