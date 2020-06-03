@@ -20,33 +20,37 @@ public class DateTimeFormatterConfigurationTest {
         dateTimeFormatter = new DateTimeFormatterConfiguration().dateTimeFormatter();
     }
 
+    private void parse(String s) {
+        LocalDateTime.parse(s, dateTimeFormatter);
+    }
+
     @Test
     public void format() {
-        LocalDateTime.parse("2020-06-02T20:00:00", dateTimeFormatter);
+        parse("2020-06-02T20:00:00");
     }
 
     @Test
     public void format_UTC() {
-        LocalDateTime.parse("2020-06-02T20:00:00Z", dateTimeFormatter);
+        parse("2020-06-02T20:00:00Z");
     }
 
     @Test
     public void format_FractionalSeconds_UTC() {
-        LocalDateTime.parse("2020-06-02T09:00:00.000Z", dateTimeFormatter);
+        parse("2020-06-02T09:00:00.000Z");
     }
 
     @Test
     public void format_FractionalSeconds_timeZone() {
-        LocalDateTime.parse("2020-06-02T23:00:00.000+03:00", dateTimeFormatter);
+        parse("2020-06-02T23:00:00.000+03:00");
     }
 
     @Test
     public void format_timeZone() {
-        LocalDateTime.parse("2020-06-02T23:00:00+03:00", dateTimeFormatter);
+        parse("2020-06-02T23:00:00+03:00");
     }
 
     @Test(expected = DateTimeParseException.class)
     public void format_z() {
-        LocalDateTime.parse("2000-03-04T20:00:00z", dateTimeFormatter);
+        parse("2000-03-04T20:00:00z");
     }
 }
