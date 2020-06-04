@@ -143,7 +143,7 @@ public class SoapUtil {
     public void logEbMS3Error(final SOAPMessage soapMessage) {
         final boolean printError = domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT);
         if (!printError) {
-            LOG.debug("Printing EBMs3 error is disabled, exiting");
+            LOG.debug("Printing EbMS3 error is disabled, exiting");
             return;
         }
         String xmlMessage;
@@ -154,7 +154,7 @@ public class SoapUtil {
             return;
         }
 
-        LOG.error("An ebMS3 error was received check the details: {}", xmlMessage);
+        LOG.error("An EbMS3 error was received check the details: {}", xmlMessage);
     }
 
 }
