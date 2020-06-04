@@ -106,10 +106,9 @@ public class ConfigurationPropertyResource extends BaseResource {
         return res;
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
-        DomibusProperty prop = configurationPropertyService.getProperty(propertyName);
+        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
         DomibusPropertyRO convertedProp = domainConverter.convert(prop, DomibusPropertyRO.class);
         return convertedProp;
     }
