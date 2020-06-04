@@ -584,7 +584,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage, @Injectable final List<BackendFilter> backendFilters) throws Exception {
         new Expectations(backendNotificationService) {{
-            backendNotificationService.getBackendFilters();
+            backendNotificationService.getBackendFiltersWithCache();
             result = backendFilters;
         }};
 
