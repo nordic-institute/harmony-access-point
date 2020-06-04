@@ -53,14 +53,14 @@ public class MailSender {
     protected DomainContextProvider domainProvider;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private MultiDomainAlertConfigurationService configurationService;
 
     private boolean mailSenderInitiated;
 
     protected void initMailSender() {
-        final Boolean alertModuleEnabled = multiDomainAlertConfigurationService.isAlertModuleEnabled();
+        final Boolean alertModuleEnabled = configurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
-        final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
+        final String sendEmailActivePropertyName = configurationService.getSendEmailActivePropertyName();
         final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
         if (alertModuleEnabled && mailActive) {
             //static properties.

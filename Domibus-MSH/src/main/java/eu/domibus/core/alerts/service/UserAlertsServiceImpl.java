@@ -39,10 +39,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     @Autowired
     private EventService eventService;
 
-    @Autowired
-    private MultiDomainAlertConfigurationService alertsConfiguration;
-
-
     protected abstract String getMaximumDefaultPasswordAgeProperty();
 
     protected abstract String getMaximumPasswordAgeProperty();
