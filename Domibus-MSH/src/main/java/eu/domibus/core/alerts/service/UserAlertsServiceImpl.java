@@ -61,6 +61,8 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
 
+    protected abstract AlertModuleConfigurationBase getAccountEnabledConfiguration();
+
     protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
 
     @Override
@@ -91,7 +93,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerDisabledEvent(UserBase user) {
-        final AccountDisabledModuleConfiguration accountDisabledConfiguration = alertsConfiguration.getConsoleAccountDisabledConfiguration();
+        final AccountDisabledModuleConfiguration accountDisabledConfiguration = getAccountDisabledConfiguration();
         if (accountDisabledConfiguration.isActive()) {
             LOG.debug("Sending account disabled event for user:[{}]", user.getUserName());
             eventService.enqueueAccountDisabledEvent(getUserType(), user.getUserName(), new Date());
@@ -100,7 +102,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerEnabledEvent(UserBase user) {
-        final AlertModuleConfigurationBase accountEnabledConfiguration = alertsConfiguration.getConsoleAccountEnabledConfiguration();
+        final AlertModuleConfigurationBase accountEnabledConfiguration = getAccountEnabledConfiguration();
         if (accountEnabledConfiguration.isActive()) {
             LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
             eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());

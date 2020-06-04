@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -72,6 +73,11 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return alertsConfiguration.getPluginAccountDisabledConfiguration();
+    }
+
+    @Override
+    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
+        return alertsConfiguration.getPluginAccountEnabledConfiguration();
     }
 
     @Override
