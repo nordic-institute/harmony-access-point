@@ -138,6 +138,7 @@
 							<failIfNoTests>true</failIfNoTests>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
+								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
