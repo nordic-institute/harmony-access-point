@@ -27,7 +27,7 @@ public class AlertPasswordExpiredConfigurationChangeListener implements DomibusP
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PASSWORD_EXPIRED);
+        multiDomainAlertConfigurationService.clearConsolePasswordExpiredAlertConfigurationManager();
     }
 }
 

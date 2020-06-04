@@ -27,7 +27,7 @@ public class AlertPasswordImminentExpirationConfigurationChangeListener implemen
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION);
+        multiDomainAlertConfigurationService.clearConsolePasswordImminentExpirationAlertConfigurationManager();
     }
 }
 

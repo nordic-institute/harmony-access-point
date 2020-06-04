@@ -23,7 +23,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAlertConfigurationService {
-    // todo: call clear loaders on enabled property changed
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
@@ -77,80 +76,10 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
 
-    @Override
-    public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
-        return messagingConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration() {
-        return consoleAccountDisabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration() {
-        return consoleAccountEnabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration() {
-        return consoleLoginFailConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
-        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
-        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
-    }
-    
-    @Override
-    public ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration() {
-        return imminentExpirationCertificateConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration() {
-        return expiredCertificateConfigurationManager.getConfiguration();
-    }
-
+    // method implementation
     @Override
     public CommonConfiguration getCommonConfiguration() {
         return commonConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public LoginFailureModuleConfiguration getPluginLoginFailureConfiguration() {
-        return pluginLoginFailConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
-        return pluginAccountDisabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
-        return pluginAccountEnabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
-        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
-        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearAllConfigurations() {
-        clearCommonConfiguration();
-        Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
     }
 
     @Override
@@ -159,33 +88,18 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public void clearConsoleLoginFailureConfiguration() {
-        consoleLoginFailConfigurationManager.reset();
+    public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
+        return messagingConfigurationManager.getConfiguration();
     }
 
     @Override
-    public void clearPasswordExpirationAlertConfiguration(AlertType alertType) {
-        getModuleConfigurationManager(alertType).reset();
+    public void clearMessageCommunicationConfiguration() {
+        messagingConfigurationManager.reset();
     }
 
     @Override
-    public void clearPluginLoginFailureConfiguration() {
-        pluginLoginFailConfigurationManager.reset();
-    }
-
-    @Override
-    public void clearImminentExpirationCertificateConfiguration() {
-        imminentExpirationCertificateConfigurationManager.reset();
-    }
-
-    @Override
-    public void clearExpiredCertificateConfiguration() {
-        expiredCertificateConfigurationManager.reset();
-    }
-
-    @Override
-    public void clearPluginAccountDisabledConfiguration() {
-        pluginAccountDisabledConfigurationManager.reset();
+    public AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration() {
+        return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
@@ -194,8 +108,18 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public void clearPluginAccountEnabledConfiguration() {
-        pluginAccountEnabledConfigurationManager.reset();
+    public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
+        return pluginAccountDisabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearPluginAccountDisabledConfiguration() {
+        pluginAccountDisabledConfigurationManager.reset();
+    }
+
+    @Override
+    public AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration() {
+        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
@@ -204,8 +128,99 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public void clearMessageCommunicationConfiguration() {
-        messagingConfigurationManager.reset();
+    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
+        return pluginAccountEnabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearPluginAccountEnabledConfiguration() {
+        pluginAccountEnabledConfigurationManager.reset();
+    }
+
+    @Override
+    public LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration() {
+        return consoleLoginFailConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearConsoleLoginFailureConfiguration() {
+        consoleLoginFailConfigurationManager.reset();
+    }
+
+    @Override
+    public LoginFailureModuleConfiguration getPluginLoginFailureConfiguration() {
+        return pluginLoginFailConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearPluginLoginFailureConfiguration() {
+        pluginLoginFailConfigurationManager.reset();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
+        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearConsolePasswordExpiredAlertConfigurationManager() {
+        consolePasswordExpiredAlertConfigurationManager.reset();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
+        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearConsolePasswordImminentExpirationAlertConfigurationManager() {
+        consolePasswordImminentExpirationAlertConfigurationManager.reset();
+    }
+
+    @Override
+    public ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration() {
+        return imminentExpirationCertificateConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearImminentExpirationCertificateConfiguration() {
+        imminentExpirationCertificateConfigurationManager.reset();
+    }
+
+    @Override
+    public ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration() {
+        return expiredCertificateConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearExpiredCertificateConfiguration() {
+        expiredCertificateConfigurationManager.reset();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
+        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearPluginPasswordExpiredAlertConfigurationManager() {
+        pluginPasswordExpiredAlertConfigurationManager.reset();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
+        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public void clearPluginPasswordImminentExpirationAlertConfigurationManager() {
+        pluginPasswordImminentExpirationAlertConfigurationManager.reset();
+    }
+
+    @Override
+    public void clearAllConfigurations() {
+        clearCommonConfiguration();
+        Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
     }
 
     @Override
@@ -253,13 +268,5 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
             throw new IllegalArgumentException("Invalid alert type");
         }
         return res.get();
-    }
-
-    protected <T extends AlertModuleConfiguration> T getAlertConfiguration(AlertType alertType, Class<T> configurationType) {
-        AlertModuleConfiguration configuration = getModuleConfiguration(alertType);
-        if (!configurationType.isInstance(configuration)) {
-            throw new IllegalArgumentException("Invalid configuration type " + configurationType + " for alert type " + alertType);
-        }
-        return configurationType.cast(configuration);
     }
 }

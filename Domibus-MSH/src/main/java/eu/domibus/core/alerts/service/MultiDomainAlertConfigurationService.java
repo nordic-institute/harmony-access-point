@@ -52,6 +52,8 @@ public interface MultiDomainAlertConfigurationService {
      */
     void clearConsoleLoginFailureConfiguration();
 
+    void clearConsolePasswordImminentExpirationAlertConfigurationManager();
+
     /**
      * @return certificate imminent expiration module configuration
      */
@@ -134,9 +136,13 @@ public interface MultiDomainAlertConfigurationService {
 
     RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
 
+    void clearConsolePasswordExpiredAlertConfigurationManager();
+
     RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager();
 
     RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager();
+
+    void clearPluginPasswordExpiredAlertConfigurationManager();
 
     RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
 
@@ -144,11 +150,6 @@ public interface MultiDomainAlertConfigurationService {
      * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made
      */
     void clearCommonConfiguration();
-
-    /**
-     * Clears/removes the password expiration alert configuration so that a new one will be created when calls to it are made
-     */
-    void clearPasswordExpirationAlertConfiguration(AlertType alertType);
 
     /**
      * Clears/removes the plugin login failure configuration so that a new one will be created when calls to it are made
@@ -164,6 +165,8 @@ public interface MultiDomainAlertConfigurationService {
      * Clears/removes the expired certificate configuration so that a new one will be created when calls to it are made
      */
     void clearExpiredCertificateConfiguration();
+
+    void clearPluginPasswordImminentExpirationAlertConfigurationManager();
 
     /**
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling

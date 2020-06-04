@@ -27,7 +27,7 @@ public class AlertPluginPasswordExpiredConfigurationChangeListener implements Do
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED);
+        multiDomainAlertConfigurationService.clearPluginPasswordExpiredAlertConfigurationManager();
     }
 }
 
