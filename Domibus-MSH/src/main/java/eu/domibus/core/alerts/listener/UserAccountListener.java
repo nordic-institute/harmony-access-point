@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 4.0
  */
 @Component
-public class AuthenticatorListener {
+public class UserAccountListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticatorListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAccountListener.class);
 
     @Autowired
     private EventService eventService;
@@ -37,7 +37,7 @@ public class AuthenticatorListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'loginFailure' or selector = 'accountDisabled'")
+            selector = "selector = 'loginFailure' or selector = 'accountDisabled' or selector = 'accountEnabled'")
     @Transactional
     public void onLoginFailure(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
