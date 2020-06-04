@@ -38,11 +38,15 @@ export class ConnectionsMonitorService {
     let monitors = await this.getMonitorsForParties(parties);
     console.log('monitors ', monitors);
 
-    return allParties.map(p => {
-      let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers[0].partyId;
-      Object.assign(m, monitors[m.partyId]);
-      return m;
+    return allParties.map(party => {
+      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+      let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+      cmEntry.partyId = allIdentifiers[0].partyId;
+      cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
+
+      let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
+      Object.assign(cmEntry, monitors[monitorKey]);
+      return cmEntry;
     });
   }
 
@@ -67,8 +71,12 @@ export class ConnectionsMonitorService {
     console.log('sending test message to ', receiverPartyId);
 
     if (!sender) {
-      sender = await this.getSenderParty();
-      // TODO: exception handling
+      try {
+        sender = await this.getSenderParty();
+      } catch (ex) {
+        this.alertService.exception('Error getting the sender party:', ex);
+        return;
+      }
     }
     const payload = {sender: sender, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
@@ -77,18 +85,22 @@ export class ConnectionsMonitorService {
   async setMonitorState(partyId: string, enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.enabled';
     let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
-    let r = (await this.http.get<any>(url).toPromise()).items[0].value; // TODO
-    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
-    if (enabled) enabledParties += ',' + partyId;
+    let r = (await this.http.get<any>(url).toPromise()).items[0].value;
+    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p && p != partyId);
+    if (enabled) {
+      enabledParties.push(partyId);
+    }
 
+    let payload = enabledParties.join(',') || ' ';
     url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties || " ").toPromise();
+    return await this.http.put(url, payload).toPromise();
   }
 
 }
 
 export class ConnectionMonitorEntry {
   partyId: string;
+  partyName?: string;
   testable: boolean;
   monitored: boolean;
   status: string;

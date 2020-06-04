@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.model.service;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import eu.domibus.core.alerts.model.common.AccountEventKey;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -100,6 +101,10 @@ public class Event {
             LOG.error("Invalid property type: key[{}] type[{}]", key, abstractProperty.getValue().getClass());
             throw new IllegalArgumentException("Invalid property type");
         }
+    }
+
+    public void addAccountKeyValue(final AccountEventKey key, final String value) {
+        addStringKeyValue(key.name(), value);
     }
 
     public void addStringKeyValue(final String key, final String value) {

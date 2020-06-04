@@ -14,6 +14,7 @@ Domibus 4.2
 - Possibility to route JMS messages in the JMS Plugin to specific queues depending on service and action
 - Added JDK 11 support
 - Added Foreign Servers support in Weblogic
+- Add alert for account enabled.
 - maxSize attribute defined in payload profile in PMode is taken in account for standard messages (non Split&Join)
 Domibus 4.1.4
 - Added manual runtime registration for the BouncyCastle provider
