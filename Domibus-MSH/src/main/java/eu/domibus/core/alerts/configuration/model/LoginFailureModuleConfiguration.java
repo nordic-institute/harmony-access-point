@@ -11,8 +11,6 @@ import org.slf4j.Logger;
  */
 public class LoginFailureModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(LoginFailureModuleConfiguration.class);
-
     public LoginFailureModuleConfiguration(AlertType alertType) {
         super(alertType);
     }

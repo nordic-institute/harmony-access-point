@@ -11,8 +11,6 @@ import org.slf4j.Logger;
  */
 public class ImminentExpirationCertificateModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ImminentExpirationCertificateModuleConfiguration.class);
-
     private Integer imminentExpirationDelay;
     private Integer imminentExpirationFrequency;
 

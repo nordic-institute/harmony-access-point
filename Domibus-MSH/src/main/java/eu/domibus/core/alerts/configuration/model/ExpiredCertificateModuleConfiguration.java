@@ -11,8 +11,6 @@ import org.slf4j.Logger;
  */
 public class ExpiredCertificateModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ExpiredCertificateModuleConfiguration.class);
-
     private Integer expiredFrequency;
     private Integer expiredDuration;
 

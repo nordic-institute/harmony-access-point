@@ -11,8 +11,6 @@ import org.slf4j.Logger;
  */
 public class RepetitiveAlertModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(RepetitiveAlertModuleConfiguration.class);
-
     private Integer eventDelay;
     private Integer eventFrequency;
 

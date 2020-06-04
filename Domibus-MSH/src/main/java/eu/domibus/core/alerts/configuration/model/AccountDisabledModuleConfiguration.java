@@ -12,8 +12,6 @@ import org.slf4j.Logger;
  */
 public class AccountDisabledModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(AccountDisabledModuleConfiguration.class);
-
     private AccountDisabledMoment accountDisabledMoment;
 
     public AccountDisabledModuleConfiguration(AlertType alertType) {

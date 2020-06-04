@@ -1,12 +1,11 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.model.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.manager.*;
 import eu.domibus.core.alerts.configuration.model.*;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.*;
+import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,8 +129,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
 
     @Override
     public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
-        // todo: try to get rid of cast or even of get by AlertType???
-        return (RepetitiveAlertModuleConfiguration) getModuleConfiguration(alertType);
+        return getAlertConfiguration(alertType, RepetitiveAlertModuleConfiguration.class);
     }
 
     @Override
@@ -249,7 +247,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     public String getAlertSuperServerNameSubjectPropertyName() {
         return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
-    
+
     protected AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
         return getModuleConfigurationManager(alertType).getConfiguration();
     }
@@ -257,9 +255,16 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         Optional<AlertConfigurationManager> res = alertConfigurationManagers.stream().filter(el -> el.getAlertType() == alertType).findFirst();
         if (!res.isPresent()) {
-            LOG.error("Invalid alert type[{}]", alertType);
             throw new IllegalArgumentException("Invalid alert type");
         }
         return res.get();
+    }
+
+    protected <T extends AlertModuleConfiguration> T getAlertConfiguration(AlertType alertType, Class<T> configurationType) {
+        AlertModuleConfiguration configuration = getModuleConfiguration(alertType);
+        if (!configurationType.isInstance(configuration)) {
+            throw new IllegalArgumentException("Invalid configuration type " + configurationType + " for alert type " + alertType);
+        }
+        return configurationType.cast(configuration);
     }
 }
