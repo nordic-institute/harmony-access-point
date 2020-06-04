@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 
 /**
  * @author Thomas Dussart

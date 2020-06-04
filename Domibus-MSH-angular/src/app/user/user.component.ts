@@ -147,17 +147,25 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async getUsers(): Promise<any> {
-    return this.userService.getUsers(this.activeFilter).toPromise().then(async results => {
-      const showDomain = await this.userService.isDomainVisible();
-      if (showDomain) {
-        await this.getUserDomains();
-        results.forEach(user => this.setDomainName(user));
-      }
-      super.rows = results;
-      super.count = results.length;
+    return this.userService.getUsers(this.activeFilter).toPromise().then(async users => {
+      await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
+
+      await this.setDomain(users);
+
+      super.rows = users;
+      super.count = users.length;
+
       this.areRowsDeleted = false;
       this.disableSelection();
     });
+  }
+
+  private async setDomain(users: UserResponseRO[]) {
+    const showDomain = await this.userService.isDomainVisible();
+    if (showDomain) {
+      await this.getUserDomains();
+      users.forEach(user => this.setDomainName(user));
+    }
   }
 
   private setDomainName(user) {

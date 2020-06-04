@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Cosmin Baciu
  * @since 4.1.4
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class BackendWebServiceExceptionFactory {
 

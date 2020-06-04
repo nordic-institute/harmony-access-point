@@ -36,7 +36,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -61,6 +60,8 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @author Cosmin Baciu
@@ -199,6 +200,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
         LOG.info("Restoring message [{}]", messageId);
@@ -293,6 +295,7 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
+    @Transactional
     @Override
     public void scheduleSending(String messageId, boolean isSplitAndJoin) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
@@ -474,6 +477,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
+    @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
@@ -497,6 +501,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return restoredMessages;
     }
 
+    @Transactional
     @Override
     public void deleteFailedMessage(String messageId) {
         getFailedMessage(messageId);
@@ -520,7 +525,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
+        if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
@@ -533,8 +538,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        userMessageLogService.setSignalMessageAsDeleted(signalMessage.getMessageInfo().getMessageId());
+        userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
     protected void deleteMessagePluginCallback(String messageId) {

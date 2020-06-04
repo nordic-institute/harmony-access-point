@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
  * @since 3.2
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class RegexUtilImpl implements RegexUtil {
 
     protected Map<String, Pattern> patternHashMap = new HashMap<>();

@@ -39,7 +39,7 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
         try {
             retryService.enqueueMessages();
         } catch (Exception e) {
-            LOG.error("Error while enqueing messages.", e);
+            LOG.error("Error while enqueueing messages.", e);
         }
 
 

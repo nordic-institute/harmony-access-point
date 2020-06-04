@@ -42,6 +42,17 @@ export class UserService {
     return isMultiDomain && this.securityService.isCurrentUserSuperAdmin();
   }
 
+  async checkConfiguredCorrectlyForMultitenancy(users: UserResponseRO[]) {
+    const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
+    if (isMultiDomain) {
+      const usersWithoutDomain = users.filter(user => !user.deleted && !user.domain);
+      if (usersWithoutDomain.length > 0) {
+        const userNames = usersWithoutDomain.map(u => u.userName).join(', ');
+        this.alertService.error(`The following users are not configured correctly for multiteancy: ${userNames}`);
+      }
+    }
+  }
+
   private filterData(filter: UserSearchCriteria) {
     return function (users) {
       let results = users.slice();

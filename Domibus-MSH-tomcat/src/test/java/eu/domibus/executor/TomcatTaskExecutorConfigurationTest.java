@@ -1,6 +1,6 @@
 package eu.domibus.executor;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.executor.tomcat.TomcatTaskExecutorConfiguration;
 import mockit.*;
@@ -25,7 +25,7 @@ public class TomcatTaskExecutorConfigurationTest {
         int threadCount = 20;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManager.DOMIBUS_TASK_EXECUTOR_THREAD_COUNT);
+            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_TASK_EXECUTOR_THREAD_COUNT);
             this.result = threadCount;
         }};
 

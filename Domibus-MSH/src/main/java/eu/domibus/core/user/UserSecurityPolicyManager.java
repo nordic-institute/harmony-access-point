@@ -113,7 +113,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     public void validatePasswordExpired(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
         LOG.debug("Validating if password expired for user [{}]", userName);
 
@@ -265,6 +264,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         if (!userEntity.isActive() && user.isActive()) {
             userEntity.setSuspensionDate(null);
             userEntity.setAttemptCount(0);
+            getUserAlertsService().triggerEnabledEvent(user);
         } else if (!user.isActive() && userEntity.isActive()) {
             LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
             userSessionsService.invalidateSessions(user);

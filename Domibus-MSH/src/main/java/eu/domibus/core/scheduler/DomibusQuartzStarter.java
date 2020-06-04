@@ -327,6 +327,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Transactional(noRollbackFor = DomibusSchedulerException.class)
     public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
         try {
+            LOG.debug("Rescheduling job [{}] with cron expression: [{}]", jobNameToReschedule, newCronExpression);
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             JobKey jobKey = findJob(scheduler, jobNameToReschedule);
             rescheduleJob(scheduler, jobKey, newCronExpression);
@@ -347,6 +348,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             throw new DomibusSchedulerException("Invalid repeat interval: " + newRepeatInterval);
         }
         try {
+            LOG.debug("Rescheduling job [{}] with repeat interval: [{}]", jobNameToReschedule, newRepeatInterval);
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             JobKey jobKey = findJob(scheduler, jobNameToReschedule);
             rescheduleJob(scheduler, jobKey, newRepeatInterval);

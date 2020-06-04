@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
-import pages.login.LoginPage;
 import utils.Generator;
 
 import java.util.HashMap;
@@ -58,25 +57,29 @@ public class AlertPgTest extends BaseTest {
 		String username = getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
 		if (data.isIsMultiDomain()) {
-			apage.filters().showDomainAlert();
+			page.filters().showDomainAlert();
+			page.grid().waitForRowsToLoad();
 		}
 
-		log.info("Number of records : " + apage.grid().getRowsNo());
 		log.info("Getting all listed alert info");
-		log.info("Alert type for top row : " + apage.grid().getRowInfo(0).get("Alert Type"));
-		String beforeSearchalertType = apage.grid().getRowInfo(0).get("Alert Type");
-		List<HashMap<String, String>> allRowInfo = apage.grid().getAllRowInfo();
-		HashMap<String, String> fAlert = allRowInfo.get(0);
+
+		HashMap<String, String> fAlert = page.grid().getRowInfo(0);
+		String beforeSearchAlertType = fAlert.get("Alert Type");
+		log.info("Alert type for top row : " + beforeSearchAlertType);
+
 		log.info("Advance filtering by " + fAlert);
-		apage.filters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
+		page.filters().advancedFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status")
 				, null, fAlert.get("Alert Level"), fAlert.get("Creation Time"), null,
 				fAlert.get("Reporting Time"), null);
-		apage.grid().waitForRowsToLoad();
-		String afterSearchAlertType = apage.grid().getRowInfo(0).get("Alert Type");
-		soft.assertTrue(beforeSearchalertType.equals(afterSearchAlertType), "After and before search records are same");
+		page.grid().waitForRowsToLoad();
+
+		String afterSearchAlertType = page.grid().getRowInfo(0).get("Alert Type");
+		soft.assertEquals(beforeSearchAlertType, afterSearchAlertType, "Alert type after filter is correct");
+
 		soft.assertAll();
 	}
 
@@ -96,30 +99,31 @@ public class AlertPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
-	//This method will validate presence of all records after deletion of all search criterias
-	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
+	//This method will validate presence of all records after deletion of all search criteria
+	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Login into application and navigate to Alerts page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
 		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
 		if (data.isIsMultiDomain()) {
 			page.filters().showDomainAlert();
 		}
+
 		log.info("Wait for grid row to load ");
 		page.grid().waitForRowsToLoad();
 
 		log.info("Search using basic filter");
 		int prevCount = page.grid().getPagination().getTotalItems();
 		log.info("Previous count of grid rows:" + prevCount);
+
 		page.filters().basicFilterBy(null, "CERT_EXPIRED", null, null, null, null);
 		page.grid().waitForRowsToLoad();
 
-
 		log.info("Validate Grid row count as zero ");
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "No search result exist");
-		log.info("Refresh page");
 
+		log.info("Refresh page");
 		page.refreshPage();
 		if (data.isIsMultiDomain()) {
 			page.filters().showDomainAlert();
@@ -155,7 +159,7 @@ public class AlertPgTest extends BaseTest {
 	}
 
 	//This method will verify alert for message status change
-	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void msgStatusChangeAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -227,7 +231,7 @@ public class AlertPgTest extends BaseTest {
 	}
 
 	//This method will verify alert for user account disable after 5 attempts of login with wrong credentials
-	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void userDisableAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

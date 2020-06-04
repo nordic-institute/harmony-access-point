@@ -1,6 +1,6 @@
 package eu.domibus.core.clustering;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -35,7 +35,7 @@ public class ControllerListenerConfigurationTest {
                                                       @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
                                                       @Injectable DomibusPropertyProvider domibusPropertyProvider) {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
             result = "2-3";
         }};
 

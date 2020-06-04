@@ -42,7 +42,6 @@ public class ProcessValidator {
      * @throws PModeException in case of process misconfiguration
      */
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = PModeException.class)
     public void validatePullProcess(List<Process> pullProcesses) {
         Set<Process> processes = new HashSet<>(pullProcesses);
         Set<PullProcessStatus> pullProcessStatuses = verifyPullProcessStatus(processes);

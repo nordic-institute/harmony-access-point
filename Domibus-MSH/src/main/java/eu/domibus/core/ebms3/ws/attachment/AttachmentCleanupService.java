@@ -21,7 +21,6 @@ import java.util.Iterator;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class AttachmentCleanupService {
 

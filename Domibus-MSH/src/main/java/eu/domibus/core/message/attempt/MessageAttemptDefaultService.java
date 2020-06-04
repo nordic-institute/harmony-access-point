@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE;
 
 /**
  * @author Cosmin Baciu

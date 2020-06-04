@@ -6,19 +6,19 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.PayloadInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -113,10 +113,10 @@ public class MessagingServiceImplTest {
             result = payloadPersistence;
         }};
 
-        messagingService.storeIncomingPayload(partInfo, userMessage);
+        messagingService.storeIncomingPayload(partInfo, userMessage, null);
 
         new Verifications() {{
-            payloadPersistence.storeIncomingPayload(partInfo, userMessage);
+            payloadPersistence.storeIncomingPayload(partInfo, userMessage, null);
             times = 1;
         }};
     }

@@ -34,7 +34,7 @@
 		<payloadProfiles>
 			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml"/>
 			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464">
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -56,6 +56,15 @@
 		</services>
 		<actions>
 			<action name="tc1Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0"/>
+			<action name="tc2Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver2.0::2.0"/>
+			<action name="tc3Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver3.0::2.0"/>
+			<action name="tc4Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver4.0::2.0"/>
+			<action name="tc5Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver5.0::2.0"/>
+			<action name="tc6Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver6.0::2.0"/>
+			<action name="tc7Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver7.0::2.0"/>
+			<action name="tc8Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver8.0::2.0"/>
+			<action name="tc9Action" value="busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver9.0::2.0"/>
+			<action name="tc10Action" value="TC10Leg1"/>
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -63,8 +72,17 @@
 			<reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
 		</as4>
 		<legConfigurations>
-			<legConfiguration name="pushTestcase1tc1Action" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
-		</legConfigurations>							
+			<legConfiguration name="pushTestcase1tc1Action" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase2tc2Action" service="testService1" action="tc2Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase3tc3Action" service="testService1" action="tc3Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase4tc4Action" service="testService1" action="tc4Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase5tc5Action" service="testService1" action="tc5Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase6tc6Action" service="testService1" action="tc6Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase7tc7Action" service="testService1" action="tc7Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase8tc8Action" service="testService1" action="tc8Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase9tc9Action" service="testService1" action="tc9Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase10tc10Action" service="testService2" action="tc10Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			</legConfigurations>
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<responderParties>
 				<responderParty name="receiver_dyn_oasis"/>
@@ -72,13 +90,21 @@
 			<legs>
 				<leg name="pushTestcase1tc1Action"/>
 			</legs>
-		</process>	
+		</process>
+		<process name="tc2Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="receiver_dyn_oasis"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase2tc2Action"/>
+			</legs>
+		</process>
 		<process name="tc3Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<responderParties>
 				<responderParty name="receiver_dyn_oasis"/>
 			</responderParties>
 			<legs>
-				<leg name="pushTestcase3tc1Action"/>
+				<leg name="pushTestcase3tc3Action"/>
 			</legs>
 		</process>
 		<process name="tc4Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
@@ -86,7 +112,7 @@
 				<responderParty name="receiver_dyn_oasis"/>
 			</responderParties>
 			<legs>
-				<leg name="pushTestcase4tc1Action"/>
+				<leg name="pushTestcase4tc4Action"/>
 			</legs>
 		</process>
 		<process name="tc5Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
@@ -94,8 +120,41 @@
 				<responderParty name="receiver_dyn_oasis"/>
 			</responderParties>
 			<legs>
-				<leg name="pushTestcase5tc1Action"/>
+				<leg name="pushTestcase5tc5Action"/>
 			</legs>
 		</process>
+		<process name="tc6Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="receiver_dyn_oasis"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase6tc6Action"/>
+			</legs>
+		</process>
+		<process name="tc7Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="receiver_dyn_oasis"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase7tc7Action"/>
+			</legs>
+		</process>
+		<process name="tc8Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="receiver_dyn_oasis"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase8tc8Action"/>
+			</legs>
+		</process>
+		<process name="tc9Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="receiver_dyn_oasis"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase9tc9Action"/>
+			</legs>
+		</process>
+
 	</businessProcesses>
 </db:configuration>

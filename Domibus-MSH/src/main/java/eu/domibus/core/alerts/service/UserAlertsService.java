@@ -14,4 +14,6 @@ public interface UserAlertsService {
 
     void triggerDisabledEvent(UserBase user);
 
+    void triggerEnabledEvent(UserBase user);
+
 }

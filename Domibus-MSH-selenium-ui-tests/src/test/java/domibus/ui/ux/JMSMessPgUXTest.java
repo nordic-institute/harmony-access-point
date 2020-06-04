@@ -1,6 +1,8 @@
 package domibus.ui.ux;
 
+import ddsl.dcomponents.DomainSelector;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.Select;
 import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
 import utils.BaseTest;
@@ -266,6 +268,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 
 		String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
 		log.info("verifying for queue " + qName);
@@ -291,6 +294,7 @@ public class JMSMessPgUXTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+//		page.grid().waitForRowsToLoad();
 
 		List<String> domains = rest.getDomainNames();
 
@@ -303,6 +307,7 @@ public class JMSMessPgUXTest extends BaseTest {
 			log.info("checking domain " + domain);
 			page.getDomainSelector().selectOptionByText(domain);
 
+			page.grid().waitForRowsToLoad();
 			String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
 			log.info("verifying for queue " + qName);
 			HashMap<String, String> params = new HashMap<>();

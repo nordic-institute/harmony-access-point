@@ -3,17 +3,17 @@ package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.ebms3.common.model.AgreementRef;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
@@ -212,7 +212,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String findPullLegName(final String agreementName, final String senderParty,
-                                     final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
+                                  final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(
                 MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
@@ -250,7 +250,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     //FIXME: only works for the first leg, as sender=initiator
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                                 final String service, final String action) throws EbMS3Exception {
+                              final String service, final String action) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         //TODO Refactor the nested for loop and conditions
         for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
@@ -373,7 +373,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found", null, null);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
@@ -387,7 +386,6 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(final String pModeKey) {
         final String partyKey = this.getSenderPartyNameFromPModeKey(pModeKey);
@@ -399,7 +397,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching sender party found with name: " + partyKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
@@ -411,7 +408,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching receiver party found with name: " + partyKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Service getService(final String pModeKey) {
         final String serviceKey = this.getServiceNameFromPModeKey(pModeKey);
@@ -423,7 +419,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching service found with name: " + serviceKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Action getAction(final String pModeKey) {
         final String actionKey = this.getActionNameFromPModeKey(pModeKey);
@@ -435,7 +430,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching action found with name: " + actionKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Agreement getAgreement(final String pModeKey) {
         final String agreementKey = this.getAgreementRefNameFromPModeKey(pModeKey);
@@ -447,7 +441,6 @@ public class CachingPModeProvider extends PModeProvider {
         throw new ConfigurationException("no matching agreement found with name: " + agreementKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);
@@ -704,22 +697,36 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String
-            service, String action) {
-        List result = new ArrayList<String>();
-        if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service) && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-            handleProcessParties(process, result);
+    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
+        if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+            return handleProcessParties(process);
+        }
+        return new ArrayList<String>();
+    }
+
+    protected List<String> handleProcessParties(Process process) {
+        List<String> result = new ArrayList<String>();
+        for (Party party : process.getResponderParties()) {
+            String partyId = getOnePartyId(party);
+            if (partyId != null) {
+                result.add(partyId);
+            }
         }
         return result;
     }
 
-    private void handleProcessParties(Process process, List result) {
-        for (Party party : process.getResponderParties()) {
-            for (Identifier identifier : party.getIdentifiers()) {
-                LOG.trace("Add matching party [{}] from process [{}]", identifier.getPartyId(), process.getName());
-                result.add(identifier.getPartyId());
-            }
+    protected String getOnePartyId(Party party) {
+        // add only one id for the party, not all aliases
+        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
+        List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(partyIds)) {
+            LOG.warn("No party identifiers for party [{}]", party.getName());
+            return null;
         }
+        String partyId = partyIds.get(0).getPartyId();
+        LOG.trace("Getting party [{}] from process.", partyId);
+        return partyId;
     }
 
     @Override

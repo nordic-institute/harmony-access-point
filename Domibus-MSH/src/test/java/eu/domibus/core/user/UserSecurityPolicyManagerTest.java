@@ -292,9 +292,16 @@ public class UserSecurityPolicyManagerTest {
             result = userDao;
             userDao.findByUserName(anyString);
             result = userEntity;
+            securityPolicyManager.getUserAlertsService();
+            result = userAlertsService;
         }};
 
         securityPolicyManager.applyLockingPolicyOnUpdate(user);
+
+        new Verifications() {{
+            userAlertsService.triggerEnabledEvent(user);
+            times = 1;
+        }};
 
         assertNull(userEntity.getSuspensionDate());
         assertEquals(0, userEntity.getAttemptCount(), 0d);

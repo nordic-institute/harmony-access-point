@@ -1,19 +1,17 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -27,7 +25,6 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 @Service
 public class DatabasePayloadPersistence implements PayloadPersistence {
 
@@ -46,7 +43,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
     protected PayloadEncryptionService encryptionService;
 
     @Override
-    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage) throws IOException {
+    public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         LOG.debug("Saving incoming payload [{}] to database", partInfo.getHref());
 
         OutputStream outputStream = null;
@@ -73,10 +70,13 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             }
         }
         byte[] binaryData = byteArrayOutputStream.toByteArray();
+        final int partInfoLength = binaryData.length;
         partInfo.setBinaryData(binaryData);
-        partInfo.setLength(binaryData.length);
+        partInfo.setLength(partInfoLength);
         partInfo.setFileName(null);
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
+
+        payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);
     }
 
     @Override
@@ -91,12 +91,15 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
 
             byte[] binaryData = getOutgoingBinaryData(partInfo, is, userMessage, legConfiguration, encryptionActive);
+            int partInfoLength = binaryData.length;
             partInfo.setBinaryData(binaryData);
-            partInfo.setLength(binaryData.length);
+            partInfo.setLength(partInfoLength);
             partInfo.setFileName(null);
             partInfo.setEncrypted(encryptionActive);
 
             LOG.debug("Finished saving outgoing payload [{}] to database", partInfo.getHref());
+
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);
 
             backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
         }

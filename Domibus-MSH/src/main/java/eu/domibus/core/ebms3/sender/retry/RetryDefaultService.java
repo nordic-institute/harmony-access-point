@@ -2,30 +2,27 @@ package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.MSHRole;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.pull.MessagingLock;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 @Service
 public class RetryDefaultService implements RetryService {
@@ -34,14 +31,6 @@ public class RetryDefaultService implements RetryService {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    @Qualifier("sendMessageQueue")
-    private Queue dispatchQueue;
-
-    @Autowired
-    @Qualifier("sendLargeMessageQueue")
-    private Queue sendLargeMessageQueue;
 
     @Autowired
     UserMessageService userMessageService;
@@ -65,49 +54,55 @@ public class RetryDefaultService implements RetryService {
     UpdateRetryLoggingService updateRetryLoggingService;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
+
         for (final String messageId : messagesNotAlreadyQueued) {
-            try {
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-                final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-                if (!failIfExpired(userMessage)) {
-                    userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
-                }
-            } finally {
-                LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-            }
+            enqueueMessage(messageId);
         }
     }
 
-    protected boolean failIfExpired(UserMessage userMessage) {
-
-        final String messageId = userMessage.getMessageInfo().getMessageId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-        eu.domibus.common.model.configuration.LegConfiguration legConfiguration;
-        final String pModeKey;
-
+    /**
+     * Tries to enqueue a message to be retried. Sets the message id on the MDC context and cleans it afterwards
+     *
+     * @param messageId The message id to be enqueued for retrial
+     */
+    protected void enqueueMessage(String messageId) {
         try {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            LOG.debug("PMode key found : {}", pModeKey);
-            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
-        } catch (EbMS3Exception exc) {
-            LOG.warn("Could not find LegConfiguration for message [{}]", messageId);
-            return false;
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            doEnqueueMessage(messageId);
+        } catch (RuntimeException e) {
+            LOG.warn("Could not enqueue message [{}]", messageId, e);
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
         }
-        if (updateRetryLoggingService.isExpired(legConfiguration, userMessageLog)) {
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
 
-            if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), String.format("Message fragment [%s] has failed to be sent", messageId));
-
-            }
-            return true;
-        }
-        return false;
     }
+
+    /**
+     * Tries to enqueue a message to be retried.
+     *
+     * @param messageId The message id to be enqueued for retrial
+     */
+    protected void doEnqueueMessage(String messageId) {
+        LOG.trace("Enqueueing message for retrial [{}]", messageId);
+
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        boolean setAsExpired = false;
+        try {
+            setAsExpired = updateRetryLoggingService.failIfExpired(userMessage);
+        } catch (EbMS3Exception e) {
+            LOG.warn("Message was not enqueued: could not find LegConfiguration for message [{}]", messageId, e);
+            return;
+        }
+        if (setAsExpired) {
+            LOG.debug("Message [{}] was marked as expired", messageId);
+            return;
+        }
+        userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
+
+    }
+
 
     protected List<String> getMessagesNotAlreadyScheduled() {
         List<String> result = new ArrayList<>();

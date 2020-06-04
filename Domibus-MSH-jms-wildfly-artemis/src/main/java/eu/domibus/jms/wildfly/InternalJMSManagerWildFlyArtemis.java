@@ -1,9 +1,8 @@
 package eu.domibus.jms.wildfly;
 
 import eu.domibus.api.cluster.CommandProperty;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
@@ -21,6 +20,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
@@ -60,7 +61,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
      * The old Artemis 1.x JMS prefix.
      *
      * @see org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl#OLD_QUEUE_PREFIX
-      */
+     */
     public static final String JMS_QUEUE_PREFIX = "jms.queue.";
 
     protected Map<String, ObjectName> queueMap;
@@ -75,7 +76,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     ActiveMQServerControl activeMQServerControl;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     JMSDestinationHelper jmsDestinationHelper;
@@ -94,6 +95,16 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    /**
+     * Returns null if the string is null or empty
+     */
+    protected String createFilterFromJMSSelector(final String selectorStr) {
+        if(StringUtils.isBlank(selectorStr)){
+            return null;
+        }
+        return SelectorTranslator.convertToActiveMQFilterString(selectorStr);
+    }
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -130,8 +141,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         long result;
         try {
             result = queueControl.getMessageCount();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new InternalJMSException("Failed to get messages count on JMS destination: " + queueControl.getName(), e);
         }
         return result;
@@ -160,7 +170,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         LOG.debug("Retrieving the {} map from the server", routingType == RoutingType.ANYCAST ? "queue" : "topic");
 
         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(),
-                domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER), true);
+                domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER), true);
 
         String[] addressNames = activeMQServerControl.getAddressNames();
         LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
@@ -173,7 +183,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                 LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
 
                 queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Just log the error and continue with the next address name
                 LOG.error("Error creating object name for address [" + addressName + "]", e);
             }
@@ -257,7 +267,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             destinationJndi = getJndiName(getQueueControl(objectName).getAddress());
         }
 
-        LOG.debug("Found JNDI [{}] for queue [{}]",  destinationJndi, destName);
+        LOG.debug("Found JNDI [{}] for queue [{}]", destinationJndi, destName);
         return InitialContext.doLookup(destinationJndi);
     }
 
@@ -269,6 +279,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, String destName) {
+        sendMessage(message, destName, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, String destName, JmsOperations jmsOperations) {
         try {
             jmsOperations.send(lookupQueue(destName), new JmsMessageCreator(message));
         } catch (NamingException e) {
@@ -278,6 +293,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
@@ -295,12 +315,13 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
-    public void deleteMessages(String source, String[] messageIds) {
+    public int deleteMessages(String source, String[] messageIds) {
         QueueControl queue = getQueueControl(source);
         try {
-            queue.removeMessages(jmsSelectorUtil.getSelector(messageIds));
+            String filterFromJMSSelector = createFilterFromJMSSelector(jmsSelectorUtil.getSelector(messageIds));
+            return queue.removeMessages(filterFromJMSSelector);
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + Arrays.toString(messageIds), e);
         }
     }
 
@@ -336,36 +357,36 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             throw new InternalJMSException("Could not find destination for [" + source + "]");
         }
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
-            String destinationType = destination.getType();
-            if ("Queue".equals(destinationType)) {
-                Map<String, Object> criteria = new HashMap<>();
-                if (jmsType != null) {
-                    criteria.put("JMSType", jmsType);
-                }
-                if (fromDate != null) {
-                    criteria.put("JMSTimestamp_from", fromDate.getTime());
-                }
-                if (toDate != null) {
-                    criteria.put("JMSTimestamp_to", toDate.getTime());
-                }
-                if (selectorClause != null) {
-                    criteria.put("selectorClause", selectorClause);
-                }
-                String selector = jmsSelectorUtil.getSelector(criteria);
-                try {
-                    internalJmsMessages.addAll(getMessagesFromDestination(source, selector));
-                } catch (Exception e) {
-                    throw new InternalJMSException("Error getting messages for [" + source + "] with selector [" + selector + "]", e);
-                }
-            } else {
-                throw new InternalJMSException("Unrecognized destination type [" + destinationType + "]");
+        String destinationType = destination.getType();
+        if ("Queue".equals(destinationType)) {
+            Map<String, Object> criteria = new HashMap<>();
+            if (jmsType != null) {
+                criteria.put("JMSType", jmsType);
             }
+            if (fromDate != null) {
+                criteria.put("JMSTimestamp_from", fromDate.getTime());
+            }
+            if (toDate != null) {
+                criteria.put("JMSTimestamp_to", toDate.getTime());
+            }
+            if (selectorClause != null) {
+                criteria.put("selectorClause", selectorClause);
+            }
+            String selector = jmsSelectorUtil.getSelector(criteria);
+            try {
+                internalJmsMessages.addAll(getMessagesFromDestination(source, selector));
+            } catch (Exception e) {
+                throw new InternalJMSException("Error getting messages for [" + source + "] with selector [" + selector + "]", e);
+            }
+        } else {
+            throw new InternalJMSException("Unrecognized destination type [" + destinationType + "]");
+        }
         return internalJmsMessages;
     }
 
     private List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws NamingException {
         Queue queue = getQueue(destination);
-        return jmsOperations.browseSelected(queue, selector, new BrowserCallback<List<InternalJmsMessage>>() {
+        return jmsSender.browseSelected(queue, selector, new BrowserCallback<List<InternalJmsMessage>>() {
             @Override
             public List<InternalJmsMessage> doInJms(Session session, QueueBrowser browser) throws JMSException {
                 List<InternalJmsMessage> result = new ArrayList<>();
@@ -429,12 +450,12 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
-    public void moveMessages(String source, String destination, String[] messageIds) {
+    public int moveMessages(String source, String destination, String[] messageIds) {
         try {
             QueueControl queue = getQueueControl(source);
-            queue.moveMessages(jmsSelectorUtil.getSelector(messageIds), destination);
+            return queue.moveMessages(createFilterFromJMSSelector(jmsSelectorUtil.getSelector(messageIds)), destination);
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + Arrays.toString(messageIds), e);
         }
     }
 
@@ -450,7 +471,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                 intJmsMsg = messages.get(0);
                 // Deletes it
                 QueueControl queue = getQueueControl(source);
-                queue.removeMessages(selector);
+                int removeMessages = queue.removeMessages(selector);
+                LOG.debug("{} Jms Messages Id [{}] deleted from the source queue [{}] ", removeMessages, customMessageId, source);
             }
         } catch (Exception ex) {
             throw new InternalJMSException("Failed to consume message [" + customMessageId + "] from source [" + source + "]", ex);

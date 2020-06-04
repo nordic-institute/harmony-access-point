@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.Collections;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
 
 @Component(value = "authUtils")
 public class AuthUtilsImpl implements AuthUtils {

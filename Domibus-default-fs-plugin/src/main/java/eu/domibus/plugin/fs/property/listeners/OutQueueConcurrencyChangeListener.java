@@ -27,7 +27,7 @@ public class OutQueueConcurrencyChangeListener implements PluginPropertyChangeLi
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, OUT_QUEUE_CONCURRENCY);
+        return StringUtils.endsWithIgnoreCase(propertyName, OUT_QUEUE_CONCURRENCY);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
@@ -39,6 +40,9 @@ public class PluginUserResourceTest {
 
     @Injectable
     ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    UserDomainService userDomainService;
 
     @Test
     public void findUsersTest() {

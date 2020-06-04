@@ -17,7 +17,6 @@
         <module>Domibus-MSH-jms-spi</module>
         <module>Domibus-MSH-jms-spi-helper</module>
         <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-MSH-docker</module>
         <module>Domibus-plugin-api</module>
         <module>Domibus-MSH-fiware</module>
         <module>Domibus-MSH-test</module>
@@ -120,7 +119,14 @@
         <log4j.version>1.2.17</log4j.version>
         <atomikos.version>4.0.6</atomikos.version>
         <org.reflections.version>0.9.11</org.reflections.version>
+        <messaging.saaj.version>1.4.0</messaging.saaj.version>
+        <jaxws-api.version>2.2</jaxws-api.version>
+        <javax.annotation.version>1.3.1</javax.annotation.version>
         <netty.version>4.1.46.Final</netty.version>
+
+        <jdk.version>8</jdk.version>
+        <maven.compiler.source>${jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${jdk.version}</maven.compiler.target>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -436,6 +442,21 @@
                 <artifactId>javaee-api</artifactId>
                 <version>${javaee-api.version}</version>
             </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax.annotation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.ws</groupId>
+                <artifactId>jaxws-api</artifactId>
+                <version>${jaxws-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
 
             <!-- ActiveMQ -->
             <dependency>
@@ -545,6 +566,16 @@
 
             <!-- JAXB -->
             <dependency>
+                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <artifactId>saaj-impl</artifactId>
+                <version>${messaging.saaj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
                 <version>${jaxb.version}</version>
@@ -587,11 +618,6 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${findbugs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
             </dependency>
 
             <!-- XStream -->
@@ -855,12 +881,12 @@
                                     <artifactItem>
                                         <groupId>javax.xml.bind</groupId>
                                         <artifactId>jaxb-api</artifactId>
-                                        <version>2.2</version>
+                                        <version>${jaxb.version}</version>
                                     </artifactItem>
                                     <artifactItem>
                                         <groupId>javax.xml.ws</groupId>
                                         <artifactId>jaxws-api</artifactId>
-                                        <version>2.2</version>
+                                        <version>${jaxws-api.version}</version>
                                     </artifactItem>
                                 </artifactItems>
                                 <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
@@ -874,8 +900,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>

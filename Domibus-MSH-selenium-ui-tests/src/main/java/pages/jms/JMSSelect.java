@@ -18,6 +18,17 @@ public class JMSSelect extends Select {
 		super(driver, container);
 	}
 
+	@Override
+	public String getSelectedValue() throws Exception {
+		int waited = 0;
+		while (super.getSelectedValue().equalsIgnoreCase("Source") && waited < 20){
+			wait.forXMillis(500);
+			waited++;
+		}
+
+		return super.getSelectedValue();
+	}
+
 	public int selectQueueWithMessages() throws Exception{
 		String qName = getQueueNameWithMessages("");
 		if(StringUtils.isEmpty(qName)){

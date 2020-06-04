@@ -53,7 +53,7 @@
         <payloadProfiles>
             <payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml"/>
             <payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf"/>
-            <payloadProfile name="MessageProfile" maxSize="40894464">
+            <payloadProfile name="MessageProfile" maxSize="2147483647">
                 <attachment name="businessContentPayload"/>
                 <attachment name="businessContentAttachment"/>
             </payloadProfile>

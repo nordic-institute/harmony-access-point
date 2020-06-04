@@ -52,18 +52,10 @@
         <!-- End Domibus modules -->
 
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.glassfish.main.javaee-api</groupId>
             <artifactId>javax.jws</artifactId>
             <version>3.1.2.2</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -173,6 +165,15 @@
                             </includes>
                         </resource>
                     </webResources>
+                    <archive>
+                        <!--
+                        We need the jdk.unsupported dependency for OpenJdk11 support. Without it, the Objenesis library
+                        fails to instantiate objects in the jdk.internal.reflect package.
+                        -->
+                        <manifestEntries>
+                            <Dependencies>jdk.unsupported</Dependencies>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>

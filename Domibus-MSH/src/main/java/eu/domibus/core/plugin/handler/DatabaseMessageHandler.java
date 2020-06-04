@@ -11,12 +11,10 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
@@ -25,12 +23,18 @@ import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.payload.PayloadProfileValidator;
+import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.MessageInfo;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -50,7 +54,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -163,13 +166,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
             // Sets the log status to deleted also for the signal messages (if present).
-
-            SignalMessage signalMessage = messaging.getSignalMessage();
-            if (signalMessage != null) {
-                String signalMessageId = signalMessage.getMessageInfo().getMessageId();
-                userMessageLogService.setSignalMessageAsDeleted(signalMessageId);
-                LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
-            }
+            userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
         } else {
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
@@ -441,6 +438,14 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
+            } catch (InvalidPayloadSizeException e) {
+                if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
+                    messagingDao.clearFileSystemPayloads(userMessage);
+                }
+                LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
+                ex.setMshRole(MSHRole.SENDING);
+                throw ex;
             }
 
             if (messageStatus == null) {
@@ -524,4 +529,5 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         return party;
     }
+
 }

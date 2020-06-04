@@ -1,6 +1,6 @@
 import {AlertService} from '../alert/alert.service';
 import {DownloadService} from '../download.service';
-import {OnInit, ViewChild} from '@angular/core';
+import {OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
@@ -24,9 +24,6 @@ export function ConstructableDecorator(constructor: Constructable) {
 
 @ConstructableDecorator
 export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
-  // his place is not here but in FilterableList. Added here because @ViewChild cannot be added to the right place
-  @ViewChild('filterForm', {static: false}) protected filterForm: NgForm;
-
   public rows: T[];
   public selected: T[];
   public count: number;
@@ -43,7 +40,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
     this.selected = [];
     this.count = 0;
     this.isLoading = false;
-    const z = this.applicationService;
   }
 
   public get name(): string {

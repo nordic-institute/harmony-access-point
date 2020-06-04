@@ -33,12 +33,11 @@ public class BusinessProcessValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses()
-                .forEach(process -> performValidations(issues, process));
-
+                .forEach(process -> performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes()));
         return issues;
     }
 
-    private void performValidations(List<ValidationIssue> issues, Process process) {
+    protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         //agreement
         if (process.getAgreement() == null) {
             String name = pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
@@ -73,20 +72,43 @@ public class BusinessProcessValidator implements PModeValidator {
         }
 
         //initiator Parties
+        validateInitiatorParties(issues, process, partyIdTypes);
+
+        //responder Parties
+        Set<Party> validResponderParties = validateResponderParties(issues, process, partyIdTypes);
+
+        //leg configuration
+        validateLegConfiguration(issues, process, validResponderParties);
+    }
+
+    protected void validateInitiatorParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         Set<Party> validInitiatorParties = process.getInitiatorParties();
         InitiatorParties initiatorPartiesXml = process.getInitiatorPartiesXml();
         if (initiatorPartiesXml != null) {
             List<InitiatorParty> allInitiatorParties = initiatorPartiesXml.getInitiatorParty();
             if (!CollectionUtils.isEmpty(allInitiatorParties) && allInitiatorParties.size() != validInitiatorParties.size()) {
                 allInitiatorParties.stream()
-                        .filter(el -> validInitiatorParties.stream().noneMatch(el2 -> el2.getName().equals(el.getName())))
-                        .forEach(party -> {
-                            createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties");
-                        });
+                        .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> StringUtils.equals(validInitiatorParty.getName(), initiatorParty.getName())))
+                        .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
             }
+            validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
         }
+    }
 
-        //responder Parties
+    protected void validateInitiatorPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validInitiatorParties) {
+        if (CollectionUtils.isEmpty(validInitiatorParties)) {
+            return;
+        }
+        validInitiatorParties.forEach(party -> {
+            party.getIdentifiers().forEach(identifier -> {
+                if (!partyIdTypes.contains(identifier.getPartyIdType())) {
+                    createIssue(issues, process, party.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                }
+            });
+        });
+    }
+
+    protected Set<Party> validateResponderParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         Set<Party> validResponderParties = process.getResponderParties();
         ResponderParties responderPartiesXml = process.getResponderPartiesXml();
         if (responderPartiesXml != null) {
@@ -94,13 +116,27 @@ public class BusinessProcessValidator implements PModeValidator {
             if (!CollectionUtils.isEmpty(allResponderParties) && allResponderParties.size() != validResponderParties.size()) {
                 allResponderParties.stream()
                         .filter(el -> validResponderParties.stream().noneMatch(el2 -> el2.getName().equals(el.getName())))
-                        .forEach(party -> {
-                            createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties");
-                        });
+                        .forEach(party -> createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties"));
             }
+            validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
         }
+        return validResponderParties;
+    }
 
-        //leg configuration
+    protected void validateResponderPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validResponderParties) {
+        if (CollectionUtils.isEmpty(validResponderParties)) {
+            return;
+        }
+        validResponderParties.forEach(party -> {
+            party.getIdentifiers().forEach(identifier -> {
+                if (!partyIdTypes.contains(identifier.getPartyIdType())) {
+                    createIssue(issues, process, party.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                }
+            });
+        });
+    }
+
+    protected void validateLegConfiguration(List<ValidationIssue> issues, Process process, Set<Party> validResponderParties) {
         Set<LegConfiguration> validLegs = process.getLegs();
         Legs legsXml = pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
         if (legsXml != null) {
@@ -108,14 +144,12 @@ public class BusinessProcessValidator implements PModeValidator {
             if (!CollectionUtils.isEmpty(allLegs) && allLegs.size() != validResponderParties.size()) {
                 allLegs.stream()
                         .filter(el -> validLegs.stream().noneMatch(el2 -> el2.getName().equals(el.getName())))
-                        .forEach(party -> {
-                            createIssue(issues, process, party.getName(), "Leg [%s] of process [%s] not found in business process leg configurations");
-                        });
+                        .forEach(party -> createIssue(issues, process, party.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
             }
         }
     }
 
-    private void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
+    protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
     }
 

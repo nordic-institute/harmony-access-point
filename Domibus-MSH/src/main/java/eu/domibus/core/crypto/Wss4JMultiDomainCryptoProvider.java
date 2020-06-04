@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.0
  */
-@Transactional(propagation = Propagation.SUPPORTS)
 public class Wss4JMultiDomainCryptoProvider extends CryptoBase {
 
     @Autowired

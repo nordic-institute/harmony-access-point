@@ -47,8 +47,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY;
-
 /**
  * @author Christian Koch, Stefan Mueller
  */
@@ -83,13 +81,11 @@ public class ReliabilityChecker {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration) throws EbMS3Exception {
         return check(request, response, responseResult, legConfiguration, pushMatcher);
     }
 
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final LegConfiguration legConfiguration, final ReliabilityMatcher matcher) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
     }
@@ -129,7 +125,7 @@ public class ReliabilityChecker {
                         return CheckResult.OK;
                     }
 
-                    final Iterator<Element> elementIterator = response.getSOAPHeader().getChildElements(new QName(WSConstants.WSSE_NS, WSConstants.WSSE_LN));
+                    final Iterator elementIterator = response.getSOAPHeader().getChildElements(new QName(WSConstants.WSSE_NS, WSConstants.WSSE_LN));
 
                     if (!elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
@@ -138,7 +134,7 @@ public class ReliabilityChecker {
                         ex.setSignalMessageId(messageId);
                         throw ex;
                     }
-                    final Element securityHeaderResponse = elementIterator.next();
+                    final Element securityHeaderResponse = (Element) elementIterator.next();
 
                     if (elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MULTIPLE_SECURITY_HEADERS, messageId);

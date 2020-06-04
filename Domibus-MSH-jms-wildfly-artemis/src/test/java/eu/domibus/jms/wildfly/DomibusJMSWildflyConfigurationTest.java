@@ -1,6 +1,6 @@
 package eu.domibus.jms.wildfly;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -46,7 +46,7 @@ public class DomibusJMSWildflyConfigurationTest {
         String objectName = String.format(MQ_BROKER_NAME, artemisBroker);
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.ACTIVE_MQ_ARTEMIS_BROKER);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER);
             this.result = artemisBroker;
         }};
 

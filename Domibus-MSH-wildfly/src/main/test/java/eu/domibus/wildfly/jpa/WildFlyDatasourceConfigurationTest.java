@@ -1,6 +1,5 @@
 package eu.domibus.wildfly.jpa;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -22,7 +21,7 @@ public class WildFlyDatasourceConfigurationTest {
         String jndiName = "jndi/datasource";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
             this.result = jndiName;
         }};
 
@@ -40,7 +39,7 @@ public class WildFlyDatasourceConfigurationTest {
         String jndiName = "jndi/datasource";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
             this.result = jndiName;
         }};
 

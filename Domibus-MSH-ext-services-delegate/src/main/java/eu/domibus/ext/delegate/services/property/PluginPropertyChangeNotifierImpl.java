@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
     @Autowired(required = false)
     protected List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
@@ -35,11 +35,13 @@ public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNot
         List<PluginPropertyChangeListener> listeners = pluginPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
+        LOG.debug("[{}] property change listeners found for [{}] property", listeners.size(), propertyName);
         listeners.forEach(listener -> {
             try {
+                LOG.trace("Notifying [{}] listener", listener.getClass());
                 listener.propertyValueChanged(domainCode, propertyName, propertyValue);
             } catch (Exception ex) {
-                LOGGER.error("An error occurred on setting property [{}]", propertyName, ex);
+                LOG.error("An error occurred on setting property [{}]", propertyName, ex);
             }
         });
 

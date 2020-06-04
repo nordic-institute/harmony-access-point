@@ -8,7 +8,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION;
 
 /**
  * @author Cosmin Baciu

@@ -73,7 +73,7 @@ public class UsersPgUXTest extends BaseTest {
         soft.assertEquals(um.getRoleSelect().getSelectedValue(), DRoles.USER, "Roles match");
 
         if (data.isIsMultiDomain()) {
-            soft.assertEquals(um.getDomainSelect().getSelectedValue(), "Default", "Domain matches selected domain in page header");
+            soft.assertTrue(StringUtils.equalsIgnoreCase(um.getDomainSelect().getSelectedValue(), "Default"), "Domain matches selected domain in page header");
         }
         soft.assertAll();
     }

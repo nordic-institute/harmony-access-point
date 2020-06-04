@@ -1,5 +1,7 @@
 package eu.domibus.jms.spi;
 
+import org.springframework.jms.core.JmsOperations;
+
 import javax.jms.Destination;
 import javax.jms.Topic;
 import java.util.Date;
@@ -7,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * // TODO Documentation
+ * Handle JMS operation for a specific implementation (Weblogic, WildFly and Tomcat)
  *
  * @author Cosmin Baciu
  * @since 3.2
@@ -27,13 +29,17 @@ public interface InternalJMSManager {
 
     void sendMessage(InternalJmsMessage message, Destination destination);
 
+    void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations);
+
+    void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations);
+
     void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination);
 
     void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination, boolean excludeOrigin);
 
-    void deleteMessages(String source, String[] messageIds);
+    int deleteMessages(String source, String[] messageIds);
 
-    void moveMessages(String source, String destination, String[] messageIds);
+    int moveMessages(String source, String destination, String[] messageIds);
 
     InternalJmsMessage getMessage(String source, String messageId);
 

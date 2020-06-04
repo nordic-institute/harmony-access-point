@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.ConfigurationPropertyService;
+import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;
@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +36,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResource.class);
 
     @Autowired
-    private ConfigurationPropertyService configurationPropertyService;
+    private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
@@ -48,12 +47,11 @@ public class ConfigurationPropertyResource extends BaseResource {
     @Autowired
     protected DomainCoreConverter domainCoreConverter;
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @GetMapping
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
 
-        List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isShowDomain());
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(), request.isShowDomain());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -67,7 +65,6 @@ public class ConfigurationPropertyResource extends BaseResource {
         return response;
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     @PutMapping(path = "/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
@@ -75,7 +72,7 @@ public class ConfigurationPropertyResource extends BaseResource {
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);
 
-        configurationPropertyService.setPropertyValue(propertyName, isDomain, propertyValue);
+        configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
     }
 
     /**
@@ -86,7 +83,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
-        List<DomibusProperty> items = configurationPropertyService.getAllWritableProperties(request.getName(), request.isShowDomain());
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(), request.isShowDomain());
         getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);

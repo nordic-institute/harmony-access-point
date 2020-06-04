@@ -3,20 +3,20 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,8 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
@@ -33,7 +31,8 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
-import static eu.domibus.core.alerts.model.common.AuthenticationEvent.LOGIN_TIME;
+import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
+import static eu.domibus.core.alerts.model.common.AccountEventKey.LOGIN_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
 
 /**
@@ -41,7 +40,6 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
@@ -51,6 +49,8 @@ public class EventServiceImpl implements EventService {
     static final String LOGIN_FAILURE = "loginFailure";
 
     static final String ACCOUNT_DISABLED = "accountDisabled";
+
+    static final String ACCOUNT_ENABLED = "accountEnabled";
 
     static final String CERTIFICATE_EXPIRED = "certificateExpired";
 
@@ -115,7 +115,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
-        enqueueLoginFailure(userName, userType.getName(), loginTime, accountDisabled, eventType, LOGIN_FAILURE);
+        enqueueEvent(LOGIN_FAILURE, prepareAccountEvent(
+                eventType, userName,
+                userType.getName(),
+                loginTime,
+                Boolean.toString(accountDisabled),
+                AccountEventKey.ACCOUNT_DISABLED));
     }
 
     /**
@@ -124,11 +129,26 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
-        enqueueLoginFailure(userName, userType.getName(), accountDisabledTime, true, eventType, ACCOUNT_DISABLED);
+        enqueueEvent(ACCOUNT_DISABLED, prepareAccountEvent(
+                eventType, userName,
+                userType.getName(),
+                accountDisabledTime,
+                Boolean.toString(true),
+                AccountEventKey.ACCOUNT_DISABLED));
     }
 
-    private void enqueueLoginFailure(String userName, String userType, Date loginTime, boolean accountDisabled, EventType eventType, String selector) {
-        Event event = prepareAuthenticatorEvent(userName, userType, loginTime, Boolean.toString(accountDisabled), eventType);
+    @Override
+    public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
+        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
+        enqueueEvent(ACCOUNT_ENABLED, prepareAccountEvent(
+                eventType, userName,
+                userType.getName(),
+                accountEnabledTime,
+                Boolean.toString(true),
+                AccountEventKey.ACCOUNT_ENABLED));
+    }
+
+    private void enqueueEvent(String selector, Event event) {
         jmsManager.convertAndSendToQueue(event, alertMessageQueue, selector);
         LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
     }
@@ -139,9 +159,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_IMMINENT_EXPIRATION;
-        final Event event = prepareCertificateEvent(accessPoint, alias, expirationDate, eventType);
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, CERTIFICATE_IMMINENT_EXPIRATION);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+        enqueueEvent(CERTIFICATE_IMMINENT_EXPIRATION, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -150,9 +168,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_EXPIRED;
-        final Event event = prepareCertificateEvent(accessPoint, alias, expirationDate, eventType);
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, CERTIFICATE_EXPIRED);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+        enqueueEvent(CERTIFICATE_EXPIRED, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -207,7 +223,7 @@ public class EventServiceImpl implements EventService {
             }
 
             final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
-            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty);
+            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty.getName());
             event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
             event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
         } catch (EbMS3Exception e) {
@@ -223,12 +239,18 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    private Event prepareAuthenticatorEvent(final String userName, final String userType, final Date loginTime, final String accountDisabled, final EventType eventType) {
+    private Event prepareAccountEvent(
+            final EventType eventType,
+            final String userName,
+            final String userType,
+            final Date loginTime,
+            final String value,
+            final AccountEventKey key) {
         Event event = new Event(eventType);
-        event.addStringKeyValue(AuthenticationEvent.USER.name(), userName);
-        event.addStringKeyValue(AuthenticationEvent.USER_TYPE.name(), userType);
+        event.addAccountKeyValue(USER, userName);
+        event.addAccountKeyValue(USER_TYPE, userType);
         event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
-        event.addStringKeyValue(AuthenticationEvent.ACCOUNT_DISABLED.name(), accountDisabled);
+        event.addAccountKeyValue(key, value);
         return event;
     }
 

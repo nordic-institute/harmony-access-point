@@ -299,7 +299,7 @@ public class MessagesPgTest extends BaseTest {
 	}
 
 	/* Domain admin logs in and views messages */
-	@Test(description = "MSG-13", groups = {"multiTenancy"})
+	@Test(description = "MSG-13", groups = {"multiTenancy"}, enabled = false)
 	public void messagesSegregatedByDomain() throws Exception{
 		SoftAssert soft = new SoftAssert();
 
@@ -329,6 +329,7 @@ public class MessagesPgTest extends BaseTest {
 		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in as created admin");
 		MessagesPage page = new MessagesPage(driver);
+		page.grid().waitForRowsToLoad();
 
 		log.info("checking if new messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Domain admin sees the domain message (1)");
@@ -339,12 +340,14 @@ public class MessagesPgTest extends BaseTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in as super admin");
 
+		page.grid().waitForRowsToLoad();
 		log.info("checking on default domain if messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)<0, "Super admin does NOT see the domain message while on the default domain (3)" );
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault)>=0, "Super admin sees the default domain message when on default domain (4)");
 
 		log.info("switching to domain " +domainName);
 		page.getDomainSelector().selectOptionByText(domainName);
+		page.grid().waitForRowsToLoad();
 
 		log.info("checking if messages are visible");
 		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain)>=0, "Super admin sees the domain message while on the proper domain (5)" );
@@ -368,10 +371,13 @@ public class MessagesPgTest extends BaseTest {
 		String messageIDDomain =  getMessageIDs(domain, 1, false).get(0);
 		String messageIDDefault =  getMessageIDs(null, 1, false).get(0);
 
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-		log.info("logged in");
-
 		MessagesPage page = new MessagesPage(driver);
+
+		String defaultDomainName = page.getDomainSelector().getSelectedValue();
+
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
+
 		page.grid().scrollToAndSelect("Message Id", messageIDDefault);
 		log.info("selected message from default domain");
 
@@ -386,7 +392,7 @@ public class MessagesPgTest extends BaseTest {
 		page.grid().scrollToAndSelect("Message Id", messageIDDomain);
 		log.info("selected message from new domain");
 
-		page.getDomainSelector().selectOptionByText("Default");
+		page.getDomainSelector().selectOptionByText(defaultDomainName);
 		log.info("switch domain to default");
 
 		log.info("check Download and Resend buttons status");

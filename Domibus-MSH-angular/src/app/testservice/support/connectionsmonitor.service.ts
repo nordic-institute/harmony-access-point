@@ -37,11 +37,15 @@ export class ConnectionsMonitorService {
     let monitors = await this.getMonitorsForParties(parties);
     console.log('monitors ', monitors);
 
-    return allParties.map(p => {
-      let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers[0].partyId;
-      Object.assign(m, monitors[m.partyId]);
-      return m;
+    return allParties.map(party => {
+      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+      let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+      cmEntry.partyId = allIdentifiers[0].partyId;
+      cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
+
+      let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
+      Object.assign(cmEntry, monitors[monitorKey]);
+      return cmEntry;
     });
   }
 
@@ -68,8 +72,9 @@ export class ConnectionsMonitorService {
     if (!sender) {
       try {
         sender = await this.getSenderParty();
-      } catch (e) {
-        this.alertService.exception('Error while getting sender party:', e);
+      } catch (ex) {
+        this.alertService.exception('Error getting the sender party:', ex);
+        return;
       }
     }
     const payload = {sender: sender, receiver: receiverPartyId};
@@ -97,6 +102,7 @@ export class ConnectionsMonitorService {
 
 export class ConnectionMonitorEntry {
   partyId: string;
+  partyName?: string;
   testable: boolean;
   monitored: boolean;
   status: string;

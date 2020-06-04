@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -53,7 +53,6 @@ public class SuperCronExpressionChangeListener implements DomibusPropertyChangeL
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String[] jobNames = propertyToJobMap.get(propertyName);
         if (jobNames == null) {

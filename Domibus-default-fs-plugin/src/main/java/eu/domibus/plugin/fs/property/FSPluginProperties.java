@@ -13,7 +13,7 @@ import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -51,13 +51,14 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
-    protected ApplicationContext applicationContext;
-
-    @Autowired
     protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
 
     @Autowired
     protected DomainContextExtService domainContextProvider;
+
+    @Autowired
+    @Lazy
+    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     private List<String> domains;
 
@@ -363,6 +364,9 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     }
 
     private String getDomainPropertyName(String domain, String propertyName) {
+        if (domain == null) {
+            return propertyName;
+        }
         String basePropertyName = getBasePropertyName(propertyName);
         return DOMAIN_PREFIX + domain + DOT + basePropertyName;
     }
@@ -375,11 +379,11 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     private String getBasePropertyName(String propName) {
         String baseName = propName;
         if (baseName.startsWith(DOMAIN_PREFIX)) { // fsplugin.domains.x.baseName
-            LOG.debug("Processing a domain property name [{}]", baseName);
+            LOG.trace("Processing a domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, DOMAIN_PREFIX);
             baseName = StringUtils.substringAfter(baseName, DOT); // remove the domain name
         } else if (baseName.startsWith(PROPERTY_PREFIX)) { // fsplugin.baseName
-            LOG.debug("Processing a non-domain property name [{}]", baseName);
+            LOG.trace("Processing a non-domain property name [{}]", baseName);
             baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
         }
         return baseName;
@@ -387,7 +391,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        if(knownProperties == null) {
+        if (knownProperties == null) {
             knownProperties = new HashMap<>();
 
             Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
@@ -420,7 +424,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         return this.getKnownProperties().containsKey(name);
     }
 
-    protected String getKnownPropertyValue(String domainCode, String propertyName) {
+    public String getKnownPropertyValue(String domainCode, String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
@@ -453,6 +457,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+        LOG.debug("Updating value of property [{}] on domain [{}]", propertyName, domainCode);
         if (!hasKnownProperty(propertyName)) {
             throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
         }
@@ -463,13 +468,11 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
         }
         this.properties.setProperty(propertyKey, propertyValue);
 
-        String baseName = getBasePropertyName(propertyName);
-
-        PluginPropertyChangeNotifier propertyChangeNotifier = applicationContext.getBean(PluginPropertyChangeNotifier.class);
-        propertyChangeNotifier.signalPropertyValueChanged(domainCode, baseName, propertyValue, broadcast);
+        LOG.debug("Signaling property value changed for [{}] property, broadcast: [{}]", propertyName, broadcast);
+        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
     }
 
-    protected void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
+    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
         setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
     }
 
@@ -477,7 +480,7 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
         DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
-        setKnownPropertyValue(domainCode, propertyName,propertyValue);
+        setKnownPropertyValue(domainCode, propertyName, propertyValue);
     }
 
 }

@@ -8,10 +8,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,14 +22,22 @@ import java.util.*;
  * @author Tiago Miguel
  * @since 3.3
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class JmsResourceTest {
 
+    public static final List<String> MESSAGES_IDS = Arrays.asList("message1", "message2");
+    public static final String DOMIBUS_QUEUE_1 = "domibus.queue1";
+    public static final String SOURCE_1 = "source1";
+
+    @Mocked
+    private MessagesActionRequestRO messagesActionRequestRO;
+
     @Tested
-    JmsResource jmsResource;
+    private JmsResource jmsResource;
 
     @Injectable
-    JMSManager jmsManager;
+    private JMSManager jmsManager;
 
     @Injectable
     private AuditService auditService;
@@ -45,15 +50,11 @@ public class JmsResourceTest {
 
     @Test
     public void testDestinations() {
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
         // Given
-        final SortedMap<String, JMSDestination> resultMap = new TreeMap<>();
-        //TODO Use Mocking instead of real Instances
-        JMSDestination destination1 = new JMSDestination();
-        destination1.setName("destination1");
-        resultMap.put("test1", destination1);
         new Expectations() {{
             jmsManager.getDestinations();
-            result = resultMap;
+            result = dests;
         }};
 
         // When
@@ -61,27 +62,28 @@ public class JmsResourceTest {
 
         // Then
         Assert.assertNotNull(destinations);
-        Assert.assertEquals(1, destinations.getJmsDestinations().size());
-        JMSDestination jmsDestinationTest1 = destinations.getJmsDestinations().get("test1");
-        Assert.assertEquals("destination1", jmsDestinationTest1.getName());
+        Assert.assertEquals(dests, destinations.getJmsDestinations());
+
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testMessages() {
+    public void testMessages(final @Mocked JmsFilterRequestRO requestRO) {
         // Given
-        JmsFilterRequestRO requestRO = new JmsFilterRequestRO();
-
         final List<JmsMessage> jmsMessageList = new ArrayList<>();
-        //TODO Use Mocking instead of real Instances
-        JmsMessage jmsMessage = new JmsMessage();
-        jmsMessage.setId("jmsMessageId");
-        jmsMessage.setType("type1");
-        jmsMessage.setContent("content1");
-        jmsMessage.setProperty("prop1", "value1");
-        jmsMessage.setTimestamp(new Date());
-        jmsMessageList.add(jmsMessage);
 
         new Expectations() {{
+            requestRO.getSource();
+            times = 1;
+            requestRO.getJmsType();
+            times = 1;
+            requestRO.getFromDate();
+            times = 1;
+            requestRO.getToDate();
+            times = 1;
+            requestRO.getSelector();
+            times = 1;
             jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
             result = jmsMessageList;
         }};
@@ -92,81 +94,205 @@ public class JmsResourceTest {
         // Then
         Assert.assertNotNull(messages);
         Assert.assertEquals(jmsMessageList, messages.getMessages());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testActionMoveNoValidParam() {
-        // Given
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        //TODO Use Mocking instead of real Instances
-        dests.put("domibus.queue1", new JMSDestination());
-        new Expectations() {{
-            jmsManager.getDestinations();
-            result = dests;
-        }};
-
-        List<String> selectedMessages = new ArrayList<>();
-        selectedMessages.add("message1");
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setAction(MessagesActionRequestRO.Action.MOVE);
-        request.setSource("source1");
-        request.setDestination("domibus.queue2");
-        request.setSelectedMessages(selectedMessages);
-
-        // When
-        MessagesActionResponseRO responseEntity = jmsResource.action(request);
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testActionMove() {
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        //TODO Use Mocking instead of real Instances
-        dests.put("domibus.queue1", new JMSDestination() {{
-            setName("domibus.queue1");
-        }});
+    public void testAction_BlankIds() {
+        // Given
         new Expectations() {{
-            jmsManager.getDestinations();
-            result = dests;
+            messagesActionRequestRO.getSelectedMessages();
+            result = Arrays.asList("", "");
+            times = 1;
         }};
-        testAction(MessagesActionRequestRO.Action.MOVE);
+
+        // When
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testActionRemove() {
-        testAction(MessagesActionRequestRO.Action.REMOVE);
-    }
-
-    private void testAction(MessagesActionRequestRO.Action action) {
+    public void testAction_nullIds() {
         // Given
-        List<String> selectedMessages = new ArrayList<>();
-        selectedMessages.add("message1");
-        //TODO Use Mocking instead of real Instances
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setAction(action);
-        request.setSource("source1");
-        request.setDestination("domibus.queue1");
-        request.setSelectedMessages(selectedMessages);
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = Arrays.asList(null, null);
+            times = 1;
+        }};
 
         // When
-        MessagesActionResponseRO responseEntity = jmsResource.action(request);
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testAction_noId() {
+        // Given
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = new ArrayList<>();
+            times = 1;
+        }};
+
+        // When
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testActionMove_ok(final @Mocked SortedMap<String, JMSDestination> dests,
+                                  final @Mocked JMSDestination queue1,
+                                  final @Mocked JMSDestination queue2) {
+        // Given
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = MESSAGES_IDS;
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.MOVE;
+
+            messagesActionRequestRO.getDestination();
+            result = DOMIBUS_QUEUE_1;
+
+            messagesActionRequestRO.getSource();
+            result = SOURCE_1;
+
+            jmsManager.getDestinations();
+            result = dests;
+
+            dests.values();
+            result = Arrays.asList(queue2, queue1);
+
+            queue1.getName();
+            result = DOMIBUS_QUEUE_1;
+
+            queue2.getName();
+            result = "domibus.queue2";
+        }};
+        // When
+        MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
 
         // Then
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals("Success", responseEntity.getOutcome());
+
+        new FullVerifications() {{
+            jmsManager.moveMessages(SOURCE_1, DOMIBUS_QUEUE_1, MESSAGES_IDS.toArray(new String[0]));
+            times = 1;
+        }};
     }
 
-    @Test(expected = InternalJMSException.class)
-    public void testActionException(@Mocked MessagesActionRequestRO request) {
+    @Test
+    public void testActionMove_wrongQueue(final @Mocked SortedMap<String, JMSDestination> dests,
+                                          final @Mocked JMSDestination queue2) {
         // Given
-        new Expectations(jmsResource) {{
-            request.getAction();
-            result =  MessagesActionRequestRO.Action.REMOVE;
-            jmsManager.deleteMessages(request.getSource(), (String[])any);
-            result = new InternalJMSException();
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = MESSAGES_IDS;
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.MOVE;
+
+            messagesActionRequestRO.getDestination();
+            result = DOMIBUS_QUEUE_1;
+
+            dests.values();
+            result = Collections.singletonList(queue2);
+
+            queue2.getName();
+            result = "domibus.queue2.not.found";
+
+            jmsManager.getDestinations();
+            result = dests;
+        }};
+
+        //When
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
+        //Then
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testActionRemove() {
+        // Given
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = MESSAGES_IDS;
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.REMOVE;
+
+            messagesActionRequestRO.getSource();
+            result = "source1";
         }};
 
         // When
-        MessagesActionResponseRO responseEntity = jmsResource.action(request);
+        MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
+
+        // Then
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals("Success", responseEntity.getOutcome());
+
+        new FullVerifications() {{
+            jmsManager.deleteMessages(anyString, (String[]) any);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testActionRemove_InternalJMSException() {
+        // Given
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = Arrays.asList("message1", "message2");
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.REMOVE;
+
+            messagesActionRequestRO.getSource();
+            result = "source1";
+
+            jmsManager.deleteMessages(anyString, (String[]) any);
+            times = 1;
+            result = new InternalJMSException();
+        }};
+        // When
+        try {
+            jmsResource.action(messagesActionRequestRO);
+        } catch (InternalJMSException e) {
+            //Do nothing
+        }
+        // Then
+        new FullVerifications() {
+        };
     }
 
     @Test

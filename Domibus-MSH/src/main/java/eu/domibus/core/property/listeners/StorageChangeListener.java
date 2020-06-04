@@ -7,10 +7,9 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
 
 /**
  * @author Ion Perpegel

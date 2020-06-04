@@ -28,7 +28,7 @@
               <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id" name="partyId">
             </mat-form-field>
 
-            <filter-area-footer [parent]="this" [isAdvancedVisible]="false"></filter-area-footer>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>

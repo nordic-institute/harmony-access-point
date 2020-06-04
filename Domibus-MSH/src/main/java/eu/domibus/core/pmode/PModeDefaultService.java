@@ -12,9 +12,12 @@ import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +27,8 @@ import java.util.List;
  */
 @Service
 public class PModeDefaultService implements PModeService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeDefaultService.class);
 
     @Autowired
     MessagingDao messagingDao;
@@ -61,15 +66,16 @@ public class PModeDefaultService implements PModeService {
         return pModeProvider.getCurrentPmode();
     }
 
+    @Transactional
     @Override
     public List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
+            LOG.warn("Xml processing issue while trying to upload pmode with description [{}]", description, e);
             throw pModeValidationHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
     }
-
 
     protected LegConfiguration convert(eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) {
         if (legConfigurationEntity == null) {

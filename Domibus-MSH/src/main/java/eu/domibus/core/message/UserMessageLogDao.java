@@ -89,7 +89,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public MessageStatus getMessageStatus(String messageId) {
         try {

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -35,6 +37,7 @@ public class MessageListener {
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'message'")
+    @Transactional
     public void onMessageEvent(final Event event,@Header(name = "DOMAIN") String domain) {
         LOG.debug("Message event received:[{}]", event);
         domainContextProvider.setCurrentDomain(domain);

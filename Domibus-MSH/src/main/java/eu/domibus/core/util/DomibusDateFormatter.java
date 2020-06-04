@@ -15,7 +15,6 @@ import java.util.Date;
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusDateFormatter {
 
     @Autowired

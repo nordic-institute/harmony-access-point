@@ -6,12 +6,12 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.converters.UserConverter;
-import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
@@ -80,8 +80,10 @@ public class UserManagementServiceImpl implements UserService {
         List<User> userEntities = userDao.listUsers();
         List<eu.domibus.api.user.User> users = userConverter.convert(userEntities);
 
-        String domainCode = domainContextProvider.getCurrentDomainSafely().getCode();
-        users.forEach(u -> u.setDomain(domainCode));
+        users.forEach(u -> {
+            String domainCode = userDomainService.getDomainForUser(u.getUserName());
+            u.setDomain(domainCode);
+        });
 
         return users;
     }
@@ -139,7 +141,6 @@ public class UserManagementServiceImpl implements UserService {
     /**
      * {@inheritDoc}
      */
-    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     @Override
     public void validateExpiredPassword(final String userName) {
         UserEntityBase user = getUserWithName(userName);

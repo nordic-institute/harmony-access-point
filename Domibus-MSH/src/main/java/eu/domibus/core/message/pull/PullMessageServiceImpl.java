@@ -33,8 +33,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_DYNAMIC_INITIATOR;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MULTIPLE_LEGS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 
 @Service
 public class PullMessageServiceImpl implements PullMessageService {

@@ -5,10 +5,8 @@ import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_MSH_MESSAGEID_SUFFIX;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_MESSAGEID_SUFFIX;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -23,7 +21,6 @@ public class MessageIdGenerator {
     @Autowired
     protected NoArgGenerator uuidGenerator;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public String generateMessageId() {
         String messageIdSuffix = domibusPropertyProvider.getProperty(MESSAGE_ID_SUFFIX_PROPERTY);
         return uuidGenerator.generate() + "@" + messageIdSuffix;
