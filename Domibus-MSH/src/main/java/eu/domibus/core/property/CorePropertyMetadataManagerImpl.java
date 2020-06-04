@@ -183,7 +183,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED, DomibusPropertyMetadata.Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, DomibusPropertyMetadata.Type.BOOLEAN),     //there are still usages in xml!!!! move them?
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT, DomibusPropertyMetadata.Type.BOOLEAN),
+            new DomibusPropertyMetadata(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT,  DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT, DomibusPropertyMetadata.Type.NUMERIC),         //there are still usages in xml!!!! move them?
 
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX, DomibusPropertyMetadata.Usage.DOMAIN, false),
