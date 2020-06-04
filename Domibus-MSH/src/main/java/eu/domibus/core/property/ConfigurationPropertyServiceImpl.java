@@ -56,6 +56,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
         List<DomibusProperty> allProperties = new ArrayList<>();
 
@@ -69,6 +70,7 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
     }
 
     @Transactional(noRollbackFor = DomibusCoreException.class)
+    @Override
     public void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException {
         try {
             DomibusPropertyManagerExt propertyManager = getManagerForProperty(name);
@@ -94,6 +96,23 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         } catch (IllegalArgumentException ex) {
             LOG.error("Could not set property [{}].", name, ex);
         }
+    }
+
+    @Override
+    public DomibusProperty getProperty(String propertyName) {
+        DomibusPropertyManagerExt propertyManager = getManagerForProperty(propertyName);
+        DomibusPropertyMetadataDTO propertyMetadata = getPropertyMetadata(propertyManager, propertyName);
+        DomibusProperty prop = createProperty(propertyManager, propertyMetadata);
+        return prop;
+    }
+
+    protected DomibusPropertyMetadataDTO getPropertyMetadata(DomibusPropertyManagerExt propertyManager, String propertyName) {
+        DomibusPropertyMetadataDTO found = propertyManager.getKnownProperties().get(propertyName);
+        if (found != null) {
+            return found;
+        }
+
+        throw new DomibusPropertyException("Property metadata not found for property " + propertyName);
     }
 
     protected DomibusPropertyManagerExt getManagerForProperty(String propertyName) {
@@ -132,17 +151,22 @@ public class ConfigurationPropertyServiceImpl implements ConfigurationPropertySe
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadataDTO p : knownProps) {
-            String value = propertyManager.getKnownPropertyValue(p.getName());
-            DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
-
-            DomibusProperty prop = new DomibusProperty();
-            prop.setMetadata(meta);
-            prop.setValue(value);
+            DomibusProperty prop = createProperty(propertyManager, p);
 
             list.add(prop);
         }
 
         return list;
+    }
+
+    private DomibusProperty createProperty(DomibusPropertyManagerExt propertyManager, DomibusPropertyMetadataDTO p) {
+        String value = propertyManager.getKnownPropertyValue(p.getName());
+        DomibusPropertyMetadata meta = domainConverter.convert(p, DomibusPropertyMetadata.class);
+
+        DomibusProperty prop = new DomibusProperty();
+        prop.setMetadata(meta);
+        prop.setValue(value);
+        return prop;
     }
 
     private List<DomibusPropertyMetadataDTO> filterProperties(String name, boolean showDomain, DomibusPropertyManagerExt propertyManager) {

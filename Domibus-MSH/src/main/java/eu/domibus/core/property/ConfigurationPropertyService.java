@@ -29,4 +29,10 @@ public interface ConfigurationPropertyService {
      */
     void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException;
 
+    /**
+     * Retrieves the property metadata along with its current value
+     * @param propertyName the name of the property
+     * @return Metadata and the current value
+     */
+    DomibusProperty getProperty(String propertyName);
 }
