@@ -140,7 +140,7 @@ public class SoapUtil {
     }
 
 
-    public void logEbMS3Error(final SOAPMessage soapMessage) {
+    public void logRawXmlMessageWhenEbMS3Error(final SOAPMessage soapMessage) {
         final boolean printError = domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT);
         if (!printError) {
             LOG.debug("Printing EbMS3 error is disabled, exiting");
@@ -154,7 +154,7 @@ public class SoapUtil {
             return;
         }
 
-        LOG.error("An EbMS3 error was received check the details: {}", xmlMessage);
+        LOG.error("An EbMS3 error was received check the raw xml message: {}", xmlMessage);
     }
 
 }

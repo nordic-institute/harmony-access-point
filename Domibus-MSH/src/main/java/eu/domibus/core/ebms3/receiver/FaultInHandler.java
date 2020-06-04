@@ -19,6 +19,9 @@ import org.apache.cxf.ws.policy.PolicyException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -144,8 +147,9 @@ public class FaultInHandler extends AbstractFaultHandler {
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
         LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, messaging.getSignalMessage().getMessageInfo().getMessageId());
 
-        //log ebms3 exception in the logs
-        soapUtil.logEbMS3Error(soapMessageWithEbMS3Error);
+        //log the raw xml Signal message
+        soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
+
         errorService.createErrorLog(ErrorLogEntry.parse(messaging, MSHRole.RECEIVING));
     }
 

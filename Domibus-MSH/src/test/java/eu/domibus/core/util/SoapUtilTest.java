@@ -103,7 +103,7 @@ public class SoapUtilTest {
     }
 
     @Test
-    public void test_logEbMS3Error(final @Mocked SOAPMessage soapMessage) throws  Exception {
+    public void test_logRawXmlMessageWhenEbMS3Error(final @Mocked SOAPMessage soapMessage) throws  Exception {
         final String rawXmlMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><env:Envelope xmlns:env=\"http://www.w3.org/2003/05/soap-envelope\"><env:Header><eb:Messaging xmlns:eb=\"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/\" env:mustUnderstand=\"true\"><eb:SignalMessage><eb:MessageInfo><eb:Timestamp>2020-06-03T12:59:13.453Z</eb:Timestamp><eb:MessageId>062005ed-a59a-11ea-9306-0242ac150004@domibus.eu</eb:MessageId></eb:MessageInfo><eb:Error category=\"CONTENT\" errorCode=\"EBMS:0004\" origin=\"ebMS\" severity=\"failure\" shortDescription=\"Other\"><eb:Description xml:lang=\"\">Other</eb:Description><eb:ErrorDetail>unknown error occurred</eb:ErrorDetail></eb:Error></eb:SignalMessage></eb:Messaging></env:Header><env:Body><env:Fault><env:Code><env:Value>env:Receiver</env:Value></env:Code><env:Reason><env:Text xml:lang=\"en\">An error occurred while processing your request. Please check the message header for more details.</env:Text></env:Reason></env:Fault></env:Body></env:Envelope>";
 
         new Expectations(soapUtil) {{
@@ -114,7 +114,7 @@ public class SoapUtilTest {
             result = rawXmlMessage;
         }};
 
-        soapUtil.logEbMS3Error(soapMessage);
+        soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessage);
 
         new Verifications() {{
             LOG.error(anyString, any);

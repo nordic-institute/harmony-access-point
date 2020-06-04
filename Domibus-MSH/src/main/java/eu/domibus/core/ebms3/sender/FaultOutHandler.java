@@ -55,8 +55,8 @@ public class FaultOutHandler extends AbstractFaultHandler {
         final Messaging messaging = this.extractMessaging(soapMessage);
         final String messageId = messaging.getSignalMessage().getMessageInfo().getMessageId();
 
-        //log the error
-        soapUtil.logEbMS3Error(soapMessage);
+        //log the raw xml Signal message
+        soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessage);
 
         //save to database
         LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
