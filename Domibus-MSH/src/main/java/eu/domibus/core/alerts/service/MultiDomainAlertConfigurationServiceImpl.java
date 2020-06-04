@@ -98,6 +98,16 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
+        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
+        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    }
+    
+    @Override
     public ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration() {
         return imminentExpirationCertificateConfigurationManager.getConfiguration();
     }
@@ -125,21 +135,6 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     @Override
     public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
         return pluginAccountEnabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getRepetitiveAlertConfiguration(AlertType alertType) {
-        return getAlertConfiguration(alertType, RepetitiveAlertModuleConfiguration.class);
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
-        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
-        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
     @Override

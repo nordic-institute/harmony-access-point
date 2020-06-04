@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -83,6 +84,16 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
         return alertsConfiguration.getPluginLoginFailureConfiguration();
+    }
+
+    @Override
+    protected RepetitiveAlertModuleConfiguration getExpiredAlertConfiguration() {
+        return alertsConfiguration.getPluginPasswordExpiredAlertConfigurationManager();
+    }
+
+    @Override
+    protected RepetitiveAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
+        return alertsConfiguration.getPluginPasswordImminentExpirationAlertConfigurationManager();
     }
 
 }

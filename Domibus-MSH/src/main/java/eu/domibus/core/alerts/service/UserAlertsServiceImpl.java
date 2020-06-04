@@ -2,12 +2,12 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserLoginErrorReason;
@@ -64,6 +64,10 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     protected abstract AlertModuleConfigurationBase getAccountEnabledConfiguration();
 
     protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
+
+    protected abstract RepetitiveAlertModuleConfiguration getExpiredAlertConfiguration();
+
+    protected abstract RepetitiveAlertModuleConfiguration getImminentExpirationAlertConfiguration();
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
@@ -127,21 +131,21 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     protected void triggerImminentExpirationEvents(boolean usersWithDefaultPassword) {
-        triggerExpirationEvents(usersWithDefaultPassword, getAlertTypeForPasswordImminentExpiration(),
-                getEventTypeForPasswordImminentExpiration());
+        triggerExpirationEvents(usersWithDefaultPassword, true, getEventTypeForPasswordImminentExpiration());
     }
 
     protected void triggerExpiredEvents(boolean usersWithDefaultPassword) {
-        triggerExpirationEvents(usersWithDefaultPassword, getAlertTypeForPasswordExpired(),
-                getEventTypeForPasswordExpired());
+        triggerExpirationEvents(usersWithDefaultPassword, false, getEventTypeForPasswordExpired());
     }
 
-    private void triggerExpirationEvents(boolean usersWithDefaultPassword, AlertType alertType, EventType eventType) {
-        final RepetitiveAlertModuleConfiguration eventConfiguration = alertsConfiguration.getRepetitiveAlertConfiguration(alertType);
-        if (!eventConfiguration.isActive()) {
+    private void triggerExpirationEvents(boolean usersWithDefaultPassword, boolean imminent, EventType eventType) {
+        RepetitiveAlertModuleConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
+                : getExpiredAlertConfiguration();
+        if (!alertConfiguration.isActive()) {
             return;
         }
-        final Integer duration = eventConfiguration.getEventDelay();
+
+        final Integer duration = alertConfiguration.getEventDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
@@ -149,22 +153,18 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
             return;
         }
 
-        LocalDate from;
-        boolean imminent = (alertType == AlertType.PASSWORD_IMMINENT_EXPIRATION)
-                || (alertType == AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION);
-        if (imminent) {
-            from = LocalDate.now().minusDays(maxPasswordAgeInDays);
-        } else {
-            from = LocalDate.now().minusDays(maxPasswordAgeInDays).minusDays(duration);
-        }
+        LocalDate from = imminent ? LocalDate.now().minusDays(maxPasswordAgeInDays)
+                : LocalDate.now().minusDays(maxPasswordAgeInDays).minusDays(duration);
+
         LocalDate to = from.plusDays(duration);
-        LOG.debug("[{}]: Searching for {} users with password change date between [{}]->[{}]", alertType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), from, to);
+        LOG.debug("[{}]: Searching for {} users with password change date between [{}]->[{}]", eventType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), from, to);
 
         List<UserEntityBase> eligibleUsers = getUserDao().findWithPasswordChangedBetween(from, to, usersWithDefaultPassword);
-        LOG.debug("[{}]: Found [{}] eligible {} users", alertType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), eligibleUsers.size());
+        LOG.debug("[{}]: Found [{}] eligible {} users", eventType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), eligibleUsers.size());
 
         eligibleUsers.forEach(user -> {
-            eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
+            eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration);
         });
     }
+
 }

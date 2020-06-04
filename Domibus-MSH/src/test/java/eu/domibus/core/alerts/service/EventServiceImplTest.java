@@ -258,36 +258,36 @@ public class EventServiceImplTest {
         eventService.enrichMessageEvent(event);
     }
 
-    @Test
-    public void enqueuePasswordExpirationEvent() throws ParseException {
-        int maxPasswordAge = 15;
-        LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
-        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        final Date expirationDate = parser.parse("16/10/2018 00:00:00");
-        User user = initPasswordTestUser(passwordDate);
-        eu.domibus.core.alerts.model.persist.Event persistedEvent = new eu.domibus.core.alerts.model.persist.Event();
-        persistedEvent.setEntityId(1);
-        persistedEvent.setType(EventType.PASSWORD_EXPIRED);
-
-        new Expectations() {{
-            multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration((AlertType) any).isActive();
-            result = true;
-            eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
-            result = null;
-            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
-            result = persistedEvent;
-        }};
-
-        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge);
-
-        new VerificationsInOrder() {{
-            Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
-            times = 1;
-            Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
-            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
-        }};
-    }
+//    @Test
+//    public void enqueuePasswordExpirationEvent() throws ParseException {
+//        int maxPasswordAge = 15;
+//        LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
+//        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
+//        final Date expirationDate = parser.parse("16/10/2018 00:00:00");
+//        User user = initPasswordTestUser(passwordDate);
+//        eu.domibus.core.alerts.model.persist.Event persistedEvent = new eu.domibus.core.alerts.model.persist.Event();
+//        persistedEvent.setEntityId(1);
+//        persistedEvent.setType(EventType.PASSWORD_EXPIRED);
+//
+//        new Expectations() {{
+//            multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration((AlertType) any).isActive();
+//            result = true;
+//            eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
+//            result = null;
+//            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
+//            result = persistedEvent;
+//        }};
+//
+//        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge);
+//
+//        new VerificationsInOrder() {{
+//            Event event;
+//            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
+//            times = 1;
+//            Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
+//            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
+//        }};
+//    }
 
     private User initPasswordTestUser(LocalDateTime passwordDate) {
         User user = new User();

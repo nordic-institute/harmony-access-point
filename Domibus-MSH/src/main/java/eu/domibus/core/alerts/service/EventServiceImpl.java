@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private MultiDomainAlertConfigurationService ConfigurationService;
 
     @Autowired
     protected MpcService mpcService;
@@ -255,16 +255,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
-        enqueuePasswordEvent(eventType, user, maxPasswordAgeInDays);
-    }
-
-    protected void enqueuePasswordEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
-
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, RepetitiveAlertModuleConfiguration alertConfiguration) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
 
-        if (!this.shouldCreateAlert(entity)) {
+        if (!shouldCreateAlert(entity, alertConfiguration)) {
             return;
         }
 
@@ -287,26 +282,23 @@ public class EventServiceImpl implements EventService {
         return entity;
     }
 
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity) {
-
-        AlertType alertType = AlertType.getByEventType(entity.getType());
-        final RepetitiveAlertModuleConfiguration eventConfiguration = multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration(alertType);
-        if (!eventConfiguration.isActive()) {
-            return false;
-        }
-
-        int frequency = eventConfiguration.getEventFrequency();
+    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, RepetitiveAlertModuleConfiguration alertConfiguration) {
+        int frequency = alertConfiguration.getEventFrequency();
 
         LocalDate lastAlertDate = entity.getLastAlertDate();
         LocalDate notificationDate = LocalDate.now().minusDays(frequency);
 
         if (lastAlertDate == null) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate == null", entity);
             return true;
         }
+
         if (lastAlertDate.isBefore(notificationDate)) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate is old enough", entity);
             return true; // last alert is old enough to send another one
         }
 
+        LOG.debug("Should NOT create alert for event [{}] because lastAlertDate is not old enough", entity);
         return false;
     }
 

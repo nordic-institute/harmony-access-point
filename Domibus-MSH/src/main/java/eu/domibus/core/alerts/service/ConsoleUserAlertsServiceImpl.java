@@ -1,13 +1,14 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
-import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.ui.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected AlertType getAlertTypeForPasswordExpired() { return AlertType.PASSWORD_EXPIRED; }
+    protected AlertType getAlertTypeForPasswordExpired() {
+        return AlertType.PASSWORD_EXPIRED;
+    }
 
     @Override
     protected EventType getEventTypeForPasswordImminentExpiration() {
@@ -59,7 +62,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected UserDaoBase getUserDao() { return userDao; }
+    protected UserDaoBase getUserDao() {
+        return userDao;
+    }
 
     @Override
     protected UserEntityBase.Type getUserType() {
@@ -79,6 +84,16 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
         return alertsConfiguration.getConsoleLoginFailureConfiguration();
+    }
+
+    @Override
+    protected RepetitiveAlertModuleConfiguration getExpiredAlertConfiguration() {
+        return alertsConfiguration.getConsolePasswordExpiredAlertConfigurationManager();
+    }
+
+    @Override
+    protected RepetitiveAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
+        return alertsConfiguration.getConsolePasswordImminentExpirationAlertConfigurationManager();
     }
 
 }
