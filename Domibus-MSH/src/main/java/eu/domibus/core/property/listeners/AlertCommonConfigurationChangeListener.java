@@ -1,6 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class AlertCommonConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private CommonConfigurationManager commonConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -31,7 +32,7 @@ public class AlertCommonConfigurationChangeListener implements DomibusPropertyCh
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        alertConfigurationService.clearCommonConfiguration();
+        commonConfigurationManager.reset();
     }
 
 }

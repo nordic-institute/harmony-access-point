@@ -99,15 +99,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
 
     // method implementation
-    @Override
-    public CommonConfiguration getCommonConfiguration() {
-        return commonConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearCommonConfiguration() {
-        commonConfigurationManager.reset();
-    }
 
     @Override
     public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
@@ -241,7 +232,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     @Override
     public void clearAllConfigurations() {
-        clearCommonConfiguration();
+        commonConfigurationManager.reset();
         Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
     }
 

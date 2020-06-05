@@ -1,11 +1,12 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.ui.User;
 import eu.domibus.core.alerts.MailSender;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,18 +34,18 @@ public class AlertMethodEmail implements AlertMethod {
     private MailSender mailSender;
 
     @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private UserDao userDao;
 
     @Autowired
-    private UserDao userDao;
+    private CommonConfigurationManager alertConfigurationManager;
 
     @Override
     public void sendAlert(Alert alert) {
         final MailModel mailModelForAlert = alertService.getMailModelForAlert(alert);
         LOG.debug("Sending alert by email [{}]", alert);
 
-        String from = alertConfigurationService.getCommonConfiguration().getSendFrom();
-        String to = alertConfigurationService.getCommonConfiguration().getSendTo();
+        String from = alertConfigurationManager.getConfiguration().getSendFrom();
+        String to = alertConfigurationManager.getConfiguration().getSendTo();
         mailSender.sendMail(mailModelForAlert, from, to);
 
         //if the alert is created form an event related to a user, send the email to the user address also

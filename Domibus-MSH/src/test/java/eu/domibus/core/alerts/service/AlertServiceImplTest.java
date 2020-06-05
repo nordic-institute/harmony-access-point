@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
@@ -17,6 +18,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 
@@ -68,6 +70,9 @@ public class AlertServiceImplTest {
 
     @Injectable
     private ServerInfoService serverInfoService;
+
+    @Injectable
+    private CommonConfigurationManager commonConfigurationManager;
 
     @Test
     public void createAlertOnEvent() {
@@ -327,7 +332,7 @@ public class AlertServiceImplTest {
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
         final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
         new Expectations() {{
-            alertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+            commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
             localDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
             result = alertLimitDate;

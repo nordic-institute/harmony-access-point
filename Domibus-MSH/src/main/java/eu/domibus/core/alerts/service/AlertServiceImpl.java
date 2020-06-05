@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -72,6 +73,9 @@ public class AlertServiceImpl implements AlertService {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private CommonConfigurationManager alertConfigurationManager;
 
     /**
      * {@inheritDoc}
@@ -219,7 +223,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void cleanAlerts() {
-        final Integer alertLifeTimeInDays = alertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+        final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);

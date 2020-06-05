@@ -72,11 +72,6 @@ public interface AlertConfigurationService {
     ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration();
 
     /**
-     * @return alert common configuration
-     */
-    CommonConfiguration getCommonConfiguration();
-
-    /**
      * Return alert level based on alert(type)
      *
      * @param alert the alert.
@@ -152,11 +147,6 @@ public interface AlertConfigurationService {
     void clearPluginPasswordExpiredAlertConfigurationManager();
 
     PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
-
-    /**
-     * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made
-     */
-    void clearCommonConfiguration();
 
     /**
      * Clears/removes the plugin login failure configuration so that a new one will be created when calls to it are made
