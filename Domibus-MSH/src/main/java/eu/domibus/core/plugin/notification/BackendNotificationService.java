@@ -134,7 +134,7 @@ public class BackendNotificationService {
     private Map<String, IRoutingCriteria> criteriaMap;
 
     protected volatile Object backendFiltersCacheLock = new Object();
-    protected volatile List<BackendFilter> backendFiltersCache;
+    protected List<BackendFilter> backendFiltersCache;
 
     @PostConstruct
     public void init() {
