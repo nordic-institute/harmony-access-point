@@ -20,16 +20,6 @@ import eu.domibus.core.alerts.model.service.*;
  */
 public interface AlertConfigurationService {
 
-    /**
-     * @return login failure module configuration
-     */
-    LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration();
-
-    /**
-     * Clear login failure module configuration
-     */
-    void clearConsoleLoginFailureConfiguration();
-
     void clearConsolePasswordImminentExpirationAlertConfigurationManager();
 
     /**

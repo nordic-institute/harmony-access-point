@@ -59,6 +59,9 @@ public class AlertModuleConfigurationServiceImplTest {
     @Tested
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
+    @Tested
+    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -76,9 +79,6 @@ public class AlertModuleConfigurationServiceImplTest {
 
     @Injectable
     private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
-
-    @Injectable
-    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Injectable
     private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
@@ -128,7 +128,7 @@ public class AlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.USER_LOGIN_FAILURE);
         new Expectations(configurationService) {{
-            configurationService.getConsoleLoginFailureConfiguration();
+            consoleLoginFailConfigurationManager.getConfiguration();
             this.result = loginFailureConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -232,7 +232,7 @@ public class AlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForLoginFailure(final @Mocked LoginFailureModuleConfiguration loginFailureConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getConsoleLoginFailureConfiguration();
+            consoleLoginFailConfigurationManager.getConfiguration();
             this.result = loginFailureConfiguration;
 
             loginFailureConfiguration.getMailSubject();

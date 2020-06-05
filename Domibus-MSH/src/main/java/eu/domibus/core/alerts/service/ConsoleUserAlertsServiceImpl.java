@@ -4,6 +4,7 @@ import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModu
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.ConsoleLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -32,6 +33,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     private AlertConfigurationService alertsConfiguration;
+
+    @Autowired
+    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Autowired
     private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
@@ -91,7 +95,7 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return alertsConfiguration.getConsoleLoginFailureConfiguration();
+        return consoleLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
