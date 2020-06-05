@@ -107,11 +107,6 @@ public interface AlertConfigurationService {
     LoginFailureModuleConfiguration getPluginLoginFailureConfiguration();
 
     /**
-     * @return account disabled module configuration for plugin users
-     */
-    AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration();
-
-    /**
      * @return account enabled module configuration for plugin users
      */
     AlertModuleConfigurationBase getPluginAccountEnabledConfiguration();
@@ -149,9 +144,4 @@ public interface AlertConfigurationService {
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
      */
     void clearAllConfigurations();
-
-    /**
-     * Clears/removes the plugin account disabled configuration so that a new one will be created when calls to it are made
-     */
-    void clearPluginAccountDisabledConfiguration();
 }

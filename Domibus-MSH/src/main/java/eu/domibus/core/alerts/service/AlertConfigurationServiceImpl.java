@@ -56,9 +56,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Autowired
-    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
-
-    @Autowired
     private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
 
     @Autowired
@@ -93,16 +90,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
 
     // method implementation
-
-    @Override
-    public AccountDisabledModuleConfiguration getPluginAccountDisabledConfiguration() {
-        return pluginAccountDisabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearPluginAccountDisabledConfiguration() {
-        pluginAccountDisabledConfigurationManager.reset();
-    }
 
     @Override
     public AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration() {
