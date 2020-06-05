@@ -7,6 +7,7 @@ import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
     @Autowired
     private ConfigurationLoader<ImminentExpirationCertificateModuleConfiguration> loader;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     @Override
     public AlertType getAlertType() {
         return AlertType.MSG_STATUS_CHANGED;
@@ -51,7 +55,7 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
     protected ImminentExpirationCertificateModuleConfiguration readConfiguration() {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertActive = isAlertModuleEnabled();
+            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean imminentExpirationActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_ACTIVE);
             if (!alertActive || !imminentExpirationActive) {
                 LOG.debug("domain:[{}] Alert certificate imminent expiration module is inactive for the following reason:global alert module active[{}], certificate imminent expiration module active[{}]",
@@ -77,7 +81,4 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
 
     }
 
-    public Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
 }

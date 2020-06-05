@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public abstract class AccountEnabledConfigurationReader {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     protected abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
@@ -41,7 +45,7 @@ public abstract class AccountEnabledConfigurationReader {
 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertActive = isAlertModuleEnabled();
+            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean accountEnabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
             if (!alertActive || !accountEnabledActive) {
                 LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
@@ -59,10 +63,6 @@ public abstract class AccountEnabledConfigurationReader {
             LOG.warn("An error occurred while reading [{}] module configuration for domain:[{}], ", getModuleName(), currentDomain, e);
             return new AlertModuleConfigurationBase(getAlertType());
         }
-    }
-
-    private Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
     }
 
 }

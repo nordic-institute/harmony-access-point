@@ -85,8 +85,8 @@ public class AlertServiceImplTest {
             eventDao.read(event.getEntityId());
             result = eventEntity;
 
-            alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
-            result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+//            alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+//            result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
@@ -156,8 +156,8 @@ public class AlertServiceImplTest {
             alertConfigurationService.getMailSubject(alertType);
             result = mailSubject;
 
-            alertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
-            result = alertSuperInstanceNameSubjectProperty;
+//            alertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+//            result = alertSuperInstanceNameSubjectProperty;
 
             domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
             result = mailSubjectServerName;
@@ -217,8 +217,8 @@ public class AlertServiceImplTest {
             persistedAlert.getMaxAttempts();
             result=2;
 
-            alertConfigurationService.getAlertRetryTimePropertyName();
-            result=DOMIBUS_ALERT_RETRY_TIME;
+//            alertConfigurationService.getAlertRetryTimePropertyName();
+//            result=DOMIBUS_ALERT_RETRY_TIME;
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;

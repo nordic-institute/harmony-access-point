@@ -39,7 +39,7 @@ public class AlertActiveChangeListener implements DomibusPropertyChangeListener 
 
         mailSender.reset();
 
-        alertConfigurationService.clearAllConfigurations();
+        alertConfigurationService.resetAll();
     }
 
 }

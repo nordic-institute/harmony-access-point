@@ -28,7 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
+import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 
 /**
  * @author Thomas Dussart
@@ -88,7 +91,8 @@ public class AlertServiceImpl implements AlertService {
         alert.addEvent(eventEntity);
         alert.setAlertType(AlertType.getByEventType(event.getType()));
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+        final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
@@ -129,7 +133,7 @@ public class AlertServiceImpl implements AlertService {
         final AlertType alertType = read.getAlertType();
         String subject = alertConfigurationService.getMailSubject(alertType);
 
-        final String alertSuperInstanceNameSubjectProperty = alertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+        final String alertSuperInstanceNameSubjectProperty = DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;;
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
         subject += "[" + serverName + "]";
@@ -161,7 +165,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = alertConfigurationService.getAlertRetryTimePropertyName();
+            final String alertRetryTimePropertyName = DOMIBUS_ALERT_RETRY_TIME;
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);

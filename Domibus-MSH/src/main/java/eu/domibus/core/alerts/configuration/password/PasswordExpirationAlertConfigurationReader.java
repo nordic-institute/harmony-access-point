@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public abstract class PasswordExpirationAlertConfigurationReader implements User
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     protected abstract AlertType getAlertType();
 
     public PasswordExpirationAlertModuleConfiguration readConfiguration() {
@@ -39,7 +43,7 @@ public abstract class PasswordExpirationAlertConfigurationReader implements User
                 return new PasswordExpirationAlertModuleConfiguration(getAlertType());
             }
 
-            final Boolean alertModuleActive = isAlertModuleEnabled();
+            final Boolean alertModuleActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean eventActive = Boolean.valueOf(domibusPropertyProvider.getProperty(property + ".active"));
             if (!alertModuleActive || !eventActive) {
                 LOG.debug("domain:[{}] Alert {} module is inactive for the following reason: global alert module active[{}], event active[{}]",
@@ -60,7 +64,4 @@ public abstract class PasswordExpirationAlertConfigurationReader implements User
         }
     }
 
-    private Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
 }

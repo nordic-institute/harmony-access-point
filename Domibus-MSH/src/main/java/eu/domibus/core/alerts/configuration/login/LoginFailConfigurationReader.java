@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public abstract class LoginFailConfigurationReader implements UserAuthentication
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     protected abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
@@ -46,7 +50,7 @@ public abstract class LoginFailConfigurationReader implements UserAuthentication
                 return new LoginFailureModuleConfiguration(getAlertType());
             }
 
-            final Boolean alertActive = isAlertModuleEnabled();
+            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean loginFailureActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
 
             if (!alertActive || !loginFailureActive) {
@@ -67,7 +71,4 @@ public abstract class LoginFailConfigurationReader implements UserAuthentication
         }
     }
 
-    private Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
 }

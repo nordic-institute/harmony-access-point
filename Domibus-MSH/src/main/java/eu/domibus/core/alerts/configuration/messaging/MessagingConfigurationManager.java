@@ -8,6 +8,7 @@ import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,9 @@ public class MessagingConfigurationManager implements AlertConfigurationManager 
     @Autowired
     private ConfigurationLoader<MessagingModuleConfiguration> loader;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     @Override
     public AlertType getAlertType() {
         return AlertType.MSG_STATUS_CHANGED;
@@ -56,7 +60,7 @@ public class MessagingConfigurationManager implements AlertConfigurationManager 
     protected MessagingModuleConfiguration readConfiguration() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertActive = isAlertModuleEnabled();
+            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             if (!alertActive || !messageAlertActive) {
                 LOG.debug("domain:[{}] Alert message status change module is inactive for the following reason:global alert module active[{}], message status change module active[{}]",
@@ -90,7 +94,4 @@ public class MessagingConfigurationManager implements AlertConfigurationManager 
 
     }
 
-    public Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
 }

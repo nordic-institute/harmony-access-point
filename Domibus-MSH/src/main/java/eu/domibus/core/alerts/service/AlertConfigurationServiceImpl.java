@@ -59,7 +59,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     private CommonConfigurationManager commonConfigurationManager;
 
     @Override
-    public void clearAllConfigurations() {
+    public void resetAll() {
         commonConfigurationManager.reset();
         Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
     }
@@ -82,21 +82,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     @Override
     public String getSendEmailActivePropertyName() {
         return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-    }
-
-    @Override
-    public String getAlertRetryMaxAttemptPropertyName() {
-        return DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-    }
-
-    @Override
-    public String getAlertRetryTimePropertyName() {
-        return DOMIBUS_ALERT_RETRY_TIME;
-    }
-
-    @Override
-    public String getAlertSuperServerNameSubjectPropertyName() {
-        return DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
     }
 
     protected AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {

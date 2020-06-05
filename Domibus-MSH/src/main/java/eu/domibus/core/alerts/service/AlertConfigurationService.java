@@ -56,22 +56,7 @@ public interface AlertConfigurationService {
     String getSendEmailActivePropertyName();
 
     /**
-     * @return name of the alert retry max attempts property.
-     */
-    String getAlertRetryMaxAttemptPropertyName();
-
-    /**
-     * @return name of the alert time between retry property.
-     */
-    String getAlertRetryTimePropertyName();
-
-    /**
-     * @return name of the property for adding Domibus instance/server name to email subject
-     */
-    String getAlertSuperServerNameSubjectPropertyName();
-
-    /**
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
      */
-    void clearAllConfigurations();
+    void resetAll();
 }
