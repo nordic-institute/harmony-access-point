@@ -2,10 +2,10 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;

@@ -19,7 +19,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.alerts.configuration.model.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;

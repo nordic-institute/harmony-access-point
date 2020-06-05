@@ -4,14 +4,12 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.service.*;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserPasswordHistoryDao;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.ui.User;
@@ -19,16 +17,12 @@ import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Ion Perpegel

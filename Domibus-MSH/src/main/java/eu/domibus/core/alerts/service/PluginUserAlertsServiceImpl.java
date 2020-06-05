@@ -1,13 +1,13 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.alerts.configuration.model.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.configuration.model.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

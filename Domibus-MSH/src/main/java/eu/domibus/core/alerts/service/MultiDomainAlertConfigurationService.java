@@ -1,6 +1,13 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.alerts.configuration.model.*;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.CommonConfiguration;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
