@@ -82,11 +82,6 @@ public interface AlertConfigurationService {
      */
     String getAlertSuperServerNameSubjectPropertyName();
 
-    /**
-     * @return login failure module configuration for plugin users
-     */
-    LoginFailureModuleConfiguration getPluginLoginFailureConfiguration();
-
     PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
 
     void clearConsolePasswordExpiredAlertConfigurationManager();
@@ -98,11 +93,6 @@ public interface AlertConfigurationService {
     void clearPluginPasswordExpiredAlertConfigurationManager();
 
     PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
-
-    /**
-     * Clears/removes the plugin login failure configuration so that a new one will be created when calls to it are made
-     */
-    void clearPluginLoginFailureConfiguration();
 
     /**
      * Clears/removes the imminent certification expiration configuration so that a new one will be created when calls to it are made
