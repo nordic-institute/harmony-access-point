@@ -62,6 +62,12 @@ public class AlertModuleConfigurationServiceImplTest {
     @Tested
     private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
+    @Tested
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+
+    @Tested
+    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -82,12 +88,6 @@ public class AlertModuleConfigurationServiceImplTest {
 
     @Injectable
     private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
-
-    @Injectable
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-    @Injectable
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
     @Injectable
     private CommonConfigurationManager commonConfigurationManager;
@@ -143,7 +143,7 @@ public class AlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.CERT_IMMINENT_EXPIRATION);
         new Expectations(configurationService) {{
-            configurationService.getImminentExpirationCertificateConfiguration();
+            imminentExpirationCertificateConfigurationManager.getConfiguration();
             this.result = imminentExpirationCertificateConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -158,7 +158,7 @@ public class AlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.CERT_EXPIRED);
         new Expectations(configurationService) {{
-            configurationService.getExpiredCertificateConfiguration();
+            expiredCertificateConfigurationManager.getConfiguration();
             this.result = expiredCertificateConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -252,7 +252,7 @@ public class AlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForCertificateImminentExpiration(final @Mocked ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getImminentExpirationCertificateConfiguration();
+            imminentExpirationCertificateConfigurationManager.getConfiguration();
             this.result = imminentExpirationCertificateConfiguration;
 
             imminentExpirationCertificateConfiguration.getMailSubject();
@@ -270,7 +270,7 @@ public class AlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForCertificateExpired(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getExpiredCertificateConfiguration();
+            expiredCertificateConfigurationManager.getConfiguration();
             this.result = expiredCertificateConfiguration;
 
             expiredCertificateConfiguration.getMailSubject();

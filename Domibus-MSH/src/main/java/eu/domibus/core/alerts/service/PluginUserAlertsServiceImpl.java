@@ -5,6 +5,7 @@ import eu.domibus.core.alerts.configuration.account.disabled.PluginAccountDisabl
 import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -33,6 +34,9 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     private AlertConfigurationService alertsConfiguration;
+
+    @Autowired
+    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
 
     @Autowired
     private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
@@ -100,7 +104,7 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
-        return alertsConfiguration.getPluginPasswordExpiredAlertConfigurationManager();
+        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override

@@ -56,76 +56,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Autowired
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-    @Autowired
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
-    @Autowired
     private CommonConfigurationManager commonConfigurationManager;
 
     @Autowired
-    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-
-    @Autowired
-    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
-
-    @Autowired
-    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
-
-    @Autowired
     private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
-    
-
-    @Override
-    public PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
-        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearConsolePasswordExpiredAlertConfigurationManager() {
-        consolePasswordExpiredAlertConfigurationManager.reset();
-    }
-
-    @Override
-    public PasswordExpirationAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
-        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearConsolePasswordImminentExpirationAlertConfigurationManager() {
-        consolePasswordImminentExpirationAlertConfigurationManager.reset();
-    }
-
-    @Override
-    public ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration() {
-        return imminentExpirationCertificateConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearImminentExpirationCertificateConfiguration() {
-        imminentExpirationCertificateConfigurationManager.reset();
-    }
-
-    @Override
-    public ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration() {
-        return expiredCertificateConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearExpiredCertificateConfiguration() {
-        expiredCertificateConfigurationManager.reset();
-    }
-
-    @Override
-    public PasswordExpirationAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
-        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearPluginPasswordExpiredAlertConfigurationManager() {
-        pluginPasswordExpiredAlertConfigurationManager.reset();
-    }
 
     @Override
     public PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {

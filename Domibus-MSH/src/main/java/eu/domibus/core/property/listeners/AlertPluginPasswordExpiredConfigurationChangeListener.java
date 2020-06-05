@@ -2,6 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class AlertPluginPasswordExpiredConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -26,7 +27,7 @@ public class AlertPluginPasswordExpiredConfigurationChangeListener implements Do
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        alertConfigurationService.clearPluginPasswordExpiredAlertConfigurationManager();
+        pluginPasswordExpiredAlertConfigurationManager.reset();
     }
 }
 

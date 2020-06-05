@@ -20,18 +20,6 @@ import eu.domibus.core.alerts.model.service.*;
  */
 public interface AlertConfigurationService {
 
-    void clearConsolePasswordImminentExpirationAlertConfigurationManager();
-
-    /**
-     * @return certificate imminent expiration module configuration
-     */
-    ImminentExpirationCertificateModuleConfiguration getImminentExpirationCertificateConfiguration();
-
-    /**
-     * @return certificate expired module configuration
-     */
-    ExpiredCertificateModuleConfiguration getExpiredCertificateConfiguration();
-
     /**
      * Return alert level based on alert(type)
      *
@@ -82,27 +70,7 @@ public interface AlertConfigurationService {
      */
     String getAlertSuperServerNameSubjectPropertyName();
 
-    PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
-
-    void clearConsolePasswordExpiredAlertConfigurationManager();
-
-    PasswordExpirationAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager();
-
-    PasswordExpirationAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager();
-
-    void clearPluginPasswordExpiredAlertConfigurationManager();
-
     PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
-
-    /**
-     * Clears/removes the imminent certification expiration configuration so that a new one will be created when calls to it are made
-     */
-    void clearImminentExpirationCertificateConfiguration();
-
-    /**
-     * Clears/removes the expired certificate configuration so that a new one will be created when calls to it are made
-     */
-    void clearExpiredCertificateConfiguration();
 
     void clearPluginPasswordImminentExpirationAlertConfigurationManager();
 

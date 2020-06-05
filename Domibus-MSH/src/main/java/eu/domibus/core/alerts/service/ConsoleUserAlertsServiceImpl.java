@@ -7,6 +7,8 @@ import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnable
 import eu.domibus.core.alerts.configuration.login.ConsoleLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.ConsolePasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;
@@ -42,6 +44,12 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
+
+    @Autowired
+    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
+
+    @Autowired
+    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -100,12 +108,12 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
-        return alertsConfiguration.getConsolePasswordExpiredAlertConfigurationManager();
+        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
     protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
-        return alertsConfiguration.getConsolePasswordImminentExpirationAlertConfigurationManager();
+        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }
