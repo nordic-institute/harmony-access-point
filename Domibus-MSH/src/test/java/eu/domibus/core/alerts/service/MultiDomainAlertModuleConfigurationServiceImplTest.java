@@ -32,6 +32,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -47,7 +48,10 @@ import static org.junit.Assert.*;
 public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Tested
-    private AlertConfigurationServiceImpl configurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
+
+    @Tested
+    private AlertConfigurationService configurationService;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -60,9 +64,6 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Injectable
     List<AlertConfigurationManager> alertConfigurationManagers;
-
-    @Injectable
-    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Injectable
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
@@ -169,8 +170,8 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Test
     public void getMailSubjectForMessage(final @Mocked MessagingModuleConfiguration messagingConfiguration) {
-        new Expectations(configurationService) {{
-            configurationService.getMessageCommunicationConfiguration();
+        new Expectations(messagingConfigurationManager) {{
+            messagingConfigurationManager.getConfiguration();
             result = messagingConfiguration;
 
             messagingConfiguration.getMailSubject();

@@ -56,9 +56,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Autowired
-    private MessagingConfigurationManager messagingConfigurationManager;
-
-    @Autowired
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Autowired
@@ -99,16 +96,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
 
     // method implementation
-
-    @Override
-    public MessagingModuleConfiguration getMessageCommunicationConfiguration() {
-        return messagingConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearMessageCommunicationConfiguration() {
-        messagingConfigurationManager.reset();
-    }
 
     @Override
     public AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration() {

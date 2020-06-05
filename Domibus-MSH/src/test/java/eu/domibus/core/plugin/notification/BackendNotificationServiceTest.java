@@ -14,6 +14,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLog;
@@ -126,7 +127,7 @@ public class BackendNotificationServiceTest {
     private EventService eventService;
 
     @Injectable
-    private AlertConfigurationService alertConfigurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
@@ -618,7 +619,7 @@ public class BackendNotificationServiceTest {
             messageLog.getBackend();
             result = backend;
 
-            alertConfigurationService.getMessageCommunicationConfiguration();
+            messagingConfigurationManager.getConfiguration();
             result = messageCommunicationConfiguration;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);

@@ -20,19 +20,9 @@ import eu.domibus.core.alerts.model.service.*;
  */
 public interface AlertConfigurationService {
 
-    /**
-     * @return message communication module configuration
-     */
-    MessagingModuleConfiguration getMessageCommunicationConfiguration();
-
     void clearPluginAccountEnabledConfiguration();
 
     void clearConsoleAccountEnabledConfiguration();
-
-    /**
-     * Clears/removes the message communication configuration so that a new one will be created when calls to it are made
-     */
-    void clearMessageCommunicationConfiguration();
 
     /**
      * @return account disabled module configuration

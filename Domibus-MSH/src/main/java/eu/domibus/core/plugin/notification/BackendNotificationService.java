@@ -1,27 +1,29 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.*;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.CriteriaFactory;
+import eu.domibus.core.plugin.routing.IRoutingCriteria;
+import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
+import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -32,13 +34,6 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.plugin.routing.CriteriaFactory;
-import eu.domibus.core.plugin.routing.IRoutingCriteria;
-import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
 import org.apache.commons.lang3.StringUtils;
@@ -109,7 +104,7 @@ public class BackendNotificationService {
     private EventService eventService;
 
     @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
@@ -498,7 +493,7 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        final MessagingModuleConfiguration messagingConfiguration = alertConfigurationService.getMessageCommunicationConfiguration();
+        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
         }
