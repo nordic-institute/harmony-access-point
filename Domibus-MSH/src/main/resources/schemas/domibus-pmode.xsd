@@ -186,7 +186,7 @@
                                                 <xs:attribute name="inBody" type="xs:string"/>
                                                 <xs:attribute name="schemaFile" form="unqualified"
                                                               type="xs:anyURI"/>
-                                                <xs:attribute name="maxSize" type="xs:int"/>
+                                                <xs:attribute name="maxSize" type="xs:integer"/>
                                                 <xs:attribute name="required" type="xs:boolean"
                                                               use="required"/>
                                             </xs:complexType>
