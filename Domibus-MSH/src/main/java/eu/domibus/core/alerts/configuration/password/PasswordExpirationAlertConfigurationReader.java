@@ -18,8 +18,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class RepetitiveAlertConfigurationReader implements UserAuthenticationConfiguration {
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(RepetitiveAlertConfigurationReader.class);
+public abstract class PasswordExpirationAlertConfigurationReader implements UserAuthenticationConfiguration {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationAlertConfigurationReader.class);
 
     @Autowired
     private DomainContextProvider domainContextProvider;
@@ -29,14 +29,14 @@ public abstract class RepetitiveAlertConfigurationReader implements UserAuthenti
 
     protected abstract AlertType getAlertType();
 
-    public RepetitiveAlertModuleConfiguration readConfiguration() {
+    public PasswordExpirationAlertModuleConfiguration readConfiguration() {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         final String moduleName = getAlertType().getTitle();
         final String property = getAlertType().getConfigurationProperty();
         try {
             if (shouldCheckExtAuthEnabled()) {
                 LOG.debug("domain:[{}] [{}] module is inactive for the following reason: external authentication provider is enabled", domain, moduleName);
-                return new RepetitiveAlertModuleConfiguration(getAlertType());
+                return new PasswordExpirationAlertModuleConfiguration(getAlertType());
             }
 
             final Boolean alertModuleActive = isAlertModuleEnabled();
@@ -44,7 +44,7 @@ public abstract class RepetitiveAlertConfigurationReader implements UserAuthenti
             if (!alertModuleActive || !eventActive) {
                 LOG.debug("domain:[{}] Alert {} module is inactive for the following reason: global alert module active[{}], event active[{}]",
                         domain, moduleName, alertModuleActive, eventActive);
-                return new RepetitiveAlertModuleConfiguration(getAlertType());
+                return new PasswordExpirationAlertModuleConfiguration(getAlertType());
             }
 
             final Integer delay = Integer.valueOf(domibusPropertyProvider.getProperty(property + ".delay_days"));
@@ -53,10 +53,10 @@ public abstract class RepetitiveAlertConfigurationReader implements UserAuthenti
             final String mailSubject = domibusPropertyProvider.getProperty(property + ".mail.subject");
 
             LOG.info("Alert {} module activated for domain:[{}]", moduleName, domain);
-            return new RepetitiveAlertModuleConfiguration(getAlertType(), delay, frequency, alertLevel, mailSubject);
+            return new PasswordExpirationAlertModuleConfiguration(getAlertType(), delay, frequency, alertLevel, mailSubject);
         } catch (Exception e) {
             LOG.warn("An error occurred while reading {} alert module configuration for domain:[{}], ", moduleName, domain, e);
-            return new RepetitiveAlertModuleConfiguration(getAlertType());
+            return new PasswordExpirationAlertModuleConfiguration(getAlertType());
         }
     }
 

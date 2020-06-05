@@ -1,13 +1,13 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfiguration;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
@@ -18,7 +18,7 @@ import eu.domibus.core.alerts.model.service.*;
  * <p>
  * Retrieve the configuration for the different type of alert submodules.
  */
-public interface MultiDomainAlertConfigurationService {
+public interface AlertConfigurationService {
 
     /**
      * @return message communication module configuration
@@ -141,17 +141,17 @@ public interface MultiDomainAlertConfigurationService {
      */
     AlertModuleConfigurationBase getPluginAccountEnabledConfiguration();
 
-    RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
+    PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
 
     void clearConsolePasswordExpiredAlertConfigurationManager();
 
-    RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager();
+    PasswordExpirationAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager();
 
-    RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager();
+    PasswordExpirationAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager();
 
     void clearPluginPasswordExpiredAlertConfigurationManager();
 
-    RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
+    PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
 
     /**
      * Clears/removes the common configuration configuration so that a new one will be created when calls to it are made

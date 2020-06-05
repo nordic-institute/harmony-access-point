@@ -4,7 +4,11 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.*;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.disabled.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateConfigurationManager;
@@ -17,6 +21,10 @@ import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationMa
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.*;
+import eu.domibus.core.alerts.configuration.password.expired.ConsolePasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.ConsolePasswordImminentExpirationAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
@@ -36,8 +44,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.0
  */
 @Service
-public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAlertConfigurationService {
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(MultiDomainAlertConfigurationServiceImpl.class);
+public class AlertConfigurationServiceImpl implements AlertConfigurationService {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertConfigurationServiceImpl.class);
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
@@ -172,7 +180,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
+    public PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager() {
         return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
@@ -182,7 +190,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public RepetitiveAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
+    public PasswordExpirationAlertModuleConfiguration getConsolePasswordImminentExpirationAlertConfigurationManager() {
         return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
@@ -212,7 +220,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public RepetitiveAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
+    public PasswordExpirationAlertModuleConfiguration getPluginPasswordExpiredAlertConfigurationManager() {
         return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
@@ -222,7 +230,7 @@ public class MultiDomainAlertConfigurationServiceImpl implements MultiDomainAler
     }
 
     @Override
-    public RepetitiveAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
+    public PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
         return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 

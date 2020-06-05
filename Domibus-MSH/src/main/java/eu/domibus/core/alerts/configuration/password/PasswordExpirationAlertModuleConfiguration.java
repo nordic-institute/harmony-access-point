@@ -8,16 +8,16 @@ import eu.domibus.core.alerts.model.common.AlertType;
  * @author Ion Perpegel
  * @since 4.1
  */
-public class RepetitiveAlertModuleConfiguration extends AlertModuleConfigurationBase {
+public class PasswordExpirationAlertModuleConfiguration extends AlertModuleConfigurationBase {
 
     private Integer eventDelay;
     private Integer eventFrequency;
 
-    public RepetitiveAlertModuleConfiguration(AlertType alertType) {
+    public PasswordExpirationAlertModuleConfiguration(AlertType alertType) {
         super(alertType);
     }
 
-    public RepetitiveAlertModuleConfiguration(AlertType alertType, Integer eventDelay, Integer eventFrequency, AlertLevel eventAlertLevel, String eventMailSubject) {
+    public PasswordExpirationAlertModuleConfiguration(AlertType alertType, Integer eventDelay, Integer eventFrequency, AlertLevel eventAlertLevel, String eventMailSubject) {
         super(alertType, eventAlertLevel, eventMailSubject);
 
         this.eventDelay = eventDelay;

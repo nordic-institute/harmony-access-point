@@ -1,6 +1,6 @@
-package eu.domibus.core.alerts.configuration.account;
+package eu.domibus.core.alerts.configuration.account.disabled;
 
-import eu.domibus.core.alerts.configuration.account.AccountDisabledConfigurationReader;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.stereotype.Service;
 

@@ -3,7 +3,7 @@ package eu.domibus.core.alerts;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -53,7 +53,7 @@ public class MailSender {
     protected DomainContextProvider domainProvider;
 
     @Autowired
-    private MultiDomainAlertConfigurationService configurationService;
+    private AlertConfigurationService configurationService;
 
     private boolean mailSenderInitiated;
 

@@ -1,12 +1,12 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected AuthenticationDAO userDao;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertsConfiguration;
+    private AlertConfigurationService alertsConfiguration;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -87,12 +87,12 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected RepetitiveAlertModuleConfiguration getExpiredAlertConfiguration() {
+    protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
         return alertsConfiguration.getPluginPasswordExpiredAlertConfigurationManager();
     }
 
     @Override
-    protected RepetitiveAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
+    protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
         return alertsConfiguration.getPluginPasswordImminentExpirationAlertConfigurationManager();
     }
 

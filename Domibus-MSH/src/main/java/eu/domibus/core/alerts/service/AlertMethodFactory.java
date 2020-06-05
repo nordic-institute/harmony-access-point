@@ -22,12 +22,12 @@ public class AlertMethodFactory {
     protected AlertMethodLog alertMethodLog;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     public AlertMethod getAlertMethod() {
         AlertMethod result = alertMethodLog;
 
-        final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
+        final String sendEmailActivePropertyName = alertConfigurationService.getSendEmailActivePropertyName();
         final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
         if (mailActive) {
             result = alertMethodEmail;

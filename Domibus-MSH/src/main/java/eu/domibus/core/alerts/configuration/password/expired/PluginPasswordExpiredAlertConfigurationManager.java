@@ -1,26 +1,26 @@
-package eu.domibus.core.alerts.configuration.account;
+package eu.domibus.core.alerts.configuration.password.expired;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Manages the reading of plugin user account enabled alert configuration
+ * Manages the reading of plugin user password expired alert configuration
  *
  * @author Ion Perpegel
  * @since 4.2
  */
 @Service
-public class PluginAccountEnabledConfigurationManager implements AlertConfigurationManager {
+public class PluginPasswordExpiredAlertConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
-    private PluginAccountEnabledConfigurationReader reader;
+    private PluginPasswordExpiredAlertConfigurationReader reader;
 
     @Autowired
-    private ConfigurationLoader<AlertModuleConfigurationBase> loader;
+    private ConfigurationLoader<PasswordExpirationAlertModuleConfiguration> loader;
 
     @Override
     public AlertType getAlertType() {
@@ -28,7 +28,7 @@ public class PluginAccountEnabledConfigurationManager implements AlertConfigurat
     }
 
     @Override
-    public AlertModuleConfigurationBase getConfiguration() {
+    public PasswordExpirationAlertModuleConfiguration getConfiguration() {
         return loader.getConfiguration(reader::readConfiguration);
     }
 

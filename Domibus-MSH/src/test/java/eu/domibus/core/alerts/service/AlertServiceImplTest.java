@@ -64,7 +64,7 @@ public class AlertServiceImplTest {
     private Queue alertMessageQueue;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private ServerInfoService serverInfoService;
@@ -80,13 +80,13 @@ public class AlertServiceImplTest {
             eventDao.read(event.getEntityId());
             result = eventEntity;
 
-            multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+            alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
             result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            multiDomainAlertConfigurationService.getAlertLevel(withAny(new Alert()));
+            alertConfigurationService.getAlertLevel(withAny(new Alert()));
             result = AlertLevel.HIGH;
         }};
         alertService.createAlertOnEvent(event);
@@ -120,7 +120,7 @@ public class AlertServiceImplTest {
     public void getMailModelForAlert() throws ParseException {
         final String mailSubject = "Message failure";
         final String mailSubjectServerName = "localhost";
-        final String alertSuperInstanceNameSubjectProperty = MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+        final String alertSuperInstanceNameSubjectProperty = AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
         final String messageId = "messageId";
         final long entityId = 1;
         final AlertType alertType = AlertType.MSG_STATUS_CHANGED;
@@ -148,10 +148,10 @@ public class AlertServiceImplTest {
         new Expectations() {{
             alertDao.read(entityId);
             result = persistedAlert;
-            multiDomainAlertConfigurationService.getMailSubject(alertType);
+            alertConfigurationService.getMailSubject(alertType);
             result = mailSubject;
 
-            multiDomainAlertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+            alertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
             result = alertSuperInstanceNameSubjectProperty;
 
             domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
@@ -212,7 +212,7 @@ public class AlertServiceImplTest {
             persistedAlert.getMaxAttempts();
             result=2;
 
-            multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
+            alertConfigurationService.getAlertRetryTimePropertyName();
             result=DOMIBUS_ALERT_RETRY_TIME;
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
@@ -327,7 +327,7 @@ public class AlertServiceImplTest {
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
         final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
         new Expectations() {{
-            multiDomainAlertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+            alertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
             localDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
             result = alertLimitDate;

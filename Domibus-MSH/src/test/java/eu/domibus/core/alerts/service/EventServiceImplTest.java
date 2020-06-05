@@ -11,8 +11,6 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
@@ -71,7 +69,7 @@ public class EventServiceImplTest {
     private Queue alertMessageQueue;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     protected MpcService mpcService;

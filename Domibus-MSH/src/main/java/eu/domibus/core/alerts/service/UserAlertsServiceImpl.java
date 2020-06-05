@@ -2,10 +2,10 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;
@@ -61,9 +61,9 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
 
-    protected abstract RepetitiveAlertModuleConfiguration getExpiredAlertConfiguration();
+    protected abstract PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration();
 
-    protected abstract RepetitiveAlertModuleConfiguration getImminentExpirationAlertConfiguration();
+    protected abstract PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration();
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
@@ -135,7 +135,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     private void triggerExpirationEvents(boolean usersWithDefaultPassword, boolean imminent, EventType eventType) {
-        RepetitiveAlertModuleConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
+        PasswordExpirationAlertModuleConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
                 : getExpiredAlertConfiguration();
         if (!alertConfiguration.isActive()) {
             return;

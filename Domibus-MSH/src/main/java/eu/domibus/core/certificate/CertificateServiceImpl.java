@@ -10,7 +10,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -76,7 +76,7 @@ public class CertificateServiceImpl implements CertificateService {
     private CertificateDao certificateDao;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private EventService eventService;
@@ -223,7 +223,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected void sendCertificateImminentExpirationAlerts() {
-        final ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration = multiDomainAlertConfigurationService.getImminentExpirationCertificateConfiguration();
+        final ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration = alertConfigurationService.getImminentExpirationCertificateConfiguration();
         final Boolean activeModule = imminentExpirationCertificateConfiguration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
         if (!activeModule) {
@@ -250,7 +250,7 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     protected void sendCertificateExpiredAlerts() {
-        final ExpiredCertificateModuleConfiguration expiredCertificateConfiguration = multiDomainAlertConfigurationService.getExpiredCertificateConfiguration();
+        final ExpiredCertificateModuleConfiguration expiredCertificateConfiguration = alertConfigurationService.getExpiredCertificateConfiguration();
         final boolean activeModule = expiredCertificateConfiguration.isActive();
         LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
         if (!activeModule) {

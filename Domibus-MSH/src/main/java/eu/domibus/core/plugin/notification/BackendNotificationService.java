@@ -18,7 +18,7 @@ import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -109,7 +109,7 @@ public class BackendNotificationService {
     private EventService eventService;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
@@ -498,7 +498,7 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        final MessagingModuleConfiguration messagingConfiguration = multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
+        final MessagingModuleConfiguration messagingConfiguration = alertConfigurationService.getMessageCommunicationConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
         }

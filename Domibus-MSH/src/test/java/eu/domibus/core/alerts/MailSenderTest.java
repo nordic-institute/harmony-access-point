@@ -3,7 +3,7 @@ package eu.domibus.core.alerts;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateNotFoundException;
 import mockit.*;
@@ -47,7 +47,7 @@ public class MailSenderTest {
     protected DomainContextProvider domainProvider;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     final String smtpUrl = "smtpUrl";
     final String port = "25";
@@ -65,7 +65,7 @@ public class MailSenderTest {
         new Expectations() {{
             dynamicPropertySet.add(dynamicPropertyName);
             dynamicPropertySet.add(timeoutPropertyName);
-            multiDomainAlertConfigurationService.isAlertModuleEnabled();
+            alertConfigurationService.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
             result = smtpUrl;
@@ -75,7 +75,7 @@ public class MailSenderTest {
             result = user;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
             result = password;
-            multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
+            alertConfigurationService.getSendEmailActivePropertyName();
             result = DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;

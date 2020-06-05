@@ -33,7 +33,7 @@ public class AlertMethodEmail implements AlertMethod {
     private MailSender mailSender;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private UserDao userDao;

@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.account;
+package eu.domibus.core.alerts.configuration.account.disabled;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;

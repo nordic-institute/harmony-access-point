@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
@@ -62,7 +62,7 @@ public class UserSecurityPolicyManagerTest {
     DomainService domainService;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;

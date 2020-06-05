@@ -1,17 +1,13 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
@@ -25,13 +21,10 @@ import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * @author Ion Perpegel
@@ -171,7 +164,7 @@ public class DomibusPropertiesChangeListenersTest {
     private MailSender mailSender;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;

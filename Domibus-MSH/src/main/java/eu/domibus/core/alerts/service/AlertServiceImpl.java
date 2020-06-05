@@ -68,7 +68,7 @@ public class AlertServiceImpl implements AlertService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private ServerInfoService serverInfoService;
@@ -84,13 +84,13 @@ public class AlertServiceImpl implements AlertService {
         alert.addEvent(eventEntity);
         alert.setAlertType(AlertType.getByEventType(event.getType()));
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+        final String alertRetryMaxAttemptPropertyName = alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
 
         final eu.domibus.core.alerts.model.service.Alert convertedAlert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
-        final AlertLevel alertLevel = multiDomainAlertConfigurationService.getAlertLevel(convertedAlert);
+        final AlertLevel alertLevel = alertConfigurationService.getAlertLevel(convertedAlert);
         alert.setAlertLevel(alertLevel);
         LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
@@ -123,9 +123,9 @@ public class AlertServiceImpl implements AlertService {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
         final AlertType alertType = read.getAlertType();
-        String subject = multiDomainAlertConfigurationService.getMailSubject(alertType);
+        String subject = alertConfigurationService.getMailSubject(alertType);
 
-        final String alertSuperInstanceNameSubjectProperty = multiDomainAlertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+        final String alertSuperInstanceNameSubjectProperty = alertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
         subject += "[" + serverName + "]";
@@ -157,7 +157,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
+            final String alertRetryTimePropertyName = alertConfigurationService.getAlertRetryTimePropertyName();
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
@@ -219,7 +219,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void cleanAlerts() {
-        final Integer alertLifeTimeInDays = multiDomainAlertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+        final Integer alertLifeTimeInDays = alertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);

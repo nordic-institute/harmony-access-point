@@ -32,7 +32,7 @@ public class AlertMethodEmailTest {
     private MailSender mailSender;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private UserDao userDao;

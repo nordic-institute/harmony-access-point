@@ -21,7 +21,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -126,7 +126,7 @@ public class BackendNotificationServiceTest {
     private EventService eventService;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
@@ -618,7 +618,7 @@ public class BackendNotificationServiceTest {
             messageLog.getBackend();
             result = backend;
 
-            multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
+            alertConfigurationService.getMessageCommunicationConfiguration();
             result = messageCommunicationConfiguration;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);

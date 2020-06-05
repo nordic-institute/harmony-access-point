@@ -15,7 +15,7 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -42,7 +42,7 @@ public class SuperUserManagementServiceImplTest {
     EventService eventService;
 
     @Injectable
-    MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    AlertConfigurationService alertConfigurationService;
 
     @Injectable
     UserPersistenceService userPersistenceService;

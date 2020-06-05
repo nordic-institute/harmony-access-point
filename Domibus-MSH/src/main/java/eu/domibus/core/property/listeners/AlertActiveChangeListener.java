@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class AlertActiveChangeListener implements DomibusPropertyChangeListener 
     private MailSender mailSender;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -39,7 +39,7 @@ public class AlertActiveChangeListener implements DomibusPropertyChangeListener 
 
         mailSender.reset();
 
-        multiDomainAlertConfigurationService.clearAllConfigurations();
+        alertConfigurationService.clearAllConfigurations();
     }
 
 }

@@ -6,7 +6,11 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.*;
+import eu.domibus.core.alerts.configuration.account.disabled.*;
+import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationReader;
+import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationReader;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateConfigurationManager;
@@ -18,8 +22,8 @@ import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguratio
 import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.ConsolePasswordExpiredAlertConfigurationReader;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.ConsolePasswordExpiredAlertConfigurationReader;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.*;
@@ -43,7 +47,7 @@ import static org.junit.Assert.*;
 public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Tested
-    private MultiDomainAlertConfigurationServiceImpl configurationService;
+    private AlertConfigurationServiceImpl configurationService;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -786,7 +790,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
                 result = "my subjects";
             }
         };
-        final RepetitiveAlertModuleConfiguration conf = new ConsolePasswordExpiredAlertConfigurationReader().readConfiguration();
+        final PasswordExpirationAlertModuleConfiguration conf = new ConsolePasswordExpiredAlertConfigurationReader().readConfiguration();
 
         assertTrue(conf.isActive());
         assertEquals(15, (long) conf.getEventDelay());
@@ -805,7 +809,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
                 result = true;
             }
         };
-        final RepetitiveAlertModuleConfiguration conf = new ConsolePasswordExpiredAlertConfigurationReader().readConfiguration();
+        final PasswordExpirationAlertModuleConfiguration conf = new ConsolePasswordExpiredAlertConfigurationReader().readConfiguration();
         assertFalse(conf.isActive());
     }
 

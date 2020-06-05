@@ -2,7 +2,7 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
@@ -89,6 +89,6 @@ public interface EventService {
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
      */
-    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, RepetitiveAlertModuleConfiguration alertConfiguration);
+    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration);
 
 }

@@ -7,7 +7,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.alerts.configuration.password.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService ConfigurationService;
+    private AlertConfigurationService ConfigurationService;
 
     @Autowired
     protected MpcService mpcService;
@@ -255,7 +255,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, RepetitiveAlertModuleConfiguration alertConfiguration) {
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
 
@@ -282,7 +282,7 @@ public class EventServiceImpl implements EventService {
         return entity;
     }
 
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, RepetitiveAlertModuleConfiguration alertConfiguration) {
+    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         int frequency = alertConfiguration.getEventFrequency();
 
         LocalDate lastAlertDate = entity.getLastAlertDate();

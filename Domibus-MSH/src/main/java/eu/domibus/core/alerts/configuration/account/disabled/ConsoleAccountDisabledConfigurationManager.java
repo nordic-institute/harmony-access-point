@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.password;
+package eu.domibus.core.alerts.configuration.account.disabled;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -7,19 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Manages the reading of plugin user password imminent expiration alert configuration
+ * Manages the reading of console user account disabled alert configuration
  *
  * @author Ion Perpegel
  * @since 4.2
  */
 @Service
-public class PluginPasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
+public class ConsoleAccountDisabledConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
-    private PluginPasswordImminentExpirationAlertConfigurationReader reader;
+    private ConsoleAccountDisabledConfigurationReader reader;
 
     @Autowired
-    private ConfigurationLoader<RepetitiveAlertModuleConfiguration> loader;
+    private ConfigurationLoader<AccountDisabledModuleConfiguration> loader;
 
     @Override
     public AlertType getAlertType() {
@@ -27,7 +27,7 @@ public class PluginPasswordImminentExpirationAlertConfigurationManager implement
     }
 
     @Override
-    public RepetitiveAlertModuleConfiguration getConfiguration() {
+    public AccountDisabledModuleConfiguration getConfiguration() {
         return loader.getConfiguration(reader::readConfiguration);
     }
 

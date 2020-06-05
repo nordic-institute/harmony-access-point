@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.service.*;
@@ -50,7 +50,7 @@ public class UserAlertsServiceImplTest {
     private UserConverter userConverter;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertsConfiguration;
+    private AlertConfigurationService alertsConfiguration;
 
     @Injectable
     private EventService eventService;
