@@ -95,6 +95,19 @@ public class DomibusSOAPHandlerFaultOutInterceptor extends
         }
     }
 
+    /* Fix for EDELIVERY-3751
+     * Whenever a fault occurs in one of the CXF interceptors, handleFault() is called in reverse order for all the
+     * interceptors that were invoked so far.
+     * The initial fault message is not propagated properly and a 200 OK with empty body is returned.
+     * The ebms3 profile requires to always return a SoapFault therefore it is necessary
+     * to copy the message to the OUTPUT_WRITER by calling the SAAJOutInterceptor
+     */
+    @Override
+    public void handleFault(SoapMessage message) {
+        LOG.debug("Handle fault, copy the message to the output writer to make sure the SoapFault is returned to the user.");
+        SAAJOutInterceptor.SAAJOutEndingInterceptor.INSTANCE.handleMessage(message);
+    }
+
     private void checkUnderstoodHeaders(SoapMessage soapMessage) {
         Set paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
         if (soapMessage.getHeaders().isEmpty() && paramHeaders.isEmpty()) {
