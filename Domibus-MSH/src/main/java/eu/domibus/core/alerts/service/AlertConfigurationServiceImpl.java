@@ -56,9 +56,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Autowired
-    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
-
-    @Autowired
     private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
 
     @Autowired
@@ -87,19 +84,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     @Autowired
     private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
-
-
-    // method implementation
-
-    @Override
-    public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
-        return pluginAccountEnabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearPluginAccountEnabledConfiguration() {
-        pluginAccountEnabledConfigurationManager.reset();
-    }
+    
 
     @Override
     public LoginFailureModuleConfiguration getConsoleLoginFailureConfiguration() {

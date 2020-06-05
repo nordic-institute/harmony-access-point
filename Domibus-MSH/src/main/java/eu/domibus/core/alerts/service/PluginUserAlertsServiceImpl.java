@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
@@ -31,6 +32,9 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     private AlertConfigurationService alertsConfiguration;
+
+    @Autowired
+    private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
 
     @Autowired
     private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
@@ -82,7 +86,7 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-        return alertsConfiguration.getPluginAccountEnabledConfiguration();
+        return pluginAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override

@@ -20,8 +20,6 @@ import eu.domibus.core.alerts.model.service.*;
  */
 public interface AlertConfigurationService {
 
-    void clearPluginAccountEnabledConfiguration();
-
     /**
      * @return login failure module configuration
      */
@@ -98,11 +96,6 @@ public interface AlertConfigurationService {
      * @return login failure module configuration for plugin users
      */
     LoginFailureModuleConfiguration getPluginLoginFailureConfiguration();
-
-    /**
-     * @return account enabled module configuration for plugin users
-     */
-    AlertModuleConfigurationBase getPluginAccountEnabledConfiguration();
 
     PasswordExpirationAlertModuleConfiguration getConsolePasswordExpiredAlertConfigurationManager();
 
