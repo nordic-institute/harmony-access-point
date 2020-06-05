@@ -54,6 +54,9 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     private AlertConfigurationService configurationService;
 
     @Injectable
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
+
+    @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
@@ -64,9 +67,6 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Injectable
     List<AlertConfigurationManager> alertConfigurationManagers;
-
-    @Injectable
-    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Injectable
     private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
@@ -97,7 +97,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.MSG_STATUS_CHANGED);
         new Expectations(configurationService) {{
-            configurationService.getMessageCommunicationConfiguration();
+            messagingConfigurationManager.getConfiguration();
             result = messagingConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -112,7 +112,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
         final Alert alert = new Alert();
         alert.setAlertType(AlertType.USER_ACCOUNT_DISABLED);
         new Expectations(configurationService) {{
-            configurationService.getConsoleAccountDisabledConfiguration();
+            consoleAccountDisabledConfigurationManager.getConfiguration();
             this.result = accountDisabledConfiguration;
         }};
         configurationService.getAlertLevel(alert);
@@ -191,7 +191,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForAccountDisabled(final @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getConsoleAccountDisabledConfiguration();
+            consoleAccountDisabledConfigurationManager.getConfiguration();
             this.result = accountDisabledConfiguration;
 
             accountDisabledConfiguration.getMailSubject();

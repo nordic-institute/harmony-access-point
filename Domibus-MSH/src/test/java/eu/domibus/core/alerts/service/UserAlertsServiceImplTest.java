@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.service.*;
 import eu.domibus.core.user.ui.converters.UserConverter;
@@ -51,6 +52,9 @@ public class UserAlertsServiceImplTest {
 
     @Injectable
     private AlertConfigurationService alertsConfiguration;
+
+    @Injectable
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Injectable
     private EventService eventService;
@@ -206,7 +210,7 @@ public class UserAlertsServiceImplTest {
         AccountDisabledModuleConfiguration conf = new AccountDisabledModuleConfiguration(AlertType.USER_ACCOUNT_DISABLED,
                 AlertLevel.MEDIUM, AccountDisabledMoment.AT_LOGON, "");
         new Expectations() {{
-            alertsConfiguration.getConsoleAccountDisabledConfiguration();
+            consoleAccountDisabledConfigurationManager.getConfiguration();
             result = conf;
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;

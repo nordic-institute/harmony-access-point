@@ -25,19 +25,9 @@ public interface AlertConfigurationService {
     void clearConsoleAccountEnabledConfiguration();
 
     /**
-     * @return account disabled module configuration
-     */
-    AccountDisabledModuleConfiguration getConsoleAccountDisabledConfiguration();
-
-    /**
      * @return account enabled module configuration
      */
     AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration();
-
-    /**
-     * Clears/removes the account disabled configuration so that a new one will be created when calls to it are made
-     */
-    void clearConsoleAccountDisabledConfiguration();
 
     /**
      * @return login failure module configuration

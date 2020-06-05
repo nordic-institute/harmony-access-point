@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -30,6 +31,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     private AlertConfigurationService alertsConfiguration;
+
+    @Autowired
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -73,7 +77,7 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return alertsConfiguration.getConsoleAccountDisabledConfiguration();
+        return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override

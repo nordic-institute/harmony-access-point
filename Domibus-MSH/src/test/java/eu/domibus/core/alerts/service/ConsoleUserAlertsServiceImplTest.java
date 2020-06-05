@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -28,7 +29,7 @@ public class ConsoleUserAlertsServiceImplTest {
     private UserDao userDao;
 
     @Injectable
-    private AlertConfigurationService alertsConfiguration;
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Injectable
     private EventService eventService;
@@ -83,7 +84,7 @@ public class ConsoleUserAlertsServiceImplTest {
         AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
 
         new VerificationsInOrder() {{
-            alertsConfiguration.getConsoleAccountDisabledConfiguration();
+            consoleAccountDisabledConfigurationManager.getConfiguration();
             times = 1;
         }};
     }
