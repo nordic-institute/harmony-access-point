@@ -92,16 +92,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     // method implementation
 
     @Override
-    public AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration() {
-        return consoleAccountEnabledConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearConsoleAccountEnabledConfiguration() {
-        consoleAccountEnabledConfigurationManager.reset();
-    }
-
-    @Override
     public AlertModuleConfigurationBase getPluginAccountEnabledConfiguration() {
         return pluginAccountEnabledConfigurationManager.getConfiguration();
     }

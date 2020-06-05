@@ -22,13 +22,6 @@ public interface AlertConfigurationService {
 
     void clearPluginAccountEnabledConfiguration();
 
-    void clearConsoleAccountEnabledConfiguration();
-
-    /**
-     * @return account enabled module configuration
-     */
-    AlertModuleConfigurationBase getConsoleAccountEnabledConfiguration();
-
     /**
      * @return login failure module configuration
      */

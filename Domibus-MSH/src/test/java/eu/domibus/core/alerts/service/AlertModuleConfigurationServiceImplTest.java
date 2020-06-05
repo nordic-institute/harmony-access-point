@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class MultiDomainAlertModuleConfigurationServiceImplTest {
+public class AlertModuleConfigurationServiceImplTest {
 
     @Tested
     private MessagingConfigurationManager messagingConfigurationManager;
@@ -53,7 +53,10 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Tested
     private AlertConfigurationService configurationService;
 
-    @Injectable
+    @Tested
+    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
+
+    @Tested
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
     @Injectable
@@ -70,9 +73,6 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
 
     @Injectable
     private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
-
-    @Injectable
-    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
 
     @Injectable
     private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
@@ -211,7 +211,7 @@ public class MultiDomainAlertModuleConfigurationServiceImplTest {
     @Test
     public void getMailSubjectForAccountEnabled(final @Mocked AlertModuleConfigurationBase accountEnabledConfiguration) {
         new Expectations(configurationService) {{
-            configurationService.getConsoleAccountEnabledConfiguration();
+            consoleAccountEnabledConfigurationManager.getConfiguration();
             this.result = accountEnabledConfiguration;
 
             accountEnabledConfiguration.getMailSubject();
