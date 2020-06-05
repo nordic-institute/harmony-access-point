@@ -70,10 +70,6 @@ public interface AlertConfigurationService {
      */
     String getAlertSuperServerNameSubjectPropertyName();
 
-    PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager();
-
-    void clearPluginPasswordImminentExpirationAlertConfigurationManager();
-
     /**
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
      */

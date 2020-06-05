@@ -6,6 +6,7 @@ import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabled
 import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -33,9 +34,6 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected AuthenticationDAO userDao;
 
     @Autowired
-    private AlertConfigurationService alertsConfiguration;
-
-    @Autowired
     private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
 
     @Autowired
@@ -46,6 +44,9 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Autowired
     private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
+
+    @Autowired
+    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -109,7 +110,7 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
-        return alertsConfiguration.getPluginPasswordImminentExpirationAlertConfigurationManager();
+        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }

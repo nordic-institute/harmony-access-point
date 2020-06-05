@@ -58,19 +58,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     @Autowired
     private CommonConfigurationManager commonConfigurationManager;
 
-    @Autowired
-    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
-
-    @Override
-    public PasswordExpirationAlertModuleConfiguration getPluginPasswordImminentExpirationAlertConfigurationManager() {
-        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
-    }
-
-    @Override
-    public void clearPluginPasswordImminentExpirationAlertConfigurationManager() {
-        pluginPasswordImminentExpirationAlertConfigurationManager.reset();
-    }
-
     @Override
     public void clearAllConfigurations() {
         commonConfigurationManager.reset();
