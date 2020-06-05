@@ -16,6 +16,7 @@ Domibus 4.2
 - Added Foreign Servers support in Weblogic
 - Add alert for account enabled.
 - maxSize attribute defined in payload profile in PMode is taken in account for standard messages (non Split&Join)
+- Added a new domain property: domibus.logging.ebms3.error.print (defaults to true) which prints the raw XML response in the logs in case of EBMS3 error on receiver/sender side (if eu.domibus is put at least on ERROR)
 Domibus 4.1.4
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
