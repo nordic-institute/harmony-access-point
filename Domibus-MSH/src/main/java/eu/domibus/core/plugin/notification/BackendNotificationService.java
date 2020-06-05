@@ -355,6 +355,8 @@ public class BackendNotificationService {
     }
 
     public void invalidateBackendFiltersCache() {
+        LOG.debug("Invalidating the backend filter cache");
+
         this.backendFiltersCache = null;
     }
 
