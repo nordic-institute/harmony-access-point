@@ -39,7 +39,7 @@ public class DomibusJMSWildflyQueueConfiguration {
     }
 
     @Bean(WILDFLY_CONNECTION_FACTORY)
-    public JndiObjectFactoryBean connectionFactory() {
+    public JndiObjectFactoryBean wildflyConnectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
         jndiObjectFactoryBean.setLookupOnStartup(false);
