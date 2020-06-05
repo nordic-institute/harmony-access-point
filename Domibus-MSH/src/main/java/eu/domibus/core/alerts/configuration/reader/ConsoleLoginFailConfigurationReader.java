@@ -7,6 +7,12 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Reader of console user login fail alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class ConsoleLoginFailConfigurationReader extends LoginFailConfigurationReader {
 

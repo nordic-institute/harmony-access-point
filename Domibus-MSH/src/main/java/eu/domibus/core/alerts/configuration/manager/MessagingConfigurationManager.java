@@ -19,6 +19,12 @@ import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Manages the reading of messaging alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class MessagingConfigurationManager implements AlertConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MessagingConfigurationManager.class);

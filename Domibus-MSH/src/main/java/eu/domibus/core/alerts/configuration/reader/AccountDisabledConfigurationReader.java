@@ -14,6 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
+/**
+ * Base code for reading of console and plugin user account disabled alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 public abstract class AccountDisabledConfigurationReader implements UserAuthenticationConfiguration {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AccountDisabledConfigurationReader.class);
 

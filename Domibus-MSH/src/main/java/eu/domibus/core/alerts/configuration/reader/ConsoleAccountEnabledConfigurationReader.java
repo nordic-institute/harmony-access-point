@@ -5,6 +5,12 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Reader of console user account enabled alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class ConsoleAccountEnabledConfigurationReader extends AccountEnabledConfigurationReader {
 

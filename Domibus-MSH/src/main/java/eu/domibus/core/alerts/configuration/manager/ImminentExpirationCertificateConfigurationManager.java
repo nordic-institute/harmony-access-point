@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Manages the reading of certificate imminent expiration alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class ImminentExpirationCertificateConfigurationManager implements AlertConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ImminentExpirationCertificateConfigurationManager.class);

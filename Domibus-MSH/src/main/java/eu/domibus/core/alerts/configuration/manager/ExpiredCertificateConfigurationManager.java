@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Manages the reading of expired certificate alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class ExpiredCertificateConfigurationManager implements AlertConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ExpiredCertificateConfigurationManager.class);

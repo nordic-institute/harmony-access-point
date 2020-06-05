@@ -7,6 +7,12 @@ import eu.domibus.core.alerts.configuration.model.RepetitiveAlertModuleConfigura
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Manages the reading of plugin user password imminent expiration alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class PluginPasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
 

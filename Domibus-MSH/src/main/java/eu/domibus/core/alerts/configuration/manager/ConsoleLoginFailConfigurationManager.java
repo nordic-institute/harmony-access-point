@@ -7,6 +7,12 @@ import eu.domibus.core.alerts.configuration.model.LoginFailureModuleConfiguratio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Manages the reading of console user login fail alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class ConsoleLoginFailConfigurationManager implements AlertConfigurationManager {
 

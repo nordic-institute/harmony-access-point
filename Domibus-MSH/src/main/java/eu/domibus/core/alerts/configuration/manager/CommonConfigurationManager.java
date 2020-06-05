@@ -19,6 +19,12 @@ import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * Manages the reading of common alert configuration
+ *
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Service
 public class CommonConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(CommonConfigurationManager.class);
