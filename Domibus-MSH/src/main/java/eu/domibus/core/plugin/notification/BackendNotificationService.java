@@ -133,8 +133,8 @@ public class BackendNotificationService {
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
-    protected volatile Object backendFiltersCacheLock = new Object();
-    protected List<BackendFilter> backendFiltersCache;
+    protected Object backendFiltersCacheLock = new Object();
+    protected volatile List<BackendFilter> backendFiltersCache;
 
     @PostConstruct
     public void init() {
