@@ -25,24 +25,36 @@ public class AlertPgTest extends SeleniumTest {
 		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 		
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		
 		if (data.isMultiDomain()) {
-			apage.filters().showDomainAlert();
+			page.filters().showDomainAlert();
+		}
+		page.grid().waitForRowsToLoad();
+		
+		log.info("Number of records : " + page.grid().getPagination().getTotalItems());
+		log.info("Getting all listed alert info");
+		
+		HashMap<String, String> fAlert = page.grid().getRowInfo(0);
+		
+		log.info("Basic filtering by " + fAlert);
+		page.filters().basicFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status"),
+				fAlert.get("Alert level"), fAlert.get("Creation Time"), null);
+		
+		page.grid().waitForRowsToLoad();
+		
+		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
+		
+		soft.assertTrue(allResultInfo.size()>=1 , "At least one result is returned");
+		
+		for (HashMap<String, String> currentAlert : allResultInfo) {
+			soft.assertEquals(currentAlert.get("Alert Type"), fAlert.get("Alert Type") , "Result has the same value as initial alert for: " + "Alert Type" );
+			soft.assertEquals(currentAlert.get("Alert Status"), fAlert.get("Alert Status") , "Result has the same value as initial alert for: " + "Alert Status" );
+			soft.assertEquals(currentAlert.get("Alert level"), fAlert.get("Alert level") , "Result has the same value as initial alert for: " + "Alert level" );
 		}
 		
-		log.info("Number of records : " + apage.grid().getRowsNo());
-		log.info("Getting all listed alert info");
-		log.info("Alert type for top row : " + apage.grid().getRowInfo(0).get("Alert Type"));
-		String beforeSearchalertType = apage.grid().getRowInfo(0).get("Alert Type");
-		List<HashMap<String, String>> allRowInfo = apage.grid().getAllRowInfo();
-		HashMap<String, String> fAlert = allRowInfo.get(0);
-		log.info("Basic filtering by " + fAlert);
-		apage.filters().basicFilterBy(null, fAlert.get("Alert Type"), fAlert.get("Alert Status"),
-				fAlert.get("Alert level"), fAlert.get("Creation Time"), null);
-		apage.grid().waitForRowsToLoad();
-		String afterSearchAlertType = apage.grid().getRowInfo(0).get("Alert Type");
-		soft.assertTrue(beforeSearchalertType.equals(afterSearchAlertType), "After and before search records are same");
+		
 		soft.assertAll();
 		
 	}
@@ -87,13 +99,16 @@ public class AlertPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Login into application and navigate to Alerts page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
+		
 		log.info("Search using basic filters");
-		apage.filters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
-		apage.grid().waitForRowsToLoad();
+		page.filters().basicFilterBy(null, "PLUGIN_USER_LOGIN_FAILURE", null, null, null, null);
+		page.grid().waitForRowsToLoad();
+		
 		log.info("Validate grid count as zero");
-		soft.assertTrue(apage.grid().getPagination().getTotalItems() == 0, "No search result exist");
+		soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "No search result exist");
 		soft.assertAll();
 	}
 	
@@ -204,27 +219,31 @@ public class AlertPgTest extends SeleniumTest {
 		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 		rest.login(username, "wrong");
 		
-		log.info("Login into application");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
-		log.info("Navigate to Alerts page");
 		
-		AlertPage apage = new AlertPage(driver);
+		log.info("Login into application");
+		log.info("Navigate to Alerts page");
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
+		
 		log.info("Search data using basic filter for user_login_failure alert type");
-		apage.filters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
+		page.filters().basicFilterBy(null, "USER_LOGIN_FAILURE", null, null, null, null);
+		page.grid().waitForRowsToLoad();
+		
 		log.info("Check if multidomain exists");
 		if (data.isMultiDomain()) {
 			log.info("Select show domain check box");
-			apage.filters().getShowDomainCheckbox().click();
+			page.filters().getShowDomainCheckbox().click();
 		}
 		
 		log.info("Click on search button");
-		apage.filters().getSearchButton().click();
-		apage.grid().waitForRowsToLoad();
+		page.filters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Validate presence of alert data for user_login_failure alert type for given user");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(username), "Top row contains alert type as USER_LOGIN_FAILURE");
+		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
+		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
+		soft.assertTrue(page.grid().getRowInfo(0).get("Parameters").contains(username), "Top row contains alert type as USER_LOGIN_FAILURE");
 		soft.assertAll();
 	}
 	

@@ -276,7 +276,10 @@ public class MessagesPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+		grid.getGridCtrl().showAllColumns();
+		grid.waitForRowsToLoad();
 		
 		for (int i = 0; i < 3; i++) {
 			int index = Generator.randomNumber(colDescs.length() - 1);

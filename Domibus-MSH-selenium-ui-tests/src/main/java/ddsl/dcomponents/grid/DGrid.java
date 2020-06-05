@@ -42,10 +42,14 @@ public class DGrid extends DComponent {
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
 	
+	protected WebElement container;
+	
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
 		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
+	
+		this.container = container;
 	}
 	
 	//	------------------------------------------------
@@ -200,6 +204,7 @@ public class DGrid extends DComponent {
 	public void sortBy(String columnName) throws Exception {
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
+			resetGridScroll();
 			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.scrollIntoView();
@@ -308,6 +313,13 @@ public class DGrid extends DComponent {
 		return values;
 	}
 
+	public void resetGridScroll(){
+		log.info("reseting grid scroll");
+		((JavascriptExecutor) driver).executeScript("arguments[0].querySelector('datatable-body').scrollLeft =0;", container);
+		((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div > ng-component > div > div.panel > div:nth-child(2)').scrollTop=0");
+//		.querySelector('datatable-body').scrollLeft =0
+//		document.querySelector('#routerHolder > div > ng-component > div > div.panel > div:nth-child(2)').scrollTop=0
+	}
 
 //-------------------------------------------------------------------------------------------------
 	

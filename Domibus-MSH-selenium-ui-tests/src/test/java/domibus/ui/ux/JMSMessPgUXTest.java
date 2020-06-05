@@ -158,8 +158,10 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-5", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesEmptySearch() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		int noOfMessages = 0;
 		try {

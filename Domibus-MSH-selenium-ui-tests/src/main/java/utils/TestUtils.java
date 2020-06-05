@@ -107,7 +107,9 @@ public class TestUtils {
 		List<Integer> toReturn = new ArrayList<>();
 		
 		for (int i = 0; i < list.size(); i++) {
-			toReturn.add(Integer.valueOf(list.get(i).trim()));
+			if (StringUtils.isNotEmpty(list.get(i).trim())) {
+				toReturn.add(Integer.valueOf(list.get(i).trim()));
+			}
 		}
 		return toReturn;
 	}
@@ -116,7 +118,9 @@ public class TestUtils {
 		List<Date> toReturn = new ArrayList<>();
 		
 		for (int i = 0; i < list.size(); i++) {
-			toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
+			if (StringUtils.isNotEmpty(list.get(i))) {
+				toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
+			}
 		}
 		return toReturn;
 	}
@@ -141,7 +145,6 @@ public class TestUtils {
 	public static JSONObject getPageDescriptorObject(PAGES page) {
 		String suffix = "PageDescriptor.json";
 		String prefix = "pageDescriptors/";
-//        String pageName = StringUtils.removeAll(page.toString(), "_").toLowerCase();
 		String pageName = page.toString().replaceAll("_", "").toLowerCase();
 		String fileName = prefix + pageName + suffix;
 		
