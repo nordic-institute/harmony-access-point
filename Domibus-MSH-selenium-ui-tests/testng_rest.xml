@@ -3,9 +3,9 @@
 <suite name="RestTests">
 
 	<test name="REST">
-		<classes>
-			<class name="domibus.ui.rest.*"></class>
-		</classes>
+		<packages>
+			<package name="domibus.ui.rest.*"></package>
+		</packages>
 	</test>
 
 

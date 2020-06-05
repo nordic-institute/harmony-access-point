@@ -37,7 +37,7 @@ public class PMAGrid extends DGrid {
 			String strippedDesc = rowInfo.get("Description").replace("[CURRENT]: ", "");
 			rowInfo.put("Description", strippedDesc);
 			rowInfo.put("Current", String.valueOf(true));
-		}else {
+		} else {
 			rowInfo.put("Current", String.valueOf(false));
 		}
 		return rowInfo;

@@ -1,9 +1,9 @@
 package pages;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dobjects.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.Select;
 import ddsl.enums.DMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
@@ -20,45 +20,35 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
 public class TestServicePage extends DomibusPage {
-	public TestServicePage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
 	@FindBy(id = "receiverPartyId_id")
 	WebElement partySelector;
-
 	@FindBy(id = "updatebutton_id")
 	WebElement updateBtn;
-
 	@FindBy(id = "testbutton_id")
 	WebElement testBtn;
 	//------------------------------------------------
 	@FindBy(id = "toPartyId_id")
 	WebElement toParty;
-
 	@FindBy(id = "toAccessPoint_id")
 	WebElement toAccessPoint;
-
 	@FindBy(id = "timeSent_id")
 	WebElement timeSent;
-
 	@FindBy(id = "toMessageId_id")
 	WebElement toMessage;
-
 	//------------------------------------------------
 	@FindBy(id = "fromPartyId_id")
 	WebElement fromParty;
-
 	@FindBy(id = "fromAccessPoint_id")
 	WebElement fromAccessPoint;
-
 	@FindBy(id = "timeReceived_id")
 	WebElement timeReceived;
-
 	@FindBy(id = "fromMessageId_id")
 	WebElement fromMessage;
 
+	public TestServicePage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public Select getPartySelector() {
 		return new Select(driver, partySelector);

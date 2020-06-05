@@ -7,7 +7,6 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
-import ddsl.enums.PAGES;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -18,11 +17,6 @@ import rest.RestServicePaths;
 import utils.Generator;
 
 public class PModeArchivePage extends DomibusPage {
-
-	public PModeArchivePage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
 
 	@FindBy(id = "pageGridId")
 	private WebElement archiveGridContainer;
@@ -50,6 +44,10 @@ public class PModeArchivePage extends DomibusPage {
 	private WebElement XmlTextArea;
 	@FindBy(css = ".mat-raised-button.mat-primary:last-child")
 	private WebElement OkButton;
+	public PModeArchivePage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DObject getDownloadCSV() {
 		return new DObject(driver, DownloadCurrentFile);

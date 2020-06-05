@@ -11,12 +11,14 @@
 		"type": "text",
 		"sortable": true,
 		"visibleByDefault": true
-	  },{
+	  },
+	  {
 		"name": "Subject",
 		"type": "text",
 		"sortable": true,
 		"visibleByDefault": true
-	  },{
+	  },
+	  {
 		"name": "Issuer",
 		"type": "text",
 		"sortable": true,
@@ -27,7 +29,8 @@
 		"type": "datetime",
 		"sortable": true,
 		"visibleByDefault": true
-	  }, {
+	  },
+	  {
 		"name": "Valid until",
 		"type": "datetime",
 		"sortable": true,

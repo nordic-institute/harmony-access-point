@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionMonitoringRestTest extends RestTest {
-
+	
 	@Test
 	public void getPartiesTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
+		
 		rest.pmode().uploadPMode("rest_pmodes/pmode-blue.xml", null);
-
+		
 		JSONArray pmodeParties = rest.pmodeParties().getParties(null);
 		List<String> pmode_ids = extracPartyIDs(pmodeParties);
 		log.debug(pmode_ids.toString());
-
+		
 		JSONArray connParties = rest.connMonitor().getConnectionMonitoringParties(null);
 		log.debug(connParties.toString());
 		soft.assertTrue(connParties.length() == pmode_ids.size(), "Same number of parties listed");
@@ -27,63 +27,64 @@ public class ConnectionMonitoringRestTest extends RestTest {
 			soft.assertTrue(pmode_ids.contains(connParties.getString(i)),
 					"Conn party is present in pmode parties " + connParties.getString(i));
 		}
-
+		
 		soft.assertAll();
 	}
+	
 	@Test
 	public void enableMonitoringTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
+		
 		rest.pmode().uploadPMode("rest_pmodes/pmode-blue.xml", null);
 		JSONArray connParties = rest.connMonitor().getConnectionMonitoringParties(null);
 		log.debug(connParties.toString());
-
+		
 		String partyID = connParties.getString(0);
 		soft.assertTrue(rest.connMonitor().monitorParty(partyID, null), "Monitoring party" + partyID);
-
+		
 		JSONObject partyDetail = rest.connMonitor().getMonitoringPartiesDetails(partyID, null);
-		soft.assertTrue(partyDetail.getBoolean("monitored"), "party "+partyID+" is monitored");
-
+		soft.assertTrue(partyDetail.getBoolean("monitored"), "party " + partyID + " is monitored");
+		
 		soft.assertAll();
 	}
-
+	
 	@Test
 	public void disableMonitoringTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
+		
 		rest.pmode().uploadPMode("rest_pmodes/pmode-blue.xml", null);
 		JSONArray connParties = rest.connMonitor().getConnectionMonitoringParties(null);
 		log.debug(connParties.toString());
-
+		
 		String partyID = connParties.getString(0);
 		soft.assertTrue(rest.connMonitor().disableMonitorParty(partyID, null), "Disable monitoring for party" + partyID);
-
+		
 		JSONObject partyDetail = rest.connMonitor().getMonitoringPartiesDetails(partyID, null);
-		soft.assertFalse(partyDetail.getBoolean("monitored"), "party "+partyID+" is monitored");
-
+		soft.assertFalse(partyDetail.getBoolean("monitored"), "party " + partyID + " is monitored");
+		
 		soft.assertAll();
 	}
-
-
+	
+	
 	@Test(dataProvider = "readInvalidStrings", enabled = false)
 	public void enableMonitoringNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
-
+		
 		String partyID = evilStr;
-
+		
 		try {
 			rest.connMonitor().monitorParty(partyID, null);
 			soft.fail("no error thrown");
 		} catch (Exception e) {
-
+		
 		}
-
+		
 		JSONObject partyDetail = rest.connMonitor().getMonitoringPartiesDetails(partyID, null);
-		soft.assertTrue(partyDetail.getBoolean("monitored"), "party "+partyID+" is monitored");
-
+		soft.assertTrue(partyDetail.getBoolean("monitored"), "party " + partyID + " is monitored");
+		
 		soft.assertAll();
 	}
-
+	
 	private List<String> extracPartyIDs(JSONArray parties) {
 		List<String> ids = new ArrayList<>();
 		String partiesStr = parties.toString();
@@ -96,5 +97,5 @@ public class ConnectionMonitoringRestTest extends RestTest {
 		}
 		return ids;
 	}
-
+	
 }

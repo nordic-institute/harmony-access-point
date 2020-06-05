@@ -8,27 +8,24 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class MessageResendModal extends DComponent {
-	public MessageResendModal(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements( new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-
-	}
-
 	@FindBy(id = "yesbuttondialog_id")
 	WebElement resendButton;
 	@FindBy(id = "nobuttondialog_id")
 	WebElement cancel;
-
 	@FindBy(css = ".mat-dialog-title")
 	WebElement title;
+
+	public MessageResendModal(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+	}
 
 	public DButton getResendButton() {
 		return new DButton(driver, resendButton);

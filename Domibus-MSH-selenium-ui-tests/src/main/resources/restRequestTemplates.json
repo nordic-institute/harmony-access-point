@@ -36,11 +36,12 @@
 	"entityId": 0,
 	"index": 0,
 	"backendName": "backendWebservice",
-	"routingCriterias": [{
-	  "entityId": 0,
-	  "name": "action",
-	  "expression": ""
-	}
+	"routingCriterias": [
+	  {
+		"entityId": 0,
+		"name": "action",
+		"expression": ""
+	  }
 	],
 	"persisted": false,
 	"from": null,

@@ -11,7 +11,6 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,28 +21,28 @@ import java.util.Calendar;
  * @since 4.1.2
  */
 public class FailListener implements ITestListener {
-
-	Logger log = LoggerFactory.getLogger("ROOT");
+	
 	static int test_count = 0;
 	static int passed_count = 0;
 	static int failed_count = 0;
 	static int skipped_count = 0;
 	static int total_test_count = 0;
-
+	Logger log = LoggerFactory.getLogger("ROOT");
+	
 	@Override
 	public void onStart(ITestContext context) {
 		total_test_count = context.getSuite().getAllMethods().size();
-		 log.info("Tests methods to run - " + total_test_count);
+		log.info("Tests methods to run - " + total_test_count);
 	}
-
+	
 	@Override
 	public void onTestSuccess(ITestResult result) {
 		test_count++;
 		passed_count++;
 		logTestCounts();
 	}
-
-
+	
+	
 	@Override
 	public void onTestFailure(ITestResult result) {
 		test_count++;
@@ -51,7 +50,7 @@ public class FailListener implements ITestListener {
 		logTestCounts();
 		takeScreenshot(result);
 	}
-
+	
 	@Override
 	public void onTestSkipped(ITestResult result) {
 		test_count++;
@@ -59,14 +58,14 @@ public class FailListener implements ITestListener {
 		logTestCounts();
 		takeScreenshot(result);
 	}
-
-	private void takeScreenshot(ITestResult result){
+	
+	private void takeScreenshot(ITestResult result) {
 		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
 		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
 		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
-
+		
 		try {
 			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
 			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
@@ -77,13 +76,13 @@ public class FailListener implements ITestListener {
 			e.printStackTrace();
 		}
 	}
-
-	private void logTestCounts(){
+	
+	private void logTestCounts() {
 		log.info(String.format("-------- Passed - %s --------", passed_count));
 		log.info(String.format("-------- Failed - %s --------", failed_count));
 		log.info(String.format("-------- Skipped - %s --------", skipped_count));
 		log.info(String.format("-------- Ran %s tests out of %s --------", test_count, total_test_count));
 	}
-
-
+	
+	
 }

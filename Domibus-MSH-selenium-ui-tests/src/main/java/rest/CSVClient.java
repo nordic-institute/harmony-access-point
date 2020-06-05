@@ -9,23 +9,23 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 
 public class CSVClient extends DomibusRestClient {
-
+	
 	public CSVClient(String username, String password) {
 		super(username, password);
 	}
-
+	
 	// -------------------------------------------- Get Grid -----------------------------------------------------------
 	public String downloadGrid(String path, HashMap<String, String> params, String domain) throws Exception {
 		switchDomain(domain);
-
+		
 		ClientResponse clientResponse = requestGET(resource.path(path), params);
-
+		
 		if (clientResponse.getStatus() == 200) {
 			InputStream in = clientResponse.getEntity(InputStream.class);
-
+			
 			File file = File.createTempFile("domibus", ".csv");
 			Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
+			
 			in.close();
 			return file.getAbsolutePath();
 		} else {

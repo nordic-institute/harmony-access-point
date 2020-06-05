@@ -13,7 +13,6 @@ import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
@@ -51,10 +50,10 @@ public class UsersGrid extends DGrid {
 			info.put(columns.get(i), new DObject(driver, cells.get(i)).getText());
 		}
 
-		if(columns.indexOf("Active")>0){
+		if (columns.indexOf("Active") > 0) {
 			info.put("Active", getCheckBoxStatus("Active", columns, cells));
 		}
-		if(columns.indexOf("Deleted")>0) {
+		if (columns.indexOf("Deleted") > 0) {
 			info.put("Deleted", getCheckBoxStatus("Deleted", columns, cells));
 		}
 
@@ -65,7 +64,6 @@ public class UsersGrid extends DGrid {
 		int chkIndex = columns.indexOf(checkboxName);
 		return String.valueOf(new Checkbox(driver, cells.get(chkIndex).findElement(By.cssSelector("input[type=checkbox]"))).isChecked());
 	}
-
 
 
 }

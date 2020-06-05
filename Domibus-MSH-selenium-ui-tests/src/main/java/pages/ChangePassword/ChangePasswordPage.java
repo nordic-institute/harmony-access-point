@@ -11,37 +11,29 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.Generator;
 
 
 public class ChangePasswordPage extends DomibusPage {
+
+	public final String newPasswordFieldLabel = "New Password";
+	public final String currentPasswordFieldLabel = "Current Password";
+	public final String confirmationFieldLabel = "Confirmation";
+	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
+	protected WebElement fieldHeader;
+	@FindBy(id = "currentPassword_id")
+	private WebElement currentPassField;
+	@FindBy(id = "newPassword_id")
+	private WebElement newPassField;
+	@FindBy(id = "confirmation_id")
+	private WebElement confirmationField;
+	@FindBy(id = "editbuttonok_id")
+	private WebElement updateButton;
 
 	public ChangePasswordPage(WebDriver driver) {
 		super(driver);
 		log.debug("Change Password  page init");
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	public final String newPasswordFieldLabel = "New Password";
-	public final String currentPasswordFieldLabel = "Current Password";
-	public final String confirmationFieldLabel = "Confirmation";
-
-
-	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
-	protected WebElement fieldHeader;
-
-	@FindBy(id = "currentPassword_id")
-	private WebElement currentPassField;
-
-	@FindBy(id = "newPassword_id")
-	private WebElement newPassField;
-
-	@FindBy(id = "confirmation_id")
-	private WebElement confirmationField;
-
-	@FindBy(id = "editbuttonok_id")
-	private WebElement updateButton;
-
 
 	public DInput getCPassField() {
 		return new DInput(driver, currentPassField);
@@ -164,7 +156,8 @@ public class ChangePasswordPage extends DomibusPage {
 				log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
 				return true;
 			}
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 		log.info("message is not displayed");
 		return false;
 	}

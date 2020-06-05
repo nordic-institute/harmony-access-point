@@ -1,78 +1,75 @@
 {
   "title": "Alerts",
   "filters": [
-    {
-      "name": "processedContainer",
-      "placeholder": "Processed",
-      "isDefault": true
-    },
-    {
-      "name": "alertTypeContainer",
-      "placeholder": "Alert Type",
-      "isDefault": true
-    },
-    {
-      "name": "alertStatusContainer",
-      "placeholder": "Alert Status",
-      "isDefault": true
-    },
-    {
-      "name": "alertLevelContainer",
-      "placeholder": "Alert Level",
-      "isDefault": true
-    },
-    {
-      "name": "creationFromContainer",
-      "placeholder": "Creation From:",
-      "isDefault": true
-    },
-    {
-      "name": "creationToContainer",
-      "placeholder": "Creation To:",
-      "isDefault": true
-    },
-    {
-      "name": "alertIdInput",
-      "placeholder": "Alert Id",
-      "isDefault": false
-    },
-    {
-      "name": "reportingFromContainer",
-      "placeholder": "Reporting From:",
-      "isDefault": false
-    },
-
-    {
-      "name": "reportingToContainer",
-      "placeholder": "Reporting To:",
-      "isDefault": false
-    }
-  ,
-    {
-      "name": "showDomainAlertsChk",
-      "placeholder": "",
-      "isDefault": true
-    }
+	{
+	  "name": "processedContainer",
+	  "placeholder": "Processed",
+	  "isDefault": true
+	},
+	{
+	  "name": "alertTypeContainer",
+	  "placeholder": "Alert Type",
+	  "isDefault": true
+	},
+	{
+	  "name": "alertStatusContainer",
+	  "placeholder": "Alert Status",
+	  "isDefault": true
+	},
+	{
+	  "name": "alertLevelContainer",
+	  "placeholder": "Alert Level",
+	  "isDefault": true
+	},
+	{
+	  "name": "creationFromContainer",
+	  "placeholder": "Creation From:",
+	  "isDefault": true
+	},
+	{
+	  "name": "creationToContainer",
+	  "placeholder": "Creation To:",
+	  "isDefault": true
+	},
+	{
+	  "name": "alertIdInput",
+	  "placeholder": "Alert Id",
+	  "isDefault": false
+	},
+	{
+	  "name": "reportingFromContainer",
+	  "placeholder": "Reporting From:",
+	  "isDefault": false
+	},
+	{
+	  "name": "reportingToContainer",
+	  "placeholder": "Reporting To:",
+	  "isDefault": false
+	},
+	{
+	  "name": "showDomainAlertsChk",
+	  "placeholder": "",
+	  "isDefault": true
+	}
   ],
-
   "pagination": {
-    "showSelectedNo": true,
-    "showTotalNo": true,
-    "showPageControls": true
+	"showSelectedNo": true,
+	"showTotalNo": true,
+	"showPageControls": true
   },
-"buttons": [
-{
-"name": "Cancel",
-"label": "Cancel",
-"enabledByDefault": false,
-"visibleByDefault": true
-},
-{
-"name": "Save",
-"label": "Save",
-"enabledByDefault": false,
-"visibleByDefault": true
-}
-]
+  "buttons": [
+	{
+	  "name": "Cancel",
+	  "label": "Cancel",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "Save",
+	  "label": "Save",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	}
+  ]
 }
 

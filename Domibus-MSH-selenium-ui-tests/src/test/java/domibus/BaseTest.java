@@ -12,20 +12,20 @@ import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
 public class BaseTest {
-
+	
 	public static WebDriver driver;
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
-
+	
 	Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
-
+	
 	public void generateTestData() throws Exception {
-
+		
 		log.info("GENERATING TEST DATA");
-
+		
 		String pass = data.defaultPass();
-
+		
 		int noOfMess = rest.messages().getListOfMessages(null).length();
 		if (noOfMess < 15) {
 			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
@@ -34,7 +34,7 @@ public class BaseTest {
 				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
 			}
 		}
-
+		
 		JSONArray messageFilters = rest.messFilters().getMessageFilters(null);
 		for (int i = 0; i < messageFilters.length(); i++) {
 			JSONObject obj = messageFilters.getJSONObject(i);
@@ -43,19 +43,19 @@ public class BaseTest {
 				break;
 			}
 		}
-
+		
 		waitForErrors();
-
+		
 		log.info("DONE GENERATING TEST DATA");
 	}
-
-	private void waitForErrors(){
+	
+	private void waitForErrors() {
 		int noOfErrors = 0;
 		int retries = 0;
-		while(noOfErrors==0 && retries<120){
+		while (noOfErrors == 0 && retries < 120) {
 			System.out.println("waiting for errors to be logged");
 			try {
-				noOfErrors= rest.errors().getErrors(null).length();
+				noOfErrors = rest.errors().getErrors(null).length();
 				retries++;
 				Thread.sleep(1000);
 			} catch (Exception e) {
@@ -63,5 +63,5 @@ public class BaseTest {
 			}
 		}
 	}
-
+	
 }

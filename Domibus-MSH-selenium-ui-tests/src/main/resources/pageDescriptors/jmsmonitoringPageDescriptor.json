@@ -88,22 +88,24 @@
 	  "label": "Cancel",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
-	},{
+	},
+	{
 	  "name": "saveButton",
 	  "label": "Save",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
-	},{
+	},
+	{
 	  "name": "moveButton",
 	  "label": "Move",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
-	},{
+	},
+	{
 	  "name": "deleteButton",
 	  "label": "Delete",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
 	}
-
   ]
 }
