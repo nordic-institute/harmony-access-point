@@ -194,7 +194,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
 
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateException {
         return iamProvider.isCertificateChainValid(alias);
     }
