@@ -1,21 +1,20 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.WSConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,9 +32,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -84,22 +80,24 @@ public class MessageUtil {
     public static final String TYPE = "type";
     public static final String HREF = "href";
     public static final String PART_PROPERTIES = "PartProperties";
-    public static final String YYYY_MM_DD_T_HH_MM_SS_SSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-    @Qualifier("jaxbContextEBMS")
-    @Autowired
-    protected JAXBContext jaxbContext;
+    protected final JAXBContext jaxbContext;
 
-    @Qualifier("jaxbContextMessageFragment")
-    @Autowired
-    protected JAXBContext jaxbContextMessageFragment;
+    protected final JAXBContext jaxbContextMessageFragment;
 
-    @Autowired
-    protected DomibusDateFormatter domibusDateFormatter;
+    protected final DomibusDateFormatter domibusDateFormatter;
 
-    @Autowired
-    protected SoapUtil soapUtil;
+    protected final SoapUtil soapUtil;
 
+    public MessageUtil(@Qualifier("jaxbContextEBMS") JAXBContext jaxbContext,
+                       @Qualifier("jaxbContextMessageFragment") JAXBContext jaxbContextMessageFragment,
+                       DomibusDateFormatter domibusDateFormatter,
+                       SoapUtil soapUtil) {
+        this.jaxbContext = jaxbContext;
+        this.jaxbContextMessageFragment = jaxbContextMessageFragment;
+        this.domibusDateFormatter = domibusDateFormatter;
+        this.soapUtil = soapUtil;
+    }
 
     @SuppressWarnings("unchecked")
     public Messaging getMessaging(final SOAPMessage soapMessage) throws SOAPException, JAXBException {
@@ -114,36 +112,40 @@ public class MessageUtil {
     /**
      * Extract the Messaging object using DOM API instead of JAXB
      *
-     * @param soapMessage
-     * @return
-     * @throws SOAPException
+     * @throws SOAPException in the case of a Technical error while parsing the {@link SOAPMessage}
+     * @throws EbMS3Exception in the case of a Business error while parsing the {@link SOAPMessage}
      */
-    public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException {
+    public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException, EbMS3Exception {
         final Node messagingNode = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         return getMessagingWithDom(messagingNode);
     }
 
-    public Messaging getMessagingWithDom(final Node messagingNode) throws SOAPException {
+    public Messaging getMessagingWithDom(final Node messagingNode) throws SOAPException, EbMS3Exception {
         LOG.debug("Creating the Messaging instance from the SOAPMessage using DOM processing");
 
         if (messagingNode == null) {
             throw new SOAPException("Could not found Messaging node");
         }
-        Messaging messaging = new Messaging();
 
-        final SignalMessage signalMessage = createSignalMessage(messagingNode);
-        messaging.setSignalMessage(signalMessage);
+        try {
+            Messaging messaging = new Messaging();
 
-        final UserMessage userMessage = createUserMessage(messagingNode);
-        messaging.setUserMessage(userMessage);
+            final SignalMessage signalMessage = createSignalMessage(messagingNode);
+            messaging.setSignalMessage(signalMessage);
 
-        final Map<QName, String> otherAttributes = getOtherAttributes(messagingNode);
-        if (otherAttributes != null) {
-            messaging.getOtherAttributes().putAll(otherAttributes);
+            final UserMessage userMessage = createUserMessage(messagingNode);
+            messaging.setUserMessage(userMessage);
+
+            final Map<QName, String> otherAttributes = getOtherAttributes(messagingNode);
+            if (otherAttributes != null) {
+                messaging.getOtherAttributes().putAll(otherAttributes);
+            }
+
+            LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
+            return messaging;
+        } catch (DomibusCoreException e) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getMessage(), null, e);
         }
-
-        LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
-        return messaging;
     }
 
     protected UserMessage createUserMessage(Node messagingNode) {
@@ -495,7 +497,6 @@ public class MessageUtil {
     protected Description createDescription(Node errorNode) {
         final Node description = getFirstChild(errorNode, DESCRIPTION);
         if (description == null) {
-
             return null;
         }
         final String lang = getAttribute(errorNode, LANG);
@@ -616,13 +617,6 @@ public class MessageUtil {
         messageInfo.setRefToMessageId(refToMessageId);
 
         return messageInfo;
-    }
-
-    protected Date toDate(String dateString) {
-        String pattern = YYYY_MM_DD_T_HH_MM_SS_SSS_Z;
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
-        final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dtf);
-        return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
     }
 
     protected List<Node> getChildren(Node parent, String childName) {

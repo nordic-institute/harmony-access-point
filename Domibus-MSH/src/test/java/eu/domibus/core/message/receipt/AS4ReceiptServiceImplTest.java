@@ -257,7 +257,7 @@ public class AS4ReceiptServiceImplTest {
 
 
     @Test
-    public void testSaveResponse(@Injectable final Messaging receiptMessage) throws SOAPException {
+    public void testSaveResponse(@Injectable final Messaging receiptMessage) throws SOAPException, EbMS3Exception {
         new Expectations() {{
 
             messageUtil.getMessagingWithDom(withAny(soapRequestMessage));

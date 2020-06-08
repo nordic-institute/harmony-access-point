@@ -233,7 +233,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             signalMessageLogDao.create(signalMessageLog);
 
             uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
-        } catch (SOAPException ex) {
+        } catch (SOAPException | EbMS3Exception ex) {
             LOG.error("Unable to save the SignalMessage due to error: ", ex);
         }
     }

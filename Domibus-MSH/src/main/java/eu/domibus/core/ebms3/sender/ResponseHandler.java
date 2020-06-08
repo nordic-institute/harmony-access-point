@@ -1,15 +1,16 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
@@ -19,8 +20,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -67,7 +66,7 @@ public class ResponseHandler {
         try {
             messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(messaging);
-        } catch (SOAPException ex) {
+        } catch (SOAPException | DomibusCoreException ex) {
             LOGGER.error("Error while un-marshalling message", ex);
             result.setResponseStatus(ResponseStatus.UNMARSHALL_ERROR);
             return result;

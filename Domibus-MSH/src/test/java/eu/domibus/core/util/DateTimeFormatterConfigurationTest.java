@@ -1,27 +1,51 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
+@RunWith(JMockit.class)
 public class DateTimeFormatterConfigurationTest {
 
-    private DateTimeFormatter dateTimeFormatter;
+    public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS][.SSSSSS][.SSS][z]";
+    @Tested
+    private DateTimeFormatterConfiguration dateTimeFormatterConfiguration;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
     public void setUp() {
-        dateTimeFormatter = new DateTimeFormatterConfiguration().dateTimeFormatter();
+        new Expectations(){{
+            domibusPropertyProvider.getProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING);
+            result = DEFAULT_DATE_TIME_PATTERN;
+            times = 1;
+        }};
+    }
+
+    @After
+    public void tearDown() {
+        new FullVerifications(){};
     }
 
     private void parse(String s) {
-        LocalDateTime.parse(s, dateTimeFormatter);
+        LocalDateTime.parse(s, dateTimeFormatterConfiguration.dateTimeFormatter());
     }
 
     @Test
