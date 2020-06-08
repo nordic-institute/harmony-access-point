@@ -12,6 +12,7 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
+import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -74,6 +75,9 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    protected PayloadPersistenceHelper payloadPersistenceHelper;
+
     @Override
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
@@ -84,6 +88,8 @@ public class MessagingServiceImpl implements MessagingService {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
             if (scheduleSourceMessagePayloads(messaging)) {
+                validatePayloadSizeBeforeSchedulingSave(legConfiguration, messaging);
+
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
                         () -> {
@@ -128,6 +134,15 @@ public class MessagingServiceImpl implements MessagingService {
         }
         return false;
 
+    }
+
+    protected void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, Messaging messaging) {
+        final PayloadInfo payloadInfo = messaging.getUserMessage().getPayloadInfo();
+        final List<PartInfo> partInfos = payloadInfo.getPartInfo();
+
+        for (PartInfo partInfo : partInfos) {
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
+        }
     }
 
     protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
