@@ -48,7 +48,7 @@ public class PayloadPersistenceHelper {
             return;
         }
         final String payloadProfileName = profile.getName();
-        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
+        final long payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
 
         if (payloadProfileMaxSize < 0) {
             LOG.warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
