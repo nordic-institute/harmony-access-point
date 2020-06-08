@@ -1,5 +1,7 @@
 package eu.domibus.plugin.webService.impl;
 
+import eu.domibus.common.MessageReceiveFailureEvent;
+import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
@@ -105,6 +107,29 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         final SubmitResponse response = WEBSERVICE_OF.createSubmitResponse();
         response.getMessageID().add(messageId);
         return response;
+    }
+
+    @Override
+    public void deliverMessage(final String messageId) {
+        LOG.info("Add message to the pending messages, ready to be retrieved.");
+
+
+
+    }
+
+    @Override
+    public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
+        LOG.info("Message receive failed [{}]", messageReceiveFailureEvent);
+    }
+
+    @Override
+    public void messageStatusChanged(MessageStatusChangeEvent event) {
+       LOG.info("Message status changed [{}]", event);
+    }
+
+    @Override
+    public void messageSendSuccess(String messageId) {
+        LOG.info("Message send success [{}]", messageId);
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
