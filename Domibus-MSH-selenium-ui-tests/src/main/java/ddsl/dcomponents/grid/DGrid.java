@@ -127,6 +127,7 @@ public class DGrid extends DComponent {
 				waits++;
 				wait.forXMillis(500);
 			}
+			log.debug("waited for rows to load for ms = 500*" + waits);
 			wait.forXMillis(500);
 		} catch (Exception e) {
 		

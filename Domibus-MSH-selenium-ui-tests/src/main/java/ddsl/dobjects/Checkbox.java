@@ -67,5 +67,13 @@ public class Checkbox extends DObject {
 		}
 	}
 	
+	public void set(boolean checked) throws Exception {
+		if (checked) {
+			check();
+		} else {
+			uncheck();
+		}
+	}
+	
 	
 }

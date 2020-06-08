@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class PartyModal extends EditModal {
 	protected WebElement processTable;
 	@FindBy(css = "input[type='checkbox']")
 	protected List<WebElement> inputCheckboxes;
-	@FindBy(xpath = ".//*[@class='mat-dialog-title'][starts-with(@id,\"mat-dialog-title-\")]")
+	@FindBy(css = "[id *= 'mat-dialog-title']")
 	protected WebElement partyHeader;
 
 	public PartyModal(WebDriver driver) {
@@ -123,21 +124,41 @@ public class PartyModal extends EditModal {
 		wait.forElementToBeVisible(partyHeader);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
-		js.executeScript("window.scrollBy(0,1000)");
-		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >mat-checkbox"));
-		WebElement headerElement = driver.findElement(By.xpath(getXpathOfFieldHeader("Processes")));
-		wait.forElementToBeVisible(headerElement);
-
-		if (checkboxes.size() > 0) {
-			log.info("Click on initiator checkbox");
-			checkboxes.get(0).click();
-			WebElement responderCheckbox = checkboxes.get(checkboxes.size() - 1);
-			log.info("Click on Responder checkbox");
-			responderCheckbox.click();
+		js.executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
+		
+		List<WebElement> checkboxes = wait.defaultWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("mat-checkbox")));
+		for (WebElement checkbox : checkboxes) {
+			weToCheckbox(checkbox).check();
 		}
+
 		log.info("Click on Ok button");
 		getOkBtn().click();
 	}
+	
+	public void participationInProcess(String processName, boolean initiator, boolean responder) throws Exception {
+		wait.forElementToBeVisible(partyHeader);
+		
+		log.info("Scroll to the bottom");
+		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
+		
+		DGrid processTable = getProcessTable();
+		int index = processTable.scrollTo("Process", processName);
+		if(index>=0){
+			WebElement row = processTable.getRowElement(index);
+			WebElement initChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(2) mat-checkbox"));
+			WebElement respChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(3) mat-checkbox"));
+			
+			weToCheckbox(initChk).set(initiator);
+			weToCheckbox(respChk).set(responder);
+			
+		}
+		
+		
+		log.info("Click on Ok button");
+		getOkBtn().click();
+	}
+	
+	
 
 	public Boolean getCheckboxStatus(String fieldName) {
 		wait.forElementToBeVisible(partyHeader);

@@ -4,7 +4,7 @@
 
 	<groups>
 		<run>
-			<include name="singleTenancy"/>
+			<include name="multiTenancy"/>
 		</run>
 	</groups>
 
