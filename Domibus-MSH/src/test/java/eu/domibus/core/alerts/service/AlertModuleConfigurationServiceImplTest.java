@@ -72,6 +72,9 @@ public class AlertModuleConfigurationServiceImplTest {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
+    ConfigurationLoader<AccountDisabledModuleConfiguration> accountDisabledModuleConfigurationConfigurationLoader;
+
+    @Injectable
     private DomainContextProvider domainContextProvider;
 
     @Injectable
@@ -91,6 +94,21 @@ public class AlertModuleConfigurationServiceImplTest {
 
     @Injectable
     private CommonConfigurationManager commonConfigurationManager;
+
+    @Injectable
+    ConfigurationLoader<MessagingModuleConfiguration> messagingModuleConfigurationConfigurationLoader;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
+
+    @Injectable
+    ConsoleAccountEnabledConfigurationReader consoleAccountEnabledConfigurationReader;
+
+    @Injectable
+    ConfigurationLoader<AlertModuleConfigurationBase> alertModuleConfigurationBaseConfigurationLoader;
+
+    @Injectable
+    ConsoleAccountDisabledConfigurationReader consoleAccountDisabledConfigurationReader;
 
     @Test
     public void getAlertLevelForMessage(final @Mocked MessagingModuleConfiguration messagingConfiguration) {
