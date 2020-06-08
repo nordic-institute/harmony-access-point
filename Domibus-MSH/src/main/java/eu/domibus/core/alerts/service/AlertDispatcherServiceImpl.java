@@ -26,7 +26,7 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
     @Override
     @Transactional
     public void dispatch(Alert alert) {
-        LOG.debug("Dispatching alert [{}]" + alert);
+        LOG.debug("Dispatching alert [{}]", alert);
         try {
             alert.setAlertStatus(AlertStatus.FAILED);
             alertMethodFactory.getAlertMethod().sendAlert(alert);

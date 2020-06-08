@@ -2806,7 +2806,7 @@
             ri.USER_NAME as USER_NAME ,
             ri.REVISION_DATE as AUDIT_DATE,
             TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(11))) AS REV_ID
+            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
             FROM TB_REV_INFO ri, TB_REV_CHANGES rc
             WHERE ri.ID=rc.REV
             UNION

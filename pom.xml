@@ -17,7 +17,6 @@
         <module>Domibus-MSH-jms-spi</module>
         <module>Domibus-MSH-jms-spi-helper</module>
         <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-MSH-docker</module>
         <module>Domibus-plugin-api</module>
         <module>Domibus-MSH-fiware</module>
         <module>Domibus-MSH-test</module>
@@ -67,7 +66,6 @@
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <!-- do not upgrade to 5.2.x as Liquibase will fail to generate DDL scripts -->
         <dependency.check.version>5.3.2</dependency.check.version>
 
         <!-- Sonar properties -->
