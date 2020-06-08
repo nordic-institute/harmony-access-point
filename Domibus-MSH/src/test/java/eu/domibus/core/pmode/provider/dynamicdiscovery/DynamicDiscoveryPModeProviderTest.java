@@ -266,7 +266,7 @@ public class DynamicDiscoveryPModeProviderTest {
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("No matching party found for type [" + UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE + "] and value [" + UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE + "]", ex.getErrorDetail());
+            assertEquals(("Sender party could not found for the value  " + partyId), ex.getErrorDetail());
         }
 
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
