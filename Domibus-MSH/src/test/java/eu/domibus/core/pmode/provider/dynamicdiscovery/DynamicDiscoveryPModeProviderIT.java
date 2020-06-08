@@ -1,10 +1,11 @@
-package eu.domibus.core.pmode;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.ebms3.common.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
