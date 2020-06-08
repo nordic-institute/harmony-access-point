@@ -100,7 +100,6 @@
 							<failIfNoTests>true</failIfNoTests>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
-								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
@@ -138,6 +137,42 @@
 							<failIfNoTests>true</failIfNoTests>
 							<suiteXmlFiles>
 								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>bamboo-rest</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<suiteXmlFiles>
 								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
