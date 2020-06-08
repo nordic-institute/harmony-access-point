@@ -39,7 +39,7 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
 
     @Override
     public AlertType getAlertType() {
-        return AlertType.MSG_STATUS_CHANGED;
+        return AlertType.CERT_IMMINENT_EXPIRATION;
     }
 
     @Override

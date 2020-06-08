@@ -39,7 +39,7 @@ public class ExpiredCertificateConfigurationManager implements AlertConfiguratio
 
     @Override
     public AlertType getAlertType() {
-        return AlertType.MSG_STATUS_CHANGED;
+        return AlertType.CERT_EXPIRED;
     }
 
     @Override
