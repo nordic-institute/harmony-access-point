@@ -20,6 +20,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.callback.CallbackHandler;
@@ -192,6 +194,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
 
     @Override
+    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateException {
         return iamProvider.isCertificateChainValid(alias);
     }

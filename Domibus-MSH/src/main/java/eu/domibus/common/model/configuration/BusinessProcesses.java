@@ -4,10 +4,7 @@ import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -329,11 +326,19 @@ public class BusinessProcesses extends AbstractBaseEntity {
     }
 
     public List<Party> getParties() {
-        return this.parties;
+        return Collections.unmodifiableList(new ArrayList<>(this.parties));
     }
 
     public void setParties(final List<Party> parties) {
         this.parties = parties;
+    }
+
+    public void addParty(Party party) {
+        this.parties.add(party);
+    }
+
+    public void removeParty(Party party) {
+        this.parties.remove(party);
     }
 
     public Set<Property> getProperties() {
