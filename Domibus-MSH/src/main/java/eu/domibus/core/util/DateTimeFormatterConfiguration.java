@@ -29,7 +29,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Configuration
 public class DateTimeFormatterConfiguration {
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss[.SSS][z]";
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    public DateTimeFormatterConfiguration(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Bean
     public DateTimeFormatter dateTimeFormatter() {

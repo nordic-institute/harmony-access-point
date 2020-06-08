@@ -54,18 +54,71 @@ public class DateTimeFormatterConfigurationTest {
     }
 
     @Test
+    public void format_frac() {
+        parse("2020-06-02T20:00:00.000");
+    }
+
+    @Test
+    public void format_frac6() {
+        parse("2020-06-02T20:00:00.000000");
+    }
+
+    @Test
+    public void format_frac9() {
+        parse("2020-06-02T20:00:00.000000000");
+    }
+
+    @Test(expected = DateTimeParseException.class)
+    public void format_frac7() {
+        parse("2020-06-02T20:00:00.0000000");
+    }
+
+    @Test
     public void format_UTC() {
         parse("2020-06-02T20:00:00Z");
     }
 
+    @Test(expected = DateTimeParseException.class)
+    public void format_FractionalSeconds1_UTC() {
+        parse("2020-06-02T09:00:00.0Z");
+    }
+
+    /**
+     * Strangely enough, this is an accepted
+     */
     @Test
-    public void format_FractionalSeconds_UTC() {
+    public void format_FractionalSeconds2_UTC() {
+        parse("2020-06-02T09:00:00.12Z");
+    }
+
+    @Test(expected = DateTimeParseException.class)
+    public void format_FractionalSeconds2() {
+        parse("2020-06-02T09:00:00.12");
+    }
+
+    @Test
+    public void format_FractionalSeconds3_UTC() {
         parse("2020-06-02T09:00:00.000Z");
     }
 
     @Test
     public void format_FractionalSeconds_timeZone() {
         parse("2020-06-02T23:00:00.000+03:00");
+    }
+
+    @Test
+    public void format_FractionalSeconds6_timeZone() {
+        parse("2020-06-02T23:00:00.000000+03:00");
+    }
+
+    @Test
+    public void format_FractionalSeconds9_timeZone() {
+        parse("2020-06-02T23:00:00.000000000+03:00");
+    }
+
+    @Test(expected = DateTimeParseException.class)
+    public void format_FractionalSeconds12_timeZone() {
+        parse("2020-06-02T23:00:00.000000000000+03:00");
     }
 
     @Test
