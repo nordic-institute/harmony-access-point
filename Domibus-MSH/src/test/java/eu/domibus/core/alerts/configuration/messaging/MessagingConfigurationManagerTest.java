@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
@@ -35,6 +36,8 @@ public class MessagingConfigurationManagerTest extends TestCase {
 
     @Test
     public void getAlertType() {
+        AlertType res = configurationManager.getAlertType();
+        assertEquals(res,  AlertType.MSG_STATUS_CHANGED);
     }
 
     @Test
