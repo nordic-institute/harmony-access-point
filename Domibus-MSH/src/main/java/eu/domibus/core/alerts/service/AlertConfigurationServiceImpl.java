@@ -3,28 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.disabled.PluginAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.ExpiredCertificateModuleConfiguration;
-import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.ImminentExpirationCertificateModuleConfiguration;
-import eu.domibus.core.alerts.configuration.common.CommonConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.ConsoleLoginFailConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationManager;
-import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
-import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.*;
-import eu.domibus.core.alerts.configuration.password.expired.ConsolePasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.ConsolePasswordImminentExpirationAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
@@ -60,8 +39,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     @Override
     public void resetAll() {
+        LOG.debug("Reseting all configurations");
         commonConfigurationManager.reset();
-        Arrays.asList(AlertType.values()).forEach(alertType -> getModuleConfigurationManager(alertType).reset());
+        Arrays.asList(AlertType.values())
+                .forEach(alertType -> getModuleConfigurationManager(alertType).reset());
     }
 
     @Override
@@ -89,10 +70,14 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
-        Optional<AlertConfigurationManager> res = alertConfigurationManagers.stream().filter(el -> el.getAlertType() == alertType).findFirst();
+        Optional<AlertConfigurationManager> res = getAlertConfigurationManagers().stream().filter(el -> el.getAlertType() == alertType).findFirst();
         if (!res.isPresent()) {
             throw new IllegalArgumentException("Invalid alert type");
         }
         return res.get();
+    }
+
+    protected List<AlertConfigurationManager> getAlertConfigurationManagers() {
+        return alertConfigurationManagers;
     }
 }

@@ -140,7 +140,6 @@ public class AlertModuleConfigurationServiceImplTest {
         }};
     }
 
-
     @Test
     public void getAlertLevelForLoginFailure(final @Mocked LoginFailureModuleConfiguration loginFailureConfiguration) {
         final Alert alert = new Alert();
