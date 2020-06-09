@@ -17,26 +17,6 @@ export class PropertiesService {
     this.regularExpressions = result;
   }
 
-  getProperties(searchString: string, showDomainProperties: boolean, pageSize: number = 10, offset: number = 0)
-    : Promise<PropertyListModel> {
-    let searchParams = new HttpParams();
-    if (searchString && searchString.trim()) {
-      searchParams = searchParams.append('name', searchString.trim());
-    }
-    if (!showDomainProperties) {
-      searchParams = searchParams.append('showDomain', (!!showDomainProperties).toString());
-    }
-    if (pageSize) {
-      searchParams = searchParams.append('pageSize', pageSize.toString());
-    }
-    if (offset) {
-      searchParams = searchParams.append('page', offset.toString());
-    }
-
-    return this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams})
-      .toPromise()
-  }
-
   async getProperty(propName: string): Promise<PropertyModel> {
     const result = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName).toPromise();
     return result;
