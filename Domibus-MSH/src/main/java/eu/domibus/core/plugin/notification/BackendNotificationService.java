@@ -133,6 +133,9 @@ public class BackendNotificationService {
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
+    protected Object backendFiltersCacheLock = new Object();
+    protected volatile List<BackendFilter> backendFiltersCache;
+
     @PostConstruct
     public void init() {
         Map notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
@@ -304,7 +307,7 @@ public class BackendNotificationService {
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
-        List<BackendFilter> backendFilters = getBackendFilters();
+        List<BackendFilter> backendFilters = getBackendFiltersWithCache();
         return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
     }
 
@@ -349,6 +352,25 @@ public class BackendNotificationService {
             }
         }
         return true;
+    }
+
+    public void invalidateBackendFiltersCache() {
+        LOG.debug("Invalidating the backend filter cache");
+
+        this.backendFiltersCache = null;
+    }
+
+    protected List<BackendFilter> getBackendFiltersWithCache() {
+        if (backendFiltersCache == null) {
+            synchronized (backendFiltersCacheLock) {
+                LOG.debug("Initializing backendFilterCache");
+                if (backendFiltersCache == null) {
+                    List<BackendFilter> backendFilters = getBackendFilters();
+                    backendFiltersCache = backendFilters;
+                }
+            }
+        }
+        return backendFiltersCache;
     }
 
     protected List<BackendFilter> getBackendFilters() {

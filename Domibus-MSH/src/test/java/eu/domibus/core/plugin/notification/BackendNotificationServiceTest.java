@@ -1,12 +1,12 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
@@ -15,22 +15,10 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.Submission;
+import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.CriteriaFactory;
 import eu.domibus.core.plugin.routing.IRoutingCriteria;
@@ -38,6 +26,12 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
+import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
@@ -583,7 +577,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage, @Injectable final List<BackendFilter> backendFilters) throws Exception {
         new Expectations(backendNotificationService) {{
-            backendNotificationService.getBackendFilters();
+            backendNotificationService.getBackendFiltersWithCache();
             result = backendFilters;
         }};
 
@@ -703,7 +697,7 @@ public class BackendNotificationServiceTest {
             result = domains;
 
             routingCriteriaFactory.getName();
-            result =anyString;
+            result = anyString;
 
             routingCriteriaFactory.getInstance();
             result = iRoutingCriteria;
@@ -859,6 +853,23 @@ public class BackendNotificationServiceTest {
 
         new Verifications() {{
             backendFilterDao.create(backendFilters);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getBackendFilters();
+            result = backendFilters;
+        }};
+
+        backendNotificationService.backendFiltersCache = null;
+        backendNotificationService.getBackendFiltersWithCache();
+        backendNotificationService.getBackendFiltersWithCache();
+
+        new FullVerifications() {{
+            backendNotificationService.getBackendFilters();
             times = 1;
         }};
     }
