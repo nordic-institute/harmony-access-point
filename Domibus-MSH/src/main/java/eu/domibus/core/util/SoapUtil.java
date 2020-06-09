@@ -2,10 +2,10 @@ package eu.domibus.core.util;
 
 import com.google.common.io.CharStreams;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.MessageImpl;
@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_EBMS3_ERROR_PRINT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
@@ -138,5 +139,22 @@ public class SoapUtil {
         }
     }
 
+
+    public void logRawXmlMessageWhenEbMS3Error(final SOAPMessage soapMessage) {
+        final boolean printError = domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT);
+        if (!printError) {
+            LOG.debug("Printing EbMS3 error is disabled, exiting");
+            return;
+        }
+        String xmlMessage;
+        try {
+            xmlMessage = getRawXMLMessage(soapMessage);
+        } catch (TransformerException e) {
+            LOG.warn("Unable to extract the raw message XML due to: ", e);
+            return;
+        }
+
+        LOG.error("An EbMS3 error was received check the raw xml message: {}", xmlMessage);
+    }
 
 }
