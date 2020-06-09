@@ -461,10 +461,13 @@ public class JMSMessPgUXTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
+		page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 		
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+		grid.waitForRowsToLoad();
 		
 		for (int i = 0; i < 3; i++) {
 			JSONObject colDesc = colDescs.getJSONObject(i);

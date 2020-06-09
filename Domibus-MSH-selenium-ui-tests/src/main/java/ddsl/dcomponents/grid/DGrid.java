@@ -48,7 +48,7 @@ public class DGrid extends DComponent {
 		super(driver);
 		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-	
+		
 		this.container = container;
 	}
 	
@@ -313,13 +313,43 @@ public class DGrid extends DComponent {
 		}
 		return values;
 	}
-
-	public void resetGridScroll(){
+	
+	public void resetGridScroll() {
 		log.info("reseting grid scroll");
-		((JavascriptExecutor) driver).executeScript("arguments[0].querySelector('datatable-body').scrollLeft =0;", container);
-		((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div > ng-component > div > div.panel > div:nth-child(2)').scrollTop=0");
-//		.querySelector('datatable-body').scrollLeft =0
-//		document.querySelector('#routerHolder > div > ng-component > div > div.panel > div:nth-child(2)').scrollTop=0
+		
+		try {
+			((JavascriptExecutor) driver).executeScript("arguments[0].querySelector('datatable-body').scrollLeft =0;", container);
+		} catch (Exception e) {
+		}
+		try {// messLog, errlog, pma, jms, users, pluginUsers
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div.panel > div').scrollTop=0");
+		} catch (Exception e) {
+		}
+		try {
+			// mess filter,
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div:nth-child(3)').scrollTop=0");
+		} catch (Exception e) {
+		}
+		try {
+			// parties,
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div:nth-child(3) > div:nth-child(2)').scrollTop=0");
+		} catch (Exception e) {
+		}
+		try {
+			// audit,
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div:nth-child(4)').scrollTop=0");
+		} catch (Exception e) {
+		}
+		try {
+			// alerts, properties
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div:nth-child(3) > div > div:nth-child(2)').scrollTop=0");
+		} catch (Exception e) {
+		}
+		try {
+			// logging
+			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div.panel > div:nth-child(2)').scrollTop=0");
+		} catch (Exception e) {
+		}
 	}
 
 //-------------------------------------------------------------------------------------------------
