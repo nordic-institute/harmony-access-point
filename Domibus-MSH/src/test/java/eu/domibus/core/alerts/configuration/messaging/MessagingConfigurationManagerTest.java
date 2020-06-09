@@ -8,16 +8,17 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
-import junit.framework.TestCase;
+
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
-public class MessagingConfigurationManagerTest extends TestCase {
+public class MessagingConfigurationManagerTest  {
 
     @Tested
     MessagingConfigurationManager configurationManager;

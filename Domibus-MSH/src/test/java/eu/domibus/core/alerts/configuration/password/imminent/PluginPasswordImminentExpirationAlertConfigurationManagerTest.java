@@ -1,6 +1,6 @@
-package eu.domibus.core.alerts.configuration.account.enabled;
+package eu.domibus.core.alerts.configuration.password.imminent;
 
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;
@@ -12,16 +12,15 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMockit.class)
-public class PluginAccountEnabledConfigurationManagerTest  {
-
+public class PluginPasswordImminentExpirationAlertConfigurationManagerTest {
     @Tested
-    PluginAccountEnabledConfigurationManager configurationManager;
+    PluginPasswordImminentExpirationAlertConfigurationManager configurationManager;
 
     @Injectable
-    private PluginAccountEnabledConfigurationReader reader;
+    private PluginPasswordImminentExpirationAlertConfigurationReader reader;
 
     @Injectable
-    private ConfigurationLoader<AlertModuleConfigurationBase> loader;
+    private ConfigurationLoader<PasswordExpirationAlertModuleConfiguration> loader;
 
     @Test
     public void getAlertType(@Mocked AlertType alertType) {
@@ -35,12 +34,12 @@ public class PluginAccountEnabledConfigurationManagerTest  {
     }
 
     @Test
-    public void getConfiguration(@Mocked AlertModuleConfigurationBase configuration) {
+    public void getConfiguration(@Mocked PasswordExpirationAlertModuleConfiguration configuration) {
         new Expectations() {{
-            loader.getConfiguration((ConfigurationReader<AlertModuleConfigurationBase>) any);
+            loader.getConfiguration((ConfigurationReader<PasswordExpirationAlertModuleConfiguration>) any);
             result = configuration;
         }};
-        AlertModuleConfigurationBase res = configurationManager.getConfiguration();
+        PasswordExpirationAlertModuleConfiguration res = configurationManager.getConfiguration();
         assertEquals(res, configuration);
     }
 

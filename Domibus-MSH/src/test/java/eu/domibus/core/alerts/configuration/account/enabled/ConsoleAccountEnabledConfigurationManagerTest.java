@@ -4,14 +4,15 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;
-import junit.framework.TestCase;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(JMockit.class)
-public class ConsoleAccountEnabledConfigurationManagerTest extends TestCase {
+public class ConsoleAccountEnabledConfigurationManagerTest  {
 
     @Tested
     ConsoleAccountEnabledConfigurationManager configurationManager;
