@@ -1,6 +1,8 @@
 package eu.domibus.core.alerts.configuration.password.expired;
 
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;

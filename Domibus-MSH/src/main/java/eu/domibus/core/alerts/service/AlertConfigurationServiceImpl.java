@@ -39,7 +39,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     @Override
     public void resetAll() {
-        LOG.debug("Reseting all configurations");
+        LOG.debug("Resetting all configurations.");
         commonConfigurationManager.reset();
         Arrays.asList(AlertType.values())
                 .forEach(alertType -> getModuleConfigurationManager(alertType).reset());
@@ -72,11 +72,12 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         Optional<AlertConfigurationManager> res = getAlertConfigurationManagers().stream().filter(el -> el.getAlertType() == alertType).findFirst();
         if (!res.isPresent()) {
-            throw new IllegalArgumentException("Invalid alert type");
+            throw new IllegalArgumentException("Could not find configuration manager for alert type " + alertType);
         }
         return res.get();
     }
 
+    // added for unit testing purposes
     protected List<AlertConfigurationManager> getAlertConfigurationManagers() {
         return alertConfigurationManagers;
     }

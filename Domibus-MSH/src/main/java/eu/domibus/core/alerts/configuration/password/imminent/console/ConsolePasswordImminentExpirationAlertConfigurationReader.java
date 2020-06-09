@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.password.imminent;
+package eu.domibus.core.alerts.configuration.password.imminent.console;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertConfigurationReader;

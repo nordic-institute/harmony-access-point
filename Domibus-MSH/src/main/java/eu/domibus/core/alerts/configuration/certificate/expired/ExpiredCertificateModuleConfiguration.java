@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.certificate;
+package eu.domibus.core.alerts.configuration.certificate.expired;
 
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertLevel;

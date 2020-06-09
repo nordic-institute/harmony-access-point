@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.password.expired;
+package eu.domibus.core.alerts.configuration.password.expired.console;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertConfigurationReader;

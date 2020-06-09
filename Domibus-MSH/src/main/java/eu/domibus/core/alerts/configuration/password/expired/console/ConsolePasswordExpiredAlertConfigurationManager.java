@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.password.imminent;
+package eu.domibus.core.alerts.configuration.password.expired.console;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
@@ -8,16 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Manages the reading of plugin user password imminent expiration alert configuration
+ * Manages the reading of console user account password expired alert configuration
  *
  * @author Ion Perpegel
  * @since 4.2
  */
 @Service
-public class PluginPasswordImminentExpirationAlertConfigurationManager implements AlertConfigurationManager {
+public class ConsolePasswordExpiredAlertConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
-    private PluginPasswordImminentExpirationAlertConfigurationReader reader;
+    private ConsolePasswordExpiredAlertConfigurationReader reader;
 
     @Autowired
     private ConfigurationLoader<PasswordExpirationAlertModuleConfiguration> loader;

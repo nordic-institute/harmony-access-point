@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.configuration.password.imminent;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Injectable;
