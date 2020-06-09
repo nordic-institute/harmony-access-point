@@ -7,9 +7,8 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
+import eu.domibus.core.alerts.service.ConfigurationReader;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +33,30 @@ public class ImminentExpirationCertificateConfigurationManagerTest {
 
     @Injectable
     AlertConfigurationService alertConfigurationService;
+
+    @Test
+    public void getAlertType() {
+        AlertType res = configurationManager.getAlertType();
+        assertEquals(res, AlertType.CERT_IMMINENT_EXPIRATION);
+    }
+
+    @Test
+    public void getConfiguration(@Mocked ImminentExpirationCertificateModuleConfiguration configuration) {
+        new Expectations() {{
+            loader.getConfiguration((ConfigurationReader<ImminentExpirationCertificateModuleConfiguration>) any);
+            result = configuration;
+        }};
+        ImminentExpirationCertificateModuleConfiguration res = configurationManager.getConfiguration();
+        assertEquals(res, configuration);
+    }
+
+    @Test
+    public void reset() {
+        configurationManager.reset();
+        new Verifications() {{
+            loader.resetConfiguration();
+        }};
+    }
 
     @Test
     public void readImminentExpirationCertificateConfigurationMainModuleDisabled() {
