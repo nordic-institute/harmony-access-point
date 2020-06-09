@@ -973,6 +973,11 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-6391" dbms="oracle">
+        <alterSequence sequenceName="HIBERNATE_SEQUENCE"
+                       cacheSize="100"
+        />
+    </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-2">
         <modifyDataType columnName="END_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
