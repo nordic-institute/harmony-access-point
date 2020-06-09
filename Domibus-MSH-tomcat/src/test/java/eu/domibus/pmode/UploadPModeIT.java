@@ -227,8 +227,8 @@ public class UploadPModeIT extends AbstractIT {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
-            assertEquals(1, ex.getIssues().size());
-            assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-40894464] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 2147483647"));
+            assertEquals(2, ex.getIssues().size());
+            assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxInclusive '2147483647' for type 'int'"));
         }
     }
 
