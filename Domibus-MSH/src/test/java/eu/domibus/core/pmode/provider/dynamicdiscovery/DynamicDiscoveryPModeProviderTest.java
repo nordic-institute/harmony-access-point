@@ -163,11 +163,11 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
-        assertTrue(dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size() == 1);
-        assertTrue(dynamicDiscoveryPModeProvider.dynamicInitiatorProcesses.size() == 1);
+        assertEquals(1, dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size());
+        assertEquals(1, dynamicDiscoveryPModeProvider.dynamicInitiatorProcesses.size());
         dynamicDiscoveryPModeProvider.refresh();
-        assertTrue(dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size() == 1);
-        assertTrue(dynamicDiscoveryPModeProvider.dynamicInitiatorProcesses.size() == 1);
+        assertEquals(1, dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size());
+        assertEquals(1, dynamicDiscoveryPModeProvider.dynamicInitiatorProcesses.size());
     }
 
     @Test
@@ -377,16 +377,35 @@ public class DynamicDiscoveryPModeProviderTest {
         certificateService.extractCommonName(testData);
     }
 
+    @Test
+    public void testUpdateConfigurationParty_new() throws Exception {
+        Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
+        doReturn(true).when(configurationDAO).configurationExists();
+        doReturn(testData).when(configurationDAO).readEager();
+        dynamicDiscoveryPModeProvider.init();
+
+        Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty("Name", null, null);
+        assertEquals("Name", party.getName());
+        assertEquals("msh_endpoint", party.getEndpoint());
+        assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(party));
+    }
+
+    @Test
+    public void testUpdateConfigurationParty_exists() throws Exception {
+        Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
+        doReturn(true).when(configurationDAO).configurationExists();
+        doReturn(testData).when(configurationDAO).readEager();
+        dynamicDiscoveryPModeProvider.init();
+
+        Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty("self", null, null);
+        assertEquals("self", party.getName());
+        assertEquals("http://test.domibus.eu/domibus-msh", party.getEndpoint());
+        assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(party));
+    }
+
     /**
      * Build UserMessage for testing. Only the fields that are mandatory for the testing doDynamicThings are filled.
      *
-     * @param action
-     * @param serviceValue
-     * @param serviceType
-     * @param toPartyId
-     * @param toPartyIdType
-     * @param messageId
-     * @return
      */
     private UserMessage buildUserMessageForDoDynamicThingsWithArguments(String action, String serviceValue, String serviceType, String toPartyId, String toPartyIdType, String fromPartyId, String fromPartyIdType, String messageId) {
 
@@ -454,9 +473,6 @@ public class DynamicDiscoveryPModeProviderTest {
 
     /**
      * Calls private method {@code Configuration#preparePersist} in order to initialize the configuration object properly
-     *
-     * @param configuration
-     * @return
      */
     private boolean initializeConfiguration(Configuration configuration) {
         try {
