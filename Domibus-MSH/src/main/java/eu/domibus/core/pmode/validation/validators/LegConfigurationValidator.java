@@ -90,6 +90,15 @@ public class LegConfigurationValidator implements PModeValidator {
                     createIssue(issues, leg, name, "PayloadProfile [%s] of leg configuration [%s] not found among payload profiles.");
                 }
             }
+
+            //propertySet
+            if (leg.getPropertySet() == null) {
+                String name = pModeValidationHelper.getAttributeValue(leg, "propertySetXml", String.class);
+                //propertySet can be null
+                if (StringUtils.isNotEmpty(name)) {
+                    createIssue(issues, leg, name, "PropertySet [%s] of leg configuration [%s] not found among known propertySets.");
+                }
+            }
         });
 
         return issues;
