@@ -1012,4 +1012,8 @@
             ORDER BY VAD.AUDIT_DATE DESC;
         </createView>
     </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-6601">
+        <modifyDataType columnName="MAX_SIZE" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE" />
+    </changeSet>
 </databaseChangeLog>
