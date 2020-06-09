@@ -141,7 +141,7 @@ public class MessagingServiceImpl implements MessagingService {
         final List<PartInfo> partInfos = payloadInfo.getPartInfo();
 
         for (PartInfo partInfo : partInfos) {
-            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength(), true);
         }
     }
 

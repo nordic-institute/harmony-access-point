@@ -439,7 +439,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             } catch (InvalidPayloadSizeException e) {
-                if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
+                if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
                     messagingDao.clearFileSystemPayloads(userMessage);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
