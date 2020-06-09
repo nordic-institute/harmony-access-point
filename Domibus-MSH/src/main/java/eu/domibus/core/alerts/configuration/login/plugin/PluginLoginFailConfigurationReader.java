@@ -1,5 +1,6 @@
-package eu.domibus.core.alerts.configuration.login;
+package eu.domibus.core.alerts.configuration.login.plugin;
 
+import eu.domibus.core.alerts.configuration.login.LoginFailConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.stereotype.Service;
 

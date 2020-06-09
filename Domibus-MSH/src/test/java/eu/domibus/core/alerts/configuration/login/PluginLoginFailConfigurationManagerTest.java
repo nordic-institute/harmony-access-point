@@ -1,5 +1,7 @@
 package eu.domibus.core.alerts.configuration.login;
 
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;

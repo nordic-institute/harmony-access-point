@@ -1,25 +1,26 @@
-package eu.domibus.core.alerts.configuration.account.disabled;
+package eu.domibus.core.alerts.configuration.login.plugin;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Manages the reading of console user account disabled alert configuration
+ * Manages the reading of plugin user login fail alert configuration
  *
  * @author Ion Perpegel
  * @since 4.2
  */
 @Service
-public class ConsoleAccountDisabledConfigurationManager implements AlertConfigurationManager {
+public class PluginLoginFailConfigurationManager implements AlertConfigurationManager {
 
     @Autowired
-    private ConsoleAccountDisabledConfigurationReader reader;
+    private PluginLoginFailConfigurationReader reader;
 
     @Autowired
-    private ConfigurationLoader<AccountDisabledModuleConfiguration> loader;
+    private ConfigurationLoader<LoginFailureModuleConfiguration> loader;
 
     @Override
     public AlertType getAlertType() {
@@ -27,7 +28,7 @@ public class ConsoleAccountDisabledConfigurationManager implements AlertConfigur
     }
 
     @Override
-    public AccountDisabledModuleConfiguration getConfiguration() {
+    public LoginFailureModuleConfiguration getConfiguration() {
         return loader.getConfiguration(reader::readConfiguration);
     }
 

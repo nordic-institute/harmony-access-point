@@ -1,8 +1,7 @@
 package eu.domibus.core.alerts.configuration.login;
 
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationReader;
+import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;

@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.account.disabled.PluginAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.PluginAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.PluginLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.expired.PluginPasswordExpiredAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.imminent.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.user.UserEntityBase;

@@ -1,5 +1,7 @@
 package eu.domibus.core.alerts.configuration.account.disabled;
 
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.ConfigurationReader;

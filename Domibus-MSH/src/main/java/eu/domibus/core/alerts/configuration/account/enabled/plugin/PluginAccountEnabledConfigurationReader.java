@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.account.enabled;
+package eu.domibus.core.alerts.configuration.account.enabled.plugin;
 
 import eu.domibus.core.alerts.configuration.account.enabled.AccountEnabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertType;
