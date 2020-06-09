@@ -491,11 +491,13 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertTrue(modal.getOkBtn().isEnabled());
 		
 		log.info("Uncheck Initiator & Responder checkbox");
-		modal.clickIRCheckboxes();
+//		modal.clickIRCheckboxes();
+		modal.participationInProcess("tc1Process", false, false);
 		
 		log.info("Click on Save button");
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
+		
 		
 		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
 		
@@ -511,7 +513,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Validate absence of red_gw as Responder party");
 		soft.assertFalse(updatedPmode.contains("<responderParty name=\"red_gw\"/>"), "red_gw responder party is not present in pmode");
 		
-		soft.assertTrue(!rest.connMonitor().getMonitoredParties(null).contains(oldPartyName), "Paerty is not present in connection monitor page anymore");
+		soft.assertTrue(!rest.connMonitor().getMonitoredParties(null).contains(oldPartyName), "Party is not present in connection monitor page anymore");
 		
 		soft.assertAll();
 	}
