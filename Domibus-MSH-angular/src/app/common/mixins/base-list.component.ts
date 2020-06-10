@@ -1,13 +1,12 @@
 import {AlertService} from '../alert/alert.service';
 import {DownloadService} from '../download.service';
-import {OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {OnInit} from '@angular/core';
 import {ColumnPickerBase} from '../column-picker/column-picker-base';
 import {IBaseList} from './ibase-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
 import {ApplicationContextService} from '../application-context.service';
-import {NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -30,6 +29,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
   private propertiesService: PropertiesService;
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
