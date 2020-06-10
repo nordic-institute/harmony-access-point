@@ -3,7 +3,6 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
-import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
@@ -39,17 +38,10 @@ import static org.junit.Assert.*;
  * @author Soumya Chandran
  * @since 4.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class MessageUtilTest {
 
-//    public static final String PAYLOAD_INFO = "PayloadInfo";
-//    public static final String MESSAGE_PROPERTIES = "MessageProperties";
-//    public static final String COLLABORATION_INFO = "CollaborationInfo";
-//    public static final String DESCRIPTION = "Description";
-//    public static final String RECEIPT = "Receipt";
-//    public static final String NON_REPUDIATION_INFORMATION = "NonRepudiationInformation";
-//    public static final String USER_MESSAGE = "UserMessage";
-//    public static final String MESSAGE_INFO = "MessageInfo";
     public static final String RESULT = "RESULT";
     @Tested
     MessageUtil messageUtil;
@@ -140,7 +132,7 @@ public class MessageUtilTest {
     }
 
     @Test
-    public void getNodeMessagingWithDom_domibusCoreException(@Injectable Node messagingNode) throws SOAPException {
+    public void getNodeMessagingWithDom_domibusCoreException(@Injectable Node messagingNode) throws SOAPException, EbMS3Exception {
 
         new Expectations(messageUtil) {{
             messageUtil.createSignalMessage(messagingNode);
@@ -151,8 +143,8 @@ public class MessageUtilTest {
         try {
             messageUtil.getMessagingWithDom(messagingNode);
             fail();
-        } catch (EbMS3Exception e) {
-            assertThat(e.getErrorCode(), is(ErrorCode.EbMS3ErrorCode.EBMS_0003));
+        } catch (DomibusCoreException e) {
+            assertThat(e.getError(), is(DomibusCoreErrorCode.DOM_003));
         }
     }
 

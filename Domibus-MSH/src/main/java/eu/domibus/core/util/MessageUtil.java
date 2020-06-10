@@ -1,6 +1,6 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -143,7 +143,7 @@ public class MessageUtil {
 
             LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
             return messaging;
-        } catch (DomibusCoreException e) {
+        } catch (DomibusDateTimeException e) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getMessage(), null, e);
         }
     }

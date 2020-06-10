@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
@@ -17,7 +17,7 @@ import java.util.Date;
 @Service
 public class DomibusDateFormatter {
 
-    public final DateTimeFormatter dateTimeFormatter;
+    protected final DateTimeFormatter dateTimeFormatter;
 
     public DomibusDateFormatter(DateTimeFormatter dateTimeFormatter) {
         this.dateTimeFormatter = dateTimeFormatter;
@@ -37,7 +37,7 @@ public class DomibusDateFormatter {
             final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dateTimeFormatter);
             return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
         } catch (DateTimeException e) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_007, "Invalid xsd:datetime format:[" + dateString + "].");
+            throw new DomibusDateTimeException(dateString);
         }
     }
 }

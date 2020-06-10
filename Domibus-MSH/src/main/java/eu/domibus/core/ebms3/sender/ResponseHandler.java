@@ -1,9 +1,10 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
@@ -18,7 +19,6 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPException;
@@ -33,31 +33,34 @@ public class ResponseHandler {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
 
-    @Autowired
-    protected MessageUtil messageUtil;
+    private final SignalMessageLogDefaultService signalMessageLogDefaultService;
+    private final UIReplicationSignalService uiReplicationSignalService;
+    private final NonRepudiationService nonRepudiationService;
+    protected final ReliabilityService reliabilityService;
+    private final SignalMessageDao signalMessageDao;
+    protected final MessageUtil messageUtil;
+    private final MessagingDao messagingDao;
+    private final ErrorLogDao errorLogDao;
 
-    @Autowired
-    private ErrorLogDao errorLogDao;
+    public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
+                           UIReplicationSignalService uiReplicationSignalService,
+                           NonRepudiationService nonRepudiationService,
+                           ReliabilityService reliabilityService,
+                           SignalMessageDao signalMessageDao,
+                           MessageUtil messageUtil,
+                           MessagingDao messagingDao,
+                           ErrorLogDao errorLogDao) {
+        this.signalMessageLogDefaultService = signalMessageLogDefaultService;
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.nonRepudiationService = nonRepudiationService;
+        this.reliabilityService = reliabilityService;
+        this.signalMessageDao = signalMessageDao;
+        this.messageUtil = messageUtil;
+        this.messagingDao = messagingDao;
+        this.errorLogDao = errorLogDao;
+    }
 
-    @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private NonRepudiationService nonRepudiationService;
-
-    @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
-    private SignalMessageLogDefaultService signalMessageLogDefaultService;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected ReliabilityService reliabilityService;
-
-    public ResponseResult verifyResponse(final SOAPMessage response) throws EbMS3Exception {
+    public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
         LOGGER.debug("Verifying response");
 
         ResponseResult result = new ResponseResult();
@@ -66,10 +69,14 @@ public class ResponseHandler {
         try {
             messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(messaging);
-        } catch (SOAPException | DomibusCoreException ex) {
-            LOGGER.error("Error while un-marshalling message", ex);
-            result.setResponseStatus(ResponseStatus.UNMARSHALL_ERROR);
-            return result;
+        } catch (SOAPException | DomibusDateTimeException ex) {
+            throw EbMS3ExceptionBuilder
+                    .getInstance()
+                    .withEbMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .withErrorDetail("Problem occurred during marshalling")
+                    .withRefToMessageId(messageId)
+                    .withMshRole(MSHRole.SENDING)
+                    .build();
         }
 
         final SignalMessage signalMessage = messaging.getSignalMessage();
