@@ -92,7 +92,7 @@ public class UserManagementServiceImpl implements UserService {
 
             String domainCode = getDomainForUserFn.apply(user);
             user.setDomain(domainCode);
-
+            
             LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
             user.setExpirationDate(expDate);
 

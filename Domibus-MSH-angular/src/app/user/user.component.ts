@@ -122,13 +122,6 @@ export class UserComponent extends mix(BaseListComponent)
         showInitially: true
       },
       {
-        cellTemplate: this.rowWithDateFormatTpl,
-        name: 'Expiration Date',
-        prop: 'expirationDate',
-        canAutoResize: true,
-        showInitially: true
-      },
-      {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 60,
