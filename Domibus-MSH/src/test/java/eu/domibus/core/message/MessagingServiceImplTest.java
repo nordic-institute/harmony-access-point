@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
+import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -84,6 +85,9 @@ public class MessagingServiceImplTest {
 
     @Injectable
     UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Test
     public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,

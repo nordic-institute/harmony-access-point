@@ -4,7 +4,6 @@ import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,12 +20,15 @@ public class PayloadProfile extends AbstractBaseEntity {
     @XmlElement(required = true, name = "attachment")
     @Transient
     protected List<Attachment> attachment; //NOSONAR
+
     @XmlAttribute(name = "name", required = true)
     @Column(name = "NAME")
     protected String name;
+
     @XmlAttribute(name = "maxSize", required = true)
     @Column(name = "MAX_SIZE")
-    protected int maxSize;
+    protected long maxSize;
+
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_JOIN_PAYLOAD_PROFILE", joinColumns = @JoinColumn(name = "FK_PAYLOAD"), inverseJoinColumns = @JoinColumn(name = "FK_PROFILE"))
@@ -76,9 +78,9 @@ public class PayloadProfile extends AbstractBaseEntity {
      * Gets the value of the maxSize property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Long}
      */
-    public int getMaxSize() {
+    public long getMaxSize() {
         return this.maxSize;
     }
 
@@ -86,9 +88,9 @@ public class PayloadProfile extends AbstractBaseEntity {
      * Sets the value of the maxSize property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Long }
      */
-    public void setMaxSize(final int value) {
+    public void setMaxSize(final long value) {
         this.maxSize = value;
     }
 
