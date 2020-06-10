@@ -82,8 +82,8 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         // is certificate  trusted
         try {
             // user merlin trust implementation to check if we trust the certificate
-            // because if the proxy issue and domibus custom proxy implementation
-            // the crl lists are verified separately
+            // because domibus has custom proxy implementation
+            // the crl list is verified separately
             verifyTrust(certificate);
             verifyCertificateChain(certificate);
         } catch (WSSecurityException e) {
@@ -93,7 +93,14 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         LOG.debug("Certificate validator for certificate: [{}]", getSubjectDN(certificate));
     }
 
-
+    /**
+     * Verify if certificate trusted using merlin trust implementation. Input for verifications are
+     * truststore and subject regular expression, Method to not verify CRL
+     *
+     * for tge chain
+     * @param certificate
+     * @throws WSSecurityException
+     */
     protected void verifyTrust(X509Certificate certificate) throws WSSecurityException {
         super.verifyTrust(new X509Certificate[]{certificate},
                 false, Collections.singleton(subjectRegularExpressionPattern));
