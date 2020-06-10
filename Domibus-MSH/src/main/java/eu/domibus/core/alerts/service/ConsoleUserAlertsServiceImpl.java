@@ -34,9 +34,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected UserDao userDao;
 
     @Autowired
-    private AlertConfigurationService alertsConfiguration;
-
-    @Autowired
     private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Autowired

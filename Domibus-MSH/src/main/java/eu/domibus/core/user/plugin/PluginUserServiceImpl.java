@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,34 +66,35 @@ public class PluginUserServiceImpl implements PluginUserService {
     public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
-        List<PluginUserRO> res = prepareResponse(users, page, pageSize);
+        List<PluginUserRO> res = prepareResponse(users);
         return res;
     }
 
-    private List<PluginUserRO> prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
-        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
+    private List<PluginUserRO> prepareResponse(List<AuthenticationEntity> userEntities) {
+        List<PluginUserRO> users = new ArrayList<>();
 
-        for (int i = 0; i < users.size(); i++) {
-            PluginUserRO userRO = userROs.get(i);
-            AuthenticationEntity entity = users.get(i);
+        userEntities.forEach(userEntity -> {
+            PluginUserRO user = domainConverter.convert(userEntity, PluginUserRO.class);
 
-            userRO.setStatus(UserState.PERSISTED.name());
-            userRO.setPassword(null);
+            user.setStatus(UserState.PERSISTED.name());
+            user.setPassword(null);
 
-            AuthType authenticationType = StringUtils.isEmpty(userRO.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
-            userRO.setAuthenticationType(authenticationType.name());
+            AuthType authenticationType = StringUtils.isEmpty(user.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
+            user.setAuthenticationType(authenticationType.name());
 
-            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
-            userRO.setSuspended(isSuspended);
+            boolean isSuspended = !userEntity.isActive() && userEntity.getSuspensionDate() != null;
+            user.setSuspended(isSuspended);
 
-            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
-            userRO.setDomain(domainCode);
+            String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
+            user.setDomain(domainCode);
 
-            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(entity);
-            userRO.setExpirationDate(expDate);
-        }
+            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
+            user.setExpirationDate(expDate);
 
-        return userROs;
+            users.add(user);
+        });
+
+        return users;
     }
 
     @Override

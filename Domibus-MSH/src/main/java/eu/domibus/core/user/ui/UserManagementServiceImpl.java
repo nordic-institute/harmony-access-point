@@ -85,7 +85,7 @@ public class UserManagementServiceImpl implements UserService {
 
     protected List<eu.domibus.api.user.User> getUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
         List<User> userEntities = userDao.listUsers();
-        List<eu.domibus.api.user.User> users = new ArrayList<>(); // userConverter.convert(userEntities);
+        List<eu.domibus.api.user.User> users = new ArrayList<>();
 
         userEntities.forEach(userEntity -> {
             eu.domibus.api.user.User user = userConverter.convert(userEntity);
@@ -105,16 +105,6 @@ public class UserManagementServiceImpl implements UserService {
     private String getDomainForUser(eu.domibus.api.user.User user) {
         return userDomainService.getDomainForUser(user.getUserName());
     }
-
-//    private LocalDateTime getExpirationDate(User userEntity, eu.domibus.api.user.User user) {
-//        String expirationProperty = userEntity.hasDefaultPassword()
-//                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
-//        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
-//        if (maxPasswordAgeInDays == 0) {
-//            return null;
-//        }
-//        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
-//    }
 
     /**
      * {@inheritDoc}

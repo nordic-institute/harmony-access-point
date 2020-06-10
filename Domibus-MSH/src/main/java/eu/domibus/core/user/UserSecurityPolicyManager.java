@@ -330,7 +330,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     public LocalDateTime getExpirationDate(U userEntity) {
         String expirationProperty = userEntity.hasDefaultPassword()
-                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+                ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
             return null;

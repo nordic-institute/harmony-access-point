@@ -50,7 +50,7 @@ export class UserComponent extends mix(BaseListComponent)
   areRowsDeleted: boolean;
   deletedStatuses: any[];
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+  // dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private userService: UserService,
               public dialog: MatDialog, private dialogsService: DialogsService, private userValidatorService: UserValidatorService,
@@ -112,6 +112,13 @@ export class UserComponent extends mix(BaseListComponent)
         name: 'Deleted',
         canAutoResize: true,
         width: 25,
+        showInitially: false
+      },
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Expiration Date',
+        prop: 'expirationDate',
+        canAutoResize: true,
         showInitially: true
       },
       {

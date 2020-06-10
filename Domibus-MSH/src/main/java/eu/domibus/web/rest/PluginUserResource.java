@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -15,7 +14,6 @@ import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.PluginUserResultRO;
-import org.apache.cxf.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +55,7 @@ public class PluginUserResource extends BaseResource {
 
     @GetMapping(value = {"/users"})
     public PluginUserResultRO findUsers(PluginUserFilterRequestRO request) {
-        PluginUserResultRO result = retrieveAndTransformUsers(request);
+        PluginUserResultRO result = retrieveAndPackageUsers(request);
         Long count = pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName());
         result.setCount(count);
         return result;
@@ -88,7 +86,7 @@ public class PluginUserResource extends BaseResource {
     public ResponseEntity<String> getCsv(PluginUserFilterRequestRO request) {
         request.setPageStart(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
-        final PluginUserResultRO result = retrieveAndTransformUsers(request);
+        final PluginUserResultRO result = retrieveAndPackageUsers(request);
         getCsvService().validateMaxRows(result.getEntries().size(),
                 () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
@@ -102,7 +100,7 @@ public class PluginUserResource extends BaseResource {
                 "pluginusers");
     }
 
-    protected PluginUserResultRO retrieveAndTransformUsers(PluginUserFilterRequestRO request) {
+    protected PluginUserResultRO retrieveAndPackageUsers(PluginUserFilterRequestRO request) {
         LOG.debug("Retrieving plugin users.");
         List<PluginUserRO> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
                 request.getPageStart(), request.getPageSize());
@@ -113,44 +111,6 @@ public class PluginUserResource extends BaseResource {
         result.setPageSize(request.getPageSize());
 
         return result;
-//        return prepareResponse(users, request.getPageStart(), request.getPageSize());
     }
-
-    /**
-     * convert plugin users to PluginUserROs.
-     *
-     * @return a list of PluginUserROs and the pagination info
-     */
-//    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
-//        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
-//
-//        // this is business, should be located somewhere else
-//        for (int i = 0; i < users.size(); i++) {
-//            PluginUserRO userRO = userROs.get(i);
-//            AuthenticationEntity entity = users.get(i);
-//
-//            userRO.setStatus(UserState.PERSISTED.name());
-//            userRO.setPassword(null);
-//            if (StringUtils.isEmpty(userRO.getCertificateId())) {
-//                userRO.setAuthenticationType(AuthType.BASIC.name());
-//            } else {
-//                userRO.setAuthenticationType(AuthType.CERTIFICATE.name());
-//            }
-//
-//            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
-//            userRO.setSuspended(isSuspended);
-//
-//            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
-//            userRO.setDomain(domainCode);
-//        }
-//
-//        PluginUserResultRO result = new PluginUserResultRO();
-//
-//        result.setEntries(userROs);
-//        result.setPage(pageStart);
-//        result.setPageSize(pageSize);
-//
-//        return result;
-//    }
 
 }
