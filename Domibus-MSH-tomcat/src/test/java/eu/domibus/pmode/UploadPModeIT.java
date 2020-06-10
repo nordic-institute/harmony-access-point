@@ -216,21 +216,38 @@ public class UploadPModeIT extends AbstractIT {
     }
 
     /**
-     * Tests that the PMode is not saved in the DB because there is a validation error (maxSize negative value).
+     * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
      */
     @Test
-    public void testSavePModeValidationError_MaxSize() throws IOException {
-        String pmodeName = "domibus-configuration-maxsize-invalid.xml";
+    public void testSavePModeValidationError_MaxSize_Overflow() throws IOException {
+        String pmodeName = "domibus-configuration-maxsize-overflow.xml";
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
-        MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-invalid", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-overflow", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
-            assertEquals(2, ex.getIssues().size());
-            assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxInclusive '2147483647' for type 'int'"));
+            assertEquals(0, ex.getIssues().size());
+            assertTrue(ex.getMessage().contains("[DOM_003]:Failed to upload the PMode file due to: NumberFormatException: For input string: \"40894464534632746754875696\""));
+        }
+    }    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
+     */
+    @Test
+    public void testSavePModeValidationError_MaxSize_Negative() throws IOException {
+        String pmodeName = "domibus-configuration-maxsize-negative.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-negative", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertEquals(1, ex.getIssues().size());
+            assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-4089446453400] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 9223372036854775807"));
         }
     }
+
+
 
     /**
      * Tests that a PMODE can be serialized/deserialized properly.
