@@ -83,29 +83,29 @@ public class SuperUserManagementServiceImplTest {
     @Tested
     private SuperUserManagementServiceImpl superUserManagementService;
 
-    @Test
-    public void findUsers() {
-        List<User> users = new ArrayList<>();
-        users.add(new User() {{
-            setUserName("user1");
-        }});
-        List<User> superUsers = new ArrayList<>();
-        superUsers.add(new User() {{
-            setUserName("super1");
-        }});
-        new Expectations() {{
-            userManagementService.findUsers();
-            result = users;
-            userDomainService.getSuperUsers();
-            result = superUsers;
-        }};
-
-        List<User> all = superUserManagementService.findUsers();
-
-        assertEquals(all.size(), 2);
-        assertEquals(all.get(0).getUserName(), "user1");
-        assertEquals(all.get(1).getUserName(), "super1");
-    }
+//    @Test
+//    public void findUsers() {
+//        List<User> users = new ArrayList<>();
+//        users.add(new User() {{
+//            setUserName("user1");
+//        }});
+//        List<User> superUsers = new ArrayList<>();
+//        superUsers.add(new User() {{
+//            setUserName("super1");
+//        }});
+//        new Expectations() {{
+//            userManagementService.findUsers();
+//            result = users;
+//            userDomainService.getSuperUsers();
+//            result = superUsers;
+//        }};
+//
+//        List<User> all = superUserManagementService.findUsers();
+//
+//        assertEquals(all.size(), 2);
+//        assertEquals(all.get(0).getUserName(), "user1");
+//        assertEquals(all.get(1).getUserName(), "super1");
+//    }
 
     @Test
     public void updateUsers() {

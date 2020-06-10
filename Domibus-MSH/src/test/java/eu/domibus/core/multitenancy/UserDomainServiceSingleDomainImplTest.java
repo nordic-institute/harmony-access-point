@@ -27,10 +27,10 @@ public class UserDomainServiceSingleDomainImplTest {
         Assert.assertEquals("default", domainCode);
     }
 
-    @Test
-    public void getSuperUsers() {
-        List<User> users = userDomainServiceSingleDomainImpl.getSuperUsers();
-        Assert.assertEquals(0, users.size());
-    }
+//    @Test
+//    public void getSuperUsers() {
+//        List<User> users = userDomainServiceSingleDomainImpl.getSuperUsers();
+//        Assert.assertEquals(0, users.size());
+//    }
 
 }
