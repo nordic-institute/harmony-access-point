@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.receiver.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.security.AuthorizationService;
@@ -33,14 +34,27 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     @Autowired
     protected AuthorizationService authorizationService;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
+        com.codahale.metrics.Timer.Context authorizeUserMessageMetric = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "authorizeUserMessage")).time();
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
+        authorizeUserMessageMetric.stop();
+        com.codahale.metrics.Timer.Context handleNewUserMessageMetric = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "handleNewUserMessage")).time();
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
-
-        attachmentCleanupService.cleanAttachments(request);
-
-        return response;
+        handleNewUserMessageMetric.stop();
+        com.codahale.metrics.Timer.Context clean_attachement = null;
+        try {
+            clean_attachement = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "clean_attachement")).time();
+            attachmentCleanupService.cleanAttachments(request);
+            return response;
+        } finally {
+            if (clean_attachement != null) {
+                clean_attachement.stop();
+            }
+        }
     }
 }

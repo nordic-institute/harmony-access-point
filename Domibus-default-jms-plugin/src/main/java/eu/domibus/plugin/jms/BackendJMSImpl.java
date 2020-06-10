@@ -1,5 +1,8 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
@@ -64,6 +67,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
     private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     public BackendJMSImpl(String name) {
         super(name);
     }
@@ -94,6 +100,10 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional
     public void receiveMessage(final MapMessage map) {
+        Counter inMessageCounter = metricRegistry.counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
+        Timer.Context inMessageTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
+        try {
+            inMessageCounter.inc();
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
@@ -129,6 +139,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
+        } finally {
+            if (inMessageTimer != null) {
+                inMessageTimer.stop();
+            }
+            if (inMessageCounter != null) {
+                inMessageCounter.dec();
+            }
+        }
     }
 
     protected String getWrongMessageTypeErrorMessage(String messageID, String jmsCorrelationID, String messageType) {
@@ -144,6 +162,10 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final String messageId) {
+        Timer.Context deliverMessageTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer")).time();
+        Counter deliverMessageCounter = metricRegistry.counter(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_counter"));
+        deliverMessageCounter.inc();
+        try{
         LOG.debug("Delivering message");
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         final String queueValue = domibusPropertyExtService.getDomainProperty(currentDomain, JMSPLUGIN_QUEUE_OUT);
@@ -152,6 +174,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         }
         LOG.info("Sending message to queue [{}]", queueValue);
         mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+    } finally {
+        if (deliverMessageTimer != null) {
+            deliverMessageTimer.stop();
+        }
+        if (deliverMessageCounter != null) {
+            deliverMessageCounter.dec();
+        }
+    }
     }
 
     @Override

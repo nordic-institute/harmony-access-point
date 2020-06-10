@@ -1,5 +1,6 @@
 package eu.domibus.common.services.impl;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -135,6 +136,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected PayloadFileStorageProvider storageProvider;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Override
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
@@ -210,14 +214,20 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 // ping messages are only stored and not notified to the plugins
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null, null);
             } else {
+                com.codahale.metrics.Timer.Context getMatchingBackendFilter = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "getMatchingBackendFilter")).time();
                 final BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
+                getMatchingBackendFilter.stop();
 
+                com.codahale.metrics.Timer.Context getMessageFragmentTimer = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerService.class, "getMessageFragment")).time();
                 MessageFragmentType messageFragmentType = messageUtil.getMessageFragment(request);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName);
+                getMessageFragmentTimer.stop();
 
                 try {
+                    com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(MetricRegistry.name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage")).time();
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
+                    persistReceivedMessage.stop();
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
