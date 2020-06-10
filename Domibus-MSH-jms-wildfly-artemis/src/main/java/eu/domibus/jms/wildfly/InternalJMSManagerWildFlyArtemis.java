@@ -68,33 +68,43 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     protected Map<String, ObjectName> topicMap;
 
-    @Autowired
-    MBeanServer mBeanServer;
+    protected MBeanServer mBeanServer;
 
-    @Autowired
-    @Qualifier("activeMQServerControl")
-    ActiveMQServerControl activeMQServerControl;
+    protected ActiveMQServerControl activeMQServerControl;
 
-    @Resource(name = "jmsSender")
-    private JmsOperations jmsSender;
+    protected JmsOperations jmsSender;
 
-    @Autowired
-    JMSDestinationHelper jmsDestinationHelper;
+    protected JMSDestinationHelper jmsDestinationHelper;
 
-    @Autowired
-    JMSSelectorUtil jmsSelectorUtil;
+    protected JMSSelectorUtil jmsSelectorUtil;
 
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private AuthUtils authUtils;
+    protected AuthUtils authUtils;
 
-    @Autowired
-    private DomibusConfigurationService domibusConfigurationService;
+    protected DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    private ServerInfoService serverInfoService;
+    protected ServerInfoService serverInfoService;
+
+    public InternalJMSManagerWildFlyArtemis(MBeanServer mBeanServer,
+                                            @Qualifier("activeMQServerControl") ActiveMQServerControl activeMQServerControl,
+                                            @Qualifier("jmsSender") JmsOperations jmsSender,
+                                            JMSDestinationHelper jmsDestinationHelper,
+                                            JMSSelectorUtil jmsSelectorUtil,
+                                            DomibusPropertyProvider domibusPropertyProvider,
+                                            AuthUtils authUtils,
+                                            DomibusConfigurationService domibusConfigurationService,
+                                            ServerInfoService serverInfoService) {
+        this.mBeanServer = mBeanServer;
+        this.activeMQServerControl = activeMQServerControl;
+        this.jmsSender = jmsSender;
+        this.jmsDestinationHelper = jmsDestinationHelper;
+        this.jmsSelectorUtil = jmsSelectorUtil;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.authUtils = authUtils;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.serverInfoService = serverInfoService;
+    }
 
     /**
      * Returns null if the string is null or empty

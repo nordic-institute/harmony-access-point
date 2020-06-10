@@ -203,7 +203,7 @@
                                                     </xs:element>
                                                 </xs:sequence>
                                                 <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
-                                                <xs:attribute name="maxSize" type="xs:int" use="required"/>
+                                                <xs:attribute name="maxSize" type="xs:long" use="required"/>
                                             </xs:complexType>
                                             <xs:unique name="uniqueAttachment">
                                                 <xs:selector xpath="attachment"/>

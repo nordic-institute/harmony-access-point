@@ -4,6 +4,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import mockit.Injectable;
@@ -35,6 +36,10 @@ public class RoutingServiceTest {
 
     @Injectable
     private DomainCoreConverter coreConverter;
+
+    @Injectable
+    BackendNotificationService backendNotificationService;
+
 
     @Test(expected = ConfigurationException.class)
     public void validateFiltersThrowsError() {
