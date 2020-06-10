@@ -55,7 +55,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      */
     protected List<User> getSuperUsers() {
         LOG.debug("Searching for super users");
-        return domainTaskExecutor.submit(() -> super.getUsers(this::getDomainForUser));
+        return domainTaskExecutor.submit(() -> super.findUsers(this::getDomainForUser));
     }
 
     private String getDomainForUser(eu.domibus.api.user.User user) {

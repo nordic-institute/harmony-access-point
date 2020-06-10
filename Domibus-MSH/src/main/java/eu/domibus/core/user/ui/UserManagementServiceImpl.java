@@ -27,9 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
-
 /**
  * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
@@ -73,20 +70,17 @@ public class UserManagementServiceImpl implements UserService {
     @Autowired
     ConsoleUserAlertsServiceImpl userAlertsService;
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsers() {
-        return getUsers(this::getDomainForUser);
+        return findUsers(this::getDomainForUser);
     }
 
-    protected List<eu.domibus.api.user.User> getUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
-
+    protected List<eu.domibus.api.user.User> findUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
         LOG.debug("Retrieving console users");
-
         List<User> userEntities = userDao.listUsers();
         List<eu.domibus.api.user.User> users = new ArrayList<>();
 
