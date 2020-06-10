@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -323,6 +326,16 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
                 throw new UserManagementException(errorMessage);
             }
         }
+    }
+
+    public LocalDateTime getExpirationDate(U userEntity) {
+        String expirationProperty = userEntity.hasDefaultPassword()
+                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+        if (maxPasswordAgeInDays == 0) {
+            return null;
+        }
+        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
     }
 
 }

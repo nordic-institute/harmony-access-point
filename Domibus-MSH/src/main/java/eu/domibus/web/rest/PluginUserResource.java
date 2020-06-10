@@ -104,10 +104,16 @@ public class PluginUserResource extends BaseResource {
 
     protected PluginUserResultRO retrieveAndTransformUsers(PluginUserFilterRequestRO request) {
         LOG.debug("Retrieving plugin users.");
-        List<AuthenticationEntity> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
+        List<PluginUserRO> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
                 request.getPageStart(), request.getPageSize());
 
-        return prepareResponse(users, request.getPageStart(), request.getPageSize());
+        PluginUserResultRO result = new PluginUserResultRO();
+        result.setEntries(users);
+        result.setPage(request.getPageStart());
+        result.setPageSize(request.getPageSize());
+
+        return result;
+//        return prepareResponse(users, request.getPageStart(), request.getPageSize());
     }
 
     /**
@@ -115,36 +121,36 @@ public class PluginUserResource extends BaseResource {
      *
      * @return a list of PluginUserROs and the pagination info
      */
-    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
-        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
-
-        // this is business, should be located somewhere else
-        for (int i = 0; i < users.size(); i++) {
-            PluginUserRO userRO = userROs.get(i);
-            AuthenticationEntity entity = users.get(i);
-
-            userRO.setStatus(UserState.PERSISTED.name());
-            userRO.setPassword(null);
-            if (StringUtils.isEmpty(userRO.getCertificateId())) {
-                userRO.setAuthenticationType(AuthType.BASIC.name());
-            } else {
-                userRO.setAuthenticationType(AuthType.CERTIFICATE.name());
-            }
-
-            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
-            userRO.setSuspended(isSuspended);
-
-            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
-            userRO.setDomain(domainCode);
-        }
-
-        PluginUserResultRO result = new PluginUserResultRO();
-
-        result.setEntries(userROs);
-        result.setPage(pageStart);
-        result.setPageSize(pageSize);
-
-        return result;
-    }
+//    private PluginUserResultRO prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
+//        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
+//
+//        // this is business, should be located somewhere else
+//        for (int i = 0; i < users.size(); i++) {
+//            PluginUserRO userRO = userROs.get(i);
+//            AuthenticationEntity entity = users.get(i);
+//
+//            userRO.setStatus(UserState.PERSISTED.name());
+//            userRO.setPassword(null);
+//            if (StringUtils.isEmpty(userRO.getCertificateId())) {
+//                userRO.setAuthenticationType(AuthType.BASIC.name());
+//            } else {
+//                userRO.setAuthenticationType(AuthType.CERTIFICATE.name());
+//            }
+//
+//            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
+//            userRO.setSuspended(isSuspended);
+//
+//            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
+//            userRO.setDomain(domainCode);
+//        }
+//
+//        PluginUserResultRO result = new PluginUserResultRO();
+//
+//        result.setEntries(userROs);
+//        result.setPage(pageStart);
+//        result.setPageSize(pageSize);
+//
+//        return result;
+//    }
 
 }

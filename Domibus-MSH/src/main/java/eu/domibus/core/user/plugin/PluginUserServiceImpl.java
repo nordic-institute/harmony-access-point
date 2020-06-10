@@ -7,11 +7,14 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
+import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.PluginUserRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,10 +58,41 @@ public class PluginUserServiceImpl implements PluginUserService {
     @Autowired
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
+    @Autowired
+    private DomainCoreConverter domainConverter;
+
     @Override
-    public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
+    public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
-        return authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
+        List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
+        List<PluginUserRO> res = prepareResponse(users, page, pageSize);
+        return res;
+    }
+
+    private List<PluginUserRO> prepareResponse(List<AuthenticationEntity> users, int pageStart, int pageSize) {
+        List<PluginUserRO> userROs = domainConverter.convert(users, PluginUserRO.class);
+
+        for (int i = 0; i < users.size(); i++) {
+            PluginUserRO userRO = userROs.get(i);
+            AuthenticationEntity entity = users.get(i);
+
+            userRO.setStatus(UserState.PERSISTED.name());
+            userRO.setPassword(null);
+
+            AuthType authenticationType = StringUtils.isEmpty(userRO.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
+            userRO.setAuthenticationType(authenticationType.name());
+
+            boolean isSuspended = !entity.isActive() && entity.getSuspensionDate() != null;
+            userRO.setSuspended(isSuspended);
+
+            String domainCode = userDomainService.getDomainForUser(entity.getUniqueIdentifier());
+            userRO.setDomain(domainCode);
+
+            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(entity);
+            userRO.setExpirationDate(expDate);
+        }
+
+        return userROs;
     }
 
     @Override

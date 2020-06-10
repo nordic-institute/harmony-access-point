@@ -134,6 +134,7 @@ public class User implements UserBase {
         }
         return authorities.contains(role.name());
     }
+
     public LocalDateTime getExpirationDate() {
         return expirationDate;
     }

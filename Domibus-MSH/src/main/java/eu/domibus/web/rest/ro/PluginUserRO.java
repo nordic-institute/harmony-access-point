@@ -4,12 +4,15 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  * @author Pion
  * @since 4.0
  */
-public class PluginUserRO implements Serializable {
+public class PluginUserRO {
 
     private Integer entityId;
 
@@ -34,6 +37,8 @@ public class PluginUserRO implements Serializable {
     private boolean suspended;
 
     private String domain;
+
+    private Date expirationDate;
 
     public Integer getEntityId() {
         return entityId;
@@ -121,5 +126,15 @@ public class PluginUserRO implements Serializable {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        if (expirationDate != null) {
+            this.expirationDate = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
+        }
     }
 }

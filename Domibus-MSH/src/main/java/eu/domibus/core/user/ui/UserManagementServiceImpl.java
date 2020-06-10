@@ -31,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
 
 /**
- * @author Thomas Dussart
+ * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
  */
 @Service("userManagementService")
@@ -93,7 +93,7 @@ public class UserManagementServiceImpl implements UserService {
             String domainCode = getDomainForUserFn.apply(user);
             user.setDomain(domainCode);
 
-            LocalDateTime expDate = getExpirationDate(userEntity, user);
+            LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
             user.setExpirationDate(expDate);
 
             users.add(user);
@@ -106,15 +106,15 @@ public class UserManagementServiceImpl implements UserService {
         return userDomainService.getDomainForUser(user.getUserName());
     }
 
-    private LocalDateTime getExpirationDate(User userEntity, eu.domibus.api.user.User user) {
-        String expirationProperty = userEntity.hasDefaultPassword()
-                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
-        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
-        if (maxPasswordAgeInDays == 0) {
-            return null;
-        }
-        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
-    }
+//    private LocalDateTime getExpirationDate(User userEntity, eu.domibus.api.user.User user) {
+//        String expirationProperty = userEntity.hasDefaultPassword()
+//                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+//        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+//        if (maxPasswordAgeInDays == 0) {
+//            return null;
+//        }
+//        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
+//    }
 
     /**
      * {@inheritDoc}
