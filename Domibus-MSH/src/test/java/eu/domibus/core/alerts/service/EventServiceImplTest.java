@@ -270,8 +270,6 @@ public class EventServiceImplTest {
         persistedEvent.setType(EventType.PASSWORD_EXPIRED);
 
         new Expectations() {{
-//            passwordExpirationAlertModuleConfiguration.isActive();
-//            result = true;
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
             domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
