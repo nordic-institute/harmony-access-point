@@ -440,6 +440,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             } catch (InvalidPayloadSizeException e) {
                 if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
+                    //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
+                    //to internal storage folder so we will not delete them
                     messagingDao.clearFileSystemPayloads(userMessage);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
