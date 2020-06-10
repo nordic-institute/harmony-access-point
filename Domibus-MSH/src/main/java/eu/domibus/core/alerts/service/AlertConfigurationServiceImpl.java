@@ -9,7 +9,6 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -28,14 +27,19 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    List<AlertConfigurationManager> alertConfigurationManagers;
+    protected List<AlertConfigurationManager> alertConfigurationManagers;
 
-    @Autowired
-    private CommonConfigurationManager commonConfigurationManager;
+    protected CommonConfigurationManager commonConfigurationManager;
+
+    public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
+                                         List<AlertConfigurationManager> alertConfigurationManagers,
+                                         CommonConfigurationManager commonConfigurationManager) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.alertConfigurationManagers = alertConfigurationManagers;
+        this.commonConfigurationManager = commonConfigurationManager;
+    }
 
     @Override
     public void resetAll() {
@@ -70,15 +74,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
-        Optional<AlertConfigurationManager> res = getAlertConfigurationManagers().stream().filter(el -> el.getAlertType() == alertType).findFirst();
+        Optional<AlertConfigurationManager> res = alertConfigurationManagers.stream().filter(el -> el.getAlertType() == alertType).findFirst();
         if (!res.isPresent()) {
             throw new IllegalArgumentException("Could not find configuration manager for alert type " + alertType);
         }
         return res.get();
-    }
-
-    // added for unit testing purposes
-    protected List<AlertConfigurationManager> getAlertConfigurationManagers() {
-        return alertConfigurationManagers;
     }
 }

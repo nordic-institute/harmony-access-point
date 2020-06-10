@@ -113,9 +113,8 @@ public class AlertConfigurationServiceImplTest {
     public void getModuleConfigurationManager(@Mocked AlertType alertType1, @Mocked AlertType alertType2, @Mocked AlertType alertType3,
                                               @Mocked AlertConfigurationManager alertConfigurationManager1,
                                               @Mocked AlertConfigurationManager alertConfigurationManager2) {
+        configurationService.alertConfigurationManagers = Arrays.asList(alertConfigurationManager2, alertConfigurationManager1);
         new Expectations(configurationService) {{
-            configurationService.getAlertConfigurationManagers();
-            result = Arrays.asList(alertConfigurationManager2, alertConfigurationManager1);
             alertConfigurationManager1.getAlertType();
             result = alertType1;
             alertConfigurationManager2.getAlertType();
