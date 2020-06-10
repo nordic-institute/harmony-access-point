@@ -2,12 +2,13 @@ package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +35,9 @@ public class RoutingService {
 
     @Autowired
     private DomainCoreConverter coreConverter;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
 
     /**
      * Returns the configured backend filters present in the classpath
@@ -78,6 +82,8 @@ public class RoutingService {
         List<BackendFilterEntity> backendFilterEntityListToDelete = backendFiltersToDelete(allBackendFilterEntities, backendFilterEntities);
         backendFilterDao.deleteAll(backendFilterEntityListToDelete);
         backendFilterDao.update(backendFilterEntities);
+
+        backendNotificationService.invalidateBackendFiltersCache();
     }
 
     protected void validateFilters(List<BackendFilter> filters) {

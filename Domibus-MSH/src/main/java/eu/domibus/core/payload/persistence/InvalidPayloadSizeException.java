@@ -11,6 +11,8 @@ import eu.domibus.api.exceptions.DomibusCoreException;
  */
 public class InvalidPayloadSizeException extends DomibusCoreException {
 
+    private boolean payloadSavedAsync = false;
+
     public InvalidPayloadSizeException(DomibusCoreErrorCode dce, String message) {
         super(dce, message);
     }
@@ -21,5 +23,14 @@ public class InvalidPayloadSizeException extends DomibusCoreException {
 
     public InvalidPayloadSizeException(String message) {
         super(DomibusCoreErrorCode.DOM_007, message);
+    }
+
+    public InvalidPayloadSizeException(String message, final boolean isPayloadSavedAsync) {
+        super(DomibusCoreErrorCode.DOM_007, message);
+        this.payloadSavedAsync = isPayloadSavedAsync;
+    }
+
+    public boolean isPayloadSavedAsync() {
+        return payloadSavedAsync;
     }
 }
