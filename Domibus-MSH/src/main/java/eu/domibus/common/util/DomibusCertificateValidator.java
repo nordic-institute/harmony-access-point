@@ -94,8 +94,8 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
     }
 
     /**
-     * Verify if certificate trusted using merlin trust implementation. Input for verifications are
-     * truststore and subject regular expression, Method to not verify CRL
+     * Method verifies if certificate is trusted. Input for verifications are
+     * truststore and subject regular expression, Method does not verify CRL
      *
      * for tge chain
      * @param certificate
