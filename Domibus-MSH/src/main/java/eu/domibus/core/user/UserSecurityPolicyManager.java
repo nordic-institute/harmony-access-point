@@ -277,7 +277,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         return userEntity;
     }
 
-
     @Transactional
     public void reactivateSuspendedUsers() {
         int suspensionInterval = getSuspensionInterval();
@@ -332,7 +331,8 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         String expirationProperty = userEntity.hasDefaultPassword()
                 ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
-        if (maxPasswordAgeInDays == 0) {
+
+        if (maxPasswordAgeInDays <= 0) {
             return null;
         }
         return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));

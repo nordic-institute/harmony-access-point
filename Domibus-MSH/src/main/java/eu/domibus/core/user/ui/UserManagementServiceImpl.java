@@ -84,6 +84,9 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     protected List<eu.domibus.api.user.User> getUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+
+        LOG.debug("Retrieving console users");
+
         List<User> userEntities = userDao.listUsers();
         List<eu.domibus.api.user.User> users = new ArrayList<>();
 
@@ -92,7 +95,7 @@ public class UserManagementServiceImpl implements UserService {
 
             String domainCode = getDomainForUserFn.apply(user);
             user.setDomain(domainCode);
-            
+
             LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
             user.setExpirationDate(expDate);
 
@@ -111,6 +114,7 @@ public class UserManagementServiceImpl implements UserService {
      */
     @Override
     public List<eu.domibus.api.user.UserRole> findUserRoles() {
+        LOG.debug("Retrieving user roles");
         List<UserRole> userRolesEntities = userRoleDao.listRoles();
 
         List<eu.domibus.api.user.UserRole> userRoles = new ArrayList<>();

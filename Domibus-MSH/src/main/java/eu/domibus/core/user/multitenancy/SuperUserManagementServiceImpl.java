@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 /**
  * @author Ion Perpegel
  * @since 4.0
@@ -43,8 +42,8 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         List<eu.domibus.api.user.User> allUsers = super.findUsers();
 
         List<eu.domibus.api.user.User> superUsers = getSuperUsers();
-
         allUsers.addAll(superUsers);
+
         return allUsers;
     }
 
