@@ -80,31 +80,6 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
         return domain;
     }
 
-    /**
-     * Get all super users from the general schema. <br>
-     * This is done in a separate thread as the DB connection is cached per thread and cannot be changed anymore to the schema of the associated domain
-     *
-     * @return the list of users from the general schema
-     */
-    @Override
-    public List<User> getSuperUsers() {
-        LOG.debug("Searching for super users");
-        return domainTaskExecutor.submit(() -> {
-            List<eu.domibus.core.user.ui.User> userEntities = userDao.listUsers();
-            List<User> users = userConverter.convert(userEntities);
-
-            // fill in preferred domain
-            List<UserDomainEntity> domains = userDomainDao.listPreferredDomains();
-            users.forEach(u -> {
-                String domainCode = domains.stream().filter(d -> d.getUserName().equals(u.getUserName()))
-                        .map(d -> d.getPreferredDomain()).findFirst().orElse(null);
-                u.setDomain(domainCode);
-            });
-            return users;
-        });
-    }
-
-
     @Override
     public void setDomainForUser(String user, String domainCode) {
         LOG.debug("Setting domain [{}] for user [{}]", domainCode, user);

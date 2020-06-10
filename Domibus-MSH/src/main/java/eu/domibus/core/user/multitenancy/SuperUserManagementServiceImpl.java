@@ -3,6 +3,9 @@ package eu.domibus.core.user.multitenancy;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.User;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
+import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,15 +32,40 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    @Autowired
+    protected UserDomainDao userDomainDao;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<eu.domibus.api.user.User> findUsers() {
         List<eu.domibus.api.user.User> allUsers = super.findUsers();
-        List<eu.domibus.api.user.User> superUsers = userDomainService.getSuperUsers();
+
+        List<eu.domibus.api.user.User> superUsers = getSuperUsers();
+
         allUsers.addAll(superUsers);
         return allUsers;
+    }
+
+    /**
+     * Get all super users from the general schema. <br>
+     * This is done in a separate thread as the DB connection is cached per thread and cannot be changed anymore to the schema of the associated domain
+     *
+     * @return the list of users from the general schema
+     */
+    protected List<User> getSuperUsers() {
+        LOG.debug("Searching for super users");
+        return domainTaskExecutor.submit(() -> super.getUsers(this::getDomainForUser));
+    }
+
+    private String getDomainForUser(eu.domibus.api.user.User user) {
+        List<UserDomainEntity> domains = userDomainDao.listPreferredDomains();
+        String domainCode = domains.stream()
+                .filter(domainEntity -> domainEntity.getUserName().equals(user.getUserName()))
+                .map(domainEntity -> domainEntity.getPreferredDomain())
+                .findFirst().orElse(null);
+        return domainCode;
     }
 
     /**

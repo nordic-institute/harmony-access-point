@@ -17,8 +17,8 @@ import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.internal.Function;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
 
 /**
  * @author Thomas Dussart
@@ -77,15 +80,40 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsers() {
-        List<User> userEntities = userDao.listUsers();
-        List<eu.domibus.api.user.User> users = userConverter.convert(userEntities);
+        return getUsers(this::getDomainForUser);
+    }
 
-        users.forEach(u -> {
-            String domainCode = userDomainService.getDomainForUser(u.getUserName());
-            u.setDomain(domainCode);
+    protected List<eu.domibus.api.user.User> getUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+        List<User> userEntities = userDao.listUsers();
+        List<eu.domibus.api.user.User> users = new ArrayList<>(); // userConverter.convert(userEntities);
+
+        userEntities.forEach(userEntity -> {
+            eu.domibus.api.user.User user = userConverter.convert(userEntity);
+
+            String domainCode = getDomainForUserFn.apply(user);
+            user.setDomain(domainCode);
+
+            LocalDateTime expDate = getExpirationDate(userEntity, user);
+            user.setExpirationDate(expDate);
+
+            users.add(user);
         });
 
         return users;
+    }
+
+    private String getDomainForUser(eu.domibus.api.user.User user) {
+        return userDomainService.getDomainForUser(user.getUserName());
+    }
+
+    private LocalDateTime getExpirationDate(User userEntity, eu.domibus.api.user.User user) {
+        String expirationProperty = userEntity.hasDefaultPassword()
+                ? DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION : DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+        if (maxPasswordAgeInDays == 0) {
+            return null;
+        }
+        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
     }
 
     /**
