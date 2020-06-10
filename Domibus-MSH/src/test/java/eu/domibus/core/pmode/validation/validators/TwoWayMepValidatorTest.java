@@ -23,7 +23,7 @@ public class TwoWayMepValidatorTest extends AbstractValidatorTest {
         final List<ValidationIssue> results = validator.validate(configuration);
         assertTrue(results.size() == 1);
         assertEquals(
-                "Two-Way mep with binding http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush not accepted for process TestProcess",
+                "Two-way mep with binding [pushAndPush] is not supported for process [TestProcess], use 2 one-way processes to simulate two-way communication.",
                 results.get(0).getMessage());
     }
 }
