@@ -35,7 +35,7 @@ public class PayloadPersistenceHelper {
     }
 
     /**
-     * I will validate the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
+     * Validates the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
      *
      * @param legConfiguration
      * @param partInfoLength
@@ -46,7 +46,7 @@ public class PayloadPersistenceHelper {
     }
 
     /**
-     * I will validate the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
+     * Validates the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
      *
      * @param legConfiguration
      * @param partInfoLength
