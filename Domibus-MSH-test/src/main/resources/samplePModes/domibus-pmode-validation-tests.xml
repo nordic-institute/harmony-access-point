@@ -150,6 +150,28 @@
                 <leg name="pushTestcase1tc1Action"/>
             </legs>
         </process>
+        <process name="tc1ProcessShouldBeRejected2" agreement="agreementEmpty" mep="twoway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase1tc1Action"/>
+            </legs>
+        </process>
+        <process name="tc1ProcessShouldBeRejected3" agreement="agreementEmpty" mep="oneway" binding="pushAndPush" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase1tc1Action"/>
+            </legs>
+        </process>
         <process name="tc2Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
             <initiatorParties>
                 <initiatorParty name="blue_gw"/>
