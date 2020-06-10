@@ -62,7 +62,7 @@
 					required="false"
 					mimeType="application/octet-stream"/>
 			<payloadProfile name="MessageProfile" 
-					maxSize="9223372036854775807">
+					maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>

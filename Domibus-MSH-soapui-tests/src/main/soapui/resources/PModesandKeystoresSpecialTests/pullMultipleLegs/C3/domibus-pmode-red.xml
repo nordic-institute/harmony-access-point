@@ -51,20 +51,20 @@
 			<payload name="textbusinessContentAttachment" cid="cid:txtattachment" required="false" mimeType="text/plain" inBody="false"/>
 			<payload name="businessContentPayloadInBody" cid="" required="true" mimeType="text/xml" inBody="true"/>
 			<payload name="businessContentPayloadInBodyTwo" cid="" required="true" mimeType="application/xml" inBody="true"/>
-			<payloadProfile name="MessageProfile" maxSize="9223372036854775807">
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 				<attachment name="textbusinessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadInBody" maxSize="9223372036854775807">
+			<payloadProfile name="MessageProfilePayloadInBody" maxSize="2147483647">
 				<attachment name="businessContentPayloadInBody"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadInBodyTwo" maxSize="9223372036854775807">
+			<payloadProfile name="MessageProfilePayloadInBodyTwo" maxSize="2147483647">
 				<attachment name="businessContentPayloadInBodyTwo"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="9223372036854775807">
+			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="2147483647">
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>			
 		</payloadProfiles>
