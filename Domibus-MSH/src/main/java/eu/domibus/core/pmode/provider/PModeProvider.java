@@ -220,7 +220,7 @@ public abstract class PModeProvider {
         try {
             unmarshallerResult = xmlUtil.unmarshal(ignoreWhitespaces, jaxbContext, xmlStream, xsdStream);
             configuration = unmarshallerResult.getResult();
-        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException e) {
+        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException | NumberFormatException e) {
             LOG.error("Error unmarshalling the PMode", e);
             throw new XmlProcessingException("Error unmarshalling the PMode: " + e.getMessage(), e);
         }

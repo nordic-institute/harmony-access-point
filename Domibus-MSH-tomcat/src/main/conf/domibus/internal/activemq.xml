@@ -149,7 +149,7 @@
                 </redeliveryPolicyMap>
             </redeliveryPlugin>
 
-            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.largeMessage.queue" reportInterval="10000"/>
+            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.largeMessage.queue ${fsplugin.send.queue:domibus.fsplugin.send.queue}" reportInterval="10000"/>
         </plugins>
     </broker>
 

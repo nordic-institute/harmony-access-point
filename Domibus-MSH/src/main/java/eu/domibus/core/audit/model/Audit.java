@@ -40,7 +40,7 @@ public class Audit {
     }
 
     public Date getChanged() {
-        return this.id.getChanged();
+        return id.getChanged();
     }
 
     public String getId() {

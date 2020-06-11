@@ -126,6 +126,7 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <javax.jms-api.version>2.0.1</javax.jms-api.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -467,7 +468,23 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jms_1.1_spec</artifactId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+
+            <!--
+            Replace JMS 1.1 specs dependency(geronimo-jms_1.1_spec) with JMS 2 specs dependency. This is needed iin order to use CachingConnectionFactory.
+            Using JMS 2 specs is safe according to the SingleConnectionFactory documentation as long as the JMS 2 features are not used:
+            "As of Spring Framework 5, this class supports JMS 2.0 {@code JMSContext} calls and therefore requires the JMS 2.0 API to be present at runtime.
+             It may nevertheless run against a JMS 1.1 driver (bound to the JMS 2.0 API) as long as no actual JMS 2.0 calls are triggered by the application's setup."
+            -->
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
