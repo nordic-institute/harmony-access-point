@@ -18,17 +18,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: activemq-jaas-5.15.8.jar
-   ]]></notes>
-        <gav regex="true">^org\.apache\.activemq:.*$</gav>
-        <!-- jolokia API not used -->
-        <cve>CVE-2015-5182</cve>
-        <!-- Hawtio console not used -->
-        <cve>CVE-2015-5183</cve>
-        <cve>CVE-2015-5184</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: activemq-protobuf-1.1.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
