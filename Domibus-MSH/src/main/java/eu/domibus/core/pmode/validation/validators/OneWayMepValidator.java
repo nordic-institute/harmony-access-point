@@ -26,7 +26,7 @@ import static eu.domibus.core.ebms3.Ebms3Constants.ONEWAY_MEP_VALUE;
 @Order(6)
 public class OneWayMepValidator implements PModeValidator {
 
-    private static final List<String> notAccepted = Arrays.asList(
+    private static final List<String> notAcceptedBindings = Arrays.asList(
             MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(),
             MessageExchangePattern.TWO_WAY_PUSH_PULL.getUri(),
             MessageExchangePattern.TWO_WAY_PULL_PUSH.getUri()
@@ -40,7 +40,7 @@ public class OneWayMepValidator implements PModeValidator {
             if (process.getMep() != null && ONEWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
                 if (binding != null) {
-                    if (notAccepted.stream().anyMatch(binding::equalsIgnoreCase)) {
+                    if (notAcceptedBindings.stream().anyMatch(binding::equalsIgnoreCase)) {
                         String message = String.format("One-way mep with binding [%s] is not valid for process [%s].",
                                 process.getMepBinding().getName(), process.getName());
                         issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));

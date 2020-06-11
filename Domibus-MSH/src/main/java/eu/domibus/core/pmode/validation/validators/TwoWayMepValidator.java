@@ -30,7 +30,7 @@ import static eu.domibus.core.ebms3.Ebms3Constants.TWOWAY_MEP_VALUE;
 @Order(6)
 public class TwoWayMepValidator implements PModeValidator {
 
-    private static final List<String> notSupported = Arrays.asList(
+    private static final List<String> notSupportedBindings = Arrays.asList(
             MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(),
             MessageExchangePattern.TWO_WAY_PUSH_PULL.getUri(),
             MessageExchangePattern.TWO_WAY_PULL_PUSH.getUri()
@@ -44,8 +44,8 @@ public class TwoWayMepValidator implements PModeValidator {
             if (process.getMep() != null && TWOWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
                 String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
                 if (binding != null) {
-                    if (notSupported.stream().anyMatch(binding::equalsIgnoreCase)) {
-                        String message = String.format("Two-way mep with binding [%s] is not supported for process [%s], use 2 one-way processes to simulate two-way communication.",
+                    if (notSupportedBindings.stream().anyMatch(binding::equalsIgnoreCase)) {
+                        String message = String.format("Two-way mep with binding [%s] is not supported for process [%s]. In the pMode XML it is required to use 2 one-way processes to simulate two-way communication.",
                                 process.getMepBinding().getName(), process.getName());
                         issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
                     } else {
