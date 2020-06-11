@@ -3723,6 +3723,249 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		
 	}
 //---------------------------------------------------------------------------------------------------------------------------------
+	def static getPartyListFromPmode(String side,context,log,testRunner,String domainValue="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"getPartyListFromPmode\".", log);
+		def retrievedID=null;
+		
+		
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def partyMap=[];
+		
+		
+		retrievedID=getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd);
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getPartyListFromPmode: Error in the getPartyListFromPmode response.";
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"getPartyListFromPmode\" DONE.", log);
+		return commandResult[0].substring(5);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static addPartyMap(mainMap,extraMap,context,log){
+		debugLog("  ====  Calling \"addPartyMap\".", log);
+		def maxEntId=0;def maxEntId2=0;
+		def i=0; def j=0;def k=0;
+		def swapName=null;
+		
+		debugLog("  addPartyMap  [][]  mainMap:" + mainMap, log);
+		while (i < mainMap.size()){
+			debugLog("  addPartyMap  [][]  Checking element:" + mainMap[i], log);
+			debugLog("  addPartyMap  [][]  Checking value:" + mainMap[i].entityId, log);
+			if(maxEntId<mainMap[i].entityId){
+				maxEntId=mainMap[i].entityId;
+			}
+			while(j<mainMap[i].processesWithPartyAsInitiator.size()){
+				if(maxEntId2<mainMap[i].processesWithPartyAsInitiator[j].entityId){
+					maxEntId2=mainMap[i].processesWithPartyAsInitiator[j].entityId;
+				}
+				j++;
+			}	
+			j=0;
+			while(j<mainMap[i].processesWithPartyAsResponder.size()){
+				if(maxEntId2<mainMap[i].processesWithPartyAsResponder[j].entityId){
+					maxEntId2=mainMap[i].processesWithPartyAsResponder[j].entityId;
+				}
+				j++;
+			}
+			i++;
+		}
+		
+		debugLog("  addPartyMap  [][]  Extracted maximum entity IDs \"$maxEntId\", \"$maxEntId2\" ...", log);
+		
+		i=0;j=0;
+		while (i < extraMap.size()){
+			maxEntId++;
+			extraMap[i].entityId=maxEntId;
+			
+			while(j<extraMap[i].processesWithPartyAsInitiator.size()){
+				if(extraMap[i].processesWithPartyAsInitiator[j].entityId==0){
+					maxEntId2++;
+					extraMap[i].processesWithPartyAsInitiator[j].entityId=maxEntId2;
+					swapName=extraMap[i].processesWithPartyAsInitiator[j].name;
+					while(k<extraMap[i].processesWithPartyAsResponder.size()){
+						if(extraMap[i].processesWithPartyAsResponder[k].name.equals(swapName)){
+							extraMap[i].processesWithPartyAsResponder[k].entityId=maxEntId2;
+						}
+						k++;
+					}
+					k=0;
+				}
+				j++;
+			}
+			j=0;
+			while(j<extraMap[i].processesWithPartyAsResponder.size()){
+				if(extraMap[i].processesWithPartyAsResponder[j].entityId==0){
+					maxEntId2++;
+					extraMap[i].processesWithPartyAsResponder[j].entityId=maxEntId2;
+				}
+				j++;
+			}
+			i++;
+		}		
+		
+		mainMap += extraMap;
+		debugLog("  addPartyMap  [][]  Formatted party map:" + mainMap, log);
+		debugLog("  ====  \"addPartyMap\" DONE.", log);
+		return(mainMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static deletePartyMap(partyMap,partyName,context,log){
+		debugLog("  ====  Calling \"deletePartyMap\".", log);
+		def pArray=[];
+		def pIndex=0;
+		def i=0; def j=0;
+		
+		debugLog("  deletePartyMap  [][]  parties to delete :" + partyName, log);
+		debugLog("  deletePartyMap  [][]  partyMap:" + partyMap, log);
+		
+		// Locate the targeted parties elements index
+		while(j<partyName.size()){
+			while (i < partyMap.size()){
+				debugLog("  deletePartyMap  [][]  Checking element: " + partyMap[i], log);
+				debugLog("  deletePartyMap  [][]  Checking value: " + partyMap[i].name, log);
+				if(partyMap[i].name.equals(partyName[j])){
+					pArray[pIndex]=i;
+					pIndex++;
+					i=partyMap.size();
+				}
+				i++;
+			}
+			j++;
+		}
+		
+		debugLog("  deletePartyMap  [][]  Start deleting elements at: " + partyMap, log);
+		// Delete parties found
+		pIndex=0;
+		while(pIndex<pArray.size()){
+			partyMap.remove(pArray[pIndex]);
+			pIndex++;
+		}
+		
+		debugLog("  deletePartyMap  [][]  Formatted party map:" + partyMap, log);
+		debugLog("  ====  \"deletePartyMap\" DONE.", log);
+		return(partyMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static updatePartyMap(partyMap,nPartyList,context,log){
+		debugLog("  ====  Calling \"updatePartyMap\".", log);
+		def pArray=[];
+		def pIndex=0;
+		def i=0; def j=0; def k=0; def l=0;
+		
+		debugLog("  updatePartyMap  [][]  parties to update :" + nPartyList, log);
+		debugLog("  updatePartyMap  [][]  partyMap:" + partyMap, log);
+		
+		// Locate the targeted parties elements index
+		while(j<nPartyList.size()){
+			while (i < partyMap.size()){
+				debugLog("  updatePartyMap  [][]  Checking element:" + partyMap[i], log);
+				debugLog("  updatePartyMap  [][]  Checking value:" + partyMap[i].name, log);
+				if(partyMap[i].name.equals(nPartyList[j].name)){
+					nPartyList[j].entityId=partyMap[i].entityId;
+					while(k<nPartyList[j].processesWithPartyAsInitiator.size()){
+						while(l<partyMap[i].processesWithPartyAsInitiator.size()){
+							if(nPartyList[j].processesWithPartyAsInitiator[k].name.equals(partyMap[i].processesWithPartyAsInitiator[l].name)){
+								nPartyList[j].processesWithPartyAsInitiator[k].entityId=partyMap[i].processesWithPartyAsInitiator[l].entityId
+							}
+							l++;
+						}
+						k++;
+					}
+					k=0;l=0;
+					while(k<nPartyList[j].processesWithPartyAsResponder.size()){
+						while(l<partyMap[i].processesWithPartyAsResponder.size()){
+							if(nPartyList[j].processesWithPartyAsResponder[k].name.equals(partyMap[i].processesWithPartyAsResponder[l].name)){
+								nPartyList[j].processesWithPartyAsResponder[k].entityId=partyMap[i].processesWithPartyAsResponder[l].entityId
+							}
+							l++;
+						}
+						k++;
+					}
+					k=0;l=0;
+					debugLog("  updatePartyMap  [][]  Replace party: " + partyMap[i], log);
+					debugLog("  updatePartyMap  [][]  with party: " + nPartyList[j], log);
+					partyMap[i]=nPartyList[j];
+				}
+				i++;
+			}
+			i=0;
+			j++;
+		}
+		
+		debugLog("  updatePartyMap  [][]  Formatted party map:" + partyMap, log);
+		debugLog("  ====  \"updatePartyMap\" DONE.", log);
+		return(partyMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static managePartyInPmode(String side,context,log,testRunner,String operation="add",partyParams,String domainValue="default",outcome="success",message=null,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"managePartyInPmode\".", log);
+		def retrievedID=null;		
+		
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def jsonSlurper= new JsonSlurper();
+		def curlParams=null;
+		def partyMap=[];
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+			
+			partyMap=jsonSlurper.parseText(getPartyListFromPmode(side,context,log,testRunner,domainValue,authenticationUser, authenticationPwd));
+			switch(operation.toLowerCase()){
+				case "add":
+					partyMap=addPartyMap(partyMap,partyParams,context,log);
+				break;
+				case "delete":
+					partyMap=deletePartyMap(partyMap,partyParams,context,log);
+				break;
+				case "update":
+					partyMap=updatePartyMap(partyMap,partyParams,context,log);
+				break;
+				default:
+					assert(false),"Error:managePartyInPmode: Error in the requested operation ...";
+			}
+			
+			
+			curlParams = JsonOutput.toJson(partyMap).toString();
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/update",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT",
+								"--data-binary", formatJsonForCurl(curlParams, log),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			if(outcome.toLowerCase()=="success"){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:managePartyInPmode: Error in the managePartyInPmode response.";
+			}else{
+				assert(!(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)&& !(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:managePartyInPmode: Error in the managePartyInPmode response.";
+			}
+			if(message!=null){
+				assert(commandResult[0].contains(message)),"Error:managePartyInPmode: Error in the managePartyInPmode response: string \"$message\" was not found in: "+commandResult[0];
+			}			
+		}finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"managePartyInPmode\" DONE.", log);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
 //---------------------------------------------------------------------------------------------------------------------------------
 
