@@ -55,7 +55,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return issues.stream().filter(issue -> issue != null).collect(Collectors.toList());
     }
 
-    private ValidationIssue validateLegPropertySet(LegConfiguration leg) {
+    protected ValidationIssue validateLegPropertySet(LegConfiguration leg) {
         if (leg.getPropertySet() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "propertySetXml", String.class);
             //propertySet can be null
@@ -66,7 +66,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegPayloadProfile(LegConfiguration leg) {
+    protected ValidationIssue validateLegPayloadProfile(LegConfiguration leg) {
         if (leg.getPayloadProfile() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "payloadProfileXml", String.class);
             //payload profile can be null
@@ -77,7 +77,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegSplitting(LegConfiguration leg) {
+    protected ValidationIssue validateLegSplitting(LegConfiguration leg) {
         if (leg.getSplitting() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "splittingXml", String.class);
             //splitting can be null
@@ -88,7 +88,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegErrorHandling(LegConfiguration leg) {
+    protected ValidationIssue validateLegErrorHandling(LegConfiguration leg) {
         if (leg.getErrorHandling() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "errorHandlingXml", String.class);
             return createIssue(leg, name, "ErrorHandling [%s] of leg configuration [%s] not found in business process error handlings.");
@@ -96,7 +96,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegReliability(LegConfiguration leg) {
+    protected ValidationIssue validateLegReliability(LegConfiguration leg) {
         if (leg.getReliability() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "reliabilityXml", String.class);
             return createIssue(leg, name, "Reliability [%s] of leg configuration [%s] not found in business process as4 reliability.");
@@ -104,7 +104,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegReceptionAwareness(LegConfiguration leg) {
+    protected ValidationIssue validateLegReceptionAwareness(LegConfiguration leg) {
         if (leg.getReceptionAwareness() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
@@ -112,7 +112,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegDefaultMpc(LegConfiguration leg) {
+    protected ValidationIssue validateLegDefaultMpc(LegConfiguration leg) {
         if (leg.getDefaultMpc() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "defaultMpcXml", String.class);
             return createIssue(leg, name, "DefaultMpc [%s] of leg configuration [%s] not found in business process mpc.");
@@ -120,7 +120,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegSecurity(LegConfiguration leg) {
+    protected ValidationIssue validateLegSecurity(LegConfiguration leg) {
         if (leg.getSecurity() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "securityXml", String.class);
             return createIssue(leg, name, "Security [%s] of leg configuration [%s] not found in business process securities.");
@@ -128,7 +128,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegAction(LegConfiguration leg) {
+    protected ValidationIssue validateLegAction(LegConfiguration leg) {
         if (leg.getAction() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "actionXml", String.class);
             return createIssue(leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
@@ -136,7 +136,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue validateLegService(LegConfiguration leg) {
+    protected ValidationIssue validateLegService(LegConfiguration leg) {
         if (leg.getService() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "serviceXml", String.class);
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
@@ -144,7 +144,7 @@ public class LegConfigurationValidator implements PModeValidator {
         return null;
     }
 
-    private ValidationIssue createIssue(LegConfiguration leg, String name, String message) {
+    protected ValidationIssue createIssue(LegConfiguration leg, String name, String message) {
         return pModeValidationHelper.createValidationIssue(message, name, leg.getName());
     }
 }
