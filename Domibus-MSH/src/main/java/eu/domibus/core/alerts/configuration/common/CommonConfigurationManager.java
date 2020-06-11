@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,13 +30,16 @@ public class CommonConfigurationManager {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(CommonConfigurationManager.class);
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     private DomainContextProvider domainContextProvider;
 
     @Autowired
     private ConfigurationLoader<CommonConfiguration> loader;
+
+    @Autowired
+    private AlertConfigurationService configurationService;
 
     public CommonConfiguration getConfiguration() {
         return loader.getConfiguration(this::readConfiguration);
@@ -46,7 +50,7 @@ public class CommonConfigurationManager {
     }
 
     protected CommonConfiguration readConfiguration() {
-        final boolean emailActive = domibusPropertyProvider.getBooleanProperty(getSendEmailActivePropertyName());
+        final boolean emailActive = domibusPropertyProvider.getBooleanProperty(configurationService.getSendEmailActivePropertyName());
         final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
 
         if (!emailActive) {
@@ -93,7 +97,4 @@ public class CommonConfigurationManager {
         }
     }
 
-    private String getSendEmailActivePropertyName() {
-        return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-    }
 }

@@ -2,13 +2,13 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.disabled.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.ConsoleAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.ConsoleLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.expired.ConsolePasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.ConsolePasswordImminentExpirationAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;

@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -238,8 +241,7 @@ public class EventServiceImplTest {
 
             result = toParty;
 
-            errorLogDao.
-                    getErrorsForMessage(messageId);
+            errorLogDao.getErrorsForMessage(messageId);
             result = Lists.newArrayList(errorLogEntry);
         }};
         eventService.enrichMessageEvent(event);
@@ -256,36 +258,34 @@ public class EventServiceImplTest {
         eventService.enrichMessageEvent(event);
     }
 
-//    @Test
-//    public void enqueuePasswordExpirationEvent() throws ParseException {
-//        int maxPasswordAge = 15;
-//        LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
-//        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-//        final Date expirationDate = parser.parse("16/10/2018 00:00:00");
-//        User user = initPasswordTestUser(passwordDate);
-//        eu.domibus.core.alerts.model.persist.Event persistedEvent = new eu.domibus.core.alerts.model.persist.Event();
-//        persistedEvent.setEntityId(1);
-//        persistedEvent.setType(EventType.PASSWORD_EXPIRED);
-//
-//        new Expectations() {{
-//            multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration((AlertType) any).isActive();
-//            result = true;
-//            eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
-//            result = null;
-//            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
-//            result = persistedEvent;
-//        }};
-//
-//        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge);
-//
-//        new VerificationsInOrder() {{
-//            Event event;
-//            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
-//            times = 1;
-//            Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
-//            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
-//        }};
-//    }
+    @Test
+    public void enqueuePasswordExpirationEvent(@Mocked PasswordExpirationAlertModuleConfiguration passwordExpirationAlertModuleConfiguration) throws ParseException {
+        int maxPasswordAge = 15;
+        LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
+        final Date expirationDate = parser.parse("16/10/2018 00:00:00");
+        User user = initPasswordTestUser(passwordDate);
+        eu.domibus.core.alerts.model.persist.Event persistedEvent = new eu.domibus.core.alerts.model.persist.Event();
+        persistedEvent.setEntityId(1);
+        persistedEvent.setType(EventType.PASSWORD_EXPIRED);
+
+        new Expectations() {{
+            eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
+            result = null;
+            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
+            result = persistedEvent;
+        }};
+
+        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration);
+
+        new VerificationsInOrder() {{
+            Event event;
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
+            times = 1;
+            Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
+            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
+        }};
+    }
 
     private User initPasswordTestUser(LocalDateTime passwordDate) {
         User user = new User();

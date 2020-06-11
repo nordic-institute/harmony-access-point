@@ -7,11 +7,10 @@ import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
 /**
  * Base code for reading of console and plugin user account disabled alert configuration
@@ -28,6 +27,9 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
     protected abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
@@ -41,6 +43,7 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
     protected abstract String getAlertEmailSubjectPropertyName();
 
     public AccountDisabledModuleConfiguration readConfiguration() {
+
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             if (shouldCheckExtAuthEnabled()) {
@@ -49,7 +52,7 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
                 return new AccountDisabledModuleConfiguration(getAlertType());
             }
 
-            final Boolean alertActive = isAlertModuleEnabled();
+            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean accountDisabledActive = domibusPropertyProvider.getBooleanProperty(getAlertActivePropertyName());
             if (!alertActive || !accountDisabledActive) {
                 LOG.debug("domain:[{}] [{}] module is inactive for the following reason: global alert module active:[{}], account disabled module active:[{}]"
@@ -70,7 +73,4 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
         }
     }
 
-    private Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
 }
