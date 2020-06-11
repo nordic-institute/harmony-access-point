@@ -164,11 +164,8 @@ public class MessagesPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		
 		DGrid grid = page.grid();
-		log.info("expanding controls");
-		grid.getGridCtrl().showCtrls();
-		
-		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
-		grid.checkModifyVisibleColumns(soft, columnList);
+		grid.waitForRowsToLoad();
+		grid.checkModifyVisibleColumns(soft);
 		
 		soft.assertAll();
 	}

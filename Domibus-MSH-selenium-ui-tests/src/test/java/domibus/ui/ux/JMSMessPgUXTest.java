@@ -357,12 +357,10 @@ public class JMSMessPgUXTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		DGrid grid = page.grid();
-		log.info("expanding controls");
-		grid.getGridCtrl().showCtrls();
 		
-		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
-		grid.checkModifyVisibleColumns(soft, columnList);
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+		grid.checkModifyVisibleColumns(soft);
 		soft.assertAll();
 	}
 	

@@ -116,10 +116,8 @@ public class TruststorePgUXTests extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 		
 		DGrid grid = page.grid();
-		grid.getGridCtrl().showCtrls();
-		
-		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
-		grid.checkModifyVisibleColumns(soft, columnList);
+		grid.waitForRowsToLoad();
+		grid.checkModifyVisibleColumns(soft);
 		
 		soft.assertAll();
 	}

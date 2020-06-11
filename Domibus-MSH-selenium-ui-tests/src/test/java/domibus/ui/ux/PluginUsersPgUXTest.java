@@ -332,18 +332,15 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		log.info("modifying column visibility on basic auth view");
 		
-		page.grid().getGridCtrl().showCtrls();
-		List<String> columnList = new ArrayList<>(page.grid().getGridCtrl().getAllCheckboxStatuses().keySet());
-		page.grid().checkModifyVisibleColumns(soft, columnList);
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+		page.grid().checkModifyVisibleColumns(soft);
 		
 		page.refreshPage();
 		log.info("modifying column visibility on certificate auth view");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
-		
-		page.grid().getGridCtrl().showCtrls();
-		columnList = new ArrayList<>(page.grid().getGridCtrl().getAllCheckboxStatuses().keySet());
-		page.grid().checkModifyVisibleColumns(soft, columnList);
+		page.grid().checkModifyVisibleColumns(soft);
 		
 		
 		soft.assertAll();

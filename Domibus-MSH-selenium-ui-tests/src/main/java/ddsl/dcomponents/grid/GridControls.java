@@ -6,6 +6,7 @@ import ddsl.dobjects.DLink;
 import ddsl.dobjects.DObject;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -89,13 +90,17 @@ public class GridControls extends DComponent {
 	}
 	
 	public HashMap<String, Boolean> getAllCheckboxStatuses() throws Exception {
+		log.info("getting all checkboxes and their status");
 		showCtrls();
 		HashMap<String, Boolean> statuses = new HashMap<>();
+		JavascriptExecutor js = (JavascriptExecutor) driver;
 		
 		for (WebElement chk : chkContainer) {
 			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
 			Checkbox checkbox = new Checkbox(driver, chk.findElement(By.cssSelector("input")));
 			statuses.put(labelFor.getText(), checkbox.isChecked());
+			log.debug("got status for " + labelFor.getText());
+
 		}
 		
 		return statuses;
@@ -113,11 +118,10 @@ public class GridControls extends DComponent {
 	}
 	
 	public void showCtrls() throws Exception {
+		log.info("showing column selection controls");
 		DLink link = getShowHideCtrlLnk();
-		wait.forElementToContainText(showHideCtrlLnk, "columns");
 		if (StringUtils.equalsIgnoreCase(link.getLinkText(), "Show columns")) {
 			link.click();
-			wait.forElementToContainText(showHideCtrlLnk, "Hide");
 		}
 	}
 	

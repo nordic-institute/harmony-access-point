@@ -2,7 +2,7 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
-import domibus.ui.rest.pojos.AuthResp;
+import domibus.ui.pojos.AuthResp;
 import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

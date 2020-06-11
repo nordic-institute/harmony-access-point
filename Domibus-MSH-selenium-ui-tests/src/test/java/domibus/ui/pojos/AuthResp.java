@@ -1,4 +1,4 @@
-package domibus.ui.rest.pojos;
+package domibus.ui.pojos;
 
 import java.util.List;
 

@@ -491,7 +491,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertTrue(modal.getOkBtn().isEnabled());
 		
 		log.info("Uncheck Initiator & Responder checkbox");
-//		modal.clickIRCheckboxes();
 		modal.participationInProcess("tc1Process", false, false);
 		
 		log.info("Click on Save button");

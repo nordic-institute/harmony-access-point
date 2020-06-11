@@ -1,5 +1,7 @@
 package domibus;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ddsl.enums.DRoles;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,6 +19,9 @@ public class BaseTest {
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
+	
+	public ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	
 	
 	Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
 	

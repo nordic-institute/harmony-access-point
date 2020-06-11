@@ -15,7 +15,6 @@ import pages.users.UsersPage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -302,11 +301,10 @@ public class UsersPgUXTest extends SeleniumTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		
-		DGrid grid = page.grid();
-		grid.getGridCtrl().showCtrls();
 		
-		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
-		grid.checkModifyVisibleColumns(soft, columnList);
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+		grid.checkModifyVisibleColumns(soft);
 		
 		soft.assertAll();
 	}

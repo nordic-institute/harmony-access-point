@@ -16,6 +16,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
+import utils.Generator;
 import utils.Order;
 import utils.TestRunData;
 
@@ -354,33 +355,6 @@ public class DGrid extends DComponent {
 
 //-------------------------------------------------------------------------------------------------
 	
-	public boolean isColumnSortable(String columnName) throws Exception {
-		List<String> columns = getColumnNames();
-		int index = columns.indexOf(columnName);
-		if (index < 0) {
-			throw new Exception("Column not visible,. cannot get sortable status");
-		}
-		WebElement header = gridHeaders.get(index);
-		wait.forAttributeNotEmpty(header, "class");
-		String classStr = header.getAttribute("class");
-		return classStr.contains("sortable");
-	}
-	
-	public void assertControls(SoftAssert soft) throws Exception {
-		
-		
-		getGridCtrl().showCtrls();
-		List<String> chkOptions = new ArrayList<>();
-		chkOptions.addAll(getGridCtrl().getAllCheckboxStatuses().keySet());
-		
-		checkShowLink(soft);
-		checkHideLink(soft);
-		checkModifyVisibleColumns(soft, chkOptions);
-		checkAllLink(soft);
-		checkNoneLink(soft);
-		checkChangeNumberOfRows(soft);
-	}
-	
 	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
@@ -393,9 +367,26 @@ public class DGrid extends DComponent {
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
 	
-	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
+//	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
+//		//-----------Show - Modify - Hide
+//		for (String colName : chkOptions) {
+//			log.info("checking checkbox for " + colName);
+//			getGridCtrl().showCtrls();
+//			getGridCtrl().checkBoxWithLabel(colName);
+//			soft.assertTrue(columnsVsCheckboxes());
+//
+//			getGridCtrl().uncheckBoxWithLabel(colName);
+//			soft.assertTrue(columnsVsCheckboxes());
+//		}
+//	}
+	
+	public void checkModifyVisibleColumns(SoftAssert soft) throws Exception {
+		
+		List<String> chkOptions = getGridCtrl().getAllCheckboxLabels();
+		
 		//-----------Show - Modify - Hide
-		for (String colName : chkOptions) {
+		for (int i = 0; i < 3; i++) {
+			String colName = chkOptions.get(Generator.randomNumber(chkOptions.size()-1));
 			log.info("checking checkbox for " + colName);
 			getGridCtrl().showCtrls();
 			getGridCtrl().checkBoxWithLabel(colName);

@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 public class RestTest extends BaseTest {
 	
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	List<String> domains = new ArrayList<>();
 	List<String> messageFilterPlugins = new ArrayList<>();
 	private String invalidStringsFile = "src/test/resources/rest_csv/invalidStrings.txt";
