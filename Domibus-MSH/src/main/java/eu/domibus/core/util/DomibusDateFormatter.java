@@ -1,6 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +29,9 @@ public class DomibusDateFormatter {
      *
      * @param dateString the text to parse, not null
      * @return the parsed local date-time at time zone ({@link ZoneOffset#UTC}), not null
-     * @throws DomibusCoreException in case the dateString is not following the right pattern
+     * @throws DomibusDateTimeException in case the dateString is not following the right pattern
      */
-    public Date fromString(String dateString) throws DomibusCoreException {
+    public Date fromString(String dateString) throws DomibusDateTimeException {
         try {
             final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dateTimeFormatter);
             return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());

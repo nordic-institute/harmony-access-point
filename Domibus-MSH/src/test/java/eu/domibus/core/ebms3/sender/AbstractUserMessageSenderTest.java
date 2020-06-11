@@ -341,10 +341,10 @@ public class AbstractUserMessageSenderTest {
             responseHandler.verifyResponse(response, messageId);
             result = EbMS3ExceptionBuilder
                     .getInstance()
-                    .withEbMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .withErrorDetail("Problem occurred during marshalling")
-                    .withRefToMessageId("messageId")
-                    .withMshRole(MSHRole.SENDING)
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .errorDetail("Problem occurred during marshalling")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
                     .build();
         }};
 

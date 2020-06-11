@@ -1,7 +1,7 @@
 package eu.domibus.api.exceptions;
 
 /**
- * @author Ion Perpegel
+ * @author François Gautier
  * @since 4.2
  * <p>
  * Class that encapsulates information about a xsd:datetime validation exception

@@ -3,6 +3,8 @@ package eu.domibus.core.ebms3;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 
+import static eu.domibus.core.ebms3.EbMS3Exception.DEFAULT_RECOVERABLE;
+
 /**
  * @author François Gautier
  * @since 4.2
@@ -14,7 +16,7 @@ public class EbMS3ExceptionBuilder {
     private String errorDetail;
     private String refToMessageId;
     private MSHRole mshRole;
-    private boolean recoverable = true;
+    private boolean recoverable = DEFAULT_RECOVERABLE;
     private String signalMessageId;
 
     public static EbMS3ExceptionBuilder getInstance() {
@@ -33,7 +35,7 @@ public class EbMS3ExceptionBuilder {
         return cause;
     }
 
-    public EbMS3ExceptionBuilder withCause(Throwable cause) {
+    public EbMS3ExceptionBuilder cause(Throwable cause) {
         this.cause = cause;
         return this;
     }
@@ -42,7 +44,7 @@ public class EbMS3ExceptionBuilder {
         return ebMS3ErrorCode;
     }
 
-    public EbMS3ExceptionBuilder withEbMS3ErrorCode(ErrorCode.EbMS3ErrorCode ebMS3ErrorCode) {
+    public EbMS3ExceptionBuilder ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode ebMS3ErrorCode) {
         this.ebMS3ErrorCode = ebMS3ErrorCode;
         return this;
     }
@@ -51,7 +53,7 @@ public class EbMS3ExceptionBuilder {
         return errorDetail;
     }
 
-    public EbMS3ExceptionBuilder withErrorDetail(String errorDetail) {
+    public EbMS3ExceptionBuilder errorDetail(String errorDetail) {
         this.errorDetail = errorDetail;
         return this;
     }
@@ -60,7 +62,7 @@ public class EbMS3ExceptionBuilder {
         return refToMessageId;
     }
 
-    public EbMS3ExceptionBuilder withRefToMessageId(String refToMessageId) {
+    public EbMS3ExceptionBuilder refToMessageId(String refToMessageId) {
         this.refToMessageId = refToMessageId;
         return this;
     }
@@ -69,7 +71,7 @@ public class EbMS3ExceptionBuilder {
         return mshRole;
     }
 
-    public EbMS3ExceptionBuilder withMshRole(MSHRole mshRole) {
+    public EbMS3ExceptionBuilder mshRole(MSHRole mshRole) {
         this.mshRole = mshRole;
         return this;
     }
@@ -78,7 +80,7 @@ public class EbMS3ExceptionBuilder {
         return recoverable;
     }
 
-    public EbMS3ExceptionBuilder withRecoverable(boolean recoverable) {
+    public EbMS3ExceptionBuilder recoverable(boolean recoverable) {
         this.recoverable = recoverable;
         return this;
     }
@@ -87,7 +89,7 @@ public class EbMS3ExceptionBuilder {
         return signalMessageId;
     }
 
-    public EbMS3ExceptionBuilder withSignalMessageId(String signalMessageId) {
+    public EbMS3ExceptionBuilder signalMessageId(String signalMessageId) {
         this.signalMessageId = signalMessageId;
         return this;
     }

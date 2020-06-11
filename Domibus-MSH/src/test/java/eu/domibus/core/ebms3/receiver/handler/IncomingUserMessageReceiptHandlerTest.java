@@ -244,9 +244,10 @@ public class IncomingUserMessageReceiptHandlerTest {
             result = pModeKey;
 
             responseHandler.verifyResponse(request, messageId);
-            result = EbMS3ExceptionBuilder.getInstance()
-                    .withEbMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
-                    .withRefToMessageId(messageId)
+            result = EbMS3ExceptionBuilder
+                    .getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .refToMessageId(messageId)
                     .build();
 
             pModeProvider.getLegConfiguration(pModeKey);

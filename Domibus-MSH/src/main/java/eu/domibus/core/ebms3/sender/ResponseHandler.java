@@ -9,7 +9,6 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -36,7 +35,6 @@ public class ResponseHandler {
     private final SignalMessageLogDefaultService signalMessageLogDefaultService;
     private final UIReplicationSignalService uiReplicationSignalService;
     private final NonRepudiationService nonRepudiationService;
-    protected final ReliabilityService reliabilityService;
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
     private final MessagingDao messagingDao;
@@ -45,7 +43,6 @@ public class ResponseHandler {
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
                            UIReplicationSignalService uiReplicationSignalService,
                            NonRepudiationService nonRepudiationService,
-                           ReliabilityService reliabilityService,
                            SignalMessageDao signalMessageDao,
                            MessageUtil messageUtil,
                            MessagingDao messagingDao,
@@ -53,7 +50,6 @@ public class ResponseHandler {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.nonRepudiationService = nonRepudiationService;
-        this.reliabilityService = reliabilityService;
         this.signalMessageDao = signalMessageDao;
         this.messageUtil = messageUtil;
         this.messagingDao = messagingDao;
@@ -72,10 +68,11 @@ public class ResponseHandler {
         } catch (SOAPException | DomibusDateTimeException ex) {
             throw EbMS3ExceptionBuilder
                     .getInstance()
-                    .withEbMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .withErrorDetail("Problem occurred during marshalling")
-                    .withRefToMessageId(messageId)
-                    .withMshRole(MSHRole.SENDING)
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .errorDetail("Problem occurred during marshalling")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .cause(ex)
                     .build();
         }
 
