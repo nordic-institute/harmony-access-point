@@ -104,7 +104,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     }
 
     /**
-     * Returns property metadata and the current value given a property name
+     * Returns the property metadata and the current value for a property
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */

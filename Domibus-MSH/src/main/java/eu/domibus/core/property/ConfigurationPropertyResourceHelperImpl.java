@@ -88,7 +88,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return list;
     }
 
-    private DomibusProperty createProperty(DomibusPropertyMetadata propMeta) {
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
 
         DomibusProperty prop = new DomibusProperty();
