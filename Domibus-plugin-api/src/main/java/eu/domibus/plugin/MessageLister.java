@@ -19,8 +19,9 @@ public interface MessageLister {
      */
     Collection<String> listPendingMessages();
 
+
     /**
-     * removes the message with the corresponding id from the download queue
+     * removes the message with the corresponding id from the pending table
      *
      * @param messageId id of the message to be removed
      * @throws MessageNotFoundException if the message is not pending

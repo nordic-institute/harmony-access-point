@@ -96,6 +96,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             }
 
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+
+            //dadas
             lister.removeFromPending(messageId);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);

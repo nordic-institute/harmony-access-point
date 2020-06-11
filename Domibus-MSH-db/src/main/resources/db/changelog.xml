@@ -26,9 +26,9 @@
 
     <changeSet author="idragusa" id="EDELIVERY-4740">
         <comment>Plugin specific tbles</comment>
-        <createTable tableName="WSPLUGIN_PENDING_MESSAGE_LOG">
+        <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_WSPLUGIN_PENDING_MESSAGE_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>

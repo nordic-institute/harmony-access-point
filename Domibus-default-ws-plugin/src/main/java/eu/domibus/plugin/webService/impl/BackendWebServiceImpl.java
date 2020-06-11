@@ -4,8 +4,11 @@ import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,6 +18,8 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.webService.dao.WSMessageLogDao;
+import eu.domibus.plugin.webService.entity.WSMessageLog;
 import eu.domibus.plugin.webService.generated.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -31,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -62,6 +68,15 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Autowired
     protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+
+    @Autowired
+    protected WSMessageLogDao wsMessageLogDao;
+
+    @Autowired
+    protected DomainExtService domainExtService;
+
+    @Autowired
+    private DomainContextExtService domainContextExtService;
 
     public BackendWebServiceImpl(final String name) {
         super(name);
@@ -111,10 +126,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Override
     public void deliverMessage(final String messageId) {
-        LOG.info("Add message to the pending messages, ready to be retrieved.");
+        LOG.info("Deliver message: add message to the pending messages, ready to be retrieved.");
+        WSMessageLog wsMessageLog = new WSMessageLog();
+        wsMessageLog.setMessageId(messageId);
+        wsMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
 
-
-
+        wsMessageLogDao.create(wsMessageLog);
     }
 
     @Override
@@ -245,8 +262,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-        final Collection<String> pending = this.listPendingMessages();
-        response.getMessageID().addAll(pending);
+        List<WSMessageLog> pending = wsMessageLogDao.findAll();
+        List<String> ids = pending.stream()
+                .map(WSMessageLog::getMessageId).collect(Collectors.toList());
+        response.getMessageID().addAll(ids);
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("ListPendingMessages for domain [{}]", domainDTO);
         return response;
     }
 

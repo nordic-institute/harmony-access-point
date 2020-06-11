@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 
 @Repository
@@ -27,4 +28,8 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
         return query.getSingleResult();
     }
 
+    public List<WSMessageLog> findAll() {
+        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAll", WSMessageLog.class);
+        return query.getResultList();
+    }
 }
