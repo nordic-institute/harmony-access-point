@@ -64,6 +64,7 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-amqp-protocol</artifactId>
             <version>${artemis.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
@@ -197,7 +198,6 @@
         </dependency>
 
         <!-- Test dependencies -->
-
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-client</artifactId>
@@ -237,7 +237,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- End Test dependencies -->
     </dependencies>
 </project>
