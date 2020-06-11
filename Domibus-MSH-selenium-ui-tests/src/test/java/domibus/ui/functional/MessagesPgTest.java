@@ -1,7 +1,6 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -12,9 +11,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
 import pages.messages.MessageFilters;
-import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
-import sun.java2d.windows.GDIRenderer;
 import utils.Generator;
 import utils.TestRunData;
 import utils.TestUtils;
