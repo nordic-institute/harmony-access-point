@@ -70,20 +70,31 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         });
     }
 
+    @Override
+    public DomibusProperty getProperty(String propertyName) {
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusProperty prop = createProperty(propertyMetadata);
+        return prop;
+    }
+
     protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadata propMeta : properties) {
-            String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-
-            DomibusProperty prop = new DomibusProperty();
-            prop.setMetadata(propMeta);
-            prop.setValue(propertyValue);
-
+            DomibusProperty prop = createProperty(propMeta);
             list.add(prop);
         }
 
         return list;
+    }
+
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta) {
+        String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
+
+        DomibusProperty prop = new DomibusProperty();
+        prop.setMetadata(propMeta);
+        prop.setValue(propertyValue);
+        return prop;
     }
 
     protected List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertiesMap) {
