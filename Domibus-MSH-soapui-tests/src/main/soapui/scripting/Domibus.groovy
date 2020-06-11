@@ -542,8 +542,8 @@ def findNumberOfDomain(String inputSite) {
         // Wait until status or timer expire
         def waitForStatus(String SMSH=null, String RMSH=null, String IDMes=null, String bonusTimeForSender=null, String bonusTimeForReceiver=null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-        def MAX_WAIT_TIME=80_000; // Maximum time to wait to check the message status.
-        def STEP_WAIT_TIME=1000; // Time to wait before re-checking the message status.
+        def MAX_WAIT_TIME=100_000; // Maximum time to wait to check the message status.
+        def STEP_WAIT_TIME=2_000; // Time to wait before re-checking the message status.
         def messageID = null;
         def numberAttempts = 0;
         def maxNumberAttempts = 5;
@@ -607,12 +607,12 @@ def findNumberOfDomain(String inputSite) {
         }
         if (bonusTimeForReceiver) {
             if (bonusTimeForReceiver.isInteger()) MAX_WAIT_TIME = (bonusTimeForReceiver as Integer) * 1000
-            else MAX_WAIT_TIME = 100_000
+            else MAX_WAIT_TIME = 120_000
 
             log.info "  waitForStatus  [][]  Waiting time for Receiver extended to ${MAX_WAIT_TIME/1000} seconds"
 
         } else {
-            MAX_WAIT_TIME = 30_000
+            MAX_WAIT_TIME = 50_000
         }
         messageStatus = "INIT"
         if (RMSH) {
