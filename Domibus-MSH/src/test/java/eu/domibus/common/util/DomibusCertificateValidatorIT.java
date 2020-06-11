@@ -46,7 +46,7 @@ public class DomibusCertificateValidatorIT {
     private String subjectRegularExpression=".*";
 
     @Tested
-    private DomibusCertificateValidator domibusCertificateValidator ;
+    private DomibusCertificateValidator domibusCertificateValidator;
 
 
     @Test
@@ -55,6 +55,7 @@ public class DomibusCertificateValidatorIT {
             @Mock
             private void validateSMPCertificate(X509Certificate cert) {
             }
+
         };
 
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
@@ -70,10 +71,41 @@ public class DomibusCertificateValidatorIT {
     public void testValidateSMPCertificate() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
+         new MockUp<DomibusCertificateValidator>() {
+            @Mock
+            void verifyTrust(X509Certificate certs)  throws WSSecurityException  {}
+            @Mock
+            boolean verifyCertificateChain(X509Certificate cert) throws CertificateException {return true;}
+        };
+
+        new Expectations() {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+            domibusCertificateValidator.verifyCertificateChain(certificate);
+            result = true;
+
+        }};
+        // when
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+
+        // then
+        new Verifications() {{
+            domibusCertificateValidator.verifyTrust(certificate);
+            domibusCertificateValidator.verifyCertificateChain(certificate);
+        }};
+
+    }
+
+
+    @Test(expected = CertificateException.class)
+    public void testValidateSMPCertificateCainNotValid() throws Exception {
+        // given
+        X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new MockUp<DomibusCertificateValidator>() {
             @Mock
-            private void verifyTrust(X509Certificate certs){}
-            private void verifyCertificateChain(X509Certificate certs){}
+            private void verifyTrust(X509Certificate certs)  throws WSSecurityException  {}
+            @Mock
+            private boolean verifyCertificateChain(X509Certificate certs){ return false;}
         };
 
         new Expectations() {{
@@ -84,11 +116,40 @@ public class DomibusCertificateValidatorIT {
         // then
         domibusCertificateValidator.validateSMPCertificate(certificate);
 
-        // then
-        new Verifications() {{
-            domibusCertificateValidator.verifyTrust(certificate);
-            domibusCertificateValidator.verifyCertificateChain(certificate);
+    }
+
+    @Test(expected = CertificateException.class)
+    public void testValidateSMPCertificateNotValid() throws Exception {
+        // given
+        X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
+         new Expectations() {{
+            certificateService.isCertificateValid(certificate);
+            result = false;
+
         }};
+        // then
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+
+    }
+
+
+    @Test(expected = CertificateException.class)
+    public void testValidateSMPCertificateTrustVerificationFailed() throws Exception {
+        // given
+        X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
+        new MockUp<DomibusCertificateValidator>() {
+            @Mock
+            private void verifyTrust(X509Certificate certs) throws WSSecurityException { throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);}
+        };
+
+        new Expectations() {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+
+        }};
+        // then
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+
     }
 
     @Test
