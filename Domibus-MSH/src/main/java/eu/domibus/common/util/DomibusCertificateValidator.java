@@ -7,7 +7,9 @@ import eu.europa.ec.dynamicdiscovery.core.security.ISMPCertificateValidator;
 import no.difi.vefa.peppol.common.code.Service;
 import no.difi.vefa.peppol.security.api.CertificateValidator;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -113,22 +115,24 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
      * @throws WSSecurityException
      */
     protected boolean verifyCertificateChain(X509Certificate cert) throws CertificateException {
-        // get alias
-        String alias = null;
+        String subjectDN = getSubjectDN(cert);
+        LOG.debug("Verify certificate chain for certificate: [{}]",subjectDN);
+        String alias;
         try {
             alias = getTrustStore().getCertificateAlias(cert);
             if (StringUtils.isEmpty(alias)) {
+                LOG.debug("Certificate with subject [{}] was not found in truststore. Search for the Issuer alias.",subjectDN);
                 alias = getParentAliasFromTruststore(cert);
             }
         } catch (KeyStoreException e) {
-            throw new CertificateException("Error occured while retrieving alias from truststore for " + getSubjectDN(cert), e);
+            throw new CertificateException("Error occurred while reading the truststore for " + getSubjectDN(cert), e);
         }
-
+        LOG.debug("Verify certificate chain for certificate: [{}] starting with alias [{}].",subjectDN, alias);
         return certificateService.isCertificateChainValid(truststore, alias);
     }
 
     /**
-     * Mehod returns alias for parent certificate
+     * Method returns alias for parent certificate
      * @param cert
      * @return String - alias for parent certificate
      * @throws CertificateException
@@ -144,17 +148,47 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         while(aliasesEnum.hasMoreElements()) {
             String alias = aliasesEnum.nextElement();
             Certificate candidate = getTrustStore().getCertificate(alias);
-            if (candidate instanceof X509Certificate) {
-                X500Principal foundRDN = ((X509Certificate) candidate).getSubjectX500Principal();
-                Object certName = this.createBCX509Name(foundRDN.getName());
-                if (subjectRDN.equals(certName) && isSignedBy(cert,candidate ) ) {
-                    LOG.debug("Subject certificate match found using keystore alias {}", alias);
-                    return alias;
-                }
+            if (! (candidate instanceof X509Certificate)) {
+                continue;
+            }
+
+            X509Certificate issuer = (X509Certificate) candidate;
+            if (verifyIssuer(cert, subjectRDN, issuer)) {
+                LOG.debug("Subject certificate match found using keystore alias {}", alias);
+                return alias;
             }
         }
         LOG.debug("Certificate with subject [{}] not found in truststore", issuerString);
         return null;
+    }
+
+    /**
+     * Method verifies if  issuer has the same subject as certificate issuer and also if
+     * certificate is signed by issuer.
+     * @param certificate
+     * @param subjectRDN
+     * @param issuer
+     * @throws CertificateException
+     */
+    protected boolean verifyIssuer (X509Certificate certificate, Object subjectRDN, X509Certificate issuer) throws CertificateException {
+
+        String certificateName = certificate.getSubjectDN().getName();
+        String issuerName = issuer.getSubjectDN().getName();
+
+        X500Principal foundRDN = issuer.getSubjectX500Principal();
+        Object issuerBCX509Name = this.createBCX509Name(foundRDN.getName());
+        if (!subjectRDN.equals(issuerBCX509Name)){
+            LOG.trace("Certificate issuer [{}] does not not match [{}].", subjectRDN, issuerBCX509Name);
+            return false;
+        }
+
+         if (!isSignedBy(certificate,issuer ) ) {
+             LOG.trace("Certificate [{}] is not signed by [{}].", certificateName, issuerName);
+             return false;
+        }
+
+        LOG.debug("Certificate [{}] has matching issuer [{}].", certificateName, issuerName);
+        return true;
     }
 
     protected String getSubjectDN(X509Certificate cert) {
@@ -171,12 +205,19 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
      * @return
      * @throws CertificateException
      */
-    protected boolean isSignedBy(Certificate signed, Certificate signer) throws CertificateException {
+    protected boolean isSignedBy(X509Certificate signed, X509Certificate signer) throws CertificateException {
+        String certificateName = signed.getSubjectDN().getName();
+        String signerName = signer.getSubjectDN().getName();
         try {
             signed.verify(signer.getPublicKey());
             return true;
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException | java.security.SignatureException e) {
-            return false;
+        } catch (InvalidKeyException | SignatureException exc) {
+            LOG.debug("Certificate [{}] is not signed by expected issuer [{}]", certificateName, signerName);
+        }catch (NoSuchAlgorithmException  | NoSuchProviderException e) {
+            // do not throw error and to try also other certificates
+            LOG.warn("Unable to verify certificate signature [{}] for issuer certificate [{}] with reason: [{}].",
+                    certificateName, signerName, ExceptionUtils.getRootCauseMessage(e));
         }
+        return false;
     }
 }
