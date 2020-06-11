@@ -40,8 +40,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   userRoles: Array<String>;
 
-  // dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
               private changeDetector: ChangeDetectorRef, private http: HttpClient) {

@@ -12,11 +12,11 @@
         <input matInput placeholder="Issuer" value="{{trustStoreEntry.issuer}}" readonly/>
       </mat-form-field>
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Valid from" value="{{trustStoreEntry.validFrom| domibusDate: dateFormat}}"
+        <input matInput placeholder="Valid from" value="{{trustStoreEntry.validFrom| domibusDate}}"
                readonly/>
       </mat-form-field>
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Valid until" value="{{trustStoreEntry.validUntil| domibusDate: dateFormat}}"
+        <input matInput placeholder="Valid until" value="{{trustStoreEntry.validUntil| domibusDate}}"
                readonly/>
       </mat-form-field>
     </mat-card-content>

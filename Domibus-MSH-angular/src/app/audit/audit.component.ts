@@ -38,9 +38,6 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
 
-// --- Table binding ---
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private auditService: AuditService, private userService: UserService,
               private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();

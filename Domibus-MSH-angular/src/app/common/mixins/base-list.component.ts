@@ -29,7 +29,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
   private propertiesService: PropertiesService;
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, private http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();

@@ -64,8 +64,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   canSearchByConversationId: boolean;
   conversationIdValue: String;
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {

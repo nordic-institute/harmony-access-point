@@ -6,18 +6,14 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
   templateUrl: './messagelog-details.component.html',
   styleUrls: ['./messagelog-details.component.css']
 })
-export class MessagelogDetailsComponent implements OnInit {
+export class MessagelogDetailsComponent {
 
   message;
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
   fourCornerEnabled;
 
   constructor(public dialogRef: MatDialogRef<MessagelogDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.message = data.message;
     this.fourCornerEnabled = data.fourCornerEnabled;
-  }
-
-  ngOnInit() {
   }
 
 }
