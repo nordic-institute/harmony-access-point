@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
-public class DomibusCertificateValidatorTest  {
+public class DomibusCertificateValidatorIT {
 
     static {
         org.apache.xml.security.Init.init();
