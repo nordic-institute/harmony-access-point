@@ -66,7 +66,7 @@ public class PluginUserServiceImpl implements PluginUserService {
     public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
-        List<PluginUserRO> res = convertEntities(users);
+        List<PluginUserRO> res = convertAndPrepareUsers(users);
         return res;
     }
 
@@ -103,31 +103,35 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
-    protected List<PluginUserRO> convertEntities(List<AuthenticationEntity> userEntities) {
+    protected List<PluginUserRO> convertAndPrepareUsers(List<AuthenticationEntity> userEntities) {
         List<PluginUserRO> users = new ArrayList<>();
 
         userEntities.forEach(userEntity -> {
-            PluginUserRO user = domainConverter.convert(userEntity, PluginUserRO.class);
-
-            user.setStatus(UserState.PERSISTED.name());
-            user.setPassword(null);
-
-            AuthType authenticationType = StringUtils.isEmpty(user.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
-            user.setAuthenticationType(authenticationType.name());
-
-            boolean isSuspended = !userEntity.isActive() && userEntity.getSuspensionDate() != null;
-            user.setSuspended(isSuspended);
-
-            String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
-            user.setDomain(domainCode);
-
-            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
-            user.setExpirationDate(expDate);
-
+            PluginUserRO user = convertAndPrepareUser(userEntity);
             users.add(user);
         });
 
         return users;
+    }
+
+    protected PluginUserRO convertAndPrepareUser(AuthenticationEntity userEntity) {
+        PluginUserRO user = domainConverter.convert(userEntity, PluginUserRO.class);
+
+        user.setStatus(UserState.PERSISTED.name());
+        user.setPassword(null);
+
+        AuthType authenticationType = StringUtils.isEmpty(user.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
+        user.setAuthenticationType(authenticationType.name());
+
+        boolean isSuspended = !userEntity.isActive() && userEntity.getSuspensionDate() != null;
+        user.setSuspended(isSuspended);
+
+        String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
+        user.setDomain(domainCode);
+
+        LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
+        user.setExpirationDate(expDate);
+        return user;
     }
 
     /**

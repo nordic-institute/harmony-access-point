@@ -242,10 +242,32 @@ public class PluginUserServiceImplTest {
     }
 
     @Test
-    public void convertEntities() {
+    public void convertAndPrepareUsers() {
         AuthenticationEntity user = new AuthenticationEntity();
         user.setUserName("user1");
         final List<AuthenticationEntity> userList = Arrays.asList(user);
+
+        PluginUserRO userRO = new PluginUserRO();
+        userRO.setUserName("user1");
+        userRO.setExpirationDate(LocalDateTime.now().plusDays(30));
+
+        LocalDateTime expDate = LocalDateTime.now().plusDays(30);
+
+        new Expectations(pluginUserService) {{
+            pluginUserService.convertAndPrepareUser(user);
+            result = userRO;
+        }};
+
+        List<PluginUserRO> result = pluginUserService.convertAndPrepareUsers(userList);
+
+        Assert.assertEquals(userList.size(), result.size());
+        Assert.assertEquals(userRO, result.get(0));
+    }
+
+    @Test
+    public void convertAndPrepareUser() {
+        AuthenticationEntity user = new AuthenticationEntity();
+        user.setUserName("user1");
 
         PluginUserRO userRO = new PluginUserRO();
         userRO.setUserName("user1");
@@ -262,15 +284,13 @@ public class PluginUserServiceImplTest {
             result="domain1";
         }};
 
-        List<PluginUserRO> result = pluginUserService.convertEntities(userList);
+        PluginUserRO result = pluginUserService.convertAndPrepareUser(user);
 
-        Assert.assertEquals(userList.size(), result.size());
-        Assert.assertEquals(userRO, result.get(0));
-        Assert.assertEquals(UserState.PERSISTED.name(), result.get(0).getStatus());
-        Assert.assertEquals(AuthType.BASIC.name(), result.get(0).getAuthenticationType());
-        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.get(0).isSuspended());
-        Assert.assertEquals("domain1", result.get(0).getDomain());
-        Assert.assertEquals(Date.from(expDate.atZone(ZoneId.systemDefault()).toInstant()), result.get(0).getExpirationDate());
+        Assert.assertEquals(userRO, result);
+        Assert.assertEquals(UserState.PERSISTED.name(), result.getStatus());
+        Assert.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
+        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
+        Assert.assertEquals("domain1", result.getDomain());
+        Assert.assertEquals(Date.from(expDate.atZone(ZoneId.systemDefault()).toInstant()), result.getExpirationDate());
     }
-
 }
