@@ -133,8 +133,7 @@ public class PluginUserRO {
     }
 
     public void setExpirationDate(LocalDateTime expirationDate) {
-        if (expirationDate != null) {
-            this.expirationDate = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
-        }
+        this.expirationDate = (expirationDate == null) ? null
+                : Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

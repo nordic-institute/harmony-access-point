@@ -93,7 +93,6 @@ public class UserResponseRO {
         this.userName = userName;
     }
 
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -135,9 +134,8 @@ public class UserResponseRO {
     }
 
     public void setExpirationDate(LocalDateTime expirationDate) {
-        if (expirationDate != null) {
-            this.expirationDate = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
-        }
+        this.expirationDate = (expirationDate == null) ? null
+                : Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override
