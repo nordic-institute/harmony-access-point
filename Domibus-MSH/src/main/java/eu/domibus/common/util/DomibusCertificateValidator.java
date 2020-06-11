@@ -87,10 +87,11 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
             // because domibus has custom proxy implementation
             // the crl list is verified separately
             verifyTrust(certificate);
-            verifyCertificateChain(certificate);
-        } catch (WSSecurityException e) {
-            e.printStackTrace();
+        } catch (WSSecurityException ex) {
+            throw new CertificateException("Certificate is not trusted: " + getSubjectDN(certificate), ex);
         }
+        // verify the chain CRL
+        verifyCertificateChain(certificate);
 
         LOG.debug("Certificate validator for certificate: [{}]", getSubjectDN(certificate));
     }
