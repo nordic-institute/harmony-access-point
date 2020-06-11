@@ -9,6 +9,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -27,19 +28,14 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
+    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
     protected List<AlertConfigurationManager> alertConfigurationManagers;
 
+    @Autowired
     protected CommonConfigurationManager commonConfigurationManager;
-
-    public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                                         List<AlertConfigurationManager> alertConfigurationManagers,
-                                         CommonConfigurationManager commonConfigurationManager) {
-        this.domibusPropertyProvider = domibusPropertyProvider;
-        this.alertConfigurationManagers = alertConfigurationManagers;
-        this.commonConfigurationManager = commonConfigurationManager;
-    }
 
     @Override
     public void resetAll() {
