@@ -223,6 +223,23 @@ public class UserManagementServiceImplTest {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
         user.setUserName("user1");
         List<eu.domibus.api.user.User> users = Arrays.asList(user);
+
+        new Expectations(userManagementService) {{
+            userManagementService.convertAndPrepareUser(getDomainForUserFn, userEntity);
+            result = user;
+        }};
+
+        List<eu.domibus.api.user.User> result = userManagementService.prepareUsers(getDomainForUserFn, userEntities);
+
+        Assert.assertEquals(users, result);
+    }
+
+    @Test
+    public void convertAndPrepareUser(@Mocked Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+        User userEntity = new User();
+        userEntity.setPassword("user1");
+        eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+        user.setUserName("user1");
         String domainCode = "default";
         LocalDateTime expDate = LocalDateTime.now().plusDays(30);
 
@@ -235,11 +252,11 @@ public class UserManagementServiceImplTest {
             result = expDate;
         }};
 
-        List<eu.domibus.api.user.User> result = userManagementService.prepareUsers(getDomainForUserFn, userEntities);
+        eu.domibus.api.user.User result = userManagementService.convertAndPrepareUser(getDomainForUserFn, userEntity);
 
-        Assert.assertEquals(users, result);
-        Assert.assertEquals(domainCode, result.get(0).getDomain());
-        Assert.assertEquals(expDate, result.get(0).getExpirationDate());
+        Assert.assertEquals(user, result);
+        Assert.assertEquals(domainCode, result.getDomain());
+        Assert.assertEquals(expDate, result.getExpirationDate());
     }
 }
 

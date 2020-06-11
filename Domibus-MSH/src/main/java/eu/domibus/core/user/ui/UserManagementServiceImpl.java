@@ -185,17 +185,21 @@ public class UserManagementServiceImpl implements UserService {
     protected List<eu.domibus.api.user.User> prepareUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn, List<User> userEntities) {
         List<eu.domibus.api.user.User> users = new ArrayList<>();
         userEntities.forEach(userEntity -> {
-            eu.domibus.api.user.User user = userConverter.convert(userEntity);
-
-            String domainCode = getDomainForUserFn.apply(user);
-            user.setDomain(domainCode);
-
-            LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
-            user.setExpirationDate(expDate);
-
+            eu.domibus.api.user.User user = convertAndPrepareUser(getDomainForUserFn, userEntity);
             users.add(user);
         });
         return users;
+    }
+
+    protected eu.domibus.api.user.User convertAndPrepareUser(Function<eu.domibus.api.user.User, String> getDomainForUserFn, User userEntity) {
+        eu.domibus.api.user.User user = userConverter.convert(userEntity);
+
+        String domainCode = getDomainForUserFn.apply(user);
+        user.setDomain(domainCode);
+
+        LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
+        user.setExpirationDate(expDate);
+        return user;
     }
 
     private String getDomainForUser(eu.domibus.api.user.User user) {
