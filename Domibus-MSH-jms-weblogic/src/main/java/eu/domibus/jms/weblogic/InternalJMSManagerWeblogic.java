@@ -1,5 +1,7 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -99,6 +101,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private JmsDestinationCache jmsDestinationCache;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -335,8 +340,14 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     protected Destination lookupDestination(String destJndiName) throws NamingException {
+        Timer.Context inMessageTimer = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "lookup.")).time();
+        try {
+
         LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
         return jmsDestinationCache.getByJndiName(destJndiName);
+        }finally {
+            inMessageTimer.stop();
+        }
     }
 
     @Override
