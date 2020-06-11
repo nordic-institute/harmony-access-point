@@ -65,7 +65,8 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         String domainCode = domains.stream()
                 .filter(domainEntity -> domainEntity.getUserName().equals(user.getUserName()))
                 .map(domainEntity -> domainEntity.getPreferredDomain())
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
         return domainCode;
     }
 
