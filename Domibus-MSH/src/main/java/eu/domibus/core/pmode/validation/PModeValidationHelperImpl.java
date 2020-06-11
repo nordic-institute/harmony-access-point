@@ -65,7 +65,7 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
     @Override
     public ValidationResponseRO getValidationResponse(List<ValidationIssue> pmodeUpdateIssues, String message) {
         if (CollectionUtils.isNotEmpty(pmodeUpdateIssues)) {
-            message += "Some issues were detected:";
+            message += " Some issues were detected:";
         }
 
         return new ValidationResponseRO(message, pmodeUpdateIssues);
