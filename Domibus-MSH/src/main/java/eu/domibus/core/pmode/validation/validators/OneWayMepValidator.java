@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.common.model.configuration.Binding;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
@@ -38,12 +39,11 @@ public class OneWayMepValidator implements PModeValidator {
 
         configuration.getBusinessProcesses().getProcesses().forEach(process -> {
             if (process.getMep() != null && ONEWAY_MEP_VALUE.equalsIgnoreCase(process.getMep().getValue())) {
-                String binding = process.getMepBinding() == null ? null : process.getMepBinding().getValue();
-                if (binding != null) {
-                    if (notAcceptedBindings.stream().anyMatch(binding::equalsIgnoreCase)) {
-                        String message = String.format("One-way mep with binding [%s] is not valid for process [%s].",
-                                process.getMepBinding().getName(), process.getName());
-                        issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
+                Binding binding = process.getMepBinding();
+                if (binding != null && binding.getValue() != null) {
+                    ValidationIssue issue = validateBinding(binding, process.getName());
+                    if (issue != null) {
+                        issues.add(issue);
                     }
                 }
             }
@@ -51,4 +51,14 @@ public class OneWayMepValidator implements PModeValidator {
         return Collections.unmodifiableList(issues);
     }
 
+    protected ValidationIssue validateBinding(Binding binding, String processName) {
+        String bindingValue = binding.getValue();
+        if (notAcceptedBindings.stream().anyMatch(bindingValue::equalsIgnoreCase)) {
+            String message = String.format("One-way mep with binding [%s] is not valid for process [%s].",
+                    binding.getName(), processName);
+            return new ValidationIssue(message, ValidationIssue.Level.WARNING);
+        }
+
+        return null;
+    }
 }
