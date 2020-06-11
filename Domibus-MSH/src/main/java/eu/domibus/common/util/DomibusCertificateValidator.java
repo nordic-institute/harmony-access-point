@@ -89,7 +89,7 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         }
         // verify the chain CRL
         if (!verifyCertificateChain(certificate)){
-            throw new CertificateException("Lookup certificate validator failed for " + subjectName+". The chain is not trusted");
+            throw new CertificateException("Lookup certificate validator failed for " + subjectName+". The certificate chain is not valid");
         }
 
         LOG.debug("The Certificate is valid and trusted: [{}]", subjectName);
