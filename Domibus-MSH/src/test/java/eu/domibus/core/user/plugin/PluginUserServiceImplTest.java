@@ -9,9 +9,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
+import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
+import eu.domibus.web.rest.ro.PluginUserRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -23,10 +26,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * @author Ion Perpegel
@@ -65,6 +67,9 @@ public class PluginUserServiceImplTest {
 
     @Injectable
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
+
+    @Injectable
+    private DomainCoreConverter domainConverter;
 
     @Test(expected = UserManagementException.class)
     public void testUpdateUsersWithDuplicateName() {
@@ -235,4 +240,37 @@ public class PluginUserServiceImplTest {
             times = 0;
         }};
     }
+
+    @Test
+    public void convertEntities() {
+        AuthenticationEntity user = new AuthenticationEntity();
+        user.setUserName("user1");
+        final List<AuthenticationEntity> userList = Arrays.asList(user);
+
+        PluginUserRO userRO = new PluginUserRO();
+        userRO.setUserName("user1");
+        userRO.setExpirationDate(LocalDateTime.now().plusDays(30));
+
+        LocalDateTime expDate = LocalDateTime.now().plusDays(30);
+
+        new Expectations() {{
+            domainConverter.convert(user, PluginUserRO.class);
+            result = userRO;
+            userSecurityPolicyManager.getExpirationDate(user);
+            result = expDate;
+            userDomainService.getDomainForUser(user.getUniqueIdentifier());
+            result="domain1";
+        }};
+
+        List<PluginUserRO> result = pluginUserService.convertEntities(userList);
+
+        Assert.assertEquals(userList.size(), result.size());
+        Assert.assertEquals(userRO, result.get(0));
+        Assert.assertEquals(UserState.PERSISTED.name(), result.get(0).getStatus());
+        Assert.assertEquals(AuthType.BASIC.name(), result.get(0).getAuthenticationType());
+        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.get(0).isSuspended());
+        Assert.assertEquals("domain1", result.get(0).getDomain());
+        Assert.assertEquals(Date.from(expDate.atZone(ZoneId.systemDefault()).toInstant()), result.get(0).getExpirationDate());
+    }
+
 }

@@ -58,7 +58,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         return domainTaskExecutor.submit(() -> super.findUsers(this::getDomainForUser));
     }
 
-    private String getDomainForUser(eu.domibus.api.user.User user) {
+    protected String getDomainForUser(eu.domibus.api.user.User user) {
         List<UserDomainEntity> domains = userDomainDao.listPreferredDomains();
         String domainCode = domains.stream()
                 .filter(domainEntity -> domainEntity.getUserName().equals(user.getUserName()))

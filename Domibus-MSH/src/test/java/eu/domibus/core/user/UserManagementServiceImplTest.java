@@ -30,6 +30,9 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class UserManagementServiceImplTest {
 
+    @Tested
+    private UserManagementServiceImpl userManagementService;
+
     @Injectable
     ConsoleUserSecurityPolicyManager userPasswordManager;
 
@@ -64,23 +67,21 @@ public class UserManagementServiceImplTest {
     ConsoleUserAlertsServiceImpl consoleUserAlertsService;
 
 
-    @Tested
-    private UserManagementServiceImpl userManagementService;
-
-
     @Test
     public void findUsersTest() throws Exception {
         User userEntity = new User();
+        userEntity.setPassword("user1");
         List<User> userEntities = Arrays.asList(userEntity);
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+        user.setUserName("user1");
         List<eu.domibus.api.user.User> users = Arrays.asList(user);
         String domainCode = "default";
 
         new Expectations() {{
             userDao.listUsers();
             result = userEntities;
-            userConverter.convert(userEntities);
-            result = users;
+            userConverter.convert(userEntity);
+            result = user;
             userDomainService.getDomainForUser(user.getUserName());
             result = domainCode;
         }};
@@ -125,7 +126,6 @@ public class UserManagementServiceImplTest {
             userPasswordManager.reactivateSuspendedUsers();
             times = 1;
         }};
-
     }
 
     @Test

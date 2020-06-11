@@ -172,5 +172,4 @@ public class UserResourceTest {
                 "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator(), csv.getBody());
     }
 
-
 }
