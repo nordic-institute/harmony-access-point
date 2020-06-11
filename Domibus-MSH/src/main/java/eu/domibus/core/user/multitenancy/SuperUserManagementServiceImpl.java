@@ -39,8 +39,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      */
     @Override
     public List<eu.domibus.api.user.User> findUsers() {
+        // retrieve domain users
         List<eu.domibus.api.user.User> allUsers = super.findUsers();
 
+        // retrieve super users
         List<eu.domibus.api.user.User> superUsers = getSuperUsers();
         allUsers.addAll(superUsers);
 

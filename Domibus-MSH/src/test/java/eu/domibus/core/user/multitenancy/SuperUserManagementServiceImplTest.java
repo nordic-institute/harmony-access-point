@@ -95,9 +95,6 @@ public class SuperUserManagementServiceImplTest {
     @Injectable
     UserDomainDao userDomainDao;
 
-    @Captor
-    ArgumentCaptor argCaptor;
-
     @Test
     public void findUsers() {
         List<User> users = new ArrayList<>();

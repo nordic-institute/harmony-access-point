@@ -1,4 +1,4 @@
-package eu.domibus.core.user;
+package eu.domibus.core.user.ui;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.user.ui.*;
+import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Thomas Dussart
@@ -65,7 +66,6 @@ public class UserManagementServiceImplTest {
 
     @Injectable
     ConsoleUserAlertsServiceImpl consoleUserAlertsService;
-
 
     @Test
     public void findUsersTest() throws Exception {
@@ -213,6 +213,33 @@ public class UserManagementServiceImplTest {
             return;
         }
         Assert.fail();
+    }
+
+    @Test
+    public void prepareUsers(@Mocked Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+        User userEntity = new User();
+        userEntity.setPassword("user1");
+        List<User> userEntities = Arrays.asList(userEntity);
+        eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+        user.setUserName("user1");
+        List<eu.domibus.api.user.User> users = Arrays.asList(user);
+        String domainCode = "default";
+        LocalDateTime expDate = LocalDateTime.now().plusDays(30);
+
+        new Expectations() {{
+            userConverter.convert(userEntity);
+            result = user;
+            getDomainForUserFn.apply(user);
+            result = domainCode;
+            userPasswordManager.getExpirationDate(userEntity);
+            result = expDate;
+        }};
+
+        List<eu.domibus.api.user.User> result = userManagementService.prepareUsers(getDomainForUserFn, userEntities);
+
+        Assert.assertEquals(users, result);
+        Assert.assertEquals(domainCode, result.get(0).getDomain());
+        Assert.assertEquals(expDate, result.get(0).getExpirationDate());
     }
 }
 

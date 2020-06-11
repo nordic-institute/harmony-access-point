@@ -79,30 +79,6 @@ public class UserManagementServiceImpl implements UserService {
         return findUsers(this::getDomainForUser);
     }
 
-    protected List<eu.domibus.api.user.User> findUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
-        LOG.debug("Retrieving console users");
-        List<User> userEntities = userDao.listUsers();
-        List<eu.domibus.api.user.User> users = new ArrayList<>();
-
-        userEntities.forEach(userEntity -> {
-            eu.domibus.api.user.User user = userConverter.convert(userEntity);
-
-            String domainCode = getDomainForUserFn.apply(user);
-            user.setDomain(domainCode);
-
-            LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
-            user.setExpirationDate(expDate);
-
-            users.add(user);
-        });
-
-        return users;
-    }
-
-    private String getDomainForUser(eu.domibus.api.user.User user) {
-        return userDomainService.getDomainForUser(user.getUserName());
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -185,6 +161,45 @@ public class UserManagementServiceImpl implements UserService {
     @Transactional
     public void changePassword(String username, String currentPassword, String newPassword) {
         userPersistenceService.changePassword(username, currentPassword, newPassword);
+    }
+
+    /**
+     * Retrieves users from DB and sets some attributes for each user
+     * @param getDomainForUserFn the function to get the domain
+     * @return the list of users
+     */
+    protected List<eu.domibus.api.user.User> findUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+        LOG.debug("Retrieving console users");
+        List<User> userEntities = userDao.listUsers();
+
+        List<eu.domibus.api.user.User> users = prepareUsers(getDomainForUserFn, userEntities);
+
+        return users;
+    }
+
+    /**
+     * Calls a function to get the domain for each user and also sets expiration date
+     * @param getDomainForUserFn the function to get the domain
+     * @return the list of users
+     */
+    protected List<eu.domibus.api.user.User> prepareUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn, List<User> userEntities) {
+        List<eu.domibus.api.user.User> users = new ArrayList<>();
+        userEntities.forEach(userEntity -> {
+            eu.domibus.api.user.User user = userConverter.convert(userEntity);
+
+            String domainCode = getDomainForUserFn.apply(user);
+            user.setDomain(domainCode);
+
+            LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
+            user.setExpirationDate(expDate);
+
+            users.add(user);
+        });
+        return users;
+    }
+
+    private String getDomainForUser(eu.domibus.api.user.User user) {
+        return userDomainService.getDomainForUser(user.getUserName());
     }
 
     private UserEntityBase getUserWithName(String userName) {
