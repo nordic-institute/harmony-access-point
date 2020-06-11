@@ -88,7 +88,9 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
             throw new CertificateException("Certificate is not trusted: " + subjectName, ex);
         }
         // verify the chain CRL
-        verifyCertificateChain(certificate);
+        if (!verifyCertificateChain(certificate)){
+            throw new CertificateException("Lookup certificate validator failed for " + subjectName+". The chain is not trusted");
+        }
 
         LOG.debug("The Certificate is valid and trusted: [{}]", subjectName);
     }
@@ -112,7 +114,7 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
      * certificate must be present in truststore
      *
      * @param cert
-     * @throws WSSecurityException
+     * @throws CertificateException
      */
     protected boolean verifyCertificateChain(X509Certificate cert) throws CertificateException {
         String subjectDN = getSubjectDN(cert);
