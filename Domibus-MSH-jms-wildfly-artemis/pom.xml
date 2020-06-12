@@ -197,6 +197,7 @@
         </dependency>
 
         <!-- Test dependencies -->
+
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-client</artifactId>
