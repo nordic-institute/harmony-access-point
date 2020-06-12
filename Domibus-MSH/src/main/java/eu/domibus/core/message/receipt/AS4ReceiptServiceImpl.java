@@ -176,7 +176,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 }
 
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
-            } catch (TransformerConfigurationException | SOAPException | IOException | EbMS3Exception e) {
+            } catch (TransformerConfigurationException | SOAPException | IOException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
                 throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Error generating receipt", e);
             } catch (final TransformerException e) {
