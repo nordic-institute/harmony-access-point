@@ -16,7 +16,7 @@
     ],
     "processes": [
       {
-        "name": "TestProcess",
+        "name": "TestProcess_notSupported",
         "mepBinding": {
           "name": "pushAndPush",
           "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"
@@ -24,6 +24,25 @@
         "mep": {
           "name": "twoway",
           "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"
+        },
+        "initiatorRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        },
+        "responderRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        }
+      },
+      {
+        "name": "TestProcess_notValid",
+        "mepBinding": {
+          "name": "pushAndPush",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"
+        },
+        "mep": {
+          "name": "oneway",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"
         },
         "initiatorRole": {
           "name": "eCODEXRole",
