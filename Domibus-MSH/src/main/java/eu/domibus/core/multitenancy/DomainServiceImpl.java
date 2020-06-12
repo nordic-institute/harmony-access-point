@@ -87,7 +87,7 @@ public class DomainServiceImpl implements DomainService {
     public String getDatabaseSchema(Domain domain) throws DomibusCoreException {
         String databaseSchema = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
         if (StringUtils.isEmpty(databaseSchema)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot found for the property: " + domain + "." + DOMIBUS_DATABASE_SCHEMA);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the property: " + domain + "." + DOMIBUS_DATABASE_SCHEMA);
         }
         return databaseSchema;
     }

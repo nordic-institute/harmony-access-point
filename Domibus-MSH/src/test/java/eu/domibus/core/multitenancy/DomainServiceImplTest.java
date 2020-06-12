@@ -35,7 +35,7 @@ public class DomainServiceImplTest {
             Assert.fail();
         } catch (DomibusCoreException ex) {
             Assert.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Database domain schema name cannot found for the property: domain1.domibus.database.schema");
+            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Database domain schema name not found for the property: domain1.domibus.database.schema");
         }
     }
 
