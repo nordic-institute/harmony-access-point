@@ -237,6 +237,7 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <!-- End Test dependencies -->
     </dependencies>
 </project>
