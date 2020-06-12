@@ -1,16 +1,19 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import domibus.ui.pojos.UIMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
 import pages.messages.MessageFilters;
+import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import utils.Generator;
 import utils.TestRunData;
@@ -284,41 +287,48 @@ public class MessagesPgTest extends SeleniumTest {
 	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-//		--------------------------------------
-//		MessagesPage page = navigate();
-//
-//		page.grid().scrollToAndSelect("Message Id", messageID);
-//
-//		page.wait.forElementToBeEnabled(page.getResendButton().element);
-//		page.getResendButton().click();
-//		log.info("clicked Resend button");
-//
-//		MessageResendModal modal = new MessageResendModal(driver);
-//		modal.getResendButton().click();
-//
-//		boolean statusChanged = false;
-//		int c = 0;
-//		while (c < 20) {
-//			log.info("checking for status change");
-//			HashMap<String, String> info = page.grid().getRowInfo("Message Id", messageID);
-//
-//			if (StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
-//					|| StringUtils.equalsIgnoreCase(info.get("Message Status"), "WAITING_FOR_RETRY")) {
-//				statusChanged = true;
-//				break;
-//			}
-//			c++;
-//		}
-//
-//		soft.assertTrue(statusChanged, "Message changed to SEND_ENQUEUED");
-//		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS, "Page shows corect success message");
-//		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
+		
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
+		List<String> messIds = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
+		if(messIds.size() == 0){
+			throw new SkipException("Could not get messages with status SEND_FAILURE");
+		}
+		
+		MessagesPage page = navigate();
+		String messageID = messIds.get(0);
+
+		int index = page.grid().scrollToAndSelect("Message Id", messageID);
+
+		soft.assertTrue(page.getResendButton().isEnabled() , "Resend button is enabled");
+		page.getResendButton().click();
+		log.info("clicked Resend button");
+
+		MessageResendModal modal = new MessageResendModal(driver);
+		modal.getResendButton().click();
+
+		soft.assertTrue(!page.getAlertArea().isError() , "Success message is shown");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(),DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS , "Correct message is shown");
+		
+		boolean statusChanged = false;
+		for (int i = 0; i < 20; i++) {
+			log.info("checking for status change");
+			HashMap<String, String> info = page.grid().getRowInfo(index);
+			System.out.println(info.get("Message Status"));
+			if (StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
+			|| StringUtils.equalsIgnoreCase(info.get("Message Status"), "WAITING_FOR_RETRY")) {
+				statusChanged = true;
+				break;
+			}
+			page.wait.forXMillis(1000);
+		}
+		
+		soft.assertTrue(statusChanged, "Message changed");
 		
 		soft.assertAll();
 	}
 	
 	/* Domain admin logs in and views messages */
-	@Test(description = "MSG-13", groups = {"multiTenancy"}, enabled = false)
+	@Test(description = "MSG-13", groups = {"multiTenancy"})
 	public void messagesSegregatedByDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

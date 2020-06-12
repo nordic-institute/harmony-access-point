@@ -37,7 +37,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), filters.toString());
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get message filter");
+			throw new Exception("Could not get message filter " + response.getStatus());
 		}
 	}
 	

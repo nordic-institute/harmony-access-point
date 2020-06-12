@@ -129,7 +129,6 @@ public class DomibusRestClient extends BaseRestClient {
 			if (mess.getJSONObject(i).getString("messageStatus").equalsIgnoreCase(status))
 				messIDs.add(mess.getJSONObject(i).getString("messageId"));
 		}
-		
 		return messIDs;
 	}
 	
