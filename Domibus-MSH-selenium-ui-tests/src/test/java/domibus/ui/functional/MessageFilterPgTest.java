@@ -111,7 +111,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/*User shuffles filters using Move Up and Move Down buttons and presses Cancel*/
-	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"})  //--------------
 	public void shuffleAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -138,6 +138,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 		
 		log.info("Cancel changes");
 		page.cancelChangesAndConfirm();
+		page.grid().waitForRowsToLoad();
+		
 		HashMap<String, String> oldRow0 = page.grid().getRowInfo(0);
 		
 		soft.assertEquals(row0.get("Action"), oldRow0.get("Action"),

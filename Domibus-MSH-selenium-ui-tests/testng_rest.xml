@@ -4,7 +4,6 @@
 
 	<test name="REST">
 		<classes>
-			<class name="domibus.ui.rest.UsersRestTest"/>
 			<class name="domibus.ui.rest.AuditRestTest"/>
 		</classes>
 	</test>

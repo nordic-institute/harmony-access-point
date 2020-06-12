@@ -10,7 +10,7 @@
 
 	<test name="TMP">
 		<classes>
-			<class name="domibus.ui.ux.MessagesPgUXTest"/>
+			<class name="domibus.ui.functional.MessagesPgTest"/>
 		</classes>
 	</test>
 <!--	<test name="UX">-->

@@ -2,12 +2,14 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
+import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
 import pages.errorLog.ErrorLogPage;
+import utils.Generator;
 
 
 /**
@@ -149,8 +151,12 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 	public void sameInvalidData() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		DomibusPage page = new DomibusPage(driver); //login(data.getAdminUser());
-		page.getSidebar().goToPage(PAGES.USERS);
+		String username = Generator.randomAlphaNumeric(10);
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
+		
+		login(username, data.defaultPass());
+		
+		DomibusPage page = new DomibusPage(driver);
 		
 		log.info("Open change password page");
 		page.getSandwichMenu().openchangePassword();
