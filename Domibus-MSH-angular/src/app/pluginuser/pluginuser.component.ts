@@ -77,13 +77,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
       {name: 'User Name', prop: 'userName', width: 20, showInitially: true},
       {name: 'Role', prop: 'authRoles', width: 10, showInitially: true},
       {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25, showInitially: true},
-      {
-        cellTemplate: this.rowWithDateFormatTpl,
-        name: 'Expiration Date',
-        prop: 'expirationDate',
-        canAutoResize: true,
-        showInitially: true
-      },
       {name: 'Original User', prop: 'originalUser', width: 240, showInitially: true},
       {
         cellTemplate: this.rowWithDateFormatTpl,
