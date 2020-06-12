@@ -291,6 +291,6 @@ public class PluginUserServiceImplTest {
         Assert.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
         Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
         Assert.assertEquals("domain1", result.getDomain());
-        Assert.assertEquals(Date.from(expDate.atZone(ZoneId.systemDefault()).toInstant()), result.getExpirationDate());
+        Assert.assertEquals(expDate, result.getExpirationDate());
     }
 }

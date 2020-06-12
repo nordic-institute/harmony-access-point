@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -7,8 +9,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ public class UserResponseRO {
 
     private boolean deleted;
 
-    private Date expirationDate;
+    private LocalDateTime expirationDate;
 
     public String getUserName() {
         return userName;
@@ -129,13 +129,14 @@ public class UserResponseRO {
         this.deleted = deleted;
     }
 
-    public Date getExpirationDate() {
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
 
+    @JsonIgnore
     public void setExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = (expirationDate == null) ? null
-                : Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
+        this.expirationDate = expirationDate;
     }
 
     @Override

@@ -1,12 +1,11 @@
 package eu.domibus.web.rest.ro;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 /**
  * @author Pion
@@ -38,7 +37,7 @@ public class PluginUserRO {
 
     private String domain;
 
-    private Date expirationDate;
+    private LocalDateTime expirationDate;
 
     public Integer getEntityId() {
         return entityId;
@@ -128,12 +127,14 @@ public class PluginUserRO {
         this.domain = domain;
     }
 
-    public Date getExpirationDate() {
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    public LocalDateTime getExpirationDate() {
         return expirationDate;
     }
 
+    @JsonIgnore
     public void setExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = (expirationDate == null) ? null
-                : Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
+        this.expirationDate = expirationDate;
     }
+
 }
