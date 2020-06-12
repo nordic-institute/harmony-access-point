@@ -6,37 +6,31 @@ import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.message.*;
+import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityMatcher;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.payload.PayloadProfileValidator;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
-import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.ebms3.common.model.MessageState;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -52,11 +46,9 @@ import javax.xml.transform.TransformerFactory;
  * @since 4.1
  */
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class IncomingPullReceiptHandlerTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullReceiptHandlerTest.class);
-    private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Injectable
     BackendNotificationService backendNotificationService;
@@ -194,7 +186,7 @@ public class IncomingPullReceiptHandlerTest {
             messageConfiguration.getPmodeKey();
             result = pModeKey;
 
-            responseHandler.verifyResponse(request);
+            responseHandler.verifyResponse(request, messageId);
             result = responseResult;
 
             responseResult.getResponseStatus();
@@ -216,7 +208,7 @@ public class IncomingPullReceiptHandlerTest {
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
-            responseHandler.verifyResponse(request);
+            responseHandler.verifyResponse(request, messageId);
             times = 1;
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
@@ -233,7 +225,6 @@ public class IncomingPullReceiptHandlerTest {
                                                               @Injectable final MessagingLock messagingLock,
                                                               @Injectable final LegConfiguration legConfiguration) throws EbMS3Exception {
         final String messageId = "12345";
-        final String pModeKey = "pmodeKey";
         final UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageId(messageId);
         userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
@@ -276,7 +267,6 @@ public class IncomingPullReceiptHandlerTest {
                                                                      @Injectable final MessagingLock messagingLock,
                                                                      @Injectable final LegConfiguration legConfiguration) throws EbMS3Exception {
         final String messageId = "12345";
-        final String pModeKey = "pmodeKey";
         final UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageId(messageId);
         userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);

@@ -28,8 +28,6 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -37,19 +35,12 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.ws.WebServiceException;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -58,11 +49,9 @@ import static org.junit.Assert.assertTrue;
  * @since 4.1
  */
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class IncomingUserMessageHandlerTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageHandlerTest.class);
-    private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Tested
     IncomingUserMessageHandler incomingUserMessageHandler;
@@ -171,13 +160,6 @@ public class IncomingUserMessageHandlerTest {
     /**
      * Happy flow unit testing with actual data
      *
-     * @throws SOAPException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws JAXBException
-     * @throws EbMS3Exception
-     * @throws TransformerException
      */
     @Test
     public void testInvoke_tc1Process_HappyFlow(@Injectable Messaging messaging,
@@ -205,13 +187,7 @@ public class IncomingUserMessageHandlerTest {
     /**
      * Unit testing with actual data.
      *
-     * @throws JAXBException
-     * @throws SOAPException
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
      */
-
     @Test
     public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final LegConfiguration legConfiguration,
                                                            @Injectable final Messaging messaging,
@@ -222,7 +198,6 @@ public class IncomingUserMessageHandlerTest {
         new Expectations(incomingUserMessageHandler) {{
             legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
             result = true;
-
 
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withAny(pmodeKey), withAny(soapRequestMessage), withAny(messaging), false);
             result = new EbMS3Exception(null, null, null, null);
