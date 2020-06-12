@@ -92,6 +92,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     @Autowired
     private ServerInfoService serverInfoService;
 
+    @Autowired
+    private JmsDestinationCache jmsDestinationCache;
+
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
         return jmxTemplate.query(
@@ -326,40 +329,16 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return (Topic) lookupDestination(topicName);
     }
 
-    protected Destination lookupDestination(String destName) throws NamingException {
-        // It is enough to get the first destination object also in case of clustered destinations because then a JNDI look up is performed.
-        InternalJMSDestination internalJmsDestination = null;
-        Map<String, InternalJMSDestination> internalDestinations = findDestinationsGroupedByFQName();
-        for (Map.Entry<String, InternalJMSDestination> entry : internalDestinations.entrySet()) {
-            // the key is not always the same as the jndi name so we try them both
-            if (matchesQueue(destName, entry)) {
-                LOG.debug("Internal destination found for source [" + destName + "]");
-                internalJmsDestination = entry.getValue();
-            }
-        }
-        if (internalJmsDestination == null) {
-            throw new InternalJMSException("Destination [" + destName + "] does not exists");
-        }
-        String destinationJndi = internalJmsDestination.getProperty(PROPERTY_JNDI_NAME);
-        LOG.debug("Found JNDI [" + destinationJndi + "] for destination [" + destName + "]");
-        return InitialContext.doLookup(destinationJndi);
-    }
-
-    protected boolean matchesQueue(String destName, Map.Entry<String, InternalJMSDestination> entry) {
-        if (entry.getKey().contains(destName)) {
-            return true;
-        }
-        String jndiName = entry.getValue().<String>getProperty(PROPERTY_JNDI_NAME);
-        if (jndiName == null) {
-            return false;
-        }
-        return jndiName.contains(destName);
+    protected Destination lookupDestination(String destJndiName) throws NamingException {
+        LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
+        return jmsDestinationCache.getByJndiName(destJndiName);
     }
 
     @Override
     public void sendMessage(InternalJmsMessage message, String destName) {
         try {
-            jmsOperations.send(lookupDestination(destName), new JmsMessageCreator(message));
+            JmsMessageCreator messageCreator = new JmsMessageCreator(message);
+            jmsOperations.send(lookupDestination(destName), messageCreator);
         } catch (NamingException e) {
             throw new InternalJMSException("Error performing lookup for [" + destName + "]", e);
         }
@@ -372,7 +351,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
-       sendMessageToTopic(internalJmsMessage, destination, false);
+        sendMessageToTopic(internalJmsMessage, destination, false);
     }
 
     protected void sendMessage(InternalJmsMessage internalJmsMessage, Topic destination) {
@@ -392,7 +371,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         final List<String> managedServerNames = getManagedServerNames();
         LOG.debug("Found managed servers [{}]", managedServerNames);
 
-        if(StringUtils.isNotBlank(originServer)) {
+        if (StringUtils.isNotBlank(originServer)) {
             managedServerNames.remove(originServer);
             LOG.debug("Managed servers [{}] after exclusion of origin server [{}]", managedServerNames, originServer);
         }
