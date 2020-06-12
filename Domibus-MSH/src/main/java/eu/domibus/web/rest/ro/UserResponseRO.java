@@ -6,6 +6,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +37,8 @@ public class UserResponseRO {
     private String domain;
 
     private boolean deleted;
+
+    private Date expirationDate;
 
     public String getUserName() {
         return userName;
@@ -88,7 +93,6 @@ public class UserResponseRO {
         this.userName = userName;
     }
 
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -123,6 +127,15 @@ public class UserResponseRO {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = (expirationDate == null) ? null
+                : Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override

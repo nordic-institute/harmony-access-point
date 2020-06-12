@@ -52,10 +52,6 @@ public class PluginUserResourceTest {
         String userName = "userName1";
         int pageStart = 1, pageSize = 10;
 
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-        final List<AuthenticationEntity> userList = Arrays.asList(user);
-
         PluginUserRO userRO = new PluginUserRO();
         userRO.setUserName("user1");
         List<PluginUserRO> userROs = Arrays.asList(userRO);
@@ -65,9 +61,6 @@ public class PluginUserResourceTest {
             result = 1;
 
             pluginUserService.findUsers(authType, authRole, originalUser, userName, pageStart, pageSize);
-            result = userList;
-
-            domainConverter.convert(userList, PluginUserRO.class);
             result = userROs;
         }};
 
@@ -112,7 +105,6 @@ public class PluginUserResourceTest {
             assertEquals(0, removedUsers.size());
             assertEquals("user1", addedUsers.get(0).getUserName());
         }};
-
     }
 
 }

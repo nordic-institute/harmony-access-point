@@ -17,4 +17,5 @@ export class PluginUserRO {
   active: boolean;
   suspended: boolean;
   domain: string;
+  expirationDate: Date;
 }
