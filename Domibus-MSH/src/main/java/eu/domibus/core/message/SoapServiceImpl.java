@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
@@ -39,7 +38,7 @@ public class SoapServiceImpl implements SoapService {
     protected MessageUtil messageUtil;
 
 
-    public Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception {
+    public Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
         final InputStream inputStream = message.getContent(InputStream.class);
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead

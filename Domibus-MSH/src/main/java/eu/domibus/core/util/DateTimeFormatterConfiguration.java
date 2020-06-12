@@ -1,14 +1,19 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATE_TIME_PATTERN_ON_SENDING;
+
 /**
  * @author Cosmin Baciu
- * @since 4.1.2
+ * @author François Gautier
+ * @since 4.2
  * <p>
  * Example of valid dateTime:
  * 2020-06-02T20:00:00
@@ -24,15 +29,19 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class DateTimeFormatterConfiguration {
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss[.SSS][z]";
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    public DateTimeFormatterConfiguration(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Bean
     public DateTimeFormatter dateTimeFormatter() {
-        return DateTimeFormatter.ofPattern(DATE_FORMAT);
+        return DateTimeFormatter.ofPattern(domibusPropertyProvider.getProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING));
     }
 
     @Bean("xmlDateTimeFormat")
     public SimpleDateFormat simpleDateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        return new SimpleDateFormat(domibusPropertyProvider.getProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING));
     }
 }

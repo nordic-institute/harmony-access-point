@@ -1,19 +1,24 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import mockit.Expectations;
+import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -25,13 +30,19 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.util.*;
 
+import static eu.domibus.core.util.MessageUtil.*;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
+
 /**
  * @author Soumya Chandran
  * @since 4.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class MessageUtilTest {
 
+    public static final String RESULT = "RESULT";
     @Tested
     MessageUtil messageUtil;
 
@@ -48,11 +59,12 @@ public class MessageUtilTest {
     SoapUtil soapUtil;
 
     @Test
-    public void getMessagingTest(@Injectable SOAPMessage soapMessage,
-                                 @Injectable Node node,
-                                 @Injectable Unmarshaller unmarshaller,
-                                 @Injectable JAXBElement<Messaging> root
+    public void getMessaging(@Injectable SOAPMessage soapMessage,
+                             @Injectable Node node,
+                             @Injectable Unmarshaller unmarshaller,
+                             @Injectable JAXBElement<Messaging> root
     ) throws SOAPException, JAXBException {
+        Messaging expectedMessaging = new Messaging();
         new Expectations() {{
             soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
             result = node;
@@ -60,20 +72,19 @@ public class MessageUtilTest {
             result = unmarshaller;
             unmarshaller.unmarshal(node);
             result = root;
+            root.getValue();
+            result = expectedMessaging;
         }};
 
-        Assert.assertEquals(root.getValue(), messageUtil.getMessaging(soapMessage));
+        Assert.assertEquals(expectedMessaging, messageUtil.getMessaging(soapMessage));
 
-        new Verifications() {{
-            unmarshaller.unmarshal(node);
-            times = 1;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void getMessagingWithDomTest(@Injectable SOAPMessage soapMessage,
-                                        @Injectable Node messagingNode,
-                                        @Injectable Messaging messaging) throws SOAPException {
+    public void getMessagingWithDom(@Injectable SOAPMessage soapMessage,
+                                    @Injectable Node messagingNode,
+                                    @Injectable Messaging messaging) throws SOAPException, EbMS3Exception {
         new Expectations(messageUtil) {{
             soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
             result = messagingNode;
@@ -83,18 +94,29 @@ public class MessageUtilTest {
 
         messageUtil.getMessagingWithDom(soapMessage);
 
-        new Verifications() {{
+        new FullVerifications() {{
             messageUtil.getMessagingWithDom(messagingNode);
             times = 1;
         }};
     }
 
     @Test
-    public void getNodeMessagingWithDomTest(@Injectable Node messagingNode,
-                                            @Injectable Messaging messaging,
-                                            @Injectable SignalMessage signalMessage,
-                                            @Injectable UserMessage userMessage,
-                                            @Injectable QName qName) throws SOAPException {
+    public void getMessagingWithDom_soapException() throws EbMS3Exception {
+
+        try {
+            messageUtil.getMessagingWithDom((Node) null);
+            fail();
+        } catch (SOAPException e) {
+            // nothing to check
+        }
+    }
+
+    @Test
+    public void getNodeMessagingWithDom(@Injectable Node messagingNode,
+                                        @Injectable Messaging messaging,
+                                        @Injectable SignalMessage signalMessage,
+                                        @Injectable UserMessage userMessage,
+                                        @Injectable QName qName) throws SOAPException, EbMS3Exception {
         final Map<QName, String> otherAttributes = new HashMap<>();
 
         new Expectations(messageUtil) {{
@@ -106,19 +128,36 @@ public class MessageUtilTest {
             result = otherAttributes;
         }};
 
-        Assert.assertNotNull(messageUtil.getMessagingWithDom(messagingNode));
+        assertNotNull(messageUtil.getMessagingWithDom(messagingNode));
     }
 
     @Test
-    public void createUserMessageTest(@Injectable Node messagingNode,
-                                      @Injectable Messaging messaging,
-                                      @Injectable Node userMessageNode,
-                                      @Injectable UserMessage userMessage,
-                                      @Injectable MessageInfo messageInfo,
-                                      @Injectable PartyInfo partyInfo,
-                                      @Injectable CollaborationInfo collaborationInfo,
-                                      @Injectable MessageProperties messageProperties,
-                                      @Injectable PayloadInfo payloadInfo) {
+    public void getNodeMessagingWithDom_domibusCoreException(@Injectable Node messagingNode) throws SOAPException, EbMS3Exception {
+
+        new Expectations(messageUtil) {{
+            messageUtil.createSignalMessage(messagingNode);
+            result = new DomibusCoreException(DomibusCoreErrorCode.DOM_003, "Error");
+        }};
+
+
+        try {
+            messageUtil.getMessagingWithDom(messagingNode);
+            fail();
+        } catch (DomibusCoreException e) {
+            assertThat(e.getError(), is(DomibusCoreErrorCode.DOM_003));
+        }
+    }
+
+    @Test
+    public void createUserMessage(@Injectable Node messagingNode,
+                                  @Injectable Messaging messaging,
+                                  @Injectable Node userMessageNode,
+                                  @Injectable UserMessage userMessage,
+                                  @Injectable MessageInfo messageInfo,
+                                  @Injectable PartyInfo partyInfo,
+                                  @Injectable CollaborationInfo collaborationInfo,
+                                  @Injectable MessageProperties messageProperties,
+                                  @Injectable PayloadInfo payloadInfo) {
         final String USER_MESSAGE = "UserMessage";
 
         new Expectations(messageUtil) {{
@@ -138,14 +177,25 @@ public class MessageUtilTest {
             result = payloadInfo;
         }};
 
-        Assert.assertNotNull(messageUtil.createUserMessage(messagingNode));
+        assertNotNull(messageUtil.createUserMessage(messagingNode));
     }
 
     @Test
-    public void createPayloadInfoTest(@Injectable Node payloadInfoNode,
-                                      @Injectable Node userMessageNode
+    public void createUserMessage_null(@Injectable Node messagingNode) {
+        final String USER_MESSAGE = "UserMessage";
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(messagingNode, USER_MESSAGE);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createUserMessage(messagingNode));
+    }
+
+    @Test
+    public void createPayloadInfo(@Injectable Node payloadInfoNode,
+                                  @Injectable Node userMessageNode
     ) {
-        final String PAYLOAD_INFO = "PayloadInfo";
         final String PART_INFO = "PartInfo";
         final List<Node> partInfoNodes = new ArrayList<>();
         partInfoNodes.add(userMessageNode);
@@ -157,13 +207,24 @@ public class MessageUtilTest {
             result = partInfoNodes;
         }};
 
-        Assert.assertNotNull(messageUtil.createPayloadInfo(userMessageNode));
+        assertNotNull(messageUtil.createPayloadInfo(userMessageNode));
     }
 
     @Test
-    public void createPartPropertiesTest(@Injectable Node partInfoNode,
-                                         @Injectable Node partPropertiesNode,
-                                         @Injectable Property property) {
+    public void createPayloadInfo_null(@Injectable Node userMessageNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(userMessageNode, PAYLOAD_INFO);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createPayloadInfo(userMessageNode));
+    }
+
+    @Test
+    public void createPartProperties(@Injectable Node partInfoNode,
+                                     @Injectable Node partPropertiesNode,
+                                     @Injectable Property property) {
         final String PART_PROPERTIES = "PartProperties";
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
@@ -178,12 +239,12 @@ public class MessageUtilTest {
             result = property;
         }};
 
-        Assert.assertNotNull(messageUtil.createPartProperties(partInfoNode));
+        assertNotNull(messageUtil.createPartProperties(partInfoNode));
     }
 
     @Test
-    public void createPropertyTest(@Injectable Node propertyNode,
-                                   @Injectable Property result) {
+    public void createProperty(@Injectable Node propertyNode,
+                               @Injectable Property result) {
         final String NAME = "name";
         final String TYPE = "type";
 
@@ -196,15 +257,14 @@ public class MessageUtilTest {
             result = "value1";
         }};
 
-        Assert.assertNotNull(messageUtil.createProperty(propertyNode));
+        assertNotNull(messageUtil.createProperty(propertyNode));
     }
 
     @Test
-    public void createMessagePropertiesTest(@Injectable Node messagePropertiesNode,
-                                            @Injectable Node userMessageNode,
-                                            @Injectable MessageProperties messageProperties,
-                                            @Injectable Property property) {
-        final String MESSAGE_PROPERTIES = "MessageProperties";
+    public void createMessageProperties(@Injectable Node messagePropertiesNode,
+                                        @Injectable Node userMessageNode,
+                                        @Injectable MessageProperties messageProperties,
+                                        @Injectable Property property) {
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
         propertyNodes.add(userMessageNode);
@@ -218,16 +278,26 @@ public class MessageUtilTest {
             result = property;
         }};
 
-        Assert.assertNotNull(messageUtil.createMessageProperties(userMessageNode));
+        assertNotNull(messageUtil.createMessageProperties(userMessageNode));
     }
 
     @Test
-    public void createCollaborationInfoTest(@Injectable Node collaborationInfoNode,
-                                            @Injectable Node userMessageNode,
-                                            @Injectable eu.domibus.ebms3.common.model.Service service,
-                                            @Injectable CollaborationInfo collaborationInfo,
-                                            @Injectable AgreementRef agreement) {
-        final String COLLABORATION_INFO = "CollaborationInfo";
+    public void createMessageProperties_null(@Injectable Node userMessageNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(userMessageNode, MESSAGE_PROPERTIES);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createMessageProperties(userMessageNode));
+    }
+
+    @Test
+    public void createCollaborationInfo(@Injectable Node collaborationInfoNode,
+                                        @Injectable Node userMessageNode,
+                                        @Injectable eu.domibus.ebms3.common.model.Service service,
+                                        @Injectable CollaborationInfo collaborationInfo,
+                                        @Injectable AgreementRef agreement) {
         final String CONVERSATION_ID = "ConversationId";
         final String ACTION = "Action";
 
@@ -244,12 +314,23 @@ public class MessageUtilTest {
             result = agreement;
         }};
 
-        Assert.assertNotNull(messageUtil.createCollaborationInfo(userMessageNode));
+        assertNotNull(messageUtil.createCollaborationInfo(userMessageNode));
     }
 
     @Test
-    public void createAgreementRefTest(@Injectable Node collaborationInfoNode,
-                                       @Injectable Node agreementRefNode) {
+    public void createCollaborationInfo_null(@Injectable Node userMessageNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(userMessageNode, COLLABORATION_INFO);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createCollaborationInfo(userMessageNode));
+    }
+
+    @Test
+    public void createAgreementRef(@Injectable Node collaborationInfoNode,
+                                   @Injectable Node agreementRefNode) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(collaborationInfoNode, "AgreementRef");
             result = agreementRefNode;
@@ -259,13 +340,23 @@ public class MessageUtilTest {
             result = "serviceValue";
         }};
 
-        Assert.assertNotNull(messageUtil.createAgreementRef(collaborationInfoNode));
+        assertNotNull(messageUtil.createAgreementRef(collaborationInfoNode));
     }
 
     @Test
-    public void createServiceTest(@Injectable Node collaborationInfoNode,
-                                  @Injectable Node serviceNode,
-                                  @Injectable eu.domibus.ebms3.common.model.Service service) {
+    public void createAgreementRef_null(@Injectable Node collaborationInfoNode) {
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(collaborationInfoNode, "AgreementRef");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createAgreementRef(collaborationInfoNode));
+    }
+
+    @Test
+    public void createService(@Injectable Node collaborationInfoNode,
+                              @Injectable Node serviceNode,
+                              @Injectable eu.domibus.ebms3.common.model.Service service) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(collaborationInfoNode, "Service");
             result = serviceNode;
@@ -275,14 +366,24 @@ public class MessageUtilTest {
             result = "serviceValue";
         }};
 
-        Assert.assertNotNull(messageUtil.createService(collaborationInfoNode));
+        assertNotNull(messageUtil.createService(collaborationInfoNode));
     }
 
     @Test
-    public void createPartyInfoTest(@Injectable Node userMessageNode,
-                                    @Injectable Node partyInfoNode,
-                                    @Injectable From from,
-                                    @Injectable To to) {
+    public void createService_null(@Injectable Node collaborationInfoNode) {
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(collaborationInfoNode, "Service");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createService(collaborationInfoNode));
+    }
+
+    @Test
+    public void createPartyInfo(@Injectable Node userMessageNode,
+                                @Injectable Node partyInfoNode,
+                                @Injectable From from,
+                                @Injectable To to) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(userMessageNode, "PartyInfo");
             result = partyInfoNode;
@@ -292,15 +393,25 @@ public class MessageUtilTest {
             result = to;
         }};
 
-        Assert.assertNotNull(messageUtil.createPartyInfo(userMessageNode));
+        assertNotNull(messageUtil.createPartyInfo(userMessageNode));
     }
 
     @Test
-    public void createToTest(@Injectable Node partyInfoNode,
-                             @Injectable Node toNode,
-                             @Injectable From from,
-                             @Injectable To to,
-                             @Injectable PartyId partyId) {
+    public void createPartyInfo_null(@Injectable Node userMessageNode) {
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(userMessageNode, "PartyInfo");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createPartyInfo(userMessageNode));
+    }
+
+    @Test
+    public void createTo(@Injectable Node partyInfoNode,
+                         @Injectable Node toNode,
+                         @Injectable From from,
+                         @Injectable To to,
+                         @Injectable PartyId partyId) {
         final Set<PartyId> partyIds = new HashSet<>();
         partyIds.add(partyId);
 
@@ -313,15 +424,26 @@ public class MessageUtilTest {
             result = partyIds;
         }};
 
-        Assert.assertNotNull(messageUtil.createTo(partyInfoNode));
+        assertNotNull(messageUtil.createTo(partyInfoNode));
     }
 
     @Test
-    public void createFromTest(@Injectable Node partyInfoNode,
-                               @Injectable Node fromNode,
-                               @Injectable From from,
-                               @Injectable To to,
-                               @Injectable PartyId partyId) {
+    public void createTo_null(@Injectable Node partyInfoNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(partyInfoNode, "To");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createTo(partyInfoNode));
+    }
+
+    @Test
+    public void createFrom(@Injectable Node partyInfoNode,
+                           @Injectable Node fromNode,
+                           @Injectable From from,
+                           @Injectable To to,
+                           @Injectable PartyId partyId) {
         final Set<PartyId> partyIds = new HashSet<>();
         partyIds.add(partyId);
 
@@ -334,13 +456,24 @@ public class MessageUtilTest {
             result = partyIds;
         }};
 
-        Assert.assertNotNull(messageUtil.createFrom(partyInfoNode));
+        assertNotNull(messageUtil.createFrom(partyInfoNode));
     }
 
     @Test
-    public void createPartyIdsTest(@Injectable Node parent,
-                                   @Injectable Node partyIdNode,
-                                   @Injectable PartyId partyId) {
+    public void createFrom_null(@Injectable Node partyInfoNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(partyInfoNode, "From");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createFrom(partyInfoNode));
+    }
+
+    @Test
+    public void createPartyIds(@Injectable Node parent,
+                               @Injectable Node partyIdNode,
+                               @Injectable PartyId partyId) {
         final List<Node> partyIdNodes = new ArrayList<>();
         partyIdNodes.add(partyIdNode);
 
@@ -351,12 +484,12 @@ public class MessageUtilTest {
             result = partyId;
         }};
 
-        Assert.assertNotNull(messageUtil.createPartyIds(parent));
+        assertNotNull(messageUtil.createPartyIds(parent));
     }
 
     @Test
-    public void createPartyIdTest(@Injectable Node partyIdNode,
-                                  @Injectable PartyId partyId) {
+    public void createPartyId(@Injectable Node partyIdNode,
+                              @Injectable PartyId partyId) {
 
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(partyIdNode, "type");
@@ -365,17 +498,17 @@ public class MessageUtilTest {
             result = "partyValue";
         }};
 
-        Assert.assertNotNull(messageUtil.createPartyId(partyIdNode));
+        assertNotNull(messageUtil.createPartyId(partyIdNode));
     }
 
     @Test
-    public void createSignalMessageTest(@Injectable Node messagingNode,
-                                        @Injectable Node signalNode,
-                                        @Injectable MessageInfo messageInfo,
-                                        @Injectable SignalMessage signalMessage,
-                                        @Injectable Receipt receipt,
-                                        @Injectable PullRequest pullRequest,
-                                        @Injectable Error error) throws SOAPException {
+    public void createSignalMessage(@Injectable Node messagingNode,
+                                    @Injectable Node signalNode,
+                                    @Injectable MessageInfo messageInfo,
+                                    @Injectable SignalMessage signalMessage,
+                                    @Injectable Receipt receipt,
+                                    @Injectable PullRequest pullRequest,
+                                    @Injectable Error error) throws SOAPException {
         Set<Error> errors = new HashSet<>();
         errors.add(error);
 
@@ -392,14 +525,25 @@ public class MessageUtilTest {
             result = errors;
         }};
 
-        Assert.assertNotNull(messageUtil.createSignalMessage(messagingNode));
+        assertNotNull(messageUtil.createSignalMessage(messagingNode));
     }
 
     @Test
-    public void getOtherAttributesTest(@Injectable Node messagingNode,
-                                       @Injectable NamedNodeMap attributes,
-                                       @Injectable Node namedItemNS,
-                                       @Injectable QName name) {
+    public void createSignalMessage_null(@Injectable Node messagingNode) throws SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(messagingNode, "SignalMessage");
+            result = null;
+        }};
+
+        assertNull(messageUtil.createSignalMessage(messagingNode));
+    }
+
+    @Test
+    public void getOtherAttributes(@Injectable Node messagingNode,
+                                   @Injectable NamedNodeMap attributes,
+                                   @Injectable Node namedItemNS,
+                                   @Injectable QName name) {
         final String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
 
         new Expectations(messageUtil) {{
@@ -409,13 +553,38 @@ public class MessageUtilTest {
             result = namedItemNS;
         }};
 
-        Assert.assertNotNull(messageUtil.getOtherAttributes(messagingNode));
+        assertNotNull(messageUtil.getOtherAttributes(messagingNode));
     }
 
     @Test
-    public void createErrorsTest(@Injectable Node signalNode,
-                                 @Injectable Node errorNode,
-                                 @Injectable Error error) {
+    public void getOtherAttributes_noAttribute(@Injectable Node messagingNode) {
+        new Expectations(messageUtil) {{
+            messagingNode.getAttributes();
+            result = null;
+        }};
+
+        assertNull(messageUtil.getOtherAttributes(messagingNode));
+    }
+
+    @Test
+    public void getOtherAttributes_noItem(@Injectable Node messagingNode,
+                                          @Injectable NamedNodeMap attributes) {
+        final String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
+
+        new Expectations(messageUtil) {{
+            messagingNode.getAttributes();
+            result = attributes;
+            attributes.getNamedItemNS(WSU_NS, "Id");
+            result = null;
+        }};
+
+        assertNull(messageUtil.getOtherAttributes(messagingNode));
+    }
+
+    @Test
+    public void createErrors(@Injectable Node signalNode,
+                             @Injectable Node errorNode,
+                             @Injectable Error error) {
         final List<Node> errorNodeList = new ArrayList<>();
         errorNodeList.add(errorNode);
 
@@ -426,22 +595,34 @@ public class MessageUtilTest {
             result = error;
         }};
 
-        Assert.assertNotNull(messageUtil.createErrors(signalNode));
+        assertNotNull(messageUtil.createErrors(signalNode));
     }
 
     @Test
-    public void createErrorTest(@Injectable Node signalNode,
-                                @Injectable Node errorNode,
-                                @Injectable Error error,
-                                @Injectable Description description) {
+    public void createErrors_null(@Injectable Node signalNode,
+                                  @Injectable Node errorNode,
+                                  @Injectable Error error) {
         final List<Node> errorNodeList = new ArrayList<>();
+
+        new Expectations(messageUtil) {{
+            messageUtil.getChildren(signalNode, "Error");
+            result = errorNodeList;
+        }};
+
+        assertTrue(messageUtil.createErrors(signalNode).isEmpty());
+    }
+
+    @Test
+    public void createError(@Injectable Node signalNode,
+                            @Injectable Node errorNode,
+                            @Injectable Error error,
+                            @Injectable Description description) {
         final String CATEGORY = "category";
         final String ERROR_CODE = "errorCode";
         final String ORIGIN = "origin";
         final String REF_TO_MESSAGE_IN_ERROR = "refToMessageInError";
         final String SEVERITY = "severity";
         final String SHORT_DESCRIPTION = "shortDescription";
-        errorNodeList.add(errorNode);
 
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(errorNode, CATEGORY);
@@ -462,12 +643,12 @@ public class MessageUtilTest {
             result = "error1";
         }};
 
-        Assert.assertNotNull(messageUtil.createError(errorNode));
+        assertNotNull(messageUtil.createError(errorNode));
     }
 
     @Test
-    public void getErrorDetailTest(@Injectable Node errorNode,
-                                   @Injectable Node errorDetailNode) {
+    public void getErrorDetail(@Injectable Node errorNode,
+                               @Injectable Node errorDetailNode) {
         final String ERROR_DETAIL = "ErrorDetail";
         final String textContent = "Error1";
 
@@ -482,9 +663,8 @@ public class MessageUtilTest {
     }
 
     @Test
-    public void createDescriptionTest(@Injectable Node errorNode,
-                                      @Injectable Node description) {
-        final String DESCRIPTION = "Description";
+    public void createDescription(@Injectable Node errorNode,
+                                  @Injectable Node description) {
         final String LANG = "lang";
         final String textContent = "Error1";
 
@@ -497,13 +677,24 @@ public class MessageUtilTest {
             result = textContent;
         }};
 
-        Assert.assertNotNull(messageUtil.createDescription(errorNode));
+        assertNotNull(messageUtil.createDescription(errorNode));
     }
 
     @Test
-    public void getAttributeTest(@Injectable Node referenceNode,
-                                 @Injectable NamedNodeMap attributes,
-                                 @Injectable Node uri) {
+    public void createDescription_null(@Injectable Node errorNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(errorNode, DESCRIPTION);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createDescription(errorNode));
+    }
+
+    @Test
+    public void getAttribute(@Injectable Node referenceNode,
+                             @Injectable NamedNodeMap attributes,
+                             @Injectable Node uri) {
         String attributeName = "attribute1";
 
         new Expectations(messageUtil) {{
@@ -511,20 +702,49 @@ public class MessageUtilTest {
             result = attributes;
             attributes.getNamedItem(attributeName);
             result = uri;
+            messageUtil.getTextContent(uri);
+            result = RESULT;
+        }};
+
+        assertThat(messageUtil.getAttribute(referenceNode, attributeName), is(RESULT));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getAttribute_noAttribute(@Injectable Node referenceNode) {
+        String attributeName = "attribute1";
+
+        new Expectations(messageUtil) {{
+            referenceNode.getAttributes();
+            result = null;
+        }};
+
+        assertNull(messageUtil.getAttribute(referenceNode, attributeName));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getAttribute_noUri(@Injectable Node referenceNode,
+                                   @Injectable NamedNodeMap attributes) {
+        String attributeName = "attribute1";
+
+        new Expectations(messageUtil) {{
+            referenceNode.getAttributes();
+            result = attributes;
+            attributes.getNamedItem(attributeName);
+            result = null;
         }};
 
         messageUtil.getAttribute(referenceNode, attributeName);
 
-        new Verifications() {{
-            messageUtil.getTextContent(uri);
-            times = 1;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void createReceiptTest(@Injectable Node signalNode,
-                                  @Injectable Node receiptNode) throws SOAPException {
-        final String RECEIPT = "Receipt";
+    public void createReceipt(@Injectable Node signalNode,
+                              @Injectable Node receiptNode) throws SOAPException {
         String nonRepudiationInformation = "nonRepudiationInfo";
         String userMessageFromReceipt = "userMessageFromReceipt";
 
@@ -537,13 +757,54 @@ public class MessageUtilTest {
             result = userMessageFromReceipt;
         }};
 
-        Assert.assertNotNull(messageUtil.createReceipt(signalNode));
+        assertNotNull(messageUtil.createReceipt(signalNode));
+    }
+
+    @Test
+    public void createReceipt_null(@Injectable Node signalNode) throws SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(signalNode, RECEIPT);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createReceipt(signalNode));
+    }
+
+    @Test
+    public void getNonRepudiationInformationFromReceipt_ok(@Injectable Node nonRepudiationInformationNode,
+                                                           @Injectable Node receiptNode) throws TransformerException, SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
+            result = nonRepudiationInformationNode;
+            messageUtil.nodeToString(nonRepudiationInformationNode);
+            result = NON_REPUDIATION_INFORMATION;
+            times = 1;
+        }};
+
+        assertThat(messageUtil.getNonRepudiationInformationFromReceipt(receiptNode), is(NON_REPUDIATION_INFORMATION));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getNonRepudiationInformationFromReceipt_null(@Injectable Node nonRepudiationInformationNode,
+                                                             @Injectable Node receiptNode) throws  SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
+            result = null;
+        }};
+
+        assertNull(messageUtil.getNonRepudiationInformationFromReceipt(receiptNode));
+
+        new FullVerifications() {};
     }
 
     @Test(expected = SOAPException.class)
-    public void getNonRepudiationInformationFromReceiptTest(@Injectable Node nonRepudiationInformationNode,
-                                                            @Injectable Node receiptNode) throws TransformerException, SOAPException {
-        final String NON_REPUDIATION_INFORMATION = "NonRepudiationInformation";
+    public void getNonRepudiationInformationFromReceipt_exception(@Injectable Node nonRepudiationInformationNode,
+                                                                  @Injectable Node receiptNode) throws TransformerException, SOAPException {
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
@@ -554,16 +815,41 @@ public class MessageUtilTest {
 
         messageUtil.getNonRepudiationInformationFromReceipt(receiptNode);
 
-        new Verifications() {{
-            messageUtil.nodeToString(nonRepudiationInformationNode);
-            times = 1;
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getUserMessageFromReceipt_ok(@Injectable Node userMessageNode,
+                                             @Injectable Node receiptNode) throws TransformerException, SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(receiptNode, USER_MESSAGE);
+            result = userMessageNode;
+            messageUtil.nodeToString(userMessageNode);
+            result = USER_MESSAGE;
         }};
+
+        assertThat(messageUtil.getUserMessageFromReceipt(receiptNode), is(USER_MESSAGE));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getUserMessageFromReceipt_null(@Injectable Node receiptNode) throws SOAPException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(receiptNode, USER_MESSAGE);
+            result = null;
+        }};
+
+        assertNull(messageUtil.getUserMessageFromReceipt(receiptNode));
+
+        new FullVerifications() {};
     }
 
     @Test(expected = SOAPException.class)
-    public void getUserMessageFromReceiptTest(@Injectable Node userMessageNode,
-                                              @Injectable Node receiptNode) throws TransformerException, SOAPException {
-        final String USER_MESSAGE = "UserMessage";
+    public void getUserMessageFromReceipt(@Injectable Node userMessageNode,
+                                          @Injectable Node receiptNode) throws TransformerException, SOAPException {
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, USER_MESSAGE);
@@ -574,15 +860,12 @@ public class MessageUtilTest {
 
         messageUtil.getUserMessageFromReceipt(receiptNode);
 
-        new Verifications() {{
-            messageUtil.nodeToString(userMessageNode);
-            times = 1;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void createPullRequestTest(@Injectable Node signalNode,
-                                      @Injectable Node pullRequestNode) {
+    public void createPullRequest(@Injectable Node signalNode,
+                                  @Injectable Node pullRequestNode) {
         final String PULL_REQUEST = "PullRequest";
 
         new Expectations(messageUtil) {{
@@ -592,13 +875,26 @@ public class MessageUtilTest {
             result = "mpc";
         }};
 
-        Assert.assertNotNull(messageUtil.createPullRequest(signalNode));
+        assertNotNull(messageUtil.createPullRequest(signalNode));
+        new FullVerifications() {};
     }
 
     @Test
-    public void createMessageInfoTest(@Injectable Node signalNode,
-                                      @Injectable Node messageInfoNode) {
-        final String MESSAGE_INFO = "MessageInfo";
+    public void createPullRequest_null(@Injectable Node signalNode) {
+        final String PULL_REQUEST = "PullRequest";
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(signalNode, PULL_REQUEST);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createPullRequest(signalNode));
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void createMessageInfo(@Injectable Node signalNode,
+                                  @Injectable Node messageInfoNode) {
         final String TIMESTAMP = "Timestamp";
         String timestampString = "1573735205377";
         final String MESSAGE_ID = "MessageId";
@@ -609,6 +905,8 @@ public class MessageUtilTest {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(signalNode, MESSAGE_INFO);
             result = messageInfoNode;
+            domibusDateFormatter.fromString(anyString);
+            result = new Date();
             messageUtil.getFirstChildValue(messageInfoNode, TIMESTAMP);
             result = timestampString;
             messageUtil.getFirstChildValue(messageInfoNode, MESSAGE_ID);
@@ -617,17 +915,30 @@ public class MessageUtilTest {
             result = refToMessageId;
         }};
 
-        Assert.assertNotNull(messageUtil.createMessageInfo(signalNode));
+        assertNotNull(messageUtil.createMessageInfo(signalNode));
 
+        new FullVerifications() {};
     }
 
     @Test
-    public void getMessageFragmentTest(@Injectable SOAPMessage soapMessage,
-                                       @Injectable QName qName,
-                                       @Injectable Iterator iterator,
-                                       @Injectable Node messagingXml,
-                                       @Injectable Unmarshaller unmarshaller,
-                                       @Injectable JAXBElement<MessageFragmentType> root) throws SOAPException, JAXBException {
+    public void createMessageInfo_null(@Injectable Node signalNode) {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(signalNode, MESSAGE_INFO);
+            result = null;
+        }};
+
+        assertNull(messageUtil.createMessageInfo(signalNode));
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getMessageFragment(@Injectable SOAPMessage soapMessage,
+                                   @Injectable QName qName,
+                                   @Injectable Iterator iterator,
+                                   @Injectable Node messagingXml,
+                                   @Injectable Unmarshaller unmarshaller,
+                                   @Injectable JAXBElement<MessageFragmentType> root) throws SOAPException, JAXBException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
@@ -641,44 +952,198 @@ public class MessageUtilTest {
             result = unmarshaller;
             unmarshaller.unmarshal(messagingXml);
             result = root;
+            root.getValue();
+            result = new MessageFragmentType();
         }};
 
-        Assert.assertNotNull(messageUtil.getMessageFragment(soapMessage));
-
+        assertNotNull(messageUtil.getMessageFragment(soapMessage));
+        new FullVerifications() {};
     }
 
-    @Test(expected = MessagingException.class)
-    public void getMessageTest(@Injectable SOAPMessage request,
-                               @Injectable Messaging messaging) throws SOAPException, JAXBException {
+    @Test
+    public void getMessageFragment_null(@Injectable SOAPMessage soapMessage,
+                                   @Injectable QName qName,
+                                   @Injectable Iterator iterator) throws SOAPException {
+        final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
+
+        new Expectations(messageUtil) {{
+            soapMessage.getSOAPHeader().getChildElements(_MessageFragment_QNAME);
+            result = iterator;
+            iterator.hasNext();
+            result = false;
+        }};
+
+        assertNull(messageUtil.getMessageFragment(soapMessage));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getMessageFragment_exception(@Injectable SOAPMessage soapMessage,
+                                   @Injectable QName qName,
+                                   @Injectable Iterator iterator) throws SOAPException {
+        final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
+
+        new Expectations(messageUtil) {{
+            soapMessage.getSOAPHeader().getChildElements(_MessageFragment_QNAME);
+            result = new SOAPException("ERROR");
+        }};
+
+        try {
+            messageUtil.getMessageFragment(soapMessage);
+            fail();
+        } catch (MessagingException e) {
+            // Nothing to check
+        }
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getMessage_exception(@Injectable SOAPMessage request,
+                                     @Injectable Messaging messaging) throws SOAPException, JAXBException {
 
         new Expectations(messageUtil) {{
             messageUtil.getMessaging(request);
             result = new JAXBException("Error marshalling the message", "DOM_001");
         }};
 
-        messageUtil.getMessage(request);
+        try {
+            messageUtil.getMessage(request);
+            fail();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
-        new Verifications() {{
-            messageUtil.getMessaging(request);
-            times = 1;
-        }};
-        Assert.fail();
+        new FullVerifications() {};
+
     }
 
     @Test
-    public void getFirstChildValueTest(@Injectable Node parent) {
+    public void getMessage_ok(@Injectable SOAPMessage request,
+                              @Injectable Messaging messaging) throws SOAPException, JAXBException {
+
+        new Expectations(messageUtil) {{
+            messageUtil.getMessaging(request);
+            result = new Messaging();
+        }};
+
+        assertNotNull(messageUtil.getMessage(request));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getFirstChildValue(@Injectable Node parent,
+                                   @Injectable Node firstChild) {
+        String childName = "child1";
+
+        new Expectations(messageUtil) {{
+            messageUtil.getFirstChild(parent, childName);
+            result = firstChild;
+            messageUtil.getTextContent(firstChild);
+            result = RESULT;
+        }};
+
+        assertThat(messageUtil.getFirstChildValue(parent, childName), is(RESULT));
+
+        new FullVerifications() {};
+    }
+    @Test
+    public void getFirstChildValue_null(@Injectable Node parent) {
         String childName = "child1";
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(parent, childName);
             result = null;
+            parent.getNodeName();
+            result = "nodeName";
         }};
 
-        messageUtil.getFirstChildValue(parent, childName);
+        assertNull(messageUtil.getFirstChildValue(parent, childName));
 
-        new Verifications() {{
-            messageUtil.getTextContent(withCapture());
-            times = 0;
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getFirstChild_ok(@Injectable Node parent,
+                                   @Injectable Node firstChild) {
+        String childName = "child1";
+
+        ArrayList<Node> nodes = new ArrayList<>();
+        nodes.add(firstChild);
+
+        new Expectations(messageUtil) {{
+            messageUtil.getChildren(parent, childName);
+            result = nodes;
         }};
+
+        assertThat(messageUtil.getFirstChild(parent, childName), is(firstChild));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getFirstChild_null(@Injectable Node parent) {
+        String childName = "child1";
+
+        ArrayList<Node> nodes = new ArrayList<>();
+
+        new Expectations(messageUtil) {{
+            messageUtil.getChildren(parent, childName);
+            result = nodes;
+        }};
+
+        assertNull(messageUtil.getFirstChild(parent, childName));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getChildren_ok(@Injectable Node parent,
+                               @Injectable Node child,
+                               @Injectable NodeList nodeList) {
+        String childName = "child1";
+
+        new Expectations(messageUtil) {{
+            parent.getChildNodes();
+            result = nodeList;
+            nodeList.getLength();
+            result = 1;
+            nodeList.item(0);
+            result = child;
+            child.getLocalName();
+            result = childName;
+        }};
+
+        assertThat(messageUtil.getChildren(parent, childName), CoreMatchers.hasItem(child));
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void getChildren_empty(@Injectable Node parent,
+                               @Injectable Node child,
+                               @Injectable NodeList nodeList) {
+        String childName = "child1";
+
+        new Expectations(messageUtil) {{
+            parent.getChildNodes();
+            result = nodeList;
+            nodeList.getLength();
+            result = 0;
+        }};
+
+        assertTrue(messageUtil.getChildren(parent, childName).isEmpty());
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void nodeToString() throws TransformerException {
+
+        assertThat(messageUtil.nodeToString(null), is(""));
+
+        new FullVerifications() {};
     }
 }

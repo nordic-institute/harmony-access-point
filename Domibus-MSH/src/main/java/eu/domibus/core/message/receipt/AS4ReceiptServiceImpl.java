@@ -36,7 +36,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -68,49 +67,52 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
 
-    @Autowired
-    private MessageIdGenerator messageIdGenerator;
+    protected final UIReplicationSignalService uiReplicationSignalService;
+    protected final UserMessageHandlerService userMessageHandlerService;
+    private final TimestampDateFormatter timestampDateFormatter;
+    protected final NonRepudiationService nonRepudiationService;
+    private final SignalMessageLogDao signalMessageLogDao;
+    protected final UserMessageService userMessageService;
+    private final MessageIdGenerator messageIdGenerator;
+    protected final RawEnvelopeLogDao rawEnvelopeLogDao;
+    private final SignalMessageDao signalMessageDao;
+    protected final MessageGroupDao messageGroupDao;
+    private final MessagingDao messagingDao;
+    protected final MessageUtil messageUtil;
+    protected final SoapUtil soapUtil;
 
-    @Autowired
-    private TimestampDateFormatter timestampDateFormatter;
-
-    @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
-
-    @Autowired
-    protected NonRepudiationService nonRepudiationService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected RawEnvelopeLogDao rawEnvelopeLogDao;
-
-    @Autowired
-    protected MessageUtil messageUtil;
-
-    @Autowired
-    protected MessageGroupDao messageGroupDao;
-
-    @Autowired
-    protected UserMessageService userMessageService;
-
-    @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
-
-    @Autowired
-    protected SoapUtil soapUtil;
+    public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
+                                 UserMessageHandlerService userMessageHandlerService,
+                                 TimestampDateFormatter timestampDateFormatter,
+                                 NonRepudiationService nonRepudiationService,
+                                 SignalMessageLogDao signalMessageLogDao,
+                                 UserMessageService userMessageService,
+                                 MessageIdGenerator messageIdGenerator,
+                                 RawEnvelopeLogDao rawEnvelopeLogDao,
+                                 SignalMessageDao signalMessageDao,
+                                 MessageGroupDao messageGroupDao,
+                                 MessagingDao messagingDao,
+                                 MessageUtil messageUtil,
+                                 SoapUtil soapUtil) {
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.userMessageHandlerService = userMessageHandlerService;
+        this.timestampDateFormatter = timestampDateFormatter;
+        this.nonRepudiationService = nonRepudiationService;
+        this.signalMessageLogDao = signalMessageLogDao;
+        this.userMessageService = userMessageService;
+        this.messageIdGenerator = messageIdGenerator;
+        this.rawEnvelopeLogDao = rawEnvelopeLogDao;
+        this.signalMessageDao = signalMessageDao;
+        this.messageGroupDao = messageGroupDao;
+        this.messagingDao = messagingDao;
+        this.messageUtil = messageUtil;
+        this.soapUtil = soapUtil;
+    }
 
     @Override
     public SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception {
         final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
-        SOAPMessage request = null;
+        SOAPMessage request;
         try {
             request = soapUtil.createSOAPMessage(rawXmlByMessageId.getRawMessage());
         } catch (SOAPException | IOException | ParserConfigurationException | SAXException e) {
@@ -193,49 +195,45 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
      * @param responseMessage SOAP response message
      * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
      */
-    protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) {
-        try {
-            LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
+    protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
+        LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-            Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
-            final SignalMessage signalMessage = messaging.getSignalMessage();
+        Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
+        final SignalMessage signalMessage = messaging.getSignalMessage();
 
-            if (selfSendingFlag) {
+        if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
                 basically we are generating another messageId for Signal Message on receiver side
                 */
-                signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-                signalMessage.getMessageInfo().setMessageId(signalMessage.getMessageInfo().getMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-            }
-            LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
-            // Stores the signal message
-            signalMessageDao.create(signalMessage);
-            // Updating the reference to the signal message
-            Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
-            MessageSubtype messageSubtype = null;
-            if (sentMessage != null) {
-                LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
-                if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
-                    messageSubtype = MessageSubtype.TEST;
-                }
-                sentMessage.setSignalMessage(signalMessage);
-                messagingDao.update(sentMessage);
-            }
-            // Builds the signal message log
-            SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                    .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
-                    .setMessageStatus(MessageStatus.ACKNOWLEDGED)
-                    .setMshRole(MSHRole.SENDING)
-                    .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
-            // Saves an entry of the signal message log
-            SignalMessageLog signalMessageLog = smlBuilder.build();
-            signalMessageLog.setMessageSubtype(messageSubtype);
-            signalMessageLogDao.create(signalMessageLog);
-
-            uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
-        } catch (SOAPException ex) {
-            LOG.error("Unable to save the SignalMessage due to error: ", ex);
+            signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
+            signalMessage.getMessageInfo().setMessageId(signalMessage.getMessageInfo().getMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
         }
+        LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
+        // Stores the signal message
+        signalMessageDao.create(signalMessage);
+        // Updating the reference to the signal message
+        Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+        MessageSubtype messageSubtype = null;
+        if (sentMessage != null) {
+            LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
+            if (userMessageHandlerService.checkTestMessage(sentMessage.getUserMessage())) {
+                messageSubtype = MessageSubtype.TEST;
+            }
+            sentMessage.setSignalMessage(signalMessage);
+            messagingDao.update(sentMessage);
+        }
+        // Builds the signal message log
+        SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
+                .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
+                .setMessageStatus(MessageStatus.ACKNOWLEDGED)
+                .setMshRole(MSHRole.SENDING)
+                .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
+        // Saves an entry of the signal message log
+        SignalMessageLog signalMessageLog = smlBuilder.build();
+        signalMessageLog.setMessageSubtype(messageSubtype);
+        signalMessageLogDao.create(signalMessageLog);
+
+        uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
     }
 
 
