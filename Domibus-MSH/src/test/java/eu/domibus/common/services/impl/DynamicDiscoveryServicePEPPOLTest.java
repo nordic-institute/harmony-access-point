@@ -1,12 +1,14 @@
 package eu.domibus.common.services.impl;
 
 import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.common.util.ProxyUtil;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -55,6 +57,12 @@ public class DynamicDiscoveryServicePEPPOLTest {
 
     @Injectable
     private CertificateService certificateService;
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
     ProxyUtil proxyUtil;
