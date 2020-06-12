@@ -16,35 +16,16 @@
         <!-- Affects Spring Framework 5.0.5 -->
         <cve>CVE-2018-1258</cve>
     </suppress>
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: activemq-jaas-5.15.13.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-jaas@.*$</packageUrl>-->
-<!--        &lt;!&ndash; jolokia API not used &ndash;&gt;-->
-<!--        <cve>CVE-2015-5182</cve>-->
-<!--        &lt;!&ndash; Hawtio console not used &ndash;&gt;-->
-<!--        <cve>CVE-2015-5183</cve>-->
-<!--        <cve>CVE-2015-5184</cve>-->
-<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: activemq-jaas-5.15.13.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-*\-@.*$</packageUrl>
-        <cve>CVE-2015-5182</cve>
-        <cve>CVE-2015-5183</cve>
-        <cve>CVE-2015-5184</cve>
+        <gav regex="true">^org\.apache\.activemq:activemq-.*:.*$</gav>
+                <cve>CVE-2015-5182</cve>
+                <!-- Hawtio console not used -->
+                <cve>CVE-2015-5183</cve>
+                <cve>CVE-2015-5184</cve>
     </suppress>
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: activemq-jaas-5.15.13.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-spring@.*$</packageUrl>-->
-<!--        <cve>CVE-2015-5182</cve>-->
-<!--        <cve>CVE-2015-5183</cve>-->
-<!--        <cve>CVE-2015-5184</cve>-->
-<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: activemq-protobuf-1.1.jar
