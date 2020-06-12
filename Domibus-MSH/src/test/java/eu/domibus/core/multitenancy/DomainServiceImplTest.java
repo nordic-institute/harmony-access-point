@@ -20,7 +20,7 @@ public class DomainServiceImplTest {
 
 
     @Test
-    public void testGetDatabaseSchemaAsNull(@Injectable Domain domain, @Injectable DomibusPropertyProvider domibusPropertyProvider) {
+    public void testGetDatabaseSchemaAsNull(@Injectable Domain domain, @Injectable DomibusPropertyProvider domibusPropertyProvider) throws DomibusCoreException{
 
         final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
         Domain domain1 = new Domain("domain1", "domain1");
@@ -32,6 +32,7 @@ public class DomainServiceImplTest {
 
         try {
             domainService.getDatabaseSchema(domain1);
+            Assert.fail();
         } catch (DomibusCoreException ex) {
             Assert.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:Database domain schema name cannot found for the property: domain1.domibus.database.schema");
@@ -39,7 +40,7 @@ public class DomainServiceImplTest {
     }
 
     @Test
-    public void testGetDatabaseSchema(@Injectable Domain domain, @Injectable DomibusPropertyProvider domibusPropertyProvider) {
+    public void testGetDatabaseSchema(@Injectable Domain domain, @Injectable DomibusPropertyProvider domibusPropertyProvider) throws DomibusCoreException{
 
         final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
         Domain domain1 = new Domain("domain1", "domain1");

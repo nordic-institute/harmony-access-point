@@ -75,11 +75,19 @@ public class DomainServiceImpl implements DomainService {
         return getDomain(schedulerName);
     }
 
+    /**
+     * Get database schema name for the domain
+     *
+     * @param domain
+     * @return database schema name
+     * @throws DomibusCoreException Raised in case if the database schema name cannot found for the domain
+     */
+
     @Override
-    public String getDatabaseSchema(Domain domain) {
-        String databaseSchema =domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+    public String getDatabaseSchema(Domain domain) throws DomibusCoreException {
+        String databaseSchema = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
         if (StringUtils.isEmpty(databaseSchema)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot found for the property: " + domain +"."+ DOMIBUS_DATABASE_SCHEMA);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name cannot found for the property: " + domain + "." + DOMIBUS_DATABASE_SCHEMA);
         }
         return databaseSchema;
     }
