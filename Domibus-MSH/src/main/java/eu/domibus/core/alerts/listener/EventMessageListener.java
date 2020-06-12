@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 4.0
  */
 @Component
-public class MessageListener {
+public class EventMessageListener {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListener.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventMessageListener.class);
 
     @Autowired
     private EventService eventService;
@@ -38,12 +38,13 @@ public class MessageListener {
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'message'")
     @Transactional
-    public void onMessageEvent(final Event event,@Header(name = "DOMAIN") String domain) {
+    public void onMessageEvent(final Event event, @Header(name = "DOMAIN") String domain) {
         LOG.debug("Message event received:[{}]", event);
         domainContextProvider.setCurrentDomain(domain);
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.enrichMessageEvent(event);
         eventService.persistEvent(event);
+
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
         alertService.enqueueAlert(alertOnEvent);
     }

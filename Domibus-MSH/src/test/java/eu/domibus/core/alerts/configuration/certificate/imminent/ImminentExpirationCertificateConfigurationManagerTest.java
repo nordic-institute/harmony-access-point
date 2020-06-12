@@ -6,8 +6,10 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import mockit.*;
@@ -108,9 +110,7 @@ public class ImminentExpirationCertificateConfigurationManagerTest {
         assertEquals(mailSubject, imminentExpirationCertificateConfiguration.getMailSubject());
         assertEquals(60, imminentExpirationCertificateConfiguration.getImminentExpirationDelay(), 0);
         assertEquals(10, imminentExpirationCertificateConfiguration.getImminentExpirationFrequency(), 0);
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.CERT_IMMINENT_EXPIRATION);
-        assertEquals(AlertLevel.MEDIUM, imminentExpirationCertificateConfiguration.getAlertLevel(alert));
-
+        Event event = new Event(EventType.CERT_IMMINENT_EXPIRATION);
+        assertEquals(AlertLevel.MEDIUM, imminentExpirationCertificateConfiguration.getAlertLevel(event));
     }
 }

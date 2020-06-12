@@ -4,9 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
-import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -48,22 +46,6 @@ public class AlertConfigurationServiceImplTest {
             configurationService.getModuleConfigurationManager((AlertType) any).reset();
             times = AlertType.values().length;
         }};
-    }
-
-    @Test
-    public void getAlertLevel(@Mocked Alert alert, @Mocked AlertModuleConfiguration alertModuleConfiguration) {
-        new Expectations(configurationService) {{
-            alert.getAlertType();
-            result = AlertType.MSG_STATUS_CHANGED;
-            configurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
-            result = alertModuleConfiguration;
-            alertModuleConfiguration.getAlertLevel(alert);
-            result = AlertLevel.HIGH;
-        }};
-
-        AlertLevel res = configurationService.getAlertLevel(alert);
-
-        Assert.assertTrue(res == AlertLevel.HIGH);
     }
 
     @Test

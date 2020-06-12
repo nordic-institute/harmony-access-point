@@ -6,8 +6,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -64,11 +64,8 @@ public class ConsolePasswordExpiredAlertConfigurationReaderTest {
 
         assertTrue(conf.isActive());
         assertEquals(15, (long) conf.getEventDelay());
-        Alert a = new Alert() {{
-            setAlertType(AlertType.PASSWORD_EXPIRED);
-        }};
-        assertEquals(AlertLevel.MEDIUM, conf.getAlertLevel(a));
-
+        Event event = new Event(EventType.PASSWORD_EXPIRED);
+        assertEquals(AlertLevel.MEDIUM, conf.getAlertLevel(event));
     }
 
     @Test

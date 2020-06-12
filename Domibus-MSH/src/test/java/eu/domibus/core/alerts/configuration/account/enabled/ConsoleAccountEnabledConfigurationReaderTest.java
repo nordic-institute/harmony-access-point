@@ -5,8 +5,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -62,14 +62,12 @@ public class ConsoleAccountEnabledConfigurationReaderTest {
 
         assertTrue(accountEnabledConfiguration.isActive());
         assertEquals(mailSubject, accountEnabledConfiguration.getMailSubject());
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.USER_ACCOUNT_ENABLED);
-        assertEquals(AlertLevel.HIGH, accountEnabledConfiguration.getAlertLevel(alert));
-
+        Event event = new Event(EventType.USER_ACCOUNT_ENABLED);
+        assertEquals(AlertLevel.HIGH, accountEnabledConfiguration.getAlertLevel(event));
     }
 
     @Test
-    public void readAccountEnabledConfigurationMissconfigured() {
+    public void readAccountEnabledConfigurationMisconfigured() {
 
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();

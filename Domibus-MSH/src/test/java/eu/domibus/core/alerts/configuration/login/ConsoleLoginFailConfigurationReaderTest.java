@@ -5,8 +5,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -95,9 +95,8 @@ public class ConsoleLoginFailConfigurationReaderTest {
         };
         final LoginFailureModuleConfiguration loginFailureConfiguration = configurationReader.readConfiguration();
         assertTrue(loginFailureConfiguration.isActive());
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.USER_LOGIN_FAILURE);
-        assertEquals(AlertLevel.MEDIUM, loginFailureConfiguration.getAlertLevel(alert));
+        Event event = new Event(EventType.USER_LOGIN_FAILURE);
+        assertEquals(AlertLevel.MEDIUM, loginFailureConfiguration.getAlertLevel(event));
         assertEquals(mailSubject, loginFailureConfiguration.getMailSubject());
     }
 

@@ -46,11 +46,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     @Override
-    public AlertLevel getAlertLevel(Alert alert) {
-        return getModuleConfiguration(alert.getAlertType()).getAlertLevel(alert);
-    }
-
-    @Override
     public String getMailSubject(AlertType alertType) {
         return getModuleConfiguration(alertType).getMailSubject();
     }
@@ -65,7 +60,8 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
     }
 
-    protected AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
+    @Override
+    public AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
         return getModuleConfigurationManager(alertType).getConfiguration();
     }
 

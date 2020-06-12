@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -18,10 +19,8 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class AlertServiceImplTest {
     private CommonConfigurationManager commonConfigurationManager;
 
     @Test
-    public void createAlertOnEvent() {
+    public void createAlertOnEvent(@Mocked AlertModuleConfiguration config) {
         final Event event = new Event();
         event.setEntityId(1);
         event.setType(EventType.MSG_STATUS_CHANGED);
@@ -85,13 +84,16 @@ public class AlertServiceImplTest {
             eventDao.read(event.getEntityId());
             result = eventEntity;
 
-//            alertConfigurationService.getAlertRetryMaxAttemptPropertyName();
-//            result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            alertConfigurationService.getAlertLevel(withAny(new Alert()));
+            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
+            result = config;
+
+            config.isActive();
+            result = true;
+
+            config.getAlertLevel(event);
             result = AlertLevel.HIGH;
         }};
         alertService.createAlertOnEvent(event);

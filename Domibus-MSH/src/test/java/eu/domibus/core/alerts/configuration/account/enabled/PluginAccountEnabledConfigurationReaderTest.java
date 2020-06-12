@@ -5,8 +5,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -37,7 +37,7 @@ public class PluginAccountEnabledConfigurationReaderTest {
     @Test
     public void readPluginAccountEnabledConfigurationTest() {
 
-        final String mailSubject = "Plugin accout enabled";
+        final String mailSubject = "Plugin account enabled";
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
             result = true;
@@ -52,9 +52,8 @@ public class PluginAccountEnabledConfigurationReaderTest {
 
         assertTrue(accountEnabledConfiguration.isActive());
         assertEquals(mailSubject, accountEnabledConfiguration.getMailSubject());
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.PLUGIN_USER_ACCOUNT_ENABLED);
-        assertEquals(AlertLevel.HIGH, accountEnabledConfiguration.getAlertLevel(alert));
+        Event event = new Event(EventType.PLUGIN_USER_ACCOUNT_ENABLED);
+        assertEquals(AlertLevel.HIGH, accountEnabledConfiguration.getAlertLevel(event));
 
     }
 }

@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -87,18 +88,28 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
         final Event eventEntity = eventDao.read(event.getEntityId());
+        final AlertType alertType = AlertType.getByEventType(event.getType());
+
+        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
+        if (!config.isActive()) {
+            LOG.debug("Alerts of type [{}] are currently disabled", alertType);
+            return null;
+        }
+        final AlertLevel alertLevel = config.getAlertLevel(event);
+        if (alertLevel == null) {
+            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
+            return null;
+        }
+
         Alert alert = new Alert();
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.getByEventType(event.getType()));
+        alert.setAlertType(alertType);
         alert.setAttempts(0);
         final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
-
-        final eu.domibus.core.alerts.model.service.Alert convertedAlert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
-        final AlertLevel alertLevel = alertConfigurationService.getAlertLevel(convertedAlert);
         alert.setAlertLevel(alertLevel);
         LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
@@ -110,6 +121,10 @@ public class AlertServiceImpl implements AlertService {
      */
     @Override
     public void enqueueAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+        if (alert == null) {
+            LOG.debug("Alert not enqueued");
+            return;
+        }
         jmsManager.convertAndSendToQueue(alert, alertMessageQueue, ALERT_SELECTOR);
     }
 

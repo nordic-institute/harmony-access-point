@@ -2,12 +2,10 @@ package eu.domibus.core.alerts.configuration.certificate.expired;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -86,9 +84,8 @@ public class ExpiredCertificateConfigurationManagerTest {
         assertTrue(expiredCertificateConfiguration.isActive());
         assertEquals(20, expiredCertificateConfiguration.getExpiredFrequency(), 0);
         assertEquals(10, expiredCertificateConfiguration.getExpiredDuration(), 0);
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.CERT_EXPIRED);
-        assertEquals(AlertLevel.LOW, expiredCertificateConfiguration.getAlertLevel(alert));
+        Event event = new Event(EventType.CERT_EXPIRED);
+        assertEquals(AlertLevel.LOW, expiredCertificateConfiguration.getAlertLevel(event));
         assertEquals(mailSubject, expiredCertificateConfiguration.getMailSubject());
     }
 

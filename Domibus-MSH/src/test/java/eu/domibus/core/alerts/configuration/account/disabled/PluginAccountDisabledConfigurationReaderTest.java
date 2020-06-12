@@ -5,8 +5,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationReader;
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -52,7 +52,7 @@ public class PluginAccountDisabledConfigurationReaderTest {
     @Test
     public void readPluginAccountDisabledConfigurationTest() {
 
-        final String mailSubject = "Plugin accout disabled";
+        final String mailSubject = "Plugin account disabled";
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
             result = true;
@@ -69,10 +69,8 @@ public class PluginAccountDisabledConfigurationReaderTest {
 
         assertTrue(accountDisabledConfiguration.isActive());
         assertEquals(mailSubject, accountDisabledConfiguration.getMailSubject());
-        Alert alert = new Alert();
-        alert.setAlertType(AlertType.PLUGIN_USER_ACCOUNT_DISABLED);
-        assertEquals(AlertLevel.HIGH, accountDisabledConfiguration.getAlertLevel(alert));
+        Event event = new Event(EventType.PLUGIN_USER_ACCOUNT_DISABLED);
+        assertEquals(AlertLevel.HIGH, accountDisabledConfiguration.getAlertLevel(event));
         assertTrue(accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin());
-
     }
 }

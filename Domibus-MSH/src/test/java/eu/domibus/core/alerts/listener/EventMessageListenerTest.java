@@ -10,19 +10,16 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class MessageListenerTest {
+public class EventMessageListenerTest {
 
     @Tested
-    private MessageListener messageListener;
+    private EventMessageListener eventMessageListener;
 
     @Injectable
     private EventService eventService;
@@ -43,7 +40,7 @@ public class MessageListenerTest {
             alertService.createAlertOnEvent(event);
             result=alert;
         }};
-        messageListener.onMessageEvent(event, domain);
+        eventMessageListener.onMessageEvent(event, domain);
         new Verifications(){{
             domainContextProvider.setCurrentDomain(domain);
             eventService.enrichMessageEvent(event);

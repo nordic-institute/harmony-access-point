@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.configuration;
 
 import eu.domibus.core.alerts.model.common.AlertLevel;
-import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.service.Event;
 
 /**
  * @author Thomas Dussart
@@ -13,6 +13,6 @@ public interface AlertModuleConfiguration {
 
     boolean isActive();
 
-    AlertLevel getAlertLevel(final Alert alert);
+    AlertLevel getAlertLevel(final Event event);
 
 }

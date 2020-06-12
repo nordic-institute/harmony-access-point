@@ -53,10 +53,9 @@ public class MessagingModuleConfiguration extends AlertModuleConfigurationBase {
     }
 
     @Override
-    public AlertLevel getAlertLevel(Alert alert) {
-        super.getAlertLevel(alert);
+    public AlertLevel getAlertLevel(final Event event) {
+        super.getAlertLevel(event);
 
-        final Event event = alert.getEvents().iterator().next();
         final Optional<String> stringPropertyValue = event.findStringProperty(MessageEvent.NEW_STATUS.name());
         final MessageStatus newStatus = MessageStatus.valueOf(stringPropertyValue.
                 orElseThrow(() -> new IllegalArgumentException("New status property should always be present")));
