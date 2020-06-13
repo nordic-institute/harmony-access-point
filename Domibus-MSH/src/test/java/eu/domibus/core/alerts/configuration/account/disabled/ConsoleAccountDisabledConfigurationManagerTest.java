@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMockit.class)
-public class ConsoleAccountDisabledConfigurationManagerTest  {
+public class ConsoleAccountDisabledConfigurationManagerTest {
 
     @Tested
     ConsoleAccountDisabledConfigurationManager configurationManager;
@@ -25,7 +25,8 @@ public class ConsoleAccountDisabledConfigurationManagerTest  {
     private ConfigurationLoader<AccountDisabledModuleConfiguration> loader;
 
     @Test
-    public void getAlertType(@Mocked AlertType alertType) {
+    public void getAlertType() {
+        AlertType alertType = AlertType.MSG_STATUS_CHANGED;
         new Expectations() {{
             reader.getAlertType();
             result = alertType;
