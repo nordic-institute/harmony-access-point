@@ -76,7 +76,6 @@ public class AbstractUserMessageSenderTest {
     @Injectable
     protected ErrorLogDao errorLogDao;
 
-
     private final String messageId = UUID.randomUUID().toString();
 
     private final String senderName = "domibus-blue";
