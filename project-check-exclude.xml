@@ -26,12 +26,6 @@
         <!-- Hawtio console not used -->
         <cve>CVE-2015-5183</cve>
         <cve>CVE-2015-5184</cve>
-        <!-- Apache ActiveMQ Client before 5.15.6 - client vulnerable to a MITM attack between a Java application using the ActiveMQ client and the ActiveMQ server.
-             In Domibus, activemq.version is 5.15.9. -->
-        <cve>CVE-2018-11775</cve>
-        <!-- Unmarshalling corrupt MQTT frame can lead to broker Out of Memory.
-             In Domibus, MQTT transport protocol is not enabled. No transport connector defined (activemq.xml, standalone-full.xml).       -->
-        <cve>CVE-2019-0222</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -43,19 +37,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: spring-security-core-4.2.6.RELEASE.jar
+   file name: spring-security-core-4.2.16.RELEASE.jar
    ]]></notes>
         <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
         <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
         <cve>CVE-2018-1258</cve>
-        <!-- Cve when using SecureRandomFactoryBean#setSeed to configure a SecureRandom instance.
-             In Domibus we do not use SecureRandomFactoryBean#setSeed -->
-        <cve>CVE-2019-3795</cve>
-        <!-- This cve applies if an application has a pre-existing XSS vulnerability.
-             Domibus already tacled the XSS vulnerabilities, Jira tasks to secure against XSS: EDELIVERY-4489, EDELIVERY-4488, EDELIVERY-4507 -->
-        <cve>CVE-2018-11039</cve>
-        <!-- This cve is for apps that support plain text passwords using PlaintextPasswordEncoder, not used in Domibus -->
-        <cve>CVE-2019-11272</cve>
         <!-- Domibus generates a new sessionId for every authentication.
              The requests to guess the XSRF token are impossible to be made without knowing the sessionId -->
         <vulnerabilityName>BREACH attack possible in CSRF tokens</vulnerabilityName>
@@ -141,33 +127,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jackson-databind-2.9.10.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <!-- We don't have the commons-dbcp (1.4) jar in the classpath -->
-        <cve>CVE-2019-16942</cve>
-        <!-- We don't have the p6spy (3.8.6) jar in the classpath -->
-        <cve>CVE-2019-16943</cve>
-        <!-- Domibus doesn't have apache-log4j-extra (version 1.2.x) jar in the classpath -->
-        <cve>CVE-2019-17531</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
       file name: quartz-2.3.2.jar
       ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
         <!-- CVE in initDocumentParser used to parse job description passed to quartz.
         In Domibus, Quartz is used with predefined jobs (not user input) -->
         <cve>CVE-2019-13990</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-core-3.2.11.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf.*@.*$</packageUrl>
-        <!-- We don't store public/private keys in JWK format as opposed to the default JKS/PKCS12 formats -->
-        <cve>CVE-2019-12423</cve>
-        <!-- Minimum impact since we don't use mobile browsers platforms -->
-        <cve>CVE-2019-17573</cve>
     </suppress>
 </suppressions>
