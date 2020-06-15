@@ -120,10 +120,9 @@ public class PluginUserServiceImpl implements PluginUserService {
         user.setStatus(UserState.PERSISTED.name());
         user.setPassword(null);
 
-        AuthType authenticationType = userEntity.isBasic() ? AuthType.BASIC : AuthType.CERTIFICATE;
-        user.setAuthenticationType(authenticationType.name());
+        user.setAuthenticationType(userEntity.getAuthenticationType().name());
 
-        user.setSuspended(isSuspendedUser(userEntity));
+        user.setSuspended(userEntity.isSuspended());
 
         String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
         user.setDomain(domainCode);
@@ -134,10 +133,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
 
         return user;
-    }
-
-    private boolean isSuspendedUser(AuthenticationEntity userEntity) {
-        return !userEntity.isActive() && userEntity.getSuspensionDate() != null;
     }
 
     /**

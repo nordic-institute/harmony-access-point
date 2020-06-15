@@ -1,5 +1,6 @@
 package eu.domibus.core.user.plugin;
 
+import eu.domibus.api.security.AuthType;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserEntityBaseImpl;
@@ -46,13 +47,21 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
         this.userName = userName;
     }
 
+    public String getCertificateId() {
+        return certificateId;
+    }
+
+    public void setCertificateId(String certificateId) {
+        this.certificateId = certificateId;
+    }
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
-        if(isBasic()) {
+        if (isBasic()) {
             this.setPasswordChangeDate(LocalDateTime.now());
         }
     }
@@ -62,18 +71,10 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
      */
     @Override
     public String getUniqueIdentifier() {
-        if (StringUtils.isNotBlank(getCertificateId())) {
-            return getCertificateId();
+        if (isBasic()) {
+            return getUserName();
         }
-        return getUserName();
-    }
-
-    public String getCertificateId() {
-        return certificateId;
-    }
-
-    public void setCertificateId(String certificateId) {
-        this.certificateId = certificateId;
+        return getCertificateId();
     }
 
     public String getAuthRoles() {
@@ -106,6 +107,14 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
     }
 
     public boolean isBasic() {
-        return StringUtils.isEmpty(getCertificateId());
+        return StringUtils.isNotBlank(getUserName());
+    }
+
+    public boolean isSuspended() {
+        return !isActive() && getSuspensionDate() != null;
+    }
+
+    public AuthType getAuthenticationType() {
+        return isBasic() ? AuthType.BASIC : AuthType.CERTIFICATE;
     }
 }
