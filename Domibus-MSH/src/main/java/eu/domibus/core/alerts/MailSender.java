@@ -3,7 +3,7 @@ package eu.domibus.core.alerts;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -53,15 +53,14 @@ public class MailSender {
     protected DomainContextProvider domainProvider;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService configurationService;
 
     private boolean mailSenderInitiated;
 
     protected void initMailSender() {
-        final Boolean alertModuleEnabled = multiDomainAlertConfigurationService.isAlertModuleEnabled();
+        final Boolean alertModuleEnabled = configurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
-        final String sendEmailActivePropertyName = multiDomainAlertConfigurationService.getSendEmailActivePropertyName();
-        final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
+        final boolean mailActive = configurationService.isSendEmailActive();
         if (alertModuleEnabled && mailActive) {
             //static properties.
             final Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);

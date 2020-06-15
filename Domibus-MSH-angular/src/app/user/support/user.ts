@@ -19,9 +19,10 @@ export class UserResponseRO {
   status: string;
   suspended: boolean;
   deleted: boolean;
+  expirationDate: Date;
 
-  constructor (userName: string, domain: Domain, email: string, password: string, active: boolean, status: string,
-               authorities: Array<string>, suspended: boolean, deleted: boolean) {
+  constructor(userName: string, domain: Domain, email: string, password: string, active: boolean, status: string,
+              authorities: Array<string>, suspended: boolean, deleted: boolean, expirationDate: Date) {
     this.userName = userName;
     this.email = email;
     this.password = password;
@@ -35,6 +36,7 @@ export class UserResponseRO {
     this.domain = domain ? domain.code : null;
     this.deleted = deleted;
     this.domainName = domain ? domain.name : null;
+    this.expirationDate = expirationDate;
   }
 }
 

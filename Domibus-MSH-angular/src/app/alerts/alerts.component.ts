@@ -59,8 +59,6 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService,
               private securityService: SecurityService, private changeDetector: ChangeDetectorRef) {

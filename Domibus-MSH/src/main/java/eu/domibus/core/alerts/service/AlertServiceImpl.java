@@ -3,6 +3,8 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -27,7 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
+import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 
 /**
  * @author Thomas Dussart
@@ -68,10 +73,13 @@ public class AlertServiceImpl implements AlertService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private CommonConfigurationManager alertConfigurationManager;
 
     /**
      * {@inheritDoc}
@@ -80,17 +88,28 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
         final Event eventEntity = eventDao.read(event.getEntityId());
+        final AlertType alertType = AlertType.getByEventType(event.getType());
+
+        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
+        if (!config.isActive()) {
+            LOG.debug("Alerts of type [{}] are currently disabled", alertType);
+            return null;
+        }
+        final AlertLevel alertLevel = config.getAlertLevel(event);
+        if (alertLevel == null) {
+            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
+            return null;
+        }
+
         Alert alert = new Alert();
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.getByEventType(event.getType()));
+        alert.setAlertType(alertType);
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+        final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
-
-        final eu.domibus.core.alerts.model.service.Alert convertedAlert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
-        final AlertLevel alertLevel = multiDomainAlertConfigurationService.getAlertLevel(convertedAlert);
         alert.setAlertLevel(alertLevel);
         LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
@@ -102,6 +121,10 @@ public class AlertServiceImpl implements AlertService {
      */
     @Override
     public void enqueueAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+        if (alert == null) {
+            LOG.debug("Alert not enqueued");
+            return;
+        }
         jmsManager.convertAndSendToQueue(alert, alertMessageQueue, ALERT_SELECTOR);
     }
 
@@ -123,9 +146,9 @@ public class AlertServiceImpl implements AlertService {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
         final AlertType alertType = read.getAlertType();
-        String subject = multiDomainAlertConfigurationService.getMailSubject(alertType);
+        String subject = alertConfigurationService.getMailSubject(alertType);
 
-        final String alertSuperInstanceNameSubjectProperty = multiDomainAlertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+        final String alertSuperInstanceNameSubjectProperty = DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;;
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
         subject += "[" + serverName + "]";
@@ -157,7 +180,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
+            final String alertRetryTimePropertyName = DOMIBUS_ALERT_RETRY_TIME;
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
@@ -219,7 +242,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void cleanAlerts() {
-        final Integer alertLifeTimeInDays = multiDomainAlertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+        final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);

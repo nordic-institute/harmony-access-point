@@ -12,7 +12,7 @@
         <input matInput placeholder="Id" value="{{message.id}}" readonly id="id_id"/>
       </mat-form-field>
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Timestamp" value="{{message.timestamp| domibusDate: dateFormat}}" readonly id="timestamp_id"/>
+        <input matInput placeholder="Timestamp" value="{{message.timestamp| domibusDate}}" readonly id="timestamp_id"/>
       </mat-form-field>
       <mat-form-field style="width:100%">
         <input matInput placeholder="JMS Type" value="{{message.type}}" readonly id="type_id"/>

@@ -6,10 +6,12 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.alerts.model.service.ExpiredCertificateModuleConfiguration;
-import eu.domibus.core.alerts.model.service.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -76,7 +78,13 @@ public class CertificateServiceImplTest {
     CertificateDao certificateDao;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
+
+    @Injectable
+    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+
+    @Injectable
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
     @Injectable
     private EventService eventService;
@@ -498,7 +506,7 @@ public class CertificateServiceImplTest {
             pModeProvider.getGatewayParty().getName();
             result = accesPoint;
 
-            multiDomainAlertConfigurationService.getImminentExpirationCertificateConfiguration();
+            imminentExpirationCertificateConfigurationManager.getConfiguration();
             result = imminentExpirationCertificateConfiguration;
 
             imminentExpirationCertificateConfiguration.isActive();
@@ -560,7 +568,7 @@ public class CertificateServiceImplTest {
             pModeProvider.getGatewayParty().getName();
             result = accesPoint;
 
-            multiDomainAlertConfigurationService.getExpiredCertificateConfiguration();
+            expiredCertificateConfigurationManager.getConfiguration();
             result = expiredCertificateConfiguration;
 
             expiredCertificateConfiguration.isActive();
@@ -605,7 +613,7 @@ public class CertificateServiceImplTest {
     public void sendCertificateExpiredAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
                                                            @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
         new Expectations() {{
-            multiDomainAlertConfigurationService.getExpiredCertificateConfiguration().isActive();
+            expiredCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
         }};
         certificateService.sendCertificateExpiredAlerts();
@@ -619,7 +627,7 @@ public class CertificateServiceImplTest {
     public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
                                                                       @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
         new Expectations() {{
-            multiDomainAlertConfigurationService.getImminentExpirationCertificateConfiguration().isActive();
+            imminentExpirationCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
