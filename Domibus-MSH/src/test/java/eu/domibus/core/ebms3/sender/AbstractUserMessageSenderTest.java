@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
@@ -72,6 +73,8 @@ public class AbstractUserMessageSenderTest {
     @Injectable
     protected UserMessageLogDao userMessageLogDao;
 
+    @Injectable
+    protected ErrorLogDao errorLogDao;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -275,6 +278,7 @@ public class AbstractUserMessageSenderTest {
             String messageIdActual;
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(messageIdActual = withCapture(), messaging, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
+            errorLogDao.create(withCapture());
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
