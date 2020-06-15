@@ -84,7 +84,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(OUT_QUEUE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false),
 
             //writable properties
-            new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
             new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
