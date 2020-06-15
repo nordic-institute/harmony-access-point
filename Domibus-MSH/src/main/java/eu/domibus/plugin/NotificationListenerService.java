@@ -73,6 +73,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     private BackendConnector backendConnector;
     private List<NotificationType> requiredNotifications = null;
 
+    // TODO IOANA revise this - should send all notifications?
     /* Default notifications sent to the plugins, depending on their MODE (PULL or PUSH)
      * On PULL mode we do not notify for MESSAGE_SEND_SUCCESS and
      * MESSAGE_STATUS_CHANGE as there are too many notifications that pile up in the queue
@@ -203,6 +204,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
         return getQueueElements(NotificationType.MESSAGE_RECEIVED, originalUser);
     }
 
+    //TODO IOANA check if still necessary
     private Collection<String> getQueueElements(final NotificationType notificationType, final String finalRecipient) {
         if (this.mode == BackendConnector.Mode.PUSH) {
             throw new UnsupportedOperationException("this method is only available for clients using Mode.PULL");
@@ -287,22 +289,20 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
 
-        if (this.mode == BackendConnector.Mode.PUSH) {
-            final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-            endpoint.setId(getBackendName());
-            final Queue pushQueue = backendNotificationQueue;
-            if (pushQueue == null) {
-                throw new ConfigurationException("No notification queue found for " + getBackendName());
-            } else {
-                try {
-                    endpoint.setDestination(getQueueName(pushQueue));
-                } catch (final JMSException e) {
-                    LOG.error("Problem with predefined queue.", e);
-                }
+        final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        endpoint.setId(getBackendName());
+        final Queue pushQueue = backendNotificationQueue;
+        if (pushQueue == null) {
+            throw new ConfigurationException("No notification queue found for " + getBackendName());
+        } else {
+            try {
+                endpoint.setDestination(getQueueName(pushQueue));
+            } catch (final JMSException e) {
+                LOG.error("Problem with predefined queue.", e);
             }
-            endpoint.setMessageListener(this);
-            registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
         }
+        endpoint.setMessageListener(this);
+        registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
     }
 
     @Override
