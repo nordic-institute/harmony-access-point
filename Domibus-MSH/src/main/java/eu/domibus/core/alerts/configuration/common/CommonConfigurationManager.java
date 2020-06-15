@@ -50,7 +50,7 @@ public class CommonConfigurationManager {
     }
 
     protected CommonConfiguration readConfiguration() {
-        final boolean emailActive = domibusPropertyProvider.getBooleanProperty(configurationService.getSendEmailActivePropertyName());
+        final boolean emailActive = configurationService.isSendEmailActive();
         final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
 
         if (!emailActive) {

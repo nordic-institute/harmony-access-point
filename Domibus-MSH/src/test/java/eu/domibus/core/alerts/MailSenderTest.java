@@ -56,7 +56,7 @@ public class MailSenderTest {
     final String dynamicPropertyName = "domibus.alert.mail.smtp.port";
     final String dynamicSmtpPort = "450";
     final String timeoutPropertyName = DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
-    final int timeout=5000;
+    final int timeout = 5000;
     Set dynamicPropertySet = new HashSet();
 
 
@@ -75,9 +75,7 @@ public class MailSenderTest {
             result = user;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
             result = password;
-            alertConfigurationService.getSendEmailActivePropertyName();
-            result = DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
+            alertConfigurationService.isSendEmailActive();
             result = true;
             javaMailSender.getJavaMailProperties();
             result = javaMailProperties;

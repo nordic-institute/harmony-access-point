@@ -37,16 +37,11 @@ public interface AlertConfigurationService {
     Boolean isAlertModuleEnabled();
 
     /**
-     * With the introduction of multitenancy, a super user has been created.
-     * It has its own property definition for some of the domibus properties.
-     * The following methods are helper methods to retrieve super or domain alert property name
-     * depending on the context.
+     * Check if the mail sending for alerts is enabled.
+     *
+     * @return whether the mail sending is active or not.
      */
-
-    /**
-     * @return name for the alert email active property.
-     */
-    String getSendEmailActivePropertyName();
+    Boolean isSendEmailActive();
 
     /**
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling

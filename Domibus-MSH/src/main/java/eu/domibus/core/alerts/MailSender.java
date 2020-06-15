@@ -60,8 +60,7 @@ public class MailSender {
     protected void initMailSender() {
         final Boolean alertModuleEnabled = configurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
-        final String sendEmailActivePropertyName = configurationService.getSendEmailActivePropertyName();
-        final boolean mailActive = domibusPropertyProvider.getBooleanProperty(sendEmailActivePropertyName);
+        final boolean mailActive = configurationService.isSendEmailActive();
         if (alertModuleEnabled && mailActive) {
             //static properties.
             final Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);

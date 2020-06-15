@@ -54,14 +54,12 @@ public class CommonConfigurationManagerTest {
         final String sender = "thomas.dussart@ec.eur.europa.com";
         final String receiver = "f.f@f.com";
         new Expectations() {{
-            configurationService.getSendEmailActivePropertyName();
-            result = DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+            configurationService.isSendEmailActive();
+            result = true;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
             result = sender;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
             result = receiver;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
-            result = true;
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
             result = 20;
         }};

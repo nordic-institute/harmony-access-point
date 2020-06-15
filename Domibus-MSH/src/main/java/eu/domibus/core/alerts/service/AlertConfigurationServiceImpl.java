@@ -56,8 +56,8 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     @Override
-    public String getSendEmailActivePropertyName() {
-        return DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
+    public Boolean isSendEmailActive() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
     }
 
     @Override
