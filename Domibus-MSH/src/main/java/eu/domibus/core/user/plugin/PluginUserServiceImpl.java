@@ -120,18 +120,24 @@ public class PluginUserServiceImpl implements PluginUserService {
         user.setStatus(UserState.PERSISTED.name());
         user.setPassword(null);
 
-        AuthType authenticationType = StringUtils.isEmpty(user.getCertificateId()) ? AuthType.BASIC : AuthType.CERTIFICATE;
+        AuthType authenticationType = userEntity.isBasic() ? AuthType.BASIC : AuthType.CERTIFICATE;
         user.setAuthenticationType(authenticationType.name());
 
-        boolean isSuspended = !userEntity.isActive() && userEntity.getSuspensionDate() != null;
-        user.setSuspended(isSuspended);
+        user.setSuspended(isSuspendedUser(userEntity));
 
         String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
         user.setDomain(domainCode);
 
-        LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
-        user.setExpirationDate(expDate);
+        if (userEntity.isBasic()) {
+            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
+            user.setExpirationDate(expDate);
+        }
+
         return user;
+    }
+
+    private boolean isSuspendedUser(AuthenticationEntity userEntity) {
+        return !userEntity.isActive() && userEntity.getSuspensionDate() != null;
     }
 
     /**

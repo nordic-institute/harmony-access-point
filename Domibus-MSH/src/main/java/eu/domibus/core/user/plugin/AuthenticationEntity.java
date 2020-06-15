@@ -52,7 +52,9 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
 
     public void setPassword(String password) {
         this.password = password;
-        this.setPasswordChangeDate(LocalDateTime.now());
+        if(isBasic()) {
+            this.setPasswordChangeDate(LocalDateTime.now());
+        }
     }
 
     /**
@@ -103,4 +105,7 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
         return Type.PLUGIN;
     }
 
+    public boolean isBasic() {
+        return StringUtils.isEmpty(getCertificateId());
+    }
 }
