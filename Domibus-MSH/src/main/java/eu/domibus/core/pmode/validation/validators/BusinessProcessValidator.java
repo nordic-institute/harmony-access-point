@@ -108,11 +108,15 @@ public class BusinessProcessValidator implements PModeValidator {
             LOG.trace("validInitiatorParties is empty or null, exiting");
             return;
         }
-        validInitiatorParties.forEach(party -> party.getIdentifiers().forEach(identifier -> {
+        validInitiatorParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
+    }
+
+    protected void checkPartyIdentifiers(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Party party, String message) {
+        party.getIdentifiers().forEach(identifier -> {
             if (!partyIdTypes.contains(identifier.getPartyIdType())) {
-                createIssue(issues, process, party.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
+                createIssue(issues, process, party.getName(), message);
             }
-        }));
+        });
     }
 
     protected Set<Party> validateResponderParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
@@ -137,12 +141,10 @@ public class BusinessProcessValidator implements PModeValidator {
             LOG.trace("validResponderParties is empty or null, exiting");
             return;
         }
-        validResponderParties.forEach(party -> party.getIdentifiers().forEach(identifier -> {
-            if (!partyIdTypes.contains(identifier.getPartyIdType())) {
-                createIssue(issues, process, party.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
-            }
-        }));
+        validResponderParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
     }
+
+
 
     protected void validateLegConfiguration(List<ValidationIssue> issues, Process process, Set<Party> validResponderParties) {
         Set<LegConfiguration> validLegs = process.getLegs();
