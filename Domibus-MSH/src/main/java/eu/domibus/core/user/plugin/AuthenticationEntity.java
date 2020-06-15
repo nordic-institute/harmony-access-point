@@ -61,9 +61,8 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
 
     public void setPassword(String password) {
         this.password = password;
-        if (isBasic()) {
-            this.setPasswordChangeDate(LocalDateTime.now());
-        }
+        LocalDateTime changeDate = isBasic() ? LocalDateTime.now() : null;
+        this.setPasswordChangeDate(changeDate);
     }
 
     /**
