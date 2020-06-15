@@ -1,5 +1,7 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -73,9 +75,21 @@ public class DomainServiceImpl implements DomainService {
         return getDomain(schedulerName);
     }
 
+    /**
+     * Get database schema name for the domain
+     *
+     * @param domain
+     * @return database schema name
+     * @throws DomibusCoreException Raised in case if the database schema name cannot found for the domain
+     */
+
     @Override
-    public String getDatabaseSchema(Domain domain) {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+    public String getDatabaseSchema(Domain domain) throws DomibusCoreException {
+        String databaseSchema = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+        if (StringUtils.isEmpty(databaseSchema)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the property: " + domain + "." + DOMIBUS_DATABASE_SCHEMA);
+        }
+        return databaseSchema;
     }
 
     @Override
