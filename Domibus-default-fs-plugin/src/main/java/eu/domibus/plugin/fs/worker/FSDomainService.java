@@ -60,7 +60,7 @@ public class FSDomainService {
             LOG.debug("Domain [{}] is configured in Domibus core", domain);
             return true;
         }
-        LOG.debug("Provided domain [{}] is configured in non multitenancy mode", domain);
+        LOG.trace("Provided domain [{}] is configured in non multitenancy mode", domain);
         return true;
     }
 

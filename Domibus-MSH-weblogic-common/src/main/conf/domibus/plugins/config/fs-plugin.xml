@@ -42,47 +42,4 @@
         <property name="queueJndi" value="jms/domibus.notification.filesystem"/>
     </bean>
 
-    <!-- quartz job for purging sent messages -->
-    <bean id="fsPluginPurgeSentWorkerJob"
-          class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-        <property name="jobClass" value="eu.domibus.plugin.fs.worker.FSPurgeSentWorker"/>
-        <property name="durability" value="true"/>
-    </bean>
-
-    <bean id="fsPluginPurgeSentWorkerTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
-        <property name="jobDetail" ref="fsPluginPurgeSentWorkerJob"/>
-        <property name="cronExpression" value="${fsplugin.messages.sent.purge.worker.cronExpression}"/>
-        <property name="startDelay" value="20000"/>
-    </bean>
-    
-    <!-- quartz job for purging failed messages -->
-    <bean id="fsPluginPurgeFailedWorkerJob"
-          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
-        <property name="jobClass" value="eu.domibus.plugin.fs.worker.FSPurgeFailedWorker"/>
-        <property name="durability" value="true"/>
-    </bean>
-
-    <bean id="fsPluginPurgeFailedWorkerTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
-        <property name="jobDetail" ref="fsPluginPurgeFailedWorkerJob"/>
-        <property name="cronExpression" value="${fsplugin.messages.failed.purge.worker.cronExpression}"/>
-        <property name="startDelay" value="20000"/>
-    </bean>
-    
-    <!-- quartz job for purging received messages -->
-    <bean id="fsPluginPurgeReceivedWorkerJob"
-          class="org.springframework.scheduling.quartz.JobDetailFactoryBean" scope="prototype">
-        <property name="jobClass" value="eu.domibus.plugin.fs.worker.FSPurgeReceivedWorker"/>
-        <property name="durability" value="true"/>
-    </bean>
-
-    <bean id="fsPluginPurgeReceivedWorkerTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" scope="prototype">
-        <property name="jobDetail" ref="fsPluginPurgeReceivedWorkerJob"/>
-        <property name="cronExpression" value="${fsplugin.messages.received.purge.worker.cronExpression}"/>
-        <property name="startDelay" value="20000"/>
-    </bean>
-
-
 </beans>

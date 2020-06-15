@@ -85,9 +85,9 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
             //writable properties
             new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-            new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-            new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+            new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             // without fallback from the default domain :
             new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
             new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),

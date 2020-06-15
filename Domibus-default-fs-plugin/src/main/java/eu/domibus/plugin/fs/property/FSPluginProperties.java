@@ -102,8 +102,8 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     /**
      * @return The cron expression that defines the frequency of the sent messages purge job
      */
-    public String getSentPurgeWorkerCronExpression() {
-        return properties.getProperty(PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION);
+    public String getSentPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION, null);
     }
 
     /**
@@ -137,8 +137,15 @@ public class FSPluginProperties implements DomibusPropertyManagerExt {
     /**
      * @return The cron expression that defines the frequency of the failed messages purge job
      */
-    public String getFailedPurgeWorkerCronExpression() {
-        return properties.getProperty(PROPERTY_PREFIX + FAILED_PURGE_WORKER_CRONEXPRESSION);
+    public String getFailedPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, FAILED_PURGE_WORKER_CRONEXPRESSION, null);
+    }
+
+    /**
+     * @return The cron expression that defines the frequency of the received messages purge job
+     */
+    public String getReceivedPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION, null);
     }
 
     /**
