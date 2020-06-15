@@ -111,7 +111,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/*User shuffles filters using Move Up and Move Down buttons and presses Cancel*/
-	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"})  //--------------
+	@Test(description = "MSGF-5", groups = {"multiTenancy", "singleTenancy"})
 	public void shuffleAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -194,7 +194,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* User selects row other than first and last */
-	@Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-9", groups = {"multiTenancy", "singleTenancy"})
 	public void selectMiddleRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -229,7 +229,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* User click on Move up for any row other than first */
-	@Test(description = "MSGF-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-10", groups = {"multiTenancy", "singleTenancy"})
 	public void moveUpAndDown() throws Exception {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
@@ -307,7 +307,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* User reshuffles filters using Move Up and Move Down buttons and presses Save */
-	@Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-11", groups = {"multiTenancy", "singleTenancy"})
 	public void shuffleAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -835,7 +835,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	
 	
 	/* Create a duplicate by editing another filter */
-	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
 	public void editToDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -894,7 +894,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* Verify headers in downloaded CSV sheet  */
-	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
