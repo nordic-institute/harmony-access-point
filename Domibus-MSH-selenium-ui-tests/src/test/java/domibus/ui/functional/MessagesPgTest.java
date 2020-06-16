@@ -229,7 +229,7 @@ public class MessagesPgTest extends SeleniumTest {
 		
 		String status = "";
 		int waited = 0;
-		while(!"ACKNOWLEDGED".equalsIgnoreCase(status) && waited <5){
+		while(!"ACKNOWLEDGED".equalsIgnoreCase(status) && waited <25){
 			log.info("waiting for message to be ACKNOWLEDGED");
 			DGrid grid = page.grid();
 			int index = grid.scrollTo("Message Id", messageID);
@@ -239,6 +239,9 @@ public class MessagesPgTest extends SeleniumTest {
 			grid.waitForRowsToLoad();
 		}
 		
+		if(!StringUtils.equalsIgnoreCase(status, "ACKNOWLEDGED")){
+			throw new SkipException("Message did not reach \"ACKNOWLEDGED\" status");
+		}
 		
 		String newMessId = messageID+"_1";
 		log.info("double clicked message with id " + newMessId);
