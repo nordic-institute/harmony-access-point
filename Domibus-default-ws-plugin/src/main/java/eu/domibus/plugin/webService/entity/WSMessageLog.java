@@ -14,8 +14,12 @@ import javax.xml.bind.annotation.XmlTransient;
 @Entity
 @Table(name = "WS_PLUGIN_TB_MESSAGE_LOG")
 @NamedQueries({
-        @NamedQuery(name = "WSMessageLog.findByMessageId", query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "WSMessageLog.findAll", query = "from WSMessageLog")
+        @NamedQuery(name = "WSMessageLog.findByMessageId",
+                query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "WSMessageLog.findAll",
+                query = "from WSMessageLog"),
+        @NamedQuery(name = "WSMessageLog.deleteByMessageId",
+                query = "DELETE FROM WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID")
 })
 public class WSMessageLog {
 
