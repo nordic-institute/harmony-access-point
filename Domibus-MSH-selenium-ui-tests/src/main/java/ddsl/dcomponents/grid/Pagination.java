@@ -80,7 +80,7 @@ public class Pagination extends DComponent {
 			
 			return (int) Math.ceil((double) noOfItems / itemsPerPg);
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return -1;
 	}
@@ -95,7 +95,7 @@ public class Pagination extends DComponent {
 			
 			return noOfItems % itemsPerPg;
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return -1;
 	}
@@ -135,7 +135,7 @@ public class Pagination extends DComponent {
 				}
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 	
@@ -193,9 +193,9 @@ public class Pagination extends DComponent {
 				}
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return 0;
 	}
@@ -216,7 +216,7 @@ public class Pagination extends DComponent {
 				}
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return null;
 	}

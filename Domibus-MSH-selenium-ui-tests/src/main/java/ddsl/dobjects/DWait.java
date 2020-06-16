@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.TestRunData;
 
 
@@ -20,6 +22,9 @@ public class DWait {
 	public final WebDriverWait longWait;
 	private TestRunData data = new TestRunData();
 	
+	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	
+	
 	private WebDriver driver;
 	
 	public DWait(WebDriver driver) {
@@ -32,7 +37,7 @@ public class DWait {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 	

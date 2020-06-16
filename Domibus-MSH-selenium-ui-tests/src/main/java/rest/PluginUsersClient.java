@@ -80,7 +80,7 @@ public class PluginUsersClient extends BaseRestClient {
 			String rawResp = response.getEntity(String.class);
 			return new JSONObject(sanitizeResponse(rawResp)).getJSONArray("entries");
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return null;
 	}

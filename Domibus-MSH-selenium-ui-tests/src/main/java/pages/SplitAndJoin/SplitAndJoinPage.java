@@ -38,7 +38,7 @@ public class SplitAndJoinPage extends DomibusPage {
 				matches = true;
 			}
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return matches;
 	}
@@ -79,7 +79,7 @@ public class SplitAndJoinPage extends DomibusPage {
 
 			log.info("Copied file name is :" + bfile.getName());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 

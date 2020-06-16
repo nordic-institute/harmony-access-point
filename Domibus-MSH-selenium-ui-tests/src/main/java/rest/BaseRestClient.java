@@ -48,7 +48,7 @@ public class BaseRestClient {
 		try {
 			provider = new ObjectProvider();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		
 	}
@@ -307,7 +307,7 @@ public class BaseRestClient {
 				domainArray = new JSONArray(sanitizeResponse(rawStringResponse));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return domainArray;
 	}
@@ -320,7 +320,7 @@ public class BaseRestClient {
 				toReturn.add(domainArray.getJSONObject(i).getString("name"));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return toReturn;
 	}
@@ -337,7 +337,7 @@ public class BaseRestClient {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return toReturn;
 	}
@@ -352,7 +352,7 @@ public class BaseRestClient {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return null;
 	}

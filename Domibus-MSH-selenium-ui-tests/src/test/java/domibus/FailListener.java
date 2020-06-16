@@ -73,7 +73,7 @@ public class FailListener implements ITestListener {
 			File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
 			FileUtils.copyFile(srcFile, new File(filename));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 	

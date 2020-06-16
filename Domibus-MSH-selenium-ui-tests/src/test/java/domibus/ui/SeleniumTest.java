@@ -99,7 +99,7 @@ public class SeleniumTest extends BaseTest {
 			driver.quit();
 		} catch (Exception e) {
 			log.warn("Closing the driver failed");
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 	

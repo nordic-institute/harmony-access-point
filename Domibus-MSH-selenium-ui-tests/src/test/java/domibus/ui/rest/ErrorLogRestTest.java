@@ -26,7 +26,7 @@ public class ErrorLogRestTest extends RestTest {
 		try {
 			err = rest.errors().getErrors(null).getJSONObject(0);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 			throw new SkipException("Could not get error info");
 		}
 		

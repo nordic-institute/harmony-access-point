@@ -30,7 +30,7 @@ public class UsersClient extends BaseRestClient {
 			String rawResp = response.getEntity(String.class);
 			return new JSONArray(sanitizeResponse(rawResp));
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return null;
 	}
@@ -110,7 +110,7 @@ public class UsersClient extends BaseRestClient {
 				throw new Exception("Could not UPDATE user");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 	}
 	

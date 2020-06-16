@@ -109,7 +109,7 @@ public class DObject {
 			robot.keyRelease(KeyEvent.VK_TAB);
 			robot.keyRelease(KeyEvent.VK_SHIFT);
 		} catch (AWTException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		
 		

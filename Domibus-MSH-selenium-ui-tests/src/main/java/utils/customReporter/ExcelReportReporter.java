@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.*;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlSuite;
@@ -21,6 +23,8 @@ import java.util.*;
  * @since 4.1
  */
 public class ExcelReportReporter implements IReporter {
+	
+	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	
 	private static final String[] headers = {"Type", "Test Suite Name", "Test Case ID", "Test Case Name", "Can be run on Bamboo", "TC is disabled", "Test Result", "Last Execution Started", "Execution time", "JIRA tickets", "Impact", "Comment"};
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -51,7 +55,7 @@ public class ExcelReportReporter implements IReporter {
 			workbook.close();
 			os.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		
 	}
@@ -89,7 +93,7 @@ public class ExcelReportReporter implements IReporter {
 			try {
 				writeRowToReportFile(tr, stat);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("EXCEPTION: ", e);
 			}
 		}
 	}

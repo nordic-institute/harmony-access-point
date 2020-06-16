@@ -68,7 +68,7 @@ public class DGrid extends DComponent {
 		try {
 			isPresent = getColumnNames().size() >= 0;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return isPresent;
 	}

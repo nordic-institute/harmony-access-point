@@ -24,7 +24,7 @@ public class MessageFiltersClient extends BaseRestClient {
 			currentMSGF = new JSONObject(sanitizeResponse(currentMSGFRaw)).getJSONArray("messageFilterEntries");
 			currentMSGF.put(new JSONObject(payload));
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
@@ -59,7 +59,7 @@ public class MessageFiltersClient extends BaseRestClient {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		
 		
@@ -81,7 +81,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		try {
 			currentMSGF = new JSONObject(sanitizeResponse(currentMSGFRaw)).getJSONArray("messageFilterEntries");
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
 		return currentMSGF;
 	}

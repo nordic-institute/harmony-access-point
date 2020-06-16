@@ -42,7 +42,7 @@ public class AuditRestTest extends RestTest {
 			}
 			
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 			soft.fail("response not in JSON format");
 		}
 		

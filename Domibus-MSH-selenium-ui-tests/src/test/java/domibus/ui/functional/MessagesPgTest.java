@@ -239,6 +239,7 @@ public class MessagesPgTest extends SeleniumTest {
 			grid.waitForRowsToLoad();
 		}
 		
+		
 		String newMessId = messageID+"_1";
 		log.info("double clicked message with id " + newMessId);
 		page.grid().scrollToAndDoubleClick("Message Id", newMessId);

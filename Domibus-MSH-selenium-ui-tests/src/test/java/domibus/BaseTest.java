@@ -64,7 +64,7 @@ public class BaseTest {
 				retries++;
 				Thread.sleep(1000);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("EXCEPTION: ", e);
 			}
 		}
 	}
