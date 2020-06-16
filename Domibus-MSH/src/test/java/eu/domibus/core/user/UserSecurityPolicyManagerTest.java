@@ -554,7 +554,7 @@ public class UserSecurityPolicyManagerTest {
         }};
 
         LocalDateTime res = securityPolicyManager.getExpirationDate(userEntity);
-        assertEquals(null, res);
+        assertNull(res);
     }
 
     @Test
