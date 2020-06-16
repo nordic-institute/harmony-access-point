@@ -146,6 +146,36 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
+    public void test_validateResponderParties(final @Mocked ValidationIssue validationIssue,
+                                              final @Mocked Process process,
+                                              final @Mocked Set<Party> validResponderParties,
+                                              final @Mocked ResponderParties responderParties,
+                                              final @Mocked List<ResponderParty> allResponderParties) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        Set<PartyIdType> partyIdTypes = new HashSet<>();
+
+        new Expectations(businessProcessValidator) {{
+            process.getResponderParties();
+            result = validResponderParties;
+
+            process.getResponderPartiesXml();
+            result = responderParties;;
+
+            responderParties.getResponderParty();
+            result = allResponderParties;
+
+        }};
+
+        //tested method
+        businessProcessValidator.validateResponderParties(issues, process, partyIdTypes);
+
+        new FullVerifications(businessProcessValidator) {{
+            businessProcessValidator.validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
+        }};
+    }
+
+    @Test
     public void test_checkPartyIdentifiers(final @Mocked ValidationIssue validationIssue,
                                            final @Mocked Process process,
                                            final @Mocked PartyIdType partyIdType,
@@ -173,8 +203,37 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.checkPartyIdentifiers(issues, process, partyIdTypes, party, message);
 
         new FullVerifications(businessProcessValidator) {{
-            String messageActual, partyNameActual;
             businessProcessValidator.createIssue(issues, process, anyString , anyString);
+        }};
+    }
+
+    @Test
+    public void test_validateLegConfiguration(final @Mocked ValidationIssue validationIssue,
+                                              final @Mocked Process process,
+                                              final @Mocked Set<Party> validResponderParties,
+                                              final @Mocked Set<LegConfiguration> legConfigurations,
+                                              final @Mocked Legs legs,
+                                              final @Mocked Leg leg) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        List<Leg> legList = Collections.singletonList(leg);
+
+        new Expectations(businessProcessValidator) {{
+            process.getLegs();
+            result = legConfigurations;
+
+            pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
+            result = legs;
+
+            legs.getLeg();
+            result = legList;
+        }};
+
+        //tested method
+        businessProcessValidator.validateLegConfiguration(issues, process, validResponderParties);
+
+        new FullVerifications(businessProcessValidator) {{
+            businessProcessValidator.createIssue(issues, process, anyString, "Leg [%s] of process [%s] not found in business process leg configurations");
         }};
     }
 
