@@ -35,27 +35,40 @@ public class PayloadPersistenceHelper {
     }
 
     /**
-     * I will validate the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
+     * Validates the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
      *
      * @param legConfiguration
      * @param partInfoLength
-     * @throws InvalidPayloadSizeException Exception thrown if payload size is greather than the maxSize defined in PMode
+     * @throws InvalidPayloadSizeException Exception thrown if payload size is greater than the maxSize defined in PMode
      */
     public void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength) throws InvalidPayloadSizeException {
+        validatePayloadSize(legConfiguration, partInfoLength, false);
+    }
+
+    /**
+     * Validates the payload (partInfo) size regardless the maxSize value defined in PMode - PayloadProfile
+     *
+     * @param legConfiguration
+     * @param partInfoLength
+     * @param isPayloadSavedAsync true is the payload was saved asynchronously, false by default
+     * @throws InvalidPayloadSizeException Exception thrown if payload size is greater than the maxSize defined in PMode
+     */
+    public void validatePayloadSize(@NotNull LegConfiguration legConfiguration, long partInfoLength, boolean isPayloadSavedAsync) throws InvalidPayloadSizeException {
         final PayloadProfile profile = legConfiguration.getPayloadProfile();
         if (profile == null) {
             LOG.debug("payload profile is not defined for leg [{}]", legConfiguration.getName());
             return;
         }
         final String payloadProfileName = profile.getName();
-        final int payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
+        final long payloadProfileMaxSize = legConfiguration.getPayloadProfile().getMaxSize();
 
         if (payloadProfileMaxSize < 0) {
             LOG.warn("No validation will be made for [{}] as maxSize has the value [{}]", payloadProfileName, payloadProfileMaxSize);
         }
 
         if (partInfoLength > payloadProfileMaxSize) {
-            throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]");
+            throw new InvalidPayloadSizeException("Payload size [" + partInfoLength + "] is greater than the maximum value " +
+                    "defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]", isPayloadSavedAsync);
         }
     }
 }

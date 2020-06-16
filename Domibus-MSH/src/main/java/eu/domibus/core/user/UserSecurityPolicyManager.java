@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -274,7 +275,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         return userEntity;
     }
 
-
     @Transactional
     public void reactivateSuspendedUsers() {
         int suspensionInterval = getSuspensionInterval();
@@ -323,6 +323,19 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
                 throw new UserManagementException(errorMessage);
             }
         }
+    }
+
+    @Nullable
+    public LocalDateTime getExpirationDate(U userEntity) {
+        String expirationProperty = userEntity.hasDefaultPassword()
+                ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+
+        if (maxPasswordAgeInDays <= 0) {
+            LOG.trace("No expiration date for user [{}] as the MaximumPasswordAgeProperty is not positive.", userEntity.getUserName());
+            return null;
+        }
+        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
     }
 
 }

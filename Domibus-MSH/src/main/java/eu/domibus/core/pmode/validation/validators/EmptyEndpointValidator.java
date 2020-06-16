@@ -14,7 +14,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Validates self party existence  aka checks if configuration/@party is found in businessProcesses/parties collection
+ * Validates that each party has a non-empty endpoint.
  */
 @Component
 @Order(2)

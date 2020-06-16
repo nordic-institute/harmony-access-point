@@ -1,10 +1,15 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import mockit.Injectable;
 import mockit.Tested;
@@ -28,10 +33,22 @@ public class PluginUserAlertsServiceImplTest {
     private AuthenticationDAO userDao;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertsConfiguration;
+    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
     @Injectable
     private EventService eventService;
+
+    @Injectable
+    PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
+
+    @Injectable
+    PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
+
+    @Injectable
+    PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
+
+    @Injectable
+    PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
     @Tested
     private PluginUserAlertsServiceImpl userAlertsService;
@@ -83,7 +100,7 @@ public class PluginUserAlertsServiceImplTest {
         AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
 
         new VerificationsInOrder() {{
-            alertsConfiguration.getPluginAccountDisabledConfiguration();
+            pluginAccountDisabledConfigurationManager.getConfiguration();
             times = 1;
         }};
     }

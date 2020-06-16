@@ -24,12 +24,12 @@ export class AlertService {
     router.events.subscribe(event => this.reactToNavigationEvents(event));
   }
 
-  public success(response: any) {
+  public success(response: any, duration: number = 5000) {
     let message = this.formatResponse(response);
     this.matSnackBar.openFromComponent(AlertComponent, {
       data: {message: message, service: this},
       panelClass: 'success',
-      duration: 5000,
+      duration: duration,
       verticalPosition: 'top',
     });
   }

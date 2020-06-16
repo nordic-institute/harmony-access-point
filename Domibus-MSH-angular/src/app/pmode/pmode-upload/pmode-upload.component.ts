@@ -57,11 +57,11 @@ export class PmodeUploadComponent implements OnInit {
 
       let input = new FormData();
       input.append('file', file);
-      input.append('description', this.description);
+      input.append('description', (this.description || '').trim().replace(/\t/g, ' '));
 
       const res = await this.http.post<string>(this.url, input).toPromise();
 
-      this.alertService.success(res);
+      this.alertService.success(res, 0);
       this.dialogRef.close({done: true});
       this.submitInProgress = false;
     } catch (err) {

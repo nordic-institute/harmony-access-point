@@ -7,24 +7,32 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.*;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
+import eu.domibus.core.multitenancy.dao.UserDomainEntity;
+import eu.domibus.core.user.UserPersistenceService;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.converters.UserConverter;
-import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,6 +43,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JMockit.class)
 public class SuperUserManagementServiceImplTest {
 
+    @Tested
+    @Mocked
+    private SuperUserManagementServiceImpl superUserManagementService;
+
     @Injectable
     DomainService domainService;
 
@@ -42,7 +54,7 @@ public class SuperUserManagementServiceImplTest {
     EventService eventService;
 
     @Injectable
-    MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    AlertConfigurationService alertConfigurationService;
 
     @Injectable
     UserPersistenceService userPersistenceService;
@@ -75,13 +87,13 @@ public class SuperUserManagementServiceImplTest {
     private UserManagementServiceImpl userManagementService;
 
     @Injectable
-    ConsoleUserSecurityPolicyManager userPasswordValidator;
+    ConsoleUserSecurityPolicyManager userPasswordManager;
 
     @Injectable
     ConsoleUserAlertsServiceImpl userAlertsService;
 
-    @Tested
-    private SuperUserManagementServiceImpl superUserManagementService;
+    @Injectable
+    UserDomainDao userDomainDao;
 
     @Test
     public void findUsers() {
@@ -93,10 +105,11 @@ public class SuperUserManagementServiceImplTest {
         superUsers.add(new User() {{
             setUserName("super1");
         }});
+
         new Expectations() {{
             userManagementService.findUsers();
             result = users;
-            userDomainService.getSuperUsers();
+            superUserManagementService.getSuperUsers();
             result = superUsers;
         }};
 
@@ -137,10 +150,32 @@ public class SuperUserManagementServiceImplTest {
         superUserManagementService.changePassword(username, currentPassword, newPassword);
 
         new Verifications() {{
-            domainTaskExecutor.submit((Runnable)any);
+            domainTaskExecutor.submit((Runnable) any);
             times = 1;
         }};
     }
 
+    @Test
+    public void getDomainForUser(@Mocked eu.domibus.api.user.User user,
+                                 @Mocked UserDomainEntity userDomainEntity1,
+                                 @Mocked UserDomainEntity userDomainEntity2) {
+
+        new Expectations() {{
+            user.getUserName();
+            result = "user2";
+            userDomainEntity1.getUserName();
+            result = "user1";
+            userDomainEntity2.getUserName();
+            result = "user2";
+            userDomainEntity2.getPreferredDomain();
+            result = "domain2";
+            userDomainDao.listPreferredDomains();
+            result = Arrays.asList(userDomainEntity1, userDomainEntity2);
+        }};
+
+        String res = superUserManagementService.getDomainForUser(user);
+
+        assertEquals("domain2", res);
+    }
 
 }

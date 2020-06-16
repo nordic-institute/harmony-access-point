@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PasswordEncryptionServiceImplTest {
 
@@ -96,10 +97,6 @@ public class PasswordEncryptionServiceImplTest {
 
             domainService.getDomains();
             result = domains;
-
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDomain) any);
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -135,10 +132,8 @@ public class PasswordEncryptionServiceImplTest {
                                              @Injectable GCMParameterSpec secretKeySpec,
                                              @Injectable List<PasswordEncryptionResult> encryptedProperties) {
         String propertyName1 = "property1";
-        String value1 = "value1";
 
         String propertyName2 = "property2";
-        String value2 = "value2";
 
         List<String> propertiesToEncrypt = new ArrayList<>();
         propertiesToEncrypt.add(propertyName1);
@@ -219,7 +214,6 @@ public class PasswordEncryptionServiceImplTest {
                                 @Injectable Domain domain) {
         String propertyName = "myProperty";
         String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
-        byte[] encryptedValue = new byte[2];
 
         new Expectations(passwordEncryptionService) {{
             passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
@@ -365,8 +359,64 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    public void replaceLine_noEqual() {
+        String line = "myProperty";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("myProperty", replacedLine);
+    }
+
+    @Test
+    public void replaceLine_noKey() {
+        String line = "=value";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals(line, replacedLine);
+    }
+
+    @Test
+    public void replaceLine_empty() {
+        String line = "myProperty=";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("myProperty=", replacedLine);
+    }
+
+    @Test
     public void replaceLineWithPropertyNameContainingPropertyValue() {
         String line = "domibus.alert.sender.smtp.password=password";
+        String encryptedValue = "myEncryptedValue";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+        PasswordEncryptionResult passwordEncryptionResult = new PasswordEncryptionResult();
+        passwordEncryptionResult.setPropertyName("domibus.alert.sender.smtp.password");
+        passwordEncryptionResult.setPropertyValue("password");
+        passwordEncryptionResult.setFormattedBase64EncryptedValue("ENC(" + encryptedValue + ")");
+        encryptedProperties.add(passwordEncryptionResult);
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("domibus.alert.sender.smtp.password=ENC(myEncryptedValue)", replacedLine);
+    }
+
+    @Test
+    public void replaceLineWithPropertyNameContainingNoPropertyValue() {
+        String line = "domibus.alert.sender.smtp.password=password";
+
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+
+        final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
+        assertEquals("domibus.alert.sender.smtp.password=password", replacedLine);
+    }
+
+    @Test
+    public void replaceLineWithPropertyNameContainingPropertyValueWithEquals() {
+        String line = "domibus.alert.sender.smtp.password=password=1";
         String encryptedValue = "myEncryptedValue";
 
         List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();

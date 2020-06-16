@@ -5,31 +5,30 @@ import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseResult;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
-import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -52,38 +51,42 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullReceiptHandler.class);
 
-    @Autowired
-    private MessagingDao messagingDao;
+    private final MessageExchangeService messageExchangeService;
+    private final ReliabilityChecker reliabilityChecker;
+    private final ReliabilityMatcher pullReceiptMatcher;
+    private final PullMessageService pullMessageService;
+    private final UserMessageLogDao userMessageLogDao;
+    private final EbMS3MessageBuilder messageBuilder;
+    private final ResponseHandler responseHandler;
+    private final PModeProvider pModeProvider;
+    private final MessagingDao messagingDao;
+    protected final MessageUtil messageUtil;
+    protected final SoapUtil soapUtil;
 
-    @Autowired
-    private PModeProvider pModeProvider;
-
-    @Autowired
-    private MessageExchangeService messageExchangeService;
-
-    @Autowired
-    private EbMS3MessageBuilder messageBuilder;
-
-    @Autowired
-    private ResponseHandler responseHandler;
-
-    @Autowired
-    private ReliabilityChecker reliabilityChecker;
-
-    @Autowired
-    private ReliabilityMatcher pullReceiptMatcher;
-
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    private PullMessageService pullMessageService;
-
-    @Autowired
-    protected MessageUtil messageUtil;
-
-    @Autowired
-    protected SoapUtil soapUtil;
+    public IncomingPullReceiptHandler(
+            MessageExchangeService messageExchangeService,
+            ReliabilityChecker reliabilityChecker,
+            ReliabilityMatcher pullReceiptMatcher,
+            PullMessageService pullMessageService,
+            UserMessageLogDao userMessageLogDao,
+            EbMS3MessageBuilder messageBuilder,
+            ResponseHandler responseHandler,
+            PModeProvider pModeProvider,
+            MessagingDao messagingDao,
+            MessageUtil messageUtil,
+            SoapUtil soapUtil) {
+        this.messageExchangeService = messageExchangeService;
+        this.reliabilityChecker = reliabilityChecker;
+        this.pullReceiptMatcher = pullReceiptMatcher;
+        this.pullMessageService = pullMessageService;
+        this.userMessageLogDao = userMessageLogDao;
+        this.responseHandler = responseHandler;
+        this.messageBuilder = messageBuilder;
+        this.pModeProvider = pModeProvider;
+        this.messagingDao = messagingDao;
+        this.messageUtil = messageUtil;
+        this.soapUtil = soapUtil;
+    }
 
     @Override
     @Timer(INCOMING_PULL_REQUEST_RECEIPT)
@@ -124,20 +127,15 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
             SOAPMessage soapMessage = getSoapMessage(messageId, legConfiguration, userMessage);
-            final ResponseResult responseResult = responseHandler.verifyResponse(request);
+            final ResponseResult responseResult = responseHandler.verifyResponse(request, messageId);
             isOk = responseResult.getResponseStatus();
 
-            if (ResponseHandler.ResponseStatus.UNMARSHALL_ERROR.equals(responseResult.getResponseStatus())) {
-                EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Problem occurred during marshalling", messageId, null);
-                e.setMshRole(MSHRole.SENDING);
-                throw e;
-            }
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, legConfiguration, pullReceiptMatcher);
         } catch (final SOAPFaultException soapFEx) {
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
             } else {
-                LOG.warn("[PULL_RECEIPT]:Error for message with ID [" + messageId + "]", soapFEx);
+                LOG.warn("[PULL_RECEIPT]:Error for message with ID [{}]",messageId, soapFEx);
             }
         } catch (final EbMS3Exception e) {
             reliabilityChecker.handleEbms3Exception(e, messageId);

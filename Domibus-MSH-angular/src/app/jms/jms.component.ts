@@ -25,8 +25,6 @@ export class JmsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;

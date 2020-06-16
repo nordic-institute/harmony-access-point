@@ -1,11 +1,18 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +34,19 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected AuthenticationDAO userDao;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertsConfiguration;
+    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
+
+    @Autowired
+    private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
+
+    @Autowired
+    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
+
+    @Autowired
+    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
+
+    @Autowired
+    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -71,12 +90,27 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return alertsConfiguration.getPluginAccountDisabledConfiguration();
+        return pluginAccountDisabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
+        return pluginAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return alertsConfiguration.getPluginLoginFailureConfiguration();
+        return pluginLoginFailConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
+        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
+        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }

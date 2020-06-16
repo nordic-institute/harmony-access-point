@@ -12,6 +12,7 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.pmode.validation.validators.OneWayMepValidator;
 import eu.domibus.core.property.*;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
@@ -123,7 +124,7 @@ public class PModeValidationServiceImplIT {
 
         @Bean
         public List<PModeValidator> pModeValidatorList() {
-            return Arrays.asList(new TwoWayMepValidator());
+            return Arrays.asList(new TwoWayMepValidator(), new OneWayMepValidator());
         }
 
         @Bean

@@ -14,9 +14,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.ws.rs.HttpMethod;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
+
 /**
  * Abstract class for Domibus security configuration
- *
+ * <p>
  * It extends {@link WebSecurityConfigurerAdapter} class and declares abstract methods
  * which need to be overridden by each implementation. Common code is exposed in non abstract methods.
  *
@@ -72,13 +74,15 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     /**
      * configure {@link AuthenticationManagerBuilder} to be implemented
+     *
      * @param auth an {@link AuthenticationManagerBuilder}
      */
-    protected abstract void configureAuthenticationManagerBuilder(AuthenticationManagerBuilder auth) throws  Exception;
+    protected abstract void configureAuthenticationManagerBuilder(AuthenticationManagerBuilder auth) throws Exception;
 
 
     /**
      * common web security common configuration
+     *
      * @param web {@link WebSecurity} to configure
      */
     private void configureWebSecurityCommon(WebSecurity web) {
@@ -120,6 +124,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/alerts/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/testservice/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/logging/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_CSV_MAX_ROWS).authenticated()
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
