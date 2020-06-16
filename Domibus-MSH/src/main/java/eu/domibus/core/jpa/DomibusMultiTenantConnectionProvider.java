@@ -98,12 +98,11 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     }
 
     protected void verifyDatabaseSchema(Domain currentDomain, String databaseSchema) {
+        if (currentDomain != null && StringUtils.isEmpty(databaseSchema)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the domain:" + currentDomain + " and for the property:" + currentDomain + "." + DOMIBUS_DATABASE_SCHEMA);
+        }
         if (StringUtils.isEmpty(databaseSchema)) {
-            if (currentDomain != null) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the domain:" + currentDomain + " and for the property:" + currentDomain + "." + DOMIBUS_DATABASE_SCHEMA);
-            } else {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name not found for general schema and for the property:" + DOMIBUS_DATABASE_GENERAL_SCHEMA);
-            }
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name not found for general schema and for the property:" + DOMIBUS_DATABASE_GENERAL_SCHEMA);
         }
     }
 
