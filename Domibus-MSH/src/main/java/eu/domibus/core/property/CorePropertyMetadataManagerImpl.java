@@ -179,7 +179,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME),
 
-            new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true), //there is still one call from xml!!!
+            new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -200,9 +200,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_BLACK_LIST),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ACCOUNT_UNLOCK_CRON, DomibusPropertyMetadata.Type.CRON),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CHECK_CRON, DomibusPropertyMetadata.Type.CRON),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, DomibusPropertyMetadata.Type.CRON),
+            new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CHECK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, DomibusPropertyMetadata.Type.CRON),
@@ -212,7 +212,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_RETRY_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_CLEANER_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_RETRY_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON, DomibusPropertyMetadata.Type.CRON),
+            new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_SYNC_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
