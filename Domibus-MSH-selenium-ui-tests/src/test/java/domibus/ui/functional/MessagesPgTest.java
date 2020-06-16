@@ -222,7 +222,8 @@ public class MessagesPgTest extends SeleniumTest {
 		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		String messageID = messageSender.sendMessage(user, data.defaultPass(), "", "");
 		
-		MessagesPage page = navigate();
+		MessagesPage page = new MessagesPage(driver);
+		
 		page.refreshPage();
 		page.grid().waitForRowsToLoad();
 		

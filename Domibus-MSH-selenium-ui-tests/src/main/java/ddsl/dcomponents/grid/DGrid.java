@@ -108,7 +108,9 @@ public class DGrid extends DComponent {
 		
 		this.wait.forXMillis(200);
 		Actions action = new Actions(driver);
-		action.doubleClick(gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"))).perform();
+		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
+		weToDobject(element).scrollIntoView();
+		action.doubleClick(element).perform();
 		// ngx-datatable has an issue when double-clicking "between" cells;
 		// so we're trying to click inside the first cell of the row.
 	}
