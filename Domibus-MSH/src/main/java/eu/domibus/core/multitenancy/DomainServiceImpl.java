@@ -1,6 +1,5 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -79,11 +78,10 @@ public class DomainServiceImpl implements DomainService {
      *
      * @param domain
      * @return database schema name
-     * @throws DomibusCoreException Raised in case if the database schema name cannot found for the domain
      */
 
     @Override
-    public String getDatabaseSchema(Domain domain) throws DomibusCoreException {
+    public String getDatabaseSchema(Domain domain){
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
     }
 

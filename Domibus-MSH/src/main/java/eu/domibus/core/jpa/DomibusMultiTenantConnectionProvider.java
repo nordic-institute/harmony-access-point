@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
@@ -89,18 +90,22 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
         final Connection connection = getAnyConnection();
         LOG.trace("Setting database schema to [{}] ", databaseSchema);
-        if (StringUtils.isEmpty(databaseSchema)) {
-            checkDomain(currentDomain);
-        }
+
+        verifyDatabaseSchema(currentDomain, databaseSchema);
+
         setSchema(connection, databaseSchema);
         return connection;
     }
 
-    protected void checkDomain(Domain currentDomain) {
+    protected void verifyDatabaseSchema(Domain currentDomain, String databaseSchema) {
         if (currentDomain != null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the domain:" + currentDomain+ " and for the property:" + currentDomain+ "." + DOMIBUS_DATABASE_SCHEMA);
+            if (StringUtils.isEmpty(databaseSchema)) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database domain schema name not found for the domain:" + currentDomain + " and for the property:" + currentDomain + "." + DOMIBUS_DATABASE_SCHEMA);
+            }
         } else {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name cannot be empty for general schema.");
+            if (StringUtils.isEmpty(databaseSchema)) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name not found for general schema and for the property:" + DOMIBUS_DATABASE_GENERAL_SCHEMA);
+            }
         }
     }
 
