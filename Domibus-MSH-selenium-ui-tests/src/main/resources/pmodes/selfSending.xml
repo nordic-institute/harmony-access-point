@@ -21,11 +21,11 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
 			<party name="red_gw"
-				   endpoint="http://localhost:8080/domibus/services/msh">
+				   endpoint="http://localhost:8001/domibus/services/msh">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw"
-				   endpoint="http://localhost:8080/domibus/services/msh">
+				   endpoint="http://localhost:8001/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
