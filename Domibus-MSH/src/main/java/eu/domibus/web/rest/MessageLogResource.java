@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -59,6 +61,9 @@ public class MessageLogResource extends BaseResource {
 
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
 
     Date defaultFrom;
     Date defaultTo;
@@ -149,10 +154,16 @@ public class MessageLogResource extends BaseResource {
             getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
         }
 
+        List<String> excludedColumns = Lists.newArrayList("sourceMessage", "messageFragment");
+        if(!domibusConfigurationService.isFourCornerEnabled()) {
+            excludedColumns.add("originalSender");
+            excludedColumns.add("finalRecipient");
+        }
+
         return exportToCSV(resultList,
                 MessageLogInfo.class,
                 ImmutableMap.of("mshRole".toUpperCase(), "AP Role"),
-                Arrays.asList("sourceMessage", "messageFragment"),
+                excludedColumns,
                 "messages");
     }
 
