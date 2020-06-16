@@ -338,7 +338,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
         LocalDateTime changeDate = userEntity.getPasswordChangeDate();
         if (changeDate == null) {
-            LOG.trace("Password change date for user [{}] is null.", userEntity.getUserName());
+            LOG.trace("Password change date for user [{}] is null.", userEntity.getUniqueIdentifier());
             return null;
         }
 
