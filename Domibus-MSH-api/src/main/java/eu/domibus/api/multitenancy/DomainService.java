@@ -1,7 +1,5 @@
 package eu.domibus.api.multitenancy;
 
-import eu.domibus.api.exceptions.DomibusCoreException;
-
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
@@ -22,7 +20,7 @@ public interface DomainService {
 
     Domain getDomainForScheduler(String schedulerName);
 
-    String getDatabaseSchema(Domain domain) throws DomibusCoreException;
+    String getDatabaseSchema(Domain domain);
 
     String getGeneralSchema();
 
