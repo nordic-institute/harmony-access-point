@@ -375,7 +375,7 @@ public class PasswordEncryptionServiceImplTest {
         List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
 
         final String replacedLine = passwordEncryptionService.replaceLine(encryptedProperties, line);
-        assertEquals("=value", replacedLine);
+        assertEquals(line, replacedLine);
     }
 
     @Test
