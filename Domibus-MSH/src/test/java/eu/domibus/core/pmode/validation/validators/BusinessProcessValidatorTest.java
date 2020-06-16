@@ -62,7 +62,6 @@ public class BusinessProcessValidatorTest {
 
             pModeValidationHelper.createValidationIssue(anyString, anyString, anyString);
             result = new ValidationIssue("Agreement of process [%s] not found in business process", ValidationIssue.Level.ERROR);
-
         }};
 
         //tested method
@@ -106,7 +105,6 @@ public class BusinessProcessValidatorTest {
         //tested method
         businessProcessValidator.validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
 
-
         new Verifications() {{
             businessProcessValidator.createIssue(issues, process, party1.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
             times = 1;
@@ -140,12 +138,44 @@ public class BusinessProcessValidatorTest {
         //tested method
         businessProcessValidator.validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
 
-
         new Verifications() {{
             businessProcessValidator.createIssue(issues, process, party1.getName(), "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types");
             times = 1;
         }};
 
+    }
+
+    @Test
+    public void test_checkPartyIdentifiers(final @Mocked ValidationIssue validationIssue,
+                                           final @Mocked Process process,
+                                           final @Mocked PartyIdType partyIdType,
+                                           final @Mocked Party party,
+                                           final @Mocked Identifier identifier) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        Set<PartyIdType> partyIdTypes = new HashSet<>();
+        Set<Identifier> identifiers = Collections.singleton(identifier);
+        final String message = "test message";
+        final String partyName = "test party";
+
+        new Expectations(businessProcessValidator) {{
+            party.getIdentifiers();
+            result = identifiers;
+
+            party.getName();
+            result = partyName;
+
+            identifier.getPartyIdType();
+            result = partyIdType;
+        }};
+
+        //tested method
+        businessProcessValidator.checkPartyIdentifiers(issues, process, partyIdTypes, party, message);
+
+        new FullVerifications(businessProcessValidator) {{
+            String messageActual, partyNameActual;
+            businessProcessValidator.createIssue(issues, process, anyString , anyString);
+        }};
     }
 
 }

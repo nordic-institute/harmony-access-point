@@ -100,7 +100,6 @@ public class BusinessProcessValidator implements PModeValidator {
                     .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
         }
         validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
-
     }
 
     protected void validateInitiatorPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validInitiatorParties) {
@@ -144,8 +143,6 @@ public class BusinessProcessValidator implements PModeValidator {
         validResponderParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
     }
 
-
-
     protected void validateLegConfiguration(List<ValidationIssue> issues, Process process, Set<Party> validResponderParties) {
         Set<LegConfiguration> validLegs = process.getLegs();
         Legs legsXml = pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
@@ -154,11 +151,13 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         List<Leg> allLegs = legsXml.getLeg();
-        if (!CollectionUtils.isEmpty(allLegs) && allLegs.size() != validResponderParties.size()) {
-            allLegs.stream()
-                    .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equals(leg.getName())))
-                    .forEach(party -> createIssue(issues, process, party.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
+        if (CollectionUtils.isEmpty(allLegs) || allLegs.size() == validResponderParties.size()) {
+            LOG.trace("allLegs list is empty or allLegs.size() == validResponderParties.size()");
+            return;
         }
+        allLegs.stream()
+                .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equals(leg.getName())))
+                .forEach(party -> createIssue(issues, process, party.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
     }
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
