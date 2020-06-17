@@ -244,8 +244,8 @@ public class MessagesPgTest extends SeleniumTest {
 		}
 		
 		String newMessId = messageID+"_1";
-		log.info("double clicked message with id " + newMessId);
 		page.grid().scrollToAndDoubleClick("Message Id", newMessId);
+		log.info("double clicked message with id " + newMessId);
 		
 		String zipPath = rest.messages().downloadMessage(newMessId, null);
 		log.info("downloaded message to zip with path " + zipPath);

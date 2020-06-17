@@ -522,8 +522,25 @@ public class DGrid extends DComponent {
 	}
 	
 	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws ParseException {
-		Date csvDate = TestRunData.CSV_DATE_FORMAT.parse(csvDateStr);
-		Date uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
+		Date csvDate = null;
+		Date uiDate = null;
+		
+		if(StringUtils.isEmpty(csvDateStr) && StringUtils.isEmpty(uiDateStr)){
+			return true;
+		}
+		
+		if((StringUtils.isEmpty(csvDateStr) || StringUtils.isEmpty(uiDateStr)) && !StringUtils.isEmpty(csvDateStr + uiDateStr) ){
+			return false;
+		}
+		
+		
+		try {
+			csvDate = TestRunData.CSV_DATE_FORMAT.parse(csvDateStr);
+			uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
+		} catch (ParseException e) {
+			log.debug("csvDateStr = " + csvDateStr);
+			log.debug("uiDateStr = " + uiDateStr);
+		}
 		
 		return csvDate.equals(uiDate);
 	}

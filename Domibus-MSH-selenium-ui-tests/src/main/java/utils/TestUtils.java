@@ -10,11 +10,15 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.asserts.SoftAssert;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -71,7 +75,7 @@ public class TestUtils {
 	}
 	
 	public static <T extends DGrid> void testSortingForColumn(SoftAssert soft, T grid, JSONObject colDesc) throws Exception {
-		System.out.println("test sorting for " + colDesc.getString("name"));
+		log.info("test sorting for " + colDesc.getString("name"));
 		
 		String columnName = colDesc.getString("name");
 		List<String> columns = grid.getColumnNames();
@@ -225,14 +229,28 @@ public class TestUtils {
 		return zipContent;
 	}
 	
-	public static String getValueFromXMLString(String xmlString, String key) {
-		String start = key + ">";
-		String end = "<\\/eb:" + key;
+//	public static String getValueFromXMLString(String xmlString, String key) {
+//		String start = key + ">";
+//		String end = "<\\/eb:" + key;
+//
+//		Pattern p = Pattern.compile(start + "(.*?)" + end);
+//		Matcher m = p.matcher(xmlString);
+//		m.find();
+//		return m.group(1);
+//	}
+	
+	public static String getValueFromXMLString(String xmlString, String key) throws Exception {
+		log.debug("Extracting " + key + " from " + xmlString);
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(new InputSource(new StringReader(xmlString)));
 		
-		Pattern p = Pattern.compile(start + "(.*?)" + end);
-		Matcher m = p.matcher(xmlString);
-		m.find();
-		return m.group(1);
+		String value = StringUtils.EMPTY;
+		try {
+			value = doc.getElementsByTagName("eb:" + key).item(0).getTextContent();
+		} catch (Exception e) {}
+		log.info("Extracted value " + value);
+		return value;
 	}
 	
 	public static String jmsDateStrFromTimestamp(Long timestamp) {
