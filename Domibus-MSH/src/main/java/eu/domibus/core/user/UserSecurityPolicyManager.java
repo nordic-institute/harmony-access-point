@@ -335,7 +335,16 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             LOG.trace("No expiration date for user [{}] as the MaximumPasswordAgeProperty is not positive.", userEntity.getUserName());
             return null;
         }
-        return userEntity.getPasswordChangeDate().plusDays(Long.valueOf(maxPasswordAgeInDays));
+
+        LocalDateTime changeDate = userEntity.getPasswordChangeDate();
+        if (changeDate == null) {
+            LOG.trace("Password change date for user [{}] is null.", userEntity.getUniqueIdentifier());
+            return null;
+        }
+
+        LocalDateTime expDate = changeDate.plusDays(Long.valueOf(maxPasswordAgeInDays));
+        LOG.trace("Expiration date for user [{}] is [{}].", userEntity.getUniqueIdentifier(), expDate);
+        return expDate;
     }
 
 }
