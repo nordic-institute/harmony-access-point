@@ -160,12 +160,12 @@ public class NotificationListenerService implements MessageListener, JmsListener
         final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
         event.setMessageId(messageId);
 
-        final String fromStatus = message.getStringProperty(MessageConstants.FROM_STATUS);
+        final String fromStatus = message.getStringProperty(MessageConstants.STATUS_FROM);
         if (StringUtils.isNotEmpty(fromStatus)) {
             event.setFromStatus(MessageStatus.valueOf(fromStatus));
         }
-        event.setToStatus(MessageStatus.valueOf(message.getStringProperty(MessageConstants.TO_STATUS)));
-        event.setChangeTimestamp(new Timestamp(message.getLongProperty(MessageConstants.MESSAGE_CHANGE_TIMESTAMP)));
+        event.setToStatus(MessageStatus.valueOf(message.getStringProperty(MessageConstants.STATUS_TO)));
+        event.setChangeTimestamp(new Timestamp(message.getLongProperty(MessageConstants.CHANGE_TIMESTAMP)));
         event.addProperty("service", message.getStringProperty(MessageConstants.SERVICE));
         event.addProperty("serviceType", message.getStringProperty(MessageConstants.SERVICE_TYPE));
         event.addProperty("action", message.getStringProperty(MessageConstants.ACTION));

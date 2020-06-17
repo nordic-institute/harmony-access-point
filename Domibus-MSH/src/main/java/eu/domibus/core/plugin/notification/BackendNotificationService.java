@@ -557,10 +557,10 @@ public class BackendNotificationService {
     protected Map<String, Object> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
         Map<String, Object> properties = new HashMap<>();
         if (messageLog.getMessageStatus() != null) {
-            properties.put(MessageConstants.FROM_STATUS, messageLog.getMessageStatus().toString());
+            properties.put(MessageConstants.STATUS_FROM, messageLog.getMessageStatus().toString());
         }
-        properties.put(MessageConstants.TO_STATUS, newStatus.toString());
-        properties.put(MessageConstants.MESSAGE_CHANGE_TIMESTAMP, changeTimestamp.getTime());
+        properties.put(MessageConstants.STATUS_TO, newStatus.toString());
+        properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
 
 
         if (userMessage != null) {

@@ -3,6 +3,8 @@ package eu.domibus.plugin.jms;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
+ * Class responsible for holding the queue context(message id, service, action, etc)
+ *
  * @since 4.2
  * @author Cosmin Baciu
  */

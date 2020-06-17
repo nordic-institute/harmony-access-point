@@ -19,9 +19,9 @@ public class MessageConstants {
     public static final String ERROR_DETAIL = "errorDetail";
     public static final String RETRY_COUNT = "RETRY_COUNT";
     public static final String FILE_NAME = "FILE_NAME";
-    public static final String FROM_STATUS = "fromStatus";
-    public static final String TO_STATUS = "toStatus";
-    public static final String MESSAGE_CHANGE_TIMESTAMP = "changeTimestamp";
+    public static final String STATUS_FROM = "fromStatus";
+    public static final String STATUS_TO = "toStatus";
+    public static final String CHANGE_TIMESTAMP = "changeTimestamp";
     public static final String SERVICE = "service";
     public static final String SERVICE_TYPE = "serviceType";
     public static final String ACTION = "action";
