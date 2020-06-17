@@ -83,11 +83,6 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public PropertyResolver propertyResolver() {
-            return Mockito.mock(PropertyResolver.class);
-        }
-
-        @Bean
         public DomainContextProvider domainContextProvider() {
             return Mockito.mock(DomainContextProviderImpl.class);
         }

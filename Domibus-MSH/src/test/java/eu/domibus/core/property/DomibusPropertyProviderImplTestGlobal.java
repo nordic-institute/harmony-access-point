@@ -40,9 +40,6 @@ public class DomibusPropertyProviderImplTestGlobal {
     protected Properties domibusDefaultProperties;
 
     @Injectable
-    protected PropertyResolver propertyResolver;
-
-    @Injectable
     protected DomainContextProvider domainContextProvider;
 
     @Injectable
