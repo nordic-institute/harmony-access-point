@@ -86,7 +86,7 @@ public class BusinessProcessValidatorTest {
                                                  @Injectable Identifier identifier) {
 
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        List<Identifier> identifiers = new ArrayList<>();
+        Set<Identifier> identifiers = new HashSet<>();
         Identifier identifier1 = new Identifier();
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -119,7 +119,7 @@ public class BusinessProcessValidatorTest {
                                                  @Injectable Identifier identifier) {
 
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        List<Identifier> identifiers = new ArrayList<>();
+        Set<Identifier> identifiers = new HashSet<>();
         Identifier identifier1 = new Identifier();
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -161,8 +161,7 @@ public class BusinessProcessValidatorTest {
             result = validResponderParties;
 
             process.getResponderPartiesXml();
-            result = responderParties;
-            ;
+            result = responderParties;;
 
             responderParties.getResponderParty();
             result = allResponderParties;
@@ -186,8 +185,7 @@ public class BusinessProcessValidatorTest {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        List<Identifier> identifiers = new ArrayList<>();
-        identifiers.add(identifier);
+        Set<Identifier> identifiers = Collections.singleton(identifier);
         final String message = "test message";
         final String partyName = "test party";
 
@@ -206,7 +204,7 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.checkPartyIdentifiers(issues, process, partyIdTypes, party, message);
 
         new FullVerifications(businessProcessValidator) {{
-            businessProcessValidator.createIssue(issues, process, anyString, anyString);
+            businessProcessValidator.createIssue(issues, process, anyString , anyString);
         }};
     }
 
@@ -225,7 +223,7 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.validateAgreement(validationIssues, process);
 
         new FullVerifications(businessProcessValidator) {{
-            businessProcessValidator.createIssue(validationIssues, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
+           businessProcessValidator.createIssue(validationIssues, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
         }};
     }
 
@@ -257,36 +255,4 @@ public class BusinessProcessValidatorTest {
         }};
     }
 
-    public void testValidateDuplicatePartyIdentifiers(@Injectable ValidationIssue issue,
-                                             @Injectable Process process, @Injectable Party party) {
-
-
-        List<Identifier> identifiers = new ArrayList<>();
-        Identifier identifier1 = new Identifier();
-        Identifier identifier2 = new Identifier();
-        PartyIdType partyIdType1 = new PartyIdType();
-
-        partyIdType1.setName("partyIdTypeUrn");
-        identifier1.setPartyId("domibus-blue");
-        identifiers.add(identifier1);
-        identifier1.setPartyIdType(partyIdType1);
-        identifier2.setPartyId("domibus-blue");
-        identifier2.setPartyIdType(partyIdType1);
-        identifiers.add(identifier2);
-        Set<Party> validResponderParties = new HashSet<>();
-        Party party1 = new Party();
-        party1.setIdentifiers(identifiers);
-        validResponderParties.add(party1);
-
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(issue);
-
-        //tested method
-        businessProcessValidator.validateDuplicatePartyIdentifiers(issues, process, validResponderParties);
-
-        new Verifications() {{
-            businessProcessValidator.createIssue(issues, process, party1.getName(), "Duplicate identifier's found for the party [%s]");
-            times = 1;
-        }};
-    }
 }
