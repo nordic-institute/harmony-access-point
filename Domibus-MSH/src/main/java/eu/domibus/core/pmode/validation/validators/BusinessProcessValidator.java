@@ -18,6 +18,7 @@ import java.util.Set;
 
 /**
  * @author Ion Perpegel
+ * @author Catalin Enache
  * @since 4.2
  * <p>
  * Validates that all processes of a pMode have Agreement, mep,binding, etc
@@ -44,37 +45,19 @@ public class BusinessProcessValidator implements PModeValidator {
 
     protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         //agreement
-        if (process.getAgreement() == null) {
-            String name = pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
-            //agreements can be null
-            if (StringUtils.isNotEmpty(name)) {
-                createIssue(issues, process, name, "Agreement [%s] of process [%s] not found in business process agreements.");
-            }
-        }
+        validateAgreement(issues, process);
 
         //mep
-        if (process.getMep() == null) {
-            String name = pModeValidationHelper.getAttributeValue(process, "mepXml", String.class);
-            createIssue(issues, process, name, "Mep [%s] of process [%s] not found in business process meps.");
-        }
+        validateMep(issues, process);
 
         //binding
-        if (process.getMepBinding() == null) {
-            String name = pModeValidationHelper.getAttributeValue(process, "bindingXml", String.class);
-            createIssue(issues, process, name, "Mep binding [%s] of process [%s] not found in business process bindings.");
-        }
+        validateBinding(issues, process);
 
         //initiator Role
-        if (process.getInitiatorRole() == null) {
-            String name = pModeValidationHelper.getAttributeValue(process, "initiatorRoleXml", String.class);
-            createIssue(issues, process, name, "Initiator role [%s] of process [%s] not found in business process roles.");
-        }
+        validateInitiatorRole(issues, process);
 
         //responder Role
-        if (process.getResponderRole() == null) {
-            String name = pModeValidationHelper.getAttributeValue(process, "responderRoleXml", String.class);
-            createIssue(issues, process, name, "Responder role [%s] of process [%s] not found in business process roles.");
-        }
+        validateResponderRole(issues, process);
 
         //initiator Parties
         validateInitiatorParties(issues, process, partyIdTypes);
@@ -85,6 +68,55 @@ public class BusinessProcessValidator implements PModeValidator {
         //leg configuration
         validateLegConfiguration(issues, process, validResponderParties);
     }
+
+    protected void validateAgreement(List<ValidationIssue> issues, Process process) {
+        if (process.getAgreement() != null) {
+            LOG.trace("process.getAgreement() is not null");
+            return;
+        }
+        String name = pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
+        //agreements can be null
+        if (StringUtils.isNotEmpty(name)) {
+            createIssue(issues, process, name, "Agreement [%s] of process [%s] not found in business process agreements.");
+        }
+    }
+
+    protected void validateMep(List<ValidationIssue> issues, Process process) {
+        if (process.getMep() != null) {
+            LOG.trace("process.getMep() is not null");
+            return;
+        }
+        String name = pModeValidationHelper.getAttributeValue(process, "mepXml", String.class);
+        createIssue(issues, process, name, "Mep [%s] of process [%s] not found in business process meps.");
+    }
+
+    protected void validateBinding(List<ValidationIssue> issues, Process process) {
+        if (process.getMepBinding() != null) {
+            LOG.trace("process.getMepBinding() is not null");
+            return;
+        }
+        String name = pModeValidationHelper.getAttributeValue(process, "bindingXml", String.class);
+        createIssue(issues, process, name, "Mep binding [%s] of process [%s] not found in business process bindings.");
+    }
+
+    protected void validateInitiatorRole(List<ValidationIssue> issues, Process process) {
+        if (process.getInitiatorRole() != null) {
+            LOG.trace("process.getInitiatorRole() is not null");
+            return;
+        }
+        String name = pModeValidationHelper.getAttributeValue(process, "initiatorRoleXml", String.class);
+        createIssue(issues, process, name, "Initiator role [%s] of process [%s] not found in business process roles.");
+    }
+
+    protected void validateResponderRole(List<ValidationIssue> issues, Process process) {
+        if (process.getResponderRole() != null) {
+            LOG.trace("process.getResponderRole() is not null");
+            return;
+        }
+        String name = pModeValidationHelper.getAttributeValue(process, "responderRoleXml", String.class);
+        createIssue(issues, process, name, "Responder role [%s] of process [%s] not found in business process roles.");
+    }
+
 
     protected void validateInitiatorParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         Set<Party> validInitiatorParties = process.getInitiatorParties();
