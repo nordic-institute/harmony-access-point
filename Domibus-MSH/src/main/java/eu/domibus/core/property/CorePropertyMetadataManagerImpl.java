@@ -205,7 +205,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, DomibusPropertyMetadata.Type.CRON),
+            new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_PULL_CRON, DomibusPropertyMetadata.Type.CRON, DomibusPropertyMetadata.Usage.DOMAIN, true),
