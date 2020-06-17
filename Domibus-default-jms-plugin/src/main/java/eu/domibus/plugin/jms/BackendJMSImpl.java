@@ -142,7 +142,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     protected void sendReplyMessage(QueueContext queueContext, final String errorMessage, final String correlationId) {
         String messageId = queueContext.getMessageId();
-        LOG.debug("Sending reply message with message id [{}], error message [{}] and correlation id [{}]", messageId, errorMessage, correlationId);
+        LOG.info("Sending reply message with message id [{}], error message [{}] and correlation id [{}]", messageId, errorMessage, correlationId);
 
         final JmsMessageDTO jmsMessageDTO = new ReplyMessageCreator(messageId, errorMessage, correlationId).createMessage();
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
@@ -191,7 +191,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected void sendJmsMessage(JmsMessageDTO message, QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         final String queueValue = backendJMSQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
 
-        LOG.info("Sending message [{}] to queue [{}]", message, queueValue);
+        LOG.info("Sending message with message id [{}] to queue [{}]", queueContext.getMessageId(), queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
     }
 
