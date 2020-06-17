@@ -15,6 +15,7 @@ import java.util.*;
 
 /**
  * @author Ion Perpegel
+ * @author Catalin Enache
  * @since 4.2
  * <p>
  */
@@ -208,15 +209,33 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
+    public void test_validateAgreement(final @Mocked List<ValidationIssue> validationIssues,
+                                       final @Mocked Process process) {
+        new Expectations(businessProcessValidator) {{
+            process.getAgreement();
+            result = null;
+
+            pModeValidationHelper.getAttributeValue(process, "agreementXml", String.class);
+            result = "agreement test";
+        }};
+
+        //tested method
+        businessProcessValidator.validateAgreement(validationIssues, process);
+
+        new FullVerifications(businessProcessValidator) {{
+           businessProcessValidator.createIssue(validationIssues, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
+        }};
+    }
+
+    @Test
     public void test_validateLegConfiguration(final @Mocked ValidationIssue validationIssue,
                                               final @Mocked Process process,
                                               final @Mocked Set<Party> validResponderParties,
                                               final @Mocked Set<LegConfiguration> legConfigurations,
                                               final @Mocked Legs legs,
-                                              final @Mocked Leg leg) {
+                                              final @Mocked List<Leg> legList) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
-        List<Leg> legList = Collections.singletonList(leg);
 
         new Expectations(businessProcessValidator) {{
             process.getLegs();
@@ -233,7 +252,6 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.validateLegConfiguration(issues, process, validResponderParties);
 
         new FullVerifications(businessProcessValidator) {{
-            businessProcessValidator.createIssue(issues, process, anyString, "Leg [%s] of process [%s] not found in business process leg configurations");
         }};
     }
 
