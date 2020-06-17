@@ -38,6 +38,7 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
 
   @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithJSONTpl') rowWithJSONTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
   @ViewChild('rowActions') rowActions: TemplateRef<any>;
 
   queues: any[];
@@ -103,9 +104,9 @@ export class JmsComponent extends mix(BaseListComponent).with(FilterableListMixi
         width: 80
       },
       {
+        cellTemplate: this.rawTextTpl,
         name: 'Content',
         prop: 'content'
-
       },
       {
         cellTemplate: this.rowWithJSONTpl,
