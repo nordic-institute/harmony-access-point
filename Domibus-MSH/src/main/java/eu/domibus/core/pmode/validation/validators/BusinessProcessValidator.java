@@ -115,14 +115,12 @@ public class BusinessProcessValidator implements PModeValidator {
         if (CollectionUtils.isEmpty(validInitiatorParties)) {
             return;
         }
-
         validInitiatorParties.forEach(party -> {
             party.getIdentifiers().forEach(identifier -> {
                 if (!partyIdTypes.contains(identifier.getPartyIdType())) {
                     createIssue(issues, process, party.getName(), "Initiator Party's [%s] partyIdType of process [%s] not found in business process partyId types");
                 }
             });
-
         });
     }
 
