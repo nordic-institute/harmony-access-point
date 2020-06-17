@@ -539,6 +539,25 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
+    public void getExpirationDate_nullChangeDate(@Mocked UserEntityBase userEntity) {
+        LocalDateTime passChangeDate = LocalDateTime.now();
+
+        new Expectations(securityPolicyManager) {{
+            userEntity.hasDefaultPassword();
+            result = false;
+            securityPolicyManager.getMaximumPasswordAgeProperty();
+            result = "propNme";
+            domibusPropertyProvider.getIntegerProperty("propNme");
+            result = 30;
+            userEntity.getPasswordChangeDate();
+            result = null;
+        }};
+
+        LocalDateTime res = securityPolicyManager.getExpirationDate(userEntity);
+        assertNull(res);
+    }
+
+    @Test
     public void getExpirationDate(@Mocked UserEntityBase userEntity) {
         LocalDateTime passChangeDate = LocalDateTime.now();
 

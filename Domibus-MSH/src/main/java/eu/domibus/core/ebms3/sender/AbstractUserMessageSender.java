@@ -11,6 +11,8 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
@@ -65,6 +67,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected ReliabilityService reliabilityService;
+
+    @Autowired
+    private ErrorLogDao errorLogDao;
 
     @Override
     @Timer(OUTGOING_USER_MESSAGE)
@@ -127,6 +132,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
+                errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
                 return;
             }
 

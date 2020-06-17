@@ -77,7 +77,7 @@ public class MSHDispatcher {
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageInfo().getMessageId()));
-        headers.put(HEADER_DOMIBUS_DOMAIN, Arrays.asList(domainContextProvider.getCurrentDomain().getCode()));
+        headers.put(HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
         if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
 
