@@ -4,7 +4,6 @@ import eu.domibus.api.process.Process;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Thomas Dussart
@@ -14,7 +13,7 @@ public class Party {
 
     protected Integer entityId;
 
-    protected Set<Identifier> identifiers; //NOSONAR
+    protected List<Identifier> identifiers; //NOSONAR
 
     protected List<Process> processesWithPartyAsInitiator =new ArrayList<>();
 
@@ -34,11 +33,11 @@ public class Party {
         this.entityId = entityId;
     }
 
-    public Set<Identifier> getIdentifiers() {
+    public List<Identifier> getIdentifiers() {
         return identifiers;
     }
 
-    public void setIdentifiers(Set<Identifier> identifiers) {
+    public void setIdentifiers(List<Identifier> identifiers) {
         this.identifiers = identifiers;
     }
 
