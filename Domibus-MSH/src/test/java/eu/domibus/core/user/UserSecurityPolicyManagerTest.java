@@ -1,14 +1,14 @@
 package eu.domibus.core.user;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
@@ -62,7 +62,7 @@ public class UserSecurityPolicyManagerTest {
     DomainService domainService;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
@@ -519,5 +519,60 @@ public class UserSecurityPolicyManagerTest {
         }};
 
         securityPolicyManager.validateUniqueUser(addedUser);
+    }
+
+    @Test
+    public void getExpirationDate_noExpiration(@Mocked UserEntityBase userEntity) {
+        LocalDateTime passChangeDate = LocalDateTime.now();
+
+        new Expectations(securityPolicyManager) {{
+            userEntity.hasDefaultPassword();
+            result = false;
+            securityPolicyManager.getMaximumPasswordAgeProperty();
+            result = "propNme";
+            domibusPropertyProvider.getIntegerProperty("propNme");
+            result = 0;
+        }};
+
+        LocalDateTime res = securityPolicyManager.getExpirationDate(userEntity);
+        assertEquals(null, res);
+    }
+
+    @Test
+    public void getExpirationDate_nullChangeDate(@Mocked UserEntityBase userEntity) {
+        LocalDateTime passChangeDate = LocalDateTime.now();
+
+        new Expectations(securityPolicyManager) {{
+            userEntity.hasDefaultPassword();
+            result = false;
+            securityPolicyManager.getMaximumPasswordAgeProperty();
+            result = "propNme";
+            domibusPropertyProvider.getIntegerProperty("propNme");
+            result = 30;
+            userEntity.getPasswordChangeDate();
+            result = null;
+        }};
+
+        LocalDateTime res = securityPolicyManager.getExpirationDate(userEntity);
+        assertNull(res);
+    }
+
+    @Test
+    public void getExpirationDate(@Mocked UserEntityBase userEntity) {
+        LocalDateTime passChangeDate = LocalDateTime.now();
+
+        new Expectations(securityPolicyManager) {{
+            userEntity.hasDefaultPassword();
+            result = false;
+            securityPolicyManager.getMaximumPasswordAgeProperty();
+            result = "propNme";
+            domibusPropertyProvider.getIntegerProperty("propNme");
+            result = 100;
+            userEntity.getPasswordChangeDate();
+            result = passChangeDate;
+        }};
+
+        LocalDateTime res = securityPolicyManager.getExpirationDate(userEntity);
+        assertEquals(passChangeDate.plusDays(100), res);
     }
 }

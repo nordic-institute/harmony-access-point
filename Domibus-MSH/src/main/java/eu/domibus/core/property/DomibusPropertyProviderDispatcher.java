@@ -96,7 +96,7 @@ public class DomibusPropertyProviderDispatcher {
 
     protected String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
-            LOG.trace("Getting internal property [{}] without domain.", propertyName, domain);
+            LOG.trace("Getting internal property [{}] without domain.", propertyName);
             return domibusPropertyProvider.getInternalProperty(propertyName);
         }
         LOG.trace("Getting internal property [{}] on domain [{}].", propertyName, domain);

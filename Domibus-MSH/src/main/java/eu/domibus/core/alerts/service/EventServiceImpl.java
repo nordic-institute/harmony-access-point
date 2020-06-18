@@ -7,7 +7,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.alerts.model.service.RepetitiveAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService ConfigurationService;
 
     @Autowired
     protected MpcService mpcService;
@@ -223,7 +223,7 @@ public class EventServiceImpl implements EventService {
             }
 
             final Party senderParty = pModeProvider.getSenderParty(userMessageExchangeContext.getPmodeKey());
-            LOG.info("Create error log with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty.getName());
+            LOG.debug("Create message event with receiverParty name: [{}], senderParty name: [{}]", receiverPartyName, senderParty.getName());
             event.addStringKeyValue(FROM_PARTY.name(), senderParty.getName());
             event.addStringKeyValue(TO_PARTY.name(), receiverPartyName);
         } catch (EbMS3Exception e) {
@@ -255,16 +255,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
-        enqueuePasswordEvent(eventType, user, maxPasswordAgeInDays);
-    }
-
-    protected void enqueuePasswordEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
-
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
 
-        if (!this.shouldCreateAlert(entity)) {
+        if (!shouldCreateAlert(entity, alertConfiguration)) {
             return;
         }
 
@@ -287,26 +282,23 @@ public class EventServiceImpl implements EventService {
         return entity;
     }
 
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity) {
-
-        AlertType alertType = AlertType.getByEventType(entity.getType());
-        final RepetitiveAlertModuleConfiguration eventConfiguration = multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration(alertType);
-        if (!eventConfiguration.isActive()) {
-            return false;
-        }
-
-        int frequency = eventConfiguration.getEventFrequency();
+    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+        int frequency = alertConfiguration.getEventFrequency();
 
         LocalDate lastAlertDate = entity.getLastAlertDate();
         LocalDate notificationDate = LocalDate.now().minusDays(frequency);
 
         if (lastAlertDate == null) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate == null", entity);
             return true;
         }
+
         if (lastAlertDate.isBefore(notificationDate)) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate is old enough", entity);
             return true; // last alert is old enough to send another one
         }
 
+        LOG.debug("Should NOT create alert for event [{}] because lastAlertDate is not old enough", entity);
         return false;
     }
 

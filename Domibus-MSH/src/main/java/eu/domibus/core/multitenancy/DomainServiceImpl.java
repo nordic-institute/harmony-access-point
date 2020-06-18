@@ -73,8 +73,15 @@ public class DomainServiceImpl implements DomainService {
         return getDomain(schedulerName);
     }
 
+    /**
+     * Get database schema name for the domain
+     *
+     * @param domain
+     * @return database schema name
+     */
+
     @Override
-    public String getDatabaseSchema(Domain domain) {
+    public String getDatabaseSchema(Domain domain){
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
     }
 

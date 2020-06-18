@@ -95,26 +95,6 @@ public class UserDomainServiceMultiDomainImplTest {
     }
 
     @Test
-    public void testGetSuperUsers() throws Exception {
-        eu.domibus.core.user.ui.User userEntity = new eu.domibus.core.user.ui.User();
-        List<eu.domibus.core.user.ui.User> userEntities = Arrays.asList(userEntity);
-        User user = new User();
-        List<User> users = Arrays.asList(user);
-
-        new Expectations() {{
-            userDao.listUsers();
-            result = userEntities;
-            userConverter.convert(userEntities);
-            result = users;
-        }};
-
-        List<User> mockResult = userDomainServiceMultiDomainImpl.getSuperUsers();
-        List<User> result = mockExecutorSubmit();
-
-        Assert.assertEquals(users, result);
-    }
-
-    @Test
     public void setDomainForUser() throws Exception {
         String user = "user1";
         String domainCode = "domain1";

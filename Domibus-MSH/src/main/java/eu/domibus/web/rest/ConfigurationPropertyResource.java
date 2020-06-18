@@ -77,9 +77,6 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     /**
      * Exports to CSV
-     *
-     * @param request
-     * @return
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
@@ -106,4 +103,15 @@ public class ConfigurationPropertyResource extends BaseResource {
         return res;
     }
 
+    /**
+     * Returns the property metadata and the current value for a property
+     * @param propertyName the name of the property
+     * @return object containing both metadata and value
+     */
+    @GetMapping(path = "/{propertyName:.+}")
+    public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
+        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
+        DomibusPropertyRO convertedProp = domainConverter.convert(prop, DomibusPropertyRO.class);
+        return convertedProp;
+    }
 }

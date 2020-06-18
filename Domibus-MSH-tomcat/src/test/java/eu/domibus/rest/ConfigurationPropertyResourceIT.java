@@ -119,4 +119,11 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
             Assert.assertEquals(oldValue, actualValue);
         }
     }
+
+    @Test
+    public void testGetProperty() {
+        DomibusProperty prop = configurationPropertyResourceHelper.getProperty("domibus.ui.title.name");
+        Assert.assertNotNull(prop);
+        Assert.assertEquals("domibus.ui.title.name", prop.getMetadata().getName());
+    }
 }

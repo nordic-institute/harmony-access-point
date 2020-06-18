@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -11,8 +14,6 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
@@ -71,7 +72,7 @@ public class EventServiceImplTest {
     private Queue alertMessageQueue;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     protected MpcService mpcService;
@@ -240,8 +241,7 @@ public class EventServiceImplTest {
 
             result = toParty;
 
-            errorLogDao.
-                    getErrorsForMessage(messageId);
+            errorLogDao.getErrorsForMessage(messageId);
             result = Lists.newArrayList(errorLogEntry);
         }};
         eventService.enrichMessageEvent(event);
@@ -259,7 +259,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void enqueuePasswordExpirationEvent() throws ParseException {
+    public void enqueuePasswordExpirationEvent(@Mocked PasswordExpirationAlertModuleConfiguration passwordExpirationAlertModuleConfiguration) throws ParseException {
         int maxPasswordAge = 15;
         LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
@@ -270,15 +270,13 @@ public class EventServiceImplTest {
         persistedEvent.setType(EventType.PASSWORD_EXPIRED);
 
         new Expectations() {{
-            multiDomainAlertConfigurationService.getRepetitiveAlertConfiguration((AlertType) any).isActive();
-            result = true;
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
             domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
             result = persistedEvent;
         }};
 
-        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge);
+        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration);
 
         new VerificationsInOrder() {{
             Event event;

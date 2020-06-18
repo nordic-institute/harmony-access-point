@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.alerts.MailSender;
@@ -15,6 +16,7 @@ import mockit.VerificationsInOrder;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +34,7 @@ public class AlertMethodEmailTest {
     private MailSender mailSender;
 
     @Injectable
-    private MultiDomainAlertConfigurationService alertConfigurationService;
+    private CommonConfigurationManager alertConfigurationManager;
 
     @Injectable
     private UserDao userDao;
@@ -120,9 +122,9 @@ public class AlertMethodEmailTest {
         }};
 
         new Expectations() {{
-            alertConfigurationService.getCommonConfiguration().getSendFrom();
+            alertConfigurationManager.getConfiguration().getSendFrom();
             result = "office@domibus.eu";
-            alertConfigurationService.getCommonConfiguration().getSendTo();
+            alertConfigurationManager.getConfiguration().getSendTo();
             result = "peppol@peppol.eu";
 
         }};

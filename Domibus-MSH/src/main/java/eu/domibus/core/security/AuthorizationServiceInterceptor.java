@@ -39,7 +39,7 @@ public class AuthorizationServiceInterceptor extends ServiceInterceptor {
     public Exception convertCoreException(Exception e) {
         if (e instanceof AuthorizationException) {
             AuthorizationException a = (AuthorizationException) e;
-            LOG.trace("Converting Authorization exception:[{}] into EBMSException", e);
+            LOG.trace("Converting Authorization exception:[{}] into EBMSException", a.getClass(), e);
             if (a.getAuthorizationError() != null) {
                 switch (a.getAuthorizationError()) {
                     case INVALID_FORMAT:

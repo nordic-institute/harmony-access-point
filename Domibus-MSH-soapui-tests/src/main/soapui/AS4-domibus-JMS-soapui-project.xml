@@ -4173,7 +4173,7 @@ inputList.each { tcName ->
 			}
 		}
 	}
-</con:tearDownScript><con:reportParameters/></con:testSuite><con:testSuite id="889a6cde-2346-488a-b9e6-882db54ba222" name="JMS-oneway Push-Auto Not for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="1f5f29d9-fc8a-4d9c-a684-ab9eb27fef1e" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Domxxx-EDELIVERY-4238-Push-Payload inside body" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set Message Filter to Jms for Blue and Red" id="b3d9b07b-988b-4490-86b7-33d65698daa6"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log);
+</con:tearDownScript><con:reportParameters/></con:testSuite><con:testSuite id="889a6cde-2346-488a-b9e6-882db54ba222" name="JMS-oneway Push-Auto Not for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="1f5f29d9-fc8a-4d9c-a684-ab9eb27fef1e" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS061-EDELIVERY-4238-Push-Payload inside body" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set Message Filter to Jms for Blue and Red" id="b3d9b07b-988b-4490-86b7-33d65698daa6"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log);
 Domibus.setMessageFilters("receiver","Jms",context,log);
 
 </script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms" id="7e1fc7df-d1bd-47af-9c1d-c8beae0de8e4"><con:settings/><con:config><script>import org.apache.activemq.ActiveMQConnectionFactory;

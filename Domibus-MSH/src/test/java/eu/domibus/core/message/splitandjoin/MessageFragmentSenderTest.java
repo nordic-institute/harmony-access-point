@@ -5,6 +5,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -60,6 +61,9 @@ public class MessageFragmentSenderTest {
 
     @Injectable
     protected MessageGroupDao messageGroupDao;
+
+    @Injectable
+    protected ErrorLogDao errorLogDao;
 
 
     @Test
