@@ -258,35 +258,39 @@ public class BusinessProcessValidatorTest {
 
     @Test
     public void testValidateDuplicatePartyIdentifiers(@Injectable ValidationIssue issue,
-                                                      @Injectable Process process, @Injectable Party party) {
+                                                      @Injectable Party party,
+                                                      @Injectable Identifier identifier,
+                                                      @Injectable  PModeValidationHelper pModeValidationHelper) {
 
 
         List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier1 = new Identifier();
         Identifier identifier2 = new Identifier();
         PartyIdType partyIdType1 = new PartyIdType();
-
+        String message = "Duplicate party identifier [%s] found for the initiator party [%s]";
         partyIdType1.setName("partyIdTypeUrn");
+
         identifier1.setPartyId("domibus-blue");
-        identifiers.add(identifier1);
         identifier1.setPartyIdType(partyIdType1);
+        identifiers.add(identifier1);
+
         identifier2.setPartyId("domibus-blue");
         identifier2.setPartyIdType(partyIdType1);
         identifiers.add(identifier2);
-        Set<Party> validResponderParties = new HashSet<>();
+
         Party party1 = new Party();
+        party1.setName("blue_gw");
         party1.setIdentifiers(identifiers);
-        validResponderParties.add(party1);
+
 
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(issue);
 
         //tested method
-        businessProcessValidator.validateDuplicatePartyIdentifiers(issues, process, validResponderParties);
+        businessProcessValidator.validateDuplicatePartyIdentifiers(issues, party1, message);
 
-        new Verifications() {{
-            businessProcessValidator.createIssue(issues, process, party1.getName(), "Duplicate identifier's found for the party [%s]");
-            times = 1;
+        new FullVerifications(businessProcessValidator) {{
+            businessProcessValidator.createIssue(issues, identifier1.getPartyId(), party1.getName(), message);
         }};
     }
 

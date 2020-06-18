@@ -15,7 +15,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -133,7 +132,7 @@ public class BusinessProcessValidator implements PModeValidator {
                     .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
         }
         validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
-        validateDuplicatePartyIdentifiers(issues, process,validInitiatorParties);
+        validInitiatorParties.forEach(party -> validateDuplicatePartyIdentifiers(issues, party, "Duplicate party identifier [%s] found for the Initiator party [%s]"));
     }
 
     protected void validateInitiatorPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validInitiatorParties) {
@@ -166,7 +165,7 @@ public class BusinessProcessValidator implements PModeValidator {
                     .forEach(party -> createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties"));
         }
         validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
-        validateDuplicatePartyIdentifiers(issues, process,validResponderParties);
+        validResponderParties.forEach(party -> validateDuplicatePartyIdentifiers(issues, party, "Duplicate party identifier [%s] found for the responder party [%s]"));
         return validResponderParties;
     }
 
@@ -178,14 +177,11 @@ public class BusinessProcessValidator implements PModeValidator {
         validResponderParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
     }
 
-    protected void validateDuplicatePartyIdentifiers(List<ValidationIssue> issues, Process process, Set<Party> parties) {
-
-        parties.forEach(party -> {
-            long duplicateIdentifiersCount = party.getIdentifiers().stream()
-                    .collect(Collectors.groupingBy(Identifier::getPartyId, Collectors.counting()))
-                    .values().stream().filter(i -> i > 1).count();
-            if (duplicateIdentifiersCount > 0) {
-                createIssue(issues, process, party.getName(), "Duplicate identifier's found for the party [%s]");
+    protected void validateDuplicatePartyIdentifiers(List<ValidationIssue> issues, Party party, String message) {
+        party.getIdentifiers().forEach(identifier -> {
+            long duplicateIdentifiersCount = party.getIdentifiers().stream().filter(identifier1 -> identifier1.equals(identifier)).count();
+            if (duplicateIdentifiersCount > 1) {
+                createIssue(issues, identifier.getPartyId(), party.getName(), message);
             }
         });
     }
@@ -209,6 +205,9 @@ public class BusinessProcessValidator implements PModeValidator {
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, name, process.getName()));
+    }
+    protected void createIssue(List<ValidationIssue> issues, String partyId, String name, String message) {
+        issues.add(pModeValidationHelper.createValidationIssue(message, partyId, name));
     }
 
 }
