@@ -131,7 +131,6 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         LOG.info("Deliver message: add message to the pending messages, ready to be retrieved.");
         WSMessageLog wsMessageLog = new WSMessageLog();
         wsMessageLog.setMessageId(messageId);
-        wsMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
 
         wsMessageLogDao.create(wsMessageLog);
     }
