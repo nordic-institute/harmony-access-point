@@ -19,7 +19,6 @@ public interface MessageLister {
      */
     Collection<String> listPendingMessages();
 
-
     /**
      * removes the message with the corresponding id from the pending table
      *

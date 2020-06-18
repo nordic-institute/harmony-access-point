@@ -20,9 +20,6 @@
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
-            <column name="RECEIVED" type="TIMESTAMP"/>
-            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
         </createTable>
     </changeSet>
 

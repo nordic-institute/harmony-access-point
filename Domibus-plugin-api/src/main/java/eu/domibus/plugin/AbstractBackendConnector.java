@@ -55,6 +55,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         this.lister = lister;
     }
 
+    public NotificationListener getLister() {
+        return (NotificationListener)lister;
+    }
+
     @Override
     public String submit(final U message) throws MessagingProcessingException {
         try {
@@ -97,7 +101,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
 
-            //dadas
             lister.removeFromPending(messageId);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);

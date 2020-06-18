@@ -17,6 +17,7 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
+import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
@@ -143,7 +144,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Override
     public void messageStatusChanged(MessageStatusChangeEvent event) {
-       LOG.info("Message status changed [{}]", event);
+        LOG.info("Message status changed [{}]", event);
     }
 
     @Override
@@ -263,11 +264,19 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
+        LOG.debug("WS plugin working in [{}] mode", getLister().getMode());
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-        List<WSMessageLog> pending = wsMessageLogDao.findAll();
-        List<String> ids = pending.stream()
-                .map(WSMessageLog::getMessageId).collect(Collectors.toList());
-        response.getMessageID().addAll(ids);
+        final Collection<String> pending;
+        if (BackendConnector.Mode.PULL.equals(getLister().getMode())) {
+            LOG.warn("WebService plugin working in PULL mode. We recommend changing to PUSH mode");
+            pending = this.listPendingMessages();
+        } else {
+            LOG.debug("Query for pending messages in WS plugin table");
+            List<WSMessageLog> ids = wsMessageLogDao.findAll();
+            pending = ids.stream()
+                    .map(WSMessageLog::getMessageId).collect(Collectors.toList());
+        }
+        response.getMessageID().addAll(pending);
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
         return response;
@@ -284,7 +293,9 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse, Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
+    public void retrieveMessage(RetrieveMessageRequest
+                                        retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse, Holder<Messaging> ebMSHeaderInfo) throws
+            RetrieveMessageFault {
 
         UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
@@ -296,16 +307,18 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
 
-        WSMessageLog wsMessageLog;
-        try {
-            wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
-        } catch (NoResultException nre) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
-        }
-        if (wsMessageLog == null) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+        if (BackendConnector.Mode.PUSH.equals(getLister().getMode())) {
+            WSMessageLog wsMessageLog;
+            try {
+                wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
+            } catch (NoResultException nre) {
+                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+            }
+            if (wsMessageLog == null) {
+                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+            }
         }
 
         try {
@@ -341,11 +354,14 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
 
-        // remove downloaded message from the plugin table containing the pending messages
-        wsMessageLogDao.deleteByMessageId(trimmedMessageId);
+        if (BackendConnector.Mode.PUSH.equals(getLister().getMode())) {
+            // remove downloaded message from the plugin table containing the pending messages
+            wsMessageLogDao.deleteByMessageId(trimmedMessageId);
+        }
     }
 
-    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
+    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging
+            messaging) {
         if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
             return;
