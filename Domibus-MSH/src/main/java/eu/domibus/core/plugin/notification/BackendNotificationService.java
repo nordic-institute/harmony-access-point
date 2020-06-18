@@ -24,6 +24,7 @@ import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -260,7 +261,12 @@ public class BackendNotificationService {
         if (userMessage.isUserMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE;
         }
-
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo != null) {
+            properties.put(MessageConstants.SERVICE, collaborationInfo.getService().getValue());
+            properties.put(MessageConstants.SERVICE_TYPE, collaborationInfo.getService().getType());
+            properties.put(MessageConstants.ACTION, collaborationInfo.getAction());
+        }
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
@@ -551,18 +557,18 @@ public class BackendNotificationService {
     protected Map<String, Object> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
         Map<String, Object> properties = new HashMap<>();
         if (messageLog.getMessageStatus() != null) {
-            properties.put("fromStatus", messageLog.getMessageStatus().toString());
+            properties.put(MessageConstants.STATUS_FROM, messageLog.getMessageStatus().toString());
         }
-        properties.put("toStatus", newStatus.toString());
-        properties.put("changeTimestamp", changeTimestamp.getTime());
+        properties.put(MessageConstants.STATUS_TO, newStatus.toString());
+        properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
 
 
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());
 
-            properties.put("service", userMessage.getCollaborationInfo().getService().getValue());
-            properties.put("serviceType", userMessage.getCollaborationInfo().getService().getType());
-            properties.put("action", userMessage.getCollaborationInfo().getAction());
+            properties.put(MessageConstants.SERVICE, userMessage.getCollaborationInfo().getService().getValue());
+            properties.put(MessageConstants.SERVICE_TYPE, userMessage.getCollaborationInfo().getService().getType());
+            properties.put(MessageConstants.ACTION, userMessage.getCollaborationInfo().getAction());
         }
         return properties;
     }

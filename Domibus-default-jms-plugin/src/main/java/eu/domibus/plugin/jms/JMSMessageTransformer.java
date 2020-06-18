@@ -180,6 +180,20 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         return findElement(PAYLOAD_FILENAME, props);
     }
 
+    public QueueContext getQueueContext(final String messageId, final MapMessage messageIn) throws JMSException {
+        String service = getService(messageIn);
+        String action = getAction(messageIn);
+        return new QueueContext(messageId, service, action);
+    }
+
+    protected String getService(final MapMessage messageIn) throws JMSException {
+        return getPropertyWithFallback(messageIn, SERVICE);
+    }
+
+    protected String getAction(final MapMessage messageIn) throws JMSException {
+        return getPropertyWithFallback(messageIn, ACTION);
+    }
+
     /**
      * Transforms {@link javax.jms.MapMessage} to {@link eu.domibus.plugin.Submission}
      *
@@ -204,9 +218,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
             target.setToRole(getPropertyWithFallback(messageIn, TO_ROLE));
 
-            target.setAction(getPropertyWithFallback(messageIn, ACTION));
+            target.setAction(getAction(messageIn));
 
-            target.setService(getPropertyWithFallback(messageIn, SERVICE));
+            target.setService(getService(messageIn));
 
             target.setServiceType(getPropertyWithFallback(messageIn, SERVICE_TYPE));
 
