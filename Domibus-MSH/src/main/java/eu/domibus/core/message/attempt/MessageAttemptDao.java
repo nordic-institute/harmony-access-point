@@ -4,7 +4,7 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@Component
+@Repository
 public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDao.class);
