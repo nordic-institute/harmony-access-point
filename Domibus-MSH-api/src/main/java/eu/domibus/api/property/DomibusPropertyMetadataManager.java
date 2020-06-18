@@ -115,6 +115,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMAIN_TITLE = "domain.title";
     String DOMIBUS_USER_INPUT_BLACK_LIST = "domibus.userInput.blackList";
     String DOMIBUS_USER_INPUT_WHITE_LIST = "domibus.userInput.whiteList";
+    String DOMIBUS_PROPERTY_LENGTH_MAX = "domibus.property.length.max";
     String DOMIBUS_ACCOUNT_UNLOCK_CRON = "domibus.account.unlock.cron";
     String DOMIBUS_CERTIFICATE_CHECK_CRON = "domibus.certificate.check.cron";
     String DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON = "domibus.plugin.account.unlock.cron";

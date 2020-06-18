@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -34,6 +35,9 @@ public class DomibusPropertyServiceImplTest {
 
     @Injectable
     private List<DomibusPropertyManagerExt> propertyManagers;
+
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Mocked
     @Spy
