@@ -106,7 +106,10 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             return new EndpointInfo(endpoint.getAddress(), endpoint.getCertificate());
 
         } catch (TechnicalException exc) {
-            throw new ConfigurationException("Could not fetch metadata from SMP", exc);
+            String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
+            // log error, because cause in ConfigurationException is consumed..
+            LOG.error(msg, exc);
+            throw new ConfigurationException(msg, exc);
         }
     }
 
