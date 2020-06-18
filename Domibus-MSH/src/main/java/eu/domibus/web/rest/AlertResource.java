@@ -96,10 +96,27 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        final List<Alert> domainAlerts = alertRos.stream().filter(Objects::nonNull).filter(alertRo -> !alertRo.isSuperAdmin()).map(this::toAlert).collect(Collectors.toList());
-        final List<Alert> superAlerts = alertRos.stream().filter(Objects::nonNull).filter(AlertRo::isSuperAdmin).map(this::toAlert).collect(Collectors.toList());
+        final List<Alert> domainAlerts = alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> !alertRo.isSuperAdmin())
+                .filter(alertRo -> !alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+        final List<Alert> superAlerts = alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(AlertRo::isSuperAdmin)
+                .filter(alertRo -> !alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+        final List<Alert> deletedAlerts = alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+
         alertService.updateAlertProcessed(domainAlerts);
         domainTaskExecutor.submit(() -> alertService.updateAlertProcessed(superAlerts));
+        alertService.deleteAlerts(deletedAlerts);
     }
 
     @GetMapping(path = "/csv")

@@ -24,10 +24,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
@@ -271,4 +269,19 @@ public class AlertServiceImpl implements AlertService {
         enqueueAlert(convert);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void deleteAlerts(List<eu.domibus.core.alerts.model.service.Alert> alerts) {
+        LOG.info("Deleting alerts: {}", alerts);
+
+        alerts.stream()
+            .map(alert -> alertDao.read(alert.getEntityId()))
+            .forEach(alert -> {
+                alert.getEvents().forEach(event -> event.removeAlert(alert));
+                alertDao.delete(alert);
+            });
+    }
 }
