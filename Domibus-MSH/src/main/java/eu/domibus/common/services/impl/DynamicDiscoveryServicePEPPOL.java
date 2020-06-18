@@ -1,5 +1,6 @@
 package eu.domibus.common.services.impl;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
@@ -7,6 +8,7 @@ import eu.domibus.common.util.DomibusApacheFetcher;
 import eu.domibus.common.util.DomibusCertificateValidator;
 import eu.domibus.common.util.EndpointInfo;
 import eu.domibus.common.util.ProxyUtil;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.api.pki.CertificateService;
@@ -26,6 +28,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.security.KeyStore;
+
 import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /**
@@ -41,6 +45,7 @@ import static eu.domibus.common.services.DomibusCacheService.DYNAMIC_DISCOVERY_E
 @Qualifier("dynamicDiscoveryServicePEPPOL")
 public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
 
     private static final String RESPONDER_ROLE = "urn:fdc:peppol.eu:2017:roles:ap:as4";
@@ -49,6 +54,12 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
 
     @Autowired
     protected ProxyUtil proxyUtil;
@@ -69,11 +80,22 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             mode = Mode.TEST;
         }
 
+        final String certRegex = domibusPropertyProvider.getDomainProperty(DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
+        if (StringUtils.isEmpty(certRegex)) {
+            LOG.warn("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
+        }
+
+        LOG.debug("Load trustore for the smpClient");
+        KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+
         try {
+            // create certificate validator
+            DomibusCertificateValidator domibusSMPCertificateValidator = new DomibusCertificateValidator(certificateService, trustStore, certRegex);
+
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(new BusdoxLocator(smlInfo));
             lookupClientBuilder.fetcher(new DomibusApacheFetcher(Mode.of(mode), proxyUtil));
-            lookupClientBuilder.certificateValidator(new DomibusCertificateValidator(certificateService));
+            lookupClientBuilder.certificateValidator(domibusSMPCertificateValidator);
             final LookupClient smpClient = lookupClientBuilder.build();
             final ParticipantIdentifier participantIdentifier = ParticipantIdentifier.of(participantId, Scheme.of(participantIdScheme));
             final DocumentTypeIdentifier documentIdentifier = getDocumentTypeIdentifier(documentId);
@@ -87,11 +109,14 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             final Endpoint endpoint = sm.getEndpoint(processIdentifier, TransportProfile.of(transportProfileAS4));
 
             if (endpoint == null || endpoint.getAddress() == null) {
-                throw new ConfigurationException("Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId);
+                throw new ConfigurationException("Received incomplete metadata from the SMP for documentId " + documentId + " processId " + processId);
             }
             return new EndpointInfo(endpoint.getAddress().toString(), endpoint.getCertificate());
         } catch (final PeppolParsingException | PeppolLoadingException | PeppolSecurityException | LookupException | EndpointNotFoundException | IllegalStateException e) {
-            throw new ConfigurationException("Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId, e);
+            String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
+            // log error, because cause in ConfigurationException is consumed..
+            LOG.error(msg, e);
+            throw new ConfigurationException(msg, e);
         }
     }
 
