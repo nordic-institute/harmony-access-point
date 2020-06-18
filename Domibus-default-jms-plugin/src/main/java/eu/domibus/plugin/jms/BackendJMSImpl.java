@@ -16,6 +16,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +58,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     @Autowired
     @Qualifier(value = "mshToBackendTemplate")
     private JmsOperations mshToBackendTemplate;
+
+    @Autowired
+    protected JMSMessageTransformer jmsMessageTransformer;
 
     private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
     private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
@@ -103,10 +107,13 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
             LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
 
+            QueueContext queueContext = jmsMessageTransformer.getQueueContext(messageID, map);
+            LOG.debug("Extracted queue context [{}]", queueContext);
+
             if (!MESSAGE_TYPE_SUBMIT.equals(messageType)) {
                 String wrongMessageTypeMessage = getWrongMessageTypeErrorMessage(messageID, jmsCorrelationID, messageType);
                 LOG.error(wrongMessageTypeMessage);
-                sendReplyMessage(messageID, wrongMessageTypeMessage, jmsCorrelationID);
+                sendReplyMessage(queueContext, wrongMessageTypeMessage, jmsCorrelationID);
                 return;
             }
 
@@ -119,7 +126,7 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
-            sendReplyMessage(messageID, errorMessage, jmsCorrelationID);
+            sendReplyMessage(queueContext, errorMessage, jmsCorrelationID);
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
@@ -133,15 +140,17 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
                 messageType, jmsCorrelationID, messageID, MESSAGE_TYPE_SUBMIT);
     }
 
-    protected void sendReplyMessage(final String messageId, final String errorMessage, final String correlationId) {
-        LOG.debug("Sending reply message");
+    protected void sendReplyMessage(QueueContext queueContext, final String errorMessage, final String correlationId) {
+        String messageId = queueContext.getMessageId();
+        LOG.info("Sending reply message with message id [{}], error message [{}] and correlation id [{}]", messageId, errorMessage, correlationId);
+
         final JmsMessageDTO jmsMessageDTO = new ReplyMessageCreator(messageId, errorMessage, correlationId).createMessage();
-        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
+        sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
     @Override
     public void deliverMessage(final String messageId) {
-        LOG.debug("Delivering message");
+        LOG.debug("Delivering message [{}]", messageId);
 
         final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
@@ -154,7 +163,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(messageReceiveFailureEvent.getErrorResult(),
                 messageReceiveFailureEvent.getEndpoint(),
                 NotificationType.MESSAGE_RECEIVED_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, messageReceiveFailureEvent.getMessageId(), JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
+        QueueContext queueContext = new QueueContext(messageReceiveFailureEvent.getMessageId(), messageReceiveFailureEvent.getService(), messageReceiveFailureEvent.getAction());
+        sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
@@ -172,9 +182,16 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        final String queueValue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
-        LOG.info("Sending message to queue [{}]", queueValue);
+        LOG.info("Sending message [{}] to queue [{}]", message, queueValue);
+        jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
+    }
+
+    protected void sendJmsMessage(JmsMessageDTO message, QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
+        final String queueValue = backendJMSQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+
+        LOG.info("Sending message with message id [{}] to queue [{}]", queueContext.getMessageId(), queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
     }
 
@@ -183,7 +200,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         try {
-            MapMessage result = this.getMessageRetrievalTransformer().transformFromSubmission(this.messageRetriever.downloadMessage(messageId), target);
+            Submission submission = messageRetriever.downloadMessage(messageId);
+            MapMessage result = getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return result;

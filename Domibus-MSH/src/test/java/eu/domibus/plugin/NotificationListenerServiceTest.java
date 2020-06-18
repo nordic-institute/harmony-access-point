@@ -5,12 +5,10 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.MessageStatusChangeEvent;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
+import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -29,6 +27,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * // TODO reach 70% coverage.
@@ -93,14 +93,14 @@ public class NotificationListenerServiceTest {
             domibusPropertyProvider.getIntegerProperty(NotificationListenerService.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
             result = 5;
 
-            jmsManager.browseClusterMessages((String)any, (String)any);
+            jmsManager.browseClusterMessages((String) any, (String) any);
             result = messages;
 
         }};
 
         Collection<String> result = new ArrayList<String>();
         result.addAll(objNotificationListenerService.browseQueue(NotificationType.MESSAGE_RECEIVED, TEST_FINAL_RECIPIENT));
-        Assert.assertEquals(5, result.size());
+        assertEquals(5, result.size());
 
         Assert.assertTrue(objNotificationListenerService.getRequiredNotificationTypeList().size() == 3);
         Assert.assertTrue(objNotificationListenerService.getRequiredNotificationTypeList().contains(NotificationType.MESSAGE_RECEIVED));
@@ -120,7 +120,7 @@ public class NotificationListenerServiceTest {
             domibusPropertyProvider.getIntegerProperty(NotificationListenerService.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
             result = 5;
 
-            jmsManager.browseClusterMessages((String)any, (String)any);
+            jmsManager.browseClusterMessages((String) any, (String) any);
             result = messages;
 
         }};
@@ -128,7 +128,7 @@ public class NotificationListenerServiceTest {
         /* Expected scenario when max pending messages configuration is not specified */
         Collection<String> result = new ArrayList<String>();
         result.addAll(objNotificationListenerService.browseQueue(NotificationType.MESSAGE_RECEIVED, TEST_FINAL_RECIPIENT));
-        Assert.assertEquals(5, result.size());
+        assertEquals(5, result.size());
     }
 
     @Test
@@ -180,7 +180,7 @@ public class NotificationListenerServiceTest {
         try {
             objNotificationListenerService.removeFromPending(messageId);
         } catch (MessageNotFoundException mnfEx) {
-            Assert.assertEquals(mnfEx.getMessage(), "No message with id [" + messageId + "] pending for download");
+            assertEquals(mnfEx.getMessage(), "No message with id [" + messageId + "] pending for download");
         }
 
         new Verifications() {{
@@ -247,11 +247,56 @@ public class NotificationListenerServiceTest {
         new Verifications() {{
             MessageStatusChangeEvent event = null;
             backendConnectorDelegate.messageStatusChanged(backendConnector, event = withCapture());
-            Assert.assertEquals(event.getMessageId(), messageId);
-            Assert.assertEquals(event.getFromStatus(), fromStatus);
-            Assert.assertEquals(event.getToStatus(), toStatus);
-            Assert.assertEquals(event.getChangeTimestamp(), timestamp);
+            assertEquals(event.getMessageId(), messageId);
+            assertEquals(event.getFromStatus(), fromStatus);
+            assertEquals(event.getToStatus(), toStatus);
+            assertEquals(event.getChangeTimestamp(), timestamp);
         }};
 
+    }
+
+    @Test
+    public void testDoMessageReceiveFailure(@Injectable Message message,
+                                            @Injectable BackendConnector backendConnector) throws JMSException {
+        final String messageId = "123";
+        final String errorCode = "EBMS:0001";
+        final String errorDetail = "error details";
+        String service = "my service";
+        String serviceType = "service type";
+        String action = "my action";
+
+        new Expectations() {{
+            message.getStringProperty(MessageConstants.MESSAGE_ID);
+            result = messageId;
+
+            message.getStringProperty(MessageConstants.ERROR_CODE);
+            result = errorCode;
+
+            message.getStringProperty(MessageConstants.ERROR_DETAIL);
+            result = errorDetail;
+
+            message.getStringProperty(MessageConstants.SERVICE);
+            result = service;
+
+            message.getStringProperty(MessageConstants.SERVICE_TYPE);
+            result = serviceType;
+
+            message.getStringProperty(MessageConstants.ACTION);
+            result = action;
+        }};
+
+        objNotificationListenerService.doMessageReceiveFailure(message);
+
+        new Verifications() {{
+            MessageReceiveFailureEvent event = null;
+            backendConnectorDelegate.messageReceiveFailed(backendConnector, event = withCapture());
+
+            assertEquals(messageId, event.getMessageId());
+            assertEquals(errorCode, event.getErrorResult().getErrorCode().getErrorCodeName());
+            assertEquals(errorDetail, event.getErrorResult().getErrorDetail());
+            assertEquals(service, event.getService());
+            assertEquals(serviceType, event.getServiceType());
+            assertEquals(action, event.getAction());
+        }};
     }
 }
