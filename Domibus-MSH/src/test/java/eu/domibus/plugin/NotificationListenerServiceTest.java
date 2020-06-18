@@ -292,8 +292,6 @@ public class NotificationListenerServiceTest {
             backendConnectorDelegate.messageReceiveFailed(backendConnector, event = withCapture());
 
             assertEquals(messageId, event.getMessageId());
-            assertEquals(errorCode, event.getErrorResult().getErrorCode().getErrorCodeName());
-            assertEquals(errorDetail, event.getErrorResult().getErrorDetail());
             assertEquals(service, event.getService());
             assertEquals(serviceType, event.getServiceType());
             assertEquals(action, event.getAction());
