@@ -31,20 +31,14 @@ public class WSMessageLog {
     @Column(name = "ID_PK")
     private long entityId;
 
-    @Column(name = "MESSAGE_STATUS")
-    @Enumerated(EnumType.STRING)
-    private MessageStatus messageStatus;
-
     @Column(name = "MESSAGE_ID")
     private String messageId;
 
     public WSMessageLog() {
-        this.messageStatus = null;
         this.messageId = null;
     }
 
     public WSMessageLog(MessageStatus messageStatus, String messageId) {
-        this.messageStatus = messageStatus;
         this.messageId = messageId;
     }
 
@@ -54,14 +48,6 @@ public class WSMessageLog {
 
     public void setEntityId(long entityId) {
         this.entityId = entityId;
-    }
-
-    public MessageStatus getMessageStatus() {
-        return messageStatus;
-    }
-
-    public void setMessageStatus(MessageStatus messageStatus) {
-        this.messageStatus = messageStatus;
     }
 
     public String getMessageId() {

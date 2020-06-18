@@ -6,6 +6,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.NotificationListener;
@@ -21,9 +22,7 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jms.Queue;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +56,6 @@ public class BackendWebServiceImplTest {
 
     @Injectable
     private MessageExtService messageExtService;
-
-    @Injectable
-    private MessageLister lister;
 
     @Injectable
     private String name;
@@ -165,37 +161,18 @@ public class BackendWebServiceImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheMessageByItsIdentifier(@Injectable RetrieveMessageRequest retrieveMessageRequest,
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
-                                                                                    @Injectable Messaging ebMSHeaderInfo) throws RetrieveMessageFault {
-        NotificationListener l = new NotificationListener() {
-            @Override
-            public String getBackendName() {
-                return null;
-            }
-
-            @Override
-            public Queue getBackendNotificationQueue() {
-                return null;
-            }
-
-            @Override
-            public BackendConnector.Mode getMode() {
-                return BackendConnector.Mode.PUSH;
-            }
-
-            @Override
-            public List<NotificationType> getRequiredNotificationTypeList() {
-                return null;
-            }
-        };
-
-        new Expectations() {{
+                                                                                    @Injectable Messaging ebMSHeaderInfo,
+                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault, MessageNotFoundException {
+        new Expectations(backendWebService) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";
-            backendWebService.getLister();
-            result = l;
-
+            backendWebService.getMode();
+            result = BackendConnector.Mode.PUSH;
+            lister.removeFromPending(anyString);
+            result= null;
         }};
 
+        backendWebService.setLister(lister);
         backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
         new Verifications() {{

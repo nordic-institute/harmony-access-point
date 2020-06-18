@@ -55,8 +55,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         this.lister = lister;
     }
 
-    public NotificationListener getLister() {
-        return (NotificationListener)lister;
+    public BackendConnector.Mode getMode() {
+        return ((NotificationListener)lister).getMode();
     }
 
     @Override

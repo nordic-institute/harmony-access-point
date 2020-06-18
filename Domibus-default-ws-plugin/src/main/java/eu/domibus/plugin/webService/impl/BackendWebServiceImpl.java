@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
@@ -264,10 +263,10 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
-        LOG.debug("WS plugin working in [{}] mode", getLister().getMode());
+        LOG.debug("WS plugin working in [{}] mode", getMode());
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
         final Collection<String> pending;
-        if (BackendConnector.Mode.PULL.equals(getLister().getMode())) {
+        if (BackendConnector.Mode.PULL.equals(getMode())) {
             LOG.warn("WebService plugin working in PULL mode. We recommend changing to PUSH mode");
             pending = this.listPendingMessages();
         } else {
@@ -307,14 +306,9 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
 
-        if (BackendConnector.Mode.PUSH.equals(getLister().getMode())) {
+        if (BackendConnector.Mode.PUSH.equals(getMode())) {
             WSMessageLog wsMessageLog;
-            try {
-                wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
-            } catch (NoResultException nre) {
-                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
-            }
+            wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
             if (wsMessageLog == null) {
                 LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
                 throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
@@ -354,7 +348,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
 
-        if (BackendConnector.Mode.PUSH.equals(getLister().getMode())) {
+        if (BackendConnector.Mode.PUSH.equals(getMode())) {
             // remove downloaded message from the plugin table containing the pending messages
             wsMessageLogDao.deleteByMessageId(trimmedMessageId);
         }
