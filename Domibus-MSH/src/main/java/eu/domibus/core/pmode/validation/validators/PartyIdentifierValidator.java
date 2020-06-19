@@ -27,7 +27,8 @@ public class PartyIdentifierValidator implements PModeValidator {
 
     /**
      * Validate the Identifiers in the pmode
-     * @param pMode
+     *
+     * @param pMode configuration of pmode
      * @return list of ValidationIssue
      */
     @Override
@@ -43,8 +44,9 @@ public class PartyIdentifierValidator implements PModeValidator {
 
     /**
      * check the duplicate identifiers of the parties
-     * @param issues
-     * @param party
+     *
+     * @param issues validation issues
+     * @param party  party with identifiers
      * @return list of ValidationIssue
      */
     protected List<ValidationIssue> validateDuplicatePartyIdentifiers(List<ValidationIssue> issues, Party party) {
@@ -59,10 +61,6 @@ public class PartyIdentifierValidator implements PModeValidator {
 
     /**
      * Creates pmode validation issue
-     * @param issues
-     * @param partyId
-     * @param name
-     * @param message
      */
     protected void createIssue(List<ValidationIssue> issues, String partyId, String name, String message) {
         issues.add(pModeValidationHelper.createValidationIssue(message, partyId, name));
