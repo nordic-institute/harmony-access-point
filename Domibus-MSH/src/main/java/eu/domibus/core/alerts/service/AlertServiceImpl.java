@@ -85,7 +85,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        final Event eventEntity = eventDao.read(event.getEntityId());
+        final Event eventEntity = readEvent(event);
         final AlertType alertType = AlertType.getByEventType(event.getType());
 
         final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
@@ -132,18 +132,18 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MailModel getMailModelForAlert(eu.domibus.core.alerts.model.service.Alert alert) {
-        final Alert read = alertDao.read(alert.getEntityId());
-        read.setReportingTime(new Date());
+        final Alert alertEntity = readAlert(alert);
+        alertEntity.setReportingTime(new Date());
         Map<String, String> mailModel = new HashMap<>();
-        final Event next = read.getEvents().iterator().next();
+        final Event next = alertEntity.getEvents().iterator().next();
         next.getProperties().forEach((key, value) -> mailModel.put(key, value.getValue().toString()));
-        mailModel.put(ALERT_LEVEL, read.getAlertLevel().name());
-        mailModel.put(REPORTING_TIME, read.getReportingTime().toString());
+        mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
+        mailModel.put(REPORTING_TIME, alertEntity.getReportingTime().toString());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
-        final AlertType alertType = read.getAlertType();
+        final AlertType alertType = alertEntity.getAlertType();
         String subject = alertConfigurationService.getMailSubject(alertType);
 
         final String alertSuperInstanceNameSubjectProperty = DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;;
@@ -160,7 +160,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleAlertStatus(eu.domibus.core.alerts.model.service.Alert alert) {
-        final Alert alertEntity = alertDao.read(alert.getEntityId());
+        final Alert alertEntity = readAlert(alert);
         if (alertEntity == null) {
             LOG.error("Alert[{}]: not found", alert.getEntityId());
             return;
@@ -278,10 +278,22 @@ public class AlertServiceImpl implements AlertService {
         LOG.info("Deleting alerts: {}", alerts);
 
         alerts.stream()
-            .map(alert -> alertDao.read(alert.getEntityId()))
-            .forEach(alert -> {
-                alert.getEvents().forEach(event -> event.removeAlert(alert));
-                alertDao.delete(alert);
-            });
+            .map(alert -> readAlert(alert))
+            .filter(Objects::nonNull)
+            .forEach(alert -> deleteAlert(alert));
+    }
+
+    private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {
+        return eventDao.read(event.getEntityId());
+    }
+
+    private Alert readAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+        return alertDao.read(alert.getEntityId());
+    }
+
+    private void deleteAlert(Alert alert) {
+        LOG.debug("Deleting alert by first detaching it from its events: [{}]", alert);
+        alert.getEvents().forEach(event -> event.removeAlert(alert));
+        alertDao.delete(alert);
     }
 }

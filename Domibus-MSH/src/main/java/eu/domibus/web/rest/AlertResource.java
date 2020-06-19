@@ -96,27 +96,51 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        final List<Alert> domainAlerts = alertRos.stream()
+        final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
+        final List<Alert> superAlerts = filterSuperAlerts(alertRos);
+        final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);
+        final List<Alert> deletedSuperAlerts = filterDeletedSuperAlerts(alertRos);
+
+        alertService.updateAlertProcessed(domainAlerts);
+        domainTaskExecutor.submit(() -> alertService.updateAlertProcessed(superAlerts));
+        alertService.deleteAlerts(deletedDomainAlerts);
+        domainTaskExecutor.submit(() -> alertService.deleteAlerts(deletedSuperAlerts));
+    }
+
+    protected List<Alert> filterDomainAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
                 .filter(Objects::nonNull)
                 .filter(alertRo -> !alertRo.isSuperAdmin())
                 .filter(alertRo -> !alertRo.isDeleted())
                 .map(this::toAlert)
                 .collect(Collectors.toList());
-        final List<Alert> superAlerts = alertRos.stream()
-                .filter(Objects::nonNull)
-                .filter(AlertRo::isSuperAdmin)
-                .filter(alertRo -> !alertRo.isDeleted())
-                .map(this::toAlert)
-                .collect(Collectors.toList());
-        final List<Alert> deletedAlerts = alertRos.stream()
+    }
+
+    protected List<Alert> filterSuperAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                    .filter(Objects::nonNull)
+                    .filter(AlertRo::isSuperAdmin)
+                    .filter(alertRo -> !alertRo.isDeleted())
+                    .map(this::toAlert)
+                    .collect(Collectors.toList());
+    }
+
+    protected List<Alert> filterDeletedDomainAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
                 .filter(Objects::nonNull)
                 .filter(alertRo -> alertRo.isDeleted())
+                .filter(alertRo -> !alertRo.isSuperAdmin())
                 .map(this::toAlert)
                 .collect(Collectors.toList());
+    }
 
-        alertService.updateAlertProcessed(domainAlerts);
-        domainTaskExecutor.submit(() -> alertService.updateAlertProcessed(superAlerts));
-        alertService.deleteAlerts(deletedAlerts);
+    protected List<Alert> filterDeletedSuperAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> alertRo.isDeleted())
+                .filter(AlertRo::isSuperAdmin)
+                .map(this::toAlert)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(path = "/csv")
@@ -148,7 +172,7 @@ public class AlertResource extends BaseResource {
         return alertResult;
     }
 
-    private Alert toAlert(AlertRo alertRo) {
+    protected Alert toAlert(AlertRo alertRo) {
         final long entityId = alertRo.getEntityId();
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();

@@ -13,7 +13,6 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
-import {UserResponseRO, UserState} from '../user/support/user';
 import {AlertsEntry} from './support/alertsentry';
 
 @Component({
@@ -58,6 +57,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   dateToName: string;
   displayDomainCheckBox: boolean;
   areRowsDeleted: boolean;
+  areRowsEdited: boolean;
 
   matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
@@ -95,6 +95,7 @@ export class AlertsComponent extends mix(BaseListComponent)
     super.orderBy = 'creationTime';
     super.asc = false;
     this.areRowsDeleted = false;
+    this.areRowsEdited = false;
     this.filterData();
   }
 
@@ -235,7 +236,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   setIsDirty() {
-    super.isChanged = this.areRowsDeleted;
+    super.isChanged = this.areRowsDeleted || this.areRowsEdited;
   }
 
   delete() {
@@ -262,9 +263,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   setProcessedValue(row) {
-    if (row.status === UserState[UserState.PERSISTED]) {
-      row.status = UserState[UserState.UPDATED];
-    }
+    this.areRowsEdited = true;
     this.setIsDirty();
   }
 
