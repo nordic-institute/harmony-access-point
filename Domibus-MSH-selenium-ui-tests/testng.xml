@@ -10,10 +10,10 @@
 
 	<test name="TMP">
 		<classes>
-			<class name="domibus.ui.functional.MessageFilterPgTest"/>
-			<class name="domibus.ui.functional.MessagesPgTest"/>
+<!--			<class name="domibus.ui.functional.MessageFilterPgTest"/>-->
+<!--			<class name="domibus.ui.functional.MessagesPgTest"/>-->
 			<class name="domibus.ui.ux.MessagesPgUXTest"/>
-			<class name="domibus.ui.functional.AuditPgTest"/>
+<!--			<class name="domibus.ui.functional.AuditPgTest"/>-->
 		</classes>
 	</test>
 <!--	<test name="UX">-->

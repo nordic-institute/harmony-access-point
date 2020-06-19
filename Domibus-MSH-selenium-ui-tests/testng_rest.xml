@@ -4,10 +4,15 @@
 
 
 	<test name="REST">
-		<packages>
-			<package name="domibus.ui.rest.*"></package>
-		</packages>
+		<classes>
+			<class name="domibus.ui.rest.LoginTests"></class>
+		</classes>
 	</test>
+<!--	<test name="REST">-->
+<!--		<packages>-->
+<!--			<package name="domibus.ui.rest.*"></package>-->
+<!--		</packages>-->
+<!--	</test>-->
 
 
 </suite>
