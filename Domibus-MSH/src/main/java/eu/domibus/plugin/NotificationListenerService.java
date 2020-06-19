@@ -131,13 +131,13 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
-                    backendConnector.deliverMessage(messageId);
+                    doDeliverMessage(message);
                     break;
                 case MESSAGE_SEND_FAILURE:
-                    backendConnector.messageSendFailed(messageId);
+                    doMessageSendFailed(message);
                     break;
                 case MESSAGE_SEND_SUCCESS:
-                    backendConnector.messageSendSuccess(messageId);
+                    doMessageSendSuccess(message);
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
                     doMessageReceiveFailure(message);
@@ -153,6 +153,25 @@ public class NotificationListenerService implements MessageListener, JmsListener
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
         }
+    }
+
+    protected void doDeliverMessage(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        final String finalRecipient = message.getStringProperty(MessageConstants.FINAL_RECIPIENT);
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, finalRecipient);
+        backendConnectorDelegate.deliverMessage(backendConnector, deliverMessageEvent);
+    }
+
+    protected void doMessageSendFailed(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(messageId);
+        backendConnectorDelegate.messageSendFailed(backendConnector, messageSendFailedEvent);
+    }
+
+    protected void doMessageSendSuccess(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendSuccessEvent messageSendFailedEvent = new MessageSendSuccessEvent(messageId);
+        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendFailedEvent);
     }
 
     protected void doMessageStatusChange(final Message message) throws JMSException {

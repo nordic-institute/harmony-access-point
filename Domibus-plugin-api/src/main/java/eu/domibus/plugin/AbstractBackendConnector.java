@@ -55,10 +55,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         this.lister = lister;
     }
 
-    public BackendConnector.Mode getMode() {
-        return ((NotificationListener)lister).getMode();
-    }
-
     @Override
     public String submit(final U message) throws MessagingProcessingException {
         try {
@@ -140,12 +136,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
+    public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 
     @Override
-    public void messageStatusChanged(MessageStatusChangeEvent event) {
+    public void messageStatusChanged(final MessageStatusChangeEvent event) {
         //this method should be implemented by the plugins needed to be notified when the User Message status changes
     }
 
@@ -155,7 +151,27 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
+    public void deliverMessage(final DeliverMessageEvent event) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
     public void messageSendSuccess(String messageId) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendSuccess(final MessageSendSuccessEvent event) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendFailed(final MessageSendFailedEvent event) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendFailed(String messageId) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 

@@ -10,13 +10,18 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-
+/**
+ * @author idragusa
+ * @since 4.2
+ */
 @Repository
 public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageLogDao.class);
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
+
+    public static final String MAXCOUNT = "MAXCOUNT";
 
     public WSMessageLogDao() {
         super(WSMessageLog.class);
@@ -38,6 +43,14 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
             return null;
         }
         return wsMessageLog;
+    }
+
+    /**
+     * Fins all entries in the plugin table limited to maxCount.
+     */
+    public List<WSMessageLog> findAll(int maxCount) {
+        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAll", WSMessageLog.class);
+        return query.setMaxResults(maxCount).getResultList();
     }
 
     /**

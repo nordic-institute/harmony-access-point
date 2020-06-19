@@ -23,10 +23,7 @@ import javax.xml.bind.annotation.XmlTransient;
 })
 public class WSMessageLog {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageLog.class);
-
     @Id
-    @XmlTransient
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_PK")
     private long entityId;
@@ -34,12 +31,12 @@ public class WSMessageLog {
     @Column(name = "MESSAGE_ID")
     private String messageId;
 
-    public WSMessageLog() {
-        this.messageId = null;
-    }
+    @Column(name = "FINAL_RECIPIENT")
+    private String finalRecipient;
 
-    public WSMessageLog(MessageStatus messageStatus, String messageId) {
+    public WSMessageLog(String messageId, String finalRecipient) {
         this.messageId = messageId;
+        this.finalRecipient = finalRecipient;
     }
 
     public long getEntityId() {
@@ -56,5 +53,13 @@ public class WSMessageLog {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getFinalRecipient() {
+        return finalRecipient;
+    }
+
+    public void setFinalRecipient(String finalRecipient) {
+        this.finalRecipient = finalRecipient;
     }
 }

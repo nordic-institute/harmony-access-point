@@ -1,15 +1,12 @@
 package eu.domibus.plugin.webService.impl;
 
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.MessageStatusChangeEvent;
+import eu.domibus.common.*;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -18,11 +15,14 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLog;
 import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.webService.generated.ErrorCode;
+import eu.domibus.plugin.webService.generated.MessageStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +62,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
+    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "domibus.listPendingMessages.maxCount";
+
     @Autowired
     private StubDtoTransformer defaultTransformer;
 
@@ -79,6 +81,9 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Autowired
     private DomainContextExtService domainContextExtService;
+
+    @Autowired
+    protected DomibusPropertyExtService domibusPropertyExtService;
 
     public BackendWebServiceImpl(final String name) {
         super(name);
@@ -127,27 +132,30 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     }
 
     @Override
-    public void deliverMessage(final String messageId) {
-        LOG.info("Deliver message: add message to the pending messages, ready to be retrieved.");
-        WSMessageLog wsMessageLog = new WSMessageLog();
-        wsMessageLog.setMessageId(messageId);
-
+    public void deliverMessage(final DeliverMessageEvent event) {
+        LOG.info("Deliver message: [{}]", event);
+        WSMessageLog wsMessageLog = new WSMessageLog(event.getMessageId(), event.getFinalRecipient());
         wsMessageLogDao.create(wsMessageLog);
     }
 
     @Override
-    public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
-        LOG.info("Message receive failed [{}]", messageReceiveFailureEvent);
+    public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
+        LOG.info("Message receive failed [{}]", event);
     }
 
     @Override
-    public void messageStatusChanged(MessageStatusChangeEvent event) {
+    public void messageStatusChanged(final MessageStatusChangeEvent event) {
         LOG.info("Message status changed [{}]", event);
     }
 
     @Override
-    public void messageSendSuccess(String messageId) {
-        LOG.info("Message send success [{}]", messageId);
+    public void messageSendFailed(final MessageSendFailedEvent event) {
+        LOG.info("Message send failed [{}]", event);
+    }
+
+    @Override
+    public void messageSendSuccess(final MessageSendSuccessEvent event) {
+        LOG.info("Message send success [{}]", event.getMessageId());
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -262,21 +270,14 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
-        LOG.debug("WS plugin working in [{}] mode", getMode());
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
         final Collection<String> pending;
-        if (BackendConnector.Mode.PULL.equals(getMode())) {
-            LOG.warn("WebService plugin working in PULL mode. We recommend changing to PUSH mode");
-            pending = this.listPendingMessages();
-        } else {
-            LOG.debug("Query for pending messages in WS plugin table");
-            List<WSMessageLog> ids = wsMessageLogDao.findAll();
-            pending = ids.stream()
-                    .map(WSMessageLog::getMessageId).collect(Collectors.toList());
-        }
+        final int intMaxPendingMessagesRetrieveCount = new Integer(domibusPropertyExtService.getProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT));
+        LOG.debug("List pending messages, maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
+        List<WSMessageLog> ids = wsMessageLogDao.findAll();
+        pending = ids.stream()
+                .map(WSMessageLog::getMessageId).collect(Collectors.toList());
         response.getMessageID().addAll(pending);
-        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
-        LOG.info("ListPendingMessages for domain [{}]", domainDTO);
         return response;
     }
 
@@ -291,10 +292,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void retrieveMessage(RetrieveMessageRequest
-                                        retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse, Holder<Messaging> ebMSHeaderInfo) throws
-            RetrieveMessageFault {
-
+    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse,
+                                Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
 
@@ -304,14 +303,10 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-
-        if (BackendConnector.Mode.PUSH.equals(getMode())) {
-            WSMessageLog wsMessageLog;
-            wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
-            if (wsMessageLog == null) {
-                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
-            }
+        WSMessageLog wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
+        if (wsMessageLog == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
         try {
@@ -347,14 +342,11 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
 
-        if (BackendConnector.Mode.PUSH.equals(getMode())) {
-            // remove downloaded message from the plugin table containing the pending messages
-            wsMessageLogDao.deleteByMessageId(trimmedMessageId);
-        }
+        // remove downloaded message from the plugin table containing the pending messages
+        wsMessageLogDao.delete(wsMessageLog);
     }
 
-    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging
-            messaging) {
+    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
         if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
             return;
@@ -417,11 +409,6 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     public MessageRetrievalTransformer<UserMessage> getMessageRetrievalTransformer() {
         return this.defaultTransformer;
-    }
-
-    @Override
-    public void messageSendFailed(final String messageId) {
-        throw new UnsupportedOperationException("Operation not yet implemented");
     }
 
 }

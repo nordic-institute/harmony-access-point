@@ -23,14 +23,16 @@
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Domibus tables -->
-
     <changeSet author="idragusa" id="EDELIVERY-4740">
-        <comment>Plugin specific tbles</comment>
+        <comment>Plugin specific tables</comment>
         <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
             </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
 

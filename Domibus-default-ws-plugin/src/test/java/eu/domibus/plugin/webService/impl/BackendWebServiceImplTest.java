@@ -1,15 +1,11 @@
 package eu.domibus.plugin.webService.impl;
 
-import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.MessageLister;
-import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -161,18 +157,12 @@ public class BackendWebServiceImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheMessageByItsIdentifier(@Injectable RetrieveMessageRequest retrieveMessageRequest,
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
-                                                                                    @Injectable Messaging ebMSHeaderInfo,
-                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault, MessageNotFoundException {
+                                                                                    @Injectable Messaging ebMSHeaderInfo) throws RetrieveMessageFault, MessageNotFoundException {
         new Expectations(backendWebService) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";
-            backendWebService.getMode();
-            result = BackendConnector.Mode.PUSH;
-            lister.removeFromPending(anyString);
-            result= null;
         }};
 
-        backendWebService.setLister(lister);
         backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
         new Verifications() {{
