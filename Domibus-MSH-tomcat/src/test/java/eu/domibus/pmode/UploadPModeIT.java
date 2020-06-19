@@ -265,4 +265,22 @@ public class UploadPModeIT extends AbstractIT {
 
         pModeProvider.serializePModeConfiguration(configuration);
     }
+
+
+    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error for duplicate party identifier.
+     */
+    @Test
+    public void testUploadPmodeDuplicateIdentifier() throws IOException {
+        String pmodeName = "domibus-pmode-identifier-validation-blue.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-identifier-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
+        }
+    }
+
 }
