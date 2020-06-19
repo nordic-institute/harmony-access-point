@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
@@ -12,12 +11,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Soumya Chandran
  * @since 4.2
- *
  */
 public class PartyIdentifierValidatorTest {
 
@@ -40,16 +36,13 @@ public class PartyIdentifierValidatorTest {
         partyIdentifierValidator.validate(pMode);
 
         new Verifications() {{
-            List<ValidationIssue> issues;
-            partyIdentifierValidator.validateDuplicatePartyIdentifiers(issues = withCapture(), (Party) any);
-            assertEquals(0, issues.size());
+            partyIdentifierValidator.validateDuplicatePartyIdentifiers((Party) any);
         }};
     }
 
 
     @Test
-    public void testValidateDuplicatePartyIdentifiers(@Injectable ValidationIssue issue,
-                                                      @Injectable Party party,
+    public void testValidateDuplicatePartyIdentifiers(@Injectable Party party,
                                                       @Injectable Identifier identifier
     ) {
 
@@ -73,33 +66,25 @@ public class PartyIdentifierValidatorTest {
         party1.setName("blue_gw");
         party1.setIdentifiers(identifiers);
 
-
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(issue);
-
         //tested method
-        partyIdentifierValidator.validateDuplicatePartyIdentifiers(issues, party1);
+        partyIdentifierValidator.validateDuplicatePartyIdentifiers(party1);
 
         new Verifications() {{
-            partyIdentifierValidator.createIssue(issues, identifier1.getPartyId(), party1.getName(), message);
+            partyIdentifierValidator.createIssue(identifier1.getPartyId(), party1.getName(), message);
         }};
     }
 
     @Test
-    public void testCreateIssue(@Injectable ValidationIssue issue,
-                                @Injectable Party party, @Injectable Identifier identifier) {
+    public void testCreateIssue(@Injectable Party party, @Injectable Identifier identifier) {
         String partyId = "domibus-blue";
         String name = "blue-gw";
         String message = "duplicate identifier";
 
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(issue);
-
         //tested method
-        partyIdentifierValidator.createIssue(issues, partyId, name, message);
+        partyIdentifierValidator.createIssue(partyId, name, message);
 
         new FullVerifications(partyIdentifierValidator) {{
-            issues.add(pModeValidationHelper.createValidationIssue(message, partyId, name));
+            pModeValidationHelper.createValidationIssue(message, partyId, name);
         }};
     }
 

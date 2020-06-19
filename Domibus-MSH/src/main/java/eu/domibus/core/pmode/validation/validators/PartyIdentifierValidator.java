@@ -36,7 +36,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getParties().forEach(party -> {
-            validateDuplicatePartyIdentifiers(issues, party);
+            issues.addAll(validateDuplicatePartyIdentifiers(party));
         });
 
         return issues;
@@ -45,15 +45,15 @@ public class PartyIdentifierValidator implements PModeValidator {
     /**
      * check the duplicate identifiers of the parties
      *
-     * @param issues validation issues
-     * @param party  party with identifiers
+     * @param party party with identifiers
      * @return list of ValidationIssue
      */
-    protected List<ValidationIssue> validateDuplicatePartyIdentifiers(List<ValidationIssue> issues, Party party) {
+    protected List<ValidationIssue> validateDuplicatePartyIdentifiers(Party party) {
+        List<ValidationIssue> issues = new ArrayList<>();
         party.getIdentifiers().forEach(identifier -> {
             long duplicateIdentifiersCount = party.getIdentifiers().stream().filter(identifier1 -> identifier1.equals(identifier)).count();
             if (duplicateIdentifiersCount > 1) {
-                createIssue(issues, identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]");
+                issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]"));
             }
         });
         return issues;
@@ -62,8 +62,8 @@ public class PartyIdentifierValidator implements PModeValidator {
     /**
      * Creates pmode validation issue
      */
-    protected void createIssue(List<ValidationIssue> issues, String partyId, String name, String message) {
-        issues.add(pModeValidationHelper.createValidationIssue(message, partyId, name));
+    protected ValidationIssue createIssue(String partyId, String name, String message) {
+        return pModeValidationHelper.createValidationIssue(message, partyId, name);
     }
 
 }
