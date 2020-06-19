@@ -1,8 +1,11 @@
 package eu.domibus.core.spring;
 
+import ch.qos.logback.classic.LoggerContext;
+import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.plugin.classloader.PluginClassLoader;
+import net.sf.ehcache.constructs.web.ShutdownListener;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -20,6 +23,7 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
 
     public DomibusContextLoaderListener(WebApplicationContext context, PluginClassLoader pluginClassLoader) {
         super(context);
+        this.pluginClassLoader = pluginClassLoader;
     }
 
     @Override
@@ -30,14 +34,19 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         super.contextDestroyed(servletContextEvent);
+        LOG.info("Shutting down net.sf.ehcache");
+        new ShutdownListener().contextDestroyed(servletContextEvent);
 
         if (pluginClassLoader != null) {
             try {
-                LOG.debug("Closing PluginClassLoader");
+                LOG.info("Closing PluginClassLoader");
                 pluginClassLoader.close();
             } catch (IOException e) {
                 LOG.warn("Error closing PluginClassLoader", e);
             }
         }
+        LOG.info("Stop ch.qos.logback.classic.LoggerContext");
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.stop();
     }
 }

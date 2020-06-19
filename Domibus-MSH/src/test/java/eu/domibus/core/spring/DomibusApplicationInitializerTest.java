@@ -2,14 +2,12 @@ package eu.domibus.core.spring;
 
 import com.codahale.metrics.servlets.AdminServlet;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
-import eu.domibus.core.logging.LogbackShutdownHook;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import mockit.*;
-import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -90,13 +88,12 @@ public class DomibusApplicationInitializerTest {
 
             List<EventListener> list = new ArrayList<>();
             servletContext.addListener(withCapture(list));
-            Assert.assertEquals(4, list.size());
+            Assert.assertEquals(2, list.size());
             Assert.assertThat(
                     list.stream().map(EventListener::getClass).collect(Collectors.toList()),
-                    CoreMatchers.<Class<?>>hasItems(ShutdownListener.class,
+                    CoreMatchers.<Class<?>>hasItems(
                             DomibusContextLoaderListener.class,
-                            RequestContextListener.class,
-                            LogbackShutdownHook.class));
+                            RequestContextListener.class));
 
             dispatcher.setLoadOnStartup(1);
             dispatcher.addMapping("/");
@@ -111,12 +108,12 @@ public class DomibusApplicationInitializerTest {
 
     @Test
     public void onStartup_exception(@Injectable ServletContext servletContext,
-                          @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
-                          @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
-                          @Mocked ServletRegistration.Dynamic dispatcher,
-                          @Mocked DispatcherServlet dispatcherServlet,
-                          @Mocked FilterRegistration.Dynamic springSecurityFilterChain,
-                          @Mocked ServletRegistration.Dynamic cxfServlet) throws ServletException, IOException {
+                                    @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
+                                    @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
+                                    @Mocked ServletRegistration.Dynamic dispatcher,
+                                    @Mocked DispatcherServlet dispatcherServlet,
+                                    @Mocked FilterRegistration.Dynamic springSecurityFilterChain,
+                                    @Mocked ServletRegistration.Dynamic cxfServlet) throws IOException {
         String domibusConfigLocation = "/home/domibus";
 
         new Expectations(domibusApplicationInitializer) {{

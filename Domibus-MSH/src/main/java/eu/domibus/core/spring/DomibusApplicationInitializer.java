@@ -5,18 +5,16 @@ import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.logging.LogbackShutdownHook;
+import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.core.metrics.HealthCheckServletContextListener;
 import eu.domibus.core.metrics.MetricsServletContextListener;
-import eu.domibus.core.property.DomibusConfigLocationProvider;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
+import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.spring.DomibusWebConfiguration;
-import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -72,12 +70,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
             throw new ServletException("Error configuring property sources", e);
         }
 
-        // Shutdown hook for ehcache
-        servletContext.addListener(new ShutdownListener());
         servletContext.addListener(new DomibusContextLoaderListener(rootContext, pluginClassLoader));
         servletContext.addListener(new RequestContextListener());
-        // Shutdown hook for logback
-        servletContext.addListener(new LogbackShutdownHook());
 
         AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
         dispatcherContext.register(DomibusWebConfiguration.class);
