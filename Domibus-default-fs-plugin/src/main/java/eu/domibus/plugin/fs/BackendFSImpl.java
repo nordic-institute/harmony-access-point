@@ -153,6 +153,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
+        final String messageIdFolder = sanitizeFileName(messageId);
 
         String fsPluginDomain = fsDomainService.getFSPluginDomain(fsMessage);
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
@@ -161,7 +162,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(fsPluginDomain);
              FileObject incomingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
              FileObject incomingFolderByRecipient = fsFilesManager.getEnsureChildFolder(incomingFolder, finalRecipientFolder);
-             FileObject incomingFolderByMessageId = fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageId)) {
+             FileObject incomingFolderByMessageId = fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageIdFolder)) {
 
             //let's write the metadata file first
             try (FileObject fileObject = incomingFolderByMessageId.resolveFile(FSSendMessagesService.METADATA_FILE_NAME);
