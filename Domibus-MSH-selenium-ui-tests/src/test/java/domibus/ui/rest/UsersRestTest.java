@@ -2,6 +2,7 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,7 +12,7 @@ import utils.Generator;
 
 public class UsersRestTest extends RestTest {
 	
-	@Test
+	@Test(description = "USR-x")
 	public void searchUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		JSONArray users = rest.users().getUsers(null);
@@ -25,7 +26,7 @@ public class UsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "USR-6")
 	public void createUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -41,7 +42,7 @@ public class UsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "USR-8")
 	public void editUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -83,7 +84,7 @@ public class UsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "USR-10")
 	public void deleteUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -117,7 +118,7 @@ public class UsersRestTest extends RestTest {
 	}
 	
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "USR-8", dataProvider = "readInvalidStrings")
 	public void editUserNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -139,7 +140,7 @@ public class UsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "USR-6", dataProvider = "readInvalidStrings")
 	public void createUserNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

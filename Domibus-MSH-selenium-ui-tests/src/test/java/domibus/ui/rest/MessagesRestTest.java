@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +30,7 @@ public class MessagesRestTest extends RestTest {
 	}
 	
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "basicFilterCombinations")
+	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "basicFilterCombinations")
 	public void filterUsingBasicFilters(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -49,7 +50,7 @@ public class MessagesRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
 	public void filterUsingBasicFiltersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -66,7 +67,7 @@ public class MessagesRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
 	public void filterUsingAdvancedFiltersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -83,7 +84,7 @@ public class MessagesRestTest extends RestTest {
 	}
 	
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "advancedFilterCombinations")
+	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "advancedFilterCombinations")
 	public void filterUsingAdvancedFilters(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -98,7 +99,7 @@ public class MessagesRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -163,7 +164,7 @@ public class MessagesRestTest extends RestTest {
 	}
 	
 	/* Resend message */
-	@Test(groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -199,7 +200,7 @@ public class MessagesRestTest extends RestTest {
 	}
 	
 	/* Resend message */
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
 	public void resendMessageNegativeTest(String evilId) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -209,7 +210,7 @@ public class MessagesRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"}, dataProvider = "readInvalidStrings")
 	public void downloadMessageNegativeTest(String evilId) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

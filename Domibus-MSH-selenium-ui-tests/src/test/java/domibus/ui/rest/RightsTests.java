@@ -2,6 +2,7 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import domibus.ui.RestTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import rest.DomibusRestClient;
@@ -9,7 +10,7 @@ import rest.RestServicePaths;
 
 public class RightsTests extends RestTest {
 	
-	@Test
+	@Test(description = "RGT-1")
 	public void userRightsTests() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
@@ -69,7 +70,7 @@ public class RightsTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "RGT-3")
 	public void adminRightsTests() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
@@ -122,7 +123,7 @@ public class RightsTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(groups = "multiTenancy")
+	@Test(description = "RGT-5", groups = "multiTenancy")
 	public void superRightsTests() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.SUPER, true, false, true).getString("userName");

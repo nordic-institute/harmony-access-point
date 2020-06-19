@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
@@ -18,7 +19,7 @@ public class ErrorLogRestTest extends RestTest {
 		return readCSV("src/test/resources/rest_csv/errorsValidSearches.csv");
 	}
 	
-	@Test(dataProvider = "searchFilterCombinations")
+	@Test(description = "ERR-4", dataProvider = "searchFilterCombinations")
 	public void searchErrors(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -72,7 +73,7 @@ public class ErrorLogRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "ERR-4", dataProvider = "readInvalidStrings")
 	public void searchErrorsNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String[] keys = {"asc", "errorCode", "errorDetail", "errorSignalMessageId", "messageInErrorId", "mshRole", "notifiedFrom", "notifiedTo", "orderBy", "page", "pageSize", "timestampFrom", "timestampTo"};

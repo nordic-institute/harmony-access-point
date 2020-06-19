@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -10,7 +11,7 @@ import java.nio.file.Paths;
 
 public class PModeCurrentRestTest extends RestTest {
 	
-	@Test
+	@Test(description = "PMC-2")
 	public void uploadValidFileAndComment() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -33,15 +34,7 @@ public class PModeCurrentRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
-	public void downloadInvalidStrings(String evilStr) throws Exception {
-		SoftAssert soft = new SoftAssert();
-		ClientResponse response = rest.pmode().downloadPmode(null, evilStr);
-		validateInvalidResponse(response, soft);
-		soft.assertAll();
-	}
-	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PMC-2", dataProvider = "readInvalidStrings")
 	public void uploadFileInvalidComments(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ClientResponse response = rest.pmode().uploadPMode("rest_pmodes/pmode-blue.xml", evilStr, null);
@@ -49,5 +42,12 @@ public class PModeCurrentRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
+	@Test(description = "PMC-3", dataProvider = "readInvalidStrings")
+	public void downloadInvalidStrings(String evilStr) throws Exception {
+		SoftAssert soft = new SoftAssert();
+		ClientResponse response = rest.pmode().downloadPmode(null, evilStr);
+		validateInvalidResponse(response, soft);
+		soft.assertAll();
+	}
 	
 }

@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +26,7 @@ public class AlertsRestTest extends RestTest {
 		return readCSVMultiValued("src/test/resources/rest_csv/alertsValidSearches.csv");
 	}
 	
-	@Test(dataProvider = "multiValueProvider")
+	@Test(description = "ALRT-5", dataProvider = "multiValueProvider")
 	public void searchTest(ArrayList<Param> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -62,7 +63,7 @@ public class AlertsRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "ALRT-33")
 	public void markAlertAsProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -86,7 +87,7 @@ public class AlertsRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dependsOnMethods = "markAlertAsProcessedTest")
+	@Test(description = "ALRT-33", dependsOnMethods = "markAlertAsProcessedTest")
 	public void markAlertAsNOTProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -111,7 +112,7 @@ public class AlertsRestTest extends RestTest {
 	}
 	
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "ALRT-7", dataProvider = "readInvalidStrings")
 	public void searchTest(String evilStr) throws Exception {
 		log.debug("evilStr= " + evilStr);
 		SoftAssert soft = new SoftAssert();

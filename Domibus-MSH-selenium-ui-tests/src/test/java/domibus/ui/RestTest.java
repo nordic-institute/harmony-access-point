@@ -1,4 +1,4 @@
-package domibus.ui.rest;
+package domibus.ui;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,8 +34,8 @@ import java.util.stream.Stream;
 public class RestTest extends BaseTest {
 	
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
-	List<String> domains = new ArrayList<>();
-	List<String> messageFilterPlugins = new ArrayList<>();
+	public List<String> domains = new ArrayList<>();
+	public List<String> messageFilterPlugins = new ArrayList<>();
 	private String invalidStringsFile = "src/test/resources/rest_csv/invalidStrings.txt";
 	
 	@BeforeSuite(alwaysRun = true)

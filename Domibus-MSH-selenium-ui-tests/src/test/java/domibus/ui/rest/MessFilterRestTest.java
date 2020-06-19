@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +16,7 @@ public class MessFilterRestTest extends RestTest {
 	
 	String[] criteriaOrder = {"from", "to", "action", "service"};
 	
-	@Test
+	@Test(description = "MSGF-4")
 	public void createNewFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -59,7 +60,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "MSGF-4")
 	public void createNewFilterNoPlugin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -94,7 +95,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "MSGF-4")
 	public void createNewFilterMalformedJSON() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -131,7 +132,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "MSGF-27")
 	public void createNewFilterDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -164,7 +165,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "MSGF-x")
 	public void createNewFilterRoutingCriteriasOrder() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -227,7 +228,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "MSGF-4", dataProvider = "readInvalidStrings")
 	public void createNewFilterNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -279,7 +280,7 @@ public class MessFilterRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "MSGF-17")
 	public void deleteFilterTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String rndActionName = Generator.randomAlphaNumeric(20);

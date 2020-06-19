@@ -69,6 +69,15 @@ public class MessagesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	@Test
+	public void sendSomeMess() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		String messID = messageSender.sendMessage("qweqwe", "QW!@qw12", null, null);
+		
+		soft.assertAll();
+	}
+	
 	/*Filter messages using basic filters */
 	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"})
 	public void filterUsingBasicFilters() throws Exception {

@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +10,7 @@ import org.testng.asserts.SoftAssert;
 
 public class PModePartiesTest extends RestTest {
 	
-	@Test
+	@Test(description = "PMP-1")
 	public void listParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -22,7 +23,7 @@ public class PModePartiesTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PMP-6")
 	public void createParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -51,7 +52,7 @@ public class PModePartiesTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PMP-6", dataProvider = "readInvalidStrings")
 	public void createPartiesNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";

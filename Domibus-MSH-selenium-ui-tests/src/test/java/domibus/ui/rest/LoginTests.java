@@ -2,6 +2,7 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import domibus.ui.RestTest;
 import domibus.ui.pojos.AuthResp;
 import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
@@ -11,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 public class LoginTests extends RestTest {
 	
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "LGN-z", dataProvider = "readInvalidStrings")
 	public void loginNegativeTest(String evilStr) {
 		log.debug("param=" + evilStr);
 		SoftAssert soft = new SoftAssert();
@@ -32,7 +33,7 @@ public class LoginTests extends RestTest {
 		return toret;
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-1", dataProvider = "userProvider")
 	public void loginValidUser(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -56,7 +57,7 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-x", dataProvider = "userProvider")
 	public void loginDeletedUser(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -75,7 +76,7 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-x", dataProvider = "userProvider")
 	public void loginInactiveUser(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -94,7 +95,7 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-X", dataProvider = "userProvider")
 	public void loginInactiveAndDeletedUser(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -113,7 +114,7 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-5", dataProvider = "userProvider")
 	public void loginBlockedAccount(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -136,7 +137,7 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "userProvider")
+	@Test(description = "LGN-x", dataProvider = "userProvider")
 	public void loginBlockedInactiveAndDeleted(String role) throws Exception {
 		
 		SoftAssert soft = new SoftAssert();

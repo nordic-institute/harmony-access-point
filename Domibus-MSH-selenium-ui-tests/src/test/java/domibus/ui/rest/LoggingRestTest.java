@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
@@ -21,7 +22,7 @@ public class LoggingRestTest extends RestTest {
 		return readCSV("src/test/resources/rest_csv/loggingValidSearches.csv");
 	}
 	
-	@Test(dataProvider = "validSearches")
+	@Test(description = "LOG-6", dataProvider = "validSearches")
 	public void search(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -55,7 +56,7 @@ public class LoggingRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "LOG-6", dataProvider = "readInvalidStrings")
 	public void searchNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -74,7 +75,7 @@ public class LoggingRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "LOG-8")
 	public void setLogLevels() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -101,7 +102,7 @@ public class LoggingRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "LOG-X")
 	public void resetLogLevels() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

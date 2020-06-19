@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class PModeArchiveRestTest extends RestTest {
 	
-	@Test
+	@Test(description = "PMA-1")
 	public void listArchive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -39,7 +40,7 @@ public class PModeArchiveRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PMA-5")
 	public void deleteFromArchive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -68,7 +69,7 @@ public class PModeArchiveRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PMA-5", dataProvider = "readInvalidStrings")
 	public void deleteFromArchiveNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -93,7 +94,7 @@ public class PModeArchiveRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PMA-4")
 	public void restoreFromArchive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
@@ -123,7 +124,7 @@ public class PModeArchiveRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PMA-4", dataProvider = "readInvalidStrings")
 	public void restoreFromArchiveNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";

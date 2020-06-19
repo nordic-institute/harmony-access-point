@@ -1,5 +1,6 @@
 package domibus.ui.rest;
 
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class ConnectionMonitoringRestTest extends RestTest {
 	
-	@Test
+	@Test(description = "TS-2")
 	public void getPartiesTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -31,7 +32,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "TS-3")
 	public void enableMonitoringTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -48,7 +49,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "TS-3")
 	public void disableMonitoringTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -66,7 +67,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 	}
 	
 	
-	@Test(dataProvider = "readInvalidStrings", enabled = false)
+	@Test(description = "TS-x", dataProvider = "readInvalidStrings", enabled = false)
 	public void enableMonitoringNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

@@ -2,6 +2,7 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class PluginUsersRestTest extends RestTest {
 	
 	
-	@Test
+	@Test(description = "PU-x")
 	public void searchBasicPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -56,7 +57,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-x")
 	public void searchCertPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -95,7 +96,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-5")
 	public void createPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -121,7 +122,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-13")
 	public void createCertPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -152,7 +153,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PU-5", dataProvider = "readInvalidStrings")
 	public void createNegativePluginUsersTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -177,7 +178,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PU-x", dataProvider = "readInvalidStrings")
 	public void searchPluginUsersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -188,7 +189,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-7")
 	public void editBasicPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -219,7 +220,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-10")
 	public void editBasicPluginUsersUsernameTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -243,7 +244,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-11")
 	public void editCertIdTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -268,7 +269,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-7")
 	public void editCertPluginUsersTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -296,7 +297,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PU-7", dataProvider = "readInvalidStrings")
 	public void editPluginUsersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -326,7 +327,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PU-9", dataProvider = "readInvalidStrings")
 	public void deletePluginUsersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -354,7 +355,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-9")
 	public void deleteBasicPluginUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -373,7 +374,7 @@ public class PluginUsersRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PU-9")
 	public void deleteCertPluginUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

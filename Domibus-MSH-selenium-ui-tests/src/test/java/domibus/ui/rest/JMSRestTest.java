@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,7 +13,7 @@ import utils.TestUtils;
 public class JMSRestTest extends RestTest {
 	
 	
-	@Test
+	@Test(description = "JMS-3")
 	public void searchTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -54,7 +55,7 @@ public class JMSRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "JMS-4", dataProvider = "readInvalidStrings")
 	public void searchNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -71,7 +72,7 @@ public class JMSRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "JMS-8")
 	public void moveTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -121,7 +122,7 @@ public class JMSRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "JMS-7")
 	public void deleteTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -167,7 +168,7 @@ public class JMSRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "JMS-8", dataProvider = "readInvalidStrings")
 	public void moveNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -181,7 +182,7 @@ public class JMSRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "JMS-7", dataProvider = "readInvalidStrings")
 	public void deleteNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ClientResponse response = rest.jms().deleteMessages(evilStr, evilStr);

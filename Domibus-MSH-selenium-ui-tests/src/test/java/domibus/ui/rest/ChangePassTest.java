@@ -2,13 +2,14 @@ package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
+import domibus.ui.RestTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import rest.BaseRestClient;
 
 public class ChangePassTest extends RestTest {
 	
-	@Test
+	@Test(description = "CP-3")
 	public void changePass() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
@@ -23,7 +24,7 @@ public class ChangePassTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "CP-3", dataProvider = "readInvalidStrings")
 	public void changePassNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");

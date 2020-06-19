@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 public class PropertiesTest extends RestTest {
 	
 	
-	@Test
+	@Test(description = "PROP-x")
 	public void searchProperties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -29,7 +30,7 @@ public class PropertiesTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test
+	@Test(description = "PROP-x")
 	public void updateProperty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -69,7 +70,7 @@ public class PropertiesTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PROP-x", dataProvider = "readInvalidStrings")
 	public void updatePropertyNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -87,7 +88,7 @@ public class PropertiesTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "PROP-x", dataProvider = "readInvalidStrings")
 	public void searchPropertiesNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		HashMap<String, String> params = new HashMap<>();

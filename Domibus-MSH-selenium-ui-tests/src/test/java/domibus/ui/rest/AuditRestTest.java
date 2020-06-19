@@ -1,6 +1,7 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import domibus.ui.RestTest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +19,7 @@ public class AuditRestTest extends RestTest {
 		return readCSV("src/test/resources/rest_csv/auditValidSearches.csv");
 	}
 	
-	@Test(dataProvider = "auditFilterCombinations")
+	@Test(description = "AU-5", dataProvider = "auditFilterCombinations")
 	public void searchAuditTest(HashMap<String, String> params) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -49,7 +50,7 @@ public class AuditRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "AU-5", dataProvider = "readInvalidStrings")
 	public void auditSearchNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String[] keys = {"auditTargetName", "user", "action", "pageSize", "max"};
@@ -66,7 +67,7 @@ public class AuditRestTest extends RestTest {
 		soft.assertAll();
 	}
 	
-	@Test(dataProvider = "readInvalidStrings")
+	@Test(description = "AU-X", dataProvider = "readInvalidStrings")
 	public void auditCountNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String[] keys = {"auditTargetName", "user", "action", "pageSize", "max"};
