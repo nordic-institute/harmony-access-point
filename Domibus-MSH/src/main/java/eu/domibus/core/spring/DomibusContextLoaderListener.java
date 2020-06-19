@@ -34,9 +34,18 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         super.contextDestroyed(servletContextEvent);
-        LOG.info("Shutting down net.sf.ehcache");
-        new ShutdownListener().contextDestroyed(servletContextEvent);
+        shutdownEhCache(servletContextEvent);
+        shutdownPluginClassLoader();
+        shutdownLogger();
+    }
 
+    private void shutdownLogger() {
+        LOG.info("Stop ch.qos.logback.classic.LoggerContext");
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.stop();
+    }
+
+    private void shutdownPluginClassLoader() {
         if (pluginClassLoader != null) {
             try {
                 LOG.info("Closing PluginClassLoader");
@@ -45,8 +54,10 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
                 LOG.warn("Error closing PluginClassLoader", e);
             }
         }
-        LOG.info("Stop ch.qos.logback.classic.LoggerContext");
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.stop();
+    }
+
+    private void shutdownEhCache(ServletContextEvent servletContextEvent) {
+        LOG.info("Shutting down net.sf.ehcache");
+        new ShutdownListener().contextDestroyed(servletContextEvent);
     }
 }
