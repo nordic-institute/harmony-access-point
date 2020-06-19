@@ -11,6 +11,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Soumya Chandran
  * @since 4.2
@@ -35,8 +38,11 @@ public class PartyIdentifierValidatorTest {
 
         }};
         partyIdentifierValidator.validate(pMode);
+
         new Verifications() {{
-            partyIdentifierValidator.validateDuplicatePartyIdentifiers(withCapture(), (Party) any);
+            List<ValidationIssue> issues;
+            partyIdentifierValidator.validateDuplicatePartyIdentifiers(issues = withCapture(), (Party) any);
+            assertEquals(0, issues.size());
         }};
     }
 
