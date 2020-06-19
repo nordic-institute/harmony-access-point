@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlTransient;
                 query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "WSMessageLog.findAll",
                 query = "from WSMessageLog"),
+        @NamedQuery(name = "WSMessageLog.findAllByFinalRecipient",
+                query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.finalRecipient=:FINAL_RECIPIENT"),
         @NamedQuery(name = "WSMessageLog.deleteByMessageId",
                 query = "DELETE FROM WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID")
 })

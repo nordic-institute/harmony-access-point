@@ -45,4 +45,11 @@ public interface AuthenticationExtService {
      */
     boolean isUnsecureLoginAllowed();
 
+    /**
+     * Get authenticated user
+     *
+     * @return the authenticated user
+     */
+    String getAuthenticatedUser();
+
 }

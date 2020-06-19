@@ -2,6 +2,7 @@ package eu.domibus.plugin.webService.dao;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.entity.WSMessageLog;
 import org.springframework.stereotype.Repository;
 
@@ -19,14 +20,9 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageLogDao.class);
 
-    public static final String MESSAGE_ID = "MESSAGE_ID";
-
-    public static final String MAXCOUNT = "MAXCOUNT";
-
     public WSMessageLogDao() {
         super(WSMessageLog.class);
     }
-
 
     /**
      * Find the entry based on a given MessageId.
@@ -35,7 +31,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
      */
     public WSMessageLog findByMessageId(String messageId) {
         TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findByMessageId", WSMessageLog.class);
-        query.setParameter(MESSAGE_ID, messageId);
+        query.setParameter(MessageConstants.MESSAGE_ID, messageId);
         WSMessageLog wsMessageLog;
         try {
             wsMessageLog = query.getSingleResult();
@@ -54,6 +50,15 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
     }
 
     /**
+     * Fins all entries in the plugin table, for finalRecipient, limited to maxCount.
+     */
+    public List<WSMessageLog> findAllByFinalRecipient(int maxCount, String finalRecipient) {
+        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAllByFinalRecipient", WSMessageLog.class);
+        query.setParameter(MessageConstants.FINAL_RECIPIENT, finalRecipient);
+        return query.setMaxResults(maxCount).getResultList();
+    }
+
+    /**
      * Fins all entries in the plugin table.
      */
     public List<WSMessageLog> findAll() {
@@ -68,7 +73,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
      */
     public void deleteByMessageId(final String messageId) {
         Query query = em.createNamedQuery("WSMessageLog.deleteByMessageId");
-        query.setParameter(MESSAGE_ID, messageId);
+        query.setParameter(MessageConstants.MESSAGE_ID, messageId);
         query.executeUpdate();
     }
 }

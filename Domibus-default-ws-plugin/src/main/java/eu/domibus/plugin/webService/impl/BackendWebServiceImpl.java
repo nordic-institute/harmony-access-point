@@ -5,6 +5,7 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
@@ -14,8 +15,6 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
-import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
@@ -84,6 +83,9 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;
+
+    @Autowired
+    AuthenticationExtService authenticationExtService;
 
     public BackendWebServiceImpl(final String name) {
         super(name);
@@ -270,14 +272,26 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("ListPendingMessages for domain [{}]", domainDTO);
+
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-        final Collection<String> pending;
+        final Collection<String> ids;
         final int intMaxPendingMessagesRetrieveCount = new Integer(domibusPropertyExtService.getProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT));
-        LOG.debug("List pending messages, maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
-        List<WSMessageLog> ids = wsMessageLogDao.findAll();
-        pending = ids.stream()
+        LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
+
+        List<WSMessageLog> pending;
+        if (!authenticationExtService.isUnsecureLoginAllowed()) {
+            String authUser = authenticationExtService.getAuthenticatedUser();
+            LOG.info("Authenticated user is [{}]", authUser);
+            pending = wsMessageLogDao.findAllByFinalRecipient(intMaxPendingMessagesRetrieveCount, authUser);
+        } else {
+            pending = wsMessageLogDao.findAll(intMaxPendingMessagesRetrieveCount);
+        }
+
+        ids = pending.stream()
                 .map(WSMessageLog::getMessageId).collect(Collectors.toList());
-        response.getMessageID().addAll(pending);
+        response.getMessageID().addAll(ids);
         return response;
     }
 
