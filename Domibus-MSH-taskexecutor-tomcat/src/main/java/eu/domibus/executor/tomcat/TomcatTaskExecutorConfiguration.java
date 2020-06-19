@@ -25,6 +25,7 @@ public class TomcatTaskExecutorConfiguration {
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_TASK_EXECUTOR_THREAD_COUNT, threadCount);
 
         poolTaskExecutor.setThreadCount(threadCount);
+        poolTaskExecutor.setWaitForJobsToCompleteOnShutdown(true);
         return poolTaskExecutor;
     }
 }
