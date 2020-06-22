@@ -14,6 +14,8 @@ public class AlertRo {
 
     private boolean processed;
 
+    private boolean deleted;
+
     private String alertType;
 
     private String alertLevel;
@@ -53,6 +55,14 @@ public class AlertRo {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public String getAlertType() {

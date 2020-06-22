@@ -67,4 +67,11 @@ public interface AlertService {
      * @param alerts the alerts to update.
      */
     void updateAlertProcessed(List<Alert> alerts);
+
+    /**
+     * Delete alerts from the non-owning side of the "events - alerts" mapping.
+     *
+     * @param alerts list of alerts to be deleted
+     */
+    void deleteAlerts(List<Alert> alerts);
 }
