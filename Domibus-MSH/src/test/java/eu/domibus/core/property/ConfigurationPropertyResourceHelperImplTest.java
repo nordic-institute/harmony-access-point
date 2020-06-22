@@ -47,7 +47,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
-                new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadata.Usage.GLOBAL, true),
+                new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadata.Usage.DOMAIN, false),
                 new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, DomibusPropertyMetadata.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
@@ -160,20 +160,22 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(name, showDomain, props1);
 
-        Assert.assertEquals(1, actual.size());
+        Assert.assertEquals(2, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
     @Test
-    public void createProperty(@Mocked DomibusPropertyMetadata propMeta) {
+    public void getValueAndCreateProperty(@Mocked DomibusPropertyMetadata propMeta) {
         String propertyValue = "prop value";
 
         new Expectations(configurationPropertyResourceHelper) {{
+            propMeta.isDomain();
+            result = true;
             domibusPropertyProvider.getProperty(propMeta.getName());
             result = propertyValue;
         }};
 
-        DomibusProperty actual = configurationPropertyResourceHelper.createProperty(propMeta);
+        DomibusProperty actual = configurationPropertyResourceHelper.getValueAndCreateProperty(propMeta);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(propertyValue, actual.getValue());
