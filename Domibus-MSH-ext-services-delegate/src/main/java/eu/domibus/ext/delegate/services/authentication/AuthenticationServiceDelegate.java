@@ -65,6 +65,8 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
         return authUtils.getAuthenticatedUser();
     }
 
-
-
+    @Override
+    public String getOriginalUser() {
+        return authUtils.getOriginalUserFromSecurityContext();
+    }
 }

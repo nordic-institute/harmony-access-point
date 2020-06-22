@@ -5,7 +5,6 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
@@ -280,11 +279,15 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         final int intMaxPendingMessagesRetrieveCount = new Integer(domibusPropertyExtService.getProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT));
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        List<WSMessageLog> pending;
+        String originalUser = null;
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
-            String authUser = authenticationExtService.getAuthenticatedUser();
-            LOG.info("Authenticated user is [{}]", authUser);
-            pending = wsMessageLogDao.findAllByFinalRecipient(intMaxPendingMessagesRetrieveCount, authUser);
+            originalUser = authenticationExtService.getOriginalUser();
+            LOG.info("Original user is [{}]", originalUser);
+        }
+
+        List<WSMessageLog> pending;
+        if (originalUser != null) {
+            pending = wsMessageLogDao.findAllByFinalRecipient(intMaxPendingMessagesRetrieveCount, originalUser);
         } else {
             pending = wsMessageLogDao.findAll(intMaxPendingMessagesRetrieveCount);
         }

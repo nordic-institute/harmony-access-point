@@ -52,4 +52,12 @@ public interface AuthenticationExtService {
      */
     String getAuthenticatedUser();
 
+    /**
+     * Get original user of the authenticated user
+     *
+     * @return the original user
+     */
+    String getOriginalUser();
+
+
 }
