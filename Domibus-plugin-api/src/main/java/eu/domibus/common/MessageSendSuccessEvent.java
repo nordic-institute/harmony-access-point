@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This event is used to transfer information on the message send success event, from the core to the plugins implementing PUSH methods.
+ *
  * @author idragusa
  * @since 4.2
  */
