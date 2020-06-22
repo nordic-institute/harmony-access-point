@@ -86,7 +86,7 @@ public class BusinessProcessValidatorTest {
                                                  @Injectable Identifier identifier) {
 
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier1 = new Identifier();
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -119,7 +119,7 @@ public class BusinessProcessValidatorTest {
                                                  @Injectable Identifier identifier) {
 
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier1 = new Identifier();
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -185,7 +185,8 @@ public class BusinessProcessValidatorTest {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
         Set<PartyIdType> partyIdTypes = new HashSet<>();
-        Set<Identifier> identifiers = Collections.singleton(identifier);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
         final String message = "test message";
         final String partyName = "test party";
 

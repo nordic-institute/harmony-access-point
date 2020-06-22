@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -44,7 +45,15 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Rollback
     public void findMessagingOnStatusReceiverAndMpc() throws Exception {
 
-        Party party = PojoInstaciatorUtil.instanciate(Party.class, " [name:blabla,identifiers{[partyId:testParty]}]");
+        List<Identifier> identifiers = new ArrayList<>();
+        Identifier identifier= new Identifier();
+        identifier.setPartyId("domibus-blue");
+        PartyIdType partyIdType1 = new PartyIdType();
+        partyIdType1.setName("partyIdTypeUrn1");
+        identifier.setPartyIdType(partyIdType1);
+        identifiers.add(identifier);
+        Party party = PojoInstaciatorUtil.instanciate(Party.class, " [name:domibus-blue]");
+        party.setIdentifiers(identifiers);
         Identifier next = party.getIdentifiers().iterator().next();
         next.setPartyId("RED_MSH");
         PartyIdType partyIdType = next.getPartyIdType();

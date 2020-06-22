@@ -4,7 +4,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Party class for external API
@@ -20,7 +19,7 @@ public class PartyDTO {
 
     private String endpoint;
 
-    private Set<PartyIdentifierDTO> identifiers;
+    private List<PartyIdentifierDTO> identifiers;
 
     private List<ProcessDTO> processesWithPartyAsInitiator = new ArrayList<>();
 
@@ -52,11 +51,11 @@ public class PartyDTO {
         this.endpoint = endpoint;
     }
 
-    public Set<PartyIdentifierDTO> getIdentifiers() {
+    public List<PartyIdentifierDTO> getIdentifiers() {
         return identifiers;
     }
 
-    public void setIdentifiers(Set<PartyIdentifierDTO> identifiers) {
+    public void setIdentifiers(List<PartyIdentifierDTO> identifiers) {
         this.identifiers = identifiers;
     }
 
