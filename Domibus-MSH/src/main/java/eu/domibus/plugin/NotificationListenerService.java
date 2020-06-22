@@ -1,6 +1,7 @@
 
 package eu.domibus.plugin;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
@@ -68,6 +69,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    MetricRegistry metricRegistry;
+
     private Queue backendNotificationQueue;
     private BackendConnector.Mode mode;
     private BackendConnector backendConnector;
@@ -116,8 +120,10 @@ public class NotificationListenerService implements MessageListener, JmsListener
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
         }
-
+        com.codahale.metrics.Timer.Context deliverMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "listener.on_message"));
         try {
+            methodCounter.inc();
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
@@ -131,19 +137,29 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
+                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED.timer")).time();
                     backendConnector.deliverMessage(messageId);
+                    deliverMessageMetric.stop();
                     break;
                 case MESSAGE_SEND_FAILURE:
+                    com.codahale.metrics.Timer.Context messageSendFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE.timer")).time();
                     backendConnector.messageSendFailed(messageId);
+                    messageSendFailed.stop();
                     break;
                 case MESSAGE_SEND_SUCCESS:
+                    com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS.timer")).time();
                     backendConnector.messageSendSuccess(messageId);
+                    messageSendSuccess.stop();
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
+                    com.codahale.metrics.Timer.Context messageRecvFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE.timer")).time();
                     doMessageReceiveFailure(message);
+                    messageRecvFailed.stop();
                     break;
                 case MESSAGE_STATUS_CHANGE:
+                    com.codahale.metrics.Timer.Context messageStatusChanged = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGE.timer")).time();
                     doMessageStatusChange(message);
+                    messageStatusChanged.stop();
                     break;
             }
         } catch (JMSException jmsEx) {
@@ -152,6 +168,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
         } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
+        } finally {
+            deliverMetric.stop();
+            methodCounter.dec();
         }
     }
 
