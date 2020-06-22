@@ -29,10 +29,9 @@ public class InternalJmsListenerContainerFactoryConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(InternalJmsListenerContainerFactoryConfiguration.class);
 
     @Bean("internalJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                PlatformTransactionManager transactionManager,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
-                                                                               @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                Optional<JndiDestinationResolver> internalDestinationResolver) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
@@ -43,8 +42,6 @@ public class InternalJmsListenerContainerFactoryConfiguration {
         result.setConcurrency(concurrency);
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-        result.setMessageConverter(jackson2MessageConverter);
-
         if (internalDestinationResolver.isPresent()) {
             result.setDestinationResolver(internalDestinationResolver.get());
         }
