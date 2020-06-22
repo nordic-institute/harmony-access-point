@@ -24,11 +24,16 @@ import java.util.Set;
 /**
  * @author François Gautier
  * @since 4.2
+ * <p>
+ * Methods {@link DomibusContextLoaderListener#shutdownEhCache}
+ * {@link DomibusContextLoaderListener#shutdownPluginClassLoader}
+ * {@link DomibusContextLoaderListener#shutdownLogger}
+ * are NOT tested separately because it's hard to partially mocked local method
+ * AND super method {@link ContextLoaderListener#contextDestroyed}
  */
 @RunWith(JMockit.class)
 public class DomibusContextLoaderListenerTest {
 
-    //    @Tested
     DomibusContextLoaderListener domibusContextLoaderListener;
 
     MockedPluginClassLoader pluginClassLoader;
@@ -59,7 +64,6 @@ public class DomibusContextLoaderListenerTest {
 
             LoggerFactory.getILoggerFactory();
             result = loggerContext;
-
         }};
 
         domibusContextLoaderListener.contextDestroyed(servletContextEvent);
@@ -88,11 +92,25 @@ public class DomibusContextLoaderListenerTest {
     }
 
     @Test
+    public void contextDestroyed_pluginClassLoaderNull(@Mocked LoggerFactory loggerFactory) {
+
+        Deencapsulation.setField(domibusContextLoaderListener, "pluginClassLoader", null);
+
+        domibusContextLoaderListener.shutdownPluginClassLoader();
+
+        Assert.assertFalse(pluginClassLoader.isCloseBeingCalled());
+        new Verifications() {{
+            domibusLogger.info("Closing PluginClassLoader");
+            times = 0;
+        }};
+    }
+
+    @Test
     public void contextDestroyed_exception(@Mocked ServletContextEvent servletContextEvent,
-                                              @Mocked ContextLoaderListener contextLoaderListener,
-                                              @Mocked ShutdownListener shutdownListener,
-                                              @Mocked LoggerFactory loggerFactory,
-                                              @Mocked LoggerContext loggerContext) {
+                                           @Mocked ContextLoaderListener contextLoaderListener,
+                                           @Mocked ShutdownListener shutdownListener,
+                                           @Mocked LoggerFactory loggerFactory,
+                                           @Mocked LoggerContext loggerContext) {
         pluginClassLoader.throwExceptionOnClose();
 
         new Expectations() {{
@@ -132,6 +150,11 @@ public class DomibusContextLoaderListenerTest {
         }};
     }
 
+    /**
+     * As JMockit cannot mock the class {@link ClassLoader}
+     * see https://github.com/jmockit/jmockit1/blob/master/main/test/mockit/JREMockingTest.java
+     * for unmockable classes from the JRE
+     */
     static class MockedPluginClassLoader extends PluginClassLoader {
         boolean closeBeingCalled = false;
         boolean throwExceptionOnClose = false;
@@ -145,7 +168,7 @@ public class DomibusContextLoaderListenerTest {
          */
         public void close() throws IOException {
             closeBeingCalled = true;
-            if(throwExceptionOnClose){
+            if (throwExceptionOnClose) {
                 throw new IOException("Test");
             }
         }
