@@ -1,37 +1,25 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.plugin.notification.BackendPluginEnum;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.Submission;
+import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.CriteriaFactory;
 import eu.domibus.core.plugin.routing.IRoutingCriteria;
@@ -39,6 +27,13 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
+import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.CollaborationInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
@@ -58,6 +53,8 @@ import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by baciuco on 08/08/2016.
@@ -128,7 +125,7 @@ public class BackendNotificationServiceTest {
     private EventService eventService;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
@@ -233,7 +230,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notificationListenerServices = notificationListeners;
 
         NotificationListener notificationListener = backendNotificationService.getNotificationListener(backendName);
-        Assert.assertEquals(backendName, notificationListener.getBackendName());
+        assertEquals(backendName, notificationListener.getBackendName());
 
     }
 
@@ -305,8 +302,8 @@ public class BackendNotificationServiceTest {
             jmsManager.sendMessageToQueue(jmsMessage = withCapture(), queue);
             times = 1;
 
-            Assert.assertEquals(jmsMessage.getProperty(MessageConstants.MESSAGE_ID), messageId);
-            Assert.assertEquals(jmsMessage.getProperty(MessageConstants.NOTIFICATION_TYPE), notificationType.name());
+            assertEquals(jmsMessage.getProperty(MessageConstants.MESSAGE_ID), messageId);
+            assertEquals(jmsMessage.getProperty(MessageConstants.NOTIFICATION_TYPE), notificationType.name());
         }};
     }
 
@@ -584,7 +581,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage, @Injectable final List<BackendFilter> backendFilters) throws Exception {
         new Expectations(backendNotificationService) {{
-            backendNotificationService.getBackendFilters();
+            backendNotificationService.getBackendFiltersWithCache();
             result = backendFilters;
         }};
 
@@ -620,7 +617,7 @@ public class BackendNotificationServiceTest {
             messageLog.getBackend();
             result = backend;
 
-            multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
+            messagingConfigurationManager.getConfiguration();
             result = messageCommunicationConfiguration;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
@@ -639,8 +636,8 @@ public class BackendNotificationServiceTest {
             Map<String, Object> properties = null;
             backendNotificationService.notify(capturedMessageId = withCapture(), capturedBackend = withCapture(), NotificationType.MESSAGE_STATUS_CHANGE, properties = withCapture());
 
-            Assert.assertEquals(messageId, capturedMessageId);
-            Assert.assertEquals(capturedBackend, backend);
+            assertEquals(messageId, capturedMessageId);
+            assertEquals(capturedBackend, backend);
         }};
     }
 
@@ -704,7 +701,7 @@ public class BackendNotificationServiceTest {
             result = domains;
 
             routingCriteriaFactory.getName();
-            result =anyString;
+            result = anyString;
 
             routingCriteriaFactory.getInstance();
             result = iRoutingCriteria;
@@ -813,8 +810,8 @@ public class BackendNotificationServiceTest {
             backendNotificationService.assignPriorityToPlugins(capturedList = withCapture(), capturedPriority = withCapture());
             times = 1;
 
-            Assert.assertEquals(capturedList, notificationListenerPluginsList);
-            Assert.assertEquals(capturedPriority, priority);
+            assertEquals(capturedList, notificationListenerPluginsList);
+            assertEquals(capturedPriority, priority);
 
             backendFilterDao.create(backendFilterEntities);
             times = 0;
@@ -836,9 +833,9 @@ public class BackendNotificationServiceTest {
 
         List<BackendFilterEntity> backendFilters = backendNotificationService.assignPriorityToPlugins(pluginList, priority);
 
-        Assert.assertEquals(backendFilters.get(0).getBackendName(), BackendPluginEnum.WS_PLUGIN.getPluginName());
-        Assert.assertEquals(backendFilters.get(1).getBackendName(), BackendPluginEnum.JMS_PLUGIN.getPluginName());
-        Assert.assertEquals(backendFilters.get(2).getBackendName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
+        assertEquals(backendFilters.get(0).getBackendName(), BackendPluginEnum.WS_PLUGIN.getPluginName());
+        assertEquals(backendFilters.get(1).getBackendName(), BackendPluginEnum.JMS_PLUGIN.getPluginName());
+        assertEquals(backendFilters.get(2).getBackendName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
     }
 
     @Test
@@ -861,6 +858,80 @@ public class BackendNotificationServiceTest {
         new Verifications() {{
             backendFilterDao.create(backendFilters);
             times = 1;
+        }};
+    }
+
+    @Test
+    public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getBackendFilters();
+            result = backendFilters;
+        }};
+
+        backendNotificationService.backendFiltersCache = null;
+        backendNotificationService.getBackendFiltersWithCache();
+        backendNotificationService.getBackendFiltersWithCache();
+
+        new FullVerifications() {{
+            backendNotificationService.getBackendFilters();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testNotifyMessageReceivedFailure(@Injectable UserMessage userMessage,
+                                                 @Injectable ErrorResult errorResult,
+                                                 @Injectable CollaborationInfo collaborationInfo) {
+
+        String errorCodeName = "errorCode";
+        String errorDetail = "errorDetail";
+        String service = "my service";
+        String serviceType = "service type";
+        String action = "my action";
+
+        new Expectations(backendNotificationService) {{
+            errorResult.getErrorCode().getErrorCodeName();
+            result = errorCodeName;
+
+            errorResult.getErrorDetail();
+            result = errorDetail;
+
+            userMessage.isUserMessageFragment();
+            result = true;
+
+            userMessage.getCollaborationInfo();
+            result = collaborationInfo;
+
+            collaborationInfo.getService();
+            result = service;
+
+            collaborationInfo.getAction();
+            result = action;
+
+            collaborationInfo.getService().getValue();
+            result = service;
+
+            collaborationInfo.getService().getType();
+            result = serviceType;
+
+            collaborationInfo.getAction();
+            result = action;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+        }};
+
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
+
+        new Verifications() {{
+            Map<String, Object> properties = null;
+            backendNotificationService.notifyOfIncoming(userMessage, NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE, properties = withCapture());
+
+            assertEquals(errorCodeName, properties.get(MessageConstants.ERROR_CODE));
+            assertEquals(errorDetail, properties.get(MessageConstants.ERROR_DETAIL));
+            assertEquals(service, properties.get(MessageConstants.SERVICE));
+            assertEquals(serviceType, properties.get(MessageConstants.SERVICE_TYPE));
+            assertEquals(action, properties.get(MessageConstants.ACTION));
         }};
     }
 }

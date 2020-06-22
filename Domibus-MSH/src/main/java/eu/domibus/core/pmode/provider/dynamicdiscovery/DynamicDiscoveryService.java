@@ -2,7 +2,7 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.ebms3.EbMS3Exception;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ioana Dragusanu (idragusa)

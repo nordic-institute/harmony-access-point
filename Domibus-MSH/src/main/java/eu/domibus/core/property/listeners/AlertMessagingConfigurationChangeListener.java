@@ -1,8 +1,9 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,16 @@ import org.springframework.stereotype.Service;
 public class AlertMessagingConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX);
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_PREFIX);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearMessageCommunicationConfiguration();
+        messagingConfigurationManager.reset();
     }
 
 }

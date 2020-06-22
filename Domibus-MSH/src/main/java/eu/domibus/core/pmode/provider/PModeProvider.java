@@ -220,7 +220,7 @@ public abstract class PModeProvider {
         try {
             unmarshallerResult = xmlUtil.unmarshal(ignoreWhitespaces, jaxbContext, xmlStream, xsdStream);
             configuration = unmarshallerResult.getResult();
-        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException e) {
+        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException | NumberFormatException e) {
             LOG.error("Error unmarshalling the PMode", e);
             throw new XmlProcessingException("Error unmarshalling the PMode: " + e.getMessage(), e);
         }
@@ -275,6 +275,7 @@ public abstract class PModeProvider {
             } catch (EbMS3Exception exc) {
                 LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
                 exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+                exc.setMshRole(mshRole);
                 throw exc;
             }
             try {
@@ -288,6 +289,7 @@ public abstract class PModeProvider {
                 } else {
                     LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
                     exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
+                    exc.setMshRole(mshRole);
                     throw exc;
                 }
             }

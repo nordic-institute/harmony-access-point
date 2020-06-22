@@ -18,7 +18,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
- * @author Thomas Dussart
+ * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
  */
 @Service("userManagementService")
@@ -70,22 +70,13 @@ public class UserManagementServiceImpl implements UserService {
     @Autowired
     ConsoleUserAlertsServiceImpl userAlertsService;
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsers() {
-        List<User> userEntities = userDao.listUsers();
-        List<eu.domibus.api.user.User> users = userConverter.convert(userEntities);
-
-        users.forEach(u -> {
-            String domainCode = userDomainService.getDomainForUser(u.getUserName());
-            u.setDomain(domainCode);
-        });
-
-        return users;
+        return findUsers(this::getDomainForUser);
     }
 
     /**
@@ -93,6 +84,7 @@ public class UserManagementServiceImpl implements UserService {
      */
     @Override
     public List<eu.domibus.api.user.UserRole> findUserRoles() {
+        LOG.debug("Retrieving user roles");
         List<UserRole> userRolesEntities = userRoleDao.listRoles();
 
         List<eu.domibus.api.user.UserRole> userRoles = new ArrayList<>();
@@ -169,6 +161,49 @@ public class UserManagementServiceImpl implements UserService {
     @Transactional
     public void changePassword(String username, String currentPassword, String newPassword) {
         userPersistenceService.changePassword(username, currentPassword, newPassword);
+    }
+
+    /**
+     * Retrieves users from DB and sets some attributes for each user
+     * @param getDomainForUserFn the function to get the domain
+     * @return the list of users
+     */
+    protected List<eu.domibus.api.user.User> findUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+        LOG.debug("Retrieving console users");
+        List<User> userEntities = userDao.listUsers();
+
+        List<eu.domibus.api.user.User> users = prepareUsers(getDomainForUserFn, userEntities);
+
+        return users;
+    }
+
+    /**
+     * Calls a function to get the domain for each user and also sets expiration date
+     * @param getDomainForUserFn the function to get the domain
+     * @return the list of users
+     */
+    protected List<eu.domibus.api.user.User> prepareUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn, List<User> userEntities) {
+        List<eu.domibus.api.user.User> users = new ArrayList<>();
+        userEntities.forEach(userEntity -> {
+            eu.domibus.api.user.User user = convertAndPrepareUser(getDomainForUserFn, userEntity);
+            users.add(user);
+        });
+        return users;
+    }
+
+    protected eu.domibus.api.user.User convertAndPrepareUser(Function<eu.domibus.api.user.User, String> getDomainForUserFn, User userEntity) {
+        eu.domibus.api.user.User user = userConverter.convert(userEntity);
+
+        String domainCode = getDomainForUserFn.apply(user);
+        user.setDomain(domainCode);
+
+        LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
+        user.setExpirationDate(expDate);
+        return user;
+    }
+
+    private String getDomainForUser(eu.domibus.api.user.User user) {
+        return userDomainService.getDomainForUser(user.getUserName());
     }
 
     private UserEntityBase getUserWithName(String userName) {

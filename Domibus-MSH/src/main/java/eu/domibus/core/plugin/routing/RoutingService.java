@@ -2,22 +2,22 @@ package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * @author Christian Walczac
@@ -34,6 +34,9 @@ public class RoutingService {
 
     @Autowired
     private DomainCoreConverter coreConverter;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
 
     /**
      * Returns the configured backend filters present in the classpath
@@ -66,18 +69,24 @@ public class RoutingService {
         return coreConverter.convert(filters, BackendFilter.class);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @CacheEvict(value = "backendFilterCache", allEntries = true)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void updateBackendFilters(final List<BackendFilter> filters) {
-
         validateFilters(filters);
 
-        List<BackendFilterEntity> backendFilterEntities = coreConverter.convert(filters, BackendFilterEntity.class);
         List<BackendFilterEntity> allBackendFilterEntities = backendFilterDao.findAll();
-        List<BackendFilterEntity> backendFilterEntityListToDelete = backendFiltersToDelete(allBackendFilterEntities, backendFilterEntities);
-        backendFilterDao.deleteAll(backendFilterEntityListToDelete);
+        backendFilterDao.delete(allBackendFilterEntities);
+
+        List<BackendFilterEntity> backendFilterEntities = coreConverter.convert(filters, BackendFilterEntity.class);
+        updateFilterIndices(backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
+
+        backendNotificationService.invalidateBackendFiltersCache();
+    }
+
+    private void updateFilterIndices(List<BackendFilterEntity> filters) {
+        LOG.info("Update backend filter indices for {}", filters);
+        IntStream.range(0, filters.size()).forEach(index -> filters.get(index).setIndex(index));
     }
 
     protected void validateFilters(List<BackendFilter> filters) {
@@ -108,11 +117,5 @@ public class RoutingService {
         }
         LOG.trace("Filter criteria have the same properties and values, hence true for comparing [{}] and [{}]", c1, c2);
         return true;
-    }
-
-    private List<BackendFilterEntity> backendFiltersToDelete(final List<BackendFilterEntity> masterData, final List<BackendFilterEntity> newData) {
-        List<BackendFilterEntity> result = new ArrayList<>(masterData);
-        result.removeAll(newData);
-        return result;
     }
 }

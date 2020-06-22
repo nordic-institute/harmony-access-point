@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +22,9 @@ public class PullConfigurationChangeListener implements DomibusPropertyChangeLis
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManager.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE,
-                DomibusPropertyMetadataManager.DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME,
-                DomibusPropertyMetadataManager.DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT);
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE,
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME,
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT);
     }
 
     @Override

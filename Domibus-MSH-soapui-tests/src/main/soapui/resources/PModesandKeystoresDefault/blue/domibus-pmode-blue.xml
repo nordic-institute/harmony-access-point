@@ -37,7 +37,7 @@
 			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="white_gw" endpoint="http://localhost:8380/domibus/services/msh" allowChunking="false">
+			<party name="white_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-white" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="black_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
@@ -73,20 +73,20 @@
 			<payload name="textbusinessContentAttachment" cid="cid:txtattachment" required="false" mimeType="text/plain" inBody="false"/>
 			<payload name="businessContentPayloadInBody" cid="" required="true" mimeType="text/xml" inBody="true"/>
 			<payload name="businessContentPayloadInBodyTwo" cid="" required="true" mimeType="application/xml" inBody="true"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464">
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 				<attachment name="textbusinessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadInBody" maxSize="40894464">
+			<payloadProfile name="MessageProfilePayloadInBody" maxSize="2147483647">
 				<attachment name="businessContentPayloadInBody"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadInBodyTwo" maxSize="40894464">
+			<payloadProfile name="MessageProfilePayloadInBodyTwo" maxSize="2147483647">
 				<attachment name="businessContentPayloadInBodyTwo"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
-			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="40894464">
+			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="2147483647">
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>				
 		</payloadProfiles>
@@ -490,10 +490,12 @@
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
 				<initiatorParty name="red_gw"/>
+				<initiatorParty name="black_gw"/>				
 			</initiatorParties>
 			<responderParties>
 				<responderParty name="blue_gw"/>
 				<responderParty name="red_gw"/>
+				<responderParty name="white_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase20tc20Action"/>

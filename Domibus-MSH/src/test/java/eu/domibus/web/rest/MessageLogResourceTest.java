@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
@@ -73,6 +74,9 @@ public class MessageLogResourceTest {
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Parameterized.Parameter(0)
     public MessageType messageType;

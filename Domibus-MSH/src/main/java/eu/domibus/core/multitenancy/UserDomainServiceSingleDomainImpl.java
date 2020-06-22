@@ -41,17 +41,6 @@ public class UserDomainServiceSingleDomainImpl implements UserDomainService {
         return this.getDomainForUser(user);
     }
 
-    /**
-     * Get all super users: in single domain mode, this is an empty list
-     *
-     * @return an empty list
-     */
-    @Override
-    public List<User> getSuperUsers() {
-        return new ArrayList<>();
-    }
-
-
     @Override
     public void setDomainForUser(String user, String domainCode) {
         return;

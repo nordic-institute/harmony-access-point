@@ -298,12 +298,14 @@ public class PartyServiceImplTest {
     @Test
     public void testPartyIdPredicate(@Injectable Party party, @Injectable Identifier identifier) {
         final String partyId = "partyId";
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
         new Expectations(partyService) {{
             identifier.getPartyId();
             result = partyId;
             party.getIdentifiers();
-            result = Sets.newHashSet(identifier);
+            result = identifiers;
         }};
 
         assertTrue(partyService.partyIdPredicate("").test(party));
@@ -355,7 +357,7 @@ public class PartyServiceImplTest {
         // Given
         String expectedGatewayPartyId = "testGatewayPartyId";
         eu.domibus.common.model.configuration.Party gatewayParty = new eu.domibus.common.model.configuration.Party();
-        Set<eu.domibus.common.model.configuration.Identifier> identifiers = new HashSet<>();
+        List<eu.domibus.common.model.configuration.Identifier> identifiers = new ArrayList<>();
         eu.domibus.common.model.configuration.Identifier identifier = new eu.domibus.common.model.configuration.Identifier();
         identifier.setPartyId(expectedGatewayPartyId);
         identifiers.add(identifier);
@@ -436,6 +438,9 @@ public class PartyServiceImplTest {
         List<eu.domibus.common.model.configuration.Party> convertedForReplacement = Lists.newArrayList(converted);
         List<eu.domibus.common.model.configuration.Party> configurationPartyList = Lists.newArrayList(gatewayParty);
         List<PartyIdType> partyIdTypes = Lists.newArrayList(partyIdType);
+        List<eu.domibus.common.model.configuration.Identifier> identifiers = new ArrayList<>();
+        identifiers.add(firstParty);
+        identifiers.add(secondParty);
 
         new Expectations() {{
             partyIdType.equals(matchingConfigurationPartyIdType);
@@ -451,7 +456,7 @@ public class PartyServiceImplTest {
             converted.getName();
             result = "gatewayParty"; // update the gateway party
             converted.getIdentifiers();
-            result = Sets.newHashSet(firstParty, secondParty);
+            result = identifiers;
 
             domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
             result = convertedForReplacement;

@@ -268,4 +268,9 @@ public interface DomibusCoreMapper {
     default DomibusPropertyTypeRO domibusPropertyMetadataTypeTOdomibusPropertyTypeRO(DomibusPropertyMetadata.Type type){
         return new DomibusPropertyTypeRO(type.name(), type.getRegularExpression());
     }
+
+    @InheritInverseConfiguration
+    DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
+
+    DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
 }

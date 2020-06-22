@@ -3,7 +3,7 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyManager;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
@@ -55,7 +55,7 @@ public class CommandServiceImplTest {
     private ServerInfoService serverInfoService;
 
     @Injectable
-    private List<DomibusPropertyManager> domibusPropertyManagers;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     private CommandServiceImpl commandService;

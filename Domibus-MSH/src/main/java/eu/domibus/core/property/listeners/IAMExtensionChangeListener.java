@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
 /**
  * @author Ion Perpegel

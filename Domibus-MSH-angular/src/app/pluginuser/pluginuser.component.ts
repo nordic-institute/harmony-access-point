@@ -29,6 +29,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   @ViewChild('activeTpl', {static: false}) activeTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
 
   columnPickerBasic: ColumnPickerBase = new ColumnPickerBase();
   columnPickerCert: ColumnPickerBase = new ColumnPickerBase();
@@ -77,6 +78,13 @@ export class PluginUserComponent extends mix(BaseListComponent)
       {name: 'Role', prop: 'authRoles', width: 10, showInitially: true},
       {name: 'Active', prop: 'active', cellTemplate: this.activeTpl, width: 25, showInitially: true},
       {name: 'Original User', prop: 'originalUser', width: 240, showInitially: true},
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Expiration Date',
+        prop: 'expirationDate',
+        canAutoResize: true,
+        showInitially: true
+      },
       {
         cellTemplate: this.rowActions,
         name: 'Actions',

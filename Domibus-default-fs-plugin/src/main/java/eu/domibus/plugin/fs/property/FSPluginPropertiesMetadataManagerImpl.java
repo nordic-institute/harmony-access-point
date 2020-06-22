@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
-    protected static final String PROPERTY_PREFIX = "fsplugin.";
+    public static final String PROPERTY_PREFIX = "fsplugin.";
 
     protected static final String DOMAIN_PREFIX = "fsplugin.domains.";
 
@@ -106,7 +106,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, DomibusPropertyMetadataDTO.Type.CONCURRENCY, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-    }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }).peek(el -> el.setStoredGlobally(false)).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {

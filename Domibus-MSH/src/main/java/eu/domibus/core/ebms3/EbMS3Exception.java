@@ -34,6 +34,10 @@ public class EbMS3Exception extends Exception {
      * Default ResourceBundle for error messages
      */
     public static final ResourceBundle DEFAULT_MESSAGES = ResourceBundle.getBundle(EbMS3Exception.RESOURCE_BUNDLE_NAME, EbMS3Exception.DEFAULT_LOCALE);
+    /**
+     * Default value for recoverable
+     */
+    public static final boolean DEFAULT_RECOVERABLE = true;
 
     private final ErrorCode.EbMS3ErrorCode ebMS3ErrorCode;
     /**
@@ -43,7 +47,7 @@ public class EbMS3Exception extends Exception {
     private String errorDetail;
     private String refToMessageId;
     private MSHRole mshRole;
-    private boolean recoverable = true;
+    private boolean recoverable = DEFAULT_RECOVERABLE;
     private String signalMessageId;
 
     public EbMS3Exception(final ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, final String errorDetail, final String refToMessageId, final Throwable cause) {

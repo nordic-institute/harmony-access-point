@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE;
 
 /**
  * @author Cosmin Baciu

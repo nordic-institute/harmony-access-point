@@ -23,7 +23,7 @@
       </mat-form-field>
 
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Received" value="{{message.received | domibusDate: dateFormat}}" readonly/>
+        <input matInput placeholder="Received" value="{{message.received | domibusDate}}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%">
@@ -39,7 +39,7 @@
       </mat-form-field>
 
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Next Attempt" value="{{message.nextAttempt | domibusDate: dateFormat}}" readonly/>
+        <input matInput placeholder="Next Attempt" value="{{message.nextAttempt | domibusDate}}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%">
@@ -55,15 +55,15 @@
       </mat-form-field>
 
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Deleted" value="{{message.deleted | domibusDate: dateFormat }}" readonly/>
+        <input matInput placeholder="Deleted" value="{{message.deleted | domibusDate }}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Failed" value="{{message.failed | domibusDate: dateFormat}}" readonly/>
+        <input matInput placeholder="Failed" value="{{message.failed | domibusDate}}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%">
-        <input matInput placeholder="Restored" value="{{message.restored | domibusDate: dateFormat}}" readonly/>
+        <input matInput placeholder="Restored" value="{{message.restored | domibusDate}}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%" *ngIf="fourCornerEnabled">

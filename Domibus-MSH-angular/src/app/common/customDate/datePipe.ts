@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'domibusDate'
@@ -10,22 +10,23 @@ import { Pipe, PipeTransform } from '@angular/core';
  * When they solve it, we can delete this file and use the pipe with date and format again.
  */
 export class DatePipe implements PipeTransform {
-  transform(value: string | Date, type: string = ""): string {
-    if(value) {
+
+  transform(value: string | Date, type: string = 'yyyy-MM-dd HH:mm:ssZ'): string {
+    if (value) {
       let d = new Date(value);
 
-      let dd = ("0"+d.getDate()).slice(-2); //day
-      let MM = ("0"+(d.getMonth()+1)).slice(-2); //month
+      let dd = ('0' + d.getDate()).slice(-2); //day
+      let MM = ('0' + (d.getMonth() + 1)).slice(-2); //month
       let yyyy = d.getFullYear(); //year
       let date = `${dd}-${MM}-${yyyy}`;
 
       let time = '';
 
       if (type != 'short') {
-        let hh = ("0"+d.getHours()).slice(-2); //hours
-        let mm = ("0"+d.getMinutes()).slice(-2); //minutes
-        let ss = ("0"+d.getSeconds()).slice(-2); //seconds
-        let currentTimezone = (d.getTimezoneOffset()/60) * -1;
+        let hh = ('0' + d.getHours()).slice(-2); //hours
+        let mm = ('0' + d.getMinutes()).slice(-2); //minutes
+        let ss = ('0' + d.getSeconds()).slice(-2); //seconds
+        let currentTimezone = (d.getTimezoneOffset() / 60) * -1;
         let gmt = 'GMT';
         if (currentTimezone !== 0) {
           gmt += currentTimezone > 0 ? '+' : ' ';
@@ -36,6 +37,6 @@ export class DatePipe implements PipeTransform {
 
       return `${date} ${time}`;
     }
-    return "";
+    return '';
   }
 }

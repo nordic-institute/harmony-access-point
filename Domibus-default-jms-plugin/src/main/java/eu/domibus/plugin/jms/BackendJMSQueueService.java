@@ -40,8 +40,37 @@ public class BackendJMSQueueService {
         this.messageRetriever = messageRetriever;
     }
 
+    /**
+     * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
+     *
+     * @param messageId The message id for which the queue is determined
+     * @param defaultQueueProperty The property name used to get the default queue
+     * @param routingQueuePrefixProperty The property prefix used to get the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
+     * @return the default or the routing queue
+     */
     public String getJMSQueue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        String queueValue = getQueueValue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        Submission submission;
+        try {
+            submission = messageRetriever.browseMessage(messageId);
+        } catch (MessageNotFoundException e) {
+            throw new DefaultJmsPluginException("Could not find message with id [" + messageId + "]", e);
+        }
+        QueueContext queueContext = new QueueContext(messageId, submission.getService(), submission.getAction());
+        return getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+    }
+
+    /**
+     * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
+     *
+     * @param queueContext The queue context used for determining the queue
+     * @param defaultQueueProperty The property name used to get the default queue
+     * @param routingQueuePrefixProperty The property prefix used to get the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined
+     * @return the default or the routing queue
+     */
+    public String getJMSQueue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
+        String queueValue = getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         if (StringUtils.isEmpty(queueValue)) {
             throw new DefaultJmsPluginException("Error getting the queue value for default property [" + defaultQueueProperty + "] and routing queue prefix [" + routingQueuePrefixProperty + "]");
         }
@@ -51,19 +80,12 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param messageId
-     * @param defaultQueueProperty
-     * @param routingQueuePrefixProperty
-     * @return
+     * @param queueContext The queue context used for determining the queue
+     * @param defaultQueueProperty The property name used to get the default queue
+     * @param routingQueuePrefixProperty The property prefix used to get the routing queue
+     * @return the default or the routing queue
      */
-    protected String getQueueValue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        Submission submission;
-        try {
-            submission = messageRetriever.browseMessage(messageId);
-        } catch (MessageNotFoundException e) {
-            throw new DefaultJmsPluginException("Could not find message with id [" + messageId + "]");
-        }
-
+    protected String getQueueValue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         String routingQueuePrefix = getQueuePrefix(currentDomain, routingQueuePrefixProperty);
         List<String> routingQueuePrefixNameList = jmsPluginPropertyManager.getNestedProperties(routingQueuePrefix);
@@ -74,7 +96,7 @@ public class BackendJMSQueueService {
             return queueValue;
         }
 
-        String routingQueueValue = getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, submission, currentDomain);
+        String routingQueueValue = getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, currentDomain);
         if (StringUtils.isNotBlank(routingQueueValue)) {
             return routingQueueValue;
         }
@@ -88,13 +110,13 @@ public class BackendJMSQueueService {
      *
      * @param routingQueuePrefixList
      * @param routingQueuePrefixProperty
-     * @param submission
+     * @param queueContext
      * @param currentDomain
      * @return
      */
-    protected String getRoutingQueueValue(List<String> routingQueuePrefixList, String routingQueuePrefixProperty, Submission submission, DomainDTO currentDomain) {
+    protected String getRoutingQueueValue(List<String> routingQueuePrefixList, String routingQueuePrefixProperty, QueueContext queueContext, DomainDTO currentDomain) {
         for (String routingQueuePrefixName : routingQueuePrefixList) {
-            String queueValue = getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, submission, currentDomain);
+            String queueValue = getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, queueContext, currentDomain);
             if (StringUtils.isNotBlank(queueValue)) {
                 return queueValue;
             }
@@ -107,11 +129,11 @@ public class BackendJMSQueueService {
      *
      * @param routingQueuePrefixProperty
      * @param routingQueuePrefixName
-     * @param submission
+     * @param queueContext
      * @param currentDomain
      * @return
      */
-    protected String getRoutingQueue(String routingQueuePrefixProperty, String routingQueuePrefixName, Submission submission, DomainDTO currentDomain) {
+    protected String getRoutingQueue(String routingQueuePrefixProperty, String routingQueuePrefixName, QueueContext queueContext, DomainDTO currentDomain) {
         String servicePropertyName = getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "service");
         String service = domibusPropertyExtService.getProperty(currentDomain, servicePropertyName);
         LOG.debug("Determined service value [{}] using property [{}]", service, servicePropertyName);
@@ -120,12 +142,12 @@ public class BackendJMSQueueService {
         String action = domibusPropertyExtService.getProperty(currentDomain, actionPropertyName);
         LOG.debug("Determined action value [{}] using property [{}]", action, actionPropertyName);
 
-        boolean matches = matchesSubmission(service, action, submission);
+        boolean matches = matchesQueueContext(service, action, queueContext);
         if (!matches) {
-            LOG.debug("Service [{}] and action [{}] pair does not matches Submission [{}]", service, action, submission);
+            LOG.debug("Service [{}] and action [{}] pair does not matches the queue context [{}]", service, action, queueContext);
             return null;
         }
-        LOG.debug("Service [{}] and action [{}] pair matches Submission [{}]", service, action, submission);
+        LOG.debug("Service [{}] and action [{}] pair matches queue context [{}]", service, action, queueContext);
 
         String routingQueueNameProperty = getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "queue");
         String queueValue = domibusPropertyExtService.getProperty(currentDomain, routingQueueNameProperty);
@@ -175,32 +197,32 @@ public class BackendJMSQueueService {
         return result;
     }
 
-    protected boolean matchesSubmission(String service, String action, Submission submission) {
+    protected boolean matchesQueueContext(String service, String action, QueueContext queueContext) {
         if (StringUtils.isNotBlank(service) && StringUtils.isNotBlank(action)) {
             LOG.debug("Matching submission using service and action");
-            return matchesService(service, submission) && matchesAction(action, submission);
+            return matchesService(service, queueContext) && matchesAction(action, queueContext);
         }
         if (StringUtils.isNotBlank(service)) {
             LOG.debug("Matching submission using only service");
-            return matchesService(service, submission);
+            return matchesService(service, queueContext);
         }
         if (StringUtils.isNotBlank(action)) {
             LOG.debug("Matching submission using only action");
-            return matchesAction(action, submission);
+            return matchesAction(action, queueContext);
         }
         LOG.debug("Submission not matched: both service and action are null");
         return false;
     }
 
-    protected boolean matchesService(String service, Submission submission) {
-        boolean serviceMatches = StringUtils.equals(service, submission.getService());
-        LOG.debug("Service [{}] matches Submission with message id [{}]?  [{}]", service, submission.getMessageId(), serviceMatches);
+    protected boolean matchesService(String service, QueueContext queueContext) {
+        boolean serviceMatches = StringUtils.equals(service, queueContext.getService());
+        LOG.debug("Service [{}] matches Submission with message id [{}]?  [{}]", service, queueContext.getMessageId(), serviceMatches);
         return serviceMatches;
     }
 
-    protected boolean matchesAction(String action, Submission submission) {
-        boolean actionMatches = StringUtils.equals(action, submission.getAction());
-        LOG.debug("Action [{}] matches Submission with message id [{}]? [{}]", action, submission.getMessageId(), actionMatches);
+    protected boolean matchesAction(String action, QueueContext queueContext) {
+        boolean actionMatches = StringUtils.equals(action, queueContext.getAction());
+        LOG.debug("Action [{}] matches Submission with message id [{}]? [{}]", action, queueContext.getMessageId(), actionMatches);
         return actionMatches;
     }
 }

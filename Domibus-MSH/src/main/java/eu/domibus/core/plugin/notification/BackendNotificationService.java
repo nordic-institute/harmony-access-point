@@ -1,27 +1,30 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.alerts.model.service.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.*;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.CriteriaFactory;
+import eu.domibus.core.plugin.routing.IRoutingCriteria;
+import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
+import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -32,13 +35,6 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.plugin.routing.CriteriaFactory;
-import eu.domibus.core.plugin.routing.IRoutingCriteria;
-import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +51,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -109,7 +105,7 @@ public class BackendNotificationService {
     private EventService eventService;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private MessagingConfigurationManager messagingConfigurationManager;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
@@ -137,6 +133,9 @@ public class BackendNotificationService {
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
+
+    protected Object backendFiltersCacheLock = new Object();
+    protected volatile List<BackendFilter> backendFiltersCache;
 
     @PostConstruct
     public void init() {
@@ -262,7 +261,12 @@ public class BackendNotificationService {
         if (userMessage.isUserMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE;
         }
-
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo != null) {
+            properties.put(MessageConstants.SERVICE, collaborationInfo.getService().getValue());
+            properties.put(MessageConstants.SERVICE_TYPE, collaborationInfo.getService().getType());
+            properties.put(MessageConstants.ACTION, collaborationInfo.getAction());
+        }
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
@@ -309,7 +313,7 @@ public class BackendNotificationService {
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
-        List<BackendFilter> backendFilters = getBackendFilters();
+        List<BackendFilter> backendFilters = getBackendFiltersWithCache();
         return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
     }
 
@@ -354,6 +358,25 @@ public class BackendNotificationService {
             }
         }
         return true;
+    }
+
+    public void invalidateBackendFiltersCache() {
+        LOG.debug("Invalidating the backend filter cache");
+
+        this.backendFiltersCache = null;
+    }
+
+    protected List<BackendFilter> getBackendFiltersWithCache() {
+        if (backendFiltersCache == null) {
+            synchronized (backendFiltersCacheLock) {
+                LOG.debug("Initializing backendFilterCache");
+                if (backendFiltersCache == null) {
+                    List<BackendFilter> backendFilters = getBackendFilters();
+                    backendFiltersCache = backendFilters;
+                }
+            }
+        }
+        return backendFiltersCache;
     }
 
     protected List<BackendFilter> getBackendFilters() {
@@ -498,7 +521,7 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        final MessagingModuleConfiguration messagingConfiguration = multiDomainAlertConfigurationService.getMessageCommunicationConfiguration();
+        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
             eventService.enqueueMessageEvent(messageLog.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole());
         }
@@ -534,18 +557,18 @@ public class BackendNotificationService {
     protected Map<String, Object> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
         Map<String, Object> properties = new HashMap<>();
         if (messageLog.getMessageStatus() != null) {
-            properties.put("fromStatus", messageLog.getMessageStatus().toString());
+            properties.put(MessageConstants.STATUS_FROM, messageLog.getMessageStatus().toString());
         }
-        properties.put("toStatus", newStatus.toString());
-        properties.put("changeTimestamp", changeTimestamp.getTime());
+        properties.put(MessageConstants.STATUS_TO, newStatus.toString());
+        properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
 
 
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());
 
-            properties.put("service", userMessage.getCollaborationInfo().getService().getValue());
-            properties.put("serviceType", userMessage.getCollaborationInfo().getService().getType());
-            properties.put("action", userMessage.getCollaborationInfo().getAction());
+            properties.put(MessageConstants.SERVICE, userMessage.getCollaborationInfo().getService().getValue());
+            properties.put(MessageConstants.SERVICE_TYPE, userMessage.getCollaborationInfo().getService().getType());
+            properties.put(MessageConstants.ACTION, userMessage.getCollaborationInfo().getAction());
         }
         return properties;
     }

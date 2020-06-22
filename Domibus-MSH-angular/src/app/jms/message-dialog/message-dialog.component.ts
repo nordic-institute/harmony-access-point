@@ -10,7 +10,6 @@ export class MessageDialogComponent {
 
   message: any;
   currentSearchSelectedSource: any;
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   constructor(public dialogRef: MatDialogRef<MessageDialogComponent>, private changeDetector: ChangeDetectorRef) {
   }

@@ -4,7 +4,7 @@ import com.codahale.metrics.servlets.AdminServlet;
 import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.metrics.HealthCheckServletContextListener;
 import eu.domibus.core.metrics.MetricsServletContextListener;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
@@ -50,7 +50,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
-        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
 
         BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
         bouncyCastleInitializer.registerBouncyCastle();
@@ -153,7 +153,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     protected MapPropertySource createDomibusConfigLocationSource(String domibusConfigLocation) {
         Map domibusConfigLocationMap = new HashMap();
-        domibusConfigLocationMap.put(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        domibusConfigLocationMap.put(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
         return new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap);
     }
 

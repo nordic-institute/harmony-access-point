@@ -28,8 +28,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
     super();

@@ -13,8 +13,6 @@ import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
@@ -25,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DISPATCHER_CACHEABLE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CACHEABLE;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -79,7 +77,7 @@ public class MSHDispatcher {
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageInfo().getMessageId()));
-        headers.put(HEADER_DOMIBUS_DOMAIN, Arrays.asList(domainContextProvider.getCurrentDomain().getCode()));
+        headers.put(HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
         if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
 

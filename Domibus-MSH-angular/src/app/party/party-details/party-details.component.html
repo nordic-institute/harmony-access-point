@@ -41,10 +41,10 @@
                     <input matInput placeholder="Subject Name" name="subjectName" value="{{party.certificate?.subject}}" id="subjectName_id">
                   </mat-form-field>
                   <mat-form-field style="width:40%">
-                    <input matInput placeholder="Valid From" name="validityFrom" value="{{party.certificate?.validFrom | domibusDate: dateFormat}}" id="validityFrom_id">
+                    <input matInput placeholder="Valid From" name="validityFrom" value="{{party.certificate?.validFrom | domibusDate}}" id="validityFrom_id">
                   </mat-form-field>
                   <mat-form-field style="width:40%">
-                    <input matInput placeholder="Valid To" name="validityTo" value="{{party.certificate?.validUntil | domibusDate: dateFormat}}" id="validityTo_id">
+                    <input matInput placeholder="Valid To" name="validityTo" value="{{party.certificate?.validUntil | domibusDate}}" id="validityTo_id">
                   </mat-form-field>
                   <mat-form-field style="width:100%">
                     <input matInput placeholder="Issuer" name="issuer" value="{{party.certificate?.issuer}}" id="issuer_id">

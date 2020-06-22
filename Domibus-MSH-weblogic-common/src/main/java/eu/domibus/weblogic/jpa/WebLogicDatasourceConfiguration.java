@@ -1,6 +1,6 @@
 package eu.domibus.weblogic.jpa;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
@@ -25,9 +25,9 @@ public class WebLogicDatasourceConfiguration {
     public JndiObjectFactoryBean xaDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);
-        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
+        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
 
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
         jndiObjectFactoryBean.setJndiName(jndiName);
         return jndiObjectFactoryBean;
     }
@@ -36,9 +36,9 @@ public class WebLogicDatasourceConfiguration {
     public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);
-        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
+        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
 
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManager.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME, jndiName);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME, jndiName);
         jndiObjectFactoryBean.setJndiName(jndiName);
         return jndiObjectFactoryBean;
     }

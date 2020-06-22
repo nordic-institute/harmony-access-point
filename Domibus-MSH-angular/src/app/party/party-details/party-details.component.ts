@@ -24,7 +24,6 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   party: PartyResponseRo;
   identifiers: Array<IdentifierRo>;
   selectedIdentifiers = [];
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   @ViewChild('fileInput', {static: false})
   private fileInput;

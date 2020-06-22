@@ -14,7 +14,6 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 })
 export class TruststoreDialogComponent {
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
   trustStoreEntry: TrustStoreEntry;
 
   constructor(public dialogRef: MatDialogRef<TruststoreDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {

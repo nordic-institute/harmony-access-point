@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu

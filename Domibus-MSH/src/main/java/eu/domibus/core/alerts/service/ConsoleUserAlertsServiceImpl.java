@@ -1,17 +1,24 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.model.service.LoginFailureModuleConfiguration;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.ui.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_EXPIRATION;
 
 /**
  * @author Ion Perpegel
@@ -27,7 +34,19 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     protected UserDao userDao;
 
     @Autowired
-    private MultiDomainAlertConfigurationService alertsConfiguration;
+    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+
+    @Autowired
+    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
+
+    @Autowired
+    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
+
+    @Autowired
+    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
+
+    @Autowired
+    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -45,7 +64,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected AlertType getAlertTypeForPasswordExpired() { return AlertType.PASSWORD_EXPIRED; }
+    protected AlertType getAlertTypeForPasswordExpired() {
+        return AlertType.PASSWORD_EXPIRED;
+    }
 
     @Override
     protected EventType getEventTypeForPasswordImminentExpiration() {
@@ -58,7 +79,9 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected UserDaoBase getUserDao() { return userDao; }
+    protected UserDaoBase getUserDao() {
+        return userDao;
+    }
 
     @Override
     protected UserEntityBase.Type getUserType() {
@@ -67,12 +90,27 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return alertsConfiguration.getAccountDisabledConfiguration();
+        return consoleAccountDisabledConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
+        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
     protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return alertsConfiguration.getLoginFailureConfiguration();
+        return consoleLoginFailConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
+        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    }
+
+    @Override
+    protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
+        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }
