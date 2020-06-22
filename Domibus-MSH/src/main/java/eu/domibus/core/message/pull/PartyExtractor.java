@@ -5,7 +5,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -29,7 +29,7 @@ public class PartyExtractor implements PartyIdExtractor {
      */
     @Override
     public String getPartyId() {
-        Set<Identifier> identifiers = party.getIdentifiers();
+        List<Identifier> identifiers = party.getIdentifiers();
         if (identifiers.size() == 0) {
             LOG.warn("No identifier defined for party:[{}], the message will not be available for pulling", party.getName());
             throw new IllegalStateException("Party should have an identifier");
