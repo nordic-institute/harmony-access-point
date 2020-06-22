@@ -39,18 +39,20 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         if (classUtil.isMethodDefined(backendConnector, "deliverMessage", new Class[]{DeliverMessageEvent.class})) {
             LOG.trace("Calling deliverMessage method");
             backendConnector.deliverMessage(event);
+        } else {
+            LOG.trace("Calling deprecated deliverMessage method");
+            backendConnector.deliverMessage(event.getMessageId());
         }
-        LOG.trace("Calling deprecated deliverMessage method");
-        backendConnector.deliverMessage(event.getMessageId());
     }
 
     public void messageSendFailed(BackendConnector backendConnector, MessageSendFailedEvent event) {
         if (classUtil.isMethodDefined(backendConnector, "messageSendFailed", new Class[]{MessageSendFailedEvent.class})) {
             LOG.trace("Calling messageSendFailed method");
             backendConnector.messageSendFailed(event);
+        } else {
+            LOG.trace("Calling deprecated messageSendFailed method");
+            backendConnector.messageSendFailed(event.getMessageId());
         }
-        LOG.trace("Calling deprecated messageSendFailed method");
-        backendConnector.messageSendFailed(event.getMessageId());
 
     }
 
@@ -58,8 +60,9 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         if (classUtil.isMethodDefined(backendConnector, "messageSendSuccess", new Class[]{MessageSendSuccessEvent.class})) {
             LOG.trace("Calling messageSendSuccess method");
             backendConnector.messageSendSuccess(event);
+        } else {
+            LOG.trace("Calling deprecated messageSendSuccess method");
+            backendConnector.messageSendSuccess(event.getMessageId());
         }
-        LOG.trace("Calling deprecated messageSendSuccess method");
-        backendConnector.messageSendSuccess(event.getMessageId());
     }
 }

@@ -36,6 +36,9 @@ public class WSMessageLog {
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
+    public WSMessageLog() {
+    }
+
     public WSMessageLog(String messageId, String finalRecipient) {
         this.messageId = messageId;
         this.finalRecipient = finalRecipient;
