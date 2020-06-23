@@ -9,14 +9,22 @@ import org.apache.commons.collections.map.HashedMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ConfigurationPropertyResourceHelperImplTest {
 
     @Tested
@@ -34,8 +42,12 @@ public class ConfigurationPropertyResourceHelperImplTest {
     @Injectable
     private AuthUtils authUtils;
 
+    @Mock
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
+
+    @Captor
+    ArgumentCaptor argCaptor;
 
     @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
@@ -129,6 +141,26 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
+    public void setPropertyValue_global() throws Exception {
+        String name = "some.global.property";
+        boolean isDomain = false;
+        String value = "propValue";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            authUtils.isSuperAdmin();
+            result = true;
+        }};
+
+        configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
+        mockExecutorSubmit_void();
+
+        new Verifications() {{
+            domibusPropertyProvider.setProperty(name, value);
+            times = 1;
+        }};
+    }
+
+    @Test
     public void createProperties() {
         new Expectations(configurationPropertyResourceHelper) {{
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(0).getName());
@@ -161,7 +193,23 @@ public class ConfigurationPropertyResourceHelperImplTest {
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(name, showDomain, props1);
 
         Assert.assertEquals(2, actual.size());
-        Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
+        Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
+    }
+
+    @Test
+    public void filterProperties_singleTenancy() {
+        String name = "domibus.UI";
+        Boolean showDomain = false;
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+        }};
+
+        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(name, showDomain, props1);
+
+        Assert.assertEquals(2, actual.size());
+        Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
     @Test
@@ -179,6 +227,36 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(propertyValue, actual.getValue());
+    }
+
+    @Test
+    public void getPropertyValue_global(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
+        String expectedValue = "my val";
+        new Expectations(configurationPropertyResourceHelper) {{
+            propMeta.isDomain();
+            result = false;
+            propMeta.getName();
+            result = "my.global.prop.name";
+            domibusPropertyProvider.getProperty(propMeta.getName());
+            result = expectedValue;
+        }};
+
+        configurationPropertyResourceHelper.getPropertyValue(propMeta);
+        String returnedValue = mockExecutorSubmit();
+
+        Assert.assertEquals(expectedValue, returnedValue);
+    }
+
+    private <T> T mockExecutorSubmit() throws Exception {
+        Mockito.verify(domainTaskExecutor).submit((Callable) argCaptor.capture());
+        Callable<T> callable = (Callable<T>) argCaptor.getValue();
+        return callable.call();
+    }
+
+    private void mockExecutorSubmit_void() {
+        Mockito.verify(domainTaskExecutor).submit((Runnable) argCaptor.capture());
+        Runnable runnable = (Runnable) argCaptor.getValue();
+        runnable.run();
     }
 
 }
