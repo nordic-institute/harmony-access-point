@@ -22,7 +22,7 @@
     <!-- Quartz tables -->
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
-    <!-- Domibus tables -->
+    <!-- Plugin specific tables -->
     <changeSet author="idragusa" id="EDELIVERY-4740">
         <comment>Plugin specific tables</comment>
         <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
@@ -33,9 +33,13 @@
                 <constraints nullable="false"/>
             </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
+    <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
         <createTable tableName="TB_ACTION">

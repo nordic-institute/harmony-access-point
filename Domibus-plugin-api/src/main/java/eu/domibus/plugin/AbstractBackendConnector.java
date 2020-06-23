@@ -147,7 +147,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void deliverMessage(final String messageId) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+        throw new UnsupportedOperationException("This method is deprecated, use eu.domibus.plugin.AbstractBackendConnector.deliverMessage(eu.domibus.common.DeliverMessageEvent) instead");
     }
 
     @Override

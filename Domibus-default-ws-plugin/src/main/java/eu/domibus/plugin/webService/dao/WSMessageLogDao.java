@@ -2,8 +2,7 @@ package eu.domibus.plugin.webService.dao;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.webService.entity.WSMessageLog;
+import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -16,7 +15,7 @@ import java.util.List;
  * @since 4.2
  */
 @Repository
-public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
+public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageLogDao.class);
 
@@ -24,7 +23,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
     private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";
 
     public WSMessageLogDao() {
-        super(WSMessageLog.class);
+        super(WSMessageLogEntity.class);
     }
 
     /**
@@ -32,40 +31,46 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
      *
      * @param messageId the id of the message.
      */
-    public WSMessageLog findByMessageId(String messageId) {
-        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findByMessageId", WSMessageLog.class);
+    public WSMessageLogEntity findByMessageId(String messageId) {
+        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findByMessageId", WSMessageLogEntity.class);
         query.setParameter(MESSAGE_ID, messageId);
-        WSMessageLog wsMessageLog;
+        WSMessageLogEntity wsMessageLogEntity;
         try {
-            wsMessageLog = query.getSingleResult();
+            wsMessageLogEntity = query.getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
-        return wsMessageLog;
+        return wsMessageLogEntity;
     }
 
     /**
-     * Find all entries in the plugin table limited to maxCount.
+     * Find all entries in the plugin table limited to maxCount. When maxCount is 0, return all.
      */
-    public List<WSMessageLog> findAll(int maxCount) {
-        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAll", WSMessageLog.class);
-        return query.setMaxResults(maxCount).getResultList();
+    public List<WSMessageLogEntity> findAll(int maxCount) {
+        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAll", WSMessageLogEntity.class);
+        if(maxCount > 0) {
+            return query.setMaxResults(maxCount).getResultList();
+        }
+        return query.getResultList();
     }
 
     /**
-     * Fins all entries in the plugin table, for finalRecipient, limited to maxCount.
+     * Fins all entries in the plugin table, for finalRecipient, limited to maxCount. When maxCount is 0, return all.
      */
-    public List<WSMessageLog> findAllByFinalRecipient(int maxCount, String finalRecipient) {
-        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAllByFinalRecipient", WSMessageLog.class);
+    public List<WSMessageLogEntity> findAllByFinalRecipient(int maxCount, String finalRecipient) {
+        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAllByFinalRecipient", WSMessageLogEntity.class);
         query.setParameter(FINAL_RECIPIENT, finalRecipient);
-        return query.setMaxResults(maxCount).getResultList();
+        if(maxCount > 0) {
+            return query.setMaxResults(maxCount).getResultList();
+        }
+        return query.getResultList();
     }
 
     /**
      * Find all entries in the plugin table.
      */
-    public List<WSMessageLog> findAll() {
-        TypedQuery<WSMessageLog> query = em.createNamedQuery("WSMessageLog.findAll", WSMessageLog.class);
+    public List<WSMessageLogEntity> findAll() {
+        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAll", WSMessageLogEntity.class);
         return query.getResultList();
     }
 
@@ -75,7 +80,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLog> {
      * @param messageId the id of the message.
      */
     public void deleteByMessageId(final String messageId) {
-        Query query = em.createNamedQuery("WSMessageLog.deleteByMessageId");
+        Query query = em.createNamedQuery("WSMessageLogEntity.deleteByMessageId");
         query.setParameter(MESSAGE_ID, messageId);
         query.executeUpdate();
     }

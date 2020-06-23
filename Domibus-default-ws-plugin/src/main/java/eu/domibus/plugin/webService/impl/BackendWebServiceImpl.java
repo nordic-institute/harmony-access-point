@@ -17,7 +17,7 @@ import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
-import eu.domibus.plugin.webService.entity.WSMessageLog;
+import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.generated.ErrorCode;
 import eu.domibus.plugin.webService.generated.MessageStatus;
@@ -32,10 +32,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ValidExternallyBoundObject")
@@ -60,7 +57,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
-    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "domibus.listPendingMessages.maxCount";
+    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
 
     @Autowired
     private StubDtoTransformer defaultTransformer;
@@ -135,8 +132,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
         LOG.info("Deliver message: [{}]", event);
-        WSMessageLog wsMessageLog = new WSMessageLog(event.getMessageId(), event.getFinalRecipient());
-        wsMessageLogDao.create(wsMessageLog);
+        WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
+        wsMessageLogDao.create(wsMessageLogEntity);
     }
 
     @Override
@@ -275,8 +272,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-        final Collection<String> ids;
-        final int intMaxPendingMessagesRetrieveCount = new Integer(domibusPropertyExtService.getProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT));
+        int intMaxPendingMessagesRetrieveCount = 0;
+        try {
+            domibusPropertyExtService.getIntegerProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
+        } catch (IllegalStateException exc) {
+            LOG.warn("Could not read the value of [{}] property, all pending messages will be returned", PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
+        }
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
         String originalUser = null;
@@ -285,15 +286,15 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
             LOG.info("Original user is [{}]", originalUser);
         }
 
-        List<WSMessageLog> pending;
+        List<WSMessageLogEntity> pending;
         if (originalUser != null) {
             pending = wsMessageLogDao.findAllByFinalRecipient(intMaxPendingMessagesRetrieveCount, originalUser);
         } else {
             pending = wsMessageLogDao.findAll(intMaxPendingMessagesRetrieveCount);
         }
 
-        ids = pending.stream()
-                .map(WSMessageLog::getMessageId).collect(Collectors.toList());
+        final Collection<String> ids = pending.stream()
+                .map(WSMessageLogEntity::getMessageId).collect(Collectors.toList());
         response.getMessageID().addAll(ids);
         return response;
     }
@@ -320,8 +321,8 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        WSMessageLog wsMessageLog = wsMessageLogDao.findByMessageId(trimmedMessageId);
-        if (wsMessageLog == null) {
+        WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
+        if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
@@ -360,7 +361,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         }
 
         // remove downloaded message from the plugin table containing the pending messages
-        wsMessageLogDao.delete(wsMessageLog);
+        wsMessageLogDao.delete(wsMessageLogEntity);
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {

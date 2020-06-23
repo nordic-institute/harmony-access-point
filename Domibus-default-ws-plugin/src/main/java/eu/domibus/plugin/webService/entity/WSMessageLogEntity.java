@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Date;
 
 /**
  * @author idragusa
@@ -14,16 +15,16 @@ import javax.xml.bind.annotation.XmlTransient;
 @Entity
 @Table(name = "WS_PLUGIN_TB_MESSAGE_LOG")
 @NamedQueries({
-        @NamedQuery(name = "WSMessageLog.findByMessageId",
-                query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "WSMessageLog.findAll",
-                query = "from WSMessageLog"),
-        @NamedQuery(name = "WSMessageLog.findAllByFinalRecipient",
-                query = "select wsMessageLog from WSMessageLog wsMessageLog where wsMessageLog.finalRecipient=:FINAL_RECIPIENT"),
+        @NamedQuery(name = "WSMessageLogEntity.findByMessageId",
+                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "WSMessageLogEntity.findAll",
+                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity order by wsMessageLogEntity.received desc"),
+        @NamedQuery(name = "WSMessageLogEntity.findAllByFinalRecipient",
+                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.finalRecipient=:FINAL_RECIPIENT order by wsMessageLogEntity.received desc"),
         @NamedQuery(name = "WSMessageLog.deleteByMessageId",
-                query = "DELETE FROM WSMessageLog wsMessageLog where wsMessageLog.messageId=:MESSAGE_ID")
+                query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 })
-public class WSMessageLog {
+public class WSMessageLogEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,12 +37,17 @@ public class WSMessageLog {
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
-    public WSMessageLog() {
+    @Column(name = "RECEIVED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date received;
+
+    public WSMessageLogEntity() {
     }
 
-    public WSMessageLog(String messageId, String finalRecipient) {
+    public WSMessageLogEntity(String messageId, String finalRecipient, Date received) {
         this.messageId = messageId;
         this.finalRecipient = finalRecipient;
+        this.received = new Date();
     }
 
     public long getEntityId() {
@@ -66,5 +72,13 @@ public class WSMessageLog {
 
     public void setFinalRecipient(String finalRecipient) {
         this.finalRecipient = finalRecipient;
+    }
+
+    public Date getReceived() {
+        return received;
+    }
+
+    public void setReceived(Date received) {
+        this.received = received;
     }
 }

@@ -20,7 +20,7 @@ public interface MessageLister {
     Collection<String> listPendingMessages();
 
     /**
-     * removes the message with the corresponding id from the pending table
+     * removes the message with the corresponding id from the pending received messages
      *
      * @param messageId id of the message to be removed
      * @throws MessageNotFoundException if the message is not pending

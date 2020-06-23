@@ -23,6 +23,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
