@@ -2208,7 +2208,7 @@ def String jmsPropertiesPrefix(inputName) {
 		}	
 	return domId
 }	
-
+/*
 def InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
         InitialContext ic = null;
         if (providerUrl != null) {
@@ -2227,9 +2227,11 @@ def InitialContext getInitialContext(String providerUrl, String userName, String
         }
         return ic;
     }
-
+*/
 def connectToWeblogic(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE) {
-def MapMessage messageMap = null	
+
+    /*
+    def MapMessage messageMap = null
 	try {
 	jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD);
 
@@ -2247,10 +2249,12 @@ def MapMessage messageMap = null
 				"CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
 		assert 0,"Exception occurred when trying to connect: " + ex;
 	}
-	return messageMap				
+	return messageMap
+
+     */
 }
 def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String QUEUE) {
-	def MapMessage messageMap = null	
+	/*def MapMessage messageMap = null
 	try {
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
 		jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD) //username and password of the default JMS broker
@@ -2265,7 +2269,9 @@ def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String Q
 					"QUEUE: $QUEUE"
 			assert 0,"Exception occurred when trying to connect: " + ex;
 		}
-	return messageMap				
+	return messageMap
+
+	 */
 }
 
 def jmsConnectionHandlerInitializeC2() {
@@ -2277,7 +2283,7 @@ def jmsConnectionHandlerInitializeC3() {
 }
 
 def jmsConnectionHandlerInitialize(String inputName) {
-	def MapMessage messageMap = null
+	/*def MapMessage messageMap = null
 	
 	log.info "Starting JMS message sending"   
 	String domId = jmsPropertiesPrefix(inputName)
@@ -2313,9 +2319,12 @@ def jmsConnectionHandlerInitialize(String inputName) {
 			
     }
 	return messageMap
+
+	 */
 }
 
 def sendMessageAndClean(messageMap) {	
+/*
 	log.info "sending message"
 	try {
 		jmsSender.send(messageMap);
@@ -2325,6 +2334,8 @@ def sendMessageAndClean(messageMap) {
 		assert 0,"Exception occurred when trying to connect: " + ex;
 	}	
 	log.info "message sent"
+
+ */
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
