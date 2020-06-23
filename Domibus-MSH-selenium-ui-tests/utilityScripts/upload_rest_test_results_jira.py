@@ -17,7 +17,7 @@ projectKey = 'EDELIVERY'
 cycleNameStub = 'SEL_WC_MT_'
 parentCycleId = 143
 boardID = 15
-buildNoSource = "http://localhost:9080/domibus/rest/application/info"
+buildNoSource = "http://localhost:9008/domibus/rest/application/info"
 environment_config = "Docker_WeblogicCluster-Oracle-Multitenancy"
 cycle_description = 'Conatins results of the REST test suite '
 
