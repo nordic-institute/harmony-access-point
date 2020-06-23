@@ -122,7 +122,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         scheduler.start();
         schedulers.put(domain, scheduler);
-        LOG.info("Quartz scheduler [{}] started for domain [{}]", scheduler, domain);
+        LOG.info("Quartz scheduler started for domain [{}]", domain);
     }
 
     /**
@@ -243,7 +243,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         generalScheduler.start();
         generalSchedulers.add(generalScheduler);
-        LOG.info("Quartz scheduler [{}] started for general schema", generalScheduler);
+        LOG.info("Quartz scheduler started for general schema");
     }
 
     /**
