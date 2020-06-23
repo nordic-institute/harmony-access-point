@@ -1,11 +1,11 @@
 package eu.domibus.core.scheduler;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.MonitoringStatus;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
@@ -122,7 +122,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         scheduler.start();
         schedulers.put(domain, scheduler);
-        LOG.info("Quartz scheduler started for domain [{}]", domain);
+        LOG.info("Quartz scheduler [{}] started for domain [{}]", scheduler, domain);
     }
 
     /**
@@ -243,7 +243,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         generalScheduler.start();
         generalSchedulers.add(generalScheduler);
-        LOG.info("Quartz scheduler started for general schema");
+        LOG.info("Quartz scheduler [{}] started for general schema", generalScheduler);
     }
 
     /**
