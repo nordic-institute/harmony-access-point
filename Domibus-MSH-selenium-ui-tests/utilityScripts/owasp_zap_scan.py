@@ -12,7 +12,7 @@ false_alerts = []
 
 domibus_url = 'http://ddomibus.com:9080/domibus/'
 zapUrl = "http://localhost:8281"
-day_of_week_to_run = 4
+day_of_week_to_run = 1
 
 PASIVE_SCAN_STATUS_URL = '/JSON/pscan/view/recordsToScan/'
 ACTIVE_SCAN_URL = '/JSON/ascan/action/scan'
