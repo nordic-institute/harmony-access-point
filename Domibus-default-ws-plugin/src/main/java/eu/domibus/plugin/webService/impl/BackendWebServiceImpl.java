@@ -21,6 +21,7 @@ import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.generated.ErrorCode;
 import eu.domibus.plugin.webService.generated.MessageStatus;
+import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,6 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
-    protected static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
-
     @Autowired
     private StubDtoTransformer defaultTransformer;
 
@@ -78,7 +77,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     private DomainContextExtService domainContextExtService;
 
     @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
+    protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Autowired
     AuthenticationExtService authenticationExtService;
@@ -272,12 +271,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
         final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-        int intMaxPendingMessagesRetrieveCount = 0;
-        try {
-            domibusPropertyExtService.getIntegerProperty(PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
-        } catch (IllegalStateException exc) {
-            LOG.warn("Could not read the value of [{}] property, all pending messages will be returned", PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
-        }
+        final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
         String originalUser = null;

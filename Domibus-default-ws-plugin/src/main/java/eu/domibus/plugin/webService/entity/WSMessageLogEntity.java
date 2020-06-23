@@ -18,9 +18,9 @@ import java.util.Date;
         @NamedQuery(name = "WSMessageLogEntity.findByMessageId",
                 query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "WSMessageLogEntity.findAll",
-                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity order by wsMessageLogEntity.received desc"),
+                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity order by wsMessageLogEntity.received asc"),
         @NamedQuery(name = "WSMessageLogEntity.findAllByFinalRecipient",
-                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.finalRecipient=:FINAL_RECIPIENT order by wsMessageLogEntity.received desc"),
+                query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.finalRecipient=:FINAL_RECIPIENT order by wsMessageLogEntity.received asc"),
         @NamedQuery(name = "WSMessageLog.deleteByMessageId",
                 query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 })

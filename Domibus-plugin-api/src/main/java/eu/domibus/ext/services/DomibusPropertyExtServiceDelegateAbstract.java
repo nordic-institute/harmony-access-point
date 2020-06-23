@@ -42,6 +42,19 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     }
 
     @Override
+    public Integer getKnownIntegerPropertyValue(String propertyName) {
+        checkPropertyExists(propertyName);
+
+        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        if (!propMeta.isStoredGlobally()) {
+            LOG.debug("Property [{}] is not stored globally so 0 was returned.", propertyName);
+            return 0;
+        }
+
+        return domibusPropertyExtService.getIntegerProperty(propertyName);
+    }
+
+    @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
         return getKnownPropertyValue(propertyName);
     }

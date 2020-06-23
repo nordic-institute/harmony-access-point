@@ -11,6 +11,7 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -67,6 +68,9 @@ public class BackendWebServiceImplTest {
 
     @Injectable
     private DomainContextExtService domainContextExtService;
+
+    @Injectable
+    protected WSPluginPropertyManager wsPluginPropertyManager;
 
 
     @Test(expected = SubmitMessageFault.class)
