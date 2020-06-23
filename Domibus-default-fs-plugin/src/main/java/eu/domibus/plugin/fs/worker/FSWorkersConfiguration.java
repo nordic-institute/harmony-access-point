@@ -20,13 +20,9 @@ import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
  * @since 4.2
  */
 @Configuration
-@DependsOn({"springContextProvider"})
 public class FSWorkersConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSWorkersConfiguration.class);
-
-    @Autowired
-    protected FSPluginProperties fsPluginProperties;
 
     @Autowired
     protected DomainContextExtService domainContextExtService;
@@ -41,7 +37,7 @@ public class FSWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger() {
+    public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
             return null; // this job only works for a domain
@@ -64,7 +60,7 @@ public class FSWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger() {
+    public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
             return null; // this job only works for a domain
@@ -87,7 +83,7 @@ public class FSWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger() {
+    public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
             return null; // this job only works for a domain
@@ -110,7 +106,7 @@ public class FSWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger() {
+    public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
             return null; // this job only works for a domain
