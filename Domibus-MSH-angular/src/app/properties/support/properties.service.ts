@@ -32,8 +32,7 @@ export class PropertiesService {
 
     const payload = JSON.stringify(value);
 
-    let headers = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json; charset=utf-8');
+    const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
     const options = {params: {isDomain: isDomain.toString()}, headers: headers};
 
     return this.http.put(PropertiesService.PROPERTIES_URL + '/' + prop.name, payload, options)
