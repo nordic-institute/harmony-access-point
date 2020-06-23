@@ -93,16 +93,7 @@ public class FSSendMessagesService {
     public void sendMessages() {
         LOG.debug("Sending file system messages...");
 
-        List<String> domains;
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            // in multi-tenancy, process only the current domain
-            domains = Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
-        }
-        else {
-            // in single-tenancy, process all fsplugin-defined domains
-            domains = fsPluginProperties.getDomains();
-        }
-
+        List<String> domains = fsDomainService.getDomainsToProcess();
         for (String domain : domains) {
             if (fsDomainService.verifyDomainExists(domain)) {
                 sendMessagesSafely(domain);

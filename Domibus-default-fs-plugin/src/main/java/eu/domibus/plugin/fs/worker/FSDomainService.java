@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,25 @@ public class FSDomainService {
         }
         LOG.trace("Provided domain [{}] is configured in non multitenancy mode", domain);
         return true;
+    }
+
+    /**
+     * Returns all domains that need to be processed by various operations (sending, purging etc)
+     * In multi-tenancy, this means only the current domain.
+     * In single-tenancy, all configured fsplugin domains are returned.
+     * @return a list of domain codes
+     */
+    public List<String> getDomainsToProcess() {
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            // in multi-tenancy, process only the current domain
+            LOG.trace("Multi-tenancy mode, process current domain");
+            return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
+        }
+        else {
+            // in single-tenancy, process all fsplugin-defined domains
+            LOG.trace("Single-tenancy mode, process known domains");
+            return fsPluginProperties.getDomains();
+        }
     }
 
     /**
@@ -176,4 +196,5 @@ public class FSDomainService {
             domainPatternCache.clear();
         }
     }
+
 }

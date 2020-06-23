@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class FSPurgeFailedServiceTest {
         domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
 
         new Expectations(1, instance) {{
-            fsPluginProperties.getDomains();
+            fsMultiTenancyService.getDomainsToProcess();
             result = domains;
 
             fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
@@ -110,7 +111,7 @@ public class FSPurgeFailedServiceTest {
             fsMultiTenancyService.verifyDomainExists("DOMAIN1");
             result = true;
 
-            fsPluginProperties.getDomains();
+            fsMultiTenancyService.getDomainsToProcess();
             result = Collections.singletonList("DOMAIN1");
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
