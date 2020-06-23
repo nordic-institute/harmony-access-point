@@ -10,7 +10,6 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt  {
+public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract
+        implements DomibusPropertyManagerExt {
 
     private static final String SCHEMA_VALIDATION_ENABLED_PROPERTY = "wsplugin.schema.validation.enabled";
 
@@ -47,32 +47,38 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;
 
-    private List<DomibusPropertyMetadataDTO> knownStoredLocallyProperties = Arrays.stream(new String[]{
-            SCHEMA_VALIDATION_ENABLED_PROPERTY,
-            MTOM_ENABLED_PROPERTY,
-    })
-            .map(name -> new DomibusPropertyMetadataDTO(name, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL))
-            .peek(el -> el.setStoredGlobally(false))
-            .collect(Collectors.toList());
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
-    private List<DomibusPropertyMetadataDTO> knownStoredGloballyProperties = Arrays.stream(new String[]{
-            PROP_LIST_PENDING_MESSAGES_MAXCOUNT
-    })
-            .map(name -> new DomibusPropertyMetadataDTO(name, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL))
-            .collect(Collectors.toList());
+    public WSPluginPropertyManager() {
+        List<DomibusPropertyMetadataDTO> knownStoredLocallyProperties = Arrays.stream(new String[]{
+                SCHEMA_VALIDATION_ENABLED_PROPERTY,
+                MTOM_ENABLED_PROPERTY,
+        })
+                .map(name -> new DomibusPropertyMetadataDTO(name, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL))
+                .peek(el -> el.setStoredGlobally(false))
+                .collect(Collectors.toList());
 
-    @Override
-    public boolean hasKnownProperty(String name) {
-        return StringUtils.equalsAnyIgnoreCase(name, SCHEMA_VALIDATION_ENABLED_PROPERTY, MTOM_ENABLED_PROPERTY, PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
-    }
+        List<DomibusPropertyMetadataDTO> knownStoredGloballyProperties = Arrays.stream(new String[]{
+                PROP_LIST_PENDING_MESSAGES_MAXCOUNT
+        })
+                .map(name -> new DomibusPropertyMetadataDTO(name, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL))
+                .collect(Collectors.toList());
 
-    @Override
-    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         List<DomibusPropertyMetadataDTO> allProperties = new ArrayList<>();
         allProperties.addAll(knownStoredLocallyProperties);
         allProperties.addAll(knownStoredGloballyProperties);
 
-        return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
+        knownProperties = allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
+    }
+
+    @Override
+    public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
+        return knownProperties;
+    }
+
+    @Override
+    public boolean hasKnownProperty(String propertyName) {
+        return knownProperties.containsValue(propertyName);
     }
 
     @Override
