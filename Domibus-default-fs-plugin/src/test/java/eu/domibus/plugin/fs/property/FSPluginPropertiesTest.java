@@ -1,10 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
@@ -47,6 +44,9 @@ public class FSPluginPropertiesTest {
     @Tested
     @Injectable
     protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
+    @Injectable
+    DomibusPropertyExtService domibusPropertyExtService;
 
     @Tested
     FSPluginProperties fsPluginProperties;

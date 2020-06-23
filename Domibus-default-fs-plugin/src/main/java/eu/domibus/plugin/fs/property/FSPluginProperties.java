@@ -30,7 +30,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Component
-public class FSPluginProperties implements DomibusPropertyManagerExt {
+public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
