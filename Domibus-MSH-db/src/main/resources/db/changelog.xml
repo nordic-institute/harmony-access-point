@@ -22,6 +22,23 @@
     <!-- Quartz tables -->
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
+    <!-- Plugin specific tables -->
+    <changeSet author="idragusa" id="EDELIVERY-4740">
+        <comment>Plugin specific tables</comment>
+        <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
@@ -1475,8 +1492,7 @@
             <column name="NAME" remarks="Splitting configuration name" type="VARCHAR(255)"/>
             <column name="FRAGMENT_SIZE" remarks="The fragment size" type="INT"/>
             <column name="COMPRESSION" remarks="True if compression will be used" type="BOOLEAN"/>
-            <column name="COMPRESSION_ALGORITHM"
-                    remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
+            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
             <column name="JOIN_INTERVAL" remarks="The join interval" type="INT"/>
             <column name="FK_BUSINESSPROCESS" remarks="Foreign key to the business process" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">

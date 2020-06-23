@@ -13,6 +13,22 @@
     tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
     <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
+    <changeSet author="idragusa" id="EDELIVERY-4740">
+        <comment>Plugin specific tables</comment>
+        <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
     <changeSet author="tincuse" id="EDELIVERY-4915">
         <comment>Add audit columns in all configuration and run-time tables</comment>
 

@@ -24,7 +24,7 @@
 
     <bean id="webserviceNotificationListenerService"
           class="eu.domibus.submission.WeblogicNotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PULL"
+          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
           p:backendConnector-ref="backendWebservice">
         <property name="queueJndi" value="jms/domibus.notification.webservice"/>
     </bean>

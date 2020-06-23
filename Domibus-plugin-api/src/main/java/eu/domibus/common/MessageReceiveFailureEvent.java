@@ -1,6 +1,8 @@
 package eu.domibus.common;
 
 /**
+ *  This event is used to transfer information on the failure to received message event, from the core to the plugins implementing PUSH methods.
+ *
  * @author Cosmin Baciu
  * @since 3.2.2
  */

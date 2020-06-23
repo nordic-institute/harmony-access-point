@@ -1,3 +1,13 @@
+##### execute as sysdba #####
+# GRANT connect, resource TO domibus_user IDENTIFIED BY domibus_passwd;
+# GRANT aq_user_role TO domibus_user;
+# GRANT execute ON sys.dbms_aqadm TO domibus_user;
+# GRANT execute ON sys.dbms_aq TO domibus_user;
+# GRANT execute ON sys.dbms_aqin TO domibus_user;
+# GRANT execute ON sys.dbms_aqjms TO domibus_user;
+# alter user domibus_user quota unlimited on USERS;
+# disconnect
+
 ##### This is an SQL example script to create all Domibus queues in the Oracle AQ database #####
 BEGIN
 dbms_aqadm.create_queue_table (queue_table => 'OUTQUEUE',  queue_payload_type => 'sys.aq$_jms_message',multiple_consumers => false);

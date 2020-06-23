@@ -96,6 +96,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             }
 
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+
             lister.removeFromPending(messageId);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -135,22 +136,42 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
+    public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 
     @Override
-    public void messageStatusChanged(MessageStatusChangeEvent event) {
+    public void messageStatusChanged(final MessageStatusChangeEvent event) {
         //this method should be implemented by the plugins needed to be notified when the User Message status changes
     }
 
     @Override
     public void deliverMessage(final String messageId) {
+        throw new UnsupportedOperationException("This method is deprecated, use eu.domibus.plugin.AbstractBackendConnector.deliverMessage(eu.domibus.common.DeliverMessageEvent) instead");
+    }
+
+    @Override
+    public void deliverMessage(final DeliverMessageEvent event) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 
     @Override
     public void messageSendSuccess(String messageId) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendSuccess(final MessageSendSuccessEvent event) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendFailed(final MessageSendFailedEvent event) {
+        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+    }
+
+    @Override
+    public void messageSendFailed(String messageId) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 

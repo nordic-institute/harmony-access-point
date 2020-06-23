@@ -44,6 +44,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
+    public Integer getIntegerProperty(String propertyName) {
+        return domibusPropertyProvider.getIntegerProperty((propertyName));
+    }
+
+    @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);
     }

@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This event is used to transfer information on the message status changed event, from the core to the plugins implementing PUSH methods.
+ *
  * @author Cosmin Baciu
  * @since 3.2.2
  */

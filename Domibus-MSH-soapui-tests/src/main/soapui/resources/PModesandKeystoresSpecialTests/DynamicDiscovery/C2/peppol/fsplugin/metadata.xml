@@ -9,7 +9,7 @@
     <CollaborationInfo>
         <!--You may enter the following 4 items in any order-->
         <!--Optional:-->
-        <!--<AgreementRef type="DUM">DummyAgr</AgreementRef>-->
+        <AgreementRef>urn:fdc:peppol.eu:2017:agreements:tia:ap_provider</AgreementRef>
         <Service type="urn:fdc:peppol.eu:2017:identifiers:proc-id">urn:www.cenbii.eu:profile:bii04:ver1.0</Service>
         <Action>busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0</Action>        
     </CollaborationInfo>
