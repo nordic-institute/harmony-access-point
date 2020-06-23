@@ -14,13 +14,13 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import groovy.json.JsonBuilder
 import org.apache.commons.io.FileUtils
-
+/*
 import javax.jms.*
 import javax.naming.NamingException
 import javax.naming.Context
 import javax.naming.InitialContext
 import org.apache.activemq.ActiveMQConnectionFactory
-
+*/
 
 
 class Domibus{
