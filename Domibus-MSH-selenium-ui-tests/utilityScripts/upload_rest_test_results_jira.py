@@ -81,7 +81,7 @@ cookiesJar = ''
 def login():
     log.info("login")
     global cookiesJar
-    tmp_resp = requests.get(baseUrl, auth=HTTPBasicAuth(username, mypass))
+    tmp_resp = requests.get(baseUrl, auth=HTTPBasicAuth(username, password))
     if tmp_resp.status_code != 200:
         log.info("Login responded with status code " + tmp_resp.status_code)
         exit(1)
