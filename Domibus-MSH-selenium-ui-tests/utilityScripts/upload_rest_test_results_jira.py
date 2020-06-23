@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 import sys
 import xml.etree.ElementTree as ET
 
-log.basicConfig(level=log.DEBUG, format='%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s',
+log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s',
                 datefmt="%Y-%m-%d-%H-%M-%S")
 
 STATUSES = {'PASS': 1, 'FAIL': 2, 'WIP': 3, 'BLOCKED': 4, 'UNEXECUTED': -1}

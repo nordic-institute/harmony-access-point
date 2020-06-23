@@ -5,7 +5,7 @@ from datetime import datetime
 import requests
 
 # -------------------INIT & PROPERTIES-----------------------
-log.basicConfig(level=log.DEBUG, format='%(asctime)s  %(levelname)s %(processName)s  %(name)s -- %(message)s',
+log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)s %(processName)s  %(name)s -- %(message)s',
                 datefmt="%Y-%m-%d-%H-%M-%S")
 
 false_alerts = []
