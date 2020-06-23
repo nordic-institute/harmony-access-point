@@ -69,6 +69,7 @@ public class FSDomainService {
      * Returns all domains that need to be processed by various operations (sending, purging etc)
      * In multi-tenancy, this means only the current domain.
      * In single-tenancy, all configured fsplugin domains are returned.
+     *
      * @return a list of domain codes
      */
     public List<String> getDomainsToProcess() {
@@ -77,11 +78,10 @@ public class FSDomainService {
             LOG.trace("Multi-tenancy mode, process current domain");
             return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
         }
-        else {
-            // in single-tenancy, process all fsplugin-defined domains
-            LOG.trace("Single-tenancy mode, process known domains");
-            return fsPluginProperties.getDomains();
-        }
+        
+        // in single-tenancy, process all fsplugin-defined domains
+        LOG.trace("Single-tenancy mode, process known domains");
+        return fsPluginProperties.getDomains();
     }
 
     /**
