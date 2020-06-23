@@ -1,30 +1,30 @@
 package eu.domibus.core.scheduler;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
-import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
+import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
+import eu.domibus.core.message.pull.MessagePullerJob;
+import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
-import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.replication.UIReplicationJob;
-import eu.domibus.core.message.pull.MessagePullerJob;
-import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
+import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
+import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
+import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
-import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
-import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -67,10 +67,6 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     @Qualifier("taskExecutor")
     protected Executor executor;
-
-    @Autowired
-    @Qualifier("quartzTaskExecutor")
-    protected Executor quartzTaskExecutor;
 
     @Autowired
     protected ApplicationContext applicationContext;
