@@ -1,11 +1,11 @@
 package eu.domibus.core.scheduler;
 
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.MonitoringStatus;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
