@@ -1,4 +1,4 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
 
@@ -30,7 +30,13 @@ export class PropertiesService {
       value = ' ';
     }
 
-    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + prop.name, value, {params: {isDomain: isDomain.toString()}})
+    const payload = JSON.stringify(value);
+
+    let headers = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json; charset=utf-8');
+    const options = {params: {isDomain: isDomain.toString()}, headers: headers};
+
+    return this.http.put(PropertiesService.PROPERTIES_URL + '/' + prop.name, payload, options)
       .map(() => {
       }).toPromise()
   }
