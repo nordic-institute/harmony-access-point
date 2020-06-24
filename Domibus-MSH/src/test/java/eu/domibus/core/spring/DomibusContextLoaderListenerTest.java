@@ -40,15 +40,12 @@ public class DomibusContextLoaderListenerTest {
 
     @Mocked
     WebApplicationContext context;
-    @Mocked
-    DomibusLogger domibusLogger;
 
     @Before
     public void setUp() throws MalformedURLException {
         pluginClassLoader = new MockedPluginClassLoader(new HashSet<>(), null);
         domibusContextLoaderListener = new DomibusContextLoaderListener(context, pluginClassLoader);
         // Since we mock the LoggerFactory, we have to mock the DomibusLogger
-        Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
     }
 
     @Test
@@ -56,7 +53,9 @@ public class DomibusContextLoaderListenerTest {
                                     @Mocked ContextLoaderListener contextLoaderListener,
                                     @Mocked ShutdownListener shutdownListener,
                                     @Mocked LoggerFactory loggerFactory,
-                                    @Mocked LoggerContext loggerContext) {
+                                    @Mocked LoggerContext loggerContext,
+                                    @Mocked DomibusLogger domibusLogger) {
+        Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         new Expectations() {{
             new ShutdownListener();
@@ -92,7 +91,9 @@ public class DomibusContextLoaderListenerTest {
     }
 
     @Test
-    public void contextDestroyed_pluginClassLoaderNull(@Mocked LoggerFactory loggerFactory) {
+    public void contextDestroyed_pluginClassLoaderNull(@Mocked LoggerFactory loggerFactory,
+                                                       @Mocked DomibusLogger domibusLogger) {
+        Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         Deencapsulation.setField(domibusContextLoaderListener, "pluginClassLoader", null);
 
@@ -110,7 +111,10 @@ public class DomibusContextLoaderListenerTest {
                                            @Mocked ContextLoaderListener contextLoaderListener,
                                            @Mocked ShutdownListener shutdownListener,
                                            @Mocked LoggerFactory loggerFactory,
-                                           @Mocked LoggerContext loggerContext) {
+                                           @Mocked LoggerContext loggerContext,
+                                           @Mocked DomibusLogger domibusLogger) {
+        Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
+
         pluginClassLoader.throwExceptionOnClose();
 
         new Expectations() {{
