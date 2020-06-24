@@ -43,7 +43,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
         // requires a time to consume messages from the notification queue
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         } catch (InterruptedException e){}
 
         String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
