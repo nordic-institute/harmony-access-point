@@ -5,6 +5,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.webService.dao.WSMessageLogDao;
+import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
@@ -41,6 +43,9 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     @Autowired
     protected BackendInterface backendWebService;
+
+    @Autowired
+    WSMessageLogDao wsMessageLogDao;
 
     protected void verifySendMessageAck(SubmitResponse response) throws InterruptedException, SQLException {
         final List<String> messageID = response.getMessageID();
@@ -130,5 +135,27 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         largePayload.setValue(messageHandler);
         submitRequest.getPayload().add(largePayload);
         return submitRequest;
+    }
+
+    protected void waitForMessages(int count) {
+        List<WSMessageLogEntity> pending;
+        int retries = 0;
+        do {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {}
+            pending = wsMessageLogDao.findAll();
+        } while (pending.size() < count && retries++ < 10);
+    }
+
+    protected void waitForMessage(String messageId) {
+        WSMessageLogEntity wsMessageLogEntity;
+        int retries = 0;
+        do {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {}
+            wsMessageLogEntity = wsMessageLogDao.findByMessageId(messageId);
+        } while (wsMessageLogEntity == null && retries++ < 10);
     }
 }
