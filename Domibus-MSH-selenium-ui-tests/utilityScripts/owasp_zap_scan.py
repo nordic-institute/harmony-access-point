@@ -10,9 +10,9 @@ log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)s %(processName
 
 false_alerts = []
 
-domibus_url = 'http://ddomibus.com:9080/domibus/'
+domibus_url = 'http://ddomibus.com:9008/domibus/'
 zapUrl = "http://localhost:8281"
-day_of_week_to_run = 1
+day_of_week_to_run = 2
 
 PASIVE_SCAN_STATUS_URL = '/JSON/pscan/view/recordsToScan/'
 ACTIVE_SCAN_URL = '/JSON/ascan/action/scan'
