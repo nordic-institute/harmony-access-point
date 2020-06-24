@@ -91,7 +91,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         return issues;
     }
 
-    private List<Identifier> getDuplicateIdentifiers(Set<Identifier> identifierSet, Party party1) {
+    protected List<Identifier> getDuplicateIdentifiers(Set<Identifier> identifierSet, Party party1) {
         return identifierSet.stream().filter(identifier -> party1.getIdentifiers().contains(identifier)).collect(Collectors.toList());
     }
 

@@ -5,10 +5,13 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Soumya Chandran
@@ -69,7 +72,7 @@ public class PartyIdentifierValidatorTest {
     }
 
     @Test
-    public void testvalidateDuplicateIdentifiersInAllParties(@Injectable Party party1,
+    public void testValidateDuplicateIdentifiersInAllParties(@Injectable Party party1,
                                                              @Injectable Party party2,
                                                              @Injectable Identifier identifier) {
 
@@ -99,6 +102,27 @@ public class PartyIdentifierValidatorTest {
 
         new FullVerifications(partyIdentifierValidator) {{
             partyIdentifierValidator.createIssue(identifier.getPartyId(), party1.getName(), anyString);
+        }};
+    }
+
+    @Test
+    public void testGetDuplicateIdentifiers(@Injectable Party party1,
+                                            @Injectable Party party2,
+                                            @Injectable Identifier identifier) {
+
+
+        List<Party> allParties = new ArrayList<>();
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+        Set<Identifier> identifierSet = new HashSet<>(identifiers);
+        allParties.add(party1);
+        allParties.add(party2);
+
+        List<Identifier> identifierList = partyIdentifierValidator.getDuplicateIdentifiers(identifierSet, party1);
+
+        new FullVerifications(partyIdentifierValidator) {{
+            Assert.assertNotNull(identifierList);
         }};
     }
 
