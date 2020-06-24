@@ -2,17 +2,10 @@
 
 <suite name="RestTests">
 
-
 	<test name="REST">
-		<classes>
-			<class name="domibus.ui.rest.LoginTests"></class>
-		</classes>
+		<packages>
+			<package name="domibus.ui.rest.*"></package>
+		</packages>
 	</test>
-<!--	<test name="REST">-->
-<!--		<packages>-->
-<!--			<package name="domibus.ui.rest.*"></package>-->
-<!--		</packages>-->
-<!--	</test>-->
-
 
 </suite>

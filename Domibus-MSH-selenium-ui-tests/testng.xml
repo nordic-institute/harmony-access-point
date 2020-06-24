@@ -8,24 +8,16 @@
 		</run>
 	</groups>
 
-	<test name="TMP">
-		<classes>
-<!--			<class name="domibus.ui.functional.MessageFilterPgTest"/>-->
-<!--			<class name="domibus.ui.functional.MessagesPgTest"/>-->
-			<class name="domibus.ui.ux.MessagesPgUXTest"/>
-<!--			<class name="domibus.ui.functional.AuditPgTest"/>-->
-		</classes>
+	<test name="UX">
+		<packages>
+			<package name="domibus.ui.ux.*"/>
+		</packages>
 	</test>
-<!--	<test name="UX">-->
-<!--		<packages>-->
-<!--			<package name="domibus.ui.ux.*"/>-->
-<!--		</packages>-->
-<!--	</test>-->
-<!--	<test name="FUNC">-->
-<!--		<packages>-->
-<!--			<package name="domibus.ui.functional.*"/>-->
-<!--		</packages>-->
-<!--	</test>-->
+	<test name="FUNC">
+		<packages>
+			<package name="domibus.ui.functional.*"/>
+		</packages>
+	</test>
 
 	<listeners>
 		<listener class-name="utils.customReporter.ExcelReportReporter"/>
