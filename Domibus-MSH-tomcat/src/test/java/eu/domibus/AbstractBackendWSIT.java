@@ -143,7 +143,9 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         do {
             try {
                 Thread.sleep(200);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                LOG.error("Interrupted exception: ", e);
+            }
             pending = wsMessageLogDao.findAll();
         } while (pending.size() < count && retries++ < 10);
     }
@@ -154,7 +156,9 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         do {
             try {
                 Thread.sleep(200);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                LOG.error("Interrupted exception: ", e);
+            }
             wsMessageLogEntity = wsMessageLogDao.findByMessageId(messageId);
         } while (wsMessageLogEntity == null && retries++ < 10);
     }
