@@ -25,13 +25,7 @@ export class PropertiesService {
   updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
     this.validateValue(prop);
 
-    let value = prop.value;
-    if (value === '') { // sanitize empty value: the api needs the body to be present, even if empty
-      value = ' ';
-    }
-
-    const payload = JSON.stringify(value);
-
+    const payload = JSON.stringify(prop.value);
     const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
     const options = {params: {isDomain: isDomain.toString()}, headers: headers};
 
