@@ -177,7 +177,7 @@ def find_execution_id(test_id):
     global executions
     for execution in executions:
         txt = execution['summary']
-        tmp_id = txt.split("-")[0].strip() +"-"+ txt.split("-")[1].strip()
+        tmp_id = txt.split("-")[0].strip() + "-" + txt.split("-")[1].strip()
         if tmp_id == test_id:
             log.info('found matching execution with id ' + str(execution['id']))
             return execution['id']
@@ -243,7 +243,8 @@ def create_test_cycle():
     global parentCycleId
     global cycleNameStub
     cycleName = cycleNameStub + datetime.now().strftime("%d_%m_%Y-%H_%M")
-    params = {'name': cycleName, 'clonedCycleId': parentCycleId, 'build': buildNo, 'environment': environment_config, 'description': cycle_description, 'projectId': projID, 'versionId': versionID, 'sprintId': sprintID}
+    params = {'name': cycleName, 'clonedCycleId': parentCycleId, 'build': buildNo, 'environment': environment_config,
+              'description': cycle_description, 'projectId': projID, 'versionId': versionID, 'sprintId': sprintID}
     log.info("Creating cycle with data - " + str(params))
 
     resp = requests.post(baseUrl + cyclePath, cookies=cookiesJar, headers=headers, data=json.dumps(params))
@@ -276,7 +277,7 @@ def add_test_to_results(test):
         results[test['id']]['status'] = "FAIL"
 
 
-def parse_testng_results():
+def parse_rest_testng_results():
     global results
     for tc in root.iter('test-method'):
         if 'description' not in tc.attrib:
@@ -301,11 +302,30 @@ def parse_testng_results():
         add_test_to_results(test)
 
 
+def parse_selenium_testng_results():
+    global results
+    for tc in root.iter('test-method'):
+        if 'description' not in tc.attrib:
+            log.info("Could not find test id in description for - " + str(tc.attrib))
+            continue
+        test = {}
+        test["id"] = tc.attrib['description']
+        test["status"] = tc.attrib['status']
+        test["info"] = ""
+        if test["status"] == "PASS":
+            add_test_to_results(test)
+            continue
+
+        for val in tc.iter('full-stacktrace'):
+            test["info"] += val.text.strip()
+        add_test_to_results(test)
+
+
 # ------------------- MAIN ---------------------
 username = sys.argv[1]
 password = sys.argv[2]
 results_file = sys.argv[3]
-
+profile = sys.argv[4]
 
 log.info("Started")
 log.info('Results file: ' + results_file)
@@ -313,7 +333,11 @@ log.info('Results file: ' + results_file)
 root = ET.parse(results_file).getroot()
 results = {}
 
-parse_testng_results()
+if profile == "rest":
+    parse_rest_testng_results()
+else:
+    parse_selenium_testng_results()
+
 log.debug("Raw test results: " + str(results))
 
 log.info("Login in Jira")
@@ -335,7 +359,7 @@ log.info("Got sprint ID: " + str(sprintID))
 
 created_cycle_id = create_test_cycle()
 log.info("Created test cycle with ID: " + str(created_cycle_id))
-if (created_cycle_id < parentCycleId):
+if created_cycle_id < parentCycleId:
     log.info("Most likely could not create cycle, will exit now!")
     exit(9)
 
