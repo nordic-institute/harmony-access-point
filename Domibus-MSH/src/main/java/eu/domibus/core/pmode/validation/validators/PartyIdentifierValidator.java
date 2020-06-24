@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -57,16 +55,16 @@ public class PartyIdentifierValidator implements PModeValidator {
      */
     protected List<ValidationIssue> validateDuplicatePartyIdentifiers(Party party) {
         List<ValidationIssue> issues = new ArrayList<>();
+        Set<Identifier> duplicateIdentifiers = party.getIdentifiers().stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .filter(m -> m.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
 
-        Set<Identifier> identifierSet = new HashSet<>();
-        List<Identifier> duplicateIdentifiers = party.getIdentifiers().stream()
-                .filter(identifier -> !identifierSet.add(identifier)) // Set.add() returns false if the element was already in the set.
-                .collect(Collectors.toList());
-
-
-            duplicateIdentifiers.forEach(identifier -> {
-                issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]"));
-            });
+        duplicateIdentifiers.forEach(identifier -> {
+            issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]"));
+        });
 
         return issues;
     }
@@ -83,7 +81,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         Set<Identifier> identifierSet = new HashSet<>(party.getIdentifiers());
 
         allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party1 -> {
-            List<Identifier> duplicateIdentifiers = identifierSet.stream().filter(identifier -> party1.getIdentifiers().contains(identifier)).collect(Collectors.toList());
+            List<Identifier> duplicateIdentifiers = getDuplicateIdentifiers(identifierSet, party1);
 
             duplicateIdentifiers.forEach(identifier -> {
                 issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party1.getName() + "]"));
@@ -91,6 +89,10 @@ public class PartyIdentifierValidator implements PModeValidator {
 
         });
         return issues;
+    }
+
+    private List<Identifier> getDuplicateIdentifiers(Set<Identifier> identifierSet, Party party1) {
+        return identifierSet.stream().filter(identifier -> party1.getIdentifiers().contains(identifier)).collect(Collectors.toList());
     }
 
     /**
