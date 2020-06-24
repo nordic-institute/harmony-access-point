@@ -64,12 +64,10 @@ public class PartyIdentifierValidator implements PModeValidator {
                 .collect(Collectors.toList());
 
 
-        if (!duplicateIdentifiers.isEmpty()) {
             duplicateIdentifiers.forEach(identifier -> {
                 issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]"));
             });
 
-        }
         return issues;
     }
 
@@ -83,16 +81,16 @@ public class PartyIdentifierValidator implements PModeValidator {
     protected List<ValidationIssue> validateDuplicateIdentifiersInAllParties(Party party, List<Party> allParties) {
         List<ValidationIssue> issues = new ArrayList<>();
         Set<Identifier> identifierSet = new HashSet<>(party.getIdentifiers());
-        allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party2 -> {
-            List<Identifier> duplicateIdentifiers = identifierSet.stream().filter(identifier -> party2.getIdentifiers().contains(identifier)).collect(Collectors.toList());
 
-            duplicateIdentifiers.forEach(identifier2 -> {
-                issues.add(createIssue(identifier2.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party2.getName() + "]"));
+        allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party1 -> {
+            List<Identifier> duplicateIdentifiers = identifierSet.stream().filter(identifier -> party1.getIdentifiers().contains(identifier)).collect(Collectors.toList());
+
+            duplicateIdentifiers.forEach(identifier -> {
+                issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party1.getName() + "]"));
             });
 
         });
         return issues;
-
     }
 
     /**
