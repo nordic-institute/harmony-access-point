@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -113,7 +114,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(noRollbackFor = CredentialsExpiredException.class)
     public void validatePasswordExpired(String userName, boolean isDefaultPassword, LocalDateTime passwordChangeDate) {
         LOG.debug("Validating if password expired for user [{}]", userName);
 
@@ -265,6 +265,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         if (!userEntity.isActive() && user.isActive()) {
             userEntity.setSuspensionDate(null);
             userEntity.setAttemptCount(0);
+            getUserAlertsService().triggerEnabledEvent(user);
         } else if (!user.isActive() && userEntity.isActive()) {
             LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
             userSessionsService.invalidateSessions(user);
@@ -273,7 +274,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         userEntity.setActive(user.isActive());
         return userEntity;
     }
-
 
     @Transactional
     public void reactivateSuspendedUsers() {
@@ -323,6 +323,28 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
                 throw new UserManagementException(errorMessage);
             }
         }
+    }
+
+    @Nullable
+    public LocalDateTime getExpirationDate(U userEntity) {
+        String expirationProperty = userEntity.hasDefaultPassword()
+                ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
+        int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
+
+        if (maxPasswordAgeInDays <= 0) {
+            LOG.trace("No expiration date for user [{}] as the MaximumPasswordAgeProperty is not positive.", userEntity.getUserName());
+            return null;
+        }
+
+        LocalDateTime changeDate = userEntity.getPasswordChangeDate();
+        if (changeDate == null) {
+            LOG.trace("Password change date for user [{}] is null.", userEntity.getUniqueIdentifier());
+            return null;
+        }
+
+        LocalDateTime expDate = changeDate.plusDays(Long.valueOf(maxPasswordAgeInDays));
+        LOG.trace("Expiration date for user [{}] is [{}].", userEntity.getUniqueIdentifier(), expDate);
+        return expDate;
     }
 
 }

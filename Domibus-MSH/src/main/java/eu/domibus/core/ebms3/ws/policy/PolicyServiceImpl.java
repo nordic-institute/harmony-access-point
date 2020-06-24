@@ -31,7 +31,6 @@ import java.io.InputStream;
  * @since 3.3
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class PolicyServiceImpl implements PolicyService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImpl.class);

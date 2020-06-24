@@ -44,8 +44,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
   currentDomain: Domain;
   currentPMode: any;
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               public dialog: MatDialog, private dialogsService: DialogsService,
               private domainService: DomainService, private changeDetector: ChangeDetectorRef) {

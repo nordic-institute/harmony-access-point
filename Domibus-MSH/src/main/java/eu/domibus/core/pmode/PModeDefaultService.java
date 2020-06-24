@@ -17,6 +17,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class PModeDefaultService implements PModeService {
         return pModeProvider.getCurrentPmode();
     }
 
+    @Transactional
     @Override
     public List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
         try {

@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.assertNotNull;
 

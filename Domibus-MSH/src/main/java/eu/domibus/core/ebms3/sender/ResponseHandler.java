@@ -1,15 +1,16 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Error;
@@ -17,10 +18,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -34,32 +32,31 @@ public class ResponseHandler {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
 
-    @Autowired
-    protected MessageUtil messageUtil;
+    private final SignalMessageLogDefaultService signalMessageLogDefaultService;
+    private final UIReplicationSignalService uiReplicationSignalService;
+    private final NonRepudiationService nonRepudiationService;
+    private final SignalMessageDao signalMessageDao;
+    protected final MessageUtil messageUtil;
+    private final MessagingDao messagingDao;
+    private final ErrorLogDao errorLogDao;
 
-    @Autowired
-    private ErrorLogDao errorLogDao;
+    public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
+                           UIReplicationSignalService uiReplicationSignalService,
+                           NonRepudiationService nonRepudiationService,
+                           SignalMessageDao signalMessageDao,
+                           MessageUtil messageUtil,
+                           MessagingDao messagingDao,
+                           ErrorLogDao errorLogDao) {
+        this.signalMessageLogDefaultService = signalMessageLogDefaultService;
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.nonRepudiationService = nonRepudiationService;
+        this.signalMessageDao = signalMessageDao;
+        this.messageUtil = messageUtil;
+        this.messagingDao = messagingDao;
+        this.errorLogDao = errorLogDao;
+    }
 
-    @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private NonRepudiationService nonRepudiationService;
-
-    @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
-    private SignalMessageLogDefaultService signalMessageLogDefaultService;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected ReliabilityService reliabilityService;
-
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public ResponseResult verifyResponse(final SOAPMessage response) throws EbMS3Exception {
+    public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
         LOGGER.debug("Verifying response");
 
         ResponseResult result = new ResponseResult();
@@ -68,10 +65,15 @@ public class ResponseHandler {
         try {
             messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(messaging);
-        } catch (SOAPException ex) {
-            LOGGER.error("Error while un-marshalling message", ex);
-            result.setResponseStatus(ResponseStatus.UNMARSHALL_ERROR);
-            return result;
+        } catch (SOAPException | DomibusDateTimeException ex) {
+            throw EbMS3ExceptionBuilder
+                    .getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .errorDetail("Problem occurred during marshalling")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .cause(ex)
+                    .build();
         }
 
         final SignalMessage signalMessage = messaging.getSignalMessage();
@@ -81,7 +83,6 @@ public class ResponseHandler {
         return result;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
         nonRepudiationService.saveResponse(response, signalMessage);

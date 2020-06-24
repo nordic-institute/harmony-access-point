@@ -53,7 +53,7 @@
         <payloadProfiles>
             <payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml"/>
             <payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf"/>
-            <payloadProfile name="MessageProfile" maxSize="40894464">
+            <payloadProfile name="MessageProfile" maxSize="2147483647">
                 <attachment name="businessContentPayload"/>
                 <attachment name="businessContentAttachment"/>
             </payloadProfile>
@@ -144,6 +144,28 @@
             </initiatorParties>
             <responderParties>
                 <responderParty name="blue_gw"/>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase1tc1Action"/>
+            </legs>
+        </process>
+        <process name="tc1ProcessShouldBeRejected2" agreement="agreementEmpty" mep="twoway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="pushTestcase1tc1Action"/>
+            </legs>
+        </process>
+        <process name="tc1ProcessShouldBeRejected3" agreement="agreementEmpty" mep="oneway" binding="pushAndPush" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
                 <responderParty name="red_gw"/>
             </responderParties>
             <legs>

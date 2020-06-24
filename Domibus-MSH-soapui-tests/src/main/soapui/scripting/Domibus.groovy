@@ -13,7 +13,14 @@ import com.eviware.soapui.support.GroovyUtils
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import groovy.json.JsonBuilder
-
+import org.apache.commons.io.FileUtils
+/*
+import javax.jms.*
+import javax.naming.NamingException
+import javax.naming.Context
+import javax.naming.InitialContext
+import org.apache.activemq.ActiveMQConnectionFactory
+*/
 
 
 class Domibus{
@@ -32,10 +39,15 @@ class Domibus{
     def redDomainID = null //"C3Default"
     def greenDomainID = null //"thirdDefault"
     def thirdGateway = "false"; def multitenancyModeC2 = 0; def multitenancyModeC3 = 0;
-
+	
+	//START: JMS communication - specific properties
+	def jmsSender = null
+	def jmsConnectionHandler = null
+	// END: JMS communication - specific properties	
+	
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-	static def FS_DEF_MAP=[FS_DEF_SENDER:"domibus-blue",FS_DEF_RECEIVER:"domibus-red",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"];
+	static def FS_DEF_MAP=[FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"];
 	
 	
 	
@@ -541,8 +553,8 @@ def findNumberOfDomain(String inputSite) {
         // Wait until status or timer expire
         def waitForStatus(String SMSH=null, String RMSH=null, String IDMes=null, String bonusTimeForSender=null, String bonusTimeForReceiver=null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-        def MAX_WAIT_TIME=80_000; // Maximum time to wait to check the message status.
-        def STEP_WAIT_TIME=1000; // Time to wait before re-checking the message status.
+        def MAX_WAIT_TIME=100_000; // Maximum time to wait to check the message status.
+        def STEP_WAIT_TIME=2_000; // Time to wait before re-checking the message status.
         def messageID = null;
         def numberAttempts = 0;
         def maxNumberAttempts = 5;
@@ -606,12 +618,12 @@ def findNumberOfDomain(String inputSite) {
         }
         if (bonusTimeForReceiver) {
             if (bonusTimeForReceiver.isInteger()) MAX_WAIT_TIME = (bonusTimeForReceiver as Integer) * 1000
-            else MAX_WAIT_TIME = 100_000
+            else MAX_WAIT_TIME = 120_000
 
             log.info "  waitForStatus  [][]  Waiting time for Receiver extended to ${MAX_WAIT_TIME/1000} seconds"
 
         } else {
-            MAX_WAIT_TIME = 30_000
+            MAX_WAIT_TIME = 50_000
         }
         messageStatus = "INIT"
         if (RMSH) {
@@ -762,8 +774,10 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        commandString = "curl -s -o /dev/null -w \"%{http_code}\" --noproxy localhost " + urlToDomibus(side, log, context) + "/services";
-        commandResult = runCommandInShell(commandString, log)
+        commandString = "curl -s -o /dev/null -w \"%{http_code}\" --noproxy localhost " + urlToDomibus(side, log, context)+"/";
+        commandResult = runCommandInShell(commandString, log);
+		
+		debugLog("  ====  ENDING \"pingMSH\".", log);
         return commandResult[0].trim()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -838,51 +852,57 @@ def findNumberOfDomain(String inputSite) {
         debugLog("  ====  Calling \"startMSH\".", log)
         def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to start.
         def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
-        def confirmation = 0;
-        def outputCatcher = new StringBuffer()
-        def errorCatcher = new StringBuffer()
-        def pathS = context.expand('${#Project#pathExeSender}')
-        def pathR = context.expand('${#Project#pathExeReceiver}')
-        def pathRG = context.expand('${#Project#pathExeGreen}')
+        def outputCatcher = new StringBuffer();
+        def errorCatcher = new StringBuffer();
+        def pathS = context.expand('${#Project#pathExeSender}');
+        def pathR = context.expand('${#Project#pathExeReceiver}');
+        def pathRG = context.expand('${#Project#pathExeGreen}');
+		def path=null;
         def proc = null;
         def passedDuration = 0;
 
-        // In case of ping failure try 2 times: from experience, sometimes domibus is running and for some reason the ping fails (trying 2 times could reduce the error occurence).
-        while (confirmation <= 1) {
-            if (pingMSH(side, context, log).equals("200")) {
-                log.info "  startMSH  [][]  " + side.toUpperCase() + " is already running!";
-                confirmation++;
-            } else {
-                if (confirmation > 0) {
-                    log.info "  startMSH  [][]  Trying to start the " + side.toUpperCase()
-                    if (side.toLowerCase() == "sender") {
-                        proc = "cmd /c cd ${pathS} && startup.bat".execute()
-                    } else {
-                        if (side.toLowerCase() == "receiver") {
-                            proc = "cmd /c cd ${pathR} && startup.bat".execute()
-                        } else {
-                            if ( (side.toLowerCase() == "receivergreen") ) {
-                                proc = "cmd /c cd ${pathRG} && startup.bat".execute()
-                            } else {
-                                assert(false), "Incorrect side"
-                            }
-                        }
-                    }
-                    if (proc != null) {
-                        proc.consumeProcessOutput(outputCatcher, errorCatcher);
-                        proc.waitForProcessOutput(outputCatcher, errorCatcher);
-                    }
-                    assert((!errorCatcher) && (proc != null)), locateTest(context) + "Error:startMSH: Error while trying to start the MSH."
-                    while ( (!pingMSH(side, context, log).equals("200")) && (passedDuration < MAX_WAIT_TIME) ) {
-                        passedDuration = passedDuration + STEP_WAIT_TIME
-                        sleep(STEP_WAIT_TIME)
-                    }
-                    assert(pingMSH(side, context, log).equals("200")),locateTest(context) + "Error:startMSH: Error while trying to start the MSH."
-                    log.info "  startMSH  [][]  DONE - " + side.toUpperCase() + " started."
-                }
+        if (pingMSH(side, context, log).equals("200")) {
+            log.info "  startMSH  [][]  " + side.toUpperCase() + " is already running!";
+        } else {
+            log.info "  startMSH  [][]  Trying to start the " + side.toUpperCase();					
+			switch (side.toLowerCase()) {
+				case "sender":
+				case "c2":
+				case "blue":
+					path = pathS
+				break;
+				
+				case "receiver":
+				case "c3":
+				case "red":
+					path = pathR
+				break;
+				
+				case "receivergreen":
+				case "green":
+					path = pathRG
+					break;
+						
+				default:
+					assert(false), "Unknown side.";
+			}
+			proc = "cmd /c cd ${path} && startup.bat".execute();
+            if (proc != null) {
+                //proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                //proc.waitForProcessOutput(outputCatcher, errorCatcher);
+				proc.consumeProcessOutput(outputCatcher, errorCatcher);
+				proc.waitFor();
             }
-            sleep(STEP_WAIT_TIME)
-            confirmation++;
+			debugLog("  startMSH  [][]  outputCatcher: " + outputCatcher.toString(), log);
+			debugLog("  startMSH  [][]  errorCatcher: " + errorCatcher.toString(), log);
+            assert((!errorCatcher) && (proc != null)), locateTest(context) + "Error:startMSH: Error while trying to start the MSH."
+            while ( (!pingMSH(side, context, log).equals("200")) && (MAX_WAIT_TIME > 0) ) {
+				debugLog("  startMSH  [][]  WAITING "+MAX_WAIT_TIME, log);
+                MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME;
+                sleep(STEP_WAIT_TIME);
+            }
+            assert(pingMSH(side, context, log).equals("200")),locateTest(context) + "Error:startMSH: Error while trying to start the MSH."
+            log.info "  startMSH  [][]  DONE - " + side.toUpperCase() + " started."
         }
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -903,7 +923,7 @@ def findNumberOfDomain(String inputSite) {
         // Stop Gateway
         static def stopMSH(String side, context, log){
         debugLog("  ====  Calling \"stopMSH\".", log)
-        def MAX_WAIT_TIME=150000; // Maximum time to wait for the domibus to stop.
+        def MAX_WAIT_TIME=180000; // Maximum time to wait for the domibus to stop.
         def STEP_WAIT_TIME=2000; // Time to wait before re-checking the domibus status.
         def outputCatcher = new StringBuffer()
         def errorCatcher = new StringBuffer()
@@ -911,7 +931,7 @@ def findNumberOfDomain(String inputSite) {
         def pathS = context.expand('${#Project#pathExeSender}')
         def pathR = context.expand('${#Project#pathExeReceiver}')
         def pathRG = context.expand('${#Project#pathExeGreen}')
-        def path
+        def path=null;
         def passedDuration = 0;
 
         if (!pingMSH(side, context, log).equals("200")) {
@@ -936,7 +956,7 @@ def findNumberOfDomain(String inputSite) {
             default:
                 assert(false), "Unknown side.";
             }
-            proc = "cmd /c cd ${path} && shutdown.bat".execute()
+            proc = "cmd /c cd ${path} && shutdown.bat".execute();
 
             if (proc != null) {
                 proc.consumeProcessOutput(outputCatcher, errorCatcher);
@@ -944,10 +964,14 @@ def findNumberOfDomain(String inputSite) {
             }
             assert((!errorCatcher) && (proc != null)),locateTest(context) + "Error:stopMSH: Error while trying to stop the MSH."
             while ( (pingMSH(side, context, log).equals("200")) && (passedDuration < MAX_WAIT_TIME) ) {
+				debugLog("  stopMSH  [][]  WAITING "+MAX_WAIT_TIME, log);
                 passedDuration = passedDuration + STEP_WAIT_TIME;
                 sleep(STEP_WAIT_TIME)
             }
-            assert(!pingMSH(side, context, log).equals("200")),locateTest(context) + "Error:startMSH: Error while trying to stop the MSH."
+            assert(!pingMSH(side, context, log).equals("200")),locateTest(context) + "Error:stopMSH: Error while trying to stop the MSH.";
+			log.info "  stopMSH  [][]  Sleeping for 1 min ...";
+			sleep(60000);
+			log.info "  stopMSH  [][]  END sleeping for 1 min.";
             log.info "  stopMSH  [][]  DONE - " + side.toUpperCase() + " stopped."
         }
     }
@@ -1960,9 +1984,9 @@ static def ifWindowsEscapeJsonString(json) {
                 proc.waitForProcessOutput(outputCatcher, errorCatcher);
             }
         }
-        debugLog("  runCommandInShell  [][]  outputCatcher: " + outputCatcher.toString(), log)
-        debugLog("  runCommandInShell  [][]  errorCatcher: " + errorCatcher.toString(), log)
-        return ([outputCatcher.toString(), errorCatcher.toString()])
+        debugLog("  runCommandInShell  [][]  outputCatcher: " + outputCatcher.toString(), log);
+        debugLog("  runCommandInShell  [][]  errorCatcher: " + errorCatcher.toString(), log);
+		return ([outputCatcher.toString(), errorCatcher.toString()]);
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Multitenancy Functions
@@ -2150,7 +2174,8 @@ static def String urlToDomibus(side, log, context) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
-// This method support JMS project
+// This methods support JMS project
+//---------------------------------------------------------------------------------------------------------------------------------
 static def void addPluginCredentialsIfNeeded(context, log, messageMap, String propPluginUsername = defaultPluginAdminC2Default, String propPluginPassword = defaultAdminDefaultPassword) {
     debugLog("  ====  Calling \"addPluginCredentialsIfNeeded\".", log)
     def unsecureLoginAllowed = context.expand("\${#Project#unsecureLoginAllowed}").toLowerCase()
@@ -2162,6 +2187,155 @@ static def void addPluginCredentialsIfNeeded(context, log, messageMap, String pr
         messageMap.setStringProperty("username", u)
         messageMap.setStringProperty("password", p)
     }
+}
+
+def String jmsPropertiesPrefix(inputName) {
+	String domId
+	switch (inputName.toUpperCase()) {
+		case "C3":
+		case "RED":
+		case "RECEIVER":
+			domId = "C3"
+			break
+		case "C2":
+		case "BLUE":
+		case "SENDER":
+			domId = "C2"
+			break
+		default:
+			assert false, "Not supported domain name ${inputName} provide for jmsPropertiesPrefix method. Not able to found specific properties."
+			break
+		}	
+	return domId
+}	
+/*
+def InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
+        InitialContext ic = null;
+        if (providerUrl != null) {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+            env.put(Context.PROVIDER_URL, providerUrl);
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
+            if (userName != null) {
+                env.put(Context.SECURITY_PRINCIPAL, userName);
+            }
+            if (password != null) {
+                env.put(Context.SECURITY_CREDENTIALS, password);
+            }
+            ic = new InitialContext(env);
+        } else {
+            ic = new InitialContext();
+        }
+        return ic;
+    }
+*/
+def connectToWeblogic(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE) {
+
+    /*
+    def MapMessage messageMap = null
+	try {
+	jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD);
+
+	QueueConnectionFactory cf = jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI);
+	QueueConnection qc = cf.createQueueConnection();
+	QueueSession session = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+
+	Queue queue = jmsConnectionHandler.lookup(QUEUE);
+	jmsSender =  session.createSender(queue);
+
+	messageMap = session.createMapMessage();
+	} catch (Exception ex) {
+		log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
+				"PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
+				"CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
+		assert 0,"Exception occurred when trying to connect: " + ex;
+	}
+	return messageMap
+
+     */
+}
+def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String QUEUE) {
+	/*def MapMessage messageMap = null
+	try {
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
+		jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD) //username and password of the default JMS broker
+		QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE)
+		Destination destination = session.createQueue(QUEUE)
+		jmsSender = (MessageProducer) session.createProducer(destination)
+		jmsSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
+		messageMap = session.createMapMessage()
+		} catch (Exception ex) {
+			log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Tomcat deployment failed. " +
+					"FACTORY_URL: $FACTORY_URL | USER: $USER | PASSWORD: $PASSWORD | " +
+					"QUEUE: $QUEUE"
+			assert 0,"Exception occurred when trying to connect: " + ex;
+		}
+	return messageMap
+
+	 */
+}
+
+def jmsConnectionHandlerInitializeC2() {
+	jmsConnectionHandlerInitialize("C2")
+}
+
+def jmsConnectionHandlerInitializeC3() {
+	jmsConnectionHandlerInitialize("C3")
+}
+
+def jmsConnectionHandlerInitialize(String inputName) {
+	/*def MapMessage messageMap = null
+	
+	log.info "Starting JMS message sending"   
+	String domId = jmsPropertiesPrefix(inputName)
+	log.info "Gather properties for ${domId}"
+
+    def jmsServer = context.expand("\${#Project#jmsServer}").toLowerCase()
+    switch (jmsServer) {
+    		case "weblogic":
+				log.info ("JmsServer Weblogic. Reading connection details.");
+				String PROVIDER_URL = context.expand("\${#Project#${domId}WeblogicJmsUrl}")  
+				String USER = context.expand("\${#Project#${domId}WeblogicJmsUser}")
+				String PASSWORD = context.expand("\${#Project#${domId}WeblogicJmsPassword}")
+				String CONNECTION_FACTORY_JNDI = context.expand("\${#Project#${domId}WeblogicJmsFactoryJndi}")
+				String QUEUE = context.expand("\${#Project#${domId}WeblogicJmsQueue}")
+
+				messageMap = connectToWeblogic(PROVIDER_URL, USER, PASSWORD, CONNECTION_FACTORY_JNDI, QUEUE)
+        		break
+        		
+        	case "tomcat":
+				log.info ("JmsServer Tomcat. Reading connection details.")
+				String FACTORY_URL = context.expand("\${#Project#${domId}ActiveMqUrlAddress}")  
+				String USER = context.expand("\${#Project#${domId}ActiveMQBrokerUser}")
+				String PASSWORD = context.expand("\${#Project#${domId}ActiveMQBrokerPassword}")
+				String QUEUE = context.expand("\${#Project#${domId}ActiveMQInQueue}")
+									
+				messageMap = connectToActiveMQ(FACTORY_URL, USER, PASSWORD, QUEUE)
+        		break
+		
+        	default:  
+        		log.error("Incorrect or not supported jms server type, jmsServer=${jmsServer}"); 
+        		assert 0, "Properties value error, check jmsServer value."
+        		break
+			
+    }
+	return messageMap
+
+	 */
+}
+
+def sendMessageAndClean(messageMap) {	
+/*
+	log.info "sending message"
+	try {
+		jmsSender.send(messageMap);
+		jmsConnectionHandler.close();
+	} catch (Exception ex) {
+		log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
+		assert 0,"Exception occurred when trying to connect: " + ex;
+	}	
+	log.info "message sent"
+
+ */
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2333,6 +2507,25 @@ static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffi
 	    text.replaceAll("${defaulEndpointRed}", "${newEndpointRed}")
 	}
 }
+
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix){
+		debugLog("  ====  Calling \"updatePmodeParameter\".", log);
+		def i=0;
+		def swap=null;
+
+		debugLog("For file: ${filePath} change values:", log)
+		changeConfigurationFile(log, testRunner, filePath, newFileSuffix) { text ->
+			swap=text;
+			for(i=0;i<currentValue.size;i++){
+				debugLog("== \"${currentValue[i]}\" to \"${newValue[i]}\" ", log);
+				swap = swap.replaceAll("${currentValue[i]}", "${newValue[i]}");
+			}
+			text=swap;
+		}
+		
+		debugLog("  ====  \"updatePmodeParameter\" DONE.", log);		
+	}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
@@ -3076,10 +3269,10 @@ static def String pathToLogFiles(side, log, context) {
 // Load tests verification
 //---------------------------------------------------------------------------------------------------------------------------------
     // Wait until all messages are submitted/received (to be used for load tests ...)
-    def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received",String senderDomainId=blueDomainID, String receiverDomanId=redDomainID,duration=20,stepDuration=4){
+    def waitMessagesExchangedNumber(countToReachStrC2="0", countToReachStrC3="0",C2Status="acknowledged", C3Status="received",String senderDomainId=blueDomainID, String receiverDomanId=redDomainID,duration=20,stepDuration=30){
         debugLog("  ====  Calling \"waitMessagesExchangedNumber\".", log)
-        def MAX_WAIT_TIME=(duration*60000); // Maximum time to wait to check that all messages are received.
-        def STEP_WAIT_TIME=(stepDuration*15000); // Time to wait before re-checking the message status.
+        def MAX_WAIT_TIME=(int)(duration*60000); // Maximum time to wait to check that all messages are received.
+        def STEP_WAIT_TIME=(int)(stepDuration*2000); // Time to wait before re-checking the message status.
 		def sqlSender = null; def sqlReceiver = null;
 		def countToReachC2=countToReachStrC2.toInteger();def countToReachC3=countToReachStrC3.toInteger();
 		def currentCount=0;
@@ -3358,7 +3551,7 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 //---------------------------------------------------------------------------------------------------------------------------------
 	// Copy metadat + payload files to submit fs plugin messages
 	// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-	def static submitFSmessage(String side,String configuration,String domain,parametersMap,context,log,testRunner,boolean twoFiles=true,String subFolder="",String authUser = null, authPwd = null){
+	def static submitFSmessage(String side,context,log,testRunner,String configuration="standard",String domain="default",parametersMap=[],boolean twoFiles=true,String subFolder="",String authUser = null, authPwd = null){
 		debugLog("  ====  Calling \"submitFSmessage\".", log);
 		def messageMetadata=null;
 		def fspluginPath=null;
@@ -3427,29 +3620,512 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 		
 	}
 //---------------------------------------------------------------------------------------------------------------------------------
-
-	def static checkFSpayloadPresent(String side,String finalRecipient,String messageID,payloadName,String domain="default",context,log,testRunner,boolean confirmPresent=true,String authUser = null, authPwd = null){
-		debugLog("  ====  Calling \"checkFSpayloadPresent\".", log);
+	def static checkFSpayloadPresentIN(String side,String finalRecipient,String messageID,payloadName,String domain="default",context,log,testRunner,checkTrue=true,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"checkFSpayloadPresentIN\".", log);
 		def fsPayloadPath=null;
-		def i=0;
-		def testFile=null;	
+		def i=0; 
+		def testFile=null;		
 		def messageLocationPrpertyName="fsplugin.messages.location";
 		
 		def multitenancyOn = getMultitenancyFromSide(side, context, log);
 		if(multitenancyOn){
 			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
 		}
+
 		fsPayloadPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/IN/"+finalRecipient+"/"+messageID+"/";
 		fsPayloadPath=formatPathSlashes(fsPayloadPath);
-		debugLog("  checkFSpayloadPresent  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
+		debugLog("  checkFSpayloadPresentIN  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
 		for(i=0;i<payloadName.size;i++){
 			testFile = new File(fsPayloadPath+payloadName[i]);
-			assert(testFile.exists()),"Error: checkFSpayloadPresent: file \"${payloadName[i]}\" was not found in path \"$fsPayloadPath\" ...";
-			log.info "File file \"{$payloadName[i]}\" was not found in path \"$fsPayloadPath\"."
+			if(checkTrue){
+				assert(testFile.exists()),"Error: checkFSpayloadPresentIN: file \""+payloadName[i]+"\" was not found in path \"$fsPayloadPath\" ...";
+				log.info "File \""+payloadName[i]+"\" was found in path \"$fsPayloadPath\"."
+			}else{
+				assert(!testFile.exists()),"Error: checkFSpayloadPresentIN: file \""+payloadName[i]+"\" was found in path \"$fsPayloadPath\" ...";
+				log.info "File \""+payloadName[i]+"\" was not found in path \"$fsPayloadPath\"."
+			}
 		}
-		debugLog("  ====  \"checkFSpayloadPresent\" DONE.", log);
+               
+		debugLog("  ====  \"checkFSpayloadPresentIN\" DONE.", log);
 	}
-	
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static checkFSpayloadPresentOUT(String side,context,log,testRunner,payloadNumber=2,String domain="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"checkFSpayloadPresentOUT\".", log);
+		def fsPayloadPath=null;
+		def counter=0;
+		def FS_WAIT_TIME=60_000; // Maximum time to wait to check.
+        def STEP_TIME=1000; // Time to wait before re-checking.	
+		def messageLocationPrpertyName="fsplugin.messages.location";
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+		
+		fsPayloadPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/OUT";;
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  checkFSpayloadPresentOUT  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
+				
+		while ( (counter != payloadNumber) && (FS_WAIT_TIME > 0) ) {
+			counter=new File(fsPayloadPath).listFiles().count { it.name ==~ /.*WAITING_FOR_RETRY/ }
+			FS_WAIT_TIME=FS_WAIT_TIME-STEP_TIME;
+			log.info "  checkFSpayloadPresentOUT  [][]  Waiting $side :" + FS_WAIT_TIME + " -- Current:" + counter + " -- Target:" + payloadNumber;
+			sleep(STEP_TIME);
+		}
+		
+		assert(counter == payloadNumber),"Error: checkFSpayloadPresentOUT: \"$counter\" messages found in \"WAITING_FOR_RETRY\" status instead of \"$payloadNumber\" ...";
+                
+		debugLog("  ====  \"checkFSpayloadPresentOUT\" DONE.", log);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static checkFSpayloadPresentFAILED(String side,context,log,testRunner,payloadNumber=2,String domain="default",providedDuration=null,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"checkFSpayloadPresentFAILED\".", log);
+		def fsPayloadPath=null;
+		def counter=0;
+		def FS_WAIT_TIME=60_000; // Maximum time to wait to check.
+        def STEP_TIME=1000; // Time to wait before re-checking.	
+		def messageLocationPrpertyName="fsplugin.messages.location";
+		
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+		
+		fsPayloadPath=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)+"/FAILED";;
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  checkFSpayloadPresentFAILED  [][]  fsPayloadPath=\"$fsPayloadPath\"", log);
+		
+		if(providedDuration!=null){
+			FS_WAIT_TIME=providedDuration;
+		}
+		while ( (counter != payloadNumber) && (FS_WAIT_TIME > 0) ) {
+			counter=new File(fsPayloadPath).listFiles().count { it.name ==~ /.*error/ }
+			FS_WAIT_TIME=FS_WAIT_TIME-STEP_TIME;
+			log.info "  checkFSpayloadPresentFAILED  [][]  Waiting $side :" + FS_WAIT_TIME + " -- Current:" + counter + " -- Target:" + payloadNumber;
+			sleep(STEP_TIME);
+		}
+		
+		assert(counter == payloadNumber),"Error: checkFSpayloadPresentFAILED: \"$counter\" messages found in \"WAITING_FOR_RETRY\" status instead of \"$payloadNumber\" ...";
+                
+		debugLog("  ====  \"checkFSpayloadPresentFAILED\" DONE.", log);
+	}	
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static cleanFSPluginFolders(String side,context,log,testRunner,String domain="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"cleanFSPluginFolders\".", log);
+		def fsPayloadPathBase=null;
+		def fsPayloadPath=null;
+		def folder=null;
+		
+		def messageLocationPrpertyName="fsplugin.messages.location";
+		def multitenancyOn = getMultitenancyFromSide(side, context, log);
+		if(multitenancyOn){
+			messageLocationPrpertyName="fsplugin.domains."+domain+".messages.location"
+		}
+		
+		fsPayloadPathBase=getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain);
+		
+		fsPayloadPath=fsPayloadPathBase+"/IN";
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log);
+		folder = new File(fsPayloadPath);
+		FileUtils.cleanDirectory(folder);
+
+		fsPayloadPath=fsPayloadPathBase+"/OUT";
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log);
+		folder = new File(fsPayloadPath);
+		FileUtils.cleanDirectory(folder);
+
+		fsPayloadPath=fsPayloadPathBase+"/FAILED";
+		fsPayloadPath=formatPathSlashes(fsPayloadPath);
+		debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log);
+		folder = new File(fsPayloadPath);
+		FileUtils.cleanDirectory(folder);
+		
+		debugLog("  ====  \"cleanFSPluginFolders\" DONE.", log);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static getCurrentPmodeID(String side,context,log,testRunner,String domainValue="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"getCurrentPmodeID\".", log);
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn = false;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def jsonSlurper=null;
+		def pmodeMap=[];
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/current",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getCurrentPmodeID: Error in the getCurrentPmodeID response.";
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		assert(commandResult[0]!=null),"Error:getCurrentPmodeID: getCurrentPmodeID retruned null value."
+		assert(commandResult[0].size()>=5),"Error:getCurrentPmodeID: getCurrentPmodeID retruned wrong value: "+commandResult[0];
+		jsonSlurper = new JsonSlurper();
+        pmodeMap = jsonSlurper.parseText(commandResult[0].substring(5));
+        assert(pmodeMap.id != null),"Error:getCurrentPmodeID: Pmode data is corrupted: $pmodeMap.";		
+		debugLog("  ====  \"getCurrentPmodeID\" DONE.", log);
+		return pmodeMap.id; 
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static getCurrentPmodeText(String side,context,log,testRunner,String domainValue="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"getCurrentPmodeText\".", log);
+		def retrievedID=null;
+		
+		
+        def commandString = null;
+        def commandResult = null;
+        def multitenancyOn = false;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def jsonSlurper=null;
+		def pmodeMap=[];
+		
+		
+		retrievedID=getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd);
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/"+retrievedID+"?noAudit=true",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getCurrentPmodeText: Error in the getCurrentPmodeText response.";
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"getCurrentPmodeText\" DONE.", log);
+		return commandResult[0];
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static updatePmodeParameterRest(String side,context,log,testRunner,String domainValue="default",target="endpoint",targetID="blue_gw",targetRep="",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"updatePmodeParameter\".", log);
+
+		def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		
+		def String pmodeText=getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd);
+		def pmodeFile=null;
+        def commandString = null;
+        def commandResult = null;
+		def pmDescription = "SoapUI sample test description for PMode upload."
+		def swapText=null;
+		
+		// Read Pmode file
+		try{
+			pmodeFile=new XmlSlurper().parseText(pmodeText);
+		}catch(Exception ex) {
+			assert (0),"Error:updatePmodeParameter: Error parsing the pmode as xml file. "+ex;
+		}
+				
+		// Fetch value to change		
+		switch (target.toLowerCase()){
+			case "endpoint":
+				pmodeFile.depthFirst().each {
+					if (it.name().equals("party")){
+						if(it.@name.text().equals(targetID)){
+							swapText=it.@endpoint.text();
+						}
+					}
+				}
+				break;
+
+			// Put other cases here ...
+			
+			default:
+				// Do nothing
+				log.info "updatePmodeParameter [][] Operation not recognized."
+				break;
+			
+        }
+		
+		// Re-upload new Pmode file
+		File tempfile = null;           
+		try {
+			// creates temporary file
+			tempfile = File.createTempFile("tmp", ".xml");
+			tempfile.write(pmodeText.replaceAll(swapText,targetRep));
+			// deletes file when the virtual machine terminate
+			tempfile.deleteOnExit();         
+		} catch(Exception ex) {
+			// if any error occurs
+			log.info "Error while creating temp file ... "+ex ;
+		}
+		
+		try{
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
+							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+							"-F", "description=" + pmDescription,
+							"-F", "file=@" + tempfile,
+							"-v"]
+            commandResult = runCommandInShell(commandString, log)
+            assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
+		}finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"updatePmodeParameter\" DONE.", log);
+		
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static getPartyListFromPmode(String side,context,log,testRunner,String domainValue="default",String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"getPartyListFromPmode\".", log);
+		def retrievedID=null;
+		
+		
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def partyMap=[];
+		
+		
+		retrievedID=getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd);
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getPartyListFromPmode: Error in the getPartyListFromPmode response.";
+        } finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"getPartyListFromPmode\" DONE.", log);
+		return commandResult[0].substring(5);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static addPartyMap(mainMap,extraMap,context,log){
+		debugLog("  ====  Calling \"addPartyMap\".", log);
+		def maxEntId=0;def maxEntId2=0;
+		def i=0; def j=0;def k=0;
+		def swapName=null;
+		
+		debugLog("  addPartyMap  [][]  mainMap:" + mainMap, log);
+		while (i < mainMap.size()){
+			debugLog("  addPartyMap  [][]  Checking element:" + mainMap[i], log);
+			debugLog("  addPartyMap  [][]  Checking value:" + mainMap[i].entityId, log);
+			if(maxEntId<mainMap[i].entityId){
+				maxEntId=mainMap[i].entityId;
+			}
+			while(j<mainMap[i].processesWithPartyAsInitiator.size()){
+				if(maxEntId2<mainMap[i].processesWithPartyAsInitiator[j].entityId){
+					maxEntId2=mainMap[i].processesWithPartyAsInitiator[j].entityId;
+				}
+				j++;
+			}	
+			j=0;
+			while(j<mainMap[i].processesWithPartyAsResponder.size()){
+				if(maxEntId2<mainMap[i].processesWithPartyAsResponder[j].entityId){
+					maxEntId2=mainMap[i].processesWithPartyAsResponder[j].entityId;
+				}
+				j++;
+			}
+			i++;
+		}
+		
+		debugLog("  addPartyMap  [][]  Extracted maximum entity IDs \"$maxEntId\", \"$maxEntId2\" ...", log);
+		
+		i=0;j=0;
+		while (i < extraMap.size()){
+			maxEntId++;
+			extraMap[i].entityId=maxEntId;
+			
+			while(j<extraMap[i].processesWithPartyAsInitiator.size()){
+				if(extraMap[i].processesWithPartyAsInitiator[j].entityId==0){
+					maxEntId2++;
+					extraMap[i].processesWithPartyAsInitiator[j].entityId=maxEntId2;
+					swapName=extraMap[i].processesWithPartyAsInitiator[j].name;
+					while(k<extraMap[i].processesWithPartyAsResponder.size()){
+						if(extraMap[i].processesWithPartyAsResponder[k].name.equals(swapName)){
+							extraMap[i].processesWithPartyAsResponder[k].entityId=maxEntId2;
+						}
+						k++;
+					}
+					k=0;
+				}
+				j++;
+			}
+			j=0;
+			while(j<extraMap[i].processesWithPartyAsResponder.size()){
+				if(extraMap[i].processesWithPartyAsResponder[j].entityId==0){
+					maxEntId2++;
+					extraMap[i].processesWithPartyAsResponder[j].entityId=maxEntId2;
+				}
+				j++;
+			}
+			i++;
+		}		
+		
+		mainMap += extraMap;
+		debugLog("  addPartyMap  [][]  Formatted party map:" + mainMap, log);
+		debugLog("  ====  \"addPartyMap\" DONE.", log);
+		return(mainMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static deletePartyMap(partyMap,partyName,context,log){
+		debugLog("  ====  Calling \"deletePartyMap\".", log);
+		def pArray=[];
+		def pIndex=0;
+		def i=0; def j=0;
+		
+		debugLog("  deletePartyMap  [][]  parties to delete :" + partyName, log);
+		debugLog("  deletePartyMap  [][]  partyMap:" + partyMap, log);
+		
+		// Locate the targeted parties elements index
+		while(j<partyName.size()){
+			while (i < partyMap.size()){
+				debugLog("  deletePartyMap  [][]  Checking element: " + partyMap[i], log);
+				debugLog("  deletePartyMap  [][]  Checking value: " + partyMap[i].name, log);
+				if(partyMap[i].name.equals(partyName[j])){
+					pArray[pIndex]=i;
+					pIndex++;
+					i=partyMap.size();
+				}
+				i++;
+			}
+			j++;
+		}
+		
+		debugLog("  deletePartyMap  [][]  Start deleting elements at: " + partyMap, log);
+		// Delete parties found
+		pIndex=0;
+		while(pIndex<pArray.size()){
+			partyMap.remove(pArray[pIndex]);
+			pIndex++;
+		}
+		
+		debugLog("  deletePartyMap  [][]  Formatted party map:" + partyMap, log);
+		debugLog("  ====  \"deletePartyMap\" DONE.", log);
+		return(partyMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static updatePartyMap(partyMap,nPartyList,context,log){
+		debugLog("  ====  Calling \"updatePartyMap\".", log);
+		def pArray=[];
+		def pIndex=0;
+		def i=0; def j=0; def k=0; def l=0;
+		
+		debugLog("  updatePartyMap  [][]  parties to update :" + nPartyList, log);
+		debugLog("  updatePartyMap  [][]  partyMap:" + partyMap, log);
+		
+		// Locate the targeted parties elements index
+		while(j<nPartyList.size()){
+			while (i < partyMap.size()){
+				debugLog("  updatePartyMap  [][]  Checking element:" + partyMap[i], log);
+				debugLog("  updatePartyMap  [][]  Checking value:" + partyMap[i].name, log);
+				if(partyMap[i].name.equals(nPartyList[j].name)){
+					nPartyList[j].entityId=partyMap[i].entityId;
+					while(k<nPartyList[j].processesWithPartyAsInitiator.size()){
+						while(l<partyMap[i].processesWithPartyAsInitiator.size()){
+							if(nPartyList[j].processesWithPartyAsInitiator[k].name.equals(partyMap[i].processesWithPartyAsInitiator[l].name)){
+								nPartyList[j].processesWithPartyAsInitiator[k].entityId=partyMap[i].processesWithPartyAsInitiator[l].entityId
+							}
+							l++;
+						}
+						k++;
+					}
+					k=0;l=0;
+					while(k<nPartyList[j].processesWithPartyAsResponder.size()){
+						while(l<partyMap[i].processesWithPartyAsResponder.size()){
+							if(nPartyList[j].processesWithPartyAsResponder[k].name.equals(partyMap[i].processesWithPartyAsResponder[l].name)){
+								nPartyList[j].processesWithPartyAsResponder[k].entityId=partyMap[i].processesWithPartyAsResponder[l].entityId
+							}
+							l++;
+						}
+						k++;
+					}
+					k=0;l=0;
+					debugLog("  updatePartyMap  [][]  Replace party: " + partyMap[i], log);
+					debugLog("  updatePartyMap  [][]  with party: " + nPartyList[j], log);
+					partyMap[i]=nPartyList[j];
+				}
+				i++;
+			}
+			i=0;
+			j++;
+		}
+		
+		debugLog("  updatePartyMap  [][]  Formatted party map:" + partyMap, log);
+		debugLog("  ====  \"updatePartyMap\" DONE.", log);
+		return(partyMap);
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static managePartyInPmode(String side,context,log,testRunner,String operation="add",partyParams,String domainValue="default",outcome="success",message=null,String authUser = null, authPwd = null){
+		debugLog("  ====  Calling \"managePartyInPmode\".", log);
+		def retrievedID=null;		
+		
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser = authUser;
+        def authenticationPwd = authPwd;
+		def jsonSlurper= new JsonSlurper();
+		def curlParams=null;
+		def partyMap=[];
+		
+        try{
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
+			
+			partyMap=jsonSlurper.parseText(getPartyListFromPmode(side,context,log,testRunner,domainValue,authenticationUser, authenticationPwd));
+			switch(operation.toLowerCase()){
+				case "add":
+					partyMap=addPartyMap(partyMap,partyParams,context,log);
+				break;
+				case "delete":
+					partyMap=deletePartyMap(partyMap,partyParams,context,log);
+				break;
+				case "update":
+					partyMap=updatePartyMap(partyMap,partyParams,context,log);
+				break;
+				default:
+					assert(false),"Error:managePartyInPmode: Error in the requested operation ...";
+			}
+			
+			
+			curlParams = JsonOutput.toJson(partyMap).toString();
+
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/update",
+								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+								"-H", "Content-Type: application/json",
+								"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+								"-X", "PUT",
+								"--data-binary", formatJsonForCurl(curlParams, log),
+								"-v"]
+            commandResult = runCommandInShell(commandString, log);
+			if(outcome.toLowerCase()=="success"){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:managePartyInPmode: Error in the managePartyInPmode response.";
+			}else{
+				assert(!(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)&& !(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:managePartyInPmode: Error in the managePartyInPmode response.";
+			}
+			if(message!=null){
+				assert(commandResult[0].contains(message)),"Error:managePartyInPmode: Error in the managePartyInPmode response: string \"$message\" was not found in: "+commandResult[0];
+			}			
+		}finally {
+            resetAuthTokens(log)
+        }
+		
+		debugLog("  ====  \"managePartyInPmode\" DONE.", log);
+	}
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
 //---------------------------------------------------------------------------------------------------------------------------------

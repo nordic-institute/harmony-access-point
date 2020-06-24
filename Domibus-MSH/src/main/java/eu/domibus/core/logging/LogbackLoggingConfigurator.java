@@ -5,7 +5,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.domibus.api.logging.LoggingConfigurator;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
 
     protected String getDefaultLogbackConfigurationFile() {
         if(StringUtils.isEmpty(domibusConfigLocation)) {
-            LOG.error("The property [" + DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION + "] is not configured" );
+            LOG.error("The property [" + DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION + "] is not configured" );
             return null;
         }
 

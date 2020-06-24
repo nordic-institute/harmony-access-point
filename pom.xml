@@ -17,7 +17,6 @@
         <module>Domibus-MSH-jms-spi</module>
         <module>Domibus-MSH-jms-spi-helper</module>
         <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-MSH-docker</module>
         <module>Domibus-plugin-api</module>
         <module>Domibus-MSH-fiware</module>
         <module>Domibus-MSH-test</module>
@@ -28,10 +27,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.3.6</cxf.version>
         <spring.version>5.2.4.RELEASE</spring.version>
-        <spring.security.version>5.3.0.RELEASE</spring.security.version>
+        <spring.security.version>5.3.2.RELEASE</spring.security.version>
         <hibernate.version>5.4.7.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
-        <activemq.version>5.15.10</activemq.version>
+        <activemq.version>5.15.12</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.28</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -56,8 +55,8 @@
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
-        <dom4j.version>2.1.1</dom4j.version>
-        <tika.version>1.24</tika.version>
+        <dom4j.version>2.1.3</dom4j.version>
+        <tika.version>1.24.1</tika.version>
         <peppol.version>1.1.3</peppol.version>
         <dynamic.discovery.client.version>1.11</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
@@ -67,7 +66,6 @@
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <!-- do not upgrade to 5.2.x as Liquibase will fail to generate DDL scripts -->
         <dependency.check.version>5.3.2</dependency.check.version>
 
         <!-- Sonar properties -->
@@ -128,6 +126,7 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <javax.jms-api.version>2.0.1</javax.jms-api.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -469,7 +468,23 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jms_1.1_spec</artifactId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+
+            <!--
+            Replace JMS 1.1 specs dependency(geronimo-jms_1.1_spec) with JMS 2 specs dependency. This is needed iin order to use CachingConnectionFactory.
+            Using JMS 2 specs is safe according to the SingleConnectionFactory documentation as long as the JMS 2 features are not used:
+            "As of Spring Framework 5, this class supports JMS 2.0 {@code JMSContext} calls and therefore requires the JMS 2.0 API to be present at runtime.
+             It may nevertheless run against a JMS 1.1 driver (bound to the JMS 2.0 API) as long as no actual JMS 2.0 calls are triggered by the application's setup."
+            -->
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>

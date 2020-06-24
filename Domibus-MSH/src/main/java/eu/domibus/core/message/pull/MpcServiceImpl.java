@@ -8,18 +8,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_FORCE_BY_MPC;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_FORCE_BY_MPC;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR;
 
 /**
  * @author idragusa
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class MpcServiceImpl implements MpcService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
 

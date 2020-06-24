@@ -33,7 +33,6 @@ import java.util.Map;
  * @since 4.0
  */
 @org.springframework.stereotype.Service
-@Transactional(propagation = Propagation.SUPPORTS)
 @Primary
 public class MultiDomainPModeProvider extends PModeProvider {
 
@@ -145,13 +144,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getGatewayParty();
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getSenderParty(String pModeKey) {
         return getCurrentPModeProvider().getSenderParty(pModeKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Party getReceiverParty(String pModeKey) {
         return getCurrentPModeProvider().getReceiverParty(pModeKey);
@@ -177,7 +174,6 @@ public class MultiDomainPModeProvider extends PModeProvider {
         return getCurrentPModeProvider().getAgreement(pModeKey);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public LegConfiguration getLegConfiguration(String pModeKey) {
         return getCurrentPModeProvider().getLegConfiguration(pModeKey);
@@ -283,6 +279,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         getCurrentPModeProvider().removePMode(id);
     }
 
+    @Transactional
     @Override
     public List<PModeArchiveInfo> getRawConfigurationList() {
         return getCurrentPModeProvider().getRawConfigurationList();

@@ -139,35 +139,32 @@
       <grid-header [parent]="this"></grid-header>
 
       <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
-        <page-grid [parent]="this"></page-grid>
+        <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
       </div>
 
-      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
+      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template >
         <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed"
-                      (click)="setProcessedValue(row)">
+                      (click)="setProcessedValue(row)" [disabled]="row.deleted || isLoading">
         </mat-checkbox>
       </ng-template>
 
       <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <span class="text-select">{{value| domibusDate: dateFormat}}</span>
+        <span class="text-select">{{value| domibusDate}}</span>
       </ng-template>
 
       <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
         <span class="text-select">{{value.join(', ')}}</span>
       </ng-template>
 
-      <div class="group-action-button">
-        <button id="alertsCancelButton" mat-raised-button color="primary" (click)="cancel()"
-                [disabled]="!isDirty()" button-click-behaviour>
-          <mat-icon>cancel</mat-icon>
-          <span>Cancel</span>
+      <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+        <button id="alertsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
+                (click)="buttonDeleteAction(row)" color="primary"
+                tooltip="Delete" button-click-behaviour>
+          <mat-icon>delete</mat-icon>
         </button>
-        <button id="alertsSaveButton" mat-raised-button color="primary" (click)="saveIfNeeded()"
-                [disabled]="!isDirty()" button-click-behaviour>
-          <mat-icon>save</mat-icon>
-          <span>Save</span>
-        </button>
-      </div>
+      </ng-template>
+
+      <page-footer [parent]="this" [isEditVisible]="false" [isAddVisible]="false"></page-footer>
     </div>
   </div>
 </div>

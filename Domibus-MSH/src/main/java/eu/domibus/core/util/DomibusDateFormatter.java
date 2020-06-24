@@ -1,10 +1,9 @@
 package eu.domibus.core.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -15,14 +14,29 @@ import java.util.Date;
  * @since 4.1
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DomibusDateFormatter {
 
-    @Autowired
-    public DateTimeFormatter dateTimeFormatter;
+    protected final DateTimeFormatter dateTimeFormatter;
 
-    public Date fromString(String dateString) {
-        final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dateTimeFormatter);
-        return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
+    public DomibusDateFormatter(DateTimeFormatter dateTimeFormatter) {
+        this.dateTimeFormatter = dateTimeFormatter;
+    }
+
+    /**
+     * Obtains an instance of {@link Date} from a text string using a specific formatter
+     * (see property {@link eu.domibus.api.property.DomibusPropertyMetadataManagerSPI#DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING}).
+     * The text is parsed using the formatter, returning a date-time ({@link ZoneOffset#UTC})
+     *
+     * @param dateString the text to parse, not null
+     * @return the parsed local date-time at time zone ({@link ZoneOffset#UTC}), not null
+     * @throws DomibusDateTimeException in case the dateString is not following the right pattern
+     */
+    public Date fromString(String dateString) throws DomibusDateTimeException {
+        try {
+            final LocalDateTime localDateTime = LocalDateTime.parse(dateString, dateTimeFormatter);
+            return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
+        } catch (DateTimeException e) {
+            throw new DomibusDateTimeException(dateString);
+        }
     }
 }

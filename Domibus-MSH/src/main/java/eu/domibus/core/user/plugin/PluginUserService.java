@@ -3,6 +3,7 @@ package eu.domibus.core.user.plugin;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.web.rest.ro.PluginUserRO;
 
 import java.util.List;
 
@@ -24,12 +25,7 @@ public interface PluginUserService {
      * @param pageSize page size.
      * @return a list of plugin users.
      */
-    List<AuthenticationEntity> findUsers(AuthType authType,
-            AuthRole authRole,
-            String originalUser,
-            String userName,
-            int pageStart,
-            int pageSize);
+    List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int pageStart, int pageSize);
 
     /**
      * Counts the plugin users matching the search criteria.

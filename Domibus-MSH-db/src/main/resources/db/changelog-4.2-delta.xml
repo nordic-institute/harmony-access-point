@@ -13,6 +13,22 @@
     tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
     <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
+    <changeSet author="idragusa" id="EDELIVERY-4740">
+        <comment>Plugin specific tables</comment>
+        <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
     <changeSet author="tincuse" id="EDELIVERY-4915">
         <comment>Add audit columns in all configuration and run-time tables</comment>
 
@@ -972,5 +988,53 @@
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
+    </changeSet>
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-6391" dbms="oracle">
+        <alterSequence sequenceName="HIBERNATE_SEQUENCE"
+                       cacheSize="100"
+        />
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-2">
+        <modifyDataType columnName="END_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
+        <modifyDataType columnName="START_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
+        <addNotNullConstraint columnDataType="DATETIME" columnName="END_DATE" tableName="TB_SEND_ATTEMPT" />
+        <addNotNullConstraint columnDataType="DATETIME" columnName="START_DATE" tableName="TB_SEND_ATTEMPT" />
+
+        <modifyDataType columnName="NOT_VALID_BEFORE_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
+        <modifyDataType columnName="NOT_VALID_AFTER_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
+
+        <addColumn tableName="TB_MESSAGE_LOG">
+            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
+        </addColumn>
+
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME,
+            ri.REVISION_DATE as AUDIT_DATE,
+            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
+            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+            TB_ACTION_AUDIT aa
+        </createView>
+
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+    </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-6601">
+        <modifyDataType columnName="MAX_SIZE" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE" />
     </changeSet>
 </databaseChangeLog>

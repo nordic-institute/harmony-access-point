@@ -1,12 +1,12 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -43,7 +43,6 @@ public class DatabasePayloadPersistenceTest {
     DatabasePayloadPersistence databasePayloadPersistence;
 
 
-
     @Test
     public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
                                          @Injectable UserMessage userMessage,
@@ -56,7 +55,7 @@ public class DatabasePayloadPersistenceTest {
                                          @Mocked IOUtils ioUtils) throws IOException {
         final byte[] binaryData = "test".getBytes();
 
-        new Expectations(){{
+        new Expectations(databasePayloadPersistence) {{
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -78,27 +77,30 @@ public class DatabasePayloadPersistenceTest {
             IOUtils.copy(inputStream, cipherOutputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
         }};
 
-        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         new Verifications() {{
             partInfo.setBinaryData(binaryData);
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
             partInfo.setEncrypted(true);
+
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
     @Test
-    public void storeOutgoingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable LegConfiguration legConfiguration,
-                                     @Injectable String backendName,
-                                     @Injectable InputStream inputStream) throws IOException, EbMS3Exception {
+    public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable LegConfiguration legConfiguration,
+                                         @Injectable String backendName,
+                                         @Injectable InputStream inputStream) throws IOException, EbMS3Exception {
 
         final String myfile = "myfile";
         byte[] binaryData = "fileContent".getBytes();
 
         new Expectations(databasePayloadPersistence) {{
+
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
@@ -122,21 +124,23 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
             partInfo.setEncrypted(false);
+
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, binaryData.length);
         }};
     }
 
     @Test
-    public void getOutgoingBinaryData(@Injectable PartInfo partInfo,
-                                      @Injectable UserMessage userMessage,
-                                      @Injectable LegConfiguration legConfiguration,
-                                      @Injectable String backendName,
-                                      @Injectable InputStream inputStream,
-                                      @Mocked ByteArrayOutputStream byteArrayOutputStream,
-                                      @Injectable Cipher encryptCipherForPayload,
-                                      @Mocked CipherOutputStream cipherOutputStream,
-                                      @Mocked GZIPOutputStream gzipOutputStream,
-                                      @Mocked IOUtils ioUtils) throws IOException, EbMS3Exception {
-        new Expectations(){{
+    public void testGetOutgoingBinaryData(@Injectable PartInfo partInfo,
+                                          @Injectable UserMessage userMessage,
+                                          @Injectable LegConfiguration legConfiguration,
+                                          @Injectable String backendName,
+                                          @Injectable InputStream inputStream,
+                                          @Mocked ByteArrayOutputStream byteArrayOutputStream,
+                                          @Injectable Cipher encryptCipherForPayload,
+                                          @Mocked CipherOutputStream cipherOutputStream,
+                                          @Mocked GZIPOutputStream gzipOutputStream,
+                                          @Mocked IOUtils ioUtils) throws IOException, EbMS3Exception {
+        new Expectations() {{
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -158,5 +162,4 @@ public class DatabasePayloadPersistenceTest {
 
         databasePayloadPersistence.getOutgoingBinaryData(partInfo, inputStream, userMessage, legConfiguration, Boolean.TRUE);
     }
-
 }

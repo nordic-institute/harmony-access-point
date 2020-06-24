@@ -30,7 +30,6 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
     public static final String URI = "URI";
     public static final String DIGEST_VALUE = "DigestValue";
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public List<String> getNonRepudiationDetailsFromSecurityInfoNode(final Node securityInfo) throws EbMS3Exception {
         List<String> result = new ArrayList<>();
@@ -141,7 +140,6 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public boolean compareUnorderedReferenceNodeLists(final List<String> referencesFromSecurityHeader, final List<String> referencesFromNonRepudiationInformation) {
         final int referencesFromSecurityHeaderSize = referencesFromSecurityHeader.size();

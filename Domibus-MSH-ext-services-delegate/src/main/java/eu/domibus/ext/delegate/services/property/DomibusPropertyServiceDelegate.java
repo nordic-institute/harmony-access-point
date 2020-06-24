@@ -9,6 +9,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -41,6 +42,12 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     public String getProperty(DomainDTO domain, String propertyName) {
         return getDomainProperty(domain, propertyName);
     }
+
+    @Override
+    public Integer getIntegerProperty(String propertyName) {
+        return domibusPropertyProvider.getIntegerProperty((propertyName));
+    }
+
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);
@@ -55,7 +62,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
         final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
-        domibusPropertyProvider.setPropertyValue(domibusDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
@@ -63,7 +70,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         DomainDTO currentDomain = domainContextService.getCurrentDomainSafely();
         Domain domibusDomain = domainConverter.convert(currentDomain, Domain.class);
 
-        domibusPropertyProvider.setPropertyValue(domibusDomain, propertyName, propertyValue);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override

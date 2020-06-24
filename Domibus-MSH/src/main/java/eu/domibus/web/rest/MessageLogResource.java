@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -15,7 +17,6 @@ import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,26 +42,50 @@ public class MessageLogResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
-    private static final String RECEIVED_FROM_STR = "receivedFrom";
-    private static final String RECEIVED_TO_STR = "receivedTo";
+    private static final String MODULE_NAME_MESSAGES = "messages";
 
-    @Autowired
-    protected TestService testService;
+    private static final String PROPERTY_CONVERSATION_ID = "conversationId";
+    private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    private static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
+    private static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
+    private static final String PROPERTY_MESSAGE_ID = "messageId";
+    private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
+    private static final String PROPERTY_MESSAGE_SUBTYPE = "messageSubtype";
+    private static final String PROPERTY_MESSAGE_TYPE = "messageType";
+    private static final String PROPERTY_MSH_ROLE = "mshRole";
+    private static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
+    private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
+    private static final String PROPERTY_RECEIVED_TO = "receivedTo";
+    private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
+    private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
+    private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
 
-    @Autowired
-    private DateUtil dateUtil;
+    public static final String COLUMN_NAME_AP_ROLE = "AP Role";
 
-    @Autowired
-    private UIMessageService uiMessageService;
+    private final TestService testService;
 
-    @Autowired
-    private MessagesLogService messagesLogService;
+    private final DateUtil dateUtil;
 
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private final UIMessageService uiMessageService;
+
+    private final MessagesLogService messagesLogService;
+
+    private final UIReplicationSignalService uiReplicationSignalService;
+
+    private final DomibusConfigurationService domibusConfigurationService;
 
     Date defaultFrom;
     Date defaultTo;
+
+    public MessageLogResource(TestService testService, DateUtil dateUtil, UIMessageService uiMessageService, MessagesLogService messagesLogService, UIReplicationSignalService uiReplicationSignalService, DomibusConfigurationService domibusConfigurationService) {
+        this.testService = testService;
+        this.dateUtil = dateUtil;
+        this.uiMessageService = uiMessageService;
+        this.messagesLogService = messagesLogService;
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @PostConstruct
     public void init() {
@@ -91,9 +115,9 @@ public class MessageLogResource extends BaseResource {
         if (to == null) {
             to = defaultTo;
         }
-        filters.put(RECEIVED_FROM_STR, from);
-        filters.put(RECEIVED_TO_STR, to);
-        filters.put("messageType", request.getMessageType());
+        filters.put(PROPERTY_RECEIVED_FROM, from);
+        filters.put(PROPERTY_RECEIVED_TO, to);
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         LOG.debug("using filters [{}]", filters);
 
@@ -109,10 +133,10 @@ public class MessageLogResource extends BaseResource {
         }
 
         if (defaultFrom.equals(from)) {
-            filters.remove(RECEIVED_FROM_STR);
+            filters.remove(PROPERTY_RECEIVED_FROM);
         }
         if (defaultTo.equals(to)) {
-            filters.remove(RECEIVED_TO_STR);
+            filters.remove(PROPERTY_RECEIVED_TO);
         }
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());
@@ -134,9 +158,9 @@ public class MessageLogResource extends BaseResource {
     public ResponseEntity<String> getCsv(@Valid final MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
 
-        filters.put(RECEIVED_FROM_STR, dateUtil.fromString(request.getReceivedFrom()));
-        filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
-        filters.put("messageType", request.getMessageType());
+        filters.put(PROPERTY_RECEIVED_FROM, dateUtil.fromString(request.getReceivedFrom()));
+        filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
         List<MessageLogInfo> resultList;
@@ -151,11 +175,20 @@ public class MessageLogResource extends BaseResource {
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,
-                ImmutableMap.of("mshRole".toUpperCase(), "AP Role"),
-                Arrays.asList("sourceMessage", "messageFragment"),
-                "messages");
+                ImmutableMap.of(PROPERTY_MSH_ROLE.toUpperCase(), COLUMN_NAME_AP_ROLE),
+                getExcludedProperties(),
+                MODULE_NAME_MESSAGES);
     }
 
+    private List<String> getExcludedProperties() {
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
+        if(!domibusConfigurationService.isFourCornerEnabled()) {
+            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
+            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
+        }
+        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
+        return excludedProperties;
+    }
 
     /**
      * This method gets the last send UserMessage for the given party Id
@@ -186,17 +219,17 @@ public class MessageLogResource extends BaseResource {
 
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageId", request.getMessageId());
-        filters.put("conversationId", request.getConversationId());
-        filters.put("mshRole", request.getMshRole());
-        filters.put("messageStatus", request.getMessageStatus());
-        filters.put("notificationStatus", request.getNotificationStatus());
-        filters.put("fromPartyId", request.getFromPartyId());
-        filters.put("toPartyId", request.getToPartyId());
-        filters.put("refToMessageId", request.getRefToMessageId());
-        filters.put("originalSender", request.getOriginalSender());
-        filters.put("finalRecipient", request.getFinalRecipient());
-        filters.put("messageSubtype", request.getMessageSubtype());
+        filters.put(PROPERTY_MESSAGE_ID, request.getMessageId());
+        filters.put(PROPERTY_CONVERSATION_ID, request.getConversationId());
+        filters.put(PROPERTY_MSH_ROLE, request.getMshRole());
+        filters.put(PROPERTY_MESSAGE_STATUS, request.getMessageStatus());
+        filters.put(PROPERTY_NOTIFICATION_STATUS, request.getNotificationStatus());
+        filters.put(PROPERTY_FROM_PARTY_ID, request.getFromPartyId());
+        filters.put(PROPERTY_TO_PARTY_ID, request.getToPartyId());
+        filters.put(PROPERTY_REF_TO_MESSAGE_ID, request.getRefToMessageId());
+        filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
+        filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
+        filters.put(PROPERTY_MESSAGE_SUBTYPE, request.getMessageSubtype());
         return filters;
     }
 

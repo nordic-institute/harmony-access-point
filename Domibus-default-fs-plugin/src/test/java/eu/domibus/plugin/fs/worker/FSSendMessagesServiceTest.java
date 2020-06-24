@@ -14,10 +14,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -52,7 +49,7 @@ public class FSSendMessagesServiceTest {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    private FSDomainService fsMultiTenancyService;
+    private FSDomainService fsDomainService;
 
     @Injectable
     private JMSExtService jmsExtService;
@@ -125,13 +122,13 @@ public class FSSendMessagesServiceTest {
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
-            fsPluginProperties.getDomains();
+            fsDomainService.getDomainsToProcess();
             result = Arrays.asList(domain0, domain1);
 
-            fsMultiTenancyService.verifyDomainExists(domain0);
+            fsDomainService.verifyDomainExists(domain0);
             result = true;
 
-            fsMultiTenancyService.verifyDomainExists(domain1);
+            fsDomainService.verifyDomainExists(domain1);
             result = true;
         }};
 

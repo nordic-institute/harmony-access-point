@@ -11,7 +11,6 @@ import java.util.List;
  * @author Christian Koch, Stefan Mueller
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class CompressionMimeTypeBlacklist {
 
     @Value("#{'${compressionBlacklist}'.split(',')}")

@@ -220,7 +220,7 @@ public abstract class PModeProvider {
         try {
             unmarshallerResult = xmlUtil.unmarshal(ignoreWhitespaces, jaxbContext, xmlStream, xsdStream);
             configuration = unmarshallerResult.getResult();
-        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException e) {
+        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException | NumberFormatException e) {
             LOG.error("Error unmarshalling the PMode", e);
             throw new XmlProcessingException("Error unmarshalling the PMode: " + e.getMessage(), e);
         }
@@ -244,7 +244,6 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
 
@@ -276,6 +275,7 @@ public abstract class PModeProvider {
             } catch (EbMS3Exception exc) {
                 LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
                 exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+                exc.setMshRole(mshRole);
                 throw exc;
             }
             try {
@@ -289,6 +289,7 @@ public abstract class PModeProvider {
                 } else {
                     LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
                     exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
+                    exc.setMshRole(mshRole);
                     throw exc;
                 }
             }
@@ -322,7 +323,6 @@ public abstract class PModeProvider {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
@@ -359,7 +359,6 @@ public abstract class PModeProvider {
 
     public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getCollaborationInfo().getAction();
         final String actionName = findActionName(actionValue);

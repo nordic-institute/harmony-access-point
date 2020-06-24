@@ -86,7 +86,7 @@ public class UserResource extends BaseResource {
      * {@inheritDoc}
      */
     @GetMapping(value = {"/users"})
-    public List<UserResponseRO> users() {
+    public List<UserResponseRO> getUsers() {
         LOG.debug("Retrieving users");
 
         List<User> users = getUserService().findUsers();
@@ -126,7 +126,7 @@ public class UserResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
-        final List<UserResponseRO> entries = users();
+        final List<UserResponseRO> entries = getUsers();
         getCsvService().validateMaxRows(entries.size());
 
         return exportToCSV(entries,

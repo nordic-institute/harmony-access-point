@@ -2,7 +2,7 @@ package eu.domibus.api.property;
 
 import eu.domibus.api.multitenancy.Domain;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu

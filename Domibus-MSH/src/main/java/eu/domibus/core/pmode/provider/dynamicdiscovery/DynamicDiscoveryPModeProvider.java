@@ -21,8 +21,6 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
@@ -31,7 +29,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -53,7 +51,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_DYN
  * Therefore, on the receiver there is no lookup for the sender. The message is accepted based on the root CA as long as the process matches.
  */
 
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
@@ -146,7 +143,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * is not defined only static search is done else (if static search did not return result) also dynamic discovery is executed.
      */
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         try {
             return super.findUserMessageExchangeContext(userMessage, mshRole);
@@ -247,7 +243,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         // remove party if exists to add it with latest values for address and type
         if (configurationParty != null) {
             LOG.debug("Remove party to add with new values " + configurationParty.getName());
-            getConfiguration().getBusinessProcesses().getParties().remove(configurationParty);
+            getConfiguration().getBusinessProcesses().removeParty(configurationParty);
         }
         // set the new endpoint if exists, otherwise copy the old one if exists
         String newEndpoint = endpoint;
@@ -261,7 +257,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         LOG.debug("New endpoint is [{}]", newEndpoint);
         Party newConfigurationParty = buildNewConfigurationParty(name, configurationType, newEndpoint);
         LOG.debug("Add new configuration party: " + newConfigurationParty.getName());
-        getConfiguration().getBusinessProcesses().getParties().add(newConfigurationParty);
+        getConfiguration().getBusinessProcesses().addParty(newConfigurationParty);
 
         return newConfigurationParty;
     }

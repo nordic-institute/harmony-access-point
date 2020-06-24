@@ -2,6 +2,7 @@ package eu.domibus.messaging;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public class MessageConstants {
 
@@ -18,6 +19,13 @@ public class MessageConstants {
     public static final String ERROR_DETAIL = "errorDetail";
     public static final String RETRY_COUNT = "RETRY_COUNT";
     public static final String FILE_NAME = "FILE_NAME";
+    public static final String STATUS_FROM = "fromStatus";
+    public static final String STATUS_TO = "toStatus";
+    public static final String CHANGE_TIMESTAMP = "changeTimestamp";
+    public static final String SERVICE = "service";
+    public static final String SERVICE_TYPE = "serviceType";
+    public static final String ACTION = "action";
+
 
     /**
      * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer

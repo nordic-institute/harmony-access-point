@@ -25,8 +25,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   static readonly ERROR_LOG_URL: string = 'rest/errorlogs';
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
-  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
-
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
   timestampFromMaxDate: Date = new Date();

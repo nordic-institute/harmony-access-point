@@ -4,7 +4,7 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -12,19 +12,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
 @Component
-@Transactional(propagation = Propagation.SUPPORTS)
 public class DefaultDomibusConfigurationService implements DomibusConfigurationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomibusConfigurationService.class);
@@ -38,7 +35,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public String getConfigLocation() {
-        return domibusPropertyProvider.getProperty(DomibusPropertyMetadataManager.DOMIBUS_CONFIG_LOCATION);
+        return domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
     }
 
     @Cacheable("multitenantCache")

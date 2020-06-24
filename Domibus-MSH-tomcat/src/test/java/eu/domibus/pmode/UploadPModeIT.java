@@ -4,10 +4,10 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -36,6 +36,7 @@ import static org.junit.Assert.*;
  * This JUNIT implements the Test cases: UploadPMode - 01, UploadPMode - 02, UploadPMode - 03.
  *
  * @author martifp
+ * @author Catalin Enache
  */
 @DirtiesContext
 @Rollback
@@ -215,6 +216,40 @@ public class UploadPModeIT extends AbstractIT {
     }
 
     /**
+     * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
+     */
+    @Test
+    public void testSavePModeValidationError_MaxSize_Overflow() throws IOException {
+        String pmodeName = "domibus-configuration-maxsize-overflow.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-overflow", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertEquals(0, ex.getIssues().size());
+            assertTrue(ex.getMessage().contains("[DOM_003]:Failed to upload the PMode file due to: NumberFormatException: For input string: \"40894464534632746754875696\""));
+        }
+    }    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
+     */
+    @Test
+    public void testSavePModeValidationError_MaxSize_Negative() throws IOException {
+        String pmodeName = "domibus-configuration-maxsize-negative.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-negative", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertEquals(1, ex.getIssues().size());
+            assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-4089446453400] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 9223372036854775807"));
+        }
+    }
+
+
+
+    /**
      * Tests that a PMODE can be serialized/deserialized properly.
      */
     @Test
@@ -230,4 +265,22 @@ public class UploadPModeIT extends AbstractIT {
 
         pModeProvider.serializePModeConfiguration(configuration);
     }
+
+
+    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error for duplicate party identifier.
+     */
+    @Test
+    public void testUploadPmodeDuplicateIdentifier() throws IOException {
+        String pmodeName = "domibus-pmode-identifier-validation-blue.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-identifier-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
+        }
+    }
+
 }

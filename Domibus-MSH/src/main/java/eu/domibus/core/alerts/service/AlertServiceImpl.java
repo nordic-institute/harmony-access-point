@@ -3,6 +3,8 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -22,12 +24,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
+import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 
 /**
  * @author Thomas Dussart
@@ -68,10 +71,13 @@ public class AlertServiceImpl implements AlertService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    private CommonConfigurationManager alertConfigurationManager;
 
     /**
      * {@inheritDoc}
@@ -79,18 +85,29 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        final Event eventEntity = eventDao.read(event.getEntityId());
+        final Event eventEntity = readEvent(event);
+        final AlertType alertType = AlertType.getByEventType(event.getType());
+
+        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
+        if (!config.isActive()) {
+            LOG.debug("Alerts of type [{}] are currently disabled", alertType);
+            return null;
+        }
+        final AlertLevel alertLevel = config.getAlertLevel(event);
+        if (alertLevel == null) {
+            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
+            return null;
+        }
+
         Alert alert = new Alert();
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.getByEventType(event.getType()));
+        alert.setAlertType(alertType);
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
+        final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
-
-        final eu.domibus.core.alerts.model.service.Alert convertedAlert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
-        final AlertLevel alertLevel = multiDomainAlertConfigurationService.getAlertLevel(convertedAlert);
         alert.setAlertLevel(alertLevel);
         LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
@@ -102,6 +119,10 @@ public class AlertServiceImpl implements AlertService {
      */
     @Override
     public void enqueueAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+        if (alert == null) {
+            LOG.debug("Alert not enqueued");
+            return;
+        }
         jmsManager.convertAndSendToQueue(alert, alertMessageQueue, ALERT_SELECTOR);
     }
 
@@ -111,21 +132,21 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MailModel getMailModelForAlert(eu.domibus.core.alerts.model.service.Alert alert) {
-        final Alert read = alertDao.read(alert.getEntityId());
-        read.setReportingTime(new Date());
+        final Alert alertEntity = readAlert(alert);
+        alertEntity.setReportingTime(new Date());
         Map<String, String> mailModel = new HashMap<>();
-        final Event next = read.getEvents().iterator().next();
+        final Event next = alertEntity.getEvents().iterator().next();
         next.getProperties().forEach((key, value) -> mailModel.put(key, value.getValue().toString()));
-        mailModel.put(ALERT_LEVEL, read.getAlertLevel().name());
-        mailModel.put(REPORTING_TIME, read.getReportingTime().toString());
+        mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
+        mailModel.put(REPORTING_TIME, alertEntity.getReportingTime().toString());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
-        final AlertType alertType = read.getAlertType();
-        String subject = multiDomainAlertConfigurationService.getMailSubject(alertType);
+        final AlertType alertType = alertEntity.getAlertType();
+        String subject = alertConfigurationService.getMailSubject(alertType);
 
-        final String alertSuperInstanceNameSubjectProperty = multiDomainAlertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
+        final String alertSuperInstanceNameSubjectProperty = DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;;
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
         subject += "[" + serverName + "]";
@@ -139,7 +160,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleAlertStatus(eu.domibus.core.alerts.model.service.Alert alert) {
-        final Alert alertEntity = alertDao.read(alert.getEntityId());
+        final Alert alertEntity = readAlert(alert);
         if (alertEntity == null) {
             LOG.error("Alert[{}]: not found", alert.getEntityId());
             return;
@@ -157,7 +178,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
+            final String alertRetryTimePropertyName = DOMIBUS_ALERT_RETRY_TIME;
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
@@ -219,7 +240,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void cleanAlerts() {
-        final Integer alertLifeTimeInDays = multiDomainAlertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+        final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
@@ -248,4 +269,31 @@ public class AlertServiceImpl implements AlertService {
         enqueueAlert(convert);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void deleteAlerts(List<eu.domibus.core.alerts.model.service.Alert> alerts) {
+        LOG.info("Deleting alerts: {}", alerts);
+
+        alerts.stream()
+            .map(alert -> readAlert(alert))
+            .filter(Objects::nonNull)
+            .forEach(alert -> deleteAlert(alert));
+    }
+
+    private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {
+        return eventDao.read(event.getEntityId());
+    }
+
+    private Alert readAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+        return alertDao.read(alert.getEntityId());
+    }
+
+    private void deleteAlert(Alert alert) {
+        LOG.debug("Deleting alert by first detaching it from its events: [{}]", alert);
+        alert.getEvents().forEach(event -> event.removeAlert(alert));
+        alertDao.delete(alert);
+    }
 }

@@ -38,6 +38,7 @@ export class UserComponent extends mix(BaseListComponent)
   @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
   @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
 
   userRoles: Array<String>;
   domains: Domain[];
@@ -109,6 +110,13 @@ export class UserComponent extends mix(BaseListComponent)
         name: 'Deleted',
         canAutoResize: true,
         width: 25,
+        showInitially: false
+      },
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Expiration Date',
+        prop: 'expirationDate',
+        canAutoResize: true,
         showInitially: true
       },
       {
@@ -118,7 +126,7 @@ export class UserComponent extends mix(BaseListComponent)
         canAutoResize: true,
         sortable: false,
         showInitially: true
-      }
+      },
     ];
 
     const showDomain = await this.userService.isDomainVisible();
@@ -213,7 +221,7 @@ export class UserComponent extends mix(BaseListComponent)
 
     this.setPage(this.getLastPage());
 
-    this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
+    this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false, null);
     this.setIsDirty();
     this.dialog.open(EditUserComponent, {
       data: {

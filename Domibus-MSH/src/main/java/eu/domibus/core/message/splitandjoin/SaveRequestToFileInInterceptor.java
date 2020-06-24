@@ -54,7 +54,6 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
     protected DomainService domainService;
 
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleMessage(Message message) throws Fault {
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
@@ -66,6 +65,7 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         LOG.putMDC(Message.CONTENT_TYPE, contentType);
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domainCode);
+        domainContextProvider.setCurrentDomain(domainCode);
 
         final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {

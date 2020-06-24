@@ -1,16 +1,16 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
@@ -57,13 +57,18 @@ public class FileSystemPayloadPersistenceTest {
     FileSystemPayloadPersistence fileSystemPayloadPersistence;
 
     @Test
-    public void storeIncomingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable PayloadFileStorage currentStorage) throws IOException {
+    public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable PayloadFileStorage currentStorage,
+                                         @Injectable LegConfiguration legConfiguration) throws IOException {
 
         new Expectations(fileSystemPayloadPersistence) {{
+
             partInfo.getFileName();
             result = null;
+
+            partInfo.getLength();
+            result = 4;
 
             storageProvider.getCurrentStorage();
             result = currentStorage;
@@ -74,10 +79,12 @@ public class FileSystemPayloadPersistenceTest {
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
         }};
 
-        fileSystemPayloadPersistence.storeIncomingPayload(partInfo, userMessage);
+        fileSystemPayloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
-        new Verifications() {{
+        new FullVerifications(fileSystemPayloadPersistence) {{
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
+
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, anyLong);
         }};
     }
 
@@ -113,11 +120,11 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
-    public void storeOutgoingPayload(@Injectable PartInfo partInfo,
-                                     @Injectable UserMessage userMessage,
-                                     @Injectable PayloadFileStorage currentStorage,
-                                     @Injectable LegConfiguration legConfiguration,
-                                     @Injectable String backendName) throws IOException, EbMS3Exception {
+    public void testStoreOutgoingPayload(@Injectable PartInfo partInfo,
+                                         @Injectable UserMessage userMessage,
+                                         @Injectable PayloadFileStorage currentStorage,
+                                         @Injectable LegConfiguration legConfiguration,
+                                         @Injectable String backendName) throws IOException, EbMS3Exception {
 
         new Expectations(fileSystemPayloadPersistence) {{
             userMessage.isUserMessageFragment();
@@ -130,17 +137,21 @@ public class FileSystemPayloadPersistenceTest {
         }};
 
         fileSystemPayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
+
+        new Verifications() {{
+            fileSystemPayloadPersistence.saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
+        }};
     }
 
     @Test
-    public void saveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
-                                          @Injectable UserMessage userMessage,
-                                          @Injectable PayloadFileStorage currentStorage,
-                                          @Injectable LegConfiguration legConfiguration,
-                                          @Injectable String backendName,
-                                          @Injectable InputStream inputStream,
-                                          @Mocked File file,
-                                          @Mocked UUID uuid
+    public void testSaveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
+                                              @Injectable UserMessage userMessage,
+                                              @Injectable PayloadFileStorage currentStorage,
+                                              @Injectable LegConfiguration legConfiguration,
+                                              @Injectable String backendName,
+                                              @Injectable InputStream inputStream,
+                                              @Mocked File file,
+                                              @Mocked UUID uuid
     ) throws IOException, EbMS3Exception {
 
         final String myfile = "myfile";

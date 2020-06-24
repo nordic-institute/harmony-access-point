@@ -2,6 +2,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
 import {PartyResponseRo} from '../../party/support/party';
+import {PropertiesService, PropertyModel} from '../../properties/support/properties.service';
 
 /**
  * @Author Dussart Thomas
@@ -16,10 +17,8 @@ export class ConnectionsMonitorService {
   static readonly TEST_SERVICE_SENDER_URL: string = 'rest/testservice/sender';
   static readonly CONNECTION_MONITOR_URL: string = 'rest/testservice/connectionmonitor';
   static readonly TEST_SERVICE_URL: string = 'rest/testservice';
-  static readonly PROPERTIES_SERVICE_URL: string = 'rest/configuration/properties';
 
-  constructor(private http: HttpClient, private alertService: AlertService) {
-
+  constructor(private http: HttpClient, private alertService: AlertService, private propertiesService: PropertiesService) {
   }
 
   async getMonitors(): Promise<ConnectionMonitorEntry[]> {
@@ -38,11 +37,15 @@ export class ConnectionsMonitorService {
     let monitors = await this.getMonitorsForParties(parties);
     console.log('monitors ', monitors);
 
-    return allParties.map(p => {
-      let m: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      m.partyId = p.identifiers[0].partyId;
-      Object.assign(m, monitors[m.partyId]);
-      return m;
+    return allParties.map(party => {
+      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+      let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+      cmEntry.partyId = allIdentifiers[0].partyId;
+      cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
+
+      let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
+      Object.assign(cmEntry, monitors[monitorKey]);
+      return cmEntry;
     });
   }
 
@@ -67,28 +70,39 @@ export class ConnectionsMonitorService {
     console.log('sending test message to ', receiverPartyId);
 
     if (!sender) {
-      sender = await this.getSenderParty();
-      // TODO: exception handling
+      try {
+        sender = await this.getSenderParty();
+      } catch (ex) {
+        this.alertService.exception('Error getting the sender party:', ex);
+        return;
+      }
     }
     const payload = {sender: sender, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
   }
 
   async setMonitorState(partyId: string, enabled: boolean) {
-    let propName = 'domibus.monitoring.connection.party.enabled';
-    let url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '?name=' + propName + '&showDomain=true';
-    let r = (await this.http.get<any>(url).toPromise()).items[0].value; // TODO
-    let enabledParties = r.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
-    if (enabled) enabledParties += ',' + partyId;
+    try {
+      let propName = 'domibus.monitoring.connection.party.enabled';
+      let prop: PropertyModel = await this.propertiesService.getProperty(propName);
 
-    url = ConnectionsMonitorService.PROPERTIES_SERVICE_URL + '/' + propName;
-    return await this.http.put(url, enabledParties || " ").toPromise();
+      let enabledParties = prop.value.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
+      if (enabled) {
+        enabledParties += ',' + partyId;
+      }
+
+      prop.value = enabledParties || ' ';
+      this.propertiesService.updateProperty(prop);
+    } catch (e) {
+      this.alertService.exception('Error while setting monitring state:', e);
+    }
   }
 
 }
 
 export class ConnectionMonitorEntry {
   partyId: string;
+  partyName?: string;
   testable: boolean;
   monitored: boolean;
   status: string;

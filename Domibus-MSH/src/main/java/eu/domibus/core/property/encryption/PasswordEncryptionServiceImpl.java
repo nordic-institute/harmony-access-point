@@ -1,9 +1,9 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
@@ -19,8 +19,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
@@ -32,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @author Cosmin Baciu
@@ -134,11 +134,11 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Override
     public boolean isValueEncrypted(final String propertyValue) {
-        if (StringUtils.isBlank(propertyValue)) {
+        if (isBlank(propertyValue)) {
             return false;
         }
 
-        return StringUtils.trim(propertyValue).startsWith(ENC_START);
+        return trim(propertyValue).startsWith(ENC_START);
     }
 
 
@@ -185,7 +185,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = DomibusEncryptionException.class)
     @Override
     public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
@@ -273,12 +272,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected String replaceLine(List<PasswordEncryptionResult> encryptedProperties, String line) {
-        if (StringUtils.startsWith(line, LINE_COMMENT_PREFIX) || StringUtils.containsNone(line, PROPERTY_VALUE_DELIMITER)) {
+        if (startsWith(line, LINE_COMMENT_PREFIX) || containsNone(line, PROPERTY_VALUE_DELIMITER)) {
             return line;
         }
-        final String[] strings = line.split(PROPERTY_VALUE_DELIMITER);
-        final String filePropertyName = StringUtils.trim(strings[0]);
-        if (strings.length != 2) {
+        String filePropertyName = trim(substringBefore(line, PROPERTY_VALUE_DELIMITER));
+
+        if (isBlank(substringAfter(line, PROPERTY_VALUE_DELIMITER))) {
             LOG.trace("Property [{}] is empty", filePropertyName);
             return line;
         }

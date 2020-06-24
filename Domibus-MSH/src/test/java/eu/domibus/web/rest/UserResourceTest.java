@@ -93,7 +93,7 @@ public class UserResourceTest {
         }};
 
         // When
-        List<UserResponseRO> userResponseROS = userResource.users();
+        List<UserResponseRO> userResponseROS = userResource.getUsers();
         userResource.updateUsers(userResponseROS);
 
         // Then
@@ -156,7 +156,7 @@ public class UserResourceTest {
         userResponseRO.setAuthorities(roles);
         usersResponseROList.add(userResponseRO);
         new Expectations(userResource) {{
-            userResource.users();
+            userResource.getUsers();
             result = usersResponseROList;
             csvServiceImpl.exportToCSV(usersResponseROList, UserResponseRO.class, (Map<String, String>) any, (List<String>) any);
             result = "Username, Email, Active, Roles" + System.lineSeparator() +
@@ -171,6 +171,5 @@ public class UserResourceTest {
         Assert.assertEquals("Username, Email, Active, Roles" + System.lineSeparator() +
                 "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator(), csv.getBody());
     }
-
 
 }

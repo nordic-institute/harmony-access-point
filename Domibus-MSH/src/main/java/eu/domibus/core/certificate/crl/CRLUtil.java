@@ -59,7 +59,6 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    @Transactional(noRollbackFor = DomibusCRLException.class, propagation = Propagation.SUPPORTS)
     public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);

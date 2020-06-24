@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Thomas Dussart
@@ -16,8 +16,10 @@ public enum AlertType {
     CERT_EXPIRED("cert_expired.ftl"),
     USER_LOGIN_FAILURE("login_failure.ftl"),
     USER_ACCOUNT_DISABLED("account_disabled.ftl"),
+    USER_ACCOUNT_ENABLED("account_enabled.ftl"),
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
+    PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
     PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Password imminent expiration"),
     PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, "Password expired"),
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),

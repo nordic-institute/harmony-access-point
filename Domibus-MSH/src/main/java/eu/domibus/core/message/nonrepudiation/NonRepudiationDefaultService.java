@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
 
 /**
  * @author Cosmin Baciu

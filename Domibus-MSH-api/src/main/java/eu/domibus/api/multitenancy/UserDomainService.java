@@ -19,6 +19,4 @@ public interface UserDomainService {
     void setPreferredDomainForUser(String user, String domainCode);
 
     void deleteDomainForUser(String user);
-
-    List<User> getSuperUsers();
 }
