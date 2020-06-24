@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
@@ -10,7 +11,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Soumya Chandran
@@ -34,11 +38,14 @@ public class PartyIdentifierValidator implements PModeValidator {
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
         List<ValidationIssue> issues = new ArrayList<>();
-
-        pMode.getBusinessProcesses().getParties().forEach(party -> {
+        List<Party> allParties = pMode.getBusinessProcesses().getParties();
+        allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
         });
 
+        allParties.forEach(party -> {
+            issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
+        });
         return issues;
     }
 
@@ -50,13 +57,42 @@ public class PartyIdentifierValidator implements PModeValidator {
      */
     protected List<ValidationIssue> validateDuplicatePartyIdentifiers(Party party) {
         List<ValidationIssue> issues = new ArrayList<>();
-        party.getIdentifiers().forEach(identifier -> {
-            long duplicateIdentifiersCount = party.getIdentifiers().stream().filter(identifier1 -> identifier1.equals(identifier)).count();
-            if (duplicateIdentifiersCount > 1) {
+
+        Set<Identifier> identifierSet = new HashSet<>();
+        List<Identifier> duplicateIdentifiers = party.getIdentifiers().stream()
+                .filter(identifier -> !identifierSet.add(identifier)) // Set.add() returns false if the element was already in the set.
+                .collect(Collectors.toList());
+
+
+        if (!duplicateIdentifiers.isEmpty()) {
+            duplicateIdentifiers.forEach(identifier -> {
                 issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found for the party [%s]"));
-            }
+            });
+
+        }
+        return issues;
+    }
+
+
+    /**
+     * check the duplicate identifiers in all the parties
+     *
+     * @param allParties list of all parties
+     * @return list of ValidationIssue
+     */
+    protected List<ValidationIssue> validateDuplicateIdentifiersInAllParties(Party party, List<Party> allParties) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        Set<Identifier> identifierSet = new HashSet<>(party.getIdentifiers());
+        allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party2 -> {
+            List<Identifier> duplicateIdentifiers = identifierSet.stream().filter(identifier -> party2.getIdentifiers().contains(identifier)).collect(Collectors.toList());
+
+            duplicateIdentifiers.forEach(identifier2 -> {
+                issues.add(createIssue(identifier2.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party2.getName() + "]"));
+            });
+
         });
         return issues;
+
     }
 
     /**

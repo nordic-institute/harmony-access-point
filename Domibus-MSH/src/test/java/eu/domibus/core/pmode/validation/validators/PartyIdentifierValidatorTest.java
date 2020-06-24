@@ -88,4 +88,41 @@ public class PartyIdentifierValidatorTest {
         }};
     }
 
+    @Test
+    public void testvalidateDuplicateIdentifiersInAllParties(@Injectable Party party, @Injectable Identifier identifier) {
+
+        List<Identifier> identifiers = new ArrayList<>();
+        List<Identifier> identifiers1 = new ArrayList<>();
+        List<Party> allParties = new ArrayList<>();
+        Identifier identifier1 = new Identifier();
+        Identifier identifier2 = new Identifier();
+        PartyIdType partyIdType1 = new PartyIdType();
+        String message = "Duplicate party identifier [%s] found in party [%s] and in party [red_gw]";
+        partyIdType1.setName("partyIdTypeUrn");
+
+        identifier1.setPartyId("domibus-blue");
+        identifier1.setPartyIdType(partyIdType1);
+        identifiers.add(identifier1);
+
+        identifier2.setPartyId("domibus-blue");
+        identifier2.setPartyIdType(partyIdType1);
+        identifiers1.add(identifier2);
+
+        Party party1 = new Party();
+        Party party2 = new Party();
+        party1.setName("blue_gw");
+        party1.setIdentifiers(identifiers);
+        party2.setName("red_gw");
+        party2.setIdentifiers(identifiers1);
+        allParties.add(party1);
+        allParties.add(party2);
+
+        //tested method
+        partyIdentifierValidator.validateDuplicateIdentifiersInAllParties(party1, allParties);
+
+        new FullVerifications(partyIdentifierValidator) {{
+            partyIdentifierValidator.createIssue(identifier1.getPartyId(), party1.getName(), message);
+        }};
+    }
+
 }
