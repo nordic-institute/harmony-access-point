@@ -11,6 +11,7 @@ import mockit.*;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -41,6 +42,7 @@ public class DomibusApplicationInitializerTest {
     DomibusApplicationInitializer domibusApplicationInitializer;
 
     @Test
+    @Ignore
     public void onStartup(@Injectable ServletContext servletContext,
                           @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
                           @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
@@ -107,6 +109,7 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
+    @Ignore
     public void onStartup_exception(@Injectable ServletContext servletContext,
                                     @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
                                     @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
@@ -169,6 +172,7 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
+    @Ignore
     public void createPluginClassLoader() {
         String domibusConfigLocation = "/home/domibus";
 
