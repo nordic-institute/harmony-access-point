@@ -117,7 +117,7 @@ def is_false_alert(alert):
     for false_alert in false_alerts:
         for key in false_alert:
             if key not in alert or false_alert[key] != alert[key]:
-                log.info("not a flase alert" + alert)
+                log.info("not a flase alert" + str(alert))
                 return False
     log.info("this false alert will be deleted from the session")
     return True
