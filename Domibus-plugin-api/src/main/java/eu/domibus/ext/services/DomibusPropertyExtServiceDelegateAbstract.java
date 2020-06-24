@@ -14,7 +14,7 @@ import java.util.Map;
  * @since 4.2
  * <p>
  * Abstract class that implements DomibusPropertyManagerExt and delegates its methods to DomibusPropertyExtService
- * Used to derive external property managers that delegate to Domibus property manager. Ex: JmsPluginProperyManager, DSS PropertyManager
+ * Used to derive external property managers that delegate to Domibus property manager. Ex: JmsPluginPropertyManager, DSS PropertyManager
  */
 public abstract class DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
@@ -34,7 +34,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
         DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
         if (!propMeta.isStoredGlobally()) {
-            LOG.debug("Property [{}] is not stored globally so null was returned.", propertyName);
+            LOG.warn("Property [{}] is not stored globally so null was returned.", propertyName);
             return null;
         }
 
