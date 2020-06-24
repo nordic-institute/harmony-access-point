@@ -73,7 +73,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     @Override
     public DomibusProperty getProperty(String propertyName) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        DomibusProperty prop = createProperty(propertyMetadata);
+        DomibusProperty prop = getValueAndCreateProperty(propertyMetadata);
         return prop;
     }
 
@@ -81,16 +81,34 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadata propMeta : properties) {
-            DomibusProperty prop = createProperty(propMeta);
+            DomibusProperty prop = getValueAndCreateProperty(propMeta);
             list.add(prop);
         }
 
         return list;
     }
 
-    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta) {
-        String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
+    protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
+        String propertyValue = getPropertyValue(propMeta);
+        return createProperty(propMeta, propertyValue);
+    }
 
+    protected String getPropertyValue(DomibusPropertyMetadata propMeta) {
+        if (propMeta.isDomain()) {
+            String name = propMeta.getName();
+            LOG.debug("Getting the value for the domain property [{}].", name);
+            return domibusPropertyProvider.getProperty(name);
+        }
+
+        // for non-domain properties, we get the value in the null-domain context:
+        return domainTaskExecutor.submit(() -> {
+            String name = propMeta.getName();
+            LOG.debug("Getting the value for the global/super property [{}].", name);
+            return domibusPropertyProvider.getProperty(name);
+        });
+    }
+
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue) {
         DomibusProperty prop = new DomibusProperty();
         prop.setMetadata(propMeta);
         prop.setValue(propertyValue);
