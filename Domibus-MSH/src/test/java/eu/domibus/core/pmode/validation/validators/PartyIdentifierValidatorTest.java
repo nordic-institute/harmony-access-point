@@ -83,6 +83,7 @@ public class PartyIdentifierValidatorTest {
 
         allParties.add(party1);
         allParties.add(party2);
+
         new Expectations(partyIdentifierValidator) {{
             party1.getName();
             result = "blue_gw";
