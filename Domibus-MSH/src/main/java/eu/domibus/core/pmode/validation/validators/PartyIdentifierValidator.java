@@ -58,7 +58,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         Set<Identifier> duplicateIdentifiers = party.getIdentifiers().stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
-                .filter(identifier -> identifier.getValue() > 1)
+                .filter(map -> map.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
 
