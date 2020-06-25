@@ -141,15 +141,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
+        } finally {
+            if (inMessageTimer != null) {
+                inMessageTimer.stop();
+            }
+            if (inMessageCounter != null) {
+                inMessageCounter.dec();
+            }
         }
-     finally {
-        if (inMessageTimer != null) {
-            inMessageTimer.stop();
-        }
-        if (inMessageCounter != null) {
-            inMessageCounter.dec();
-        }
-    }
     }
 
     protected String getWrongMessageTypeErrorMessage(String messageID, String jmsCorrelationID, String messageType) {
@@ -172,10 +171,17 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         deliverMessageCounter.inc();
         try {
             LOG.debug("Delivering message [{}]", messageId);
-
+            Timer.Context getJmsQueue = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_getJmsQueue")).time();
             final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+            getJmsQueue.stop();
+
             LOG.info("Sending message to queue [{}]", queueValue);
-            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            Timer.Context downloadMessageCreator = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_downloadMessageCreator")).time();
+            DownloadMessageCreator messageCreator = new DownloadMessageCreator(messageId);
+            downloadMessageCreator.stop();
+            Timer.Context sendMessage = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_sendMessage")).time();
+            mshToBackendTemplate.send(queueValue, messageCreator);
+            sendMessage.stop();
         } finally {
             if (deliverMessageTimer != null) {
                 deliverMessageTimer.stop();

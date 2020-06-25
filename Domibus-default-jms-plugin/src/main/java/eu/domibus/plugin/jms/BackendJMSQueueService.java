@@ -1,5 +1,7 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
@@ -30,14 +32,18 @@ public class BackendJMSQueueService {
 
     protected MessageRetriever messageRetriever;
 
+    private MetricRegistry metricRegistry;
+
     public BackendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                   DomainContextExtService domainContextExtService,
                                   JmsPluginPropertyManager jmsPluginPropertyManager,
-                                  MessageRetriever messageRetriever) {
+                                  MessageRetriever messageRetriever,
+                                  MetricRegistry metricRegistry) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
         this.jmsPluginPropertyManager = jmsPluginPropertyManager;
         this.messageRetriever = messageRetriever;
+        this.metricRegistry=metricRegistry;
     }
 
     /**
@@ -50,14 +56,21 @@ public class BackendJMSQueueService {
      * @return the default or the routing queue
      */
     public String getJMSQueue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
+        Timer.Context getJmsQueue = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "getJMSQueue.getSubmission")).time();
         Submission submission;
         try {
             submission = messageRetriever.browseMessage(messageId);
         } catch (MessageNotFoundException e) {
             throw new DefaultJmsPluginException("Could not find message with id [" + messageId + "]", e);
         }
+        getJmsQueue.stop();
+        Timer.Context queueContextTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "getJMSQueue.createQueueContext")).time();
         QueueContext queueContext = new QueueContext(messageId, submission.getService(), submission.getAction());
-        return getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+        queueContextTimer.stop();
+        Timer.Context getJMSQueueTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "getJMSQueue.getJMSQueue")).time();
+        String jmsQueue = getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+        getJMSQueueTimer.stop();
+        return jmsQueue;
     }
 
     /**

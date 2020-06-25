@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -22,7 +23,8 @@ public class BackendJMSConfiguration {
     public BackendJMSQueueService backendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                                          DomainContextExtService domainContextExtService,
                                                          JmsPluginPropertyManager jmsPluginPropertyManager,
-                                                         MessageRetriever messageRetriever) {
-        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, jmsPluginPropertyManager, messageRetriever);
+                                                         MessageRetriever messageRetriever,
+                                                         MetricRegistry metricRegistry) {
+        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, jmsPluginPropertyManager, messageRetriever,metricRegistry);
     }
 }

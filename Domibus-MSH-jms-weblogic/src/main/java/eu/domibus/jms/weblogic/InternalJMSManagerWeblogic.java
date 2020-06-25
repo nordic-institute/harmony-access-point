@@ -1,5 +1,6 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -119,6 +120,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private JmsDestinationCache jmsDestinationCache;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     /**
      * {@inheritDoc}
@@ -428,7 +432,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "sendMessage_with_destination")).time();
         sendMessage(message, destination, jmsSender);
+        messageSendSuccess.stop();
     }
 
     @Override
