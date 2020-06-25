@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,7 +26,6 @@ public class PluginClassLoaderTest {
     File pluginsDir;
 
     @Test
-    @Ignore
     public void testDiscoverPlugins() throws Exception {
         final File plugin1JarFile = new File("c:/plugin1.jar");
         final File plugin2JarFile = new File("c:/plugin2.jar");
