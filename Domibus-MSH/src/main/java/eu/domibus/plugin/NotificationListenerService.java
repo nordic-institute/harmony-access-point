@@ -316,6 +316,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
 
+        LOG.debug("Configuring JmsListeners for mode [{}]", this.mode);
         if (this.mode == BackendConnector.Mode.PUSH) {
             final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
             endpoint.setId(getBackendName());
