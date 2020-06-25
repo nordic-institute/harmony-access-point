@@ -10,23 +10,20 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class JMSMoveMessageModal extends EditModal {
+	@FindBy(id = "messageDialogResendButton")
+	protected WebElement okBtn;
+	@FindBy(id = "messageDialogCancelButton")
+	protected WebElement cancelBtn;
+	@FindBy(id = "jmsqueuedestination_id")
+	protected WebElement queueSelect;
+
 	public JMSMoveMessageModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(id = "messageDialogResendButton")
-	protected WebElement okBtn;
-
-	@FindBy(id = "messageDialogCancelButton")
-	protected WebElement cancelBtn;
-
-	@FindBy(id = "jmsqueuedestination_id")
-	protected WebElement queueSelect;
 
 	public JMSSelect getQueueSelect() {
 		return new JMSSelect(driver, queueSelect);
@@ -38,7 +35,8 @@ public class JMSMoveMessageModal extends EditModal {
 	}
 
 	@Override
-	public DButton getCancelBtn() {	return new DButton(driver, cancelBtn);
+	public DButton getCancelBtn() {
+		return new DButton(driver, cancelBtn);
 	}
 
 

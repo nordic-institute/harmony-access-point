@@ -8,37 +8,32 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class JMSMonitoringPage extends DomibusPage {
+	@FindBy(css = "#pageGridId")
+	public WebElement messagesTableGrid;
+	@FindBy(css = "#cancelButtonId")
+	public WebElement cancelButton;
+	@FindBy(css = "#saveButtonId")
+	public WebElement saveButton;
+	@FindBy(css = "#jmsMoveButton")
+	public WebElement moveButton;
+	@FindBy(css = "#deleteButtonId")
+	public WebElement deleteButton;
+
 	public JMSMonitoringPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "#pageGridId")
-	public WebElement messagesTableGrid;
-
-	@FindBy(css = "#cancelButtonId")
-	public WebElement cancelButton;
-
-	@FindBy(css = "#saveButtonId")
-	public WebElement saveButton;
-
-	@FindBy(css = "#jmsMoveButton")
-	public WebElement moveButton;
-
-	@FindBy(css = "#deleteButtonId")
-	public WebElement deleteButton;
-
 	public DGrid grid() {
 		return new DGrid(driver, messagesTableGrid);
 	}
+
 	public JMSFilters filters() {
 		return new JMSFilters(driver);
 	}
@@ -59,7 +54,7 @@ public class JMSMonitoringPage extends DomibusPage {
 		return new DButton(driver, deleteButton);
 	}
 
-	public boolean isLoaded() throws Exception{
+	public boolean isLoaded() throws Exception {
 		return (grid().isPresent()
 				&& filters().isLoaded()
 				&& getCancelButton().isPresent()

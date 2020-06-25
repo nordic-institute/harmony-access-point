@@ -1,13 +1,10 @@
 package pages.plugin_users;
 
 import ddsl.dcomponents.grid.DGrid;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
-import java.awt.*;
 import java.awt.event.InputEvent;
 
 /**
@@ -15,14 +12,13 @@ import java.awt.event.InputEvent;
  * @since 4.1
  */
 public class PluginUserGrid extends DGrid {
+	WebElement container;
+	private int mask = InputEvent.BUTTON1_DOWN_MASK;
+
 	public PluginUserGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
 		this.container = container;
 	}
-
-	private int mask = InputEvent.BUTTON1_DOWN_MASK;
-
-	WebElement container;
 
 	@Override
 	public void doubleClickRow(int rowNumber) throws Exception {

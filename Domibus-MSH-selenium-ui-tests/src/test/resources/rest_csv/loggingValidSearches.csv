@@ -1,0 +1,6 @@
+loggerName, showClasses, orderBy, asc, page, pageSize
+eu.domibus.api, TRUE, name, TRUE, 0, 10
+eu.domibus, FALSE, loggerLevel, FALSE, 0, 25
+eu.domibus.api.property.validators, TRUE, name, TRUE, 0, 50
+receiver, FALSE, loggerLevel, FALSE, 0, 100
+ebms3, TRUE, name, TRUE, 0, 100

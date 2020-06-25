@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -18,24 +17,23 @@ import utils.TestRunData;
 @SuppressWarnings("SpellCheckingInspection")
 public class AlertArea extends DComponent {
 
+	@FindBy(id = "alertmessage_id")
+	public WebElement alertMessage;
+	@FindBy(css = "#alertmessage_id span")
+	public WebElement closeButton;
+	@FindBy(tagName = "snack-bar-container")
+	public WebElement alertContainer;
+
 	public AlertArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "alertmessage_id")
-	public WebElement alertMessage;
-
-	@FindBy(css = "#alertmessage_id span")
-	public WebElement closeButton;
-
-	@FindBy(tagName = "snack-bar-container")
-	public WebElement alertContainer;
-
-	public String getAlertMessage(){
+	public String getAlertMessage() {
 		try {
 			wait.forElementToBeVisible(alertMessage, true);
-		} catch (Exception e) {		}
+		} catch (Exception e) {
+		}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (!alertObject.isPresent()) {
@@ -54,7 +52,8 @@ public class AlertArea extends DComponent {
 	public boolean isError() throws Exception {
 		try {
 			wait.forElementToBeVisible(alertContainer, true);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 
 		DObject alertObject = new DObject(driver, alertContainer);
 

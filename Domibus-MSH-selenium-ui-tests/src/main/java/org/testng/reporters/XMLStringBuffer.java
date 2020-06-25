@@ -22,22 +22,21 @@ public class XMLStringBuffer {
 	 * Tab space indent for XML document
 	 */
 	private static final String DEFAULT_INDENT_INCREMENT = "  ";
-
-	/**
-	 * The buffer to hold the xml document
-	 */
-	private IBuffer m_buffer;
-
+	private static final Pattern INVALID_XML_CHARS =
+			Pattern.compile(
+					"[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD\uD800\uDC00-\uDBFF\uDFFF]");
 	/**
 	 * The stack of tags to make sure XML document is well formed.
 	 */
 	private final Stack<Tag> m_tagStack = new Stack<Tag>();
-
+	/**
+	 * The buffer to hold the xml document
+	 */
+	private IBuffer m_buffer;
 	/**
 	 * A string of space character representing the current indentation.
 	 */
 	private String m_currentIndent = "";
-
 	private String defaultComment = null;
 
 	public XMLStringBuffer() {
@@ -346,7 +345,7 @@ public class XMLStringBuffer {
 
 		if (null != steps && steps.length > 0) {
 			String addedContent = String.join("\n", steps);
-			content = addedContent +"\n\n"+ content;
+			content = addedContent + "\n\n" + content;
 		}
 		addCDATA(content);
 	}
@@ -357,10 +356,6 @@ public class XMLStringBuffer {
 	public IBuffer getStringBuffer() {
 		return m_buffer;
 	}
-
-	private static final Pattern INVALID_XML_CHARS =
-			Pattern.compile(
-					"[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD\uD800\uDC00-\uDBFF\uDFFF]");
 
 	/**
 	 * @return The String representation of the XML for this XMLStringBuffer.

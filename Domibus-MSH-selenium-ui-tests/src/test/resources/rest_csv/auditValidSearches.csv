@@ -1,0 +1,8 @@
+auditTargetName, user, action, pageSize, max
+Jms message, <FILL>, Created, 10, 10
+Message, <FILL>, Modified, 25, 25
+Message filter, <FILL>, Deleted, 50, 10
+PluginUser, <FILL>, Downloaded, 100, 25
+Pmode, <FILL>, Resent, 10, 50
+Pmode Archive, <FILL>, Downloaded, 25, 100
+User, <FILL>, Moved, 50, 10

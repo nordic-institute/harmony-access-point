@@ -7,8 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 
 /**
@@ -19,35 +17,31 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class SandwichMenu extends DComponent {
 
+	@FindBy(id = "settingsmenu_id")
+	WebElement expandButton;
+	@FindBy(id = "settingsmenu_expanded_id")
+	WebElement menuContainer;
+	//	@FindBy(css = "#currentuser_id span")
+//	WebElement currentuser;
+	By currentuser = By.cssSelector("#currentuser_id span");
+	@FindBy(id = "changePassword_id")
+	WebElement changePassLnk;
+	@FindBy(id = "logout_id")
+	WebElement logoutLnk;
+
 	public SandwichMenu(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.debug("sandwich menu init");
 	}
 
-	@FindBy(id = "settingsmenu_id")
-	WebElement expandButton;
-
-	@FindBy(id = "settingsmenu_expanded_id")
-	WebElement menuContainer;
-
-//	@FindBy(css = "#currentuser_id span")
-//	WebElement currentuser;
-	By currentuser = By.cssSelector("#currentuser_id span");
-
-	@FindBy(id = "changePassword_id")
-	WebElement changePassLnk;
-
-	@FindBy(id = "logout_id")
-	WebElement logoutLnk;
-
-
 	private boolean isMenuExpanded() {
 		try {
 			if (weToDobject(menuContainer).isVisible()) {
 				return true;
 			}
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 		return false;
 	}
 
@@ -67,7 +61,8 @@ public class SandwichMenu extends DComponent {
 		String currentUserId = "";
 		try {
 			currentUserId = wait.forElementToBeVisible(driver.findElement(currentuser)).getText().trim();
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 
 		return currentUserId;
 	}
@@ -84,7 +79,8 @@ public class SandwichMenu extends DComponent {
 //			String userIDStr = getCurrentUserID();
 			toReturn = !StringUtils.containsIgnoreCase(weToDobject(menuContainer).getText(), "Not logged in");
 			log.debug("User login status is: " + toReturn);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 
 		contractMenu();
 		return toReturn;

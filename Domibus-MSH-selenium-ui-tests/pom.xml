@@ -28,9 +28,178 @@
 		<jersey-client_version>1.19.4</jersey-client_version>
 		<jersey-multipart_version>1.19.4</jersey-multipart_version>
 		<json_version>20190722</json_version>
+		<jackson_version>2.11.0</jackson_version>
 		<javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
 		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>local_e2</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/myLocalE2.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+							<target>1.8</target>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>selenium_local</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+							<target>1.8</target>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>bamboo-remote</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>bamboo-rest</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<configuration>
+							<failIfNoTests>true</failIfNoTests>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<environmentVariables>
+								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
+								<runBrowser>firefox</runBrowser>
+							</environmentVariables>
+							<properties>
+								<property>
+									<name>usedefaultlisteners</name>
+									<value>true</value>
+								</property>
+							</properties>
+
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<compilerVersion>1.8</compilerVersion>
+						</configuration>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 
@@ -87,7 +256,7 @@
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
-<!--			<version>${reflections_version}</version>-->
+			<!--			<version>${reflections_version}</version>-->
 			<version>0.9.12</version>
 		</dependency>
 
@@ -101,7 +270,7 @@
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-multipart</artifactId>
 			<version>${jersey-multipart_version}</version>
-<!--			<version>1.19.4</version>-->
+			<!--			<version>1.19.4</version>-->
 		</dependency>
 
 		<dependency>
@@ -109,6 +278,21 @@
 			<artifactId>json</artifactId>
 			<version>${json_version}</version>
 		</dependency>
+
+		<!-- *********************************************************************************** -->
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+		<!-- *********************************************************************************** -->
+
 
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
@@ -150,97 +334,5 @@
 			<version>1.6</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
-
-	<profiles>
-		<profile>
-			<id>selenium_local</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>3.0.0-M4</version>
-						<configuration>
-							<failIfNoTests>true</failIfNoTests>
-							<groups>singleTenancy</groups>
-							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
-							</suiteXmlFiles>
-							<environmentVariables>
-								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
-								<runBrowser>chrome</runBrowser>
-							</environmentVariables>
-							<properties>
-								<property>
-									<name>usedefaultlisteners</name>
-									<value>true</value>
-								</property>
-							</properties>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<compilerVersion>1.8</compilerVersion>
-							<target>1.8</target>
-						</configuration>
-
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-
-		<profile>
-			<id>bamboo-remote</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>3.0.0-M4</version>
-						<configuration>
-							<failIfNoTests>true</failIfNoTests>
-							<groups>multiTenancy</groups>
-							<suiteXmlFiles>
-								<suiteXmlFile>testng.xml</suiteXmlFile>
-							</suiteXmlFiles>
-							<environmentVariables>
-								<propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
-								<runBrowser>firefox</runBrowser>
-							</environmentVariables>
-							<properties>
-								<property>
-									<name>usedefaultlisteners</name>
-									<value>true</value>
-								</property>
-							</properties>
-
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<compilerVersion>1.8</compilerVersion>
-						</configuration>
-
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>

@@ -96,6 +96,7 @@ services:
       - shared-status-folder:/opt/oracle/status/
     networks:
       test-network:
+
   httpd:
     depends_on:
       - wls-admin
