@@ -58,6 +58,7 @@ public class ConnectionMonitoringChangeListenerTest {
                 "domibus-red, domibus-blue",
                 "domibus-blue, domibus-blue",
                 " ,, domibus-blue, ",
+                "Domibus-BLUE",
                 "",
                 null
         );

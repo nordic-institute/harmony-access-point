@@ -50,7 +50,7 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
                 throw new DomibusPropertyException("Could not change the list of monitoring parties: "
                         + partyId + " is not configured in Pmode");
             }
-            if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.endsWithIgnoreCase(testablePartyId, partyId))) {
+            if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
                 throw new DomibusPropertyException("Could not change the list of monitoring parties: "
                         + partyId + " is not configured to receive test messages in Pmode");
             }

@@ -3,8 +3,8 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
@@ -64,7 +64,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream().filter(p -> enabledParties.contains(p)).collect(Collectors.toList());
+        List<String> monitoredParties = testableParties.stream()
+                .filter(p -> enabledParties.stream().anyMatch(ep -> ep.equalsIgnoreCase(p))).collect(Collectors.toList());
         for (String party : monitoredParties) {
             try {
                 String testMessageId = testService.submitTest(selfParty, party);
@@ -95,12 +96,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        if (testableParties.contains(partyId)) {
+        if (testableParties.stream().anyMatch(p -> p.equalsIgnoreCase(partyId))) {
             result.setTestable(true);
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (enabledParties.contains(partyId) && result.isTestable()) {
+        if (result.isTestable() && enabledParties.stream().anyMatch(p -> p.equalsIgnoreCase(partyId))) {
             result.setMonitored(true);
         }
 
