@@ -25,7 +25,7 @@ public class JMSFilters extends DomibusPage {
 	WebElement jmsFromDatePicker;
 	@FindBy(css = "#jmsToDatePicker")
 	WebElement jmsToDatePicker;
-	@FindBy(css = "#jmsSearchButton")
+	@FindBy(css = "#searchbutton_id")
 	WebElement jmsSearchButton;
 
 	public JMSFilters(WebDriver driver) {

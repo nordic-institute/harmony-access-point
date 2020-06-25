@@ -198,7 +198,7 @@ def execute_execution(test_result):
         return
 
     if test_result['info']:
-        params['comment'] = test_result['info'][0:300]
+        params['comment'] = test_result['info'][0:600]
 
     execution_id = find_execution_id(test_result['id'])
 

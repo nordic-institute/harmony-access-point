@@ -502,16 +502,17 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		
 		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
 		
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN, username),
+				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, page.getDomainFromTitle()),
 				"Error message is shown");
 		
 		rest.pluginUsers().deletePluginUser(username, null);
