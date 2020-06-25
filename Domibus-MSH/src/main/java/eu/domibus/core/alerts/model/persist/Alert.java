@@ -71,7 +71,7 @@ public class Alert extends AbstractBaseEntity{
     @NotNull
     private AlertLevel alertLevel;
 
-    public void addEvent(Event event){
+    public void addEvent(Event event) {
         events.add(event);
         event.addAlert(this);
     }

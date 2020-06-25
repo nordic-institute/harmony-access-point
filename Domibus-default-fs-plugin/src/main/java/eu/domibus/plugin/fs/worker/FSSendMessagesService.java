@@ -93,7 +93,8 @@ public class FSSendMessagesService {
     public void sendMessages() {
         LOG.debug("Sending file system messages...");
 
-        for (String domain : fsPluginProperties.getDomains()) {
+        List<String> domains = fsDomainService.getDomainsToProcess();
+        for (String domain : domains) {
             if (fsDomainService.verifyDomainExists(domain)) {
                 sendMessagesSafely(domain);
 

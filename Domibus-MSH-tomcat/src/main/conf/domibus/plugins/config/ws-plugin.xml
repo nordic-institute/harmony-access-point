@@ -28,7 +28,7 @@
 
     <bean id="webserviceNotificationListenerService"
           class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PULL"
+          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
           p:backendConnector-ref="backendWebservice"/>
 
     <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
