@@ -23,41 +23,33 @@ import java.util.stream.Collectors;
 @Service
 public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier, PluginPropertyChangeNotifier {
 
-    protected List<DomibusPropertyChangeListener> allPropertyChangeListenerAdapters;
+    protected List<DomibusPropertyChangeListener> allPropertyChangeListeners;
 
-    //    @Autowired
     private SignalService signalService;
 
-//    @Autowired
-//    private List<DomibusPropertyChangeListener> propertyChangeListeners;
-//
-//    @Autowired(required = false)
-//    private List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
-//
-//    private List<DomibusPropertyChangeListener> pluginPropertyChangeListenerAdapters;
-
-    public DomibusPropertyChangeNotifierImpl(@Autowired List<DomibusPropertyChangeListener> propertyChangeListeners,
-                                             @Autowired(required = false) List<PluginPropertyChangeListener> pluginPropertyChangeListeners,
-                                             @Autowired SignalService signalService) {
+    public DomibusPropertyChangeNotifierImpl(
+            @Autowired List<DomibusPropertyChangeListener> propertyChangeListeners,
+            @Autowired(required = false) List<PluginPropertyChangeListener> pluginPropertyChangeListeners,
+            @Autowired SignalService signalService) {
 
         this.signalService = signalService;
+
+        allPropertyChangeListeners = new ArrayList<>();
+        allPropertyChangeListeners.addAll(propertyChangeListeners);
+
+        //adapt plugin prop change listeners to treat them all polimorphically
         List<DomibusPropertyChangeListener> pluginPropertyChangeListenerAdapters = pluginPropertyChangeListeners.stream()
                 .map(listener -> new PluginPropertyChangeListenerAdapter(listener))
                 .collect(Collectors.toList());
-        allPropertyChangeListenerAdapters = new ArrayList<>();
-        allPropertyChangeListenerAdapters.addAll(propertyChangeListeners);
-        allPropertyChangeListenerAdapters.addAll(pluginPropertyChangeListenerAdapters);
-
-//        this.propertyChangeListeners = propertyChangeListeners;
-//        this.pluginPropertyChangeListeners = pluginPropertyChangeListeners;
+        allPropertyChangeListeners.addAll(pluginPropertyChangeListenerAdapters);
     }
 
     @Override
     public void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast)
             throws DomibusPropertyException {
 
-        //notify interested listeners that the property changed
-        List<DomibusPropertyChangeListener> listeners = allPropertyChangeListenerAdapters.stream()
+        //notify all interested listeners(core or external) that the property changed
+        List<DomibusPropertyChangeListener> listeners = allPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
         listeners.forEach(listener -> {
@@ -68,13 +60,15 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
             }
         });
 
+        if (!broadcast) {
+            return;
+        }
+
         //signal for other nodes in the cluster
-        if (broadcast) {
-            try {
-                signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
-            } catch (Exception ex) {
-                throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
-            }
+        try {
+            signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
+        } catch (Exception ex) {
+            throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
         }
     }
 }

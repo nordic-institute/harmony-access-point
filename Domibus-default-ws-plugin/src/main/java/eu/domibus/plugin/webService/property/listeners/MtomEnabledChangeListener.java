@@ -29,7 +29,7 @@ public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        Boolean flag = Boolean.parseBoolean(propertyValue);
-        ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(flag);
+        Boolean val = Boolean.valueOf(propertyValue);
+        ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(val);
     }
 }

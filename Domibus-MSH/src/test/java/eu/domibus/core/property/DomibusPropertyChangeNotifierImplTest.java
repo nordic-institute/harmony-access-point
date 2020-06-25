@@ -43,7 +43,7 @@ public class DomibusPropertyChangeNotifierImplTest {
         String propertyValue = "val";
         boolean broadcast = true;
 
-        domibusPropertyChangeNotifier.allPropertyChangeListenerAdapters = Arrays.asList(
+        domibusPropertyChangeNotifier.allPropertyChangeListeners = Arrays.asList(
                 blacklistChangeListener,
                 concurrencyChangeListener,
                 cronExpressionChangeListener
@@ -73,7 +73,7 @@ public class DomibusPropertyChangeNotifierImplTest {
         String propertyValue = "val";
         boolean broadcast = true;
 
-        domibusPropertyChangeNotifier.allPropertyChangeListenerAdapters = Arrays.asList(blacklistChangeListener);
+        domibusPropertyChangeNotifier.allPropertyChangeListeners = Arrays.asList(blacklistChangeListener);
 
         new Expectations() {{
             blacklistChangeListener.handlesProperty(propertyName);
@@ -98,7 +98,7 @@ public class DomibusPropertyChangeNotifierImplTest {
         String propertyValue = "val";
         boolean broadcast = true;
 
-        domibusPropertyChangeNotifier.allPropertyChangeListenerAdapters = Arrays.asList(blacklistChangeListener);
+        domibusPropertyChangeNotifier.allPropertyChangeListeners = Arrays.asList(blacklistChangeListener);
 
         new Expectations() {{
             blacklistChangeListener.handlesProperty(propertyName);

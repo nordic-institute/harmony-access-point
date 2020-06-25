@@ -34,6 +34,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
         DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
         if (!propMeta.isStoredGlobally()) {
+            //todo: review
             LOG.warn("Property [{}] is not stored globally so null was returned.", propertyName);
             return null;
         }
@@ -43,6 +44,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public Integer getKnownIntegerPropertyValue(String propertyName) {
+        //todo: review and reuse?
         checkPropertyExists(propertyName);
 
         DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
@@ -65,6 +67,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
         DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
         if (!propMeta.isStoredGlobally()) {
+            //todo: review?
             LOG.debug("Property [{}] is not stored globally so did not forward the setProperty call.", propertyName);
             return;
         }
