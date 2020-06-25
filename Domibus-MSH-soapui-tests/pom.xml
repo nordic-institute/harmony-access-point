@@ -176,7 +176,10 @@
                                 <artifactId>reflections</artifactId>
                                 <version>0.9.8</version>
                             </dependency>
-
+                            <!-- exclude the default commons-beanutils 1.7.0 because
+                              it clash wih the one included in wildfly-18 JMS library
+                              For new version (5.1.2+) of plugin check if this is still necessary!
+                              -->
                             <dependency>
                                 <groupId>commons-beanutils</groupId>
                                 <artifactId>commons-beanutils</artifactId>
@@ -193,7 +196,6 @@
                                     </exclusion>
                                 </exclusions>
                             </dependency>
-
                         </dependencies>
                     </plugin>
                 </plugins>

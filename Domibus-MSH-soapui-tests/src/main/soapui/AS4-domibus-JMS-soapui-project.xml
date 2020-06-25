@@ -1442,7 +1442,7 @@ byte[] payload = pay1.getBytes();
 messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message To C3" id="7525f9a2-4b63-44df-b318-3c3c5005a729" disabled="true"><con:settings/><con:config><script>import javax.jms.*
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message To C3" id="7525f9a2-4b63-44df-b318-3c3c5005a729"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 
