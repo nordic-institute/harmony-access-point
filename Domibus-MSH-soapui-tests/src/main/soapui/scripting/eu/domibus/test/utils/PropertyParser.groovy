@@ -21,14 +21,13 @@ class PropertyParser {
      * Method parses the JSON type string and property object. Method also validats if json cotains all required data
      *
      * @param allDomainsPropertiesString
+     * @param log  - logger object
      * @return
      */
     static def parseJMSDomainProperties(allJMSProperties, log) {
 
-        LogUtils.debugLog("  ====  Calling \"returnDBproperties\".", log)
-        LogUtils.debugLog("  parseDomainProperties  [][]  Parse properties for connection.", log)
-        LogUtils.debugLog("  parseDomainProperties  [][]  All domain custom properties before parsing $allJMSProperties.", log)
-        def mandatoryProperties = ["site", "domainName", "domNo", "dbType", "dbDriver", "dbJdbcUrl", "dbUser", "dbPassword"]
+
+        LogUtils.debugLog("  parseJMSDomainProperties  [][]  All domain custom properties before parsing $allJMSProperties.", log)
 
         def jsonSlurper = new JsonSlurper()
         def domPropMap = jsonSlurper.parseText(allJMSProperties)
@@ -36,15 +35,15 @@ class PropertyParser {
         // it's possible that the response wasn't in proper JSON format and is deserialize as empty
         assert !domPropMap.isEmpty()
 
-        LogUtils.debugLog("  parseDomainProperties  [][]  Mandatory logs are: ${JMS_MANDATORY_PROPERTIES}.", log)
+        LogUtils.debugLog("  parseJMSDomainProperties  [][]  Mandatory logs are: ${JMS_MANDATORY_PROPERTIES}.", log)
 
         domPropMap.each { domain, properties ->
-            LogUtils.debugLog("  parseDomainProperties  [][]  Check mandatory properties are not null for domain ID: ${domain}", log)
+            LogUtils.debugLog("  parseJMSDomainProperties  [][]  Check mandatory properties are not null for domain ID: ${domain}", log)
             JMS_MANDATORY_PROPERTIES.each { propertyName ->
                 assert (properties[propertyName] != null), "Error:returnDBproperties: \"${propertyName}\" property couldn't be retrieved for domain ID \"$domain\"."
             }
         }
-        LogUtils.debugLog("  parseDomainProperties  [][]  DONE.", log)
+        LogUtils.debugLog("  parseJMSDomainProperties  [][]  DONE.", log)
         return domPropMap
     }
 

@@ -142,7 +142,7 @@ class DomibusJMSPlugin {
 
         switch (jmsClientType) {
             case "weblogic":
-                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPasswd, jmsConnectionFactory, queue, "org.jboss.naming.remote.client.InitialContextFactory")
+                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPasswd, jmsConnectionFactory, queue, "weblogic.jndi.WLInitialContextFactory")
                 break
             case "tomcat":
                 log.info("JmsServer Tomcat. Reading connection details.")

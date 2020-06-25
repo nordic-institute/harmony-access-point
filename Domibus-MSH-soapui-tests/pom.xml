@@ -134,6 +134,7 @@
                                 <value>${localUrl}</value>
                                 <value>${remoteUrl}</value>
                                 <value>${allDomainsProperties}</value>
+                                <value>${allJMSDomainsProperties}</value>
                                 <value>multitenancyModeC2=0</value>
                                 <value>multitenancyModeC3=0</value>
                                 <value>updateReport=false</value>
