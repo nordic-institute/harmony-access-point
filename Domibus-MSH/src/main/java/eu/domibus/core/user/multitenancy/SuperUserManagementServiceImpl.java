@@ -57,10 +57,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      */
     protected List<User> getSuperUsers() {
         LOG.debug("Searching for super users");
-        return domainTaskExecutor.submit(() -> super.findUsers(this::getDomainForUser));
+        return domainTaskExecutor.submit(() -> super.findUsers(this::getPreferredDomainForUser));
     }
 
-    protected String getDomainForUser(eu.domibus.api.user.User user) {
+    protected String getPreferredDomainForUser(eu.domibus.api.user.User user) {
         List<UserDomainEntity> domains = userDomainDao.listPreferredDomains();
         String domainCode = domains.stream()
                 .filter(domainEntity -> domainEntity.getUserName().equals(user.getUserName()))
