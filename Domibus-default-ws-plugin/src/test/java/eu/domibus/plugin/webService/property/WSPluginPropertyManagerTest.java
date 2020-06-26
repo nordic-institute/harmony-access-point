@@ -1,6 +1,5 @@
 package eu.domibus.plugin.webService.property;
 
-import com.sun.xml.internal.ws.binding.SOAPBindingImpl;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
@@ -45,7 +44,7 @@ public class WSPluginPropertyManagerTest extends TestCase {
     DomainExtService domainExtService;
 
     @Test
-    public void testPropertyChangeListeners(@Mocked HashMap<String, Object> propBag, @Mocked SOAPBindingImpl soapBinding) {
+    public void testPropertyChangeListeners(@Mocked HashMap<String, Object> propBag, @Mocked SOAPBinding soapBinding) {
         PluginPropertyChangeListener[] listeners = new PluginPropertyChangeListener[]{
                 schemaValidationEnabledChangeListener,
                 mtomEnabledChangeListener,
