@@ -2,7 +2,7 @@ package eu.domibus.common.model.configuration;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.Audited;
@@ -97,17 +97,16 @@ public class PartyIdType extends AbstractBaseEntity {
 
         PartyIdType that = (PartyIdType) o;
 
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(name, that.name)
-                .isEquals();
+        if (!StringUtils.equalsIgnoreCase(name, that.name)) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(name)
+                .append(name == null ? null : name.toLowerCase())
                 .toHashCode();
     }
 
