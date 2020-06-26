@@ -38,17 +38,17 @@ public class UserDomainServiceSingleDomainImpl implements UserDomainService {
 
     @Override
     public void setDomainForUser(String user, String domainCode) {
-        // do nothing in single tenancy
+        LOG.trace("set domain for user [{}] in single tenancy mode", user);
     }
 
     @Override
     public void setPreferredDomainForUser(String user, String domainCode) {
-        // do nothing in single tenancy
+        LOG.trace("set preferred domain for user [{}] in single tenancy mode", user);
     }
 
     @Override
     public void deleteDomainForUser(String user) {
-        // do nothing in single tenancy
+        LOG.trace("delete domain for user [{}] in single tenancy mode", user);
     }
 
 }
