@@ -2,7 +2,7 @@ package eu.domibus.test.jms
 
 import eu.domibus.test.utils.DomibusSoapUIConstants
 import eu.domibus.test.utils.LogUtils
-import eu.domibus.test.utils.PropertyParser
+import eu.domibus.test.utils.SoapUIPropertyUtils
 import org.apache.activemq.ActiveMQConnectionFactory
 
 import javax.jms.*
@@ -33,7 +33,7 @@ class DomibusJMSPlugin {
     DomibusJMSPlugin(log, context) {
         this.log = log
         this.context = context
-        this.allJMSProperties = PropertyParser.parseJMSDomainProperties(
+        this.allJMSProperties = SoapUIPropertyUtils.parseJMSDomainProperties(
                 context.expand('${#Project#' + DomibusSoapUIConstants.PROP_GLOBAL_JMS_ALL_PROPERTIES + '}'), this.log)
     }
 
@@ -128,36 +128,39 @@ class DomibusJMSPlugin {
         jmsConnectionHandlerInitialize("C3Default")
     }
 
+
+    def getJMSDomainProperty(String domain, String property){
+        return SoapUIPropertyUtils.getDomainProperty(this.context, this.allJMSProperties, domain, property, this.log);
+    }
+
     def jmsConnectionHandlerInitialize(String domain) {
         MapMessage messageMap = null
 
         log.info "Starting JMS message sending"
-
-        String jmsClientType = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_TYPE];
-        String jmsURL = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_URL];
-        String serverUser = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_SRV_USERNAME];
-        String serverPasswd = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_SRV_PASSWORD];
-        String jmsConnectionFactory = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_CF_JNDI];
-        String queue = this.allJMSProperties[domain][DomibusSoapUIConstants.JSON_JMS_QUEUE];
+        String jmsClientType = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_TYPE);
+        String jmsURL = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_URL);
+        String serverUser =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_USERNAME);
+        String serverPassword =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_PASSWORD);
+        String jmsConnectionFactory =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_CF_JNDI);
+        String queue =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_QUEUE);
 
         switch (jmsClientType) {
             case "weblogic":
-                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPasswd, jmsConnectionFactory, queue, "weblogic.jndi.WLInitialContextFactory")
+                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "weblogic.jndi.WLInitialContextFactory")
                 break
             case "tomcat":
                 log.info("JmsServer Tomcat. Reading connection details.")
-                messageMap = connectToActiveMQ(jmsURL, serverUser, serverPasswd, queue)
+                messageMap = connectToActiveMQ(jmsURL, serverUser, serverPassword, queue)
                 break
             case "wildfly":
                 log.info("JmsServer Tomcat. Reading connection details.")
-                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPasswd, jmsConnectionFactory, queue, "org.jboss.naming.remote.client.InitialContextFactory")
+                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "org.jboss.naming.remote.client.InitialContextFactory")
                 break
 
             default:
                 log.error("Incorrect or not supported jms server type, jmsServer=" + jmsClientType);
                 assert 0, "Properties value error, check jmsServer value."
                 break
-
         }
         return messageMap
     }
