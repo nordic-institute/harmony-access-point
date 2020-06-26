@@ -10,9 +10,13 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
@@ -21,6 +25,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
+@RunWith(Parameterized.class)
 public class ConnectionMonitoringChangeListenerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
@@ -31,13 +36,14 @@ public class ConnectionMonitoringChangeListenerTest {
     @Injectable
     protected PModeProvider pModeProvider;
 
-    String jsonParty1 = "{name:'blue_gw', identifiers:[{partyId:'domibus-blue',partyIdType:{name:'partyTypeUrn'}}, {partyId:'domibus-bluish',partyIdType:{name:'partyTypeUrn2'}}]}";
-    String jsonParty2 = "{name:'red_gw', identifiers:[{partyId:'domibus-red',partyIdType:{name:'partyTypeUrn'}}]}";
-    String jsonParty3 = "{name:'green_gw', identifiers:[{partyId:'domibus-green',partyIdType:{name:'partyTypeUrn'}}]}";
-
-    @Test
-    public void propertyValueChanged() {
+    @Before
+    public void setupTest() {
         Gson gson = new Gson();
+
+        String jsonParty1 = "{name:'blue_gw', identifiers:[{partyId:'domibus-blue',partyIdType:{name:'partyTypeUrn'}}, {partyId:'domibus-bluish',partyIdType:{name:'partyTypeUrn2'}}]}";
+        String jsonParty2 = "{name:'red_gw', identifiers:[{partyId:'domibus-red',partyIdType:{name:'partyTypeUrn'}}]}";
+        String jsonParty3 = "{name:'green_gw', identifiers:[{partyId:'domibus-green',partyIdType:{name:'partyTypeUrn'}}]}";
+
         Party party1 = gson.fromJson(jsonParty1, Party.class);
         Party party2 = gson.fromJson(jsonParty2, Party.class);
         Party party3 = gson.fromJson(jsonParty3, Party.class);
@@ -51,37 +57,47 @@ public class ConnectionMonitoringChangeListenerTest {
             pModeProvider.findPartyIdByServiceAndAction(anyString, anyString, null);
             result = testablePartyIds;
         }};
+    }
 
-        List<String> valuesThatShouldFail = Arrays.asList(
-                "#$%%$^&",
-                "<foo val=“bar” />",
-                "１２３",
-                "domibus-unknowncolor,domibus-blue",
-                "domibus-blue,domibus-red,domibus-green",
-                "domibus-bluish"
-        );
-        List<String> valuesThatShouldPass = Arrays.asList(
-                "domibus-red, domibus-blue",
-                "domibus-blue, domibus-blue",
-                " ,, domibus-blue, ",
-                "Domibus-BLUE",
-                "",
-                null
-        );
+    @Parameterized.Parameter(0)
+    public String value;
 
-        for (String value : valuesThatShouldFail) {
-            try {
-                listener.propertyValueChanged("default", DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, value);
+    @Parameterized.Parameter(1)
+    public boolean valid;
+
+    @Parameterized.Parameters(name = "Test setting propertyValue=\"{0}\"")
+    public static Collection<Object[]> testedValues() {
+        return Arrays.asList(new Object[][]{
+                // invalid values :
+                {"#$%%$^&", false},
+                {"<foo val=“bar” />", false},
+                {"１２３", false},
+                {"domibus-unknowncolor,domibus-blue", false},
+                {"domibus-blue,domibus-red,domibus-green", false},
+                {"domibus-bluish", false},
+                // valid values :
+                {"domibus-red, domibus-blue", true},
+                {"domibus-blue, domibus-blue", true},
+                {" ,, domibus-blue  , ", true},
+                {"Domibus-BLUE", true},
+                {"", true},
+                {null, true},
+        });
+    }
+
+    @Test
+    public void propertyValueChanged() {
+        try {
+            listener.propertyValueChanged("default", DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, value);
+
+            if (valid == false) {
                 Assert.fail("[" + value + "] property value shouldn't have been accepted");
-            } catch (DomibusPropertyException ex) {
-                LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
             }
-        }
-
-        for (String value : valuesThatShouldPass) {
-            try {
-                listener.propertyValueChanged("default", DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, value);
-            } catch (DomibusPropertyException ex) {
+        } catch (DomibusPropertyException ex) {
+            if (valid == false) {
+                LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
+            } else {
+                LOG.info("Unexpected exception thrown when trying to set valid property value: [{}]", value, ex);
                 Assert.fail("[" + value + "] property value should have been accepted");
             }
         }

@@ -65,7 +65,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(enabledPartyId -> enabledPartyId.equalsIgnoreCase(partyId)))
+                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
                 .collect(Collectors.toList());
         for (String party : monitoredParties) {
             try {
@@ -97,12 +97,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        if (testableParties.stream().anyMatch(testablePartyId -> testablePartyId.equalsIgnoreCase(partyId))) {
+        if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setTestable(true);
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (result.isTestable() && enabledParties.stream().anyMatch(enabledPartyId -> enabledPartyId.equalsIgnoreCase(partyId))) {
+        if (result.isTestable() && enabledParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
