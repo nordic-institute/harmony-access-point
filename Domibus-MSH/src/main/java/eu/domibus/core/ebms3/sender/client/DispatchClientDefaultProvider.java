@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
@@ -70,6 +71,17 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     @Qualifier("domibusProxyService")
     protected DomibusProxyService domibusProxyService;
 
+    /**
+     * JIRA: EDELIVERY-6755 showed a deadlock while instantiating cxf dispatcher during start-up
+     * (in concurrency with the beans creation).
+     * To initialize it in the {@link PostConstruct} avoid this issue.
+     */
+    @PostConstruct
+    void init() {
+        LOG.debug("Pre-instantiate cxf dispatcher");
+        createWSServiceDispatcher("http://localhost:8080");
+    }
+
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
@@ -94,6 +106,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         }
 
         configureProxy(httpClientPolicy, httpConduit);
+        LOG.debug("END Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
         return new IgnoreSizeOfWrapper<>(dispatch);
     }
