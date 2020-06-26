@@ -5,6 +5,8 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ConnectionMonitoringChangeListener implements DomibusPropertyChangeListener {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListener.class);
+
     @Autowired
     protected PModeProvider pModeProvider;
 
@@ -35,9 +39,9 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        propertyValue = StringUtils.trimToEmpty(propertyValue).toLowerCase();
-        List<String> newPartyIds = Arrays.stream(StringUtils.split(propertyValue, ','))
-                .map(name -> name.trim())
+        String[] propertyValueParts = StringUtils.split(StringUtils.trimToEmpty(propertyValue), ',');
+        List<String> newPartyIds = Arrays.stream(propertyValueParts)
+                .map(name -> name.trim().toLowerCase())
                 .filter(name -> !name.isEmpty())
                 .distinct().collect(Collectors.toList());
 
@@ -45,11 +49,13 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
         List<String> testablePartyIds = pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         newPartyIds.forEach(partyId -> {
+            LOG.trace("Checking that [{}] is a known party", partyId);
             if (knownParties.stream().noneMatch(party ->
                     party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
                 throw new DomibusPropertyException("Could not change the list of monitoring parties: "
                         + partyId + " is not configured in Pmode");
             }
+            LOG.trace("Checking that [{}] is a known testable party", partyId);
             if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
                 throw new DomibusPropertyException("Could not change the list of monitoring parties: "
                         + partyId + " is not configured to receive test messages in Pmode");

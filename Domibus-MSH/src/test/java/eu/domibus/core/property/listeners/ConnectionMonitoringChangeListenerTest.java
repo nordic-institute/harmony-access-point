@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -20,6 +22,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 public class ConnectionMonitoringChangeListenerTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
 
     @Tested
     protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener();
@@ -70,6 +74,7 @@ public class ConnectionMonitoringChangeListenerTest {
                 listener.propertyValueChanged("default", DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, value);
                 Assert.fail("[" + value + "] property value shouldn't have been accepted");
             } catch (DomibusPropertyException ex) {
+                LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
             }
         }
 
