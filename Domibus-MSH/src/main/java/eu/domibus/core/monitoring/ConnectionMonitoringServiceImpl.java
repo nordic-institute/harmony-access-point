@@ -65,7 +65,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = testableParties.stream()
-                .filter(p -> enabledParties.stream().anyMatch(ep -> ep.equalsIgnoreCase(p))).collect(Collectors.toList());
+                .filter(partyId -> enabledParties.stream().anyMatch(enabledPartyId -> enabledPartyId.equalsIgnoreCase(partyId)))
+                .collect(Collectors.toList());
         for (String party : monitoredParties) {
             try {
                 String testMessageId = testService.submitTest(selfParty, party);
@@ -96,12 +97,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        if (testableParties.stream().anyMatch(p -> p.equalsIgnoreCase(partyId))) {
+        if (testableParties.stream().anyMatch(testablePartyId -> testablePartyId.equalsIgnoreCase(partyId))) {
             result.setTestable(true);
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (result.isTestable() && enabledParties.stream().anyMatch(p -> p.equalsIgnoreCase(partyId))) {
+        if (result.isTestable() && enabledParties.stream().anyMatch(enabledPartyId -> enabledPartyId.equalsIgnoreCase(partyId))) {
             result.setMonitored(true);
         }
 
@@ -125,7 +126,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     private List<String> getMonitorEnabledParties() {
         List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED).split(","));
-        enabledParties = enabledParties.stream().map(p -> StringUtils.trim(p)).collect(Collectors.toList());
+        enabledParties = enabledParties.stream()
+                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .collect(Collectors.toList());
         return enabledParties;
     }
 
