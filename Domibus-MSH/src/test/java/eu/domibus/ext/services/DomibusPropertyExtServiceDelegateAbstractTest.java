@@ -122,11 +122,6 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
         Integer result = domibusPropertyExtServiceDelegateAbstract.getKnownIntegerPropertyValue(propertyName);
 
         Assert.assertEquals(propValue, result);
-
-        new Verifications() {{
-//            domibusPropertyExtService.getIntegerProperty(propertyName);
-//            times = 0;
-        }};
     }
 
     @Test
