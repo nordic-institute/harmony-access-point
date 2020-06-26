@@ -50,6 +50,8 @@ public class ConnectionMonitoringChangeListenerTest {
 
         List<String> valuesThatShouldFail = Arrays.asList(
                 "#$%%$^&",
+                "<foo val=“bar” />",
+                "１２３",
                 "domibus-unknowncolor,domibus-blue",
                 "domibus-blue,domibus-red,domibus-green",
                 "domibus-bluish"
