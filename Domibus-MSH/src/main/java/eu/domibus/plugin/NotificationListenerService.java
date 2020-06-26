@@ -12,6 +12,8 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.*;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,11 +42,13 @@ import java.util.Collection;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
+import static eu.domibus.core.metrics.MetricNames.BACKEND_OUT_NOTIFICATION;
+import static eu.domibus.core.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * @author Christian Koch, Stefan Mueller
  */
-public class NotificationListenerService implements MessageListener, JmsListenerConfigurer, MessageLister, eu.domibus.plugin.NotificationListener {
+public class NotificationListenerService implements  MessageLister, eu.domibus.plugin.NotificationListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotificationListenerService.class);
 
@@ -52,10 +56,6 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @Autowired
     private JMSManager jmsManager;
-
-    @Autowired
-    @Qualifier("internalJmsListenerContainerFactory")
-    private JmsListenerContainerFactory jmsListenerContainerFactory;
 
     @Autowired
     private AuthUtils authUtils;
@@ -116,6 +116,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
+    @org.springframework.jms.annotation.JmsListener(containerFactory = "internalJmsListenerContainerFactory", destination = "${jmsplugin.queue.notification}",concurrency ="${jmsplugin.queue.in.concurrency}" )
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
@@ -312,27 +313,6 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     }
 
-
-    @Override
-    public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
-
-        if (this.mode == BackendConnector.Mode.PUSH) {
-            final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-            endpoint.setId(getBackendName());
-            final Queue pushQueue = backendNotificationQueue;
-            if (pushQueue == null) {
-                throw new ConfigurationException("No notification queue found for " + getBackendName());
-            } else {
-                try {
-                    endpoint.setDestination(getQueueName(pushQueue));
-                } catch (final JMSException e) {
-                    LOG.error("Problem with predefined queue.", e);
-                }
-            }
-            endpoint.setMessageListener(this);
-            registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
-        }
-    }
 
     @Override
     public String getBackendName() {
