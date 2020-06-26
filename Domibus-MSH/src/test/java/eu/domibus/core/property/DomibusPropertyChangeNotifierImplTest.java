@@ -6,26 +6,35 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.property.listeners.BlacklistChangeListener;
 import eu.domibus.core.property.listeners.ConcurrencyChangeListener;
 import eu.domibus.core.property.listeners.CronExpressionChangeListener;
+import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Spy;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(JMockit.class)
 public class DomibusPropertyChangeNotifierImplTest {
 
-    @Injectable
-    private List<DomibusPropertyChangeListener> propertyChangeListeners;
-
-    @Injectable
-    private SignalService signalService;
-
     @Tested
     DomibusPropertyChangeNotifierImpl domibusPropertyChangeNotifier;
+
+    @Injectable
+    List<DomibusPropertyChangeListener> propertyChangeListeners;
+
+    @Injectable
+    List<PluginPropertyChangeListener> pluginPropertyChangeListeners;
+
+    @Injectable
+    SignalService signalService;
 
     @Mocked
     BlacklistChangeListener blacklistChangeListener;

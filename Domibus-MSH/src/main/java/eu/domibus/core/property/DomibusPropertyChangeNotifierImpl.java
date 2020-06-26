@@ -38,9 +38,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         allPropertyChangeListeners.addAll(propertyChangeListeners);
 
         //adapt plugin prop change listeners to treat them all polimorphically
-        List<DomibusPropertyChangeListener> pluginPropertyChangeListenerAdapters = pluginPropertyChangeListeners.stream()
-                .map(listener -> new PluginPropertyChangeListenerAdapter(listener))
-                .collect(Collectors.toList());
+        List<DomibusPropertyChangeListener> pluginPropertyChangeListenerAdapters = getPluginPropertyChangeListenerAdapters(pluginPropertyChangeListeners);
         allPropertyChangeListeners.addAll(pluginPropertyChangeListenerAdapters);
     }
 
@@ -70,5 +68,11 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         } catch (Exception ex) {
             throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
         }
+    }
+
+    protected List<DomibusPropertyChangeListener> getPluginPropertyChangeListenerAdapters(List<PluginPropertyChangeListener> pluginPropertyChangeListeners) {
+        List<DomibusPropertyChangeListener> result = new ArrayList<>();
+        pluginPropertyChangeListeners.forEach(listener -> result.add(new PluginPropertyChangeListenerAdapter(listener)));
+        return result;
     }
 }
