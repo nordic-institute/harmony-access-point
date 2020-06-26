@@ -542,6 +542,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected void deleteMessagePluginCallback(String messageId) {
+        String backend = null;
         if (backendNotificationService.getNotificationListenerServices() == null) {
             LOG.debug("No notification listeners found");
             return;
@@ -551,10 +552,12 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("Could not find message with id [{}]", messageId);
             return;
         }
-        String backend = userMessageLog.getBackend();
-        if (StringUtils.isEmpty(backend)) {
-            LOG.warn("Could not find backend for message with id [{}]", messageId);
-            return;
+        if(!userMessageLog.isTestMessage()) {
+            backend = userMessageLog.getBackend();
+            if (StringUtils.isEmpty(backend)) {
+                LOG.warn("Could not find backend for message with id [{}]", messageId);
+                return;
+            }
         }
         NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
         if (notificationListener == null) {

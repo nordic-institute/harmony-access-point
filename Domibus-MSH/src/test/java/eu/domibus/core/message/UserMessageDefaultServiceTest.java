@@ -603,6 +603,34 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    public void testDeleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
+                                                @Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final List<NotificationListener> notificationListeners = new ArrayList<>();
+        notificationListeners.add(notificationListener1);
+
+        new Expectations(userMessageDefaultService) {{
+            backendNotificationService.getNotificationListenerServices();
+            result = notificationListeners;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            userMessageLog.isTestMessage();
+            result = true;
+
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+        }};
+
+        userMessageDefaultService.deleteMessagePluginCallback(messageId);
+
+        new Verifications() {{
+            userMessageLog.getBackend();
+            times =0;
+        }};
+    }
+
+    @Test
     public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
                                                                        @Injectable UserMessageLog userMessageLog,
                                                                        @Injectable Queue backendNotificationQueue) throws JMSException {
