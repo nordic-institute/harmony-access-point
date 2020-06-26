@@ -32,7 +32,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
             if (StringUtils.equalsIgnoreCase(cacheName, refreshCacheName)) {
                 final Cache cache = cacheManager.getCache(cacheName);
                 if (cache != null) {
-                    LOG.debug("Clearing cache [" + refreshCacheName + "]");
+                    LOG.debug("Clearing cache [{}]", refreshCacheName);
                     cache.clear();
                 }
             }

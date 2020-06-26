@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution
 public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringJob.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringJob.class);
 
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;

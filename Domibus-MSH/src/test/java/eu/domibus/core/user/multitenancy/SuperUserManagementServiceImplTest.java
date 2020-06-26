@@ -156,7 +156,7 @@ public class SuperUserManagementServiceImplTest {
     }
 
     @Test
-    public void getDomainForUser(@Mocked eu.domibus.api.user.User user,
+    public void getPreferredDomainForUser(@Mocked eu.domibus.api.user.User user,
                                  @Mocked UserDomainEntity userDomainEntity1,
                                  @Mocked UserDomainEntity userDomainEntity2) {
 
@@ -173,7 +173,7 @@ public class SuperUserManagementServiceImplTest {
             result = Arrays.asList(userDomainEntity1, userDomainEntity2);
         }};
 
-        String res = superUserManagementService.getDomainForUser(user);
+        String res = superUserManagementService.getPreferredDomainForUser(user);
 
         assertEquals("domain2", res);
     }

@@ -24,26 +24,20 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
 
     @Override
     public String findDomainByUser(String userName) {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
-        namedQuery.setParameter("USER_NAME", userName);
-        try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity.getDomain();
-        } catch (NoResultException e) {
+        UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
+        if (userDomainEntity == null) {
             return null;
         }
+        return userDomainEntity.getDomain();
     }
 
     @Override
     public String findPreferredDomainByUser(String userName) {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
-        namedQuery.setParameter("USER_NAME", userName);
-        try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity.getPreferredDomain();
-        } catch (NoResultException e) {
+        UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
+        if (userDomainEntity == null) {
             return null;
         }
+        return userDomainEntity.getPreferredDomain();
     }
 
     @Override
@@ -74,11 +68,11 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         if (userDomainEntity != null) {
             userDomainEntity.setPreferredDomain(domainCode);
             this.update(userDomainEntity);
-        }  else {
+        } else {
             userDomainEntity = new UserDomainEntity();
             userDomainEntity.setUserName(userName);
             userDomainEntity.setPreferredDomain(domainCode);
-            this.create(userDomainEntity); 
+            this.create(userDomainEntity);
         }
     }
 
@@ -95,8 +89,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
         namedQuery.setParameter("USER_NAME", userName);
         try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity;
+            return namedQuery.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }

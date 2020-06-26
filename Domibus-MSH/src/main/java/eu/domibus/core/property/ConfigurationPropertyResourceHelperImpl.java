@@ -73,8 +73,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     @Override
     public DomibusProperty getProperty(String propertyName) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        DomibusProperty prop = getValueAndCreateProperty(propertyMetadata);
-        return prop;
+        return getValueAndCreateProperty(propertyMetadata);
     }
 
     protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {

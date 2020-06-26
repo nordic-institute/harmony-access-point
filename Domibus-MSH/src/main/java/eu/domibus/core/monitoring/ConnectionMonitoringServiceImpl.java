@@ -31,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
 
     @Autowired
     private PartyService partyService;
