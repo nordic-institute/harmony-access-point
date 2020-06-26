@@ -1,7 +1,7 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -104,18 +104,17 @@ public class Identifier extends AbstractBaseEntity {
 
         Identifier that = (Identifier) o;
 
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(partyId, that.partyId)
-                .append(partyIdType, that.partyIdType)
-                .isEquals();
+        if (!StringUtils.equalsIgnoreCase(partyId, that.partyId)) return false;
+        if (partyIdType == null && that.partyIdType != null) return false;
+        if (partyIdType != null && !partyIdType.equals(that.partyIdType)) return false;
+        return true;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(partyId)
+                .append(partyId == null ? null : partyId.toLowerCase())
                 .append(partyIdType)
                 .toHashCode();
     }
