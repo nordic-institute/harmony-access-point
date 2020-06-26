@@ -12,66 +12,63 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class MessagesPage extends DomibusPage {
-
-
+	
+	
+	@FindBy(id = "pageGridId")
+	public WebElement gridContainer;
+	@FindBy(id = "downloadbutton_id")
+	public WebElement downloadBtn;
+	@FindBy(id = "resendbutton_id")
+	public WebElement resendBtn;
+	
 	public MessagesPage(WebDriver driver) {
 		super(driver);
 		log.debug("Messages page init");
-		PageFactory.initElements( new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+		
 	}
-
-	@FindBy(id = "pageGridId")
-	public  WebElement gridContainer;
-
-	@FindBy(id = "downloadbutton_id")
-	public WebElement downloadBtn;
-
-	@FindBy(id = "resendbutton_id")
-	public WebElement resendBtn;
-
-
+	
 	public DGrid grid() {
 		return new DGrid(driver, gridContainer);
 	}
-
+	
 	public DButton getDownloadButton() {
 		return new DButton(driver, downloadBtn);
 	}
-
+	
 	public DButton getResendButton() {
 		return new DButton(driver, resendBtn);
 	}
-
-	public MessageFilters getFilters(){ return new MessageFilters(driver);}
-
-	public boolean isLoaded(){
+	
+	public MessageFilters getFilters() {
+		return new MessageFilters(driver);
+	}
+	
+	public boolean isLoaded() {
 		return (getDownloadButton().isPresent()
-		&& getResendButton().isPresent()
-		&& null != grid()
-		&& null != getFilters());
+				&& getResendButton().isPresent()
+				&& null != grid()
+				&& null != getFilters());
 	}
-
-	public String  getCssofRowSpecificActionIcon(int rowNumber,String iconName) {
+	
+	public String getCssofRowSpecificActionIcon(int rowNumber, String iconName) {
 		if (iconName.equals("Download")) {
-			return "#downloadButtonRow"+rowNumber+"_id";
+			return "#downloadButtonRow" + rowNumber + "_id";
 		}
-		 if(iconName.equals("Resend")) {
-			return "#resendButtonRow"+rowNumber+"_id";
+		if (iconName.equals("Resend")) {
+			return "#resendButtonRow" + rowNumber + "_id";
 		}
-		 return "";
+		return "";
 	}
-
-	public Boolean getActionIconStatus(int rowNumber,String iconName){
-		WebElement iconElement= driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber,iconName)));
+	
+	public Boolean getActionIconStatus(int rowNumber, String iconName) {
+		WebElement iconElement = driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber, iconName)));
 		wait.forElementToBeVisible(iconElement);
 		return iconElement.isEnabled();
 	}
-
-
-
+	
+	
 }

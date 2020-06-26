@@ -376,7 +376,8 @@ public class XMLSuiteResultWriter {
 				}
 			} catch (Exception ex) {
 			}
-		}catch (Exception e){}
+		} catch (Exception e) {
+		}
 
 		String[] myArray = new String[strings.size()];
 		strings.toArray(myArray);

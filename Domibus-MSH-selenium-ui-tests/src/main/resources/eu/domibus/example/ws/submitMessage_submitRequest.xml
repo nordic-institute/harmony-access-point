@@ -1,5 +1,5 @@
 <ns3:submitRequest xmlns:ns3="http://org.ecodex.backend/1_1/">
-<payload payloadId="cid:message" contentType="application/xml">
-    <value>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=</value>
-</payload>
+	<payload payloadId="cid:message" contentType="application/xml">
+		<value>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=</value>
+	</payload>
 </ns3:submitRequest>

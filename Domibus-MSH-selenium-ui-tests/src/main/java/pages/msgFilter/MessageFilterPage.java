@@ -1,7 +1,6 @@
 package pages.msgFilter;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
@@ -9,47 +8,37 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class MessageFilterPage extends DomibusPage {
+	@FindBy(id = "pageGridId")
+	private WebElement gridContainer;
+	@FindBy(id = "moveupbutton_id")
+	private WebElement moveUpBtn;
+	@FindBy(id = "movedownbutton_id")
+	private WebElement moveDownBtn;
+	@FindBy(id = "cancelButtonId")
+	private WebElement cancelBtn;
+	@FindBy(id = "saveButtonId")
+	private WebElement saveBtn;
+	@FindBy(id = "addButtonId")
+	private WebElement newBtn;
+	@FindBy(id = "editButtonId")
+	private WebElement editBtn;
+	@FindBy(id = "deleteButtonId")
+	private WebElement deleteBtn;
+
 	public MessageFilterPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.debug("Message filter grid initializing");
 	}
-
-
-	@FindBy(id = "pageGridId")
-	private WebElement gridContainer;
-
-	@FindBy(id = "moveupbutton_id")
-	private WebElement moveUpBtn;
-
-	@FindBy(id = "movedownbutton_id")
-	private WebElement moveDownBtn;
-
-	@FindBy(id = "cancelButtonId")
-	private WebElement cancelBtn;
-
-	@FindBy(id = "saveButtonId")
-	private WebElement saveBtn;
-
-	@FindBy(id = "addButtonId")
-	private WebElement newBtn;
-
-	@FindBy(id = "editButtonId")
-	private WebElement editBtn;
-
-	@FindBy(id = "deleteButtonId")
-	private WebElement deleteBtn;
 
 	public MessageFilterGrid grid() {
 		return new MessageFilterGrid(driver, gridContainer);
@@ -83,8 +72,9 @@ public class MessageFilterPage extends DomibusPage {
 		return new DButton(driver, deleteBtn);
 	}
 
-	public Dialog getConfirmation() { return new Dialog(driver);}
-
+	public Dialog getConfirmation() {
+		return new Dialog(driver);
+	}
 
 
 	public boolean isLoaded() throws Exception {

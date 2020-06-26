@@ -2,7 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
-import utils.BaseTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,51 +14,49 @@ import utils.Generator;
 import utils.TestUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
-public class MessagesPgUXTest extends BaseTest {
-
+public class MessagesPgUXTest extends SeleniumTest {
+	
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
-
+	
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
-
+		
 		log.info("Checking page title");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
-
+		
 		log.info("checking basic filter presence");
 		basicFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
-
+		
 		testDefaultColumnPresence(soft, page.grid(), descriptorObj.getJSONObject("grid").getJSONArray("columns"));
-
+		
 		if (page.grid().getRowsNo() > 0) {
 			soft.assertTrue(page.grid().getPagination().getActivePage() == 1, "Default page shown in pagination is 1");
 		}
-
+		
 		soft.assertTrue(page.grid().getPagination().getPageSizeSelect().getSelectedValue().equals("10"), "10 is selected by default in the page size select");
-
+		
 		testButtonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
-
+		
 		soft.assertAll();
 	}
-
-
+	
+	
 	/*User clicks grid row*/
 	@Test(description = "MSG-2", groups = {"multiTenancy", "singleTenancy"})
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String messID = getMessageIDs(null, 1, false).get(0);
+		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
@@ -81,7 +79,7 @@ public class MessagesPgUXTest extends BaseTest {
 	public void selectAnotherRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> messIds = getMessageIDs(null, 2, false);
+		List<String> messIds = rest.getMessageIDs(null, 2, false);
 		String messID1 = messIds.get(0);
 		String messID2 = messIds.get(1);
 
@@ -90,10 +88,10 @@ public class MessagesPgUXTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		DGrid grid = page.grid();
 
-		log.info("selecting mess with id " +messID1);
+		log.info("selecting mess with id " + messID1);
 		grid.scrollToAndSelect("Message Id", messID1);
 
-		log.info("selecting mess with id " +messID2);
+		log.info("selecting mess with id " + messID2);
 		int index2 = grid.scrollToAndSelect("Message Id", messID2);
 
 		log.info("checking selected message");
@@ -116,24 +114,18 @@ public class MessagesPgUXTest extends BaseTest {
 
 	/* Download list of messages */
 	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
-	public void csvFileDownload() throws Exception{
+	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		HashMap<String, String> params = new HashMap<>();
-		params.put("orderBy",  "received");
-		params.put("asc", "false");
-
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, params, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-//		log.info("sorting after column Received");
-//		page.grid().sortBy("Received");
 
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
@@ -172,11 +164,8 @@ public class MessagesPgUXTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
-		log.info("expanding controls");
-		grid.getGridCtrl().showCtrls();
-
-		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
-		grid.checkModifyVisibleColumns(soft, columnList);
+		grid.waitForRowsToLoad();
+		grid.checkModifyVisibleColumns(soft);
 
 		soft.assertAll();
 	}
@@ -192,7 +181,7 @@ public class MessagesPgUXTest extends BaseTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
-		log.info("getting available columns berfor modification " + columnsPre);
+		log.info("getting available columns before modification " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
 
@@ -204,7 +193,7 @@ public class MessagesPgUXTest extends BaseTest {
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
-		log.info("getting available columns after expanding " +columnsPost);
+		log.info("getting available columns after expanding " + columnsPost);
 		soft.assertTrue(ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
 
 		soft.assertAll();
@@ -284,12 +273,21 @@ public class MessagesPgUXTest extends BaseTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+		grid.getGridCtrl().showAllColumns();
+		grid.waitForRowsToLoad();
 
 		for (int i = 0; i < 3; i++) {
-			int index = Generator.randomNumber(colDescs.length()-1);
+			int index = Generator.randomNumber(colDescs.length() - 1);
+
+//			this code is here because of bug EDELIVERY-6734
+			if(index == 17){
+				continue;
+			}
+
 			JSONObject colDesc = colDescs.getJSONObject(index);
-			log.info("checking sorting for column" + colDesc.getString("name"));
+			log.info("checking sorting for column - " + colDesc.getString("name"));
 			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
 				TestUtils.testSortingForColumn(soft, grid, colDesc);
 			}
@@ -299,13 +297,13 @@ public class MessagesPgUXTest extends BaseTest {
 
 	/* Verify headers in downloaded CSV sheet */
 	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
-	public void csvFileDownloadHeaders() throws Exception{
+	public void csvFileDownloadHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 
-		String fileName = rest.downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -322,6 +320,6 @@ public class MessagesPgUXTest extends BaseTest {
 
 		soft.assertAll();
 	}
-
+	
 }
 

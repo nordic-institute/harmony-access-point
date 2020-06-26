@@ -26,7 +26,7 @@ public class AlertPluginLoginFailureConfigurationChangeListener implements Domib
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        pluginLoginFailConfigurationManager.getConfiguration();
+        pluginLoginFailConfigurationManager.reset();
     }
 
 }

@@ -1,10 +1,8 @@
 package pages.plugin_users;
 
-import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.FilterArea;
-import ddsl.dobjects.Select;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -14,29 +12,25 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class PluginUsersFilterArea extends FilterArea {
 
+	@FindBy(css = "#authType_id")
+	public WebElement authTypeSelectContainer;
+	@FindBy(css = "#endPoint_id")
+	public WebElement userRoleSelectContainer;
+	@FindBy(css = "#process_id")
+	public WebElement originalUserInput;
+	@FindBy(css = "#partyID_id")
+	public WebElement usernameInput;
+
 	public PluginUsersFilterArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#authType_id")
-	public WebElement authTypeSelectContainer;
-
-	@FindBy(css = "#endPoint_id")
-	public WebElement userRoleSelectContainer;
-
-	@FindBy(css = "#process_id")
-	public WebElement originalUserInput;
-
-	@FindBy(css = "#partyID_id")
-	public WebElement usernameInput;
 
 	public void search(String authType, String role, String origUser, String username) throws Exception {
 		if (null != authType) getAuthTypeSelect().selectOptionByText(authType);

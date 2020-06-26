@@ -17,31 +17,25 @@ import java.util.List;
  * @since 4.1.1
  */
 public class ErrorModal extends InfoModal {
+	@FindBy(css = "mat-dialog-container [placeholder=\"Signal Message Id\"]")
+	WebElement signalMessIdInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"AP Role\"]")
+	WebElement apRoleInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"Message Id\"]")
+	WebElement messIdInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"Error Code\"]")
+	WebElement errCodeInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"Error Detail\"]")
+	WebElement errDetailInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"Timestamp\"]")
+	WebElement timestampInput;
+	@FindBy(css = "mat-dialog-container [placeholder=\"Notified\"]")
+	WebElement notifiedInput;
+
 	public ErrorModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Signal Message Id\"]")
-	WebElement signalMessIdInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"AP Role\"]")
-	WebElement apRoleInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Message Id\"]")
-	WebElement messIdInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Error Code\"]")
-	WebElement errCodeInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Error Detail\"]")
-	WebElement errDetailInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Timestamp\"]")
-	WebElement timestampInput;
-
-	@FindBy(css = "mat-dialog-container [placeholder=\"Notified\"]")
-	WebElement notifiedInput;
 
 	public HashMap<String, String> getListedInfo() throws Exception {
 		List<WebElement> inputs = driver.findElements(By.cssSelector("mat-dialog-container input"));

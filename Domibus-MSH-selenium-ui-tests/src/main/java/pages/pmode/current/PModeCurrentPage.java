@@ -1,5 +1,6 @@
 package pages.pmode.current;
 
+import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
@@ -7,23 +8,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import ddsl.dcomponents.DomibusPage;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class PModeCurrentPage extends DomibusPage {
-	public PModeCurrentPage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
 	@FindBy(id = "pmodetextarea_id")
 	WebElement textArea;
 	@FindBy(id = "cancelButtonId")
@@ -36,10 +29,12 @@ public class PModeCurrentPage extends DomibusPage {
 	WebElement downloadBtn;
 	@FindBy(css = ".pModeInfo >span")
 	WebElement infoTxt;
-	@FindBy(id="pmodetextarea_id")
+	@FindBy(id = "pmodetextarea_id")
 	WebElement CurrentPmodeXml;
-
-
+	public PModeCurrentPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DInput getTextArea() {
 		return new DInput(driver, textArea);
@@ -73,6 +68,6 @@ public class PModeCurrentPage extends DomibusPage {
 	}
 
 
-	}
+}
 
 
