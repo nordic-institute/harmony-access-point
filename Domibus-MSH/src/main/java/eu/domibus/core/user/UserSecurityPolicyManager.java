@@ -342,7 +342,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             return null;
         }
 
-        LocalDateTime expDate = changeDate.plusDays(Long.valueOf(maxPasswordAgeInDays));
+        LocalDateTime expDate = changeDate.plusDays(maxPasswordAgeInDays);
         LOG.trace("Expiration date for user [{}] is [{}].", userEntity.getUniqueIdentifier(), expDate);
         return expDate;
     }

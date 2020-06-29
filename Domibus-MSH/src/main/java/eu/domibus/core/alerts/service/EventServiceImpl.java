@@ -86,9 +86,6 @@ public class EventServiceImpl implements EventService {
     private Queue alertMessageQueue;
 
     @Autowired
-    private AlertConfigurationService ConfigurationService;
-
-    @Autowired
     protected MpcService mpcService;
 
     /**
