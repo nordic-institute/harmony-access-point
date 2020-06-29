@@ -8,7 +8,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -42,11 +41,7 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        String[] propertyValueParts = StringUtils.split(StringUtils.trimToEmpty(propertyValue), ',');
-        List<String> newPartyIds = Arrays.stream(propertyValueParts)
-                .map(name -> name.trim().toLowerCase())
-                .filter(name -> !name.isEmpty())
-                .distinct().collect(Collectors.toList());
+        List<String> newPartyIds = parsePropertyValue(propertyValue);
 
         List<Party> knownParties = pModeProvider.findAllParties();
         List<String> testablePartyIds = pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
@@ -64,5 +59,14 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
                         + partyId + " is not configured to receive test messages in Pmode");
             }
         });
+    }
+
+    protected List<String> parsePropertyValue(String propertyValue) {
+        String[] propertyValueParts = StringUtils.split(StringUtils.trimToEmpty(propertyValue), ',');
+        return Arrays.stream(propertyValueParts)
+                .map(name -> name.trim().toLowerCase())
+                .filter(name -> !name.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
