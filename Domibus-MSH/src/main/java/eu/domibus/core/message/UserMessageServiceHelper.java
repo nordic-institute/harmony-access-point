@@ -19,4 +19,8 @@ public interface UserMessageServiceHelper {
     boolean isSameFinalRecipient(UserMessage userMessage, String originalSender);
 
     String getOriginalUser(UserMessage userMessage, String type);
+
+    String getService(UserMessage userMessage);
+
+    String getAction(UserMessage userMessage);
 }

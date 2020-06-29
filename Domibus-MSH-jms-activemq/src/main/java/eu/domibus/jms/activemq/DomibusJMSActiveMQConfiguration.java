@@ -4,6 +4,7 @@ import com.atomikos.jms.AtomikosConnectionFactoryBean;
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
@@ -92,7 +93,7 @@ public class DomibusJMSActiveMQConfiguration {
 
     @Bean("jmsSender")
     public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
-        JmsTemplate result = new JmsTemplate();
+        PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         result.setConnectionFactory(connectionFactory);

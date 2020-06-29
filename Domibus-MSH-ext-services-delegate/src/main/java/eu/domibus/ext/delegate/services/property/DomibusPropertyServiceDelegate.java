@@ -9,9 +9,9 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 /**
@@ -46,6 +46,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);
+    }
+
+    @Override
+    public List<String> getNestedProperties(String prefix) {
+        return domibusPropertyProvider.getNestedProperties(prefix);
     }
 
     @Override

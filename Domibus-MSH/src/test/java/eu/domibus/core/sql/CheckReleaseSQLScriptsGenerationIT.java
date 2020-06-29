@@ -1,6 +1,6 @@
 package eu.domibus.core.sql;
 
-import eu.domibus.core.property.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -128,8 +128,8 @@ public class CheckReleaseSQLScriptsGenerationIT {
 
     protected String retrieveDomibusArtifactVersion() {
         /*During Maven compile phase the domibus.properties file in the target folder with the artefact version copied from the POM*/
-        DomibusPropertiesService domibusPropertiesService = new DomibusPropertiesService();
-        String domibusArtifactVersion = domibusPropertiesService.getArtifactVersion();
+        DomibusVersionService domibusVersionService = new DomibusVersionService();
+        String domibusArtifactVersion = domibusVersionService.getArtifactVersion();
         if (StringUtils.isBlank(domibusArtifactVersion)) {
             LOG.error("Domibus artefact version could not be loaded!!!");
             Assert.fail("Domibus artefact version could not be loaded!!!");

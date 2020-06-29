@@ -32,11 +32,9 @@ public class BackendJMSQueueService {
 
     public BackendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                   DomainContextExtService domainContextExtService,
-                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                   MessageRetriever messageRetriever) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
-        this.jmsPluginPropertyManager = jmsPluginPropertyManager;
         this.messageRetriever = messageRetriever;
     }
 
@@ -65,8 +63,7 @@ public class BackendJMSQueueService {
         }
 
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        String routingQueuePrefix = getQueuePrefix(currentDomain, routingQueuePrefixProperty);
-        List<String> routingQueuePrefixNameList = jmsPluginPropertyManager.getNestedProperties(routingQueuePrefix);
+        List<String> routingQueuePrefixNameList = domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
 
         if (CollectionUtils.isEmpty(routingQueuePrefixNameList)) {
             final String queueValue = domibusPropertyExtService.getProperty(currentDomain, defaultQueueProperty);
@@ -86,7 +83,7 @@ public class BackendJMSQueueService {
     /**
      * Tries to get the configured queue using routing properties. Returns the first matching routing queue if any.
      *
-     * @param routingQueuePrefixList
+     * @param routingQueuePrefixList The routing queue properties with a specific prefix
      * @param routingQueuePrefixProperty
      * @param submission
      * @param currentDomain
@@ -105,11 +102,11 @@ public class BackendJMSQueueService {
     /**
      * Returns the routing queue for which the configured service and action value matches the values from the Submission.
      *
-     * @param routingQueuePrefixProperty
-     * @param routingQueuePrefixName
-     * @param submission
-     * @param currentDomain
-     * @return
+     * @param routingQueuePrefixProperty The routing queue prefix property eg jmsplugin.queue.reply.routing
+     * @param routingQueuePrefixName The routing queue prefix name eg routingQueuePrefixName=rule1
+     * @param submission the message Submission
+     * @param currentDomain the current domain
+     * @return the routing queue in case it matches or null otherwise
      */
     protected String getRoutingQueue(String routingQueuePrefixProperty, String routingQueuePrefixName, Submission submission, DomainDTO currentDomain) {
         String servicePropertyName = getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "service");
@@ -149,30 +146,7 @@ public class BackendJMSQueueService {
      * @return
      */
     protected String getQueuePropertyName(String routingQueuePrefixProperty, String routingQueuePrefixName, String suffix) {
-        return routingQueuePrefixProperty + routingQueuePrefixName + "." + suffix;
-    }
-
-    /**
-     * Composes the property name based on the domain and queue prefix
-     * <p>
-     * Eg. Given domain code = digit and queue prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
-     *
-     * @param currentDomain
-     * @param queuePrefix
-     * @return
-     */
-    protected String getQueuePrefix(DomainDTO currentDomain, String queuePrefix) {
-        if (currentDomain == null) {
-            LOG.debug("Using queue prefix [{}]", queuePrefix);
-            return queuePrefix;
-        }
-        if (DomainDTO.DEFAULT_DOMAIN.equals(currentDomain)) {
-            LOG.debug("Using queue prefix [{}]", queuePrefix);
-            return queuePrefix;
-        }
-        String result = currentDomain.getCode() + "." + queuePrefix;
-        LOG.debug("Using queue prefix [{}]", result);
-        return result;
+        return routingQueuePrefixProperty +  "." + routingQueuePrefixName + "." + suffix;
     }
 
     protected boolean matchesSubmission(String service, String action, Submission submission) {

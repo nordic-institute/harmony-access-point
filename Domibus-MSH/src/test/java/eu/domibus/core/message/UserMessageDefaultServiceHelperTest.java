@@ -9,6 +9,7 @@ import eu.domibus.ebms3.common.model.To;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -20,6 +21,7 @@ import java.util.Collection;
 
 import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
 import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -313,7 +315,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void thenOriginalSenderIsEqualTo(String expected, String message) {
-        Assert.assertEquals(message, expected, originalSender);
+        assertEquals(message, expected, originalSender);
     }
 
     private void thenFinalRecipientIsNull(String message) {
@@ -321,7 +323,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void thenFinalRecipientIsEqualTo(String expected, String message) {
-        Assert.assertEquals(message, expected, finalRecipient);
+        assertEquals(message, expected, finalRecipient);
     }
 
     private void thenPartyToIsNull(String message) {
@@ -329,7 +331,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void thenPartyToIsEqualTo(String expected, String message) {
-        Assert.assertEquals(message, expected, partyTo);
+        assertEquals(message, expected, partyTo);
     }
 
     private void thenTheProvidedOriginalSenderIsTheSameAsTheOneContainedInsideTheUserMessage(String message) {
@@ -346,6 +348,32 @@ public class UserMessageDefaultServiceHelperTest {
 
     private void thenTheProvidedFinalRecipientIsNotTheSameAsTheOneContainedInsideTheUserMessage(String message) {
         Assert.assertFalse(message, sameFinalRecipient);
+    }
+
+    @Test
+    public void getService(@Injectable UserMessage userMessage) {
+        String service = "my service";
+
+        new Expectations() {{
+            userMessage.getCollaborationInfo().getService().getValue();
+            result = service;
+        }};
+
+        String value = userMessageDefaultServiceHelper.getService(userMessage);
+        assertEquals(service, value);
+    }
+
+    @Test
+    public void getAction(@Injectable UserMessage userMessage) {
+        String action = "my action";
+
+        new Expectations() {{
+            userMessage.getCollaborationInfo().getAction();
+            result = action;
+        }};
+
+        String value = userMessageDefaultServiceHelper.getAction(userMessage);
+        assertEquals(action, value);
     }
 
     public static final class PropertyBuilder {
