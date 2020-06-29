@@ -29,8 +29,11 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListener.class);
 
-    @Autowired
     protected PModeProvider pModeProvider;
+
+    public ConnectionMonitoringChangeListener(PModeProvider pModeProvider) {
+        this.pModeProvider = pModeProvider;
+    }
 
     @Override
     public boolean handlesProperty(String propertyName) {

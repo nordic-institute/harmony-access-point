@@ -30,11 +30,11 @@ public class ConnectionMonitoringChangeListenerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
 
-    @Tested
-    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener();
-
     @Injectable
     protected PModeProvider pModeProvider;
+
+    @Tested
+    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(pModeProvider);
 
     @Before
     public void setupTest() {
@@ -97,7 +97,7 @@ public class ConnectionMonitoringChangeListenerTest {
             if (valid == false) {
                 LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
             } else {
-                LOG.info("Unexpected exception thrown when trying to set valid property value: [{}]", value, ex);
+                LOG.error("Unexpected exception thrown when trying to set valid property value: [{}]", value, ex);
                 Assert.fail("[" + value + "] property value should have been accepted");
             }
         }
