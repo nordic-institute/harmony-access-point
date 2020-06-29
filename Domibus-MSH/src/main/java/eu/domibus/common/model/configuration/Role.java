@@ -30,6 +30,13 @@ public class Role extends AbstractBaseEntity {
     @Column(name = "VALUE")
     protected String value;
 
+    public Role() {}
+
+    public Role(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
     /**
      * Gets the value of the name property.
      *

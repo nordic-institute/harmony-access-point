@@ -9,6 +9,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Topic;
 import javax.persistence.EntityManager;
@@ -110,6 +112,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     PullMessageService pullMessageService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     CachingPModeProvider cachingPModeProvider;
@@ -578,7 +583,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc");
+            cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertTrue(ErrorCode.EbMS3ErrorCode.EBMS_0001.equals(exc.getErrorCode()));
             throw exc;
@@ -602,7 +607,7 @@ public class CachingPModeProviderTest {
             result = true;
         }};
 
-        String legName = cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+        String legName = cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         Assert.assertNotNull(legName);
     }
 
@@ -618,7 +623,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
@@ -645,7 +650,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
@@ -821,7 +826,7 @@ public class CachingPModeProviderTest {
                 result = receiverParty;
             }
         };
-        Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action"));
+        Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action", new Role("rn", "rv"), new Role("rn", "rv")));
     }
 
     @Test
