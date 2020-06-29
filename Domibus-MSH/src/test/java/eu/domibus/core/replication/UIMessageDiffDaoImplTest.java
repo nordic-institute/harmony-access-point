@@ -65,24 +65,6 @@ public class UIMessageDiffDaoImplTest {
     }
 
     @Test
-    public void test_countAll(final @Mocked TypedQuery<Long> query) {
-
-        new Expectations() {{
-            query.getSingleResult();
-            result = 200L;
-        }};
-
-        //tested method
-        uiMessageDiffDao.countAll();
-
-        new Verifications() {{
-            String namedQueryActual;
-            entityManager.createNamedQuery(namedQueryActual = withCapture(), Long.class);
-            Assert.assertEquals("UIMessageDiffEntity.countDiffMessages", namedQueryActual);
-        }};
-    }
-
-    @Test
     public void test_countAllNative(final @Mocked Query query) {
         new Expectations() {{
             domibusConfigurationService.getDataBaseEngine();

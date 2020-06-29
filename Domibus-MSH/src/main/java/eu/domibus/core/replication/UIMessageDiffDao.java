@@ -15,13 +15,6 @@ public interface UIMessageDiffDao {
      *
      * @return
      */
-    int countAll();
-
-    /**
-     * count all rows of {@code V_MESSAGE_UI_DIFF}
-     *
-     * @return
-     */
     int countAllNative();
 
     /**

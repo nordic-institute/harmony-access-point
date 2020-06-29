@@ -46,16 +46,6 @@ public class UIMessageDiffDaoImpl implements UIMessageDiffDao {
         return query.getResultList();
     }
 
-    /**
-     * {@inheritDoc}
-     * @return
-     */
-    @Override
-    public int countAll() {
-        final TypedQuery<Long> query = this.em.createNamedQuery("UIMessageDiffEntity.countDiffMessages", Long.class);
-        return query.getSingleResult().intValue();
-    }
-
     @Override
     public int countAllNative() {
         Query query = this.em.createNamedQuery("UIMessageDiffEntity.countDiffMessages_" +
