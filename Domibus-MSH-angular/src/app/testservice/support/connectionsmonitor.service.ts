@@ -82,20 +82,26 @@ export class ConnectionsMonitorService {
   }
 
   async setMonitorState(partyId: string, enabled: boolean) {
-    try {
-      let propName = 'domibus.monitoring.connection.party.enabled';
-      let prop: PropertyModel = await this.propertiesService.getProperty(propName);
-
-      let enabledParties = prop.value.split(',').map(p => p.trim()).filter(p => p != partyId).join(',');
-      if (enabled) {
-        enabledParties += ',' + partyId;
-      }
-
-      prop.value = enabledParties || ' ';
-      this.propertiesService.updateProperty(prop);
-    } catch (e) {
-      this.alertService.exception('Error while setting monitring state:', e);
+    let testableParties = await this.http.get<string[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
+    if (!testableParties || !testableParties.length) {
+      throw new Error('The test service is not properly configured.');
     }
+    if (enabled && !testableParties.includes(partyId)) {
+      throw new Error(partyId + ' is not configured for testing');
+    }
+
+    let propName = 'domibus.monitoring.connection.party.enabled';
+    let prop: PropertyModel = await this.propertiesService.getProperty(propName);
+
+    let enabledParties: string[] = prop.value.split(',').map(p => p.trim()).filter(p => p.toLowerCase() != partyId.toLowerCase());
+    // remove old parties that are no longer testable:
+    enabledParties = enabledParties.filter(p => testableParties.find(tp => tp.toLowerCase() == p.toLowerCase()));
+
+    if (enabled) {
+      enabledParties.push(partyId);
+    }
+    prop.value = enabledParties.join(',');
+    await this.propertiesService.updateProperty(prop);
   }
 
 }

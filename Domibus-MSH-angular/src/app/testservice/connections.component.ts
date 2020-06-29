@@ -109,7 +109,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
     } catch (err) {
       row.monitored = !newMonitoredValue;
-      this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>`, err);
+      this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
