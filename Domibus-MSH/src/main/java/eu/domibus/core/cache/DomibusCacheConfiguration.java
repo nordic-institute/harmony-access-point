@@ -13,8 +13,11 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Cosmin Baciu
@@ -64,6 +67,24 @@ public class DomibusCacheConfiguration {
             }
             final CacheConfiguration cacheConfiguration = externalCacheManager.getCache(cacheName).getCacheConfiguration();
             cacheManager.addCache(new Cache(cacheConfiguration));
+        }
+    }
+
+    protected void addPluginsCacheConfigurationClasspath(CacheManager cacheManager)  throws IOException {
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource[] pluginDefaultEhcacheList = resolver.getResources("classpath*:config/*-plugin-default-ehcache.xml");
+        for (Resource resource: pluginDefaultEhcacheList) {
+            LOG.debug("Adding the following plugin default ehcache file [{}]", resource);
+            CacheManager  pluginCacheManager = CacheManager.newInstance(resource.getInputStream());
+            final String[] cacheNames = pluginCacheManager.getCacheNames();
+            for (String cacheName : cacheNames) {
+                if (cacheManager.cacheExists(cacheName)) {
+                    LOG.warn("Plugin cache [{}] already exists in Domibus", cacheName);
+                    continue;
+                }
+                final CacheConfiguration cacheConfiguration = pluginCacheManager.getCache(cacheName).getCacheConfiguration();
+                cacheManager.addCache(new Cache(cacheConfiguration));
+            }
         }
     }
 
