@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataManagerSPI {
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CorePropertyMetadataManagerImpl.class);
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new DomibusPropertyMetadata[]{
             //read-only properties

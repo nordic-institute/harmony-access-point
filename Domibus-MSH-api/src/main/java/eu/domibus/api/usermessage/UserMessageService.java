@@ -4,7 +4,6 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
