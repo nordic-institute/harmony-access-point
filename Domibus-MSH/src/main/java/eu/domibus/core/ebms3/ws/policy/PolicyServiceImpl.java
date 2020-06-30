@@ -30,6 +30,9 @@ import java.io.InputStream;
 /**
  * @author Arun Raj
  * @since 3.3
+ *
+ * JIRA: EDELIVERY-6671 showed the {@link PolicyServiceImpl} has a runtime dependency to the bean algorithmSuiteLoader
+ * ({@link eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader}).
  */
 @Service
 @DependsOn("algorithmSuiteLoader")
