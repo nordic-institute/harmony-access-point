@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +53,7 @@ public class LegConfigurationValidator implements PModeValidator {
         issues.add(validateLegPayloadProfile(leg));
         issues.add(validateLegPropertySet(leg));
 
-        return issues.stream().filter(issue -> issue != null).collect(Collectors.toList());
+        return issues.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     protected ValidationIssue validateLegPropertySet(LegConfiguration leg) {

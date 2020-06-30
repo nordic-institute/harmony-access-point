@@ -389,7 +389,7 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.propertyMetadataTopropertyMetadata((DomibusPropertyMetadata) source);
         }
 
-        String errorMsg = String.format("Type not converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+        String errorMsg = String.format("Type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());
         LOG.error(errorMsg);
         throw new ConverterException(DomibusCoreErrorCode.DOM_008, errorMsg);
     }
