@@ -5,7 +5,6 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,8 +20,7 @@ public class BackendJMSConfiguration {
     @Bean
     public BackendJMSQueueService backendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                                          DomainContextExtService domainContextExtService,
-                                                         JmsPluginPropertyManager jmsPluginPropertyManager,
                                                          MessageRetriever messageRetriever) {
-        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, jmsPluginPropertyManager, messageRetriever);
+        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, messageRetriever);
     }
 }

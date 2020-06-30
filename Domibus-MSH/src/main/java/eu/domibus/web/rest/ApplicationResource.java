@@ -7,7 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
@@ -40,7 +40,7 @@ public class ApplicationResource {
     static final String SUPPORT_TEAM_EMAIL_KEY = DOMIBUS_UI_SUPPORT_TEAM_EMAIL;
 
     @Autowired
-    private DomibusPropertiesService domibusPropertiesService;
+    private DomibusVersionService domibusVersionService;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -69,8 +69,8 @@ public class ApplicationResource {
     public DomibusInfoRO getDomibusInfo() {
         LOG.debug("Getting application info");
         final DomibusInfoRO domibusInfoRO = new DomibusInfoRO();
-        domibusInfoRO.setVersion(domibusPropertiesService.getDisplayVersion());
-        domibusInfoRO.setVersionNumber(domibusPropertiesService.getVersionNumber());
+        domibusInfoRO.setVersion(domibusVersionService.getDisplayVersion());
+        domibusInfoRO.setVersionNumber(domibusVersionService.getVersionNumber());
         return domibusInfoRO;
     }
 

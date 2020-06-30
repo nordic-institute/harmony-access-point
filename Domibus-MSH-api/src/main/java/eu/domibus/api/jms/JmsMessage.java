@@ -19,6 +19,7 @@ public class JmsMessage {
     protected String jmsCorrelationId;
     protected Date timestamp;
     protected String content;
+    protected Integer priority;
     protected Map<String, Object> customProperties;
     protected Map<String, Object> properties = new HashMap<>();
 
@@ -68,6 +69,14 @@ public class JmsMessage {
 
     public void setJmsCorrelationId(String jmsCorrelationId) {
         this.jmsCorrelationId = jmsCorrelationId;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     public Map<String, Object> getJMSProperties() {

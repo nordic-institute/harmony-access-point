@@ -427,6 +427,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setId(textMessage.getJMSMessageID());
         result.setTimestamp(new Date(textMessage.getJMSTimestamp()));
         result.setType(textMessage.getJMSType());
+        int jmsPriority = textMessage.getJMSPriority();
+        result.setPriority(jmsPriority);
         Enumeration propertyNames = textMessage.getPropertyNames();
 
         Map<String, Object> properties = new HashMap<>();
@@ -435,6 +437,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             Object objectProperty = textMessage.getObjectProperty(name);
             properties.put(name, objectProperty);
         }
+        properties.put(JMS_PRIORITY, String.valueOf(jmsPriority));
         result.setProperties(properties);
         return result;
     }
@@ -447,6 +450,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (jmsTimestamp != null) {
             result.setTimestamp(new Date(jmsTimestamp));
         }
+        result.setPriority(mapMessage.getJMSPriority());
         result.setId(mapMessage.getJMSMessageID());
 
         Map<String, Object> properties = new HashMap<>();

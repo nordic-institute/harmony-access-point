@@ -22,12 +22,12 @@ public class DomibusPropertiesServiceTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesServiceTest.class);
 
     @Tested
-    DomibusPropertiesService service;
+    DomibusVersionService service;
 
     @Test
     public void testDisplayVersion() throws Exception {
 
-        DomibusPropertiesService service = new DomibusPropertiesService();
+        DomibusVersionService service = new DomibusVersionService();
 
         assertEquals("domibus-MSH", service.getArtifactName());
         assertNotEquals("", service.getBuiltTime());

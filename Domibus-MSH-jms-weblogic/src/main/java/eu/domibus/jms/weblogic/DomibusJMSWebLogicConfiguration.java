@@ -1,6 +1,7 @@
 package eu.domibus.jms.weblogic;
 
 import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,7 +23,7 @@ public class DomibusJMSWebLogicConfiguration {
 
     @Bean("jmsSender")
     public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
-        JmsTemplate result = new JmsTemplate();
+        PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         result.setConnectionFactory(connectionFactory);

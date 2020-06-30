@@ -1,16 +1,12 @@
 package eu.domibus.core.message;
 
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -94,5 +90,30 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
             }
         }
         return originalUser;
+    }
+
+    @Override
+    public String getService(UserMessage userMessage) {
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo == null) {
+            LOG.trace("Collaboration info is null");
+            return null;
+        }
+        Service service = collaborationInfo.getService();
+        if (service == null) {
+            LOG.trace("Service is null");
+            return null;
+        }
+        return service.getValue();
+    }
+
+    @Override
+    public String getAction(UserMessage userMessage) {
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo == null) {
+            LOG.trace("Collaboration info is null");
+            return null;
+        }
+        return collaborationInfo.getAction();
     }
 }
