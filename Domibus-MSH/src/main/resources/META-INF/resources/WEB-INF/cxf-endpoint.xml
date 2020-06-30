@@ -126,6 +126,7 @@
             <ref bean="setSignatureAlgorithmInInterceptor"/>
             <ref bean="setPolicyInInterceptorClient"/>
             <ref bean="httpHeaderInInterceptor"/>
+            <ref bean="cryptoCoverageChecker"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
             <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
@@ -174,5 +175,4 @@
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client AllowChunking="false"/>
     </http-conf:conduit>
-
 </beans>
