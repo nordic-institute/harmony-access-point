@@ -41,11 +41,11 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param messageId The message id for which the queue is determined
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param messageId                  The message id for which the queue is determined
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
-     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
      * @return the default or the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
      */
     public String getJMSQueue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
         Submission submission;
@@ -61,11 +61,11 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param queueContext The queue context used for determining the queue
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param queueContext               The queue context used for determining the queue
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
-     * @throws DefaultJmsPluginException in case the queue could not be determined
      * @return the default or the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined
      */
     public String getJMSQueue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         String queueValue = getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
@@ -78,8 +78,8 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param queueContext The queue context used for determining the queue
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param queueContext               The queue context used for determining the queue
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
      * @return the default or the routing queue
      */
@@ -105,7 +105,7 @@ public class BackendJMSQueueService {
     /**
      * Tries to get the configured queue using routing properties. Returns the first matching routing queue if any.
      *
-     * @param routingQueuePrefixList The routing queue properties with a specific prefix
+     * @param routingQueuePrefixList     The routing queue properties with a specific prefix
      * @param routingQueuePrefixProperty
      * @param queueContext
      * @param currentDomain
@@ -125,9 +125,9 @@ public class BackendJMSQueueService {
      * Returns the routing queue for which the configured service and action value matches the values from the Submission.
      *
      * @param routingQueuePrefixProperty The routing queue prefix property eg jmsplugin.queue.reply.routing
-     * @param routingQueuePrefixName The routing queue prefix name eg routingQueuePrefixName=rule1
-     * @param submission the message Submission
-     * @param currentDomain the current domain
+     * @param routingQueuePrefixName     The routing queue prefix name eg routingQueuePrefixName=rule1
+     * @param queueContext               The queue context used for determining the queue
+     * @param currentDomain              the current domain
      * @return the routing queue in case it matches or null otherwise
      */
     protected String getRoutingQueue(String routingQueuePrefixProperty, String routingQueuePrefixName, QueueContext queueContext, DomainDTO currentDomain) {
@@ -168,7 +168,7 @@ public class BackendJMSQueueService {
      * @return
      */
     protected String getQueuePropertyName(String routingQueuePrefixProperty, String routingQueuePrefixName, String suffix) {
-        return routingQueuePrefixProperty +  "." + routingQueuePrefixName + "." + suffix;
+        return routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix;
     }
 
     protected boolean matchesQueueContext(String service, String action, QueueContext queueContext) {
