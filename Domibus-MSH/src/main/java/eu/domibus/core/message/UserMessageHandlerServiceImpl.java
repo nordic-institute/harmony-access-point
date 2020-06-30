@@ -16,6 +16,8 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.*;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -139,6 +141,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @Timer
+    @Counter
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);

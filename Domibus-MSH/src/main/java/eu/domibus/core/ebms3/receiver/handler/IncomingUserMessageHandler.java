@@ -2,6 +2,8 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -34,6 +36,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected AuthorizationService authorizationService;
 
     @Override
+    @Timer
+    @Counter
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());

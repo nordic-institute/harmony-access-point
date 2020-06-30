@@ -18,7 +18,7 @@ public @interface Timer {
     /**
      * @return the timer name.
      */
-    MetricNames value();
+    MetricNames value() default MetricNames.VOID;
 
     /**
      * @return the timer class.

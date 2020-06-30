@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3.ws.attachment;
 
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.attachment.AttachmentDataSource;
@@ -26,6 +28,8 @@ public class AttachmentCleanupService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupService.class);
 
+    @Timer
+    @Counter
     public void cleanAttachments(SOAPMessage soapMessage) {
         final Iterator iterator = soapMessage.getAttachments();
         while (iterator.hasNext()) {
