@@ -43,7 +43,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(InternalJMSManagerActiveMQ.class);
 
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
-    public static final String JMS_PRIORITY = "JMSPriority";
+
 
     protected Map<String, ObjectName> queueMap;
 

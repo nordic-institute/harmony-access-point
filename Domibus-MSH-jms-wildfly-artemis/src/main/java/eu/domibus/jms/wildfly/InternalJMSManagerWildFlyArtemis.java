@@ -57,8 +57,6 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
     private static final String PROPERTY_JNDI_NAME = "Jndi";
 
-    public static final String JMS_PRIORITY = "JMSPriority";
-
     /**
      * The old Artemis 1.x JMS prefix.
      *

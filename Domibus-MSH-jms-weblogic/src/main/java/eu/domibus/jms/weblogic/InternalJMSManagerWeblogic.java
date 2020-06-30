@@ -56,7 +56,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     protected static final String PROPERTY_JNDI_NAME = "Jndi";
 
     private static final String JMS_TYPE = "JMSType";
-    private static final String JMS_PRIORITY = "JMSPriority";
 
     private static final String FAILED_TO_BUILD_JMS_DEST_MAP = "Failed to build JMS destination map";
 
