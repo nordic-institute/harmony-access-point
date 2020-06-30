@@ -4,9 +4,10 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,14 +24,16 @@ import java.util.stream.Collectors;
 @Service
 public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier, PluginPropertyChangeNotifier {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
+
     protected List<DomibusPropertyChangeListener> allPropertyChangeListeners;
 
     private SignalService signalService;
 
     public DomibusPropertyChangeNotifierImpl(
-            @Autowired List<DomibusPropertyChangeListener> propertyChangeListeners,
-            @Autowired(required = false) List<PluginPropertyChangeListener> pluginPropertyChangeListeners,
-            @Autowired SignalService signalService) {
+            List<DomibusPropertyChangeListener> propertyChangeListeners,
+            List<PluginPropertyChangeListener> pluginPropertyChangeListeners,
+            SignalService signalService) {
 
         this.signalService = signalService;
 
@@ -47,28 +50,33 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
             throws DomibusPropertyException {
 
         //notify all interested listeners(core or external) that the property changed
-        List<DomibusPropertyChangeListener> listeners = allPropertyChangeListeners.stream()
+        List<DomibusPropertyChangeListener> listenersToNotify = allPropertyChangeListeners.stream()
                 .filter(listener -> listener.handlesProperty(propertyName))
                 .collect(Collectors.toList());
-        listeners.forEach(listener -> {
-            try {
-                listener.propertyValueChanged(domainCode, propertyName, propertyValue);
-            } catch (DomibusPropertyException ex) {
-                throw ex;
-            } catch (Exception ex) {
-                throw new DomibusPropertyException("Exception executing listener " + listener.getClass().getName() + " for property " + propertyName, ex);
-            }
-        });
+        LOG.trace("Notifying [{}] property change listeners of the change of [{}] property", listenersToNotify.size(), propertyName);
+        listenersToNotify.forEach(listener -> notifyListener(listener, domainCode, propertyName, propertyValue));
 
         if (!broadcast) {
+            LOG.trace("No broadcasting of property [{}] changed event", propertyName);
             return;
         }
 
         //signal for other nodes in the cluster
+        LOG.trace("Broadcasting property [{}] changed event", propertyName);
         try {
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
         } catch (Exception ex) {
             throw new DomibusPropertyException("Exception signaling property change for property " + propertyName, ex);
+        }
+    }
+
+    protected void notifyListener(DomibusPropertyChangeListener listener, String domainCode, String propertyName, String propertyValue) {
+        try {
+            listener.propertyValueChanged(domainCode, propertyName, propertyValue);
+        } catch (DomibusPropertyException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new DomibusPropertyException("Exception executing listener " + listener.getClass().getName() + " for property " + propertyName, ex);
         }
     }
 

@@ -69,11 +69,6 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
         String result = domibusPropertyExtServiceDelegateAbstract.getKnownPropertyValue(propertyName);
 
         Assert.assertEquals(propValue, result);
-
-        new Verifications() {{
-//            domibusPropertyExtService.getProperty(propertyName);
-//            times = 0;
-        }};
     }
 
     @Test

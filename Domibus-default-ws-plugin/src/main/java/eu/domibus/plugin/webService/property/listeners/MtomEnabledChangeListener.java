@@ -1,8 +1,9 @@
 package eu.domibus.plugin.webService.property.listeners;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.ws.Endpoint;
@@ -19,17 +20,25 @@ import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.MTOM
 @Service
 public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
 
-    @Autowired
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MtomEnabledChangeListener.class);
+
     private Endpoint backendInterfaceEndpoint;
+
+    public MtomEnabledChangeListener(Endpoint backendInterfaceEndpoint) {
+        this.backendInterfaceEndpoint = backendInterfaceEndpoint;
+    }
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equals(propertyName, MTOM_ENABLED_PROPERTY);
+        boolean doesHandle = StringUtils.equals(propertyName, MTOM_ENABLED_PROPERTY);
+        LOG.trace("Handling [{}] property: [{}]", propertyName, doesHandle);
+        return doesHandle;
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         Boolean val = Boolean.valueOf(propertyValue);
+        LOG.trace("Setting [{}] property to [{}] on domain: [{}]", propertyName, val, domainCode);
         ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(val);
     }
 }

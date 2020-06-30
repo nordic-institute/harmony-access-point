@@ -37,7 +37,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
             return domibusPropertyExtService.getProperty(propertyName);
         }
 
-        LOG.debug("Property [{}] is not stored globally so onGetLocalPropertyValue is called.", propertyName);
+        LOG.trace("Property [{}] is not stored globally so onGetLocalPropertyValue is called.", propertyName);
         return onGetLocalPropertyValue(propertyName, propMeta);
     }
 
@@ -62,7 +62,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
             return domibusPropertyExtService.getIntegerProperty(propertyName);
         }
 
-        LOG.debug("Property [{}] is not stored globally so 0 was returned.", propertyName);
+        LOG.trace("Property [{}] is not stored globally so onGetLocalIntegerPropertyValue is called.", propertyName);
         return onGetLocalIntegerPropertyValue(propertyName, propMeta);
     }
 
@@ -131,10 +131,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     }
 
     /**
-     * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
-     *
-     * @param domainCode   the code of the domain
-     * @param propertyName the name of the property
+     * {@inheritDoc}
      */
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {

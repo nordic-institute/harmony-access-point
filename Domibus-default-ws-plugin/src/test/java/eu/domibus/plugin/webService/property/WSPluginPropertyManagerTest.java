@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.property.listeners.SchemaValidationEnabledCh
 import junit.framework.TestCase;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,17 +26,14 @@ import java.util.Map;
 public class WSPluginPropertyManagerTest extends TestCase {
 
     @Tested
-    SchemaValidationEnabledChangeListener schemaValidationEnabledChangeListener;
-
-    @Tested
-    MtomEnabledChangeListener mtomEnabledChangeListener;
-
-    @Tested
     @Injectable
     WSPluginPropertyManager wsPluginPropertyManager;
 
-    @Injectable
-    private Endpoint backendInterfaceEndpoint;
+    @Mocked
+    SchemaValidationEnabledChangeListener schemaValidationEnabledChangeListener;
+
+    @Mocked
+    MtomEnabledChangeListener mtomEnabledChangeListener;
 
     @Injectable
     DomibusPropertyExtService domibusPropertyExtService;
@@ -44,40 +42,10 @@ public class WSPluginPropertyManagerTest extends TestCase {
     DomainExtService domainExtService;
 
     @Test
-    public void testPropertyChangeListeners(@Mocked HashMap<String, Object> propBag, @Mocked SOAPBinding soapBinding) {
-        PluginPropertyChangeListener[] listeners = new PluginPropertyChangeListener[]{
-                schemaValidationEnabledChangeListener,
-                mtomEnabledChangeListener,
-        };
-
-        new Expectations() {{
-            backendInterfaceEndpoint.getProperties();
-            result = propBag;
-            backendInterfaceEndpoint.getBinding();
-            result = soapBinding;
-        }};
-
+    public void getKnownProperties() {
         Map<String, DomibusPropertyMetadataDTO> properties = wsPluginPropertyManager.getKnownProperties();
-
-        for (String propertyName : properties.keySet()) {
-            if (wsPluginPropertyManager.hasKnownProperty(propertyName)) {
-                for (PluginPropertyChangeListener listener : listeners) {
-                    if (listener.handlesProperty(propertyName)) {
-                        String testValue = testPropertyValue(propertyName);
-                        listener.propertyValueChanged("default", propertyName, testValue);
-                    }
-                }
-            }
-        }
-
-        assertTrue(propBag.get("schema-validation-enabled").equals("true"));
-
-        new Verifications() {{
-            ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(true);
-        }};
-    }
-
-    private String testPropertyValue(String propertyName) {
-        return "true";
+        Assert.assertTrue(properties.containsKey("wsplugin.schema.validation.enabled"));
+        Assert.assertTrue(properties.containsKey("wsplugin.mtom.enabled"));
+        Assert.assertFalse(properties.containsKey("unknown.property"));
     }
 }
