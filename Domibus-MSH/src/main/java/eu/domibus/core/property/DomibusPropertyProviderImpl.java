@@ -143,7 +143,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
         List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> property.startsWith(propertyPrefix));
+        Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> StringUtils.startsWith(property, propertyPrefix));
         if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
             LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
             return result;
@@ -151,7 +151,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
         List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
                 .map(property -> StringUtils.substringAfter(property, propertyPrefix))
-                .filter(property -> !property.contains(".")).collect(Collectors.toList());
+                .filter(property -> StringUtils.containsNone(property, ".")).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(firstLevelProperties)) {
             LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
             return result;
