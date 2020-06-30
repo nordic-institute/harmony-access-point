@@ -44,8 +44,9 @@ public class WSPluginPropertyManagerTest extends TestCase {
     @Test
     public void getKnownProperties() {
         Map<String, DomibusPropertyMetadataDTO> properties = wsPluginPropertyManager.getKnownProperties();
-        Assert.assertTrue(properties.containsKey("wsplugin.schema.validation.enabled"));
-        Assert.assertTrue(properties.containsKey("wsplugin.mtom.enabled"));
+        Assert.assertTrue(properties.containsKey(WSPluginPropertyManager.SCHEMA_VALIDATION_ENABLED_PROPERTY));
+        Assert.assertTrue(properties.containsKey(WSPluginPropertyManager.MTOM_ENABLED_PROPERTY));
+        Assert.assertTrue(properties.containsKey(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT));
         Assert.assertFalse(properties.containsKey("unknown.property"));
     }
 }
