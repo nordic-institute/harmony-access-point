@@ -63,7 +63,7 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
         try {
             priorityValue = Integer.valueOf(priorityValueString);
         } catch (NumberFormatException e) {
-            throw new UserMessageException("Priority [" + priorityValue + "] is not a valid integer");
+            throw new UserMessageException("Priority [" + priorityValueString + "] is not a valid integer");
         }
         return priorityValue;
     }
