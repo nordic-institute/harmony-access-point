@@ -862,6 +862,69 @@ public class CachingPModeProviderTest {
         Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action", new Role("rn", "rv"), new Role("rn", "rv")));
     }
 
+    // Values for findLeg tests
+    final String senderParty = "blue_gw";
+    final String receiverParty = "red_gw";
+    final String agreement = "agreement1110";
+    final String service = "noSecService";
+    final String action = "noSecAction";
+    final Role initiatorRole = new Role("defaultInitiatorRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+    final Role responderRole = new Role("defaultResponderRole","http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+
+    @Test
+    public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+
+        final String expectedLegName = "pushNoSecnoSecAction";
+
+        ProcessTypePartyExtractor processTypePartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses();
+            result = configuration.getBusinessProcesses();
+
+            processPartyExtractorProvider.getProcessTypePartyExtractor(anyString, senderParty, receiverParty);
+            result = processTypePartyExtractor;
+        }};
+        try {
+            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+            assertEquals(expectedLegName, legName);
+        } catch (EbMS3Exception ex) {
+            fail("Exception was not expected");
+        }
+    }
+
+    @Test(expected = EbMS3Exception.class)
+    public void testfindLegNameMissingRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+        final Role notMyInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
+
+        final String expectedMessage = "No Candidates for Legs found";
+
+        ProcessTypePartyExtractor processTypePartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses();
+            result = configuration.getBusinessProcesses();
+
+            processPartyExtractorProvider.getProcessTypePartyExtractor(anyString, senderParty, receiverParty);
+            result = processTypePartyExtractor;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+        try {
+            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole);
+            fail("Should not get here");
+        } catch (EbMS3Exception ex) {
+            assertEquals(expectedMessage, ex.getErrorDetail());
+            throw ex;
+        }
+    }
+
+
     @Test
     public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
