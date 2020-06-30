@@ -82,6 +82,14 @@ public class Role extends AbstractBaseEntity {
     }
 
     @Override
+    public String toString() {
+        return "Role{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 

@@ -265,7 +265,6 @@ public class CachingPModeProvider extends PModeProvider {
                             if (matchAgreement(process, agreementName) &&
                                     matchRole(process.getInitiatorRole(), initiatorRole) &&
                                     matchRole(process.getResponderRole(), responderRole)) {
-                                // IOANA todo
                                 LOG.debug("Add candidate legs [{}] for process [{}]", process.getLegs(), process);
                                 candidates.addAll(process.getLegs());
                             }
@@ -294,13 +293,13 @@ public class CachingPModeProvider extends PModeProvider {
             return true;
         }
 
-        LOG.debug("Role is [{}] [{}], process role is [{}] [{}] ", role.getName(), role.getValue(), processRole.getName(), processRole.getValue());
+        LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
         if(Objects.equals(role, processRole)) {
             LOG.debug("Roles match");
             return true;
         }
 
-        LOG.warn("Roles do not match. Role is [{}] [{}], process role is [{}] [{}]" , role.getName(), role.getValue(), processRole.getName(), processRole.getValue());
+        LOG.debug("Roles do not match");
         return false;
     }
 
