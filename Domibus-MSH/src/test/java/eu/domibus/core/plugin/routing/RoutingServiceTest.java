@@ -2,11 +2,11 @@ package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.plugin.NotificationListener;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.plugin.NotificationListener;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -26,7 +26,7 @@ import java.util.List;
 public class RoutingServiceTest {
 
     @Tested
-    RoutingService routingService;
+    private RoutingService routingService;
 
     @Injectable
     private BackendFilterDao backendFilterDao;
@@ -38,8 +38,7 @@ public class RoutingServiceTest {
     private DomainCoreConverter coreConverter;
 
     @Injectable
-    BackendNotificationService backendNotificationService;
-
+    private BackendNotificationService backendNotificationService;
 
     @Test(expected = ConfigurationException.class)
     public void validateFiltersThrowsError() {

@@ -15,25 +15,21 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
  * @since 4.1.2
  */
 public class AuditFilters extends FilterArea {
+	@FindBy(css = "#table_id")
+	public WebElement tableFilterContainer;
+	@FindBy(css = "#user_id:nth-of-type(2)")
+	public WebElement userFilterContainer;
+	@FindBy(css = "#action_id:nth-of-type(3)")
+	public WebElement actionFilterContainer;
+	@FindBy(css = "#from_id")
+	public WebElement changedFrom;
+	@FindBy(css = "#to_id")
+	public WebElement changedTo;
+
 	public AuditFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#table_id")
-	public WebElement tableFilterContainer;
-
-	@FindBy(css = "#user_id:nth-of-type(2)")
-	public WebElement userFilterContainer;
-
-	@FindBy(css = "#action_id:nth-of-type(3)")
-	public WebElement actionFilterContainer;
-
-	@FindBy(css = "#from_id")
-	public WebElement changedFrom;
-
-	@FindBy(css = "#to_id")
-	public WebElement changedTo;
 
 	public MultiSelect getTableFilter() {
 		return weToMultiSelect(tableFilterContainer);
@@ -66,11 +62,11 @@ public class AuditFilters extends FilterArea {
 		getUserFilter().selectOptionByText(user);
 		getActionFilter().selectOptionByText(action);
 
-		if(!StringUtils.isEmpty(changeFrom)){
+		if (!StringUtils.isEmpty(changeFrom)) {
 			expandArea();
 			getChangedFrom().selectDate(changeFrom);
 		}
-		if(!StringUtils.isEmpty(changeTo)){
+		if (!StringUtils.isEmpty(changeTo)) {
 			expandArea();
 			getChangedTo().selectDate(changeTo);
 		}

@@ -25,14 +25,18 @@ public class TomcatTaskExecutorConfigurationTest {
         int threadCount = 20;
 
         new Expectations() {{
+            new SimpleThreadPoolTaskExecutor();
+            result = poolTaskExecutor;
+
             domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_TASK_EXECUTOR_THREAD_COUNT);
-            this.result = threadCount;
+            result = threadCount;
         }};
 
         tomcatTaskExecutorConfiguration.simpleThreadPoolTaskExecutor(domibusPropertyProvider);
 
-        new Verifications() {{
+        new FullVerifications() {{
             poolTaskExecutor.setThreadCount(threadCount);
+            poolTaskExecutor.setWaitForJobsToCompleteOnShutdown(true);
         }};
     }
 }

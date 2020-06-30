@@ -7,55 +7,44 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 import java.util.HashMap;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class JMSMessModal extends InfoModal {
+	//	HEADER
+	@FindBy(id = "source_id")
+	WebElement sourceQueueInput;
+	@FindBy(id = "id_id")
+	WebElement idInput;
+	@FindBy(id = "timestamp_id")
+	WebElement timestampInput;
+	@FindBy(id = "type_id")
+	WebElement jmsTypeInput;
+	@FindBy(id = "customProperties_id")
+	WebElement customPropertiesArea;
+	@FindBy(id = "propJmsMessageId_id")
+	WebElement jmsMessageIDInput;
+
+//	Properties
+	@FindBy(id = "propDestination_id")
+	WebElement destinationQueueInput;
+	@FindBy(id = "propDeliveryMode_id")
+	WebElement deliveryModeInput;
+	@FindBy(id = "propMessageId_id")
+	WebElement jmsType2Input;
+	@FindBy(id = "content_id")
+	WebElement msgContentInput;
+
 	public JMSMessModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 
 	}
-
-	//	HEADER
-	@FindBy(id = "source_id")
-	WebElement sourceQueueInput;
-
-	@FindBy(id = "id_id")
-	WebElement idInput;
-
-	@FindBy(id = "timestamp_id")
-	WebElement timestampInput;
-
-	@FindBy(id = "type_id")
-	WebElement jmsTypeInput;
-
-	@FindBy(id = "customProperties_id")
-	WebElement customPropertiesArea;
-
-//	Properties
-
-	@FindBy(id = "propJmsMessageId_id")
-	WebElement jmsMessageIDInput;
-
-	@FindBy(id = "propDestination_id")
-	WebElement destinationQueueInput;
-
-	@FindBy(id = "propDeliveryMode_id")
-	WebElement deliveryModeInput;
-
-	@FindBy(id = "propMessageId_id")
-	WebElement jmsType2Input;
-
-	@FindBy(id = "content_id")
-	WebElement msgContentInput;
 
 	public DInput getSourceQueueInput() {
 		return new DInput(driver, sourceQueueInput);
@@ -97,7 +86,7 @@ public class JMSMessModal extends InfoModal {
 		return new DInput(driver, msgContentInput);
 	}
 
-	public HashMap<String, String> getMessageInfo() throws Exception{
+	public HashMap<String, String> getMessageInfo() throws Exception {
 
 		log.debug("retreive info from popup");
 

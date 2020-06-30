@@ -77,7 +77,7 @@ public class DomainDaoImpl implements DomainDao {
         for (String fileName : fileNames) {
             LOG.trace("Getting domain code from file [{}]", fileName);
             String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
-            if(isValidDomain(domains, domainCode)) {
+            if (isValidDomain(domains, domainCode)) {
                 Domain domain = new Domain();
                 domain.setCode(domainCode.toLowerCase());
                 domain.setName(getDomainTitle(domain));
@@ -85,7 +85,7 @@ public class DomainDaoImpl implements DomainDao {
                 LOG.trace("Domain name is valid. Added domain [{}]", domain);
             }
         }
-        if(!domains.stream().anyMatch(domain-> DomainService.DEFAULT_DOMAIN.equals(domain))) {
+        if (domains.stream().noneMatch(domain -> DomainService.DEFAULT_DOMAIN.equals(domain))) {
             LOG.warn("Default domain is normally present in the configuration.");
         }
 

@@ -16,18 +16,13 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.message.pull.ProcessValidator;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.pull.MpcService;
-import eu.domibus.core.message.pull.PullContext;
-import eu.domibus.core.message.pull.PullFrequencyHelper;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.apache.commons.lang3.Validate;
 import org.junit.Before;
@@ -35,11 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -149,7 +142,7 @@ public class MessageExchangeServiceImplTest {
         assertEquals(expectedPartyId, partyId);
 
 
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier = new Identifier();
         identifier.setPartyId("party1");
         identifiers.add(identifier);
@@ -271,7 +264,7 @@ public class MessageExchangeServiceImplTest {
         String mpc = "mpc";
         Party party = Mockito.mock(Party.class);
 
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier = new Identifier();
         identifier.setPartyId("party1");
         identifiers.add(identifier);
@@ -290,7 +283,7 @@ public class MessageExchangeServiceImplTest {
         String mpc = "mpc";
         Party party = Mockito.mock(Party.class);
 
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier = new Identifier();
         identifier.setPartyId("party1");
         identifiers.add(identifier);
@@ -313,7 +306,7 @@ public class MessageExchangeServiceImplTest {
         String mpc = "mpc";
         Party party = Mockito.mock(Party.class);
 
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         when(party.getIdentifiers()).thenReturn(identifiers);
 
         assertNull(messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party));
@@ -325,7 +318,7 @@ public class MessageExchangeServiceImplTest {
         String mpc = "mpc";
         Party party = Mockito.mock(Party.class);
 
-        Set<Identifier> identifiers = new HashSet<>();
+        List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier = new Identifier();
         identifier.setPartyId("party1");
         identifiers.add(identifier);

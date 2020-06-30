@@ -9,38 +9,32 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Generator;
-import utils.TestRunData;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class PartyIdentifierModal extends DomibusPage {
+	@FindBy(css = "app-party-identifier-details form button:nth-child(1)")
+	WebElement okBtn;
+	@FindBy(css = "app-party-identifier-details form button:nth-child(2)")
+	WebElement cancelBtn;
+	@FindBy(css = "#partyId_id")
+	WebElement partyIdInput;
+	@FindBy(css = "#partyIdType_id")
+	WebElement partyIdTypeInput;
+	@FindBy(css = "#partyIdValue_id")
+	WebElement partyIdValueInput;
+
 	public PartyIdentifierModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "app-party-identifier-details form button:nth-child(1)")
-	WebElement okBtn;
-
-	@FindBy(css = "app-party-identifier-details form button:nth-child(2)")
-	WebElement cancelBtn;
-
 	public void clickOK() throws Exception {
 		new DButton(driver, okBtn).click();
 		wait.forElementToBeGone(okBtn);
 	}
-
-	@FindBy(css = "#partyId_id")
-	WebElement partyIdInput;
-
-	@FindBy(css = "#partyIdType_id")
-	WebElement partyIdTypeInput;
-
-	@FindBy(css = "#partyIdValue_id")
-	WebElement partyIdValueInput;
 
 	public DInput getPartyIdInput() {
 		return new DInput(driver, partyIdInput);

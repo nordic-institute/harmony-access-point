@@ -2,8 +2,10 @@
 <ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="blue_gw">
 	<businessProcesses>
 		<roles>
-			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
-			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+			<role name="defaultInitiatorRole"
+				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole"
+				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
 		</roles>
 		<parties>
 			<partyIdTypes>
@@ -20,7 +22,8 @@
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
 			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay" legs="0"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+			<binding name="pushAndPush"
+					 value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
 		</meps>
 		<properties>
 			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
@@ -31,9 +34,11 @@
 			</propertySet>
 		</properties>
 		<payloadProfiles>
-			<payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true" inBody="false"/>
-			<payload name="businessContentAttachment" cid="cid:attachment" mimeType="text/xml" maxSize="0" required="false" inBody="false"/>
-			<payloadProfile name="MessageProfile" maxSize="2147483647">
+			<payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true"
+					 inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" mimeType="text/xml" maxSize="0"
+					 required="false" inBody="false"/>
+			<payloadProfile name="MessageProfile" maxSize="40894464">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -44,7 +49,8 @@
 			<security name="eSensPolicy" policy="eSensPolicy.v2.0.xml" signatureMethod="RSA_SHA256"/>
 		</securities>
 		<errorHandlings>
-			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false"
+						   businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
 		</errorHandlings>
 		<agreements>
 			<agreement name="agreement1" value="A1" type=""/>
@@ -64,10 +70,17 @@
 			<reliability name="noReliability" replyPattern="response" nonRepudiation="false"/>
 		</as4>
 		<legConfigurations>
-			<legConfiguration name="pushTestcase1tc1Action" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" service="testService1" action="tc1Action" defaultMpc="defaultMpc" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
-			<legConfiguration name="pushTestcase1tc2Action" reliability="AS4Reliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" service="testService1" action="tc2Action" defaultMpc="defaultMpc" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase1tc1Action" reliability="noReliability" security="noSigNoEnc"
+							  receptionAwareness="receptionAwareness" service="testService1" action="tc1Action"
+							  defaultMpc="defaultMpc" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling"
+							  compressPayloads="false"/>
+			<legConfiguration name="pushTestcase1tc2Action" reliability="AS4Reliability" security="noSigNoEnc"
+							  receptionAwareness="receptionAwareness" service="testService1" action="tc2Action"
+							  defaultMpc="defaultMpc" propertySet="ecodexPropertySet" payloadProfile="MessageProfile"
+							  errorHandling="demoErrorHandling" compressPayloads="true"/>
 		</legConfigurations>
-		<process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" agreement="" mep="oneway" binding="push">
+		<process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole"
+				 agreement="" mep="oneway" binding="push">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
 				<initiatorParty name="red_gw"/>
@@ -83,6 +96,7 @@
 		</process>
 	</businessProcesses>
 	<mpcs>
-		<mpc name="defaultMpc" retention_downloaded="100" retention_undownloaded="600" default="true" enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+		<mpc name="defaultMpc" retention_downloaded="100" retention_undownloaded="600" default="true" enabled="true"
+			 qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
 	</mpcs>
 </ns2:configuration>

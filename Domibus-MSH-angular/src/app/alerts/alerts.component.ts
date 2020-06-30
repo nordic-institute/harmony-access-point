@@ -13,13 +13,12 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {AlertsEntry} from './support/alertsentry';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'alerts.component.html',
-  providers: []
 })
-
 export class AlertsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -32,8 +31,9 @@ export class AlertsComponent extends mix(BaseListComponent)
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
 
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
-  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) public rowWithSpaceAfterCommaTpl: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) rowWithSpaceAfterCommaTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
   aTypes: Array<any>;
   aStatuses: Array<any>;
@@ -56,6 +56,8 @@ export class AlertsComponent extends mix(BaseListComponent)
   dateFromName: string;
   dateToName: string;
   displayDomainCheckBox: boolean;
+  areRowsDeleted: boolean;
+  areRowsEdited: boolean;
 
   matcher: ErrorStateMatcher = new ShowOnDirtyErrorStateMatcher;
 
@@ -92,7 +94,8 @@ export class AlertsComponent extends mix(BaseListComponent)
 
     super.orderBy = 'creationTime';
     super.asc = false;
-
+    this.areRowsDeleted = false;
+    this.areRowsEdited = false;
     this.filterData();
   }
 
@@ -113,11 +116,12 @@ export class AlertsComponent extends mix(BaseListComponent)
       {name: 'Sent Attempts', width: 50, prop: 'attempts',},
       {name: 'Max Attempts', width: 50},
       {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
-      {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155}
+      {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155},
+      {name: 'Actions', cellTemplate: this.rowActions, width: 60, canAutoResize: true, sortable: false, showInitially: true}
     ];
 
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Parameters'].indexOf(col.name) != -1
+      return ['Processed', 'Alert Type', 'Alert Level', 'Alert Status', 'Creation Time', 'Parameters', 'Actions'].indexOf(col.name) != -1
     });
 
   }
@@ -231,17 +235,53 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.timestampReportingFromMaxDate = event.value;
   }
 
+  setIsDirty() {
+    super.isChanged = this.areRowsDeleted || this.areRowsEdited;
+  }
+
+  delete() {
+    this.deleteAlerts(this.selected);
+  }
+
+  buttonDeleteAction(row) {
+    this.deleteAlerts([row]);
+  }
+
+  private deleteAlerts(alerts: AlertsEntry[]) {
+    for (const itemToDelete of alerts) {
+      itemToDelete.deleted = true;
+    }
+
+    super.selected = [];
+    this.areRowsDeleted = true;
+    this.setIsDirty();
+  }
+
   async doSave(): Promise<any> {
     return this.http.put(AlertsComponent.ALERTS_URL, this.rows).toPromise()
       .then(() => this.loadServerData());
   }
 
   setProcessedValue(row) {
-    super.isChanged = true;
+    this.areRowsEdited = true;
+    this.setIsDirty();
   }
 
   get csvUrl(): string {
     // todo: add dynamic params for csv filtering, if requested
     return AlertsComponent.ALERTS_CSV_URL + '?' + this.createAndSetParameters();
   }
+
+  canDelete() {
+    return this.atLeastOneRowSelected() && this.notEveryRowIsDeleted() && !this.isBusy();
+  }
+
+  private notEveryRowIsDeleted() {
+    return !this.selected.every(el => el.deleted);
+  }
+
+  private atLeastOneRowSelected() {
+    return this.selected.length > 0;
+  }
+
 }

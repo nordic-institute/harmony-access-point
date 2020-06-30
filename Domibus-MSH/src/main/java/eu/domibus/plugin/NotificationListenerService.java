@@ -131,13 +131,13 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
-                    backendConnector.deliverMessage(messageId);
+                    doDeliverMessage(message);
                     break;
                 case MESSAGE_SEND_FAILURE:
-                    backendConnector.messageSendFailed(messageId);
+                    doMessageSendFailed(message);
                     break;
                 case MESSAGE_SEND_SUCCESS:
-                    backendConnector.messageSendSuccess(messageId);
+                    doMessageSendSuccess(message);
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
                     doMessageReceiveFailure(message);
@@ -155,20 +155,39 @@ public class NotificationListenerService implements MessageListener, JmsListener
         }
     }
 
+    protected void doDeliverMessage(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        final String finalRecipient = message.getStringProperty(MessageConstants.FINAL_RECIPIENT);
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, finalRecipient);
+        backendConnectorDelegate.deliverMessage(backendConnector, deliverMessageEvent);
+    }
+
+    protected void doMessageSendFailed(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(messageId);
+        backendConnectorDelegate.messageSendFailed(backendConnector, messageSendFailedEvent);
+    }
+
+    protected void doMessageSendSuccess(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendSuccessEvent messageSendFailedEvent = new MessageSendSuccessEvent(messageId);
+        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendFailedEvent);
+    }
+
     protected void doMessageStatusChange(final Message message) throws JMSException {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
         event.setMessageId(messageId);
 
-        final String fromStatus = message.getStringProperty("fromStatus");
+        final String fromStatus = message.getStringProperty(MessageConstants.STATUS_FROM);
         if (StringUtils.isNotEmpty(fromStatus)) {
             event.setFromStatus(MessageStatus.valueOf(fromStatus));
         }
-        event.setToStatus(MessageStatus.valueOf(message.getStringProperty("toStatus")));
-        event.setChangeTimestamp(new Timestamp(message.getLongProperty("changeTimestamp")));
-        event.addProperty("service", message.getStringProperty("service"));
-        event.addProperty("serviceType", message.getStringProperty("serviceType"));
-        event.addProperty("action", message.getStringProperty("action"));
+        event.setToStatus(MessageStatus.valueOf(message.getStringProperty(MessageConstants.STATUS_TO)));
+        event.setChangeTimestamp(new Timestamp(message.getLongProperty(MessageConstants.CHANGE_TIMESTAMP)));
+        event.addProperty("service", message.getStringProperty(MessageConstants.SERVICE));
+        event.addProperty("serviceType", message.getStringProperty(MessageConstants.SERVICE_TYPE));
+        event.addProperty("action", message.getStringProperty(MessageConstants.ACTION));
         backendConnectorDelegate.messageStatusChanged(backendConnector, event);
     }
 
@@ -187,6 +206,16 @@ public class NotificationListenerService implements MessageListener, JmsListener
         }
         errorResult.setErrorDetail(errorDetail);
         errorResult.setMessageInErrorId(messageId);
+
+        String service = message.getStringProperty(MessageConstants.SERVICE);
+        event.setService(service);
+
+        String serviceType = message.getStringProperty(MessageConstants.SERVICE_TYPE);
+        event.setServiceType(serviceType);
+
+        String action = message.getStringProperty(MessageConstants.ACTION);
+        event.setAction(action);
+
         event.setErrorResult(errorResult);
         event.setEndpoint(message.getStringProperty(MessageConstants.ENDPOINT));
         backendConnectorDelegate.messageReceiveFailed(backendConnector, event);
@@ -287,6 +316,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
 
+        LOG.debug("Configuring JmsListeners for mode [{}]", this.mode);
         if (this.mode == BackendConnector.Mode.PUSH) {
             final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
             endpoint.setId(getBackendName());

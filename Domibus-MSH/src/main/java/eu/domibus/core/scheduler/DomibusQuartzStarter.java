@@ -89,6 +89,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         // General Schedulers
         for (Scheduler scheduler : generalSchedulers) {
             try {
+                LOG.info("Shutting down Quartz Scheduler for general -> scheduler [{}]", scheduler);
                 scheduler.shutdown(true);
             } catch (SchedulerException e) {
                 LOG.error("Error while shutting down Quartz Scheduler for general schema", e);
@@ -98,8 +99,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         // Domain Schedulers
         for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
             final Domain domain = domainSchedulerEntry.getKey();
-            LOG.debug("Shutting down Quartz Scheduler for domain [{}]", domain);
             final Scheduler quartzScheduler = domainSchedulerEntry.getValue();
+            LOG.info("Shutting down Quartz Scheduler for domain [{}] -> scheduler [{}]", domain, quartzScheduler);
             try {
                 quartzScheduler.shutdown(true);
             } catch (SchedulerException e) {

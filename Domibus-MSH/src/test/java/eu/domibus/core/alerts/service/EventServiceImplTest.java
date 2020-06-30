@@ -72,9 +72,6 @@ public class EventServiceImplTest {
     private Queue alertMessageQueue;
 
     @Injectable
-    private AlertConfigurationService alertConfigurationService;
-
-    @Injectable
     protected MpcService mpcService;
 
     @Test

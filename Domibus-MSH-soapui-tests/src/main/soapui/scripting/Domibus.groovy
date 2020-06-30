@@ -14,7 +14,13 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import groovy.json.JsonBuilder
 import org.apache.commons.io.FileUtils
-
+/*
+import javax.jms.*
+import javax.naming.NamingException
+import javax.naming.Context
+import javax.naming.InitialContext
+import org.apache.activemq.ActiveMQConnectionFactory
+*/
 
 
 class Domibus{
@@ -33,7 +39,12 @@ class Domibus{
     def redDomainID = null //"C3Default"
     def greenDomainID = null //"thirdDefault"
     def thirdGateway = "false"; def multitenancyModeC2 = 0; def multitenancyModeC3 = 0;
-
+	
+	//START: JMS communication - specific properties
+	def jmsSender = null
+	def jmsConnectionHandler = null
+	// END: JMS communication - specific properties	
+	
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 	static def FS_DEF_MAP=[FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"];
@@ -2163,7 +2174,8 @@ static def String urlToDomibus(side, log, context) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
-// This method support JMS project
+// This methods support JMS project
+//---------------------------------------------------------------------------------------------------------------------------------
 static def void addPluginCredentialsIfNeeded(context, log, messageMap, String propPluginUsername = defaultPluginAdminC2Default, String propPluginPassword = defaultAdminDefaultPassword) {
     debugLog("  ====  Calling \"addPluginCredentialsIfNeeded\".", log)
     def unsecureLoginAllowed = context.expand("\${#Project#unsecureLoginAllowed}").toLowerCase()
@@ -2175,6 +2187,155 @@ static def void addPluginCredentialsIfNeeded(context, log, messageMap, String pr
         messageMap.setStringProperty("username", u)
         messageMap.setStringProperty("password", p)
     }
+}
+
+def String jmsPropertiesPrefix(inputName) {
+	String domId
+	switch (inputName.toUpperCase()) {
+		case "C3":
+		case "RED":
+		case "RECEIVER":
+			domId = "C3"
+			break
+		case "C2":
+		case "BLUE":
+		case "SENDER":
+			domId = "C2"
+			break
+		default:
+			assert false, "Not supported domain name ${inputName} provide for jmsPropertiesPrefix method. Not able to found specific properties."
+			break
+		}	
+	return domId
+}	
+/*
+def InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
+        InitialContext ic = null;
+        if (providerUrl != null) {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+            env.put(Context.PROVIDER_URL, providerUrl);
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
+            if (userName != null) {
+                env.put(Context.SECURITY_PRINCIPAL, userName);
+            }
+            if (password != null) {
+                env.put(Context.SECURITY_CREDENTIALS, password);
+            }
+            ic = new InitialContext(env);
+        } else {
+            ic = new InitialContext();
+        }
+        return ic;
+    }
+*/
+def connectToWeblogic(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE) {
+
+    /*
+    def MapMessage messageMap = null
+	try {
+	jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD);
+
+	QueueConnectionFactory cf = jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI);
+	QueueConnection qc = cf.createQueueConnection();
+	QueueSession session = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+
+	Queue queue = jmsConnectionHandler.lookup(QUEUE);
+	jmsSender =  session.createSender(queue);
+
+	messageMap = session.createMapMessage();
+	} catch (Exception ex) {
+		log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
+				"PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
+				"CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
+		assert 0,"Exception occurred when trying to connect: " + ex;
+	}
+	return messageMap
+
+     */
+}
+def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String QUEUE) {
+	/*def MapMessage messageMap = null
+	try {
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
+		jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD) //username and password of the default JMS broker
+		QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE)
+		Destination destination = session.createQueue(QUEUE)
+		jmsSender = (MessageProducer) session.createProducer(destination)
+		jmsSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
+		messageMap = session.createMapMessage()
+		} catch (Exception ex) {
+			log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Tomcat deployment failed. " +
+					"FACTORY_URL: $FACTORY_URL | USER: $USER | PASSWORD: $PASSWORD | " +
+					"QUEUE: $QUEUE"
+			assert 0,"Exception occurred when trying to connect: " + ex;
+		}
+	return messageMap
+
+	 */
+}
+
+def jmsConnectionHandlerInitializeC2() {
+	jmsConnectionHandlerInitialize("C2")
+}
+
+def jmsConnectionHandlerInitializeC3() {
+	jmsConnectionHandlerInitialize("C3")
+}
+
+def jmsConnectionHandlerInitialize(String inputName) {
+	/*def MapMessage messageMap = null
+	
+	log.info "Starting JMS message sending"   
+	String domId = jmsPropertiesPrefix(inputName)
+	log.info "Gather properties for ${domId}"
+
+    def jmsServer = context.expand("\${#Project#jmsServer}").toLowerCase()
+    switch (jmsServer) {
+    		case "weblogic":
+				log.info ("JmsServer Weblogic. Reading connection details.");
+				String PROVIDER_URL = context.expand("\${#Project#${domId}WeblogicJmsUrl}")  
+				String USER = context.expand("\${#Project#${domId}WeblogicJmsUser}")
+				String PASSWORD = context.expand("\${#Project#${domId}WeblogicJmsPassword}")
+				String CONNECTION_FACTORY_JNDI = context.expand("\${#Project#${domId}WeblogicJmsFactoryJndi}")
+				String QUEUE = context.expand("\${#Project#${domId}WeblogicJmsQueue}")
+
+				messageMap = connectToWeblogic(PROVIDER_URL, USER, PASSWORD, CONNECTION_FACTORY_JNDI, QUEUE)
+        		break
+        		
+        	case "tomcat":
+				log.info ("JmsServer Tomcat. Reading connection details.")
+				String FACTORY_URL = context.expand("\${#Project#${domId}ActiveMqUrlAddress}")  
+				String USER = context.expand("\${#Project#${domId}ActiveMQBrokerUser}")
+				String PASSWORD = context.expand("\${#Project#${domId}ActiveMQBrokerPassword}")
+				String QUEUE = context.expand("\${#Project#${domId}ActiveMQInQueue}")
+									
+				messageMap = connectToActiveMQ(FACTORY_URL, USER, PASSWORD, QUEUE)
+        		break
+		
+        	default:  
+        		log.error("Incorrect or not supported jms server type, jmsServer=${jmsServer}"); 
+        		assert 0, "Properties value error, check jmsServer value."
+        		break
+			
+    }
+	return messageMap
+
+	 */
+}
+
+def sendMessageAndClean(messageMap) {	
+/*
+	log.info "sending message"
+	try {
+		jmsSender.send(messageMap);
+		jmsConnectionHandler.close();
+	} catch (Exception ex) {
+		log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
+		assert 0,"Exception occurred when trying to connect: " + ex;
+	}	
+	log.info "message sent"
+
+ */
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------

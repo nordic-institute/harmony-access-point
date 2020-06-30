@@ -1,7 +1,6 @@
 package eu.domibus.core.plugin.delegate;
 
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.MessageStatusChangeEvent;
+import eu.domibus.common.*;
 import eu.domibus.plugin.BackendConnector;
 
 /**
@@ -13,4 +12,11 @@ public interface BackendConnectorDelegate {
     void messageReceiveFailed(BackendConnector backendConnector, MessageReceiveFailureEvent event);
 
     void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event);
+
+    void deliverMessage(BackendConnector backendConnector, DeliverMessageEvent event);
+
+    void messageSendFailed(BackendConnector backendConnector, MessageSendFailedEvent event);
+
+    void messageSendSuccess(BackendConnector backendConnector, MessageSendSuccessEvent event);
+
 }

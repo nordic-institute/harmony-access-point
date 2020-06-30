@@ -1,9 +1,8 @@
 package eu.domibus.plugin.jms;
 
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
@@ -12,15 +11,21 @@ import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.activemq.command.ActiveMQMapMessage;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.MapMessage;
 
+import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR;
+import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -69,13 +74,17 @@ public class BackendJMSImplTest {
     protected BackendJMSQueueService backendJMSQueueService;
 
     @Injectable
+    protected JMSMessageTransformer jmsMessageTransformer;
+
+    @Injectable
     String name = "myjmsplugin";
 
     @Tested
     BackendJMSImpl backendJMS;
 
     @Test
-    public void testReceiveMessage(@Injectable final MapMessage map) throws Exception {
+    public void testReceiveMessage(@Injectable final MapMessage map,
+                                   @Injectable QueueContext queueContext) throws Exception {
         final String messageId = "1";
         final String jmsCorrelationId = "2";
         final String messageTypeSubmit = JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
@@ -93,10 +102,13 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
             result = messageTypeSubmit;
 
+            jmsMessageTransformer.getQueueContext(messageId, map);
+            result = queueContext;
+
             backendJMS.submit(withAny(new ActiveMQMapMessage()));
             result = messageId;
 
-            backendJMS.sendReplyMessage(messageId, anyString, jmsCorrelationId);
+            backendJMS.sendReplyMessage(queueContext, anyString, jmsCorrelationId);
         }};
 
         backendJMS.receiveMessage(map);
@@ -106,16 +118,15 @@ public class BackendJMSImplTest {
 
             String capturedMessageId = null;
             String capturedJmsCorrelationId = null;
-            String capturedErrorMessage = null;
-            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedJmsCorrelationId = withCapture(), capturedJmsCorrelationId = withCapture());
+            backendJMS.sendReplyMessage(queueContext, null, capturedJmsCorrelationId = withCapture());
 
-            assertEquals(capturedMessageId, messageId);
             assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
         }};
     }
 
     @Test
-    public void testReceiveMessage_MessageId_WithEmptySpaces(@Injectable final MapMessage map) throws Exception {
+    public void testReceiveMessage_MessageId_WithEmptySpaces(@Injectable final MapMessage map,
+                                                             @Injectable QueueContext queueContext) throws Exception {
         final String messageId = " test123 ";
         final String messageIdTrimmed = "test123";
         final String jmsCorrelationId = "2";
@@ -137,7 +148,7 @@ public class BackendJMSImplTest {
             backendJMS.submit(withAny(new ActiveMQMapMessage()));
             result = messageIdTrimmed;
 
-            backendJMS.sendReplyMessage(anyString, anyString, jmsCorrelationId);
+            backendJMS.sendReplyMessage((QueueContext) any, anyString, jmsCorrelationId);
         }};
 
         backendJMS.receiveMessage(map);
@@ -145,19 +156,18 @@ public class BackendJMSImplTest {
         new Verifications() {{
             backendJMS.submit(map);
 
-            String capturedMessageId;
             String capturedJmsCorrelationId;
             String capturedErrorMessage;
-            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
+            backendJMS.sendReplyMessage(queueContext, capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
 
-            assertEquals(capturedMessageId, messageIdTrimmed);
             assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
             assertNull(capturedErrorMessage);
         }};
     }
 
     @Test
-    public void testReceiveMessageWithUnacceptedMessage(@Injectable final MapMessage map) throws Exception {
+    public void testReceiveMessageWithUnacceptedMessage(@Injectable final MapMessage map,
+                                                        @Injectable QueueContext queueContext) throws Exception {
         final String messageId = "1";
         final String jmsCorrelationId = "2";
         final String unacceptedMessageType = "unacceptedMessageType";
@@ -175,43 +185,59 @@ public class BackendJMSImplTest {
             map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
             result = unacceptedMessageType;
 
-            backendJMS.sendReplyMessage(messageId, anyString, jmsCorrelationId);
+            jmsMessageTransformer.getQueueContext(messageId, map);
+            result = queueContext;
+
+            backendJMS.sendReplyMessage((QueueContext) any, anyString, jmsCorrelationId);
         }};
 
         backendJMS.receiveMessage(map);
 
         new Verifications() {{
-            String capturedMessageId = null;
+            QueueContext queueContext = null;
             String capturedJmsCorrelationId = null;
             String capturedErrorMessage = null;
-            backendJMS.sendReplyMessage(capturedMessageId = withCapture(), capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
+            backendJMS.sendReplyMessage(queueContext, capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
 
-            assertEquals(capturedMessageId, messageId);
-            assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
+            assertEquals(jmsCorrelationId, capturedJmsCorrelationId);
         }};
     }
 
     @Test
-    public void testMessageReceiveFailed(@Mocked ErrorMessageCreator errorMessageCreator) throws Exception {
-        MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
-        final ErrorResult errorResult = new ErrorResultImpl();
-        event.setErrorResult(errorResult);
+    public void testMessageReceiveFailed(@Injectable MessageReceiveFailureEvent messageReceiveFailureEvent,
+                                         @Injectable ErrorResult errorResult) throws Exception {
         final String myEndpoint = "myEndpoint";
-        event.setEndpoint(myEndpoint);
         final String messageId = "1";
-        event.setMessageId(messageId);
+        final ErrorCode errorCode = ErrorCode.EBMS_0010;
+        final String errorDetail = "myError";
 
         new Expectations(backendJMS) {{
-            backendJMS.sendJmsMessage(withAny(new JmsMessageDTO()), anyString, anyString, anyString);
+            messageReceiveFailureEvent.getErrorResult();
+            result = errorResult;
+
+            errorResult.getErrorCode();
+            result = errorCode;
+
+            errorResult.getErrorDetail();
+            result = errorDetail;
+
+            messageReceiveFailureEvent.getEndpoint();
+            result = myEndpoint;
+
+            messageReceiveFailureEvent.getMessageId();
+            result = messageId;
         }};
 
-        backendJMS.messageReceiveFailed(event);
+        backendJMS.messageReceiveFailed(messageReceiveFailureEvent);
 
         new Verifications() {{
-            withCapture(new ErrorMessageCreator(errorResult,
-                    myEndpoint,
-                    NotificationType.MESSAGE_RECEIVED_FAILURE));
+            JmsMessageDTO jmsMessageDTO = null;
+            QueueContext queueContext = null;
+            backendJMS.sendJmsMessage(jmsMessageDTO = withCapture(), queueContext = withCapture(), JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
 
+            Assert.assertEquals(errorCode.getErrorCodeName(), jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_CODE));
+            Assert.assertEquals(errorDetail, jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_DETAIL));
+            Assert.assertEquals(messageId, queueContext.getMessageId());
         }};
     }
 }

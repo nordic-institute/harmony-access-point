@@ -10,22 +10,19 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 public class IdentifiersSection extends DComponent {
+	@FindBy(css = "#identifierTable")
+	protected WebElement identifierTable;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
+	protected WebElement newIdentifierButton;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
+	protected WebElement editIdentifierButton;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(3)")
+	protected WebElement delIdentifierButton;
+
 	public IdentifiersSection(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#identifierTable")
-	protected WebElement identifierTable;
-
-	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
-	protected WebElement newIdentifierButton;
-
-	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
-	protected WebElement editIdentifierButton;
-
-	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(3)")
-	protected WebElement delIdentifierButton;
 
 	public DGrid getIdentifierTable() {
 		return new DGrid(driver, identifierTable);

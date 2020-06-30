@@ -10,22 +10,17 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class UsersPage extends DomibusPage {
-	public UsersPage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
+	@FindBy(id = "deleted_id")
+	WebElement deletedChk;
 	@FindBy(id = "pageGridId")
 	private WebElement userTableContainer;
 
@@ -47,8 +42,10 @@ public class UsersPage extends DomibusPage {
 	@FindBy(id = "searchbutton_id")
 	private WebElement searchBtn;
 
-	@FindBy(id = "deleted_id")
-	WebElement deletedChk;
+	public UsersPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DGrid grid() {
 		return new DGrid(driver, userTableContainer);

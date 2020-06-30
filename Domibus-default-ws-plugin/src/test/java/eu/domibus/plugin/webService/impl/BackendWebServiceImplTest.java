@@ -1,13 +1,15 @@
 package eu.domibus.plugin.webService.impl;
 
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -51,13 +53,26 @@ public class BackendWebServiceImplTest {
     private MessageExtService messageExtService;
 
     @Injectable
-    private MessageLister lister;
-
-    @Injectable
     private String name;
 
     @Injectable
     protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+
+    @Injectable
+    protected WSMessageLogDao wsMessageLogDao;
+
+    @Injectable
+    protected DomainExtService domainExtService;
+
+    @Injectable
+    private DomainContextExtService domainContextExtService;
+
+    @Injectable
+    protected WSPluginPropertyManager wsPluginPropertyManager;
+
+    @Injectable
+    AuthenticationExtService authenticationExtService;
+
 
     @Test(expected = SubmitMessageFault.class)
     public void validateSubmitRequestWithPayloadsAndBodyload(@Injectable SubmitRequest submitRequest,
@@ -147,13 +162,16 @@ public class BackendWebServiceImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheMessageByItsIdentifier(@Injectable RetrieveMessageRequest retrieveMessageRequest,
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
-                                                                                    @Injectable Messaging ebMSHeaderInfo) throws RetrieveMessageFault {
-        new Expectations() {{
+                                                                                    @Injectable Messaging ebMSHeaderInfo,
+                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault, MessageNotFoundException {
+        new Expectations(backendWebService) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";
-
+            lister.removeFromPending(anyString);
+            result = null;
         }};
 
+        backendWebService.setLister(lister);
         backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
         new Verifications() {{

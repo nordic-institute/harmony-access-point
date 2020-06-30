@@ -17,6 +17,7 @@ Domibus 4.2
 - Add alert for account enabled.
 - maxSize attribute defined in payload profile in PMode is taken in account message exchange - maxSize="2147483647" (normal operations) or maxSize="9223372036854775807" for Split&Join operations
 - Added a new domain property: domibus.logging.ebms3.error.print (defaults to true) which prints the raw XML response in the logs in case of EBMS3 error on receiver/sender side (if eu.domibus is put at least on ERROR)
+- Improved list pending messages performance in WS plugin
 Domibus 4.1.4
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.

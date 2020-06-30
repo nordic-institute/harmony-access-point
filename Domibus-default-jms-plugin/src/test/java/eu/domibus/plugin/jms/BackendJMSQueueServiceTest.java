@@ -19,8 +19,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -44,22 +42,40 @@ public class BackendJMSQueueServiceTest {
     MessageRetriever messageRetriever;
 
     @Test
-    public void getJMSQueue() {
+    public void getJMSQueue(@Injectable Submission submission) throws MessageNotFoundException {
         String messageId = "123";
+        String service = "myService";
+        String action = "myAction";
         String defaultQueueProperty = "domibus.defaultQueue";
         String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
 
         new Expectations(backendJMSQueueService) {{
-            backendJMSQueueService.getQueueValue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
-            result = defaultQueueProperty;
+            messageRetriever.browseMessage(messageId);
+            result = submission;
+
+            submission.getService();
+            result = service;
+
+            submission.getAction();
+            result = action;
+
+            backendJMSQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
         }};
 
-        String jmsQueue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
-        assertEquals(defaultQueueProperty, jmsQueue);
+        backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+
+        new Verifications() {{
+            QueueContext queueContext = null;
+            backendJMSQueueService.getJMSQueue(queueContext = withCapture(), defaultQueueProperty, routingQueuePrefixProperty);
+
+            Assert.assertEquals(messageId, queueContext.getMessageId());
+            Assert.assertEquals(service, queueContext.getService());
+            Assert.assertEquals(action, queueContext.getAction());
+        }};
     }
 
     @Test
-    public void getQueueValueWithRouting(@Injectable Submission submission,
+    public void getQueueValueWithRouting(@Injectable QueueContext queueContext,
                                          @Injectable DomainDTO domainDTO) throws MessageNotFoundException {
         String messageId = "123";
         String defaultQueueProperty = "domibus.defaultQueue";
@@ -71,25 +87,22 @@ public class BackendJMSQueueServiceTest {
         routingQueuePrefixNameList.add("routing.rule1");
 
         new Expectations(backendJMSQueueService) {{
-            messageRetriever.browseMessage(messageId);
-            result = submission;
-
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
             domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
-            backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, submission, domainDTO);
+            backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
             result = routingQueueValue;
         }};
 
-        String queueValue = backendJMSQueueService.getQueueValue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = backendJMSQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         Assert.assertEquals(queueValue, routingQueueValue);
     }
 
     @Test
-    public void getQueueValueWithDefaultQueue(@Injectable Submission submission,
+    public void getQueueValueWithDefaultQueue(@Injectable QueueContext queueContext,
                                               @Injectable DomainDTO domainDTO) throws MessageNotFoundException {
         String messageId = "123";
         String defaultQueueProperty = "domibus.defaultQueue";
@@ -101,28 +114,25 @@ public class BackendJMSQueueServiceTest {
         routingQueuePrefixNameList.add("routing.rule1");
 
         new Expectations(backendJMSQueueService) {{
-            messageRetriever.browseMessage(messageId);
-            result = submission;
-
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
             domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
-            backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, submission, domainDTO);
+            backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
             result = null;
 
             domibusPropertyExtService.getProperty(domainDTO, defaultQueueProperty);
             result = defaultQueueValue;
         }};
 
-        String queueValue = backendJMSQueueService.getQueueValue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = backendJMSQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         Assert.assertEquals(queueValue, defaultQueueValue);
     }
 
     @Test
-    public void getRoutingQueueValue(@Injectable Submission submission,
+    public void getRoutingQueueValue(@Injectable QueueContext queueContext,
                                      @Injectable DomainDTO domainDTO) {
         List<String> routingQueuePrefixNameList = new ArrayList<>();
         String prefix = "routing.rule1";
@@ -131,16 +141,16 @@ public class BackendJMSQueueServiceTest {
         String queueValue = "domibus.myQueue";
 
         new Expectations(backendJMSQueueService) {{
-            backendJMSQueueService.getRoutingQueue(routingQueuePrefixProperty, prefix, submission, domainDTO);
+            backendJMSQueueService.getRoutingQueue(routingQueuePrefixProperty, prefix, queueContext, domainDTO);
             result = queueValue;
         }};
 
-        String routingQueueValue = backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, submission, domainDTO);
+        String routingQueueValue = backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
         Assert.assertEquals(queueValue, routingQueueValue);
     }
 
     @Test
-    public void getRoutingQueue(@Injectable Submission submission,
+    public void getRoutingQueue(@Injectable QueueContext queueContext,
                                 @Injectable DomainDTO domainDTO) {
 
 
@@ -169,7 +179,7 @@ public class BackendJMSQueueServiceTest {
             domibusPropertyExtService.getProperty(domainDTO, actionProperty);
             result = actionValue;
 
-            backendJMSQueueService.matchesSubmission(serviceValue, actionValue, submission);
+            backendJMSQueueService.matchesQueueContext(serviceValue, actionValue, queueContext);
             result = true;
 
             backendJMSQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "queue");
@@ -179,7 +189,7 @@ public class BackendJMSQueueServiceTest {
             result = queueValue;
         }};
 
-        String routingQueue = backendJMSQueueService.getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, submission, domainDTO);
+        String routingQueue = backendJMSQueueService.getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, queueContext, domainDTO);
         Assert.assertEquals(routingQueue, queueValue);
     }
 
@@ -194,107 +204,107 @@ public class BackendJMSQueueServiceTest {
     }
 
     @Test
-    public void matchesSubmissionWithServiceAndAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithServiceAndAction(@Injectable QueueContext queueContext) {
         String service = "serviceValue";
         String action = "actionValue";
 
         new Expectations() {{
-            submission.getService();
+            queueContext.getService();
             result = service;
 
-            submission.getAction();
+            queueContext.getAction();
             result = action;
         }};
 
-        Assert.assertTrue(backendJMSQueueService.matchesSubmission(service, action, submission));
+        Assert.assertTrue(backendJMSQueueService.matchesQueueContext(service, action, queueContext));
     }
 
     @Test
-    public void matchesSubmissionWithSameServiceAndDifferentAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithSameServiceAndDifferentAction(@Injectable QueueContext queueContext) {
         String service = "serviceValue";
         String action = "actionValue";
 
         new Expectations() {{
-            submission.getService();
+            queueContext.getService();
             result = service;
 
-            submission.getAction();
+            queueContext.getAction();
             result = action;
         }};
 
-        Assert.assertFalse(backendJMSQueueService.matchesSubmission(service, "myAction", submission));
+        Assert.assertFalse(backendJMSQueueService.matchesQueueContext(service, "myAction", queueContext));
     }
 
     @Test
-    public void matchesSubmissionWithServiceAndNoAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithServiceAndNoAction(@Injectable QueueContext queueContext) {
         String service = "serviceValue";
 
         new Expectations() {{
-            submission.getService();
+            queueContext.getService();
             result = service;
         }};
 
-        Assert.assertTrue(backendJMSQueueService.matchesSubmission(service, null, submission));
+        Assert.assertTrue(backendJMSQueueService.matchesQueueContext(service, null, queueContext));
 
         new Verifications() {{
-            submission.getAction();
+            queueContext.getAction();
             times = 0;
         }};
     }
 
     @Test
-    public void matchesSubmissionWithDifferentServiceAndNoAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithDifferentServiceAndNoAction(@Injectable QueueContext queueContext) {
         String service = "serviceValue";
 
         new Expectations() {{
-            submission.getService();
+            queueContext.getService();
             result = service;
         }};
 
-        Assert.assertFalse(backendJMSQueueService.matchesSubmission("differentService", null, submission));
+        Assert.assertFalse(backendJMSQueueService.matchesQueueContext("differentService", null, queueContext));
 
         new Verifications() {{
-            submission.getAction();
+            queueContext.getAction();
             times = 0;
         }};
     }
 
     @Test
-    public void matchesSubmissionWithNoServiceAndAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithNoServiceAndAction(@Injectable QueueContext queueContext) {
         String action = "actionValue";
 
         new Expectations() {{
-            submission.getAction();
+            queueContext.getAction();
             result = action;
         }};
 
-        Assert.assertTrue(backendJMSQueueService.matchesSubmission(null, action, submission));
+        Assert.assertTrue(backendJMSQueueService.matchesQueueContext(null, action, queueContext));
 
         new Verifications() {{
-            submission.getService();
+            queueContext.getService();
             times = 0;
         }};
     }
 
     @Test
-    public void matchesSubmissionWithNoServiceAndDifferentAction(@Injectable Submission submission) {
+    public void matchesSubmissionWithNoServiceAndDifferentAction(@Injectable QueueContext queueContext) {
         String action = "actionValue";
 
         new Expectations() {{
-            submission.getAction();
+            queueContext.getAction();
             result = action;
         }};
 
-        Assert.assertFalse(backendJMSQueueService.matchesSubmission(null, "differentAction", submission));
+        Assert.assertFalse(backendJMSQueueService.matchesQueueContext(null, "differentAction", queueContext));
 
         new Verifications() {{
-            submission.getService();
+            queueContext.getService();
             times = 0;
         }};
     }
 
     @Test
-    public void matchesSubmissionWithNoServiceAndNoAction(@Injectable Submission submission) {
-        Assert.assertFalse(backendJMSQueueService.matchesSubmission(null, null, submission));
+    public void matchesSubmissionWithNoServiceAndNoAction(@Injectable QueueContext queueContext) {
+        Assert.assertFalse(backendJMSQueueService.matchesQueueContext(null, null, queueContext));
     }
 }

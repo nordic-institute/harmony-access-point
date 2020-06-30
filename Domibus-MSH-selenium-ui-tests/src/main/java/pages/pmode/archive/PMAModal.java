@@ -15,19 +15,17 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
  * @since 4.1.2
  */
 public class PMAModal extends DComponent {
+	@FindBy(css = "mat-dialog-container h1#pmodeheader_id")
+	public WebElement title;
+	@FindBy(css = "mat-card-content textarea")
+	public WebElement textarea;
+	@FindBy(css = "mat-card-content button")
+	public WebElement okBtn;
+
 	public PMAModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "mat-dialog-container h1#pmodeheader_id")
-	public WebElement title;
-
-	@FindBy(css = "mat-card-content textarea")
-	public WebElement textarea;
-
-	@FindBy(css = "mat-card-content button")
-	public WebElement okBtn;
 
 	public DObject getTitle() {
 		return weToDobject(title);

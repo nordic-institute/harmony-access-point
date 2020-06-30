@@ -10,19 +10,16 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.List;
-
 public class ProcessSection extends DComponent {
+	@FindBy(css = "#processTable")
+	protected WebElement processTable;
+	//	By checkBox = By.cssSelector("input[type='checkbox']");
+	By checkBox = By.tagName("mat-checkbox");
+
 	public ProcessSection(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#processTable")
-	protected WebElement processTable;
-
-//	By checkBox = By.cssSelector("input[type='checkbox']");
-	By checkBox = By.tagName("mat-checkbox");
 
 	public DGrid getProcessTable() {
 		return new DGrid(driver, processTable);
@@ -31,7 +28,9 @@ public class ProcessSection extends DComponent {
 	public void editForProcess(String processName, boolean initiator, boolean responder) throws Exception {
 		DGrid prGrid = getProcessTable();
 		int index = prGrid.scrollTo("Process", processName);
-		if (index<0){ throw new Exception("Process not found");}
+		if (index < 0) {
+			throw new Exception("Process not found");
+		}
 
 		WebElement initiatorEl = prGrid.getRowElement(index).findElements(checkBox).get(0);
 		WebElement responderEl = prGrid.getRowElement(index).findElements(checkBox).get(1);

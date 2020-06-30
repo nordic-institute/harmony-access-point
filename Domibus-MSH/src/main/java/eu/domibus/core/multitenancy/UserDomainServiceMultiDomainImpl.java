@@ -4,19 +4,15 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.user.User;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-
-import java.util.List;
 
 /**
  * @author Ion Perpegel(nperpion)

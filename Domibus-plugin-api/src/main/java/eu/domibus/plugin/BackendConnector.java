@@ -93,8 +93,18 @@ public interface BackendConnector<U, T> {
      * MUST OVERRIDE this method. For plugins working in Mode.PULL this method never gets called. The message can be
      * retrieved by a subclass by calling super.downloadMessage(messageId, target)
      *
-     * @param messageId the id of the message to deliver
+     * @param event containing details about the deliver message event
      */
+    void deliverMessage(final DeliverMessageEvent event);
+
+    /**
+     * Delivers the message with the associated messageId to the backend application. Plugins working in Mode.PUSH mode
+     * MUST OVERRIDE this method. For plugins working in Mode.PULL this method never gets called. The message can be
+     * retrieved by a subclass by calling super.downloadMessage(messageId, target)
+     *
+     * @param messageId containing details about the deliver message event
+     */
+    @Deprecated
     void deliverMessage(final String messageId);
 
     /**
@@ -114,9 +124,9 @@ public interface BackendConnector<U, T> {
     /**
      * This method gets called when an incoming message is rejected by the MSH
      *
-     * @param messageReceiveFailureEvent event containing details about the message receive failure event
+     * @param event event containing details about the message receive failure event
      */
-    void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent);
+    void messageReceiveFailed(MessageReceiveFailureEvent event);
 
     /**
      * This method gets called when the status of a User Message changes
@@ -147,7 +157,17 @@ public interface BackendConnector<U, T> {
      *
      * @param messageId the Id of the failed message
      */
+    @Deprecated
     void messageSendFailed(String messageId);
+
+    /**
+     * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
+     * PMode[1].errorHandling.Report.ProcessErrorNotifyProducer=true has finally failed to be delivered. The error details
+     * are provided by #getErrorsForMessage. This is only called for messages that have no rerty attempts left.
+     *
+     * @param event The event containing the details of the send failed event
+     */
+    void messageSendFailed(MessageSendFailedEvent event);
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
@@ -155,7 +175,16 @@ public interface BackendConnector<U, T> {
      *
      * @param messageId the Id of the successful message
      */
+    @Deprecated
     void messageSendSuccess(String messageId);
+
+    /**
+     * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
+     * to the intended receiving MSH
+     *
+     * @param event The event containing the details of the message send success event
+     */
+    void messageSendSuccess(final MessageSendSuccessEvent event);
 
     /**
      * Describes the behaviour of the plugin regarding message delivery to the backend application

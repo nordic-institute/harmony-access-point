@@ -4,19 +4,18 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Christian Koch, Stefan Mueller
  */
-@Service
+@Repository
 @Transactional
 public class BackendFilterDao extends BasicDao<BackendFilterEntity> {
 
@@ -27,25 +26,21 @@ public class BackendFilterDao extends BasicDao<BackendFilterEntity> {
     }
 
     public void create(final List<BackendFilterEntity> filters) {
-        for (BackendFilterEntity backendFilterEntity : filters) {
-            super.create(backendFilterEntity);
-        }
+        filters.forEach(filter -> super.create(filter));
     }
 
     public void update(final List<BackendFilterEntity> filters) {
-        for (int i = 0; i < filters.size(); i++) {
-            final BackendFilterEntity f = filters.get(i);
-            f.setIndex(i);
-            super.update(f);
-        }
+        filters.forEach(filter -> super.update(filter));
+    }
+
+    public void delete(final List<BackendFilterEntity> filters) {
+        super.deleteAll(filters);
     }
 
     public List<BackendFilterEntity> findAll() {
-        final TypedQuery<BackendFilterEntity> query = em.createNamedQuery("BackendFilter.findEntries", BackendFilterEntity.class);
+        final TypedQuery<BackendFilterEntity> query = em.createNamedQuery("BackendFilter.findEntriesOrderedByPriority", BackendFilterEntity.class);
         try {
-            final List result = query.getResultList();
-            Collections.sort(result);
-            return result;
+            return query.getResultList();
         } catch (final NoResultException nrEx) {
             LOG.debug("Query BackendFilterEntity.findEntries did not find any result", nrEx);
             return new ArrayList<>();

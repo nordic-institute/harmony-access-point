@@ -346,8 +346,8 @@ public class CachingPModeProviderTest {
     public void testFindPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
         List<String> expectedList = new ArrayList<>();
-        expectedList.add("domibus-blue");
         expectedList.add("domibus-red");
+        expectedList.add("domibus-blue");
         expectedList.add("urn:oasis:names:tc:ebcore:partyid-type:unregistered:holodeck-b2b");
         configuration = loadSamplePModeConfiguration(VALID_PMODE_TEST_CONFIG_URI);
         new Expectations() {{
@@ -366,8 +366,8 @@ public class CachingPModeProviderTest {
     public void testFindPushToPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
         List<String> expectedList = new ArrayList<>();
-        expectedList.add("domibus-blue");
         expectedList.add("domibus-red");
+        expectedList.add("domibus-blue");
         configuration = loadSamplePModeConfiguration(VALID_PMODE_TEST_CONFIG_URI);
         new Expectations() {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getProcesses();
@@ -1047,7 +1047,7 @@ public class CachingPModeProviderTest {
 
     @Test
     public void getOnePartyId(@Mocked Party party) {
-        Set<Identifier> ids = new HashSet<>();
+        List<Identifier> ids = new ArrayList<>();
         Identifier id1 = new Identifier();
         id1.setPartyId("id1");
         ids.add(id1);
