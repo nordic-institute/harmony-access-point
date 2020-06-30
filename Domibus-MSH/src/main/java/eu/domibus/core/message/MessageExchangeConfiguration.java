@@ -1,7 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.model.configuration.Role;
-
 /**
  * @author Thomas Dussart
  * @since 3.3
