@@ -6,8 +6,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -31,8 +34,11 @@ public class MetricsAspect {
         com.codahale.metrics.Timer.Context context = null;
         final Class<?> clazz = timer.clazz();
         final MetricNames timerName = timer.value();
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod();
+        Class<?> declaringClass = method.getDeclaringClass();
         LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
-        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName.getTimerName()));
+        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName,method,declaringClass,".timer"));
         try {
             context = methodTimer.time();
             return pjp.proceed();
@@ -43,12 +49,26 @@ public class MetricsAspect {
         }
     }
 
+    private String getMetricsName(Class<?> clazz, MetricNames timerName, Method method, Class<?> declaringClass,String suffix) {
+        if(MetricNames.VOID.equals(timerName)){
+            return name(declaringClass, method.getName()+suffix);
+        }
+        if (Default.class.isAssignableFrom(clazz)) {
+            return timerName.getCounterName()+suffix;
+        } else {
+            return name(clazz, timerName.getCounterName()+suffix);
+        }
+    }
+
     @Around("@annotation(counter)")
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
         final Class<?> clazz = counter.clazz();
         final MetricNames counterName = counter.value();
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod();
+        Class<?> declaringClass = method.getDeclaringClass();
         LOG.trace("adding a counter with name:[{}] in class:[{}]", counterName, clazz.getName());
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName.getCounterName()));
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName,method,declaringClass,".counter"));
         try {
             methodCounter.inc();
             return pjp.proceed();
@@ -57,11 +77,4 @@ public class MetricsAspect {
         }
     }
 
-    protected String getMetricsName(final Class<?> clazz, final String timerName) {
-        if (Default.class.isAssignableFrom(clazz)) {
-            return timerName;
-        } else {
-            return name(clazz, timerName);
-        }
-    }
 }

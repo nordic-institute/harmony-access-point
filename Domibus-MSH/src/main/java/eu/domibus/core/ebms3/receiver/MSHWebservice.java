@@ -1,11 +1,13 @@
 package eu.domibus.core.ebms3.receiver;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
@@ -42,12 +44,13 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
-        LOG.trace("Message received");
-
         Messaging messaging = getMessaging();
         if (messaging == null) {
             LOG.error("Error getting Messaging");

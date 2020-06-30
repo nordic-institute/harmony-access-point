@@ -1,10 +1,14 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
@@ -20,6 +24,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+
+import static eu.domibus.core.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * Common behaviour for handling incoming AS4 messages
@@ -43,7 +49,12 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     @Autowired
     protected PModeProvider pModeProvider;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     @Override
+    @Timer()
+    @Counter()
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         SOAPMessage responseMessage = null;
         String pmodeKey = null;
@@ -54,12 +65,12 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
             assert false;
         }
-
         Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
             responseMessage = processMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+
             LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
                     messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
 

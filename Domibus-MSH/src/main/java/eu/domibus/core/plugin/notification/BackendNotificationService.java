@@ -16,6 +16,8 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.CriteriaFactory;
 import eu.domibus.core.plugin.routing.IRoutingCriteria;
@@ -269,7 +271,8 @@ public class BackendNotificationService {
         }
         notifyOfIncoming(userMessage, notificationType, properties);
     }
-
+    @Timer()
+    @Counter()
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             return;

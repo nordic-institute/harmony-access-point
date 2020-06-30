@@ -18,7 +18,7 @@ public @interface Counter {
     /**
      * @return the counter name.
      */
-    MetricNames value();
+    MetricNames value() default MetricNames.VOID;
 
     /**
      * @return the counter class.

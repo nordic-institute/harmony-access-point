@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
@@ -102,6 +103,10 @@ public class MessageListenerContainerConfiguration {
 
     @Autowired
     Optional<JndiDestinationResolver> internalDestinationResolver;
+
+    @Qualifier("taskExecutor")
+    @Autowired
+    protected SchedulingTaskExecutor schedulingTaskExecutor;
 
 
     @Bean(name = "dispatchContainer")
@@ -213,6 +218,7 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setTaskExecutor(schedulingTaskExecutor);
 
         messageListenerContainer.afterPropertiesSet();
 
