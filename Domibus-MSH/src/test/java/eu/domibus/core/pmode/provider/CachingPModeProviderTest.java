@@ -48,6 +48,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -677,6 +678,18 @@ public class CachingPModeProviderTest {
     public void testMatchAgreement() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]");
         Assert.assertTrue(cachingPModeProvider.matchAgreement(process, "a1"));
+    }
+
+    @Test
+    public void testMatchRole() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]", "initiatorRole[name:myInitiatorRole,value:iRole]", "responderRole[name:myResponderRole,value:rRole]");
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","notrRole")));
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getInitiatorRole(), new Role("myInitiatorRole","notiRole")));
+        Assert.assertTrue(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","rRole")));
     }
 
     @Test

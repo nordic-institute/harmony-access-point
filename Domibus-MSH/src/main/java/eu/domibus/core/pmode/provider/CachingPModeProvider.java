@@ -287,20 +287,20 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found for service [" + service + "] and action [" + action + "]", null, null);
     }
 
-    protected boolean matchRole(final Role processRole, final Role initiatorRole) {
+    protected boolean matchRole(final Role processRole, final Role role) {
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if(!rolesEnabled) {
             LOG.debug("Roles validation disabled");
             return true;
         }
 
-        LOG.info("Role is [{}] [{}], process role is [{}] [{}] ", initiatorRole.getName(), initiatorRole.getValue(), processRole.getName(), processRole.getValue());
-        if(initiatorRole == processRole) {
-            LOG.info("Roles match");
+        LOG.debug("Role is [{}] [{}], process role is [{}] [{}] ", role.getName(), role.getValue(), processRole.getName(), processRole.getValue());
+        if(Objects.equals(role, processRole)) {
+            LOG.debug("Roles match");
             return true;
         }
 
-        LOG.info("Roles do not match");
+        LOG.warn("Roles do not match. Role is [{}] [{}], process role is [{}] [{}]" , role.getName(), role.getValue(), processRole.getName(), processRole.getValue());
         return false;
     }
 

@@ -91,7 +91,7 @@ public class Role extends AbstractBaseEntity {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(name, role.name)
+                .append(value, role.value)
                 .isEquals();
     }
 
