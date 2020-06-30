@@ -3,8 +3,8 @@ package eu.domibus.jms.weblogic;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
@@ -22,7 +22,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,10 +56,13 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     protected static final String PROPERTY_JNDI_NAME = "Jndi";
 
     private static final String JMS_TYPE = "JMSType";
+    private static final String JMS_PRIORITY = "JMSPriority";
 
     private static final String FAILED_TO_BUILD_JMS_DEST_MAP = "Failed to build JMS destination map";
 
-    /** JMX attributes */
+    /**
+     * JMX attributes
+     */
     private static final String ATTR_SERVER_RUNTIMES = "ServerRuntimes";
     private static final String ATTR_JMS_RUNTIME = "JMSRuntime";
     private static final String ATTR_JMS_SERVERS = "JMSServers";
@@ -77,14 +79,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     private static final String LOG_INTERNAL_DESTINATION_FOUND_FOR_SOURCE = "Internal destination found for source [{}]";
 
-    /** queues map including the distributed ones */
+    /**
+     * queues map including the distributed ones
+     */
     protected Map<String, ObjectName> queueMap;
 
     protected volatile Map<String, String> jndiMap = new HashMap<>();
 
     protected final Object lock = new Object();
 
-    /** managed servers names */
+    /**
+     * managed servers names
+     */
     protected List<String> managedServerNames;
 
     @Autowired
@@ -188,8 +194,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     /**
      * It builds {@code InternalJMSDestination} based on JMX attributes
      *
-     * @param mbsc JMX MBeanServerConnection
-     * @param jmsDestination JMX ObjectName corresponding to JMS Destinations
+     * @param mbsc              JMX MBeanServerConnection
+     * @param jmsDestination    JMX ObjectName corresponding to JMS Destinations
      * @param destinationFQName JMS Destination fully qualified name
      * @return {@code InternalJMSDestination} internal JMSDestination object
      */
@@ -321,7 +327,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         return destName;
     }
 
-    protected long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination)  {
+    protected long getMessagesTotalCount(MBeanServerConnection mbsc, ObjectName jmsDestination) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
             return NB_MESSAGES_ADMIN;
@@ -438,7 +444,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessageToTopic(InternalJmsMessage internalJmsMessage, Topic destination) {
-       sendMessageToTopic(internalJmsMessage, destination, false);
+        sendMessageToTopic(internalJmsMessage, destination, false);
     }
 
     protected void sendMessage(InternalJmsMessage internalJmsMessage, Topic destination) {
@@ -458,7 +464,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         final List<String> managedServerNamesList = getManagedServerNames();
         LOG.debug("Found managed servers [{}]", managedServerNamesList);
 
-        if(StringUtils.isNotBlank(originServer)) {
+        if (StringUtils.isNotBlank(originServer)) {
             managedServerNamesList.remove(originServer);
             LOG.debug("Managed servers [{}] after exclusion of origin server [{}]", managedServerNamesList, originServer);
         }
@@ -803,6 +809,19 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             message.setType(type);
             message.getProperties().put(JMS_TYPE, type);
         }
+        Element jmsPriority = getChildElement(header, JMS_PRIORITY);
+        if (jmsPriority != null) {
+            String priorityString = jmsPriority.getTextContent();
+            message.getProperties().put(JMS_PRIORITY, priorityString);
+            try {
+                int priority = Integer.parseInt(priorityString);
+                message.setPriority(priority);
+            } catch (NumberFormatException e) {
+                LOG.error("Could not parse priority [" + priorityString + "]", e);
+            }
+        }
+
+
         Element propertiesRoot = getChildElement(header, "Properties");
         List<Element> properties = getChildElements(propertiesRoot, "property");
         for (Element property : properties) {

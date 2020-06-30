@@ -57,6 +57,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
     private static final String PROPERTY_JNDI_NAME = "Jndi";
 
+    public static final String JMS_PRIORITY = "JMSPriority";
+
     /**
      * The old Artemis 1.x JMS prefix.
      *
@@ -427,6 +429,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setId(textMessage.getJMSMessageID());
         result.setTimestamp(new Date(textMessage.getJMSTimestamp()));
         result.setType(textMessage.getJMSType());
+        int jmsPriority = textMessage.getJMSPriority();
+        result.setPriority(jmsPriority);
         Enumeration propertyNames = textMessage.getPropertyNames();
 
         Map<String, Object> properties = new HashMap<>();
@@ -435,6 +439,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             Object objectProperty = textMessage.getObjectProperty(name);
             properties.put(name, objectProperty);
         }
+        properties.put(JMS_PRIORITY, String.valueOf(jmsPriority));
         result.setProperties(properties);
         return result;
     }
@@ -447,6 +452,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (jmsTimestamp != null) {
             result.setTimestamp(new Date(jmsTimestamp));
         }
+        result.setPriority(mapMessage.getJMSPriority());
         result.setId(mapMessage.getJMSMessageID());
 
         Map<String, Object> properties = new HashMap<>();
