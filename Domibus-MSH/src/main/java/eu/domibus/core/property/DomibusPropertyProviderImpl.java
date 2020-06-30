@@ -152,7 +152,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
                 .map(property -> StringUtils.substringAfter(property, propertyPrefix))
                 .filter(property -> !property.contains(".")).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
+        if (CollectionUtils.isEmpty(firstLevelProperties)) {
             LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
             return result;
         }

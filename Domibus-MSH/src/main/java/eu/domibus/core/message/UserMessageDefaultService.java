@@ -334,16 +334,10 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.debug("Sending message to sendMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
         }
-        if (userMessageLog == null) {
-            LOG.debug("Getting UserMessageLog for message id [{}]", messageId);
-            userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        }
 
-        if (userMessageLog != null) {
-            LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
-            userMessageLog.setScheduled(true);
-            userMessageLogDao.update(userMessageLog);
-        }
+        LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
+        userMessageLog.setScheduled(true);
+        userMessageLogDao.update(userMessageLog);
     }
 
     @Override

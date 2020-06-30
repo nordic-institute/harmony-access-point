@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -191,17 +192,35 @@ public class UserMessagePriorityServiceImplTest {
 
     @Test
     public void matchesService() {
+        String userMessageService = "message service";
+        String servicePropertyValue = userMessageService;
+
+        assertTrue(userMessagePriorityService.matchesService(userMessageService, servicePropertyValue));
     }
 
     @Test
     public void matchesActionList() {
+        String userMessageAction = "action1";
+        String actionPropertyValue = "action1,action2";
+
+        new Expectations() {{
+            userMessagePriorityService.matchesAction(userMessageAction, "action1");
+        }};
+
+        assertTrue(userMessagePriorityService.matchesActionList(userMessageAction, actionPropertyValue));
     }
 
     @Test
     public void matchesAction() {
+        String userMessageAction = "action1";
+        String actionPropertyValue = userMessageAction;
+
+        assertTrue(userMessagePriorityService.matchesAction(userMessageAction, actionPropertyValue));
     }
 
     @Test
     public void getPriorityPropertyName() {
+        String expected = "dispatcher.priority.medium.value";
+        assertEquals(expected, userMessagePriorityService.getPriorityPropertyName("dispatcher.priority", "medium", "value"));
     }
 }

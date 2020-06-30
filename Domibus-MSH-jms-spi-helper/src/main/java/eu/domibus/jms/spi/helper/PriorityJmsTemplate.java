@@ -3,6 +3,7 @@ package eu.domibus.jms.spi.helper;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.JMSException;
@@ -24,7 +25,8 @@ public class PriorityJmsTemplate extends JmsTemplate {
         //default priority
         int priority = getPriority();
         String messagePriorityUsed = message.getStringProperty(InternalJmsMessage.MESSAGE_PRIORITY_USED);
-        if ("true".equals(messagePriorityUsed)) {
+
+        if (BooleanUtils.toBoolean(messagePriorityUsed)) {
             int messagePriority = message.getJMSPriority();
             LOG.trace("Using message priority [{}]", messagePriority);
             priority = messagePriority;
