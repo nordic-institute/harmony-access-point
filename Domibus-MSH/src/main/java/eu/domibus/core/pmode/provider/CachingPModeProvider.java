@@ -51,9 +51,6 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     PullMessageService pullMessageService;
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
 

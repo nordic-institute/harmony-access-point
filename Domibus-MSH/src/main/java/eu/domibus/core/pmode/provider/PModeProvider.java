@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -91,6 +92,9 @@ public abstract class PModeProvider {
 
     @Autowired
     PModeValidationService pModeValidationService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     protected abstract void init();
 
