@@ -1,14 +1,4 @@
 <ehcache>
-    <cache name="policyCache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false" >
-    </cache>
-    <cache name="passwordEncryptionKey"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
     <cache name="multitenantCache"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"

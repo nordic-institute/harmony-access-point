@@ -1,11 +1,16 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -16,8 +21,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -42,6 +51,8 @@ public class DomibusCacheConfiguration {
         if (externalCacheFileExists()) {
             mergeExternalCacheConfiguration(cacheManager);
         }
+
+        addPluginsCacheConfigurationClasspath(cacheManager);
 
         return ehCacheManager;
     }
@@ -70,21 +81,46 @@ public class DomibusCacheConfiguration {
         }
     }
 
-    protected void addPluginsCacheConfigurationClasspath(CacheManager cacheManager)  throws IOException {
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] pluginDefaultEhcacheList = resolver.getResources("classpath*:config/*-plugin-default-ehcache.xml");
-        for (Resource resource: pluginDefaultEhcacheList) {
-            LOG.debug("Adding the following plugin default ehcache file [{}]", resource);
-            CacheManager  pluginCacheManager = CacheManager.newInstance(resource.getInputStream());
+    protected void addPluginsCacheConfigurationClasspath(CacheManager cacheManager) {
+        List<Resource> pluginDefaultEhcacheList = new ArrayList<>();
+        try {
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            pluginDefaultEhcacheList = Arrays.asList(resolver.getResources("classpath*:config/ehcache/*-plugin-default-ehcache.xml"));
+        } catch (IOException e) {
+            LOG.error("Error while reading *-plugin-default-ehcache.xml files", e);
+        }
+        if (CollectionUtils.isEmpty(pluginDefaultEhcacheList)) {
+            LOG.debug("no *-plugin-default-ehcache.xml files found");
+            return;
+        }
+
+        pluginDefaultEhcacheList.forEach(resource -> readCacheConfigCheckIfExists(cacheManager, resource));
+    }
+
+    /**
+     *
+     * @param cacheManager Domibus core cacheManager
+     * @param resource new Resource file
+     */
+    protected void readCacheConfigCheckIfExists(@NotNull CacheManager cacheManager, @NotNull Resource resource) {
+        final String fileName = resource.getFilename();
+        LOG.debug("Adding the following plugin default ehcache file [{}]", fileName);
+        try {
+            net.sf.ehcache.config.Configuration configuration = ConfigurationFactory.parseConfiguration(resource.getURL());
+            configuration.setName(fileName);
+            CacheManager pluginCacheManager = CacheManager.newInstance(configuration);
             final String[] cacheNames = pluginCacheManager.getCacheNames();
             for (String cacheName : cacheNames) {
                 if (cacheManager.cacheExists(cacheName)) {
-                    LOG.warn("Plugin cache [{}] already exists in Domibus", cacheName);
-                    continue;
+                    final String errorMessage = "Plugin cache " + cacheName + " declared in " + fileName + " already exists in Domibus";
+                    LOG.error(errorMessage);
+                    throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
                 }
                 final CacheConfiguration cacheConfiguration = pluginCacheManager.getCache(cacheName).getCacheConfiguration();
                 cacheManager.addCache(new Cache(cacheConfiguration));
             }
+        } catch (CacheException | IOException e) {
+            LOG.error("Error while loading cache from [{}]", fileName, e);
         }
     }
 
