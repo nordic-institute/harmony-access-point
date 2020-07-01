@@ -84,6 +84,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK = "domibus.sender.certificate.subject.check";
     String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
     String DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN = "domibus.sendMessage.messageIdPattern";
+    String DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED = "domibus.partyinfo.roles.validation.enabled";
     String DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING = "domibus.datetime.pattern.onreceiving";
     String DOMIBUS_DATE_TIME_PATTERN_ON_SENDING = "domibus.datetime.pattern.onsending";
     String DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT = "domibus.dispatcher.connectionTimeout";
