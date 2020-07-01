@@ -107,7 +107,7 @@ public class Role extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(name)
+                .append(value)
                 .toHashCode();
     }
 }
