@@ -15,13 +15,13 @@ import java.util.TimeZone;
  * Spring will take care of the creation of this Singleton object at startup.
  */
 @Service(value = "domibusPropertiesService")
-public class DomibusPropertiesService {
+public class DomibusVersionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
 
     private static Properties domibusProps = new Properties();
 
-    public DomibusPropertiesService() {
+    public DomibusVersionService() {
         init();
     }
 

@@ -30,6 +30,13 @@ public class Role extends AbstractBaseEntity {
     @Column(name = "VALUE")
     protected String value;
 
+    public Role() {}
+
+    public Role(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
     /**
      * Gets the value of the name property.
      *
@@ -75,6 +82,14 @@ public class Role extends AbstractBaseEntity {
     }
 
     @Override
+    public String toString() {
+        return "Role{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
@@ -84,7 +99,7 @@ public class Role extends AbstractBaseEntity {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(name, role.name)
+                .append(value, role.value)
                 .isEquals();
     }
 
@@ -92,7 +107,7 @@ public class Role extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(name)
+                .append(value)
                 .toHashCode();
     }
 }

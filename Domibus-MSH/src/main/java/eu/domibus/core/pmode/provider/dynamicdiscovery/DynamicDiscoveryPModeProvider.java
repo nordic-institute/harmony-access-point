@@ -64,9 +64,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected DomainContextProvider domainProvider;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     @Qualifier("dynamicDiscoveryServiceOASIS")
     private DynamicDiscoveryService dynamicDiscoveryServiceOASIS;
 

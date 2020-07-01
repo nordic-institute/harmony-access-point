@@ -2,6 +2,7 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 /**
@@ -44,6 +45,17 @@ public interface DomibusPropertyExtService {
      * @return A set of property names
      */
     Set<String> filterPropertiesName(Predicate<String> predicate);
+
+    /**
+     * Returns the list of nested properties names(only the first level) starting with the specified prefix
+     * <p/>
+     * Eg. Given the properties routing.rule1=Rule1 name, routing.rule1.queue=jms.queue1, routing.rule2=Rule2 name, routing.rule2.queue=jms.queue2
+     * it will return for the prefix "routing" the following list : rule1, rule2
+     *
+     * @param prefix The nested properties prefix
+     * @return the list of nested properties
+     */
+    List<String> getNestedProperties(String prefix);
 
     /**
      * Gets the property value with the provided name for a specific domain

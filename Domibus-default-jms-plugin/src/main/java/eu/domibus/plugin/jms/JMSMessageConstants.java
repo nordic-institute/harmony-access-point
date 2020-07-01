@@ -65,7 +65,7 @@ public class JMSMessageConstants {
     public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
     public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.producer.notification.error.routing";
     public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
-    public static final String JMSPLUGIN_QUEUE_OUT_ROUTING = "jmsplugin.queue.out.routing.";
+    public static final String JMSPLUGIN_QUEUE_OUT_ROUTING = "jmsplugin.queue.out.routing";
 
     public static final String CONNECTION_FACTORY = "connection.factory";
 

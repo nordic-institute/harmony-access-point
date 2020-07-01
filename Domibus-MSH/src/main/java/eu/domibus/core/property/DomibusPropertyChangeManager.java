@@ -52,7 +52,7 @@ public class DomibusPropertyChangeManager {
         //try to set the new value
         doSetPropertyValue(domain, propertyName, propertyValue);
 
-        //let the custom property listeners to do their job
+        //let the custom property listeners do their job
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
     }
 

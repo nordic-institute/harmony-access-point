@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.property.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
@@ -36,7 +36,7 @@ public class ApplicationResourceTest {
     ApplicationResource applicationResource;
 
     @Injectable
-    DomibusPropertiesService domibusPropertiesService;
+    DomibusVersionService domibusVersionService;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -60,7 +60,7 @@ public class ApplicationResourceTest {
     public void testGetDomibusInfo() throws Exception {
         // Given
         new Expectations() {{
-            domibusPropertiesService.getDisplayVersion();
+            domibusVersionService.getDisplayVersion();
             result = DOMIBUS_VERSION;
         }};
 

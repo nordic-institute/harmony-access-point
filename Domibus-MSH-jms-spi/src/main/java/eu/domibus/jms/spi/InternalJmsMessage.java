@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public class InternalJmsMessage {
 
+	public static final String MESSAGE_PRIORITY_USED = "messagePriorityUsed";
+
 	public enum MessageType {
 		TEXT_MESSAGE,
 		MAP_MESSAGE
@@ -20,6 +22,7 @@ public class InternalJmsMessage {
 	protected String jmsCorrelationId;
 	protected String content;
 	protected Date timestamp;
+	protected Integer priority;
 	protected MessageType messageType = MessageType.TEXT_MESSAGE;
 
 	protected Map<String, Object> properties = new HashMap<>();
@@ -76,6 +79,7 @@ public class InternalJmsMessage {
 		this.jmsCorrelationId = jmsCorrelationId;
 	}
 
+
 	//TODO separate between headers and properties
 	public Map<String, Object> getJMSProperties() {
 		Map<String, Object> jmsProperties = new HashMap<>();
@@ -113,6 +117,14 @@ public class InternalJmsMessage {
 
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
 	}
 
 	@Override

@@ -17,6 +17,14 @@ public class UserMessageException extends DomibusCoreException {
         super(dce, message, cause);
     }
 
+    public UserMessageException(String message, Throwable cause) {
+        super(DomibusCoreErrorCode.DOM_001, message, cause);
+    }
+
+    public UserMessageException(String message) {
+        super(DomibusCoreErrorCode.DOM_001, message);
+    }
+
     public UserMessageException(Throwable cause) {
         super(DomibusCoreErrorCode.DOM_001, cause.getMessage(), cause);
     }
