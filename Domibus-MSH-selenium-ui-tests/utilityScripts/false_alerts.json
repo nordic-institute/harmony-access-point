@@ -1,0 +1,8 @@
+[
+  {
+	"alert": "Information Disclosure - Suspicious Comments",
+	"name": "Information Disclosure - Suspicious Comments",
+	"pluginId": "10027",
+	"url": "http://ddomibus.com:9088/domibus/polyfills-es2015.a2574a0ec3b37a459155.js"
+  }
+]

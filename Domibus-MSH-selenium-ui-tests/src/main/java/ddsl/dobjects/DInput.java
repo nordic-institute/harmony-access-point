@@ -2,23 +2,21 @@ package ddsl.dobjects;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class DInput extends DObject {
-
-
+	
+	
 	public DInput(WebDriver driver, WebElement element) {
 		super(driver, element);
 	}
-
+	
 	public void fill(String value) throws Exception {
 		if (null == value) {
 			return;
@@ -30,7 +28,7 @@ public class DInput extends DObject {
 			throw new Exception("Cannot type disabled field");
 		}
 	}
-
+	
 	public void clear() throws Exception {
 		if (isEnabled()) {
 			element.clear();
@@ -38,7 +36,7 @@ public class DInput extends DObject {
 			throw new Exception("Cannot type disabled field");
 		}
 	}
-
+	
 	@Override
 	public String getText() {
 		if (isPresent()) {
@@ -46,6 +44,6 @@ public class DInput extends DObject {
 		}
 		return null;
 	}
-
-
+	
+	
 }

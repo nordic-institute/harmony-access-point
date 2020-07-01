@@ -17,29 +17,23 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 public class PModeArchivePage extends DomibusPage {
 
 
+	@FindBy(id = "pageGridId")
+	public WebElement gridContainer;
+	@FindBy(id = "cancelButtonId")
+	public WebElement cancelBtn;
+	@FindBy(id = "saveButtonId")
+	public WebElement saveBtn;
+	@FindBy(id = "deleteButtonId")
+	public WebElement deleteBtn;
+	@FindBy(id = "downloadArchivebutton_id")
+	public WebElement downloadBtn;
+	@FindBy(id = "restoreArchivebutton_id")
+	public WebElement restoreBtn;
+
 	public PModeArchivePage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-
-	@FindBy(id = "pageGridId")
-	public WebElement gridContainer;
-
-	@FindBy(id = "cancelButtonId")
-	public WebElement cancelBtn;
-
-	@FindBy(id = "saveButtonId")
-	public WebElement saveBtn;
-
-	@FindBy(id = "deleteButtonId")
-	public WebElement deleteBtn;
-
-	@FindBy(id = "downloadArchivebutton_id")
-	public WebElement downloadBtn;
-
-	@FindBy(id = "restoreArchivebutton_id")
-	public WebElement restoreBtn;
 
 	public PMAGrid pmagrid() {
 		return new PMAGrid(driver, gridContainer);

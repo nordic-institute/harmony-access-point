@@ -9,6 +9,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
@@ -30,7 +32,8 @@ public abstract class FSAbstractPurgeService {
      * older than X seconds will be removed
      */
     public void purgeMessages() {
-        for (String domain : fsPluginProperties.getDomains()) {
+        List<String> domains = multiTenancyService.getDomainsToProcess();
+        for (String domain : domains) {
             if (multiTenancyService.verifyDomainExists(domain)) {
                 purgeMessages(domain);
             }

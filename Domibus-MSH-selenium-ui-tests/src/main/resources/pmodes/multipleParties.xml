@@ -1,180 +1,194 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="blue_gw">
-    <businessProcesses>
-        <roles>
-            <role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
-            <role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
-        </roles>
-        <parties>
-            <partyIdTypes>
-                <partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-                <partyIdType name="ds" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-                <partyIdType name="type" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-                <partyIdType name="indigo_gw" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-            </partyIdTypes>
-            <party name="red_gw" endpoint="http://localhost:8080/">
-                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh">
-                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="green_gw" endpoint="http://green:9898/domibus">
-                <identifier partyId="green_gw" partyIdType="ds"/>
-            </party>
-            <party name="yellow_gw" endpoint="http://yellow:0909/domibus">
-                <identifier partyId="yellow_gw" partyIdType="type"/>
-            </party>
-            <party name="indigo_gw" endpoint="http://indigo.com">
-                <identifier partyId="indigo_gw" partyIdType="indigo_gw"/>
-            </party>
+	<businessProcesses>
+		<roles>
+			<role name="defaultInitiatorRole"
+				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole"
+				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+		</roles>
+		<parties>
+			<partyIdTypes>
+				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="ds" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="type" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="indigo_gw" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+			</partyIdTypes>
+			<party name="red_gw" endpoint="http://localhost:8080/">
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw" endpoint="http://green:9898/domibus">
+				<identifier partyId="green_gw" partyIdType="ds"/>
+			</party>
+			<party name="yellow_gw" endpoint="http://yellow:0909/domibus">
+				<identifier partyId="yellow_gw" partyIdType="type"/>
+			</party>
+			<party name="indigo_gw" endpoint="http://indigo.com">
+				<identifier partyId="indigo_gw" partyIdType="indigo_gw"/>
+			</party>
 			<party name="orange_gw" endpoint="http://orange.com">
-                <identifier partyId="orange_gw" partyIdType="orange_gw"/>
-            </party>
+				<identifier partyId="orange_gw" partyIdType="orange_gw"/>
+			</party>
 			<party name="red_gw1" endpoint="http://localhost:8080/">
-                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
-                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="green_gw1" endpoint="http://green:9898/domibus">
-                <identifier partyId="green_gw1" partyIdType="ds"/>
-            </party>
-            <party name="yellow_gw1" endpoint="http://yellow:0909/domibus">
-                <identifier partyId="yellow_gw1" partyIdType="type"/>
-            </party>
-            <party name="indigo_gw1" endpoint="http://indigo.com">
-                <identifier partyId="indigo_gw1" partyIdType="indigo_gw1"/>
-            </party>
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw1" endpoint="http://green:9898/domibus">
+				<identifier partyId="green_gw1" partyIdType="ds"/>
+			</party>
+			<party name="yellow_gw1" endpoint="http://yellow:0909/domibus">
+				<identifier partyId="yellow_gw1" partyIdType="type"/>
+			</party>
+			<party name="indigo_gw1" endpoint="http://indigo.com">
+				<identifier partyId="indigo_gw1" partyIdType="indigo_gw1"/>
+			</party>
 			<party name="orange_gw1" endpoint="http://orange.com">
-                <identifier partyId="orange_gw1" partyIdType="orange_gw1"/>
-            </party>
+				<identifier partyId="orange_gw1" partyIdType="orange_gw1"/>
+			</party>
 			<party name="red_gw2" endpoint="http://localhost:8080/">
-                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="blue_gw2" endpoint="http://localhost:8080/domibus/services/msh">
-                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="green_gw2" endpoint="http://green:9898/domibus">
-                <identifier partyId="green_gw2" partyIdType="ds"/>
-            </party>
-            <party name="yellow_gw2" endpoint="http://yellow:0909/domibus">
-                <identifier partyId="yellow_gw2" partyIdType="type"/>
-            </party>
-            <party name="indigo_gw2" endpoint="http://indigo.com">
-                <identifier partyId="indigo_gw2" partyIdType="indigo_gw2"/>
-            </party>
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw2" endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw2" endpoint="http://green:9898/domibus">
+				<identifier partyId="green_gw2" partyIdType="ds"/>
+			</party>
+			<party name="yellow_gw2" endpoint="http://yellow:0909/domibus">
+				<identifier partyId="yellow_gw2" partyIdType="type"/>
+			</party>
+			<party name="indigo_gw2" endpoint="http://indigo.com">
+				<identifier partyId="indigo_gw2" partyIdType="indigo_gw2"/>
+			</party>
 			<party name="orange_gw2" endpoint="http://orange.com">
-                <identifier partyId="orange_gw2" partyIdType="orange_gw2"/>
-            </party>
+				<identifier partyId="orange_gw2" partyIdType="orange_gw2"/>
+			</party>
 			<party name="red_gw3" endpoint="http://localhost:8080/">
-                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="blue_gw3" endpoint="http://localhost:8080/domibus/services/msh">
-                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="green_gw3" endpoint="http://green:9898/domibus">
-                <identifier partyId="green_gw3" partyIdType="ds"/>
-            </party>
-            <party name="yellow_gw3" endpoint="http://yellow:0909/domibus">
-                <identifier partyId="yellow_gw3" partyIdType="type"/>
-            </party>
-            <party name="indigo_gw3" endpoint="http://indigo.com">
-                <identifier partyId="indigo_gw3" partyIdType="indigo_gw3"/>
-            </party>
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw3" endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw3" endpoint="http://green:9898/domibus">
+				<identifier partyId="green_gw3" partyIdType="ds"/>
+			</party>
+			<party name="yellow_gw3" endpoint="http://yellow:0909/domibus">
+				<identifier partyId="yellow_gw3" partyIdType="type"/>
+			</party>
+			<party name="indigo_gw3" endpoint="http://indigo.com">
+				<identifier partyId="indigo_gw3" partyIdType="indigo_gw3"/>
+			</party>
 			<party name="orange_gw3" endpoint="http://orange.com">
-                <identifier partyId="orange_gw3" partyIdType="orange_gw3"/>
-            </party>
+				<identifier partyId="orange_gw3" partyIdType="orange_gw3"/>
+			</party>
 			<party name="red_gw4" endpoint="http://localhost:8080/">
-                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="blue_gw4" endpoint="http://localhost:8080/domibus/services/msh">
-                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
-            </party>
-            <party name="green_gw4" endpoint="http://green:9898/domibus">
-                <identifier partyId="green_gw4" partyIdType="ds"/>
-            </party>
-            <party name="yellow_gw4" endpoint="http://yellow:0909/domibus">
-                <identifier partyId="yellow_gw4" partyIdType="type"/>
-            </party>
-            <party name="indigo_gw4" endpoint="http://indigo.com">
-                <identifier partyId="indigo_gw4" partyIdType="indigo_gw4"/>
-            </party>
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw4" endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw4" endpoint="http://green:9898/domibus">
+				<identifier partyId="green_gw4" partyIdType="ds"/>
+			</party>
+			<party name="yellow_gw4" endpoint="http://yellow:0909/domibus">
+				<identifier partyId="yellow_gw4" partyIdType="type"/>
+			</party>
+			<party name="indigo_gw4" endpoint="http://indigo.com">
+				<identifier partyId="indigo_gw4" partyIdType="indigo_gw4"/>
+			</party>
 			<party name="orange_gw4" endpoint="http://orange.com">
-                <identifier partyId="orange_gw4" partyIdType="orange_gw4"/>
-            </party>
-        </parties>
-        <meps>
-            <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
-            <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay" legs="0"/>
-            <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-            <binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
-        </meps>
-        <properties>
-            <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
-            <property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
-            <propertySet name="ecodexPropertySet">
-                <propertyRef property="finalRecipientProperty"/>
-                <propertyRef property="originalSenderProperty"/>
-            </propertySet>
-        </properties>
-        <payloadProfiles>
-            <payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true" inBody="false"/>
-            <payload name="businessContentAttachment" cid="cid:attachment" mimeType="text/xml" maxSize="0" required="false" inBody="false"/>
-            <payloadProfile name="MessageProfile" maxSize="2147483647">
-                <attachment name="businessContentPayload"/>
-                <attachment name="businessContentAttachment"/>
-            </payloadProfile>
-        </payloadProfiles>
-        <securities>
-            <security name="eDeliveryPolicy" policy="eDeliveryPolicy.xml" signatureMethod="RSA_SHA256"/>
-            <security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
-            <security name="eSensPolicy" policy="eSensPolicy.v2.0.xml" signatureMethod="RSA_SHA256"/>
-        </securities>
-        <errorHandlings>
-            <errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
-        </errorHandlings>
-        <agreements>
-            <agreement name="agreement1" value="A1" type=""/>
-            <agreement name="agreement2" value="A2" type=""/>
-            <agreement name="agreement3" value="A3" type=""/>
-        </agreements>
-        <services>
-            <service name="testService1" value="bdx:noprocess" type="tc1"/>
-        </services>
-        <actions>
-            <action name="tc1Action" value="TC1Leg1"/>
-            <action name="tc2Action" value="TC2Leg1"/>
-        </actions>
-        <as4>
-            <receptionAwareness name="receptionAwareness" retry="0;0;CONSTANT" duplicateDetection="true"/>
-            <reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
-            <reliability name="noReliability" replyPattern="response" nonRepudiation="false"/>
-        </as4>
-        <legConfigurations>
-            <legConfiguration name="pushTestcase1tc1Action" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" service="testService1" action="tc1Action" defaultMpc="defaultMpc" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
-            <legConfiguration name="pushTestcase1tc2Action" reliability="AS4Reliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" service="testService1" action="tc2Action" defaultMpc="defaultMpc" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-        </legConfigurations>
-        <process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" agreement="" mep="oneway" binding="push">
-            <initiatorParties>
-                <initiatorParty name="blue_gw"/>
-                <initiatorParty name="red_gw"/>
-                <initiatorParty name="green_gw"/>
-                <initiatorParty name="yellow_gw"/>
-                <initiatorParty name="indigo_gw"/>
-            </initiatorParties>
-            <responderParties>
-                <responderParty name="blue_gw"/>
-                <responderParty name="red_gw"/>
-                <responderParty name="green_gw"/>
-                <responderParty name="yellow_gw"/>
-            </responderParties>
-            <legs>
-                <leg name="pushTestcase1tc1Action"/>
-                <leg name="pushTestcase1tc2Action"/>
-            </legs>
-        </process>
-    </businessProcesses>
-    <mpcs>
-        <mpc name="defaultMpc" retention_downloaded="100" retention_undownloaded="600" default="true" enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
-    </mpcs>
+				<identifier partyId="orange_gw4" partyIdType="orange_gw4"/>
+			</party>
+		</parties>
+		<meps>
+			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
+			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay" legs="0"/>
+			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+			<binding name="pushAndPush"
+					 value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+		</meps>
+		<properties>
+			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+			<property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+			<propertySet name="ecodexPropertySet">
+				<propertyRef property="finalRecipientProperty"/>
+				<propertyRef property="originalSenderProperty"/>
+			</propertySet>
+		</properties>
+		<payloadProfiles>
+			<payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true"
+					 inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" mimeType="text/xml" maxSize="0"
+					 required="false" inBody="false"/>
+			<payloadProfile name="MessageProfile" maxSize="40894464">
+				<attachment name="businessContentPayload"/>
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>
+		</payloadProfiles>
+		<securities>
+			<security name="eDeliveryPolicy" policy="eDeliveryPolicy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eSensPolicy" policy="eSensPolicy.v2.0.xml" signatureMethod="RSA_SHA256"/>
+		</securities>
+		<errorHandlings>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false"
+						   businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+		</errorHandlings>
+		<agreements>
+			<agreement name="agreement1" value="A1" type=""/>
+			<agreement name="agreement2" value="A2" type=""/>
+			<agreement name="agreement3" value="A3" type=""/>
+		</agreements>
+		<services>
+			<service name="testService1" value="bdx:noprocess" type="tc1"/>
+		</services>
+		<actions>
+			<action name="tc1Action" value="TC1Leg1"/>
+			<action name="tc2Action" value="TC2Leg1"/>
+		</actions>
+		<as4>
+			<receptionAwareness name="receptionAwareness" retry="0;0;CONSTANT" duplicateDetection="true"/>
+			<reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
+			<reliability name="noReliability" replyPattern="response" nonRepudiation="false"/>
+		</as4>
+		<legConfigurations>
+			<legConfiguration name="pushTestcase1tc1Action" reliability="noReliability" security="noSigNoEnc"
+							  receptionAwareness="receptionAwareness" service="testService1" action="tc1Action"
+							  defaultMpc="defaultMpc" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling"
+							  compressPayloads="false"/>
+			<legConfiguration name="pushTestcase1tc2Action" reliability="AS4Reliability" security="noSigNoEnc"
+							  receptionAwareness="receptionAwareness" service="testService1" action="tc2Action"
+							  defaultMpc="defaultMpc" propertySet="ecodexPropertySet" payloadProfile="MessageProfile"
+							  errorHandling="demoErrorHandling" compressPayloads="true"/>
+		</legConfigurations>
+		<process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole"
+				 agreement="" mep="oneway" binding="push">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+				<initiatorParty name="green_gw"/>
+				<initiatorParty name="yellow_gw"/>
+				<initiatorParty name="indigo_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+				<responderParty name="green_gw"/>
+				<responderParty name="yellow_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase1tc1Action"/>
+				<leg name="pushTestcase1tc2Action"/>
+			</legs>
+		</process>
+	</businessProcesses>
+	<mpcs>
+		<mpc name="defaultMpc" retention_downloaded="100" retention_undownloaded="600" default="true" enabled="true"
+			 qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+	</mpcs>
 </ns2:configuration>

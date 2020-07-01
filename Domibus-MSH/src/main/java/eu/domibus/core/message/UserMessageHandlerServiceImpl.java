@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -37,7 +36,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.NotificationListenerService;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -141,21 +139,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessagingDao messagingDao;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @Timer()
-    @Counter()
+    @Timer
+    @Counter
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
 
-        SOAPMessage soapMessage = as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
-        return soapMessage;
+        return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
     }
 
     @Override
@@ -201,8 +196,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
 
-    @Timer()
-    @Counter()
     protected void handleIncomingMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
         soapUtil.logMessage(request);
 
@@ -252,8 +245,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @return boolean true if there is the same AP
      */
     @Override
-    @Timer()
-    @Counter()
     public Boolean checkSelfSending(String pmodeKey) {
         final Party receiver = pModeProvider.getReceiverParty(pmodeKey);
         final Party sender = pModeProvider.getSenderParty(pmodeKey);
@@ -295,8 +286,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * {@inheritDoc}
      */
     @Override
-    @Timer()
-    @Counter()
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
     }
@@ -336,8 +325,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @throws IOException
      * @throws EbMS3Exception
      */
-    @Timer()
-    @Counter()
     protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
         UserMessage userMessage = messaging.getUserMessage();
@@ -519,8 +506,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @param messaging the message
      * @return result of duplicate handle
      */
-    @Timer()
-    @Counter()
     protected Boolean checkDuplicate(final Messaging messaging) {
         LOG.debug("Checking for duplicate messages");
         return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;

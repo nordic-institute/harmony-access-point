@@ -148,7 +148,8 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
 
         final JmsMessage jmsMessage = new NotifyMessageCreator(sanitazedMessageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, WS_NOT_QUEUE);
-
+        // requires a time to consume messages from the notification queue
+        waitForMessage(messageId);
         RetrieveMessageRequest retrieveMessageRequest = createRetrieveMessageRequest(messageId);
         Holder<RetrieveMessageResponse> retrieveMessageResponse = new Holder<>();
         Holder<Messaging> ebMSHeaderInfo = new Holder<>();

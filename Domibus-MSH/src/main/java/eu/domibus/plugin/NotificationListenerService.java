@@ -1,7 +1,6 @@
 
 package eu.domibus.plugin;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
@@ -69,9 +68,6 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Autowired
-    MetricRegistry metricRegistry;
-
     private Queue backendNotificationQueue;
     private BackendConnector.Mode mode;
     private BackendConnector backendConnector;
@@ -120,10 +116,8 @@ public class NotificationListenerService implements MessageListener, JmsListener
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
         }
-        com.codahale.metrics.Timer.Context deliverMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.timer")).time();
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(MetricRegistry.name(NotificationListenerService.class, "listener.on_message"));
+
         try {
-            methodCounter.inc();
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
@@ -137,29 +131,19 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
             switch (notificationType) {
                 case MESSAGE_RECEIVED:
-                    com.codahale.metrics.Timer.Context deliverMessageMetric = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED.timer")).time();
-                    backendConnector.deliverMessage(messageId);
-                    deliverMessageMetric.stop();
+                    doDeliverMessage(message);
                     break;
                 case MESSAGE_SEND_FAILURE:
-                    com.codahale.metrics.Timer.Context messageSendFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_FAILURE.timer")).time();
-                    backendConnector.messageSendFailed(messageId);
-                    messageSendFailed.stop();
+                    doMessageSendFailed(message);
                     break;
                 case MESSAGE_SEND_SUCCESS:
-                    com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_SEND_SUCCESS.timer")).time();
-                    backendConnector.messageSendSuccess(messageId);
-                    messageSendSuccess.stop();
+                    doMessageSendSuccess(message);
                     break;
                 case MESSAGE_RECEIVED_FAILURE:
-                    com.codahale.metrics.Timer.Context messageRecvFailed = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_RECEIVED_FAILURE.timer")).time();
                     doMessageReceiveFailure(message);
-                    messageRecvFailed.stop();
                     break;
                 case MESSAGE_STATUS_CHANGE:
-                    com.codahale.metrics.Timer.Context messageStatusChanged = metricRegistry.timer(MetricRegistry.name(NotificationListenerService.class, "on_message.MESSAGE_STATUS_CHANGE.timer")).time();
                     doMessageStatusChange(message);
-                    messageStatusChanged.stop();
                     break;
             }
         } catch (JMSException jmsEx) {
@@ -168,10 +152,26 @@ public class NotificationListenerService implements MessageListener, JmsListener
         } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
-        } finally {
-            deliverMetric.stop();
-            methodCounter.dec();
         }
+    }
+
+    protected void doDeliverMessage(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        final String finalRecipient = message.getStringProperty(MessageConstants.FINAL_RECIPIENT);
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, finalRecipient);
+        backendConnectorDelegate.deliverMessage(backendConnector, deliverMessageEvent);
+    }
+
+    protected void doMessageSendFailed(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(messageId);
+        backendConnectorDelegate.messageSendFailed(backendConnector, messageSendFailedEvent);
+    }
+
+    protected void doMessageSendSuccess(final Message message) throws JMSException {
+        final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+        MessageSendSuccessEvent messageSendFailedEvent = new MessageSendSuccessEvent(messageId);
+        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendFailedEvent);
     }
 
     protected void doMessageStatusChange(final Message message) throws JMSException {
@@ -316,6 +316,7 @@ public class NotificationListenerService implements MessageListener, JmsListener
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
 
+        LOG.debug("Configuring JmsListeners for mode [{}]", this.mode);
         if (this.mode == BackendConnector.Mode.PUSH) {
             final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
             endpoint.setId(getBackendName());

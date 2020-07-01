@@ -13,6 +13,7 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +30,12 @@ import java.io.InputStream;
 /**
  * @author Arun Raj
  * @since 3.3
+ *
+ * JIRA: EDELIVERY-6671 showed the {@link PolicyServiceImpl} has a runtime dependency to the bean algorithmSuiteLoader
+ * ({@link eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader}).
  */
 @Service
+@DependsOn("algorithmSuiteLoader")
 public class PolicyServiceImpl implements PolicyService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImpl.class);

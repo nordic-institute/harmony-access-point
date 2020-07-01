@@ -7,41 +7,34 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class PluginUsersPage extends DomibusPage {
-	public PluginUsersPage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
 	public PluginUsersFilterArea filters = new PluginUsersFilterArea(driver);
-
+	@FindBy(css = "#saveButtonId")
+	public WebElement saveBtn;
 	@FindBy(css = "#pageGridId")
 	private WebElement userGridContainer;
 
 	@FindBy(css = "#cancelButtonId")
 	private WebElement cancelBtn;
-
-	@FindBy(css = "#saveButtonId")
-	public WebElement saveBtn;
-
 	@FindBy(css = "#addButtonId")
 	private WebElement newBtn;
-
 	@FindBy(css = "#editButtonId")
 	private WebElement editBtn;
-
 	@FindBy(css = "#deleteButtonId")
 	private WebElement deleteBtn;
+
+	public PluginUsersPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public PluginUsersFilterArea filters() {
 		return new PluginUsersFilterArea(driver);

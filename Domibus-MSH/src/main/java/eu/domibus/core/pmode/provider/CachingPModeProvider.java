@@ -661,7 +661,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
-        List result = new ArrayList<String>();
+        List<String> result = new ArrayList<String>();
         List<Process> processes = filterProcessesByMep(meps);
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
@@ -669,7 +669,7 @@ public class CachingPModeProvider extends PModeProvider {
                 result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
             }
         }
-        return result;
+        return result.stream().distinct().collect(Collectors.toList());
     }
 
     protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {

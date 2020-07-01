@@ -41,6 +41,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 
+        waitForMessages(3);
         String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 

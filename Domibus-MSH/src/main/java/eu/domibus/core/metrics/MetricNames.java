@@ -16,13 +16,5 @@ public enum MetricNames {
     OUTGOING_PULL_RECEIPT,
     VOID;
 
-    public String getCounterName() {
-        return this.name().toUpperCase() + "_counter";
-    }
-
-    public String getTimerName() {
-        return this.name().toUpperCase() + "_timer";
-    }
-
 
 }

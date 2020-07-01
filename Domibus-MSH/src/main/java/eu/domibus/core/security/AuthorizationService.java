@@ -95,8 +95,9 @@ public class AuthorizationService {
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
                 domainCoreConverter.convert(pullRequest, PullRequestDTO.class), pullRequestPmodeData);
     }
-    @Timer()
-    @Counter()
+
+    @Timer
+    @Counter
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;

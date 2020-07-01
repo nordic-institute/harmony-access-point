@@ -7,29 +7,25 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class EditModal extends DComponent {
+	@FindBy(css = "mat-dialog-container #editbuttonok_id")
+	protected WebElement okBtn;
+	@FindBy(css = "mat-dialog-container #editbuttoncancel_id")
+	protected WebElement cancelBtn;
+
 	public EditModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		wait.forElementToBe(okBtn);
 	}
-
-
-	@FindBy(css = "mat-dialog-container #editbuttonok_id")
-	protected WebElement okBtn;
-
-	@FindBy(css = "mat-dialog-container #editbuttoncancel_id")
-	protected WebElement cancelBtn;
 
 	public DButton getOkBtn() {
 		return new DButton(driver, okBtn);

@@ -10,28 +10,23 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 public class CertSection extends DComponent {
+	@FindBy(css = "#subjectName_id")
+	protected WebElement certSubjectNameInput;
+	@FindBy(css = "#validityFrom_id")
+	protected WebElement certValidFromInput;
+	@FindBy(css = "#validityTo_id")
+	protected WebElement certValidToInput;
+	@FindBy(css = "#issuer_id")
+	protected WebElement certIssuerInput;
+	@FindBy(css = "#fingerPrint_id")
+	protected WebElement certFingerPrintInput;
+	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
+	protected WebElement importButton;
+
 	public CertSection(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#subjectName_id")
-	protected WebElement certSubjectNameInput;
-
-	@FindBy(css = "#validityFrom_id")
-	protected WebElement certValidFromInput;
-
-	@FindBy(css = "#validityTo_id")
-	protected WebElement certValidToInput;
-
-	@FindBy(css = "#issuer_id")
-	protected WebElement certIssuerInput;
-
-	@FindBy(css = "#fingerPrint_id")
-	protected WebElement certFingerPrintInput;
-
-	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
-	protected WebElement importButton;
 
 	public DInput getCertSubjectNameInput() {
 		return weToDInput(certSubjectNameInput);
