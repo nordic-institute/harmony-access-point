@@ -163,7 +163,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CACHEABLE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_PRIORITY, Module.MSH, false,  DomibusPropertyMetadata.Usage.DOMAIN, false, false, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_PRIORITY, Module.MSH, false, DomibusPropertyMetadata.Usage.DOMAIN, false, false, false, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_JMS_CONCURRENCY, DomibusPropertyMetadata.Type.CONCURRENCY, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -173,7 +173,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT, DomibusPropertyMetadata.Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PROXY_PASSWORD, true),
+            new DomibusPropertyMetadata(DOMIBUS_PROXY_PASSWORD, Module.MSH, true, DomibusPropertyMetadata.Usage.GLOBAL, false, false, true, false),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME),
@@ -186,7 +186,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED, DomibusPropertyMetadata.Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, DomibusPropertyMetadata.Type.BOOLEAN),     //there are still usages in xml!!!! move them?
-            new DomibusPropertyMetadata(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT,  DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT, DomibusPropertyMetadata.Type.NUMERIC),         //there are still usages in xml!!!! move them?
 
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX, DomibusPropertyMetadata.Usage.DOMAIN, false),
