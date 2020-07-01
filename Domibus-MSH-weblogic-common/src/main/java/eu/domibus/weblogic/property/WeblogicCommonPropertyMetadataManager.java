@@ -25,7 +25,7 @@ public class WeblogicCommonPropertyMetadataManager implements DomibusPropertyMet
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.asList(
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION, DomibusPropertyMetadata.Type.CRON, module), //present just in domibus.properties but seems not to be used anywhere!!
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_USER, module),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD, module),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMX_PASSWORD, DomibusPropertyMetadata.Type.PASSWORD, module),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(WEBLOGIC_MANAGEMENT_SERVER, module)
     ).stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
 

@@ -70,7 +70,7 @@ public class DomibusPropertyChangeManager {
         }
 
         try {
-            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+            DomibusPropertyMetadata.Type type = propMeta.getTypeAsEnum();
             DomibusPropertyValidator validator = type.getValidator();
             if (validator == null) {
                 LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());

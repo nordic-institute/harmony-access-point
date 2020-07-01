@@ -1,6 +1,6 @@
 package eu.domibus.web.rest.validators;
 
-import eu.domibus.core.rest.validators.ObjectBlacklistValidator;
+import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -8,7 +8,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -17,13 +17,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Ion Perpegel
  * since 4.1
  */
-@Target({FIELD, PARAMETER})
+@Target({METHOD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = ObjectBlacklistValidator.class)
+@Constraint(validatedBy = DomibusPropertyBlacklistValidator.class)
 @Documented
-public @interface ObjectWhiteListed {
+public @interface DomibusPropertyWhiteListed {
 
-    static String MESSAGE = "Forbidden character detected in property ";
+    static String MESSAGE = "Forbidden character detected in property. ";
 
     String message() default MESSAGE;
 

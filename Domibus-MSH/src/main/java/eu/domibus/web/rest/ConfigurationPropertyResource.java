@@ -1,11 +1,11 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;
@@ -13,7 +13,6 @@ import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import eu.domibus.web.rest.ro.PropertyResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,17 +34,21 @@ import java.util.stream.Collectors;
 public class ConfigurationPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResource.class);
 
-    @Autowired
     private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
-
-    @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
-    protected DomainCoreConverter domainCoreConverter;
+    DomibusPropertyBlacklistValidator domibusPropertyBlacklistValidator;
+
+    public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
+                                         DomainCoreConverter domainConverter,
+                                         DomibusPropertyBlacklistValidator domibusPropertyBlacklistValidator) {
+        this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
+        this.domainConverter = domainConverter;
+        this.domibusPropertyBlacklistValidator = domibusPropertyBlacklistValidator;
+
+        domibusPropertyBlacklistValidator.init();
+    }
 
     @GetMapping
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
@@ -66,13 +69,24 @@ public class ConfigurationPropertyResource extends BaseResource {
     }
 
     @PutMapping(path = "/{propertyName:.+}")
+    // we skip the default blacklist validator and call manually a custom validator that takes into account the type of the property
     @SkipWhiteListed
-    public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
-                            @RequestBody String propertyValue) {
+    public void setProperty(@PathVariable String propertyName,
+                            @RequestParam(required = false, defaultValue = "true") boolean isDomain,
+                            @Valid @RequestBody String propertyValue) {
+
+        validateProperty(propertyName, propertyValue);
+
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);
 
         configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
+    }
+
+    private void validateProperty(String propertyName, String propertyValue) {
+        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
+        prop.setValue(propertyValue);
+        domibusPropertyBlacklistValidator.validate(prop);
     }
 
     /**
@@ -99,12 +113,13 @@ public class ConfigurationPropertyResource extends BaseResource {
         LOG.debug("Getting domibus property metadata types.");
 
         DomibusPropertyMetadata.Type[] types = DomibusPropertyMetadata.Type.values();
-        List<DomibusPropertyTypeRO> res = domainCoreConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
+        List<DomibusPropertyTypeRO> res = domainConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
         return res;
     }
 
     /**
      * Returns the property metadata and the current value for a property
+     *
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */

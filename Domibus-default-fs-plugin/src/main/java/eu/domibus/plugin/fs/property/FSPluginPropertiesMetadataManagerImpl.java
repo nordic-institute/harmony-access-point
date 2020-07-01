@@ -81,22 +81,22 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             //non-writable properties:
             new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
             new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, false, false),
-            new DomibusPropertyMetadataDTO(OUT_QUEUE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false),
+            new DomibusPropertyMetadataDTO(OUT_QUEUE, DomibusPropertyMetadataDTO.Type.QUEUE, Module.FS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, true, false, false),
 
             //writable properties
             new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(SENT_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(FAILED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_WORKER_CRONEXPRESSION, DomibusPropertyMetadataDTO.Type.CRON, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-            // without fallback from the default domain :
+            // without fallback
             new DomibusPropertyMetadataDTO(AUTHENTICATION_USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
-            new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
+            new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
             new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
-            new DomibusPropertyMetadataDTO(PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
-            // with fallback from the default domain:
-            new DomibusPropertyMetadataDTO(LOCATION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(ORDER, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(EXPRESSION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.FS_PLUGIN, true, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, true, true, false),
+            // with fallback
+            new DomibusPropertyMetadataDTO(LOCATION, DomibusPropertyMetadataDTO.Type.URI, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(ORDER, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(EXPRESSION, DomibusPropertyMetadataDTO.Type.REGEXP, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(SEND_DELAY, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
@@ -104,7 +104,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(PAYLOAD_ID, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true), //what type???
             new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, DomibusPropertyMetadataDTO.Type.CONCURRENCY, Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
     }).peek(el -> el.setStoredGlobally(false)).collect(Collectors.toMap(x -> x.getName(), x -> x));
 

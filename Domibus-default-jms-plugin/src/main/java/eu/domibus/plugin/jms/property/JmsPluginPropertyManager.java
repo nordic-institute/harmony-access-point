@@ -26,8 +26,8 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
     private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTION_FACTORY, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, true, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, DomibusPropertyMetadataDTO.Type.QUEUE, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, DomibusPropertyMetadataDTO.Type.QUEUE, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN_CONCURRENCY, DomibusPropertyMetadataDTO.Type.CONCURRENCY, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false)
             );
 
@@ -50,14 +50,20 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
             .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, false, false, false, true))
             .collect(Collectors.toList());
 
-    private List<DomibusPropertyMetadataDTO> writableProperties = Arrays.stream(new String[]{
-            FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
-            TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
-            AGREEMENT_REF, SERVICE, SERVICE_TYPE, ACTION,
-            PUT_ATTACHMENTS_IN_QUEUE
-    })
-            .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true))
-            .collect(Collectors.toList());
+
+    private List<DomibusPropertyMetadataDTO> writableProperties = Arrays.asList(
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_ID, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_TYPE, DomibusPropertyMetadataDTO.Type.URI, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_ROLE, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_ID, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_TYPE, DomibusPropertyMetadataDTO.Type.URI, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_ROLE, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + AGREEMENT_REF, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE_TYPE, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + ACTION, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.JMS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true)
+    );
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
