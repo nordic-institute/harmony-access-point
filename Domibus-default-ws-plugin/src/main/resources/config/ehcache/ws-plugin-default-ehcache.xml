@@ -1,20 +1,20 @@
 <ehcache>
-    <cache name="policyCache"
+    <cache name="wsplugin.policyCache"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false" >
     </cache>
-    <cache name="passwordEncryptionKey"
+    <cache name="wsplugin.passwordEncryptionKey"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">
     </cache>
-    <cache name="multitenantCache"
+    <cache name="wsplugin.multitenantCache"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">
     </cache>
-    <cache name="jmsDestinations"
+    <cache name="wsplugin.jmsDestinations"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="300"
            overflowToDisk="false">

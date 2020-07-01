@@ -58,7 +58,7 @@ public class DomibusCacheConfiguration {
         }
 
         ///add plugins ehcache files
-        addPluginsCacheConfigurationClasspath(cacheManager, pluginsConfigLocation);
+        addPluginsCacheConfiguration(cacheManager, pluginsConfigLocation);
 
         return ehCacheManager;
     }
@@ -92,7 +92,7 @@ public class DomibusCacheConfiguration {
         }
     }
 
-    protected void addPluginsCacheConfigurationClasspath(CacheManager cacheManager, final String pluginsConfigLocation) {
+    protected void addPluginsCacheConfiguration(CacheManager cacheManager, final String pluginsConfigLocation) {
         List<Resource> pluginDefaultEhcacheList = new ArrayList<>();
         List<Resource> pluginEhcacheList = new ArrayList<>();
         try {

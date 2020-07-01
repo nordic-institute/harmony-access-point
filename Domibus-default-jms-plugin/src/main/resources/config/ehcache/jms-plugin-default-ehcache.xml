@@ -1,10 +1,10 @@
 <ehcache>
-    <cache name="multitenantCache"
+    <cache name="jmsplugin.multitenantCache"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">
     </cache>
-    <cache name="jmsDestinations"
+    <cache name="jmsplugin.jmsDestinations"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="300"
            overflowToDisk="false">
