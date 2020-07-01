@@ -25,7 +25,8 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationDefaultService.class);
 
-    public static final String BASIC_HEADER_KEY = "Authorization";
+    public static final String BASIC_AUTH_HEADER_KEY = "Authorization";
+    public static final String BASIC_AUTH_SCHEME_PREFIX = "Basic ";
     public static final String CLIENT_CERT_ATTRIBUTE_KEY = "javax.servlet.request.X509Certificate";
     public static final String CLIENT_CERT_HEADER_KEY = "Client-Cert";
 
@@ -73,7 +74,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
         final Object certificateAttribute = httpRequest.getAttribute(CLIENT_CERT_ATTRIBUTE_KEY);
         final String certHeaderValue = httpRequest.getHeader(CLIENT_CERT_HEADER_KEY);
-        final String basicHeaderValue = httpRequest.getHeader(BASIC_HEADER_KEY);
+        final String basicHeaderValue = httpRequest.getHeader(BASIC_AUTH_HEADER_KEY);
 
         if (basicHeaderValue != null) {
             LOG.debug("Basic authentication header found: " + basicHeaderValue);
@@ -85,12 +86,12 @@ public class AuthenticationDefaultService implements AuthenticationService {
             LOG.debug("Client certificate in header found: " + certHeaderValue);
         }
 
-        if (basicHeaderValue != null && basicHeaderValue.startsWith("Basic ")) {
+        if (basicHeaderValue != null && basicHeaderValue.startsWith(BASIC_AUTH_SCHEME_PREFIX)) {
             LOG.securityInfo(DomibusMessageCode.SEC_BASIC_AUTHENTICATION_USE);
 
             String basicAuthCredentials;
             try {
-                basicAuthCredentials = new String(Base64.decode(basicHeaderValue.substring("Basic ".length())));
+                basicAuthCredentials = new String(Base64.decode(basicHeaderValue.substring(BASIC_AUTH_SCHEME_PREFIX.length())));
             } catch (DecoderException ex) {
                 throw new AuthenticationException("Could not decode authorization header", ex);
             }

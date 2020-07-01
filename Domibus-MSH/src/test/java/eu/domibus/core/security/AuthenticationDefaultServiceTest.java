@@ -264,7 +264,7 @@ public class AuthenticationDefaultServiceTest{
 
     private MockHttpServletRequest createHttpBasicAuthRequest(String basicAuthCredentials) {
         MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.POST, DOMIBUS_URL);
-        request.addHeader(AuthenticationDefaultService.BASIC_HEADER_KEY, basicAuthCredentials);
+        request.addHeader(AuthenticationDefaultService.BASIC_AUTH_HEADER_KEY, basicAuthCredentials);
         return request;
     }
 
