@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,8 @@ public class DomibusCacheConfigurationTest {
 
         domibusCacheConfiguration.ehCacheManager(cacheManager);
 
-        new FullVerifications() {{
+        new FullVerifications(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, anyString);
         }};
     }
 
@@ -50,37 +52,23 @@ public class DomibusCacheConfigurationTest {
 
         domibusCacheConfiguration.ehCacheManager(cacheManager);
 
-        new FullVerifications() {{
-
+        new FullVerifications(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, anyString);
         }};
     }
 
     @Test
-    @Ignore
-    public void testMergeExternalCacheConfigurationWithOneExistingCacheEntry(@Mocked CacheManager externalCacheManager,
-                                                                             @Mocked CacheConfiguration cacheConfiguration) {
-        new Expectations() {{
-            CacheManager.newInstance(anyString);
+    public void test_mergeExternalCacheConfiguration(@Mocked CacheManager defaultCacheManager,
+                                                     @Mocked CacheManager externalCacheManager) {
+        new Expectations(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.createCacheManager(anyString, anyString);
             result = externalCacheManager;
-
-            externalCacheManager.getCacheNames();
-            result = new String[]{"cache1", "cache2"};
-
-            cacheManager.cacheExists("cache1");
-            result = true;
-
-            externalCacheManager.getCache(anyString).getCacheConfiguration();
-            result = cacheConfiguration;
         }};
 
-        domibusCacheConfiguration.mergeExternalCacheConfiguration(cacheManager);
+        domibusCacheConfiguration.mergeExternalCacheConfiguration(defaultCacheManager);
 
-        new Verifications() {{
-            cacheManager.removeCache("cache1");
-
-            List<Cache> cacheParams = new ArrayList<>();
-            cacheManager.addCache(withCapture(cacheParams));
-            Assert.assertTrue(cacheParams.size() == 2);
+        new FullVerifications(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.overridesDefaultCache(defaultCacheManager, externalCacheManager);
         }};
     }
 
@@ -90,7 +78,7 @@ public class DomibusCacheConfigurationTest {
                                            @Mocked CacheConfiguration cacheConfiguration
                                            ) {
         new Expectations() {{
-            defaultCacheManager.getCacheNames();
+            externalCacheManager.getCacheNames();
             result = new String[]{"cache1", "cache2"};
 
             defaultCacheManager.cacheExists("cache1");
