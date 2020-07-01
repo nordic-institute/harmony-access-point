@@ -8,11 +8,9 @@ import eu.domibus.core.user.plugin.AuthenticationDefaultService;
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -176,6 +174,32 @@ public class AuthenticationDefaultServiceTest{
     }
 
     @Test
+    public void authenticateBasic_wrongHeaderTest() {
+        String headerValueToTest = "Basicx YWRtaW46MTIzNDU2";
+        MockHttpServletRequest request = createHttpBasicAuthRequest(headerValueToTest);
+
+        try {
+            authenticationService.authenticate(request);
+            Assert.fail("Authorization header [" + headerValueToTest + "] should not pass authentication");
+        } catch (AuthenticationException ex) {
+            // the exception is expected,
+            // but we need to verify the auth provider is not called at all
+            new Verifications() {{
+                securityCustomAuthenticationProvider.authenticate((Authentication) any);
+                times = 0;
+            }};
+        }
+    }
+
+    @Test(expected = AuthenticationException.class)
+    public void authenticateBasic_wrongEncodingTest() {
+        String headerValueToTest = "Basic aaa";
+        MockHttpServletRequest request = createHttpBasicAuthRequest(headerValueToTest);
+
+        authenticationService.authenticate(request);
+    }
+
+    @Test
     public void authenticateBLueCoatValidTest() throws UnsupportedEncodingException, ParseException {
         String certHeaderValue = createCertHeaderValue();
         MockHttpServletRequest request = createHttpBlueCoatRequest(certHeaderValue);
@@ -235,10 +259,12 @@ public class AuthenticationDefaultServiceTest{
     }
 
     private MockHttpServletRequest createHttpBasicAuthRequest() {
-        String basicAuthCredentials = "Basic YWRtaW46MTIzNDU2";
+        return createHttpBasicAuthRequest("Basic YWRtaW46MTIzNDU2");
+    }
+
+    private MockHttpServletRequest createHttpBasicAuthRequest(String basicAuthCredentials) {
         MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.POST, DOMIBUS_URL);
         request.addHeader(AuthenticationDefaultService.BASIC_HEADER_KEY, basicAuthCredentials);
-
         return request;
     }
 
@@ -260,5 +286,4 @@ public class AuthenticationDefaultServiceTest{
 
         return request;
     }
-
 }

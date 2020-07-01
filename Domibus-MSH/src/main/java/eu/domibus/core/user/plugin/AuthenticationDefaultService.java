@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.DecoderException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -84,11 +85,16 @@ public class AuthenticationDefaultService implements AuthenticationService {
             LOG.debug("Client certificate in header found: " + certHeaderValue);
         }
 
-        if (basicHeaderValue != null && basicHeaderValue.startsWith("Basic")) {
+        if (basicHeaderValue != null && basicHeaderValue.startsWith("Basic ")) {
             LOG.securityInfo(DomibusMessageCode.SEC_BASIC_AUTHENTICATION_USE);
 
-            LOG.debug("Basic authentication: " + Base64.decode(basicHeaderValue.substring("Basic ".length())));
-            String basicAuthCredentials = new String(Base64.decode(basicHeaderValue.substring("Basic ".length())));
+            String basicAuthCredentials;
+            try {
+                basicAuthCredentials = new String(Base64.decode(basicHeaderValue.substring("Basic ".length())));
+            } catch (DecoderException ex) {
+                throw new AuthenticationException("Could not decode authorization header", ex);
+            }
+            LOG.debug("Basic authentication: [{}]", basicAuthCredentials);
             int index = basicAuthCredentials.indexOf(":");
             String user = basicAuthCredentials.substring(0, index);
             String password = basicAuthCredentials.substring(index + 1);
