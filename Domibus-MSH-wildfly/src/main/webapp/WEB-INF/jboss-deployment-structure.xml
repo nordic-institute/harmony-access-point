@@ -5,6 +5,7 @@
             <subsystem name="webservices" />
             <subsystem name="jaxrs" />
             <subsystem name="resteasy" />
+            <subsystem name="jsf"/>
         </exclude-subsystems>
 
         <dependencies>
@@ -34,7 +35,6 @@
             <module name="org.apache.commons.logging"/>
             <module name="org.jboss.logging"/>
         </exclusions>
-
 
     </deployment>
 </jboss-deployment-structure>

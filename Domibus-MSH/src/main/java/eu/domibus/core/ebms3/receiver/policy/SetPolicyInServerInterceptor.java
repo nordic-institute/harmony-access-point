@@ -46,7 +46,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             final HttpServletResponse response = (HttpServletResponse) message.get(AbstractHTTPDestination.HTTP_RESPONSE);
             response.setStatus(HttpServletResponse.SC_OK);
             try {
-                response.getWriter().println(domibusPropertiesService.getBuildDetails());
+                response.getWriter().println(domibusVersionService.getBuildDetails());
             } catch (IOException ex) {
                 throw new Fault(ex);
             }

@@ -313,7 +313,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -332,16 +332,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private void prepareForPushOrPull(UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessageLog);
+            userMessageService.scheduleSending(userMessage, userMessageLog);
         } else {
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
             pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
         }
     }
-
 
     @Override
     @Transactional
@@ -458,7 +457,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessageLog, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

@@ -75,33 +75,4 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
         return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
-
-    /**
-     * Returns the list of nested properties names(only the first level) starting with the specified prefix
-     * <p/>
-     * Eg. Given the properties routing.rule1=Rule1 name, routing.rule1.queue=jms.queue1, routing.rule2=Rule2 name, routing.rule2.queue=jms.queue2
-     * it will return for the prefix "routing" the following list : rule1, rule2
-     *
-     * @param prefix
-     * @return
-     */
-    public List<String> getNestedProperties(String prefix) {
-        List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = domibusPropertyExtService.filterPropertiesName(property -> property.startsWith(prefix));
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No properties found starting with prefix [{}]", prefix);
-            return result;
-        }
-        LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, prefix);
-        List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
-                .map(property -> StringUtils.substringAfter(property, prefix))
-                .filter(property -> !property.contains(".")).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No first level properties found starting with prefix [{}]", prefix);
-            return result;
-        }
-        LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, prefix);
-        return firstLevelProperties;
-    }
-
 }

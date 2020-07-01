@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -11,6 +12,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +20,10 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +32,8 @@ import static org.junit.Assert.assertEquals;
  * @author Ion Perpegel
  */
 @RunWith(JMockit.class)
-public class DomibusPropertyProviderImplTestGlobal {
+public class DomibusPropertyProviderImplTest {
+
     @Tested
     DomibusPropertyProviderImpl domibusPropertyProvider;
 
@@ -38,9 +44,6 @@ public class DomibusPropertyProviderImplTestGlobal {
     @Injectable
     @Qualifier("domibusDefaultProperties")
     protected Properties domibusDefaultProperties;
-
-    @Injectable
-    protected PropertyResolver propertyResolver;
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
@@ -595,4 +598,81 @@ public class DomibusPropertyProviderImplTestGlobal {
 
     }
 
+    @Test
+    public void testGetNestedProperties() {
+        String prefix = "routing";
+
+        Set<String> propertiesStartingWithPrefix = new HashSet<>();
+        propertiesStartingWithPrefix.add("routing.rule1");
+        propertiesStartingWithPrefix.add("routing.rule1.queue");
+        propertiesStartingWithPrefix.add("routing.rule1.service");
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.filterPropertiesName((Predicate) any);
+            result = propertiesStartingWithPrefix;
+        }};
+
+        List<String> nestedProperties = domibusPropertyProvider.getNestedProperties(prefix);
+        Assert.assertEquals(1, nestedProperties.size());
+        Assert.assertTrue(nestedProperties.contains("rule1"));
+    }
+
+    @Test
+    public void getPropertyPrefix() {
+        String prefix = "rule1";
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+        }};
+
+        String propertyPrefix = domibusPropertyProvider.getPropertyPrefix(prefix);
+        assertEquals(prefix + ".", propertyPrefix);
+
+        new Verifications() {{
+            domibusPropertyProvider.computePropertyPrefix((Domain) any, anyString);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void getPropertyPrefixForMultitenancy() {
+        String prefix = "rule1";
+        String domainPrefix = "default.rule1";
+        String propertyPrefix = domainPrefix + ".";
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            domainContextProvider.getCurrentDomain();
+            result = DomainService.DEFAULT_DOMAIN;
+
+            domibusPropertyProvider.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
+            result = domainPrefix;
+        }};
+
+
+        String propertyName = domibusPropertyProvider.getPropertyPrefix(prefix);
+        assertEquals(propertyPrefix, propertyName);
+    }
+
+    @Test
+    public void computePropertyPrefixForDefaultDomain() {
+        String value = domibusPropertyProvider.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, "rule1");
+        Assert.assertEquals(DomainService.DEFAULT_DOMAIN.getCode() + ".rule1", value);
+    }
+
+    @Test
+    public void computePropertyPrefix(@Injectable Domain domain) {
+        String domainCode = "digit";
+
+        new Expectations() {{
+            domain.getCode();
+            result = domainCode;
+        }};
+
+        String value = domibusPropertyProvider.computePropertyPrefix(domain, "rule1");
+        Assert.assertEquals(domainCode + ".rule1", value);
+    }
 }

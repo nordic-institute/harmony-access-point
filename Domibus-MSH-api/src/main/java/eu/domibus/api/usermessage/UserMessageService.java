@@ -4,7 +4,6 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -57,8 +56,6 @@ public interface UserMessageService {
     void deleteFailedMessage(String messageId);
 
     void deleteMessage(String messageId);
-
-    void scheduleSending(String messageId, boolean isSplitAndJoin);
 
     /**
      * Schedules the handling of the SplitAndJoin send failed event
@@ -119,9 +116,7 @@ public interface UserMessageService {
 
     void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
 
-    void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin);
-
-    void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin);
+    void scheduleSending(String messageId, Long delay);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt

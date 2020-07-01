@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
@@ -146,9 +145,8 @@ public class AlertServiceImpl implements AlertService {
         final AlertType alertType = alertEntity.getAlertType();
         String subject = alertConfigurationService.getMailSubject(alertType);
 
-        final String alertSuperInstanceNameSubjectProperty = DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;;
         //always set at super level
-        final String serverName = domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
+        final String serverName = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT);
         subject += "[" + serverName + "]";
         final String template = alertType.getTemplate();
         return new DefaultMailModel(mailModel, template, subject);

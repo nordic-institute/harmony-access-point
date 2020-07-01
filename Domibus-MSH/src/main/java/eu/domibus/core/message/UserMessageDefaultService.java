@@ -25,8 +25,6 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
@@ -103,10 +101,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    protected UserMessagePriorityService userMessagePriorityService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -225,10 +220,10 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogDao.update(userMessageLog);
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(userMessageLog);
+            scheduleSending(userMessage, userMessageLog);
         } else {
-            final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
                 MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
@@ -252,10 +247,11 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(userMessageLog);
+        scheduleSending(userMessage, userMessageLog);
     }
 
     @Transactional
@@ -291,26 +287,31 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    public void scheduleSending(UserMessageLog userMessageLog) {
-        scheduleSending(userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
+    protected Integer getUserMessagePriority(UserMessage userMessage) {
+        String service = userMessageServiceHelper.getService(userMessage);
+        String action = userMessageServiceHelper.getAction(userMessage);
+        Integer priority = userMessagePriorityService.getPriority(service, action);
+        LOG.debug("Determined priority [{}]", priority);
+
+        return priority;
     }
 
-    @Transactional
+
+    public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
+        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
+    }
+
     @Override
-    public void scheduleSending(String messageId, boolean isSplitAndJoin) {
+    public void scheduleSending(String messageId, Long delay) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        scheduleSending(userMessageLog);
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
-    @Override
-    public void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        scheduleSending(userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
-    }
-
-    @Override
-    public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
-        scheduleSending(messageId, null, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+    public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
+        String messageId = userMessageLog.getMessageId();
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
     }
 
     /**
@@ -319,28 +320,24 @@ public class UserMessageDefaultService implements UserMessageService {
      * @param userMessageLog
      * @param jmsMessage
      */
-    protected void scheduleSending(final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
-        scheduleSending(userMessageLog.getMessageId(), userMessageLog, jmsMessage, userMessageLog.isSplitAndJoin());
+    protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    protected void scheduleSending(final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage, boolean isSplitAndJoin) {
-        if (isSplitAndJoin) {
+    protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
         } else {
+            Integer priority = getUserMessagePriority(userMessage);
+            jmsMessage.setPriority(priority);
             LOG.debug("Sending message to sendMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
         }
-        if (userMessageLog == null) {
-            LOG.debug("Getting UserMessageLog for message id [{}]", messageId);
-            userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        }
 
-        if (userMessageLog != null) {
-            LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
-            userMessageLog.setScheduled(true);
-            userMessageLogDao.update(userMessageLog);
-        }
+        LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
+        userMessageLog.setScheduled(true);
+        userMessageLogDao.update(userMessageLog);
     }
 
     @Override

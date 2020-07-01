@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -27,7 +27,7 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
     protected MessageSenderService messageSenderService;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Override
     public void onMessage(final Message message) {

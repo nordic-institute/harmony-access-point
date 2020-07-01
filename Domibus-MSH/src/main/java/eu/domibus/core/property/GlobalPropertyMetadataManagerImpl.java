@@ -74,7 +74,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         synchronized (propertyMetadataMapLock) {
             DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
             allPropertyMetadataMap.put(propertyName, newProp);
-            internalPropertyMetadataMap.put(propertyName, prop);
+            internalPropertyMetadataMap.put(propertyName, newProp);
             return newProp;
         }
     }
@@ -89,7 +89,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                     p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
             return propMeta.isPresent();
         } catch (Exception ex) {
-            LOG.error("Could not find metadata of [{}] property in property map [{}]", propertyName, map);
+            LOG.error("Could not find metadata of [{}] property in property map [{}]", propertyName, map, ex);
             return false;
         }
     }

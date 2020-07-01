@@ -3,8 +3,8 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
@@ -31,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
-    private final static Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
 
     @Autowired
     private PartyService partyService;
@@ -64,7 +64,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream().filter(p -> enabledParties.contains(p)).collect(Collectors.toList());
+        List<String> monitoredParties = testableParties.stream()
+                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+                .collect(Collectors.toList());
         for (String party : monitoredParties) {
             try {
                 String testMessageId = testService.submitTest(selfParty, party);
@@ -95,12 +97,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastReceived(lastReceived);
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        if (testableParties.contains(partyId)) {
+        if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setTestable(true);
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (enabledParties.contains(partyId) && result.isTestable()) {
+        if (result.isTestable() && enabledParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
@@ -124,7 +126,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     private List<String> getMonitorEnabledParties() {
         List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED).split(","));
-        enabledParties = enabledParties.stream().map(p -> StringUtils.trim(p)).collect(Collectors.toList());
+        enabledParties = enabledParties.stream()
+                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .collect(Collectors.toList());
         return enabledParties;
     }
 
