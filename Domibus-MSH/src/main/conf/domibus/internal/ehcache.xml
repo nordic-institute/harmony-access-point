@@ -84,12 +84,11 @@
            timeToLiveSeconds="3600"
            overflowToDisk="false">
     </cache>
-        -->
     <cache name="jmsDestinations"
            maxBytesLocalHeap="5m"
            timeToLiveSeconds="300"
            overflowToDisk="false">
     </cache>
-
+    -->
 
 </ehcache>
