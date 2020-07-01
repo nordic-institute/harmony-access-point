@@ -11,6 +11,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -57,7 +58,6 @@ public class DomibusCacheConfiguration {
             mergeExternalCacheConfiguration(cacheManager);
         }
 
-        ///add plugins ehcache files
         addPluginsCacheConfiguration(cacheManager, pluginsConfigLocation);
 
         return ehCacheManager;
@@ -69,16 +69,13 @@ public class DomibusCacheConfiguration {
 
     /**
      * Get the configuration defined in the external ehcache.xml file and merge it into the default ehcache-default.xml configuration.
-     * An existing cache entry is overridden, otherwise a new cache entry is created.
+     * Any existing cache entry is overridden, otherwise a new cache entry is created.
      *
      * @param cacheManager
      */
     protected void mergeExternalCacheConfiguration(CacheManager cacheManager) {
         LOG.debug("External ehCache file exists [{}]. Overriding the default ehCache configuration", externalEhCacheFile);
 
-        //we create a separate cache configuration having the name of external file
-        //otherwise the caches will be associated with default configuration into Ehcache internal map
-        // and mixed with the plugin ones
         CacheManager externalCacheManager = createCacheManager(externalEhCacheFile, "external");
 
         final String[] cacheNames = externalCacheManager.getCacheNames();
@@ -92,6 +89,12 @@ public class DomibusCacheConfiguration {
         }
     }
 
+    /**
+     * Adds plugins ehcache config files (both default-ehcache.xml and ehcache.xml)
+     *
+     * @param cacheManager
+     * @param pluginsConfigLocation
+     */
     protected void addPluginsCacheConfiguration(CacheManager cacheManager, final String pluginsConfigLocation) {
         List<Resource> pluginDefaultEhcacheList = new ArrayList<>();
         List<Resource> pluginEhcacheList = new ArrayList<>();
@@ -119,7 +122,7 @@ public class DomibusCacheConfiguration {
 
         //add to Domibus cache
         final String[] cacheNames = cacheManagerPlugins.getCacheNames();
-        if (cacheNames == null || cacheNames.length == 0) {
+        if (ArrayUtils.isEmpty(cacheNames)) {
             LOG.debug("no ehcache caches will be merged for plugins");
             return;
         }
@@ -163,6 +166,13 @@ public class DomibusCacheConfiguration {
         }
     }
 
+    /**
+     * Creates a CacheManager from an URL with a given configuration name
+     *
+     * @param configurationURL
+     * @param configurationName
+     * @return CacheManager
+     */
     protected CacheManager createCacheManager(@NotNull URL configurationURL, @NotNull final String configurationName) {
 
         net.sf.ehcache.config.Configuration configuration = ConfigurationFactory.parseConfiguration(configurationURL);
@@ -170,6 +180,13 @@ public class DomibusCacheConfiguration {
         return CacheManager.newInstance(configuration);
     }
 
+    /**
+     * Creates a CacheManager from a file with a given configuration name
+     *
+     * @param configurationFileName
+     * @param configurationName
+     * @return
+     */
     protected CacheManager createCacheManager(@NotNull String configurationFileName, @NotNull String configurationName) {
         net.sf.ehcache.config.Configuration configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
         configuration.setName(configurationName);
