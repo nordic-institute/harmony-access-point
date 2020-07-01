@@ -6,10 +6,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +74,7 @@ public class DomibusCacheConfigurationTest {
     public void test_overridesDefaultCache(@Mocked CacheManager defaultCacheManager,
                                            @Mocked CacheManager externalCacheManager,
                                            @Mocked CacheConfiguration cacheConfiguration
-                                           ) {
+    ) {
         new Expectations() {{
             externalCacheManager.getCacheNames();
             result = new String[]{"cache1", "cache2"};
