@@ -171,13 +171,13 @@ public class DomibusCacheConfiguration {
      * @param cacheManager
      */
     protected void overridesDefaultCache(@NotNull CacheManager defaultCacheManager, @NotNull CacheManager cacheManager) {
-        final String[] cacheNames = defaultCacheManager.getCacheNames();
+        final String[] cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {
             if (defaultCacheManager.cacheExists(cacheName)) {
                 LOG.debug("Overriding the default cache [{}]", cacheName);
                 defaultCacheManager.removeCache(cacheName);
             }
-            final CacheConfiguration cacheConfiguration = defaultCacheManager.getCache(cacheName).getCacheConfiguration();
+            final CacheConfiguration cacheConfiguration = cacheManager.getCache(cacheName).getCacheConfiguration();
             defaultCacheManager.addCache(new Cache(cacheConfiguration));
         }
     }
