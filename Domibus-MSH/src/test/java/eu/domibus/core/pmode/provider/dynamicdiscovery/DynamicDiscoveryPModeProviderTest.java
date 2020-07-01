@@ -53,6 +53,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -260,6 +261,7 @@ public class DynamicDiscoveryPModeProviderTest {
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
         doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
         try {
             partyId= userMessage.getPartyInfo().getFrom().getPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
