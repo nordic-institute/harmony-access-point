@@ -568,7 +568,6 @@ public class UserMessageDefaultService implements UserMessageService {
             }
             deleteMessagePluginCallback(messageId, notificationListener);
         }
-
     }
 
     protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {

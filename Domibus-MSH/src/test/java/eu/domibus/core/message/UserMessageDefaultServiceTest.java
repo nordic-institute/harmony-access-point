@@ -603,7 +603,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
+    public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
                                                 @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
         final List<NotificationListener> notificationListeners = new ArrayList<>();
@@ -619,20 +619,19 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.isTestMessage();
             result = true;
 
-
         }};
 
         userMessageDefaultService.deleteMessagePluginCallback(messageId);
 
         new Verifications() {{
             userMessageLog.getBackend();
-            times =0;
+            times = 0;
 
             backendNotificationService.getNotificationListener(anyString);
-            times =0;
+            times = 0;
 
             userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
-            times=0;
+            times = 0;
 
         }};
     }
