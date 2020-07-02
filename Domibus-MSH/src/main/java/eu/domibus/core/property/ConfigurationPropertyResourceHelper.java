@@ -19,7 +19,7 @@ public interface ConfigurationPropertyResourceHelper {
      * @param name the filter value
      * @return
      */
-    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties);
+    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties, String type, String module, String value);
 
     /**
      * Sets the property with specified name to the specified value

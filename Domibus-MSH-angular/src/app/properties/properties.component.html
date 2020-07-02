@@ -13,14 +13,28 @@
               </mat-form-field>
             </span>
 
-              <span>
-            <ng-container *ngIf="showGlobalPropertiesControl">
-              <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
-                Show Domain Properties
-              </mat-checkbox>
-            </ng-container>
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyType_id" name="filterPropertyType" [(ngModel)]="filter.type"
+                       placeholder="Property Type...">
+              </mat-form-field>
             </span>
 
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyModule_id" name="filterPropertyModule" [(ngModel)]="filter.module"
+                       placeholder="Property Module...">
+              </mat-form-field>
+            </span>
+
+            <span>
+              <ng-container *ngIf="showGlobalPropertiesControl">
+                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
+                  Show Domain Properties
+                </mat-checkbox>
+              </ng-container>
+            </span>
+            
             <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
           </form>

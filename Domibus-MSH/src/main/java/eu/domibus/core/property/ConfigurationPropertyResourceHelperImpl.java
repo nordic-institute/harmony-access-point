@@ -40,12 +40,17 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Override
-    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain) {
+    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value) {
         List<DomibusProperty> result = new ArrayList<>();
 
-        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(name, showDomain, globalPropertyMetadataManager.getAllProperties());
+        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
+                name, showDomain, type, module);
+
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
 
+        properties = properties.stream()
+                .filter(prop -> value == null || prop.getValue().equals(value))
+                .collect(Collectors.toList());
         result.addAll(properties);
 
         return result;
@@ -114,10 +119,13 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return prop;
     }
 
-    protected List<DomibusPropertyMetadata> filterProperties(String name, boolean showDomain, Map<String, DomibusPropertyMetadata> propertiesMap) {
+    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap, String name,
+                                                             boolean showDomain, String type, String module) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
-                .filter(p -> p.isWritable())
-                .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(prop -> prop.isWritable())
+                .filter(prop -> name == null || prop.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(prop -> type == null || prop.getType().equals(type))
+                .filter(prop -> module == null || prop.getModule().equals(module))
                 .collect(Collectors.toList());
 
         if (!domibusConfigurationService.isMultiTenantAware()) {

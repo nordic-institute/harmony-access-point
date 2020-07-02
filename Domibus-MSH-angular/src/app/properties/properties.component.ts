@@ -58,6 +58,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Type',
         prop: 'type',
+        showInitially: true,
         width: 25
       },
       {
