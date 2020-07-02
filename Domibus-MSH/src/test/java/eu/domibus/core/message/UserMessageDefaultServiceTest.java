@@ -557,17 +557,17 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessaged() {
+    public void testDeleteMessaged(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any);
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId);
+            userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
         }};
     }
 
@@ -583,9 +583,6 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = notificationListeners;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
             userMessageLog.getBackend();
             result = backend;
 
@@ -595,7 +592,7 @@ public class UserMessageDefaultServiceTest {
             userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId);
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
 
         new Verifications() {{
             userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
@@ -613,15 +610,12 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = notificationListeners;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
             userMessageLog.isTestMessage();
             result = true;
 
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId);
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
 
         new Verifications() {{
             userMessageLog.getBackend();
@@ -679,7 +673,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = null;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             messaging.getSignalMessage();
@@ -711,7 +705,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = null;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             messaging.getSignalMessage();

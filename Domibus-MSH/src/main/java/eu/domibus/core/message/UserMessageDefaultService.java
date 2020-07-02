@@ -528,43 +528,45 @@ public class UserMessageDefaultService implements UserMessageService {
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
-        deleteMessagePluginCallback(messageId);
+        deleteMessagePluginCallback(messageId, userMessageLog);
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
         messagingDao.clearPayloadData(userMessage);
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    protected void deleteMessagePluginCallback(String messageId) {
+    protected void deleteMessagePluginCallback(String messageId, UserMessageLog userMessageLog) {
         if (backendNotificationService.getNotificationListenerServices() == null) {
             LOG.debug("No notification listeners found");
             return;
         }
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         if (userMessageLog == null) {
             LOG.warn("Could not find message with id [{}]", messageId);
             return;
         }
-        if(!userMessageLog.isTestMessage()) {
-            String backend = userMessageLog.getBackend();
-            if (StringUtils.isEmpty(backend)) {
-                LOG.warn("Could not find backend for message with id [{}]", messageId);
-                return;
-            }
-
-            NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
-            if (notificationListener == null) {
-                LOG.warn("Could not find notification listener for backend [{}]", backend);
-                return;
-            }
-            deleteMessagePluginCallback(messageId, notificationListener);
+        if (userMessageLog.isTestMessage()) {
+            return;
         }
+
+        String backend = userMessageLog.getBackend();
+        if (StringUtils.isEmpty(backend)) {
+            LOG.warn("Could not find backend for message with id [{}]", messageId);
+            return;
+        }
+
+        NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
+        if (notificationListener == null) {
+            LOG.warn("Could not find notification listener for backend [{}]", backend);
+            return;
+        }
+        deleteMessagePluginCallback(messageId, notificationListener);
+        // }
     }
 
     protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {
