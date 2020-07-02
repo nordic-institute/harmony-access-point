@@ -619,7 +619,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.isTestMessage();
             result = true;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+
         }};
 
         userMessageDefaultService.deleteMessagePluginCallback(messageId);
@@ -627,6 +627,13 @@ public class UserMessageDefaultServiceTest {
         new Verifications() {{
             userMessageLog.getBackend();
             times =0;
+
+            backendNotificationService.getNotificationListener(anyString);
+            times =0;
+
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+            times=0;
+
         }};
     }
 
