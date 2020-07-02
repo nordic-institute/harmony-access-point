@@ -344,14 +344,14 @@ public class DomibusPropertyMetadata {
         // TODO: review all regular expressions
         PASSWORD(".*"),
         REGEXP(".*"),
-        URI("^[\\w|\\/|:|-|?|=|%|+]$"),
-        CLASS("^[\\w|.]$"),
-        QUEUE("^[\\w|.]$"), //accepts more
+        URI("^\\\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"), //to add proper regexp
+        CLASS("^[\\w|.]$"), //to add proper regexp??
+        QUEUE("^[\\w|.]$"), //to add proper regexp
         DOTTED_NAME("^[\\w|.]$"),
         HYPHENED_NAME("^[\\w|-]$"),
         COMMA_SEPARATED_LIST("^[\\w|,]$"),
         XSD_DATE_TIME(".*"), // to add proper regexp
-        JNDI("^[\\w|\\/|:|-|?|=|%|+]$"), // to add proper regexp
+        JNDI("^((?<=(\"))java:/jms/.+(?=\\\"))$"), // to add proper regexp
 
         // no type validation for String except for the default black-list validation
         STRING();

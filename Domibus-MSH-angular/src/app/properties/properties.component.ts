@@ -106,7 +106,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
         cellTemplate: this.propertyValueTpl,
         name: 'Property Value',
         showInitially: true,
-        width: 155
+        width: 250
       },
 
     ];
