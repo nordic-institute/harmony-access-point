@@ -553,20 +553,17 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog.isTestMessage()) {
             return;
         }
-
         String backend = userMessageLog.getBackend();
         if (StringUtils.isEmpty(backend)) {
             LOG.warn("Could not find backend for message with id [{}]", messageId);
             return;
         }
-
         NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
         if (notificationListener == null) {
             LOG.warn("Could not find notification listener for backend [{}]", backend);
             return;
         }
         deleteMessagePluginCallback(messageId, notificationListener);
-        // }
     }
 
     protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {

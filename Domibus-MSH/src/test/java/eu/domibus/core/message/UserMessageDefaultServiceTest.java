@@ -601,7 +601,7 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
-                                                @Injectable UserMessageLog userMessageLog) {
+                                                          @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
         final List<NotificationListener> notificationListeners = new ArrayList<>();
         notificationListeners.add(notificationListener1);
