@@ -1,6 +1,8 @@
 package eu.domibus.taskexecutor.weblogic;
 
 import commonj.work.WorkManager;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class WebLogicTaskExecutorConfiguration {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebLogicTaskExecutorConfiguration.class);
 
     public static final String JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER = "java:comp/env/DomibusWorkManager";
     public static final String JAVA_COMP_ENV_QUARTZ_WORK_MANAGER = "java:comp/env/QuartzWorkManager";
@@ -88,6 +92,7 @@ public class WebLogicTaskExecutorConfiguration {
        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(internalNotificationWorkManagerName)){
             return domibusWorkManagerTaskExecutor;
         }
+        LOG.info("Using dedicated work manager:[{}] for internal notification queue listener.",internalNotificationWorkManagerName);
         DomibusWorkManagerTaskExecutor internalNotificationWorkExecutor = new DomibusWorkManagerTaskExecutor();
         internalNotificationWorkExecutor.setWorkManager(internalNotificationWorkManager);
         return internalNotificationWorkExecutor;
@@ -98,6 +103,7 @@ public class WebLogicTaskExecutorConfiguration {
         if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(backendInQueueWorkManagerName)){
             return domibusWorkManagerTaskExecutor;
         }
+        LOG.info("Using dedicated work manager:[{}] for backend in queue listener.",backendInQueueWorkManagerName);
         DomibusWorkManagerTaskExecutor backendInQueueWorkExecutor = new DomibusWorkManagerTaskExecutor();
         backendInQueueWorkExecutor.setWorkManager(backendInQueueWorkManager);
         return backendInQueueWorkExecutor;
@@ -108,6 +114,7 @@ public class WebLogicTaskExecutorConfiguration {
         if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(sendingQueueWorkManagerName)){
             return domibusWorkManagerTaskExecutor;
         }
+        LOG.info("Using dedicated work manager:[{}] for message sender queue listener.",sendingQueueWorkManagerName);
         DomibusWorkManagerTaskExecutor sendingQueueWorkExecutor = new DomibusWorkManagerTaskExecutor();
         sendingQueueWorkExecutor.setWorkManager(sendingQueueWorkManager);
         return sendingQueueWorkExecutor;
@@ -118,6 +125,7 @@ public class WebLogicTaskExecutorConfiguration {
         if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(dispatcherWorkManagerName)){
             return domibusWorkManagerTaskExecutor;
         }
+        LOG.info("Using dedicated work manager:[{}] for message dispatcher.",dispatcherWorkManagerName);
         DomibusWorkManagerTaskExecutor dispatcherWorkExecutor = new DomibusWorkManagerTaskExecutor();
         dispatcherWorkExecutor.setWorkManager(dispatcherWorkManager);
         return dispatcherWorkExecutor;
