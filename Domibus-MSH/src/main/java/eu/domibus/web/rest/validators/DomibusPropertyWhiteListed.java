@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface DomibusPropertyWhiteListed {
 
-    static String MESSAGE = "Forbidden character detected in property. ";
+    static String MESSAGE = "Forbidden character detected in property ";
 
     String message() default MESSAGE;
 

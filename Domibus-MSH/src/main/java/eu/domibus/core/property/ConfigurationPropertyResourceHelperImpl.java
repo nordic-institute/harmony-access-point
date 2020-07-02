@@ -60,10 +60,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
 
-        properties = properties.stream()
-                .filter(prop -> value == null || value.equals(prop.getValue()))
-                .collect(Collectors.toList());
-        result.addAll(properties);
+        List<DomibusProperty> filteredProps = filterByValue(value, properties);
+        result.addAll(filteredProps);
 
         return result;
     }
@@ -93,6 +91,15 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     public DomibusProperty getProperty(String propertyName) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         return getValueAndCreateProperty(propertyMetadata);
+    }
+
+    protected List<DomibusProperty> filterByValue(String value, List<DomibusProperty> properties) {
+        if (value == null) {
+            return properties;
+        }
+        return properties.stream()
+                .filter(prop -> value.equals(prop.getValue()))
+                .collect(Collectors.toList());
     }
 
     protected void validateProperty(String propertyName, String propertyValue) {
@@ -143,7 +150,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                                                              boolean showDomain, String type, String module) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(prop -> prop.isWritable())
-                .filter(prop -> name == null || name.toLowerCase().contains(prop.getName().toLowerCase()))
+                .filter(prop -> name == null || prop.getName().toLowerCase().contains(name.toLowerCase()))
                 .filter(prop -> type == null || type.equals(prop.getType()))
                 .filter(prop -> module == null || module.equals(prop.getModule()))
                 .collect(Collectors.toList());
