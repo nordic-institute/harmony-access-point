@@ -17,4 +17,28 @@
         <res-auth>Container</res-auth>
         <res-sharing-scope>Unshareable</res-sharing-scope>
     </resource-ref>
+    <resource-ref id="BackendInQueueWorkManager">
+        <res-ref-name>BackendInQueueWorkManager</res-ref-name>
+        <res-type>commonj.work.WorkManager</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Unshareable</res-sharing-scope>
+    </resource-ref>
+    <resource-ref id="InternalNotificationWorkManager">
+        <res-ref-name>InternalNotificationWorkManager</res-ref-name>
+        <res-type>commonj.work.WorkManager</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Unshareable</res-sharing-scope>
+    </resource-ref>
+    <resource-ref id="SendingQueueWorkManager">
+        <res-ref-name>SendingQueueWorkManager</res-ref-name>
+        <res-type>commonj.work.WorkManager</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Unshareable</res-sharing-scope>
+    </resource-ref>
+    <resource-ref id="DispatcherWorkManager">
+        <res-ref-name>DispatcherWorkManager</res-ref-name>
+        <res-type>commonj.work.WorkManager</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Unshareable</res-sharing-scope>
+    </resource-ref>
 </web-app>
