@@ -38,16 +38,10 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     private DomainCoreConverter domainConverter;
 
-    DomibusPropertyBlacklistValidator domibusPropertyBlacklistValidator;
-
     public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
-                                         DomainCoreConverter domainConverter,
-                                         DomibusPropertyBlacklistValidator domibusPropertyBlacklistValidator) {
+                                         DomainCoreConverter domainConverter) {
         this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
         this.domainConverter = domainConverter;
-        this.domibusPropertyBlacklistValidator = domibusPropertyBlacklistValidator;
-
-        domibusPropertyBlacklistValidator.init();
     }
 
     @GetMapping
@@ -76,18 +70,10 @@ public class ConfigurationPropertyResource extends BaseResource {
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
                             @Valid @RequestBody String propertyValue) {
 
-        validateProperty(propertyName, propertyValue);
-
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);
 
         configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
-    }
-
-    private void validateProperty(String propertyName, String propertyValue) {
-        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
-        prop.setValue(propertyValue);
-        domibusPropertyBlacklistValidator.validate(prop);
     }
 
     /**
