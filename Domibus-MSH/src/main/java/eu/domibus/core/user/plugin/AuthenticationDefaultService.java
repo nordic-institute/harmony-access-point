@@ -95,7 +95,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
             } catch (DecoderException ex) {
                 throw new AuthenticationException("Could not decode authorization header", ex);
             }
-            LOG.debug("Basic authentication: [{}]", basicAuthCredentials);
+            LOG.trace("Basic authentication: [{}]", basicAuthCredentials);
             int index = basicAuthCredentials.indexOf(":");
             String user = basicAuthCredentials.substring(0, index);
             String password = basicAuthCredentials.substring(index + 1);
