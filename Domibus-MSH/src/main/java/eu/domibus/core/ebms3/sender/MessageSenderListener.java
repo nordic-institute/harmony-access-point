@@ -1,11 +1,11 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.metrics.Counter;
+import eu.domibus.api.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Message;
 
@@ -23,6 +23,8 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
+    @Timer
+    @Counter
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
         super.onMessage(message);

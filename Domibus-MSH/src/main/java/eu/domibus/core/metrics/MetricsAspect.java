@@ -1,6 +1,10 @@
 package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
+import eu.domibus.api.metrics.Counter;
+import eu.domibus.api.metrics.Default;
+import eu.domibus.api.metrics.MetricNames;
+import eu.domibus.api.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;

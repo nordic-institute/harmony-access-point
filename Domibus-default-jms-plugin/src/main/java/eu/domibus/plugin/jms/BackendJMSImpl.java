@@ -101,9 +101,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional
     public void receiveMessage(final MapMessage map) {
-        Counter inMessageCounter = metricRegistry.counter(MetricRegistry.name(BackendJMSImpl.class, "in.message.counter"));
-        Timer.Context inMessageTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "in.message.timer")).time();
-        inMessageCounter.inc();
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
@@ -141,13 +138,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
-        } finally {
-            if (inMessageTimer != null) {
-                inMessageTimer.stop();
-            }
-            if (inMessageCounter != null) {
-                inMessageCounter.dec();
-            }
         }
     }
 

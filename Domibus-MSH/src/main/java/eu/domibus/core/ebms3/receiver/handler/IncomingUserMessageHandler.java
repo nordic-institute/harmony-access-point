@@ -2,8 +2,8 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
+import eu.domibus.api.metrics.Counter;
+import eu.domibus.api.metrics.Timer;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.ebms3.common.model.Messaging;

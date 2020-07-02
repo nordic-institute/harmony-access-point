@@ -1,4 +1,4 @@
-package eu.domibus.core.metrics;
+package eu.domibus.api.metrics;
 
 /**
  * @author Thomas Dussart
@@ -15,6 +15,4 @@ public enum MetricNames {
     OUTGOING_PULL_REQUEST,
     OUTGOING_PULL_RECEIPT,
     VOID;
-
-
 }

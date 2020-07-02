@@ -16,8 +16,8 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.*;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
+import eu.domibus.api.metrics.Counter;
+import eu.domibus.api.metrics.Timer;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -286,6 +286,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * {@inheritDoc}
      */
     @Override
+    @Timer
+    @Counter
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
     }

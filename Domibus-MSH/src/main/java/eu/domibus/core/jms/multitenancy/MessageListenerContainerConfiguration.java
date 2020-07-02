@@ -42,8 +42,6 @@ public class MessageListenerContainerConfiguration {
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
     private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;
 
-
-
     @Autowired
     @Qualifier("sendMessageQueue")
     private Queue sendMessageQueue;
@@ -104,7 +102,7 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
-    @Qualifier("taskExecutor")
+    @Qualifier("sendingQueueExecutor")
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 

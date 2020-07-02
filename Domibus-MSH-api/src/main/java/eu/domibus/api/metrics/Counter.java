@@ -1,4 +1,4 @@
-package eu.domibus.core.metrics;
+package eu.domibus.api.metrics;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,20 +9,19 @@ import java.lang.annotation.Target;
  * @author Thomas Dussart
  * @since 4.1
  *
- * Metric annotation to add a timer. The current implementation is using dropwizard
- * timer.
+ * Metric annotation to add a counter. It will count the parallel
+ * executions of a given method.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Timer {
+public @interface Counter {
     /**
-     * @return the timer name.
+     * @return the counter name.
      */
     MetricNames value() default MetricNames.VOID;
 
     /**
-     * @return the timer class.
+     * @return the counter class.
      */
     Class<?> clazz() default Default.class;
 }
-

@@ -30,7 +30,6 @@ public class DomibusJMSWebLogicQueueConfiguration {
     private static final String WEBLOGIC_CONNECTION_FACTORY = "weblogicConnectionFactory";
 
     @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public ConnectionFactory connectionFactory(@Qualifier(WEBLOGIC_CONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();

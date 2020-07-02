@@ -1,14 +1,12 @@
 package eu.domibus.core.ebms3.ws.attachment;
 
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
+import eu.domibus.api.metrics.Counter;
+import eu.domibus.api.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.attachment.AttachmentDataSource;
 import org.apache.cxf.message.Attachment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataSource;
 import javax.xml.soap.AttachmentPart;

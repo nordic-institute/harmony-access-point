@@ -31,7 +31,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(InternalJmsListenerContainerFactoryConfiguration.class);
 
-    @Qualifier("taskExecutor")
+    @Qualifier("internalNotificationExecutor")
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 

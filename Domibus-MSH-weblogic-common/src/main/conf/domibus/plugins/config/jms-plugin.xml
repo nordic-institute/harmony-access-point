@@ -38,6 +38,7 @@
         <property name="concurrency" value="${jmsplugin.queue.in.concurrency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>
+        <property name="taskExecutor" value="backendInQueueExecutor"/>
     </bean>
 
     <bean id="mshToBackendTemplate"
