@@ -182,26 +182,12 @@ public class DomibusCacheConfiguration {
         }
     }
 
-    /**
-     * Creates a CacheManager from an URL with a given configuration name
-     *
-     * @param configurationURL
-     * @param configurationName
-     * @return CacheManager
-     */
     protected CacheManager createCacheManager(@NotNull URL configurationURL, @NotNull final String configurationName) {
         net.sf.ehcache.config.Configuration configuration = ConfigurationFactory.parseConfiguration(configurationURL);
         configuration.setName(configurationName);
         return CacheManager.newInstance(configuration);
     }
 
-    /**
-     * Creates a CacheManager from a file with a given configuration name
-     *
-     * @param configurationFileName
-     * @param configurationName
-     * @return
-     */
     protected CacheManager createCacheManager(@NotNull String configurationFileName, @NotNull String configurationName) {
         net.sf.ehcache.config.Configuration configuration = ConfigurationFactory.parseConfiguration(new File(configurationFileName));
         configuration.setName(configurationName);

@@ -8,8 +8,10 @@ import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.Resource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,8 +75,7 @@ public class DomibusCacheConfigurationTest {
     @Test
     public void test_overridesDefaultCache(@Mocked CacheManager defaultCacheManager,
                                            @Mocked CacheManager externalCacheManager,
-                                           @Mocked CacheConfiguration cacheConfiguration
-    ) {
+                                           @Mocked CacheConfiguration cacheConfiguration) {
         new Expectations() {{
             externalCacheManager.getCacheNames();
             result = new String[]{"cache1", "cache2"};
@@ -94,6 +95,43 @@ public class DomibusCacheConfigurationTest {
             List<Cache> cacheParams = new ArrayList<>();
             defaultCacheManager.addCache(withCapture(cacheParams));
             Assert.assertTrue(cacheParams.size() == 2);
+        }};
+    }
+
+    @Test
+    public void test_addPluginsCacheConfiguration(@Mocked CacheManager cacheManager,
+                                                  @Mocked List<Resource> pluginsDefaultList,
+                                                  @Mocked List<Resource> pluginsList,
+                                                  @Mocked CacheManager cacheManagerPlugins,
+                                                  @Mocked Resource pluginDefaultFile,
+                                                  @Mocked Resource pluginFile) {
+        final String pluginsConfigLocation = "/data/tomcat/domibus/conf/plugins/config";
+
+        new Expectations(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.readPluginEhcacheFiles(anyString);
+            result = Collections.singletonList(pluginDefaultFile);
+
+            domibusCacheConfiguration.readPluginEhcacheFiles(anyString);
+            result = Collections.singletonList(pluginFile);
+
+            CacheManager.create();
+            result = cacheManagerPlugins;
+
+            cacheManagerPlugins.getCacheNames();
+            result = new String[]{"cache1", "cache2", "cache3"};
+
+        }};
+
+        domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, pluginsConfigLocation);
+
+        new FullVerifications(domibusCacheConfiguration) {{
+            List<Resource> resourceParams = new ArrayList<>();
+            domibusCacheConfiguration.readPluginCacheConfig(cacheManagerPlugins, withCapture(resourceParams));
+            Assert.assertTrue(resourceParams.size() == 2);
+
+            List<Cache> cacheParams = new ArrayList<>();
+            cacheManager.addCache(withCapture(cacheParams));
+            Assert.assertTrue(cacheParams.size() == 3);
         }};
     }
 
