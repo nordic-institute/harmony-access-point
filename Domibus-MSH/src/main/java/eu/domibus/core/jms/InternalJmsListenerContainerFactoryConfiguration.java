@@ -31,15 +31,13 @@ public class InternalJmsListenerContainerFactoryConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(InternalJmsListenerContainerFactoryConfiguration.class);
 
-    @Qualifier("internalNotificationExecutor")
-    @Autowired
-    protected SchedulingTaskExecutor schedulingTaskExecutor;
 
     @Bean("internalJmsListenerContainerFactory")
     public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                               PlatformTransactionManager transactionManager,
-                                                                               DomibusPropertyProvider domibusPropertyProvider,
-                                                                               Optional<JndiDestinationResolver> internalDestinationResolver) {
+                                                                                  PlatformTransactionManager transactionManager,
+                                                                                  DomibusPropertyProvider domibusPropertyProvider,
+                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                                                  @Qualifier("internalNotificationWorkExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);

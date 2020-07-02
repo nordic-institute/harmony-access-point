@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;

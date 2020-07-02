@@ -61,7 +61,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     private TLSReader tlsReader;
 
     @Autowired
-    @Qualifier("dispatcherExecutor")
+    @Qualifier("dispatcherWorkExecutor")
     private Executor executor;
 
     @Autowired

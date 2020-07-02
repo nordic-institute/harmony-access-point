@@ -2,8 +2,8 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
 
-import static eu.domibus.api.metrics.MetricNames.INCOMING_PULL_REQUEST;
+import static eu.domibus.ext.domain.metrics.MetricNames.INCOMING_PULL_REQUEST;
 
 /**
  * Handles the incoming AS4 pull request

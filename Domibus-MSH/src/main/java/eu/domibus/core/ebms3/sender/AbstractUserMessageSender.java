@@ -18,8 +18,8 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -34,7 +34,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
 
-import static eu.domibus.api.metrics.MetricNames.OUTGOING_USER_MESSAGE;
+import static eu.domibus.ext.domain.metrics.MetricNames.OUTGOING_USER_MESSAGE;
 
 /**
  * Common logic for sending AS4 messages to C3

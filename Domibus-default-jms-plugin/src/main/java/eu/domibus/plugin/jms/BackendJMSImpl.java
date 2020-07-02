@@ -1,13 +1,12 @@
 package eu.domibus.plugin.jms;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -66,10 +65,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     protected JMSMessageTransformer jmsMessageTransformer;
 
     private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
-    private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
+    private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
 
     public BackendJMSImpl(String name) {
         super(name);
@@ -100,6 +97,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional
+    @Timer
+    @Counter
     public void receiveMessage(final MapMessage map) {
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
@@ -155,31 +154,15 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
+    @Timer
+    @Counter
     public void deliverMessage(final String messageId) {
-        Timer.Context deliverMessageTimer = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer")).time();
-        Counter deliverMessageCounter = metricRegistry.counter(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_counter"));
-        deliverMessageCounter.inc();
-        try {
-            LOG.debug("Delivering message [{}]", messageId);
-            Timer.Context getJmsQueue = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_getJmsQueue")).time();
-            final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
-            getJmsQueue.stop();
+        LOG.debug("Delivering message [{}]", messageId);
+        final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
 
-            LOG.info("Sending message to queue [{}]", queueValue);
-            Timer.Context downloadMessageCreator = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_downloadMessageCreator")).time();
-            DownloadMessageCreator messageCreator = new DownloadMessageCreator(messageId);
-            downloadMessageCreator.stop();
-            Timer.Context sendMessage = metricRegistry.timer(MetricRegistry.name(BackendJMSImpl.class, "deliverMessage_timer_sendMessage")).time();
-            mshToBackendTemplate.send(queueValue, messageCreator);
-            sendMessage.stop();
-        } finally {
-            if (deliverMessageTimer != null) {
-                deliverMessageTimer.stop();
-            }
-            if (deliverMessageCounter != null) {
-                deliverMessageCounter.dec();
-            }
-        }
+        LOG.info("Sending message to queue [{}]", queueValue);
+        DownloadMessageCreator messageCreator = new DownloadMessageCreator(messageId);
+        mshToBackendTemplate.send(queueValue, messageCreator);
     }
 
     @Override

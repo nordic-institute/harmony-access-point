@@ -11,6 +11,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
@@ -35,7 +36,8 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
                                                  @Injectable PlatformTransactionManager transactionManager,
                                                  @Injectable DomibusPropertyProvider domibusPropertyProvider,
                                                  @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
-                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver) {
+                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                @Injectable SchedulingTaskExecutor schedulingTaskExecutor) {
 
         String concurrency = "2-3";
 
@@ -45,7 +47,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, internalDestinationResolver);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, internalDestinationResolver,schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;

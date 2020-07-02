@@ -1,4 +1,4 @@
-package eu.domibus.api.metrics;
+package eu.domibus.ext.domain.metrics;
 
 /**
  * @author Thomas Dussart

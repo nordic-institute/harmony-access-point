@@ -8,7 +8,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ebms3.common.model.UserMessage;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;

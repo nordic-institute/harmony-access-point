@@ -16,55 +16,55 @@ public class WebLogicTaskExecutorConfiguration {
     public static final String JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER = "java:comp/env/DomibusWorkManager";
     public static final String JAVA_COMP_ENV_QUARTZ_WORK_MANAGER = "java:comp/env/QuartzWorkManager";
 
-    @Value("domibus.internal.notification.executor")
-    private String internalNotificationExecutor;
+    @Value("${domibus.internal.notification.work.manager.name}")
+    private String internalNotificationWorkManagerName;
 
-    @Value("domibus.backend.in.queue.executor")
-    private String backendInQueueExecutor;
+    @Value("${domibus.backend.in.queue.work.manager.name}")
+    private String backendInQueueWorkManagerName;
 
-    @Value("domibus.sending.queue.executor")
-    private String sendingQueueExecutor;
+    @Value("${domibus.sending.queue.work.manager.name}")
+    private String sendingQueueWorkManagerName;
 
-    @Value("domibus.dispatcher.executor")
-    private String dispatcherExecutor;
+    @Value("${domibus.dispatcher.work.manager.name}")
+    private String dispatcherWorkManagerName;
 
-    @Bean("internalNotificationExecutor")
+    @Bean("internalNotificationWorkManager")
     public WorkManagerFactory internalNotificationWorkManagerFactory(@Qualifier("domibusWorkManager") WorkManagerFactory workManagerFactory) {
-        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(internalNotificationExecutor)){
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(internalNotificationWorkManagerName)){
             return workManagerFactory;
         }
         WorkManagerFactory backendDispatcherWorkManagerFactory = new WorkManagerFactory();
-        workManagerFactory.setWorkManagerJndiName(internalNotificationExecutor);
+        workManagerFactory.setWorkManagerJndiName(internalNotificationWorkManagerName);
         return backendDispatcherWorkManagerFactory;
     }
 
-    @Bean("backendInQueueExecutor")
+    @Bean("backendInQueueWorkManager")
     public WorkManagerFactory backendInQueueWorkManagerFactory(@Qualifier("domibusWorkManager") WorkManagerFactory workManagerFactory) {
-        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(backendInQueueExecutor)){
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(backendInQueueWorkManagerName)){
             return workManagerFactory;
         }
         WorkManagerFactory backendInQueueManagerFactory = new WorkManagerFactory();
-        workManagerFactory.setWorkManagerJndiName(backendInQueueExecutor);
+        workManagerFactory.setWorkManagerJndiName(backendInQueueWorkManagerName);
         return backendInQueueManagerFactory;
     }
 
-    @Bean("sendingQueueExecutor")
+    @Bean("sendingQueueWorkManager")
     public WorkManagerFactory sendingQueueWorkManagerFactory(@Qualifier("domibusWorkManager") WorkManagerFactory workManagerFactory) {
-        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(sendingQueueExecutor)){
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(sendingQueueWorkManagerName)){
             return workManagerFactory;
         }
         WorkManagerFactory sendingQueueWorkManagerFactory = new WorkManagerFactory();
-        workManagerFactory.setWorkManagerJndiName(sendingQueueExecutor);
+        workManagerFactory.setWorkManagerJndiName(sendingQueueWorkManagerName);
         return sendingQueueWorkManagerFactory;
     }
 
-    @Bean("dispatcherExecutor")
+    @Bean("dispatcherWorkManager")
     public WorkManagerFactory dispatcherWorkManagerFactory(@Qualifier("domibusWorkManager") WorkManagerFactory workManagerFactory) {
-        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(dispatcherExecutor)){
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(dispatcherWorkManagerName)){
             return workManagerFactory;
         }
         WorkManagerFactory dispatcherWorkManagerFactory = new WorkManagerFactory();
-        workManagerFactory.setWorkManagerJndiName(dispatcherExecutor);
+        workManagerFactory.setWorkManagerJndiName(dispatcherWorkManagerName);
         return dispatcherWorkManagerFactory;
     }
 
@@ -81,6 +81,46 @@ public class WebLogicTaskExecutorConfiguration {
         WorkManagerFactory workManagerFactory = new WorkManagerFactory();
         workManagerFactory.setWorkManagerJndiName(JAVA_COMP_ENV_QUARTZ_WORK_MANAGER);
         return workManagerFactory;
+    }
+
+    @Bean("internalNotificationWorkExecutor")
+    public DomibusWorkManagerTaskExecutor internalNotificationWorkExecutor(@Qualifier("taskExecutor") DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor,@Qualifier("internalNotificationWorkManager") WorkManager internalNotificationWorkManager) {
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(internalNotificationWorkManagerName)){
+            return domibusWorkManagerTaskExecutor;
+        }
+        DomibusWorkManagerTaskExecutor internalNotificationWorkExecutor = new DomibusWorkManagerTaskExecutor();
+        domibusWorkManagerTaskExecutor.setWorkManager(internalNotificationWorkManager);
+        return internalNotificationWorkExecutor;
+    }
+
+    @Bean("backendInQueueWorkExecutor")
+    public DomibusWorkManagerTaskExecutor backendInQueueWorkExecutor(@Qualifier("taskExecutor") DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor,@Qualifier("backendInQueueWorkManager") WorkManager backendInQueueWorkManager) {
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(backendInQueueWorkManagerName)){
+            return domibusWorkManagerTaskExecutor;
+        }
+        DomibusWorkManagerTaskExecutor backendInQueueWorkExecutor = new DomibusWorkManagerTaskExecutor();
+        domibusWorkManagerTaskExecutor.setWorkManager(backendInQueueWorkManager);
+        return backendInQueueWorkExecutor;
+    }
+
+    @Bean("sendingQueueWorkExecutor")
+    public DomibusWorkManagerTaskExecutor sendingQueueWorkExecutor(@Qualifier("taskExecutor") DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor,@Qualifier("sendingQueueWorkManager") WorkManager sendingQueueWorkManager) {
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(sendingQueueWorkManagerName)){
+            return domibusWorkManagerTaskExecutor;
+        }
+        DomibusWorkManagerTaskExecutor sendingQueueWorkExecutor = new DomibusWorkManagerTaskExecutor();
+        domibusWorkManagerTaskExecutor.setWorkManager(sendingQueueWorkManager);
+        return sendingQueueWorkExecutor;
+    }
+
+    @Bean("dispatcherWorkExecutor")
+    public DomibusWorkManagerTaskExecutor dispatcherWorkExecutor(@Qualifier("taskExecutor") DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor,@Qualifier("dispatcherWorkManager") WorkManager dispatcherWorkManager) {
+        if(JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER.equals(dispatcherWorkManagerName)){
+            return domibusWorkManagerTaskExecutor;
+        }
+        DomibusWorkManagerTaskExecutor dispatcherWorkExecutor = new DomibusWorkManagerTaskExecutor();
+        domibusWorkManagerTaskExecutor.setWorkManager(dispatcherWorkManager);
+        return dispatcherWorkExecutor;
     }
 
     @Bean("taskExecutor")

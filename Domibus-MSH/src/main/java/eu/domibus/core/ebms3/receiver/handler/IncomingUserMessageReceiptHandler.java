@@ -15,8 +15,8 @@ import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import static eu.domibus.api.metrics.MetricNames.INCOMING_USER_MESSAGE_RECEIPT;
+import static eu.domibus.ext.domain.metrics.MetricNames.INCOMING_USER_MESSAGE_RECEIPT;
 
 /**
  * Handles the incoming AS4 receipts

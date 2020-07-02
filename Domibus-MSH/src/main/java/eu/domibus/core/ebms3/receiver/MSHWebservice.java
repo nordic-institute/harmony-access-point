@@ -7,8 +7,8 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -20,7 +20,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
 
-import static eu.domibus.api.metrics.MetricNames.INCOMING_USER_MESSAGE;
+import static eu.domibus.ext.domain.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * This method is responsible for the receiving of ebMS3 messages and the sending of signal messages like receipts or ebMS3 errors in return

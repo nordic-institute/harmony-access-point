@@ -15,8 +15,8 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.api.metrics.Counter;
-import eu.domibus.api.metrics.Timer;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.status.DomibusStatusService;
@@ -48,7 +48,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import static eu.domibus.api.metrics.MetricNames.OUTGOING_PULL_REQUEST;
+import static eu.domibus.ext.domain.metrics.MetricNames.OUTGOING_PULL_REQUEST;
 
 /**
  * @author Thomas Dussart
