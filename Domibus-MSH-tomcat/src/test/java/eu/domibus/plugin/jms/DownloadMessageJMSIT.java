@@ -20,8 +20,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.jms.ConnectionFactory;
@@ -81,12 +79,10 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
      * @throws JMSException
      */
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void testDownloadMessageOk() throws Exception {
         String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
                 "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-
 
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         final UserMessage userMessage = getUserMessageTemplate();
@@ -107,14 +103,15 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessageLog.setReceived(new Date());
         userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
 
-
         javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         pushQueueMessage(messageId, connection, JMS_NOT_QUEUE_NAME);
 
-        backendJms.deliverMessage(messageId);
+        // Is this really needed since the call above is already going to eventually deliver the message through the
+        // notification listener (not very clear what this test tries to achieve)
+//        backendJms.deliverMessage(messageId);
 
-        Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_OUT_QUEUE_NAME, 2000);
+        Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_OUT_QUEUE_NAME, 5000);
         Assert.assertNotNull(message);
 
         connection.close();
