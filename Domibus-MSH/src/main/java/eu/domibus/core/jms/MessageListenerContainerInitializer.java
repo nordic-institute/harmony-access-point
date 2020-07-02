@@ -68,8 +68,9 @@ public class MessageListenerContainerInitializer {
 
         for (MessageListenerContainer instance : instances) {
             try {
-                // There is an issue with destroying (shutting down) the message listener container on Tomcat so we
-                // just stop the instances on the ApplicationContext shutdown (the invokers will close on JVM exit)
+                // There is an issue with destroying (shutting down) the message listener container on Tomcat while
+                // stopping so we just stop the instances on the ApplicationContext shutdown (the invokers will
+                // close on JVM exit)
                 instance.stop();
             } catch (Exception e) {
                 LOG.error("Error while shutting down MessageListenerContainer", e);

@@ -38,7 +38,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -65,7 +64,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         String emptyMessageId = "";
         StatusRequest messageStatusRequest = createMessageStatusRequest(emptyMessageId);
         try {
-            MessageStatus response = backendWebService.getStatus(messageStatusRequest);
+            backendWebService.getStatus(messageStatusRequest);
         } catch (StatusFault statusFault) {
             String message = "Message ID is empty";
             Assert.assertEquals(message, statusFault.getMessage());
