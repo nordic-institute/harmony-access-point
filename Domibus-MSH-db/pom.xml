@@ -98,7 +98,7 @@
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4-data.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4-data.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4b-data.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -116,7 +116,7 @@
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4-multi-tenancy.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4-multi-tenancy.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4b-multi-tenancy.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -134,7 +134,7 @@
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.1.4b.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -152,7 +152,7 @@
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4-data.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4-data.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4b-data.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -170,7 +170,7 @@
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4-multi-tenancy.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4-multi-tenancy.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4b-multi-tenancy.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -188,7 +188,7 @@
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.1.4.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4.ddl
+                               ${project.build.directory}/sql-scripts/oracle10g-4.1.4b.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
