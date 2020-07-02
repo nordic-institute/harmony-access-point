@@ -28,13 +28,20 @@
             </span>
 
             <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyValue_id" name="filterPropertyValue" [(ngModel)]="filter.value"
+                       placeholder="Property Value...">
+              </mat-form-field>
+            </span>
+
+            <span>
               <ng-container *ngIf="showGlobalPropertiesControl">
                 <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
                   Show Domain Properties
                 </mat-checkbox>
               </ng-container>
             </span>
-            
+
             <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
           </form>

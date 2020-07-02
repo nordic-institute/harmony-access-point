@@ -49,7 +49,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
 
         properties = properties.stream()
-                .filter(prop -> value == null || prop.getValue().equals(value))
+                .filter(prop -> value == null || value.equals(prop.getValue()))
                 .collect(Collectors.toList());
         result.addAll(properties);
 
@@ -123,9 +123,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                                                              boolean showDomain, String type, String module) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(prop -> prop.isWritable())
-                .filter(prop -> name == null || prop.getName().toLowerCase().contains(name.toLowerCase()))
-                .filter(prop -> type == null || prop.getType().equals(type))
-                .filter(prop -> module == null || prop.getModule().equals(module))
+                .filter(prop -> name == null || name.toLowerCase().contains(prop.getName().toLowerCase()))
+                .filter(prop -> type == null || type.equals(prop.getType()))
+                .filter(prop -> module == null || module.equals(prop.getModule()))
                 .collect(Collectors.toList());
 
         if (!domibusConfigurationService.isMultiTenantAware()) {

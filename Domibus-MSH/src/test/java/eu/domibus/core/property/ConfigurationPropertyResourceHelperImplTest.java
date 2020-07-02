@@ -100,7 +100,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
             result = properties;
         }};
 
-        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain, null, null);
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain, null, null, null);
 
         Assert.assertEquals(4, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
