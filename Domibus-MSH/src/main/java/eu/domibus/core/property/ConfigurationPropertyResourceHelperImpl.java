@@ -5,6 +5,7 @@ import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -98,7 +99,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
             return properties;
         }
         return properties.stream()
-                .filter(prop -> value.equals(prop.getValue()))
+                .filter(prop -> StringUtils.equals(value, prop.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -150,9 +151,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                                                              boolean showDomain, String type, String module) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(prop -> prop.isWritable())
-                .filter(prop -> name == null || prop.getName().toLowerCase().contains(name.toLowerCase()))
-                .filter(prop -> type == null || type.equals(prop.getType()))
-                .filter(prop -> module == null || module.equals(prop.getModule()))
+                .filter(prop -> name == null || StringUtils.contains(prop.getName().toLowerCase(), name.toLowerCase()))
+                .filter(prop -> type == null || StringUtils.equals(type, prop.getType()))
+                .filter(prop -> module == null || StringUtils.equals(module, prop.getModule()))
                 .collect(Collectors.toList());
 
         if (!domibusConfigurationService.isMultiTenantAware()) {
