@@ -48,7 +48,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        ref: Receive Message-01
      */
     @Test
-    @Transactional
     public void testReceiveMessage() throws SOAPException, IOException, SQLException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -59,7 +58,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Transactional
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";
         String messageId = "ping123@domibus.eu";
