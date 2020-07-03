@@ -3681,7 +3681,17 @@ if (unsecureLoginAllowed == "true" || unsecureLoginAllowed == "1" || unsecureLog
 			}
 		}
 	}
-}</con:setupScript><con:tearDownScript>def inputList = [ "DomJMS057", "DomJMS058", "DomJMS059"]
+}
+
+def superUser=context.expand('${#Project#superAdminUsername}');
+def superPassword=context.expand('${#Project#superAdminPassword}');
+
+// Select message filters for C2
+Domibus.setMessageFilters("C2","Jms",context,log);
+
+// Select message filters for C3
+Domibus.setMessageFilters("C3","Jms",context,log);
+</con:setupScript><con:tearDownScript>def inputList = [ "DomJMS057", "DomJMS058", "DomJMS059"]
 	
 inputList.each { tcName ->
 		def tcList = testSuite.testCaseList.findAll {it.name =~ /${tcName}/ }
