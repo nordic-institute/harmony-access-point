@@ -7,6 +7,8 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -15,16 +17,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @RunWith(JMockit.class)
 public class GlobalPropertyMetadataManagerImplTest {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
 
     @Tested
     GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
@@ -93,7 +97,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void getPropertyMetadataWithComposeablePropertyTest(@Injectable Optional<DomibusPropertyMetadata> propMeta,
+    public void getPropertyMetadataWithComposeablePropertyTest(@Injectable DomibusPropertyMetadata propMeta,
                                                                @Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
                                                                @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
@@ -103,15 +107,18 @@ public class GlobalPropertyMetadataManagerImplTest {
             times = 1;
             allPropertyMetadataMap.get(anyString);
             result = null;
+            globalPropertyMetadataManager.getComposableProperty(allPropertyMetadataMap, propertyName);
+            result = propMeta;
+            domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
+            result = propMeta;
         }};
-        globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        Assert.assertNotNull(meta);
         new Verifications() {{
             allPropertyMetadataMap.get(anyString);
             times = 1;
-            allPropertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
+            propMeta.setName(propertyName);
             times = 1;
-            propMeta.get();
-            times = 0;
         }};
     }
 
@@ -271,6 +278,36 @@ public class GlobalPropertyMetadataManagerImplTest {
             internalPropertyMetadataMap.put(anyString, (DomibusPropertyMetadata) any);
             times = props2.size();
         }};
+    }
+
+    @Test
+    public void testSynchronizedBlocksWhenAddingPropertiesOnTheFly() {
+        new Expectations(globalPropertyMetadataManager) {{
+            domainConverter.convert(any, DomibusPropertyMetadata.class);
+            result = DomibusPropertyMetadata.getReadOnlyGlobalProperty("dummy");
+        }};
+
+        // When multiple properties are added to the properties map at the same time,
+        // concurrent access to the map my result in ConcurrentModificationException.
+        // This test verifies that this situation does not occur (anymore).
+
+        ExecutorService ex = Executors.newFixedThreadPool(3);
+
+        Map<String, Future<DomibusPropertyMetadata>> futures = new HashMap();
+        for (int i = 0; i < 100; i++) {
+            String newPropertyName = "propertyName" + new Random().nextInt();
+            Future<DomibusPropertyMetadata> get = ex.submit(() -> globalPropertyMetadataManager.getPropertyMetadata(newPropertyName));
+            futures.put(newPropertyName, get);
+        }
+        futures.forEach((newPropertyName, future) -> {
+            try {
+                DomibusPropertyMetadata metadata = future.get();
+                Assert.assertNotNull(metadata);
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Unexpected error", e);
+                Assert.fail(e.getClass().getSimpleName() + " caught");
+            }
+        });
     }
 
 }
