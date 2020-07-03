@@ -151,7 +151,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                                                              boolean showDomain, String type, String module) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
                 .filter(prop -> prop.isWritable())
-                .filter(prop -> name == null || StringUtils.contains(prop.getName().toLowerCase(), name.toLowerCase()))
+                .filter(prop -> name == null || StringUtils.containsIgnoreCase(prop.getName(), name))
                 .filter(prop -> type == null || StringUtils.equals(type, prop.getType()))
                 .filter(prop -> module == null || StringUtils.equals(module, prop.getModule()))
                 .collect(Collectors.toList());

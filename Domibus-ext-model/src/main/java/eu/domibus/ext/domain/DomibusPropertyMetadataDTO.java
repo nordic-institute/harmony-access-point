@@ -274,7 +274,7 @@ public class DomibusPropertyMetadataDTO {
         public static final String CONCURRENCY = "CONCURRENCY";
         public static final String EMAIL = "EMAIL";
 
-        public static final String PASSWORD = "PASSWORD";
+        public static final String PASSWORD = "PASSWORD"; //NOSONAR 
         public static final String REGEXP = "REGEXP";
         public static final String URI = "URI";
         public static final String CLASS = "CLASS";
