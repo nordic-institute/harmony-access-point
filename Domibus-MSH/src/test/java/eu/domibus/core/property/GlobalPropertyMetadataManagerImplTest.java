@@ -288,7 +288,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         // When multiple properties are added to the properties map at the same time,
-        // concurrent access to the map my result in ConcurrentModificationException.
+        // concurrent access to the map may result in ConcurrentModificationException.
         // This test verifies that this situation does not occur (anymore).
 
         ExecutorService ex = Executors.newFixedThreadPool(3);
@@ -303,7 +303,9 @@ public class GlobalPropertyMetadataManagerImplTest {
             try {
                 DomibusPropertyMetadata metadata = future.get();
                 Assert.assertNotNull(metadata);
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException e) {
+                LOG.debug("Interrupted", e);
+            } catch (ExecutionException e) {
                 LOG.error("Unexpected error", e);
                 Assert.fail(e.getClass().getSimpleName() + " caught");
             }
