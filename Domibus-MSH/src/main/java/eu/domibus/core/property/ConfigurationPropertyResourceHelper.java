@@ -14,10 +14,14 @@ import java.util.List;
 public interface ConfigurationPropertyResourceHelper {
 
     /**
-     * Retrieves all properties from MSH and plugins that contains this string in its name
+     * Retrieves all properties from MSH and plugins filtered by the parameters
      *
-     * @param name the filter value
-     * @return
+     * @param name part of the property name, case insensitive
+     * @param showDomainProperties domain or global properties
+     * @param type the type of the property
+     * @param module the module of the property
+     * @param value the value of the property
+     * @return the list of the properties: metadata and value
      */
     List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties, String type, String module, String value);
 
@@ -26,7 +30,8 @@ public interface ConfigurationPropertyResourceHelper {
      *
      * @param name  name of the property
      * @param value the new value
-     */
+     * @param isDomain the domain of global property
+     * */
     void setPropertyValue(String name, boolean isDomain, String value) throws DomibusPropertyException;
 
     /**
