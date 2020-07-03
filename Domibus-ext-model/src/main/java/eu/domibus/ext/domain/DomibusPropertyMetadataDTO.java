@@ -274,15 +274,15 @@ public class DomibusPropertyMetadataDTO {
         public static final String CONCURRENCY = "CONCURRENCY";
         public static final String EMAIL = "EMAIL";
 
-        public static final String PASSWORD = "";
-        public static final String REGEXP = "";
-        public static final String URI = "";
-        public static final String CLASS = "";
-        public static final String QUEUE = "";
-        public static final String DOTTED_NAME = "";
-        public static final String HYPHENED_NAME = "";
-        public static final String COMMA_SEPARATED_LIST = "";
-        public static final String XSD_DATE_TIME = "";
-        public static final String JNDI = "";
+        public static final String PASSWORD = "PASSWORD";
+        public static final String REGEXP = "REGEXP";
+        public static final String URI = "URI";
+        public static final String CLASS = "CLASS";
+        public static final String QUEUE = "QUEUE";
+        public static final String DOTTED_NAME = "DOTTED_NAME";
+        public static final String HYPHENED_NAME = "HYPHENED_NAME";
+        public static final String COMMA_SEPARATED_LIST = "COMMA_SEPARATED_LIST";
+        public static final String XSD_DATE_TIME = "XSD_DATE_TIME";
+        public static final String JNDI = "JNDI";
     }
 }

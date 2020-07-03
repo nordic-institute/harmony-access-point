@@ -231,8 +231,8 @@ public class DomibusPropertyChangeManagerTest {
     @Test
     public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadata propMeta) {
         new Expectations() {{
-            propMeta.getType();
-            returns("NON_EXISTING", "STRING");
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.STRING;
         }};
 
         try {
@@ -245,8 +245,8 @@ public class DomibusPropertyChangeManagerTest {
     @Test
     public void validatePropertyValue_success(@Mocked DomibusPropertyMetadata propMeta) {
         new Expectations(domibusPropertyChangeManager) {{
-            propMeta.getType();
-            returns("NUMERIC");
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.NUMERIC;
         }};
 
         try {
@@ -259,8 +259,8 @@ public class DomibusPropertyChangeManagerTest {
     @Test(expected = DomibusPropertyException.class)
     public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadata propMeta) {
         new Expectations(domibusPropertyChangeManager) {{
-            propMeta.getType();
-            result = "NUMERIC";
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.NUMERIC;
         }};
 
         domibusPropertyChangeManager.validatePropertyValue(propMeta, "non_numeric_value");

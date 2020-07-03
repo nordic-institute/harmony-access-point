@@ -30,11 +30,11 @@ public class DomibusPropertyBlacklistValidator extends BaseBlacklistValidator<Do
     public boolean isValid(DomibusProperty property, CustomWhiteListed customAnnotation) {
         String propName = property.getMetadata().getName();
         if (property.getMetadata().getTypeAsEnum().getValidator() != null) {
-            // no need for validation as it will be performed by the type validation
+            // no need for validation as it will be performed by the property type validator
             LOG.trace("Skip black-list validation for property [{}] of type [{}]", propName, property.getMetadata().getType());
             return true;
         }
-        // apply ordinary blacklist validation
+        // apply ordinary blacklist validation when there is no type validation
         LOG.trace("Perform black-list validation for property [{}] as it is of STRING type.", propName);
         boolean isValid = super.isValidValue(property.getValue());
         if (!isValid) {

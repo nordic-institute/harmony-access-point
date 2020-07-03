@@ -63,8 +63,14 @@ public class ConfigurationPropertyResource extends BaseResource {
         return response;
     }
 
+    /**
+     * Sets the specified value for the specified property name
+     * We skip the default blacklist validator because some properties have values that ae normally in the black-list
+     * @param propertyName the name of the property
+     * @param isDomain tells if it is set in a domain context
+     * @param propertyValue the value of the property
+     */
     @PutMapping(path = "/{propertyName:.+}")
-    // we skip the default blacklist validator and call manually a custom validator that takes into account the type of the property
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName,
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
