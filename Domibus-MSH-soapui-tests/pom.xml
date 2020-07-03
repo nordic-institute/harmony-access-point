@@ -189,12 +189,12 @@
                             <dependency>
                                 <groupId>commons-beanutils</groupId>
                                 <artifactId>commons-beanutils</artifactId>
+                                <version>${commons-beanutils.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.smartbear.soapui</groupId>
                                 <artifactId>soapui</artifactId>
                                 <version>${com.smartbear.soapui.version}</version>
-                                <scope>provided</scope>
                                 <exclusions>
                                     <exclusion>  <!-- declare the exclusion here -->
                                         <groupId>commons-beanutils</groupId>
