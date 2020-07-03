@@ -50,14 +50,6 @@
         </dependency>
 
 
-        <!-- library needed for report generation -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>4.1.2</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- JMS Libraries -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
