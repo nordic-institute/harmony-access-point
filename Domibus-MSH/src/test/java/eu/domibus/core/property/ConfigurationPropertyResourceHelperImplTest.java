@@ -149,6 +149,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         new Verifications() {{
             configurationPropertyResourceHelper.validateProperty(name, value);
+            times = 1;
             domibusPropertyProvider.setProperty(name, value);
             times = 0;
         }};
