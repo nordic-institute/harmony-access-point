@@ -3,8 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.Module;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -56,11 +54,11 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION, DomibusPropertyMetadata.Type.URI, false, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE, DomibusPropertyMetadata.Type.NUMERIC),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL, DomibusPropertyMetadata.Type.QUEUE),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION, DomibusPropertyMetadata.Type.QUEUE), //move the use=age from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL, DomibusPropertyMetadata.Type.JNDI),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION, DomibusPropertyMetadata.Type.JNDI), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY, DomibusPropertyMetadata.Type.CONCURRENCY), //move the use=age from xml ?
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT, DomibusPropertyMetadata.Type.QUEUE), //move the use=age from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT, DomibusPropertyMetadata.Type.JNDI), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT, DomibusPropertyMetadata.Type.NUMERIC),  //move the use=age from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ALERT_QUEUE_CONCURRENCY, DomibusPropertyMetadata.Type.CONCURRENCY), //move the use=age from xml ?
@@ -128,11 +126,11 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_STORAGE_LOCATION, DomibusPropertyMetadata.Type.URI, DomibusPropertyMetadata.Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
 
-            new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, DomibusPropertyMetadata.Type.DOTTED_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, DomibusPropertyMetadata.Type.URI, DomibusPropertyMetadata.Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY, DomibusPropertyMetadata.Type.NUMERIC),
 
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_SMLZONE, DomibusPropertyMetadata.Type.DOTTED_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_SMLZONE, DomibusPropertyMetadata.Type.URI, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, DomibusPropertyMetadata.Type.REGEXP, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -153,8 +151,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadata.Type.REGEXP, DomibusPropertyMetadata.Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED, DomibusPropertyMetadata.Type.BOOLEAN, DomibusPropertyMetadata.Usage.DOMAIN, true),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, DomibusPropertyMetadata.Type.XSD_DATE_TIME),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING, DomibusPropertyMetadata.Type.XSD_DATE_TIME),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, DomibusPropertyMetadata.Type.REGEXP),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING, DomibusPropertyMetadata.Type.REGEXP),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_RECEIVE_TIMEOUT, DomibusPropertyMetadata.Type.NUMERIC, DomibusPropertyMetadata.Usage.DOMAIN, true),
