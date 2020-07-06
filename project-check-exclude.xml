@@ -60,32 +60,4 @@
          -->
         <cpe>cpe:/a:netty:netty:4.1.34</cpe>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-databind-2.9.10.4.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <!-- we are not using xbean-reflect libraries -->
-        <cve>CVE-2020-8840</cve>
-        <!-- we don't use hikari-config library -->
-        <cve>CVE-2020-9546</cve>
-        <!-- we don't use ibatis-sqlmap library -->
-        <cve>CVE-2020-9547</cve>
-        <!-- we don't use anteros-core library-->
-        <cve>CVE-2020-9548</cve>
-        <!-- we are not using apache aries library -->
-        <cve>CVE-2020-10672</cve>
-        <!-- we are not using caucho quercus library -->
-        <cve>CVE-2020-10673</cve>
-        <!-- we are not using bus-proxy library -->
-        <cve>CVE-2020-10968</cve>
-        <!-- we are not using javax.swing -->
-        <cve>CVE-2020-10969</cve>
-        <!-- not as transitive dependency from any activemq library but from io.dropwizard.metrics -->
-        <cve>CVE-2020-11111</cve>
-        <!-- we are not using apache commons-proxy -->
-        <cve>CVE-2020-11112</cve>
-        <!-- we are not using apache open-jpa -->
-        <cve>CVE-2020-11113</cve>
-    </suppress>
 </suppressions>
