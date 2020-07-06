@@ -3,12 +3,26 @@ package eu.domibus.api.property;
 import java.util.Map;
 
 /**
+ * The interface implemented by MSH to expose metadata for all of the configuration properties
+ *
  * @author Ion Perpegel
  * @since 4.1.1
- * <p>
- * The interface implemented by MSH to expose metadata for all of the configuration properties
  */
 public interface DomibusPropertyMetadataManagerSPI {
+
+    /**
+     * Get all the properties metadata that support changing at runtime
+     *
+     * @return properties as metadata
+     */
+    Map<String, DomibusPropertyMetadata> getKnownProperties();
+
+    /**
+     * True if the manager handles the specified property
+     *
+     * @param name the name of the property
+     */
+    boolean hasKnownProperty(String name);
 
     String DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX = "domibus.alert.user.account_disabled.";
     String DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_PREFIX = "domibus.alert.user.account_enabled.";
@@ -121,6 +135,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMAIN_TITLE = "domain.title";
     String DOMIBUS_USER_INPUT_BLACK_LIST = "domibus.userInput.blackList";
     String DOMIBUS_USER_INPUT_WHITE_LIST = "domibus.userInput.whiteList";
+    String DOMIBUS_PROPERTY_VALIDATION_ENABLED = "domibus.property.validation.enabled";
     String DOMIBUS_ACCOUNT_UNLOCK_CRON = "domibus.account.unlock.cron";
     String DOMIBUS_CERTIFICATE_CHECK_CRON = "domibus.certificate.check.cron";
     String DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON = "domibus.plugin.account.unlock.cron";
@@ -304,17 +319,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
-    /**
-     * Get all the properties metadata that support changing at runtime
-     *
-     * @return properties as metadata
-     */
-    Map<String, DomibusPropertyMetadata> getKnownProperties();
 
-    /**
-     * True if the manager handles the specified property
-     *
-     * @param name the name of the property
-     */
-    boolean hasKnownProperty(String name);
+
 }
