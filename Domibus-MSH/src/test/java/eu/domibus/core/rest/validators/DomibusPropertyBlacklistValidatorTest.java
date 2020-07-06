@@ -10,6 +10,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @RunWith(JMockit.class)
 public class DomibusPropertyBlacklistValidatorTest {
 
