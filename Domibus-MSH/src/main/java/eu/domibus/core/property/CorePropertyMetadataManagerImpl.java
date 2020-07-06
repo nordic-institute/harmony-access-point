@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Property metadata holder class of core properties ( common to all servers)
+ * Property metadata holder class of core properties (common to all servers)
  *
  * @author Ion Perpegel
  * @since 4.2
@@ -56,11 +56,11 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION, Type.URI, false, Usage.GLOBAL_AND_DOMAIN, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE, Type.NUMERIC),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL, Type.QUEUE),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION, Type.QUEUE), //move the use=age from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL, Type.JNDI),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION, Type.JNDI), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY, Type.CONCURRENCY), //move the use=age from xml ?
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT, Type.QUEUE), //move the use=age from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT, Type.JNDI), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT, Type.NUMERIC),  //move the use=age from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ALERT_QUEUE_CONCURRENCY, Type.CONCURRENCY), //move the use=age from xml ?
@@ -128,11 +128,11 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
 
-            new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, Type.DOTTED_NAME, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, Type.URI, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY, Type.NUMERIC),
 
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, Type.BOOLEAN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_SMLZONE, Type.DOTTED_NAME, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_SMLZONE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, Type.REGEXP, Usage.DOMAIN, true),
@@ -153,8 +153,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, Type.REGEXP, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, Type.XSD_DATE_TIME),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING, Type.XSD_DATE_TIME),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, Type.REGEXP),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING, Type.REGEXP),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_RECEIVE_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),

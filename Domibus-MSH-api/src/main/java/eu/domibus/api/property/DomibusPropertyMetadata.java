@@ -341,17 +341,13 @@ public class DomibusPropertyMetadata {
         CRON(new CronValidator()),
 
         // added so that the default black-list validation is skipped and the type validation is properly done
-        // TODO: review all regular expressions
         PASSWORD(".*"),
         REGEXP(".*"),
-        URI("^\\\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"), //to add proper regexp
-        CLASS("^[\\w|.]$"), //to add proper regexp??
-        QUEUE("^[\\w|.]$"), //to add proper regexp
-        DOTTED_NAME("^[\\w|.]$"),
-        HYPHENED_NAME("^[\\w|-]$"),
-        COMMA_SEPARATED_LIST("^[\\w|,]$"),
-        XSD_DATE_TIME(".*"), // to add proper regexp
-        JNDI("^((?<=(\"))java:/jms/.+(?=\\\"))$"), // to add proper regexp
+        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]+$"),
+        CLASS("^[a-zA-Z0-9_\\.]+$"),
+        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]+$"),
+        HYPHENED_NAME("^[a-zA-Z0-9_\\-]+$"),
+        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]+$"),
 
         // no type validation for String except for the default black-list validation
         STRING();
