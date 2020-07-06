@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
+
 /**
  * Helper class involved in changing of domibus properties at runtime
  *
@@ -66,6 +68,12 @@ public class DomibusPropertyChangeManager {
     protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
         if (propMeta == null) {
             LOG.warn("Property metadata is null; exiting validation.");
+            return;
+        }
+
+        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+        if (!enabled) {
+            LOG.debug("Domibus property validation is not enabled; exiting validation.");
             return;
         }
 

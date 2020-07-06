@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
 
@@ -34,7 +34,11 @@ export class PropertiesService {
       }).toPromise()
   }
 
-  validateValue(prop) {
+  async validateValue(prop) {
+    const enabledProp = await this.getDomibusPropertyValidationEnabledProperty();
+    if (enabledProp && !enabledProp.value) {
+      return;
+    }
     const propType = prop.type;
     const regexp = this.regularExpressions.get(propType);
     if (!regexp) {
@@ -54,6 +58,9 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
+  private async getDomibusPropertyValidationEnabledProperty(): Promise<PropertyModel> {
+    return this.getProperty('domibus.property.validation.enabled');
+  }
 }
 
 export interface PropertyModel {
