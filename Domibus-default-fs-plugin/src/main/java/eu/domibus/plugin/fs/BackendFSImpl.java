@@ -51,7 +51,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFSImpl.class);
 
 
-    protected static final String FILENAME_SANITIZE_REGEX = "[^\\w.-]";
+    protected static final String FILENAME_SANITIZE_REGEX = "[^\\w@.-]";
     protected static final String FILENAME_SANITIZE_REPLACEMENT = "_";
 
     protected static final Set<MessageStatus> SENDING_MESSAGE_STATUSES = EnumSet.of(
