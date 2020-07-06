@@ -62,7 +62,7 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jackson-databind-2.9.10.2.jar
+   file name: jackson-databind-2.9.10.4.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
         <!-- we are not using xbean-reflect libraries -->
