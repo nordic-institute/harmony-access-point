@@ -1783,7 +1783,13 @@ static def ifWindowsEscapeJsonString(json) {
 
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
-        commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-X", "GET",
+						"-v"]
+		
         commandResult = runCommandInShell(commandString, log)
         assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to retrieve filters."
         return commandResult[0].substring(5)
@@ -1852,8 +1858,21 @@ static def ifWindowsEscapeJsonString(json) {
                 if (filtersMap.equals("correct")) {
                     log.info "  setMessageFilters  [][]  The requested backend is already selected: Nothing to do.";
                 } else {
+					log.info "Received filtersMap: " + filtersMap
+
+					
                     curlParams = JsonOutput.toJson(filtersMap).toString()
-                    commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagefilters -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+					log.info "-------------------------------------------------------------"
+					log.info "Received filtersMap after formatting: " +formatJsonForCurl(curlParams, log)					
+                    
+					commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-X", "PUT",
+						"--data-binary", formatJsonForCurl(curlParams, log),
+						"-v"]
+						
                     commandResult = runCommandInShell(commandString, log)
                     assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
                     log.info "  setMessageFilters  [][]  Message filters update done successfully for Domibus: \"" + side + "\".";
