@@ -126,6 +126,8 @@
         <cve>CVE-2019-20445</cve>
         <!-- we don't use/send a ZlibEncoded byte stream to the Netty server -->
         <cve>CVE-2020-11612</cve>
+        <!-- artemis-jms-client uses this as 2nd level dependency -->
+        <vulnerabilityName>CWE-400: Uncontrolled Resource Consumption ('Resource Exhaustion')</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
