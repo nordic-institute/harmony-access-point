@@ -49,15 +49,4 @@
         <!-- Transitive dependency from OpenCSV - Export CSV feature is only available to logged in users -->
         <vulnerabilityName>Remote code execution</vulnerabilityName>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-        all netty-*-4.1.34.Final.jar libraries as transitive dependencies to artemis-jms-client:jar:2.10.1
-   ]]></notes>
-        <!-- we are ignoring all CVEs related to netty* libraries version 4.1.34 as:
-         1. jms-artemis-client use 8 of them as transitive dependencies
-         2. next version without CVEs is 4.1.44.Final but isn't guaranteed that jms-client will work anymore
-         3. to review this decision once we update artemis-jms-client to a newer version
-         -->
-        <cpe>cpe:/a:netty:netty:4.1.34</cpe>
-    </suppress>
 </suppressions>
