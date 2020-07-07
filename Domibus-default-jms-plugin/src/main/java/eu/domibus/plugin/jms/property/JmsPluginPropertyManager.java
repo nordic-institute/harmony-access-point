@@ -28,18 +28,18 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
     private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTION_FACTORY, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Type.QUEUE, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Type.QUEUE, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN_CONCURRENCY, Type.CONCURRENCY, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false)
     );
-
 
     private List<DomibusPropertyMetadataDTO> readOnlyDomainProperties = Arrays.stream(new String[]{
             JMSPLUGIN_QUEUE_OUT,
             JMSPLUGIN_QUEUE_REPLY,
             JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR,
-            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR
+            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR,
+            JMS_PLUGIN_PROPERTY_PREFIX + "." + P1_IN_BODY
     })
             .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, Usage.DOMAIN, true, false, false, false))
             .collect(Collectors.toList());
