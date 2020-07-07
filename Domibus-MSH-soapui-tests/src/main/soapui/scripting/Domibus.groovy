@@ -1870,11 +1870,12 @@ static def ifWindowsEscapeJsonString(json) {
 						"-H", "Content-Type: application/json",
 						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 						"-X", "PUT",
-						"--data-binary", formatJsonForCurl(curlParams, log),
+						"--data", formatJsonForCurl(curlParams, log),
 						"-v"]
 						
+						log.info "commandString: " + commandString 
                     commandResult = runCommandInShell(commandString, log)
-                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
+                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus. CommandResult[0]:" +commandResult[0] + "| commandResult[1]:" + commandResult[1];
                     log.info "  setMessageFilters  [][]  Message filters update done successfully for Domibus: \"" + side + "\".";
                 }
             }
