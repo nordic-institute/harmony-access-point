@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Annotation for custom validator that checks that a doibus property value is valid
+ * Annotation for custom validator that checks that a domibus property value is valid
  *
  * @author Ion Perpegel
  * since 4.2
