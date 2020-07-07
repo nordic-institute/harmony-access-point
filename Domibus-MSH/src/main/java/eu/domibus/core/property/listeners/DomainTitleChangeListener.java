@@ -1,5 +1,6 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.cache.DomibusCacheService;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_T
 public class DomainTitleChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private DomibusCacheService domibusCacheService;
+    private DomainService domainService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -27,6 +28,6 @@ public class DomainTitleChangeListener implements DomibusPropertyChangeListener 
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
+        this.domainService.resetDomains();
     }
 }
