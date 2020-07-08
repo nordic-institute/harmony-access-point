@@ -1,9 +1,13 @@
 package eu.domibus.core.property;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.MetricsAspect;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -17,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * Helper class involved in managing the property metadata of core or external property managers ( metadata integrator)
@@ -38,6 +44,9 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected DomainCoreConverter domainConverter;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
@@ -53,29 +62,39 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-        loadPropertiesIfNotFound(propertyName);
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_counter"));
+        methodCounter.inc();
+        com.codahale.metrics.Timer surrounding = metricRegistry.timer(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_timer"));
+        com.codahale.metrics.Timer.Context surroundingContext = surrounding.time();
+        try {
+            loadPropertiesIfNotFound(propertyName);
 
-        DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
-        if (prop != null) {
-            LOG.trace("Found property [{}], returning its metadata.", propertyName);
-            return prop;
-        }
-
-        synchronized (propertyMetadataMapLock) {
-            LOG.trace("Acquired lock to search new property: [{}]", propertyName);
-
-            // try to see if it is a compose-able property, i.e. propertyName+suffix
-            DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
-            if (propMeta != null) {
-                LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-                return clonePropertyMetadata(propertyName, propMeta);
+            DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
+            if (prop != null) {
+                LOG.trace("Found property [{}], returning its metadata.", propertyName);
+                return prop;
             }
 
-            // if still not found, initialize metadata on-the-fly
-            LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
-            DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
-            return clonePropertyMetadata(propertyName, newProp);
+            synchronized (propertyMetadataMapLock) {
+                LOG.trace("Acquired lock to search new property: [{}]", propertyName);
+
+                // try to see if it is a compose-able property, i.e. propertyName+suffix
+                DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
+                if (propMeta != null) {
+                    LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
+                    return clonePropertyMetadata(propertyName, propMeta);
+                }
+
+                // if still not found, initialize metadata on-the-fly
+                LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
+                DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
+                return clonePropertyMetadata(propertyName, newProp);
+            }
+        } finally {
+            methodCounter.dec();
+            surroundingContext.stop();
         }
+
     }
 
     protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
@@ -97,6 +116,8 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     @Override
+    @Counter
+    @Timer
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         loadPropertiesIfNotFound(propertyName);
         if (hasProperty(internalPropertyMetadataMap, propertyName)) {
