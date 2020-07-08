@@ -1,18 +1,19 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
 import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
+import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.DomibusPropertyRO;
-import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;
-import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
-import eu.domibus.web.rest.ro.PropertyResponseRO;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +39,19 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     private DomainCoreConverter domainConverter;
 
+    private ErrorHandlerService errorHandlerService;
+
     public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
-                                         DomainCoreConverter domainConverter) {
+                                         DomainCoreConverter domainConverter,
+                                         ErrorHandlerService errorHandlerService) {
         this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
         this.domainConverter = domainConverter;
+        this.errorHandlerService = errorHandlerService;
+    }
+
+    @ExceptionHandler({DomibusPropertyException.class})
+    public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping
