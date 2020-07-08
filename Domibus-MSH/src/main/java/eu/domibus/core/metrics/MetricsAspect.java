@@ -33,6 +33,7 @@ public class MetricsAspect {
 
     @Autowired
     private MetricRegistry metricRegistry;
+
     @Around("@annotation(timer)")
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
         com.codahale.metrics.Timer.Context context = null;
@@ -41,7 +42,7 @@ public class MetricsAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         Class<?> declaringClass = method.getDeclaringClass();
-        LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
+        LOG.trace("adding a timer with name:[{}] for method:[{}] in class:[{}] and declaring class:[{}]", timerName,method, clazz.getName(),declaringClass.getName());
         com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName,method,declaringClass,"_timer"));
         try {
             context = methodTimer.time();
@@ -71,7 +72,7 @@ public class MetricsAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
         Class<?> declaringClass = method.getDeclaringClass();
-        LOG.trace("adding a counter with name:[{}] in class:[{}]", counterName, clazz.getName());
+        LOG.trace("adding a counter with name:[{}] for method:[{}] in class:[{}] and declaring class:[{}]", counterName,method, clazz.getName(),declaringClass.getName());
         com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName,method,declaringClass,"_counter"));
         try {
             methodCounter.inc();
