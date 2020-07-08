@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.metrics.Timer;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.checkerframework.checker.units.qual.Time;
@@ -50,7 +51,7 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Time
+    @Timer
     @Counter
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         boolean cacheable = isDispatchClientCacheActivated();
