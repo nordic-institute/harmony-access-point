@@ -49,7 +49,7 @@
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.4</jackson-databind.version>
+        <jackson-databind.version>2.9.10.5</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
         <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>

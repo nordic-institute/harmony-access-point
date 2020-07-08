@@ -32,22 +32,20 @@ public class BackendJMSQueueService {
 
     public BackendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                   DomainContextExtService domainContextExtService,
-                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                   MessageRetriever messageRetriever) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
-        this.jmsPluginPropertyManager = jmsPluginPropertyManager;
         this.messageRetriever = messageRetriever;
     }
 
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param messageId The message id for which the queue is determined
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param messageId                  The message id for which the queue is determined
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
-     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
      * @return the default or the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
      */
     public String getJMSQueue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
         Submission submission;
@@ -63,11 +61,11 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param queueContext The queue context used for determining the queue
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param queueContext               The queue context used for determining the queue
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
-     * @throws DefaultJmsPluginException in case the queue could not be determined
      * @return the default or the routing queue
+     * @throws DefaultJmsPluginException in case the queue could not be determined
      */
     public String getJMSQueue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         String queueValue = getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
@@ -80,15 +78,14 @@ public class BackendJMSQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param queueContext The queue context used for determining the queue
-     * @param defaultQueueProperty The property name used to get the default queue
+     * @param queueContext               The queue context used for determining the queue
+     * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
      * @return the default or the routing queue
      */
     protected String getQueueValue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
-        String routingQueuePrefix = getQueuePrefix(currentDomain, routingQueuePrefixProperty);
-        List<String> routingQueuePrefixNameList = jmsPluginPropertyManager.getNestedProperties(routingQueuePrefix);
+        List<String> routingQueuePrefixNameList = domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
 
         if (CollectionUtils.isEmpty(routingQueuePrefixNameList)) {
             final String queueValue = domibusPropertyExtService.getProperty(currentDomain, defaultQueueProperty);
@@ -108,7 +105,7 @@ public class BackendJMSQueueService {
     /**
      * Tries to get the configured queue using routing properties. Returns the first matching routing queue if any.
      *
-     * @param routingQueuePrefixList
+     * @param routingQueuePrefixList     The routing queue properties with a specific prefix
      * @param routingQueuePrefixProperty
      * @param queueContext
      * @param currentDomain
@@ -127,11 +124,11 @@ public class BackendJMSQueueService {
     /**
      * Returns the routing queue for which the configured service and action value matches the values from the Submission.
      *
-     * @param routingQueuePrefixProperty
-     * @param routingQueuePrefixName
-     * @param queueContext
-     * @param currentDomain
-     * @return
+     * @param routingQueuePrefixProperty The routing queue prefix property eg jmsplugin.queue.reply.routing
+     * @param routingQueuePrefixName     The routing queue prefix name eg routingQueuePrefixName=rule1
+     * @param queueContext               The queue context used for determining the queue
+     * @param currentDomain              the current domain
+     * @return the routing queue in case it matches or null otherwise
      */
     protected String getRoutingQueue(String routingQueuePrefixProperty, String routingQueuePrefixName, QueueContext queueContext, DomainDTO currentDomain) {
         String servicePropertyName = getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "service");
@@ -171,30 +168,7 @@ public class BackendJMSQueueService {
      * @return
      */
     protected String getQueuePropertyName(String routingQueuePrefixProperty, String routingQueuePrefixName, String suffix) {
-        return routingQueuePrefixProperty + routingQueuePrefixName + "." + suffix;
-    }
-
-    /**
-     * Composes the property name based on the domain and queue prefix
-     * <p>
-     * Eg. Given domain code = digit and queue prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
-     *
-     * @param currentDomain
-     * @param queuePrefix
-     * @return
-     */
-    protected String getQueuePrefix(DomainDTO currentDomain, String queuePrefix) {
-        if (currentDomain == null) {
-            LOG.debug("Using queue prefix [{}]", queuePrefix);
-            return queuePrefix;
-        }
-        if (DomainDTO.DEFAULT_DOMAIN.equals(currentDomain)) {
-            LOG.debug("Using queue prefix [{}]", queuePrefix);
-            return queuePrefix;
-        }
-        String result = currentDomain.getCode() + "." + queuePrefix;
-        LOG.debug("Using queue prefix [{}]", result);
-        return result;
+        return routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix;
     }
 
     protected boolean matchesQueueContext(String service, String action, QueueContext queueContext) {

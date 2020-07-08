@@ -90,10 +90,7 @@ public class BackendJMSQueueServiceTest {
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
-            backendJMSQueueService.getQueuePrefix(domainDTO, routingQueuePrefixProperty);
-            result = routingQueuePrefixProperty;
-
-            jmsPluginPropertyManager.getNestedProperties(routingQueuePrefixProperty);
+            domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
             backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
@@ -120,10 +117,7 @@ public class BackendJMSQueueServiceTest {
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
-            backendJMSQueueService.getQueuePrefix(domainDTO, routingQueuePrefixProperty);
-            result = routingQueuePrefixProperty;
-
-            jmsPluginPropertyManager.getNestedProperties(routingQueuePrefixProperty);
+            domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
             backendJMSQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
@@ -201,31 +195,12 @@ public class BackendJMSQueueServiceTest {
 
     @Test
     public void getQueuePropertyName() {
-        String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
+        String routingQueuePrefixProperty = "domibus.defaultQueue.routing";
         String routingQueuePrefixName = "rule1";
 
         String suffix = "queue";
         String queue = backendJMSQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, suffix);
-        Assert.assertEquals(routingQueuePrefixProperty + routingQueuePrefixName + "." + suffix, queue);
-    }
-
-    @Test
-    public void getQueuePrefixForDefaultDomain() {
-        String value = backendJMSQueueService.getQueuePrefix(DomainDTO.DEFAULT_DOMAIN, "rule1");
-        Assert.assertEquals("rule1", value);
-    }
-
-    @Test
-    public void getQueuePrefix(@Injectable DomainDTO domainDTO) {
-        String domainCode = "digit";
-
-        new Expectations() {{
-            domainDTO.getCode();
-            result = domainCode;
-        }};
-
-        String value = backendJMSQueueService.getQueuePrefix(domainDTO, "rule1");
-        Assert.assertEquals(domainCode + ".rule1", value);
+        Assert.assertEquals(routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix, queue);
     }
 
     @Test

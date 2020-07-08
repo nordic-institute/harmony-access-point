@@ -1,9 +1,10 @@
 package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
@@ -33,7 +34,7 @@ public class RetryDefaultService implements RetryService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    UserMessageService userMessageService;
+    UserMessageDefaultService userMessageService;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -99,7 +100,8 @@ public class RetryDefaultService implements RetryService {
             LOG.debug("Message [{}] was marked as expired", messageId);
             return;
         }
-        userMessageService.scheduleSending(messageId, userMessage.isSplitAndJoin());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        userMessageService.scheduleSending(userMessage, userMessageLog);
 
     }
 

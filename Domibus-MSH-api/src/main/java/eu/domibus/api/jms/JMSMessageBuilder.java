@@ -44,6 +44,11 @@ public class JMSMessageBuilder {
         return this;
     }
 
+    public JMSMessageBuilder priority(Integer priority) {
+        jmsMessage.setPriority(priority);
+        return this;
+    }
+
     public JMSMessageBuilder properties(Map<String, Object> properties) {
         jmsMessage.setProperties(properties);
         return this;
