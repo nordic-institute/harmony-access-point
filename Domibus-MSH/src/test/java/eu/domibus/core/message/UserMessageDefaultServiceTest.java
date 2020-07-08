@@ -565,17 +565,17 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessaged() {
+    public void testDeleteMessaged(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any);
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId);
+            userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
         }};
     }
 
@@ -591,9 +591,6 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = notificationListeners;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
             userMessageLog.getBackend();
             result = backend;
 
@@ -603,10 +600,41 @@ public class UserMessageDefaultServiceTest {
             userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId);
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
 
         new Verifications() {{
             userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+        }};
+    }
+
+    @Test
+    public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
+                                                          @Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final List<NotificationListener> notificationListeners = new ArrayList<>();
+        notificationListeners.add(notificationListener1);
+
+        new Expectations(userMessageDefaultService) {{
+            backendNotificationService.getNotificationListenerServices();
+            result = notificationListeners;
+
+            userMessageLog.isTestMessage();
+            result = true;
+
+        }};
+
+        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+
+        new Verifications() {{
+            userMessageLog.getBackend();
+            times = 0;
+
+            backendNotificationService.getNotificationListener(anyString);
+            times = 0;
+
+            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+            times = 0;
+
         }};
     }
 
@@ -653,7 +681,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = null;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             messaging.getSignalMessage();
@@ -685,7 +713,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.getNotificationListenerServices();
             result = null;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             messaging.getSignalMessage();
