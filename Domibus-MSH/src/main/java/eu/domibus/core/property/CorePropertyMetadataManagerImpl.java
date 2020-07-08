@@ -3,8 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.Module;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -55,7 +53,6 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, false, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION, false, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true),
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_UI_REPLICATION), //move the use=age from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY, DomibusPropertyMetadata.Type.CONCURRENCY), //move the use=age from xml ?
