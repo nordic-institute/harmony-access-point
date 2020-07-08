@@ -22,9 +22,8 @@ export class PropertiesService {
     return result;
   }
 
-  updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
-    this.validateValue(prop);
-
+  async updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
+    await this.validateValue(prop);
     const payload = JSON.stringify(prop.value);
     const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
     const options = {params: {isDomain: isDomain.toString()}, headers: headers};
@@ -35,8 +34,8 @@ export class PropertiesService {
   }
 
   async validateValue(prop) {
-    const enabledProp = await this.getDomibusPropertyValidationEnabledProperty();
-    if (enabledProp && !enabledProp.value) {
+    const validationEnabled = await this.isPropertyValidationEnabled();
+    if (!validationEnabled) {
       return;
     }
     const propType = prop.type;
@@ -58,8 +57,9 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
-  private async getDomibusPropertyValidationEnabledProperty(): Promise<PropertyModel> {
-    return this.getProperty('domibus.property.validation.enabled');
+  private async isPropertyValidationEnabled(): Promise<boolean> {
+    let enabledProp = await this.getProperty('domibus.property.validation.enabled');
+    return enabledProp && enabledProp.value && enabledProp.value.toLowerCase() == 'true';
   }
 }
 
