@@ -233,6 +233,8 @@ public class DomibusPropertyChangeManagerTest {
         new Expectations() {{
             propMeta.getTypeAsEnum();
             result = DomibusPropertyMetadata.Type.STRING;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
         }};
 
         try {
@@ -247,6 +249,8 @@ public class DomibusPropertyChangeManagerTest {
         new Expectations(domibusPropertyChangeManager) {{
             propMeta.getTypeAsEnum();
             result = DomibusPropertyMetadata.Type.NUMERIC;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
         }};
 
         try {
@@ -261,6 +265,8 @@ public class DomibusPropertyChangeManagerTest {
         new Expectations(domibusPropertyChangeManager) {{
             propMeta.getTypeAsEnum();
             result = DomibusPropertyMetadata.Type.NUMERIC;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
         }};
 
         domibusPropertyChangeManager.validatePropertyValue(propMeta, "non_numeric_value");
