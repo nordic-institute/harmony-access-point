@@ -26,4 +26,6 @@ public interface DomainService {
 
     String getSchedulerName(Domain domain);
 
+    void resetDomains();
+
 }

@@ -10,6 +10,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
+
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -31,6 +33,8 @@ public class DomibusPropertyBlacklistValidatorTest {
             result = null;
             domibusPropertyBlacklistValidator.isValidValue(property.getValue());
             result = isValid;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
         }};
 
         boolean result = domibusPropertyBlacklistValidator.isValid(property, customAnnotation);
@@ -49,6 +53,8 @@ public class DomibusPropertyBlacklistValidatorTest {
         new Expectations() {{
             property.getMetadata().getTypeAsEnum().getValidator();
             result = domibusPropertyValidator;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
         }};
 
         boolean result = domibusPropertyBlacklistValidator.isValid(property, customAnnotation);
