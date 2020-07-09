@@ -84,10 +84,8 @@
         </parties>
         <meps>
             <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-            <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+            <binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
             <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-            <binding name="pushAndPush"
-                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
         </meps>
         <properties>
             <property name="originalSenderProperty"
@@ -268,8 +266,8 @@
         </process>
         <process name="tc3Process"
                  agreement="agreement1110"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
@@ -297,8 +295,8 @@
         </process>
         <process name="testService"
                  agreement="agreement1111"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>

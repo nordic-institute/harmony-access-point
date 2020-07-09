@@ -145,6 +145,13 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
+        if((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
+                (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
+            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("There was an error processing the receipt for pulled message:[%s].", messageId), messageId, null);
+            return messageBuilder.getSoapMessage(ebMS3Exception);
+        }
+
+        // when the pull receipt is valid, no response is expected back
         return null;
     }
 
