@@ -121,7 +121,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
+            <version>${org.reflections.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
