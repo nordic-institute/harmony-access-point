@@ -4,16 +4,17 @@ package eu.domibus.core.ebms3.sender.retry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -58,7 +59,7 @@ public class RetryDefaultServiceTest {
     private Queue sendLargeMessageQueue;
 
     @Injectable
-    UserMessageService userMessageService;
+    UserMessageDefaultService userMessageService;
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
@@ -110,7 +111,8 @@ public class RetryDefaultServiceTest {
     }
 
     @Test
-    public void doEnqueueMessageWithExpiredMessage(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void doEnqueueMessageWithExpiredMessage(@Injectable UserMessage userMessage,
+                                                   @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String messageId = "123";
 
         new Expectations() {{
@@ -124,13 +126,14 @@ public class RetryDefaultServiceTest {
         retryService.doEnqueueMessage(messageId);
 
         new FullVerifications() {{
-            userMessageService.scheduleSending(messageId, false);
+            userMessageService.scheduleSending(userMessage, userMessageLog);
             times = 0;
         }};
     }
 
     @Test
-    public void doEnqueueMessage(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void doEnqueueMessage(@Injectable UserMessage userMessage,
+                                 @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String messageId = "123";
 
         new Expectations() {{
@@ -139,13 +142,15 @@ public class RetryDefaultServiceTest {
 
             updateRetryLoggingService.failIfExpired(userMessage);
             result = false;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
         }};
 
         retryService.doEnqueueMessage(messageId);
 
         new FullVerifications() {{
-            userMessageService.scheduleSending(messageId, false);
-            userMessage.isSplitAndJoin();
+            userMessageService.scheduleSending(userMessage, userMessageLog);
         }};
     }
 

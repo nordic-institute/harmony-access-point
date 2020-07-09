@@ -9,6 +9,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
@@ -46,7 +47,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Arun Raj, Soumya Chandran
@@ -110,6 +113,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     PullMessageService pullMessageService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     CachingPModeProvider cachingPModeProvider;
@@ -248,6 +254,25 @@ public class CachingPModeProviderTest {
         Assert.assertEquals(configuration, cachingPModeProvider.getConfiguration());
     }
 
+    @Test(expected = ConfigurationException.class)
+    public void testGetBusinessProcessRoleFail() throws Exception {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getRoles();
+            result = configuration.getBusinessProcesses().getRoles();
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+
+        try {
+            cachingPModeProvider.getBusinessProcessRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/notMyInitiator");
+            fail();
+        } catch (ConfigurationException cex) {
+            assertEquals("No matching role found with value: http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/notMyInitiator", cex.getMessage());
+            throw cex;
+        }
+    }
+
     @Test
     public void testGetBusinessProcessRoleOk() throws Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -376,9 +401,7 @@ public class CachingPModeProviderTest {
 
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+
         // When
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
@@ -578,7 +601,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc");
+            cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertTrue(ErrorCode.EbMS3ErrorCode.EBMS_0001.equals(exc.getErrorCode()));
             throw exc;
@@ -602,7 +625,7 @@ public class CachingPModeProviderTest {
             result = true;
         }};
 
-        String legName = cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+        String legName = cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         Assert.assertNotNull(legName);
     }
 
@@ -618,7 +641,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
@@ -645,7 +668,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc");
+            cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
         } catch (EbMS3Exception exc) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
             throw exc;
@@ -672,6 +695,18 @@ public class CachingPModeProviderTest {
     public void testMatchAgreement() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]");
         Assert.assertTrue(cachingPModeProvider.matchAgreement(process, "a1"));
+    }
+
+    @Test
+    public void testMatchRole() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+        Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]", "initiatorRole[name:myInitiatorRole,value:iRole]", "responderRole[name:myResponderRole,value:rRole]");
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","notrRole")));
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getInitiatorRole(), new Role("myInitiatorRole","notiRole")));
+        Assert.assertTrue(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","rRole")));
     }
 
     @Test
@@ -821,8 +856,71 @@ public class CachingPModeProviderTest {
                 result = receiverParty;
             }
         };
-        Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action"));
+        Assert.assertNull(cachingPModeProvider.findLegName("agreementName", "red_gw", "blue_gw", "service", "action", new Role("rn", "rv"), new Role("rn", "rv")));
     }
+
+    // Values for findLeg tests
+    final String senderParty = "blue_gw";
+    final String receiverParty = "red_gw";
+    final String agreement = "agreement1110";
+    final String service = "noSecService";
+    final String action = "noSecAction";
+    final Role initiatorRole = new Role("defaultInitiatorRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+    final Role responderRole = new Role("defaultResponderRole","http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+
+    @Test
+    public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+
+        final String expectedLegName = "pushNoSecnoSecAction";
+
+        ProcessTypePartyExtractor processTypePartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses();
+            result = configuration.getBusinessProcesses();
+
+            processPartyExtractorProvider.getProcessTypePartyExtractor(anyString, senderParty, receiverParty);
+            result = processTypePartyExtractor;
+        }};
+        try {
+            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+            assertEquals(expectedLegName, legName);
+        } catch (EbMS3Exception ex) {
+            fail("Exception was not expected");
+        }
+    }
+
+    @Test(expected = EbMS3Exception.class)
+    public void testfindLegNameMissingRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+        final Role notMyInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
+
+        final String expectedMessage = "No Candidates for Legs found";
+
+        ProcessTypePartyExtractor processTypePartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses();
+            result = configuration.getBusinessProcesses();
+
+            processPartyExtractorProvider.getProcessTypePartyExtractor(anyString, senderParty, receiverParty);
+            result = processTypePartyExtractor;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+        try {
+            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole);
+            fail("Should not get here");
+        } catch (EbMS3Exception ex) {
+            assertEquals(expectedMessage, ex.getErrorDetail());
+            throw ex;
+        }
+    }
+
 
     @Test
     public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {

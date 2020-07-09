@@ -3,8 +3,11 @@ package eu.domibus.tomcat.transaction;
 import com.atomikos.icatch.config.UserTransactionServiceImp;
 import com.atomikos.icatch.jta.J2eeUserTransaction;
 import com.atomikos.icatch.jta.UserTransactionManager;
+
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +29,14 @@ public class TomcatTransactionConfiguration {
 
     @Bean(value = "userTransactionService", initMethod = "init", destroyMethod = "shutdownWait")
     public UserTransactionServiceImp userTransactionServiceImp(DomibusPropertyProvider domibusPropertyProvider) {
+        Properties properties = getAtomikosProperties(domibusPropertyProvider);
 
+        LOGGER.debug("Configured UserTransactionService with the following properties [{}]", properties);
+
+        return new UserTransactionServiceImp(properties);
+    }
+
+    protected Properties getAtomikosProperties(DomibusPropertyProvider domibusPropertyProvider) {
         Properties properties = new Properties();
         properties.setProperty("com.atomikos.icatch.service", "com.atomikos.icatch.standalone.UserTransactionServiceFactory");
 
@@ -46,11 +56,7 @@ public class TomcatTransactionConfiguration {
 
         String maxActives = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.COM_ATOMIKOS_ICATCH_MAX_ACTIVES);
         properties.setProperty("com.atomikos.icatch.max_actives", maxActives);
-
-        LOGGER.debug("Configured UserTransactionService with the following properties [{}]", properties);
-
-        UserTransactionServiceImp result = new UserTransactionServiceImp(properties);
-        return result;
+        return properties;
     }
 
     @DependsOn("userTransactionService")
@@ -68,7 +74,8 @@ public class TomcatTransactionConfiguration {
         return new J2eeUserTransaction();
     }
 
-    @DependsOn({"atomikosTransactionManager", "atomikosUserTransaction"})
+    @DependsOn({JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY, DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE,
+                DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE})
     @Bean("transactionManager")
     public JtaTransactionManager jtaTransactionManager(@Qualifier("atomikosTransactionManager") UserTransactionManager userTransactionManager,
                                                        @Qualifier("atomikosUserTransaction") J2eeUserTransaction j2eeUserTransaction) {

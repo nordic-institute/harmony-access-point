@@ -11,7 +11,6 @@ import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jms.listener.AbstractJmsListeningContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
 
@@ -64,12 +63,15 @@ public class MessageListenerContainerInitializer {
     }
 
     @PreDestroy
-    public void destroy() throws InterruptedException {
+    public void destroy() {
         LOG.info("Shutting down MessageListenerContainer instances");
 
         for (MessageListenerContainer instance : instances) {
             try {
-                ((AbstractJmsListeningContainer) instance).shutdown();
+                // There is an issue with destroying (shutting down) the message listener container on Tomcat while
+                // stopping so we just stop the instances on the ApplicationContext shutdown (the invokers will
+                // close on JVM exit)
+                instance.stop();
             } catch (Exception e) {
                 LOG.error("Error while shutting down MessageListenerContainer", e);
             }
