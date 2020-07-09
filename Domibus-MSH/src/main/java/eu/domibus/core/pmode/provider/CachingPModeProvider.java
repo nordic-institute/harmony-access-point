@@ -87,7 +87,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.debug("Initialising the configuration");
         this.configuration = this.configurationDAO.readEager();
-        LOG.trace("Configuration initialized: [{}]", this.configuration.getEntityId());
+        LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
 
         initPullProcessesCache();
     }

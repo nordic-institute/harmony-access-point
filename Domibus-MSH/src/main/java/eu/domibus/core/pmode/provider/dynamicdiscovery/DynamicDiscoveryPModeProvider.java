@@ -91,17 +91,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         super(domain);
     }
 
-//    public Configuration getConfiguration() {
-//        if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
-//            synchronized (dynamicProcessesLock) {
-//                if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
-//                    this.init();
-//                }
-//            }
-//        }
-//        return super.getConfiguration();
-//    }
-
     @Override
     public void init() {
         super.init();
@@ -113,6 +102,15 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         } else { // OASIS client is used by default
             dynamicDiscoveryService = dynamicDiscoveryServiceOASIS;
         }
+    }
+
+    public Collection<eu.domibus.common.model.configuration.Process> getDynamicProcesses(final MSHRole mshRole) {
+        if(CollectionUtils.isEmpty(dynamicResponderProcesses) && CollectionUtils.isEmpty(dynamicInitiatorProcesses) ){
+            LOG.debug("Refreshing the configuration.");
+            refresh();
+        }
+
+        return MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
     }
 
     protected Collection<eu.domibus.common.model.configuration.Process> findDynamicResponderProcesses() {
@@ -401,14 +399,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      */
     protected Collection<eu.domibus.common.model.configuration.Process> findCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
         LOG.debug("Finding candidate processes.");
-        if(CollectionUtils.isEmpty(dynamicResponderProcesses) && CollectionUtils.isEmpty(dynamicInitiatorProcesses) ){
-            LOG.debug("init dynamic discovery ..... ");
-            this.init();
-            LOG.debug("refresh ..... ");
-            refresh();
-        }
         Collection<eu.domibus.common.model.configuration.Process> candidates = new HashSet<>();
-        Collection<eu.domibus.common.model.configuration.Process> processes = MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
+        Collection<eu.domibus.common.model.configuration.Process> processes = getDynamicProcesses(mshRole);
 
         for (final Process process : processes) {
             if (matchProcess(process, mshRole)) {
