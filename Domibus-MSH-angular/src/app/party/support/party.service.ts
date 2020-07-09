@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {PartyResponseRo, PartyFilteredResult, ProcessRo, CertificateRo} from './party';
+import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './party';
 import {Observable} from 'rxjs/Observable';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 /**
  * @author Thomas Dussart
@@ -16,14 +17,14 @@ export class PartyService {
   static readonly UPDATE_PARTIES: string = 'rest/party/update';
   static readonly CSV_PARTIES: string = 'rest/party/csv';
 
-  constructor (private http: HttpClient) {
+  constructor(private http: HttpClient, private fileUploadValidatorService: FileUploadValidatorService) {
   }
 
-  uploadCertificate (payload, partyName: string): Observable<CertificateRo> {
+  uploadCertificate(payload, partyName: string): Observable<CertificateRo> {
     return this.http.put<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName), payload);
   }
 
-  getCertificate (partyName: string): Observable<CertificateRo> {
+  getCertificate(partyName: string): Observable<CertificateRo> {
     return this.http.get<CertificateRo>(PartyService.CERTIFICATE.replace('{partyName}', partyName));
   }
 
@@ -36,12 +37,12 @@ export class PartyService {
     return Promise.all(serverCalls);
   }
 
-  listProcesses (): Observable<ProcessRo[]> {
+  listProcesses(): Observable<ProcessRo[]> {
     return this.http.get<ProcessRo[]>(PartyService.LIST_PROCESSES)
       .catch(() => Observable.throw('No processes found'));
   }
 
-  listParties (name: string, endPoint: string, partyId: string, process: string, process_role: string)
+  listParties(name: string, endPoint: string, partyId: string, process: string, process_role: string)
     : Observable<PartyFilteredResult> {
 
     return this.http.get<PartyResponseRo[]>(PartyService.LIST_PARTIES).map(allRecords => {
@@ -71,7 +72,7 @@ export class PartyService {
 
   }
 
-  getFilterPath (name: string, endPoint: string, partyId: string, process: string) {
+  getFilterPath(name: string, endPoint: string, partyId: string, process: string) {
     let result = '?';
 
     if (name) {
@@ -89,7 +90,7 @@ export class PartyService {
     return result;
   }
 
-  initParty () {
+  initParty() {
     const newParty = new PartyResponseRo();
     newParty.processesWithPartyAsInitiator = [];
     newParty.processesWithPartyAsResponder = [];
@@ -97,7 +98,16 @@ export class PartyService {
     return newParty;
   }
 
-  validateParties (partyList: PartyResponseRo[]) {
+  updateParties(partyList: PartyResponseRo[]): Promise<any> {
+    return this.http.put(PartyService.UPDATE_PARTIES, partyList).toPromise();
+  }
+
+  async validateParties(partyList: PartyResponseRo[]) {
+    this.validateIdentifiers(partyList);
+    await this.validateCertificates(partyList);
+  }
+
+  private validateIdentifiers(partyList: PartyResponseRo[]) {
     const partiesWithoutIdentifiers = partyList.filter(party => party.identifiers == null || party.identifiers.length === 0);
     if (partiesWithoutIdentifiers.length > 0) {
       const names = partiesWithoutIdentifiers.map(party => party.name).join(',');
@@ -105,7 +115,26 @@ export class PartyService {
     }
   }
 
-  updateParties (partyList: PartyResponseRo[]): Promise<any> {
-    return this.http.put(PartyService.UPDATE_PARTIES, partyList).toPromise();
+  private async validateCertificates(partyList: PartyResponseRo[]) {
+    const parties = partyList.filter(party => party.certificateContent != null);
+    await this.validatePartiesCertificates(parties);
   }
+
+  private async validatePartiesCertificates(parties: PartyResponseRo[]) {
+    let errors = await Promise.all(
+      parties.map(async (party: PartyResponseRo) => {
+        try {
+          await this.fileUploadValidatorService.validateStringSize(party.certificateContent);
+        } catch (ex) {
+          return new Error(`${party.name} party certificate: ${ex.message} `);
+        }
+      })
+    );
+    errors = errors.filter(err => err != null);
+    if (errors.length > 0) {
+      let message = errors.map(err => err.message).join('<br>');
+      throw new Error(message);
+    }
+  }
+
 }
