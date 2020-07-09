@@ -106,5 +106,11 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+            <version>${jacorb-omgapi.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
