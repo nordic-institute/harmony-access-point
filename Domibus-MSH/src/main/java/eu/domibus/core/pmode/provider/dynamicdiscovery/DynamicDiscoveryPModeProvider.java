@@ -91,16 +91,16 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         super(domain);
     }
 
-    public Configuration getConfiguration() {
-        if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
-            synchronized (dynamicProcessesLock) {
-                if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
-                    this.init();
-                }
-            }
-        }
-        return super.getConfiguration();
-    }
+//    public Configuration getConfiguration() {
+//        if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
+//            synchronized (dynamicProcessesLock) {
+//                if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
+//                    this.init();
+//                }
+//            }
+//        }
+//        return super.getConfiguration();
+//    }
 
     @Override
     public void init() {

@@ -419,7 +419,7 @@ public abstract class PModeProvider {
 
     public abstract int getRetentionUndownloadedByMpcURI(final String mpcURI);
 
-    public abstract Role getBusinessProcessRole(String roleValue);
+    public abstract Role getBusinessProcessRole(String roleValue) throws EbMS3Exception;
 
     public String getSenderPartyNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[0];
