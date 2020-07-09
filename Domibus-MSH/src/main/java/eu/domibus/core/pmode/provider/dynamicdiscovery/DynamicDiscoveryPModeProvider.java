@@ -18,6 +18,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,6 +77,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Autowired
     protected CertificateService certificateService;
 
+    private Object dynamicProcessesLock = new Object();
+
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
 
@@ -86,6 +89,17 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     public DynamicDiscoveryPModeProvider(Domain domain) {
         super(domain);
+    }
+
+    public Configuration getConfiguration() {
+        if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
+            synchronized (dynamicProcessesLock) {
+                if (CollectionUtils.isEmpty(this.dynamicResponderProcesses) && CollectionUtils.isEmpty(this.dynamicInitiatorProcesses)) {
+                    this.init();
+                }
+            }
+        }
+        return super.getConfiguration();
     }
 
     @Override
