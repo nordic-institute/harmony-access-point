@@ -116,7 +116,6 @@ public class UpdateRetryLoggingService {
 
         LegConfiguration legConfiguration = getLegConfiguration(userMessage);
         if (legConfiguration == null) {
-            LOG.warn("Message was not enqueued: could not find LegConfiguration for message [{}]", messageId);
             setMessageFailed(userMessage, userMessageLog);
         }
         return legConfiguration;

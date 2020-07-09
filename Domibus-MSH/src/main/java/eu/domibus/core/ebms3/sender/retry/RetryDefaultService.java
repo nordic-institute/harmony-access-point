@@ -92,6 +92,7 @@ public class RetryDefaultService implements RetryService {
 
         LegConfiguration legConfiguration = updateRetryLoggingService.failIfInvalidConfig(userMessage);
         if (legConfiguration == null) {
+            LOG.warn("Message was not enqueued: invalid LegConfiguration for message [{}]", messageId);
             return;
         }
 
