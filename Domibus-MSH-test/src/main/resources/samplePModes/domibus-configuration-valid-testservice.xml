@@ -266,8 +266,8 @@
         </process>
         <process name="tc3Process"
                  agreement="agreement1110"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
@@ -295,8 +295,8 @@
         </process>
         <process name="testService"
                  agreement="agreement1111"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
