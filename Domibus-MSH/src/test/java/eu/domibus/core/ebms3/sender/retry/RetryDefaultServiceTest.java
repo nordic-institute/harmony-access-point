@@ -121,6 +121,9 @@ public class RetryDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
+            updateRetryLoggingService.failIfInvalidConfig(userMessage);
+            result = legConfiguration;
+
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = true;
         }};
@@ -142,6 +145,9 @@ public class RetryDefaultServiceTest {
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
+
+            updateRetryLoggingService.failIfInvalidConfig(userMessage);
+            result = legConfiguration;
 
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = false;
