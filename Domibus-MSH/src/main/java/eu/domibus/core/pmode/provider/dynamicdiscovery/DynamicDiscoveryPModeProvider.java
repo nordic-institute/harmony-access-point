@@ -105,6 +105,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Override
     public void init() {
         super.init();
+        LOG.debug("Initialising the dynamic discovery configuration.");
         dynamicResponderProcesses = findDynamicResponderProcesses();
         dynamicInitiatorProcesses = findDynamicSenderProcesses();
         if(DynamicDiscoveryClientSpecification.PEPPOL.getName().equalsIgnoreCase(domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION))) {
@@ -399,6 +400,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * Check all dynamic processes to find candidates for dynamic discovery lookup.
      */
     protected Collection<eu.domibus.common.model.configuration.Process> findCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
+        LOG.debug("Finding candidate processes.");
         Collection<eu.domibus.common.model.configuration.Process> candidates = new HashSet<>();
         Collection<eu.domibus.common.model.configuration.Process> processes = MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
 
