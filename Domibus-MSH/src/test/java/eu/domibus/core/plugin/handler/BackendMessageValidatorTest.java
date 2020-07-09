@@ -29,8 +29,10 @@ public class BackendMessageValidatorTest {
     private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";
-    private static final String INITIATOR_ROLE = "defaultInitiatorRole";
-    private static final String RESPONDER_ROLE = "defaultResponderRole";
+    private static final String INITIATOR_ROLE_NAME = "defaultInitiatorRole";
+    private static final String RESPONDER_ROLE_NAME = "defaultResponderRole";
+    private static final String INITIATOR_ROLE_VALUE = "defaultInitiator";
+    private static final String RESPONDER_ROLE_VALUE = "defaultResponder";
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -310,10 +312,12 @@ public class BackendMessageValidatorTest {
     public void validatePartiesRolesOk() throws Exception {
 
         final Role fromRole = new Role();
-        fromRole.setName(INITIATOR_ROLE);
+        fromRole.setName(INITIATOR_ROLE_NAME);
+        fromRole.setValue(INITIATOR_ROLE_VALUE);
 
         final Role toRole = new Role();
-        toRole.setName(RESPONDER_ROLE);
+        toRole.setName(RESPONDER_ROLE_NAME);
+        toRole.setValue(RESPONDER_ROLE_VALUE);
 
         backendMessageValidatorObj.validatePartiesRoles(fromRole, toRole);
 
@@ -328,10 +332,13 @@ public class BackendMessageValidatorTest {
     public void validatePartiesRolesNOk() throws Exception {
 
         final Role fromRole = new Role();
-        fromRole.setName(INITIATOR_ROLE);
+        fromRole.setName(INITIATOR_ROLE_NAME);
+        fromRole.setValue(INITIATOR_ROLE_VALUE);
+
 
         final Role toRole = new Role();
-        toRole.setName(INITIATOR_ROLE);
+        toRole.setName(INITIATOR_ROLE_NAME);
+        toRole.setValue(INITIATOR_ROLE_VALUE);
 
         try {
             backendMessageValidatorObj.validatePartiesRoles(fromRole, toRole);

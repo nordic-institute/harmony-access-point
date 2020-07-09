@@ -1,0 +1,59 @@
+### INPUT: 
+#2020-06-26 11:56:24,480 [edelivery@localhost] [domain1] [e68272d4-b78a-11ea-8556-6a99d1a62279@domibus.eu] [DefaultMessageListenerContainer-5]  INFO e.d.c.p.n.BackendNotificationService:540 - [BUSINESS - BUS-063] Notifying about message status change from [SEND_ENQUEUED] to [WAITING_FOR_RETRY]
+
+{
+             "tags" => [
+        [0] "beats_input_codec_plain_applied",
+        [1] "_DOMIBUS_LOG",
+        [2] "_DETAILS_LOG"
+    ],
+              "log" => {
+        "offset" => 0,
+          "file" => {
+            "path" => "/Users/idragusa/test_input.log"
+        }
+    },
+             "line" => "540",
+            "input" => {
+        "type" => "log"
+    },
+             "USER" => "[edelivery@localhost]",
+              "V_1" => "[SEND_ENQUEUED]",
+        "TIMESTAMP" => "2020-06-26 11:56:24,480",
+              "ecs" => {
+        "version" => "1.0.0"
+    },
+          "message" => "2020-06-26 11:56:24,480 [edelivery@localhost] [domain1] [e68272d4-b78a-11ea-8556-6a99d1a62279@domibus.eu] [DefaultMessageListenerContainer-5]  INFO e.d.c.p.n.BackendNotificationService:540 - [BUSINESS - BUS-063] Notifying about message status change from [SEND_ENQUEUED] to [WAITING_FOR_RETRY]",
+       "MESSAGE_ID" => "[e68272d4-b78a-11ea-8556-6a99d1a62279@domibus.eu]",
+            "class" => "e.d.c.p.n.BackendNotificationService",
+       "@timestamp" => 2020-06-27T13:59:01.960Z,
+           "DOMAIN" => "[domain1]",
+            "LEVEL" => "INFO",
+              "V_2" => "[WAITING_FOR_RETRY]",
+           "THREAD" => "[DefaultMessageListenerContainer-5]",
+      "log_message" => "[BUSINESS - BUS-063] Notifying about message status change from [SEND_ENQUEUED] to [WAITING_FOR_RETRY]",
+             "host" => {
+                  "id" => "D291201D-33DA-5CEA-98F1-F074D1271176",
+                "name" => "Ioanas-MacBook-Pro.local",
+            "hostname" => "Ioanas-MacBook-Pro.local",
+        "architecture" => "x86_64",
+                  "os" => {
+              "kernel" => "19.3.0",
+               "build" => "19D76",
+              "family" => "darwin",
+            "platform" => "darwin",
+                "name" => "Mac OS X",
+             "version" => "10.15.3"
+        }
+    },
+         "@version" => "1",
+             "type" => "domibus_log",
+    "BUSINESS_CODE" => "[BUSINESS - BUS-063]",
+            "agent" => {
+        "ephemeral_id" => "197a454c-79b5-42b0-addd-67988e2468eb",
+                  "id" => "f1f22d3d-6c5c-452d-897a-431fbca1122c",
+                "type" => "filebeat",
+             "version" => "7.0.0",
+            "hostname" => "Ioanas-MacBook-Pro.local"
+    }
+}

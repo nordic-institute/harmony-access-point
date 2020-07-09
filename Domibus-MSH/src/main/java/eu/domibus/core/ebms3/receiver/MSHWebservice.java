@@ -1,14 +1,14 @@
 package eu.domibus.core.ebms3.receiver;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
+import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -20,7 +20,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
 
-import static eu.domibus.ext.domain.metrics.MetricNames.INCOMING_USER_MESSAGE;
+import static eu.domibus.core.metrics.MetricNames.INCOMING_USER_MESSAGE;
 
 /**
  * This method is responsible for the receiving of ebMS3 messages and the sending of signal messages like receipts or ebMS3 errors in return
@@ -43,13 +43,12 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
-
-    @Timer(value = INCOMING_USER_MESSAGE)
-    @Counter(INCOMING_USER_MESSAGE)
+    @Timer(clazz = MSHWebservice.class,value ="INCOMING_USER_MESSAGE")
+    @Counter(clazz = MSHWebservice.class,value ="INCOMING_USER_MESSAGE")
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
+        LOG.trace("Message received");
+
         Messaging messaging = getMessaging();
         if (messaging == null) {
             LOG.error("Error getting Messaging");

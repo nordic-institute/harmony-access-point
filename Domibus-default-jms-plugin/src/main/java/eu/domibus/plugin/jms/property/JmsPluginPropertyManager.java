@@ -5,8 +5,6 @@ import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,14 +27,15 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN_CONCURRENCY, DomibusPropertyMetadataDTO.Type.CONCURRENCY, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.GLOBAL, false, false, false, false)
-            );
+    );
 
 
     private List<DomibusPropertyMetadataDTO> readOnlyDomainProperties = Arrays.stream(new String[]{
             JMSPLUGIN_QUEUE_OUT,
             JMSPLUGIN_QUEUE_REPLY,
             JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR,
-            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR
+            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR,
+            JMS_PLUGIN_PROPERTY_PREFIX + "." + P1_IN_BODY
     })
             .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, true, false, false, false))
             .collect(Collectors.toList());
@@ -69,33 +68,4 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
         return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
-
-    /**
-     * Returns the list of nested properties names(only the first level) starting with the specified prefix
-     * <p/>
-     * Eg. Given the properties routing.rule1=Rule1 name, routing.rule1.queue=jms.queue1, routing.rule2=Rule2 name, routing.rule2.queue=jms.queue2
-     * it will return for the prefix "routing" the following list : rule1, rule2
-     *
-     * @param prefix
-     * @return
-     */
-    public List<String> getNestedProperties(String prefix) {
-        List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = domibusPropertyExtService.filterPropertiesName(property -> property.startsWith(prefix));
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No properties found starting with prefix [{}]", prefix);
-            return result;
-        }
-        LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, prefix);
-        List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
-                .map(property -> StringUtils.substringAfter(property, prefix))
-                .filter(property -> !property.contains(".")).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No first level properties found starting with prefix [{}]", prefix);
-            return result;
-        }
-        LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, prefix);
-        return firstLevelProperties;
-    }
-
 }

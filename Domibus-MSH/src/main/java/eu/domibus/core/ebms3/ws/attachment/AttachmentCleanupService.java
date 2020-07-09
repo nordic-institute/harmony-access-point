@@ -26,8 +26,6 @@ public class AttachmentCleanupService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupService.class);
 
-    @Timer
-    @Counter
     public void cleanAttachments(SOAPMessage soapMessage) {
         final Iterator iterator = soapMessage.getAttachments();
         while (iterator.hasNext()) {

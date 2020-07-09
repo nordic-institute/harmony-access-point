@@ -3,7 +3,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
-import eu.domibus.core.property.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -38,7 +38,7 @@ public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
     protected PolicyService policyService;
 
     @Autowired
-    protected DomibusPropertiesService domibusPropertiesService;
+    protected DomibusVersionService domibusVersionService;
 
     protected MessageLegConfigurationFactory messageLegConfigurationFactory;
 

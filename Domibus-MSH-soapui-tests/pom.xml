@@ -15,6 +15,14 @@
     <name>Domibus MSH SoapUI</name>
 
     <properties>
+        <!-- the soap ui specific dependencies -->
+        <com.smartbear.soapui.version>5.1.2</com.smartbear.soapui.version>
+        <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
+        <org.codehaus.groovy.eclipse-batch.version>2.4.3-01</org.codehaus.groovy.eclipse-batch.version>
+        <org.apache.poi.version>4.1.2</org.apache.poi.version>
+        <org.apache.activemq.client-all.version>5.15.13</org.apache.activemq.client-all.version>
+
+
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
         <soapui.scripting.library>${soapui.root.folder}/scripting</soapui.scripting.library>
         <soapui.ext.libraries>${soapui.root.folder}/lib</soapui.ext.libraries>
@@ -45,8 +53,8 @@
         <dependency>
             <groupId>com.smartbear.soapui</groupId>
             <artifactId>soapui</artifactId>
-            <version>5.1.2</version>
-            <scope>compile</scope>
+            <version>${com.smartbear.soapui.version}</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -54,7 +62,7 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>4.1.2</version>
+            <version>${org.apache.poi.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -62,12 +70,8 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-all</artifactId>
-            <version>5.15.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-client-all</artifactId>
-            <version>18.0.0.Final</version>
+            <version>${org.apache.activemq.client-all.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -84,19 +88,20 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>2.9.2-01</version>
+                        <version>${org.codehaus.groovy.version}</version>
+
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>2.4.3-01</version>
+                        <version>${org.codehaus.groovy.eclipse-batch.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-eclipse-compiler</artifactId>
-                <version>2.9.2-01</version>
+                <version>${org.codehaus.groovy.version}</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -115,7 +120,7 @@
                     <plugin>
                         <groupId>com.smartbear.soapui</groupId>
                         <artifactId>soapui-pro-maven-plugin</artifactId>
-                        <version>5.1.2</version>
+                        <version>${com.smartbear.soapui.version}</version>
                         <executions>
                             <execution>
                                 <phase>integration-test</phase>
@@ -184,12 +189,12 @@
                             <dependency>
                                 <groupId>commons-beanutils</groupId>
                                 <artifactId>commons-beanutils</artifactId>
-                                <version>1.9.4</version>
+                                <version>${commons-beanutils.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.smartbear.soapui</groupId>
                                 <artifactId>soapui</artifactId>
-                                <version>5.1.2</version>
+                                <version>${com.smartbear.soapui.version}</version>
                                 <exclusions>
                                     <exclusion>  <!-- declare the exclusion here -->
                                         <groupId>commons-beanutils</groupId>

@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -16,8 +17,9 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.*;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.MetricsAspect;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -61,6 +63,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Thomas Dussart
@@ -139,18 +143,26 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessagingDao messagingDao;
 
+    @Autowired
+    protected MetricRegistry metricRegistry;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @Timer
-    @Counter
+    @Timer(clazz = UserMessageHandlerServiceImpl.class,value = "handleNewUserMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class,value = "handleNewUserMessage")
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
-        final boolean selfSendingFlag = checkSelfSending(pmodeKey);
-        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "handleNewUserMessage", "internal")).time();
+        try {
+            final boolean selfSendingFlag = checkSelfSending(pmodeKey);
+            final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
 
-        handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
+            handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
 
-        return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
+            return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
+        }finally {
+            persistReceivedMessage.stop();
+        }
     }
 
     @Override
@@ -197,6 +209,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
 
     protected void handleIncomingMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
+        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "handleIncomingMessage", ".intro")).time();
         soapUtil.logMessage(request);
 
         if (selfSending) {
@@ -210,6 +223,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         checkCharset(messaging);
 
         LOG.debug("Message duplication status:{}", messageExists);
+        persistReceivedMessage.stop();
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
@@ -286,8 +300,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * {@inheritDoc}
      */
     @Override
-    @Timer
-    @Counter
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getCollaborationInfo().getService().getValue(), message.getCollaborationInfo().getAction());
     }
@@ -335,11 +347,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
         }
 
+        com.codahale.metrics.Timer.Context surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".handlePayloads")).time();
         handlePayloads(request, userMessage);
+        surrounding.stop();
 
+        surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".handleDecompression")).time();
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
+        surrounding.stop();
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
+        surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".saveReceivedMessage")).time();
+        String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
+        surrounding.stop();
+        return s;
     }
 
     /**
