@@ -161,6 +161,8 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             authUtils.isSuperAdmin();
             result = true;
+            globalPropertyMetadataManager.hasKnownProperty(name);
+            result = true;
         }};
 
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
@@ -274,6 +276,17 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Verifications() {{
             domibusPropertyBlacklistValidator.validate(prop);
         }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void getProperty_unknown() {
+        String propName = "some.unknown.property";
+        new Expectations() {{
+            globalPropertyMetadataManager.hasKnownProperty(propName);
+            result = false;
+        }};
+
+        configurationPropertyResourceHelper.getProperty(propName);
     }
 
     private <T> T mockExecutorSubmit() throws Exception {

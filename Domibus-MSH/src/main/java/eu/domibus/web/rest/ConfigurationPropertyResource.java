@@ -6,8 +6,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
-import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
-import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
@@ -76,8 +74,9 @@ public class ConfigurationPropertyResource extends BaseResource {
     /**
      * Sets the specified value for the specified property name
      * We skip the default blacklist validator because some properties have values that ae normally in the black-list
-     * @param propertyName the name of the property
-     * @param isDomain tells if it is set in a domain context
+     *
+     * @param propertyName  the name of the property
+     * @param isDomain      tells if it is set in a domain context
      * @param propertyValue the value of the property
      */
     @PutMapping(path = "/{propertyName:.+}")
