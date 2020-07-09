@@ -89,8 +89,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(INCOMING_PULL_REQUEST_RECEIPT)
-    @Counter(INCOMING_PULL_REQUEST_RECEIPT)
+    @Timer(clazz = IncomingPullReceiptHandler.class,value ="INCOMING_PULL_REQUEST_RECEIPT")
+    @Counter(clazz = IncomingPullReceiptHandler.class,value ="INCOMING_PULL_REQUEST_RECEIPT")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.trace("before pull receipt.");
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);

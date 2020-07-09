@@ -36,8 +36,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected AuthorizationService authorizationService;
 
     @Override
-    @Timer
-    @Counter
+    @Timer(clazz = IncomingUserMessageHandler.class,value ="processMessage")
+    @Counter(clazz = IncomingUserMessageHandler.class,value ="processMessage")
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());

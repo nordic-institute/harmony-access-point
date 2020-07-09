@@ -105,8 +105,8 @@ public class PullMessageSender {
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
-    @Timer(OUTGOING_PULL_REQUEST)
-    @Counter(OUTGOING_PULL_REQUEST)
+    @Timer(clazz = PullMessageSender.class,value ="OUTGOING_PULL_REQUEST")
+    @Counter(clazz = PullMessageSender.class,value ="OUTGOING_PULL_REQUEST")
     public void processPullRequest(final Message map) {
         if (domibusStatusService.isNotReady()) {
             return;

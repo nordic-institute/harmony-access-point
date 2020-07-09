@@ -6,6 +6,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
@@ -42,8 +43,8 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
-    @Timer(value = INCOMING_USER_MESSAGE)
-    @Counter(INCOMING_USER_MESSAGE)
+    @Timer(clazz = MSHWebservice.class,value ="INCOMING_USER_MESSAGE")
+    @Counter(clazz = MSHWebservice.class,value ="INCOMING_USER_MESSAGE")
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");

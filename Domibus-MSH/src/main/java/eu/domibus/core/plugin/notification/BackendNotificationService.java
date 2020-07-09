@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
@@ -16,6 +17,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
+import eu.domibus.core.metrics.MetricsAspect;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.CriteriaFactory;
 import eu.domibus.core.plugin.routing.IRoutingCriteria;
@@ -51,6 +53,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
 /**
@@ -130,6 +133,9 @@ public class BackendNotificationService {
 
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
+
+    @Autowired
+    protected MetricRegistry metricRegistry;
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
@@ -271,6 +277,7 @@ public class BackendNotificationService {
     }
 
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
+        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(BackendNotificationService.class, "notifyMessageReceived")).time();
         if (isPluginNotificationDisabled()) {
             return;
         }
@@ -280,6 +287,7 @@ public class BackendNotificationService {
         }
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<String, Object>());
+        persistReceivedMessage.stop();
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {

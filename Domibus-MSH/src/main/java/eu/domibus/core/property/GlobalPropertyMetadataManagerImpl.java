@@ -116,8 +116,6 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     @Override
-    @Counter
-    @Timer
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         loadPropertiesIfNotFound(propertyName);
         if (hasProperty(internalPropertyMetadataMap, propertyName)) {

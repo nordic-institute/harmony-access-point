@@ -18,11 +18,11 @@ public @interface Timer {
     /**
      * @return the timer name.
      */
-    MetricNames value() default MetricNames.VOID;
+    String value();
 
     /**
      * @return the timer class.
      */
-    Class<?> clazz() default Default.class;
+    Class<?> clazz();
 }
 

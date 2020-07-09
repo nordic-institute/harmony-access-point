@@ -29,52 +29,39 @@ public class MetricsAspect {
 
     @Autowired
     private MetricRegistry metricRegistry;
+
     @Around("@annotation(timer)")
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(MetricsAspect.class, "surrounding","_counter"));
-        methodCounter.inc();
-        com.codahale.metrics.Timer surrounding = metricRegistry.timer(name(MetricsAspect.class, "surrounding","_timer"));
-        com.codahale.metrics.Timer.Context surroundingContext = surrounding.time();
-        com.codahale.metrics.Timer.Context context = null;
-        final Class<?> clazz = timer.clazz();
-        final MetricNames timerName = timer.value();
-        MethodSignature signature = (MethodSignature) pjp.getSignature();
-        Method method = signature.getMethod();
-        Class<?> declaringClass = method.getDeclaringClass();
-        LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
-        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName,method,declaringClass,"_timer"));
+        Class<?> clazz = timer.clazz();
+        String value = timer.value();
+        //LOG.trace("adding a timer with name:[{}] in class:[{}]", value, clazz.getName());
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(getMetricsName(clazz, value, "_timer")).time();
         try {
-            context = methodTimer.time();
             return pjp.proceed();
         } finally {
-            if (context != null) {
-                context.stop();
+            if (methodTimer != null) {
+                methodTimer.stop();
             }
-            surroundingContext.stop();
-            methodCounter.dec();
         }
     }
 
-    private String getMetricsName(Class<?> clazz, MetricNames timerName, Method method, Class<?> declaringClass,String suffix) {
-        if(MetricNames.VOID.equals(timerName)){
+    private String getMetricsName(Class<?> clazz, String name,String suffix) {
+       /* if(MetricNames.VOID.equals(timerName)){
             return name(declaringClass, method.getName()+suffix);
         }
         if (Default.class.isAssignableFrom(clazz)) {
             return timerName.name()+suffix;
-        } else {
-            return name(clazz, timerName.name()+suffix);
-        }
+        } else {*/
+        return name(clazz, name + suffix);
+
     }
 
     @Around("@annotation(counter)")
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
-        final Class<?> clazz = counter.clazz();
-        final MetricNames counterName = counter.value();
-        MethodSignature signature = (MethodSignature) pjp.getSignature();
-        Method method = signature.getMethod();
-        Class<?> declaringClass = method.getDeclaringClass();
-        LOG.trace("adding a counter with name:[{}] in class:[{}]", counterName, clazz.getName());
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName,method,declaringClass,"_counter"));
+        Class<?> clazz = counter.clazz();
+        String value = counter.value();
+      //  LOG.trace("adding a counter with name:[{}] in class:[{}]", clazz, value);
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz,value, "_counter"));
         try {
             methodCounter.inc();
             return pjp.proceed();

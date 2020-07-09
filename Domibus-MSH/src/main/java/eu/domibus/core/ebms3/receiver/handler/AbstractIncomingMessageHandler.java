@@ -46,8 +46,8 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     protected PModeProvider pModeProvider;
 
     @Override
-    @Timer
-    @Counter
+    @Timer(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
+    @Counter(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         SOAPMessage responseMessage = null;
         String pmodeKey = null;
