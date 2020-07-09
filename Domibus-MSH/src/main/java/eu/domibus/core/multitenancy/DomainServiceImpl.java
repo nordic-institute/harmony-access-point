@@ -103,7 +103,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public void resetDomains() {
+    public synchronized void resetDomains() {
         this.domains = null;
         this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
         this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
