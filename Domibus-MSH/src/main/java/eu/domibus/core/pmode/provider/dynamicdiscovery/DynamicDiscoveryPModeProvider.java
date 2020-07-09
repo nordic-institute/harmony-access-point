@@ -401,6 +401,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      */
     protected Collection<eu.domibus.common.model.configuration.Process> findCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
         LOG.debug("Finding candidate processes.");
+        if(CollectionUtils.isEmpty(dynamicResponderProcesses) && CollectionUtils.isEmpty(dynamicInitiatorProcesses) ){
+            LOG.debug("init dynamic discovery ..... ");
+            this.init();
+            LOG.debug("refresh ..... ");
+            refresh();
+        }
         Collection<eu.domibus.common.model.configuration.Process> candidates = new HashSet<>();
         Collection<eu.domibus.common.model.configuration.Process> processes = MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
 
