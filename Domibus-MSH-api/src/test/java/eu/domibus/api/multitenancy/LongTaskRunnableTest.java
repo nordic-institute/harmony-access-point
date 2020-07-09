@@ -4,6 +4,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
  * @since 4.1
  */
 @RunWith(JMockit.class)
+@Ignore //TODO:EDELIVERY-6781
 public class LongTaskRunnableTest {
 
     @Injectable
