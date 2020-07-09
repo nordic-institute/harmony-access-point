@@ -479,14 +479,14 @@ public class PartyServiceImpl implements PartyService {
     protected void validatePartyCertificates(Map<String, String> partyToCertificateMap) {
         int maxSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
 
-        List<Map.Entry<String, String>> entries = partyToCertificateMap.entrySet().stream()
+        List<Map.Entry<String, String>> wrongCertificates = partyToCertificateMap.entrySet().stream()
                 .filter(entry -> entry.getValue().length() > maxSize)
                 .collect(toList());
-        if (entries.size() == 0) {
+        if (wrongCertificates.size() == 0) {
             return;
         }
 
-        List<ValidationIssue> errors = entries.stream()
+        List<ValidationIssue> errors = wrongCertificates.stream()
                 .map(entry -> new ValidationIssue(
                                 entry.getKey() + " party certificate: " + "The size " + entry.getValue().length() + " exceeds the maximum size limit of " + maxSize,
                                 ValidationIssue.Level.ERROR

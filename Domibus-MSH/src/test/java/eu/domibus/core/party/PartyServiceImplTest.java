@@ -13,6 +13,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 import static org.junit.Assert.*;
 
 /**
@@ -1662,8 +1664,8 @@ public class PartyServiceImplTest {
 
     @Test
     public void test_getConfiguration_Exception(final @Mocked PModeArchiveInfo pModeArchiveInfo,
-                                      final @Mocked ConfigurationRaw configurationRaw,
-                                      final @Mocked byte[] pmodeContent) throws Exception {
+                                                final @Mocked ConfigurationRaw configurationRaw,
+                                                final @Mocked byte[] pmodeContent) throws Exception {
         final long pModeId = 1;
 
         new Expectations(partyService) {{
@@ -1708,5 +1710,47 @@ public class PartyServiceImplTest {
         eu.domibus.common.model.configuration.Party foundParty = partyService.getParty(partyName, partyList);
         Assert.assertNotNull(foundParty);
         Assert.assertTrue(partyName.equalsIgnoreCase(foundParty.getName()));
+    }
+
+    @Test
+    public void validatePartyCertificates_errors() {
+        Map<String, String> partyToCertificateMap = new HashMap<>();
+        partyToCertificateMap.put("party1", "l/kjgslkgjrlgjkerljkh");
+        partyToCertificateMap.put("party2", "l/kjgslkgjrlgjkerljkhgertwerywey");
+        partyToCertificateMap.put("party3", "l/kjgslkgjrlgjkerljkhsghsrtuwruw6uw65iuw5y5y");
+
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+            result = 25;
+        }};
+
+        try {
+            partyService.validatePartyCertificates(partyToCertificateMap);
+            Assert.fail();
+        } catch (PModeValidationException ex) {
+            Assert.assertEquals(2, ex.getIssues().size());
+            Assert.assertEquals(ValidationIssue.class, ex.getIssues().get(0).getClass());
+            Assert.assertTrue(ex.getIssues().stream().anyMatch(el -> el.getMessage().contains("party2")));
+            Assert.assertTrue(ex.getIssues().stream().anyMatch(el -> el.getMessage().contains("party3")));
+        }
+    }
+
+    @Test
+    public void validatePartyCertificates_OK() {
+        Map<String, String> partyToCertificateMap = new HashMap<>();
+        partyToCertificateMap.put("party1", "l/kjgslkgjrlgjkerljkh");
+        partyToCertificateMap.put("party2", "l/kjgslkgjrlgjkerljkhgertwerywey");
+        partyToCertificateMap.put("party3", "l/kjgslkgjrlgjkerljkhsghsrtuwruw6uw65iuw5y5y");
+
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+            result = 225;
+        }};
+
+        try {
+            partyService.validatePartyCertificates(partyToCertificateMap);
+        } catch (PModeValidationException ex) {
+            Assert.fail();
+        }
     }
 }
