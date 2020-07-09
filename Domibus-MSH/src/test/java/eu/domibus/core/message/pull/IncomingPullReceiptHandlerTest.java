@@ -33,6 +33,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -282,9 +283,13 @@ public class IncomingPullReceiptHandlerTest {
 
             incomingPullReceiptHandler.getSoapMessage(messageId, withAny(legConfiguration), withAny(userMessage));
             result = new ReliabilityException(DomibusCoreErrorCode.DOM_004, "test");
+
+            messageBuilder.getSoapMessage((EbMS3Exception)any);
+            result = soapMessage;
         }};
 
-        incomingPullReceiptHandler.handlePullRequestReceipt(request, messaging);
+        SOAPMessage response = incomingPullReceiptHandler.handlePullRequestReceipt(request, messaging);
+        Assert.assertNotNull(response);
 
         new Verifications() {{
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, userMessageLog, legConfiguration, userMessage);
