@@ -14,6 +14,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.process.Process;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
@@ -89,6 +90,9 @@ public class PartyServiceImplTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
     public void setUp() {
@@ -1083,6 +1087,7 @@ public class PartyServiceImplTest {
         partyToCertificateMap.put("party_1", null);
 
         new Expectations(partyService) {{
+            partyService.validatePartyCertificates(partyToCertificateMap);
             partyService.replaceParties((List<Party>) any, configuration);
             result = new PartyServiceImpl.ReplacementResult(configuration, removedParties);
         }};
@@ -1175,6 +1180,8 @@ public class PartyServiceImplTest {
         partyToCertificateMap.put("party_1", "certificate_1");
 
         new Expectations(partyService) {{
+            partyService.validatePartyCertificates(partyToCertificateMap);
+
             partyService.replaceParties((List<Party>) any, configuration);
             result = new PartyServiceImpl.ReplacementResult(configuration, removedParties);
         }};
@@ -1231,6 +1238,7 @@ public class PartyServiceImplTest {
         partyToCertificateMap.put("party_1", "certificate_1");
 
         new Expectations(partyService) {{
+            partyService.validatePartyCertificates(partyToCertificateMap);
             partyService.replaceParties((List<Party>) any, configuration);
             result = new PartyServiceImpl.ReplacementResult(configuration, removedParties);
         }};

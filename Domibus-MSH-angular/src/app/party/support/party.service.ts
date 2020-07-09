@@ -6,6 +6,7 @@ import {FileUploadValidatorService} from '../../common/file-upload-validator.ser
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 
@@ -117,10 +118,10 @@ export class PartyService {
 
   private async validateCertificates(partyList: PartyResponseRo[]) {
     const parties = partyList.filter(party => party.certificateContent != null);
-    await this.validatePartiesCertificates(parties);
+    await this.validatePartiesCertificate(parties);
   }
 
-  private async validatePartiesCertificates(parties: PartyResponseRo[]) {
+  private async validatePartiesCertificate(parties: PartyResponseRo[]) {
     let errors = await Promise.all(
       parties.map(async (party: PartyResponseRo) => {
         try {

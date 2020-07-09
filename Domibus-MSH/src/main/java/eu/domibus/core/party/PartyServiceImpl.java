@@ -44,6 +44,7 @@ import static java.util.stream.Collectors.*;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
