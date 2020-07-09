@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -28,6 +29,9 @@ public class ConfigurationPropertyResourceTest {
 
     @Injectable
     private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
+
+    @Injectable
+    private ErrorHandlerService errorHandlerService;
 
     @Injectable
     private DomainContextProvider domainContextProvider;
