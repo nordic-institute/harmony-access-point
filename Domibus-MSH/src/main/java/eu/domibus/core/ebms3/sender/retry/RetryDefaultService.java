@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLog;
@@ -89,20 +89,19 @@ public class RetryDefaultService implements RetryService {
         LOG.trace("Enqueueing message for retrial [{}]", messageId);
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        boolean setAsExpired = false;
-        try {
-            setAsExpired = updateRetryLoggingService.failIfExpired(userMessage);
-        } catch (EbMS3Exception e) {
-            LOG.warn("Message was not enqueued: could not find LegConfiguration for message [{}]", messageId, e);
+
+        LegConfiguration legConfiguration = updateRetryLoggingService.failIfInvalidConfig(userMessage);
+        if (legConfiguration == null) {
             return;
         }
+
+        boolean setAsExpired = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
         if (setAsExpired) {
             LOG.debug("Message [{}] was marked as expired", messageId);
             return;
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         userMessageService.scheduleSending(userMessage, userMessageLog);
-
     }
 
 

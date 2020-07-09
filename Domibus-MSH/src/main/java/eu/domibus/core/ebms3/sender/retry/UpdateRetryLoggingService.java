@@ -8,6 +8,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -89,18 +91,13 @@ public class UpdateRetryLoggingService {
      * Set a message as failed if it has expired
      *
      * @param userMessage The userMessage to be checked for expiration
+     * @param legConfiguration
      * @return true in case the message was set as expired
-     * @throws EbMS3Exception If the LegConfiguration could not found
      */
     @Transactional
-    public boolean failIfExpired(UserMessage userMessage) throws EbMS3Exception {
+    public boolean failIfExpired(UserMessage userMessage, @NotNull LegConfiguration legConfiguration) {
         final String messageId = userMessage.getMessageInfo().getMessageId();
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-
-        final String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-        LOG.debug("PMode key found : [{}]", pModeKey);
-        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-        LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
         boolean expired = isExpired(legConfiguration, userMessageLog);
         if (!expired) {
@@ -108,14 +105,51 @@ public class UpdateRetryLoggingService {
             return false;
         }
         LOG.debug("Message [{}] is expired", messageId);
+        setMessageFailed(userMessage, userMessageLog);
+        return true;
+    }
+
+    @Transactional
+    public LegConfiguration failIfInvalidConfig(UserMessage userMessage) {
+        final String messageId = userMessage.getMessageInfo().getMessageId();
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+
+        LegConfiguration legConfiguration = getLegConfiguration(userMessage);
+        if (legConfiguration == null) {
+            LOG.warn("Message was not enqueued: could not find LegConfiguration for message [{}]", messageId);
+            setMessageFailed(userMessage, userMessageLog);
+        }
+        return legConfiguration;
+    }
+
+    protected void setMessageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
+        final String messageId = userMessage.getMessageInfo().getMessageId();
         messageFailed(userMessage, userMessageLog);
 
         if (userMessage.isUserMessageFragment()) {
             userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
-
         }
-        return true;
+    }
 
+    protected LegConfiguration getLegConfiguration(UserMessage userMessage) {
+        String pModeKey;
+        LegConfiguration legConfiguration = null;
+        final String messageId = userMessage.getMessageInfo().getMessageId();
+        try {
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        } catch (EbMS3Exception e) {
+            LOG.debug("PMode key not found for message: [{}]", messageId, e);
+            return null;
+        }
+        LOG.debug("PMode key found: [{}]", pModeKey);
+
+        try {
+            legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+        } catch (ConfigurationException e) {
+            LOG.debug("LegConfiguration not found for message: [{}]", messageId, e);
+        }
+        return legConfiguration;
     }
 
 
@@ -134,11 +168,7 @@ public class UpdateRetryLoggingService {
             updateNextAttemptAndNotify(legConfiguration, messageStatus, userMessageLog);
         } else { // max retries reached, mark message as ultimately failed (the message may be pushed back to the send queue by an administrator but this send completely failed)
             final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-            messageFailed(userMessage, userMessageLog);
-
-            if (userMessage.isUserMessageFragment()) {
-                userMessageService.scheduleSplitAndJoinSendFailed(userMessage.getMessageFragment().getGroupId(), "Message fragment [" + messageId + "] has failed to be sent");
-            }
+            setMessageFailed(userMessage, userMessageLog);
         }
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
