@@ -4,6 +4,7 @@ package eu.domibus.core.ebms3.sender.retry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -112,14 +113,22 @@ public class RetryDefaultServiceTest {
 
     @Test
     public void doEnqueueMessageWithExpiredMessage(@Injectable UserMessage userMessage,
-                                                   @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+                                                   @Injectable UserMessageLog userMessageLog,
+                                                   @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         String messageId = "123";
 
         new Expectations() {{
+
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            updateRetryLoggingService.failIfExpired(userMessage);
+            updateRetryLoggingService.getLegConfiguration(userMessage);
+            result = legConfiguration;
+
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            result = false;
+
+            updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = true;
         }};
 
@@ -133,14 +142,21 @@ public class RetryDefaultServiceTest {
 
     @Test
     public void doEnqueueMessage(@Injectable UserMessage userMessage,
-                                 @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
+                                 @Injectable UserMessageLog userMessageLog,
+                                 @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         String messageId = "123";
 
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            updateRetryLoggingService.failIfExpired(userMessage);
+            updateRetryLoggingService.getLegConfiguration(userMessage);
+            result = legConfiguration;
+
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            result = false;
+
+            updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = false;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
