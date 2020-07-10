@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
+ * @author Catalin Enache
  */
 @Service
 public class RetryDefaultService implements RetryService {
@@ -90,8 +91,10 @@ public class RetryDefaultService implements RetryService {
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
-        LegConfiguration legConfiguration = updateRetryLoggingService.failIfInvalidConfig(userMessage);
-        if (legConfiguration == null) {
+        final LegConfiguration legConfiguration  = updateRetryLoggingService.getLegConfiguration(userMessage);
+
+        boolean invalidConfig = updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+        if (invalidConfig) {
             LOG.warn("Message was not enqueued: invalid LegConfiguration for message [{}]", messageId);
             return;
         }

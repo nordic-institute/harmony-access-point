@@ -118,11 +118,15 @@ public class RetryDefaultServiceTest {
         String messageId = "123";
 
         new Expectations() {{
+
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            updateRetryLoggingService.failIfInvalidConfig(userMessage);
+            updateRetryLoggingService.getLegConfiguration(userMessage);
             result = legConfiguration;
+
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            result = false;
 
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = true;
@@ -146,8 +150,11 @@ public class RetryDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            updateRetryLoggingService.failIfInvalidConfig(userMessage);
+            updateRetryLoggingService.getLegConfiguration(userMessage);
             result = legConfiguration;
+
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            result = false;
 
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = false;

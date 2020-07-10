@@ -95,7 +95,7 @@ public class UpdateRetryLoggingService {
      * @return true in case the message was set as expired
      */
     @Transactional
-    public boolean failIfExpired(UserMessage userMessage, @NotNull LegConfiguration legConfiguration) {
+    public boolean failIfExpired(UserMessage userMessage, final @NotNull LegConfiguration legConfiguration) {
         final String messageId = userMessage.getMessageInfo().getMessageId();
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
 
@@ -110,15 +110,14 @@ public class UpdateRetryLoggingService {
     }
 
     @Transactional
-    public LegConfiguration failIfInvalidConfig(UserMessage userMessage) {
+    public boolean failIfInvalidConfig(UserMessage userMessage, final LegConfiguration legConfiguration) {
         final String messageId = userMessage.getMessageInfo().getMessageId();
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-
-        LegConfiguration legConfiguration = getLegConfiguration(userMessage);
         if (legConfiguration == null) {
             setMessageFailed(userMessage, userMessageLog);
+            return true;
         }
-        return legConfiguration;
+        return false;
     }
 
     protected void setMessageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -130,7 +129,7 @@ public class UpdateRetryLoggingService {
         }
     }
 
-    protected LegConfiguration getLegConfiguration(UserMessage userMessage) {
+    public LegConfiguration getLegConfiguration(UserMessage userMessage) {
         String pModeKey;
         LegConfiguration legConfiguration = null;
         final String messageId = userMessage.getMessageInfo().getMessageId();
