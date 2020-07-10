@@ -1,8 +1,8 @@
 /**
- * @author Thomas Dussart
+ * @author Thomas Dussart, Ion Perpegel
  * @since 4.0
  * <p>
- * Rest entry point to retrieve the audit logs.
+ * DTO class holding party information
  */
 export class PartyResponseRo {
 
