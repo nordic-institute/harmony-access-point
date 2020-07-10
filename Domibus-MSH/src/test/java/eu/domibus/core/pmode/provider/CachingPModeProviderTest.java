@@ -401,9 +401,7 @@ public class CachingPModeProviderTest {
 
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+
         // When
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 

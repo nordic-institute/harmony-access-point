@@ -36,10 +36,8 @@
         <meps>
             <mep name="onewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayonewayoneoneway"
                  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-            <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
             <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-            <binding name="pushAndPush"
-                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+            <binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
         </meps>
         <properties>
             <property name="originalSenderProperty"
