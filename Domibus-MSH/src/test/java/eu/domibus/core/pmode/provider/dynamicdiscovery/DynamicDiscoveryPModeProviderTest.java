@@ -253,6 +253,7 @@ public class DynamicDiscoveryPModeProviderTest {
         Set<PartyId> partyId = null;
         DynamicDiscoveryPModeProvider classUnderTest = mock(DynamicDiscoveryPModeProvider.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         doReturn(testData).when(classUnderTest).getConfiguration();
+        doNothing().when(classUnderTest).refresh();
         Whitebox.setInternalState(classUnderTest, "domainProvider", domainProvider);
         Whitebox.setInternalState(classUnderTest, "domibusPropertyProvider", domibusPropertyProvider);
 
@@ -351,6 +352,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         DynamicDiscoveryPModeProvider classUnderTest = mock(DynamicDiscoveryPModeProvider.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         doReturn(testData).when(classUnderTest).getConfiguration();
+        doNothing().when(classUnderTest).refresh();
         classUnderTest.dynamicResponderProcesses = classUnderTest.findDynamicResponderProcesses();
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
