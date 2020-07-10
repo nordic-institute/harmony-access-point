@@ -483,6 +483,7 @@ public class PartyServiceImpl implements PartyService {
                 .filter(entry -> entry.getValue().length() > maxSize)
                 .collect(toList());
         if (wrongCertificates.size() == 0) {
+            LOG.trace("All certificates pass max length validation");
             return;
         }
 
