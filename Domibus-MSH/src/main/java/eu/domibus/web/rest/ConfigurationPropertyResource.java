@@ -65,7 +65,7 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     /**
      * Sets the specified value for the specified property name
-     * We skip the default blacklist validator because some properties have values that ae normally in the black-list
+     * We skip the default blacklist validator because some properties have values that are normally in the black-list
      * @param propertyName the name of the property
      * @param isDomain tells if it is set in a domain context
      * @param propertyValue the value of the property
