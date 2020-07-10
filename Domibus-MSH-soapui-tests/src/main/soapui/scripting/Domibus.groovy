@@ -1090,7 +1090,7 @@ def findNumberOfDomain(String inputSite) {
         def testFile = new File(pathToPropertyFile)
         if (!testFile.exists()) {
             testRunner.fail("File [${pathToPropertyFile}] does not exist. Can't change value.")
-            return null
+            return
         } else log.info "  changeDomibusProperties  [][]  File [${pathToPropertyFile}] exists."
 
         // Create backup file if already not created
@@ -1115,13 +1115,11 @@ def findNumberOfDomain(String inputSite) {
             testFile.eachLine{
                 line, n ->
                 n++
-                if(line =~ /^\s*$ { propertyToChangeName }
-                   = /) {
+                if(line =~ /^\s*${propertyToChangeName}=/) {
                     log.info "  changeDomibusProperties  [][]  In line $n searched property was found. Line value is: $line"
                     found++
                 }
-                if(line =~ ~/#+\s*$ { propertyToChangeName }
-                   = .*/) {
+                if(line =~ ~/#+\s*${propertyToChangeName}=.*/) {
                     log.info "  changeDomibusProperties  [][]  In line $n commented searched property was found. Line value is: $line"
                     foundInCommentedRow++
                 }
@@ -1129,7 +1127,7 @@ def findNumberOfDomain(String inputSite) {
 
             if (found > 1) {
                 testRunner.fail("The search string ($propertyToChangeName=) was found ${found} times in file [${pathToPropertyFile}]. Expect only one assigment - check if configuration file is not corrupted.")
-                return null
+                return
             }
             // If property is present in file change it value
             if(found)
@@ -1139,7 +1137,7 @@ def findNumberOfDomain(String inputSite) {
             fileContent = fileContent.replaceFirst(/(?m)^#+\s*($ { propertyToChangeName }
                                                                = )(.*)/) { all, paramName, value -> "${paramName}${newValueToAssign}" } else {
                 testRunner.fail("The search string ($propertyToChangeName) was not found in file [${pathToPropertyFile}]. No changes would be applied - properties file restored.")
-                return null
+                return
             }
             log.info "  changeDomibusProperties  [][]  In [${pathToPropertyFile}] file property ${propertyToChangeName} was changed to value ${newValueToAssign}"
         } //loop end
@@ -1160,7 +1158,7 @@ def findNumberOfDomain(String inputSite) {
         def backupFileHandler = new File(backupFile)
         if (!backupFileHandler.exists()) {
             testRunner.fail("CRITICAL ERROR: File [${backupFile}] does not exist.")
-            return null
+            return
         } else {
             log.info "  restoreDomibusPropertiesFromBackup  [][]  Restore properties file from existing backup"
             copyFile(backupFile, pathToPropertyFile, log)
@@ -1168,7 +1166,7 @@ def findNumberOfDomain(String inputSite) {
                 log.info "  restoreDomibusPropertiesFromBackup  [][]  Successufuly restory configuration from backup file and backup file was removed"
             } else {
                 testRunner.fail "Not able to delete configuration backup file"
-                return null
+                return
             }
         }
     }
@@ -1319,7 +1317,7 @@ def findNumberOfDomain(String inputSite) {
         def authenticationPwd=authPwd;
         def roleAC=null;
         def userDeleted=false;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1505,7 +1503,7 @@ def findNumberOfDomain(String inputSite) {
         def entityId=null;
 		def active=null;
 		def suspended=null;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1567,7 +1565,7 @@ def findNumberOfDomain(String inputSite) {
         def entityId=null;
 		def active=null;
 		def suspended=null;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1621,7 +1619,7 @@ def findNumberOfDomain(String inputSite) {
 //---------------------------------------------------------------------------------------------------------------------------------
     static def userExists(usersMap, String targetedUser, log, boolean plugin = false) {
         debugLog("  ====  Calling \"userExists\".", log)
-        def i = 0;
+        int i = 0;
         def userFound = false;
         if (plugin) {
             debugLog("  userExists  [][]  Checking if plugin user \"$targetedUser\" exists.", log)
@@ -1712,7 +1710,7 @@ static def ifWindowsEscapeJsonString(json) {
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
 		def userStatus = null;
-		def i = 0;
+		int i = 0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1744,7 +1742,7 @@ static def ifWindowsEscapeJsonString(json) {
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
 		def userStatus = null;
-		def i = 0;
+		int i = 0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1798,17 +1796,19 @@ static def ifWindowsEscapeJsonString(json) {
     static def formatFilters(filtersMap, String filterChoice, context, log, String extraCriteria = null) {
         debugLog("  ====  Calling \"formatFilters\".", log)
         log.info "  formatFilters  [][]  Analysing backends filters order ..."
-        def swapBck = null;
-        def i = 0;
-        assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details.";
+        def swapBck = null
+        def i = 0
+		
+        assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details."
         debugLog("  formatFilters  [][]  FILTERS:" + filtersMap, log)
 
         // Single backend: no action needed
         if (filtersMap.messageFilterEntries.size() == 1) {
-            return "ok";
+            return "ok"
         }
-        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log);
-		debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log);
+        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log)
+		debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log)
+		
         while (i < filtersMap.messageFilterEntries.size()) {
             assert(filtersMap.messageFilterEntries[i] != null),"Error:formatFilters: Error while parsing filter details.";
             if (filtersMap.messageFilterEntries[i].backendName.toLowerCase() == filterChoice.toLowerCase()) {
@@ -1818,15 +1818,19 @@ static def ifWindowsEscapeJsonString(json) {
                         return "correct";
                     }
                     debugLog("  formatFilters  [][]  switch $i element", log)
-                    swapBck = filtersMap.messageFilterEntries[0];
-                    filtersMap.messageFilterEntries[0] = filtersMap.messageFilterEntries[i];
-                    filtersMap.messageFilterEntries[i] = swapBck;
-                    return filtersMap;
+                    swapBck = filtersMap.messageFilterEntries[0]
+                    filtersMap.messageFilterEntries[0] = filtersMap.messageFilterEntries[i]
+                    filtersMap.messageFilterEntries[i] = swapBck
+					// swap entityId 
+					def tmpEntryId = filtersMap.messageFilterEntries[i].entityId
+					filtersMap.messageFilterEntries[i].entityId = filtersMap.messageFilterEntries[0].entityId
+					filtersMap.messageFilterEntries[0].entityId = tmpEntryId
+                    return filtersMap.messageFilterEntries
                 }
             }
-            i++;
+            i++
         }
-        return "ko";
+        return "ko"
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         static def setMessageFilters(String side, String filterChoice, context, log, domainValue="Default", String authUser=null, authPwd=null, String extraCriteria=null){
@@ -2014,7 +2018,7 @@ static def ifWindowsEscapeJsonString(json) {
         // Return multitenancy mode
         static def getMultitenancyFromSide(String side, context, log) {
         debugLog("  ====  Calling \"getMultitenancyFromSide\".", log)
-        def mode = 0;
+        int mode = 0;
         switch (side.toUpperCase()) {
         case "C2":
         case "BLUE":
@@ -2228,135 +2232,6 @@ def String jmsPropertiesPrefix(inputName) {
 		}	
 	return domId
 }	
-/*
-def InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
-        InitialContext ic = null;
-        if (providerUrl != null) {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put(Context.PROVIDER_URL, providerUrl);
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
-            if (userName != null) {
-                env.put(Context.SECURITY_PRINCIPAL, userName);
-            }
-            if (password != null) {
-                env.put(Context.SECURITY_CREDENTIALS, password);
-            }
-            ic = new InitialContext(env);
-        } else {
-            ic = new InitialContext();
-        }
-        return ic;
-    }
-*/
-def connectToWeblogic(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE) {
-
-    /*
-    def MapMessage messageMap = null
-	try {
-	jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD);
-
-	QueueConnectionFactory cf = jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI);
-	QueueConnection qc = cf.createQueueConnection();
-	QueueSession session = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-
-	Queue queue = jmsConnectionHandler.lookup(QUEUE);
-	jmsSender =  session.createSender(queue);
-
-	messageMap = session.createMapMessage();
-	} catch (Exception ex) {
-		log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
-				"PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
-				"CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
-		assert 0,"Exception occurred when trying to connect: " + ex;
-	}
-	return messageMap
-
-     */
-}
-def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String QUEUE) {
-	/*def MapMessage messageMap = null
-	try {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
-		jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD) //username and password of the default JMS broker
-		QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE)
-		Destination destination = session.createQueue(QUEUE)
-		jmsSender = (MessageProducer) session.createProducer(destination)
-		jmsSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
-		messageMap = session.createMapMessage()
-		} catch (Exception ex) {
-			log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Tomcat deployment failed. " +
-					"FACTORY_URL: $FACTORY_URL | USER: $USER | PASSWORD: $PASSWORD | " +
-					"QUEUE: $QUEUE"
-			assert 0,"Exception occurred when trying to connect: " + ex;
-		}
-	return messageMap
-
-	 */
-}
-
-def jmsConnectionHandlerInitializeC2() {
-	jmsConnectionHandlerInitialize("C2")
-}
-
-def jmsConnectionHandlerInitializeC3() {
-	jmsConnectionHandlerInitialize("C3")
-}
-
-def jmsConnectionHandlerInitialize(String inputName) {
-	/*def MapMessage messageMap = null
-	
-	log.info "Starting JMS message sending"   
-	String domId = jmsPropertiesPrefix(inputName)
-	log.info "Gather properties for ${domId}"
-
-    def jmsServer = context.expand("\${#Project#jmsServer}").toLowerCase()
-    switch (jmsServer) {
-    		case "weblogic":
-				log.info ("JmsServer Weblogic. Reading connection details.");
-				String PROVIDER_URL = context.expand("\${#Project#${domId}WeblogicJmsUrl}")  
-				String USER = context.expand("\${#Project#${domId}WeblogicJmsUser}")
-				String PASSWORD = context.expand("\${#Project#${domId}WeblogicJmsPassword}")
-				String CONNECTION_FACTORY_JNDI = context.expand("\${#Project#${domId}WeblogicJmsFactoryJndi}")
-				String QUEUE = context.expand("\${#Project#${domId}WeblogicJmsQueue}")
-
-				messageMap = connectToWeblogic(PROVIDER_URL, USER, PASSWORD, CONNECTION_FACTORY_JNDI, QUEUE)
-        		break
-        		
-        	case "tomcat":
-				log.info ("JmsServer Tomcat. Reading connection details.")
-				String FACTORY_URL = context.expand("\${#Project#${domId}ActiveMqUrlAddress}")  
-				String USER = context.expand("\${#Project#${domId}ActiveMQBrokerUser}")
-				String PASSWORD = context.expand("\${#Project#${domId}ActiveMQBrokerPassword}")
-				String QUEUE = context.expand("\${#Project#${domId}ActiveMQInQueue}")
-									
-				messageMap = connectToActiveMQ(FACTORY_URL, USER, PASSWORD, QUEUE)
-        		break
-		
-        	default:  
-        		log.error("Incorrect or not supported jms server type, jmsServer=${jmsServer}"); 
-        		assert 0, "Properties value error, check jmsServer value."
-        		break
-			
-    }
-	return messageMap
-
-	 */
-}
-
-def sendMessageAndClean(messageMap) {	
-/*
-	log.info "sending message"
-	try {
-		jmsSender.send(messageMap);
-		jmsConnectionHandler.close();
-	} catch (Exception ex) {
-		log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
-		assert 0,"Exception occurred when trying to connect: " + ex;
-	}	
-	log.info "message sent"
-
- */
-}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // Support fast failure approche and cancel execution when one of the smoke tests fail.
@@ -2736,7 +2611,7 @@ static def String pathToLogFiles(side, log, context) {
 		def testFile = new File(pathToLogFile)
 		if (!testFile.exists()) {
 					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
-					return null
+					return
 		} else debugLog("  checkLogFile  [][]  File [${pathToLogFile}] exists.", log)
 
 		def lineCount = 0
@@ -2767,7 +2642,7 @@ static def String pathToLogFiles(side, log, context) {
 				def testFile = new File(pathToLogFile)
 				if (!testFile.exists()) {
 					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
-					return null
+					return
 				} else log.debug "  checkLogFile  [][]  File [${pathToLogFile}] exists."
 
 			  //def skipNumberOfLines = 0
@@ -2881,7 +2756,7 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST POST request to test blacklisted characters
-	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_USER, passwordLogin = DEFAULT_USER_PWD) {
+	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_ADMIN_USER, passwordLogin = DEFAULT_ADMIN_USER_PWD) {
         debugLog("  ====  Calling \"curlBlackList_POST\".", log)
         def commandString = null;
         def commandResult = null;
