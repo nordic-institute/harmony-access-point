@@ -77,8 +77,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Autowired
     protected CertificateService certificateService;
 
-    private Object dynamicProcessesLock = new Object();
-
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
 
