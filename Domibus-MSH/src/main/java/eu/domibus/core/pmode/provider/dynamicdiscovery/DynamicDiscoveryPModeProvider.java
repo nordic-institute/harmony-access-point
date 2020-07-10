@@ -103,7 +103,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     public Collection<eu.domibus.common.model.configuration.Process> getDynamicProcesses(final MSHRole mshRole) {
+        // TODO investigate why the configuration is empty when these lists are initialized in the first place
         if(CollectionUtils.isEmpty(dynamicResponderProcesses) && CollectionUtils.isEmpty(dynamicInitiatorProcesses) ){
+            // this is needed when the processes were not initialized in the init()
             LOG.debug("Refreshing the configuration.");
             refresh();
         }
