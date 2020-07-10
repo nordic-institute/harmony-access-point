@@ -1361,7 +1361,7 @@ public class JMSDomibusTest {
 def smw = new JMSDomibusTest();
 
 smw.run(log);
-</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4" disabled="true">
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4">
             <con:settings/>
             
             
@@ -1413,7 +1413,7 @@ import eu.domibus.test.jms.DomibusJMSPlugin
 def MapMessage messageMap = null
 def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
 messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 
 messageMap.setStringProperty("messageType", "submitMessage");
@@ -1448,7 +1448,7 @@ import eu.domibus.test.jms.DomibusJMSPlugin
 def MapMessage messageMap = null
 def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
 messageMap  = domUtils.jmsConnectionHandlerInitializeC3()
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 
 messageMap.setStringProperty("messageType", "submitMessage");
@@ -1519,7 +1519,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS002-");
 
@@ -1541,7 +1541,7 @@ test.finalize();
 
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS003-Submit Message-Exceptional flow-No receipt" searchProperties="true" id="43bf9d34-f13f-4453-8eae-de0ecb066013" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS003-Submit Message-Exceptional flow-No receipt" searchProperties="true" id="43bf9d34-f13f-4453-8eae-de0ecb066013">
             <con:settings/>
             
             
@@ -1557,9 +1557,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="f682d0db-26d2-4591-aff4-3b92d92a92a1"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="de0c90c6-c7bb-440a-a8e8-6cc2848634d3"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1575,7 +1577,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS003-");
 
  
@@ -1613,9 +1615,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             
             <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="4522d982-446f-47d2-8132-fbe386e88a2b"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="829e0d8e-2a47-4b9e-8f3a-39b72b55920e"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="8b58a8d4-da4d-45d7-8c72-189249dcd64c"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1631,7 +1635,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS004-");
 
  
@@ -1679,7 +1683,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS006-");
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -1726,7 +1730,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS006-");
 
  
@@ -1746,7 +1750,7 @@ test.cleanDBMessageID("-DomJMS006-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>5b884e9e-8168-43ec-a800-c1e72d658f40</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>36f270ac-60cf-4343-beeb-264d81eb2c0d</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>79af0a89-82d5-40dc-8246-f7524f20975f</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>9a04f265-9f1d-4a32-a7ab-54f65dc0cbc8</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS007-Submit Message-messageType-Mandatory" searchProperties="true" id="a48808a6-d0cb-4103-9d88-4541d1eeb4df" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>5b884e9e-8168-43ec-a800-c1e72d658f40</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>36f270ac-60cf-4343-beeb-264d81eb2c0d</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>79af0a89-82d5-40dc-8246-f7524f20975f</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>9a04f265-9f1d-4a32-a7ab-54f65dc0cbc8</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS007-Submit Message-messageType-Mandatory" searchProperties="true" id="a48808a6-d0cb-4103-9d88-4541d1eeb4df">
             <con:settings/>
             
             
@@ -1761,9 +1765,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="699a49f4-0b4e-4d8c-9822-1d659bc26eee"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 //messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1779,7 +1785,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS007-");
 
  
@@ -1799,7 +1805,7 @@ test.cleanDBMessageID("-DomJMS007-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS008-Submit Message-messageType-Value" searchProperties="true" id="5e24d444-ff87-4eec-88da-baccee724ae4" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS008-Submit Message-messageType-Value" searchProperties="true" id="5e24d444-ff87-4eec-88da-baccee724ae4">
             <con:settings/>
             
             
@@ -1814,9 +1820,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="1cb5aad5-1336-42d8-abfb-657394e6e855"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "pushMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1832,7 +1840,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS008-");
 
  
@@ -1852,7 +1860,7 @@ test.cleanDBMessageID("-DomJMS008-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS009-Submit Message-action-Mandatory" searchProperties="true" id="da003f73-0158-42a0-a284-0e2a0561a439" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS009-Submit Message-action-Mandatory" searchProperties="true" id="da003f73-0158-42a0-a284-0e2a0561a439">
             <con:settings/>
             
             
@@ -1867,9 +1875,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="b10ab980-1dca-476a-8f01-7ea17c5ff87f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1885,7 +1895,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS009-");
 
@@ -1906,7 +1916,7 @@ test.cleanDBMessageID("-DomJMS009-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS012-Submit Message-Service-Mandatory" searchProperties="true" id="c9311941-be6b-4edd-88c0-62884d769f34" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS012-Submit Message-Service-Mandatory" searchProperties="true" id="c9311941-be6b-4edd-88c0-62884d769f34">
             <con:settings/>
             
             
@@ -1921,9 +1931,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="26b11c1c-f256-4f51-a03a-4e024ab8440a"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 //messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1939,7 +1951,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS012-");
 
@@ -1960,7 +1972,7 @@ test.cleanDBMessageID("-DomJMS012-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS015-Submit Message-serviceType-Mandatory-service typed" searchProperties="true" id="c5c6a274-e863-40bc-8f8f-55a3318f3747" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS015-Submit Message-serviceType-Mandatory-service typed" searchProperties="true" id="c5c6a274-e863-40bc-8f8f-55a3318f3747">
             <con:settings/>
             
             
@@ -1975,9 +1987,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="55dcad8d-bb2d-43f2-ab8b-7c00c9e30032"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -1993,7 +2007,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS015-");
 
@@ -2014,7 +2028,7 @@ test.cleanDBMessageID("-DomJMS015-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS017-Submit Message-conversationId" searchProperties="true" id="b5e96db0-737f-4c45-8ca6-85d926d305a5" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS017-Submit Message-conversationId" searchProperties="true" id="b5e96db0-737f-4c45-8ca6-85d926d305a5">
             <con:description/><con:settings/>
             
             
@@ -2029,9 +2043,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="e9c8e70b-674b-4a3b-bf8d-b08251a4ea8f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2047,7 +2063,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS017-1-");
 messageMap.setStringProperty("conversationId", "123");
@@ -2063,9 +2079,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="a7d93bfb-4258-4e67-b37e-125ffb5e07c1"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC3()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC3()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2081,7 +2099,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap, "pluginAdminC3Default")
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap, "pluginAdminC3Default")
 
 messageMap.setStringProperty("messageId", "-DomJMS017-2-");
 messageMap.setStringProperty("conversationId", "123");
@@ -2096,9 +2114,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="64def3b2-d550-45db-90fc-c961f9bb3851"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2114,7 +2134,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
  
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS017-3-");
 
 
@@ -2136,7 +2156,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS017-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS018-Submit Message-refToMessageId" searchProperties="true" id="3a58907e-10f5-44a9-9830-d9a4ad64fa0e" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS018-Submit Message-refToMessageId" searchProperties="true" id="3a58907e-10f5-44a9-9830-d9a4ad64fa0e">
             <con:settings/>
             
             
@@ -2151,9 +2171,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="55b65d2b-89b1-49d0-a387-3848a37f3181"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2169,7 +2191,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS018-1-");
 
 
@@ -2183,9 +2205,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="cf4724a4-c289-419b-9bb6-e38a8a177c44"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2201,7 +2225,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS018-2-");
 messageMap.setStringProperty("refToMessageId", "-DomJMS018-1-");
  
@@ -2216,9 +2240,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="62bfc155-9b6e-4110-a4a6-dd7091841e3a"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2234,7 +2260,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS018-3-");
 messageMap.setStringProperty("refToMessageId", "-random-");
 
@@ -2256,7 +2282,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS018-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS024-Submit Message-fromRole-Mandatory" searchProperties="true" id="77af1480-b898-4567-9e74-30f72e1ebcad" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS024-Submit Message-fromRole-Mandatory" searchProperties="true" id="77af1480-b898-4567-9e74-30f72e1ebcad">
             <con:settings/>
             
             
@@ -2271,9 +2297,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="413dc4d7-be34-4db7-911e-fec996b800a4"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2289,7 +2317,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS024-1-");
 
 
@@ -2303,9 +2331,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="b90eef27-1d6c-4916-94fe-d96a5d101521"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2321,7 +2351,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS024-2-");
 
 
@@ -2342,7 +2372,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS024-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS025-Submit Message-fromRole-Empty" searchProperties="true" id="8dadc800-7cf3-4350-9765-1c97a3dcf3f9" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS025-Submit Message-fromRole-Empty" searchProperties="true" id="8dadc800-7cf3-4350-9765-1c97a3dcf3f9">
             <con:settings/>
             
             
@@ -2357,9 +2387,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="b28509c0-256c-468f-b1a6-c4fb1f5497fe"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2375,7 +2407,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS025-");
 
 
@@ -2395,7 +2427,7 @@ test.cleanDBMessageID("-DomJMS025-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS028-Submit Message-toRole-Mandatory" searchProperties="true" id="8e5160df-72bc-4d89-bb86-0ebcd0254789" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS028-Submit Message-toRole-Mandatory" searchProperties="true" id="8e5160df-72bc-4d89-bb86-0ebcd0254789">
             <con:settings/>
             
             
@@ -2410,9 +2442,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="0b4b7f2f-c4c4-4690-ae65-00ab8da424bd"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2428,7 +2462,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS028-1-");
 
  
@@ -2442,9 +2476,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="ef10f196-f425-45d0-b92a-4effe73cb4cb"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2460,7 +2496,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS028-2-");
 
  
@@ -2482,7 +2518,7 @@ test.cleanDBMessageID("-DomJMS028-2-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS029-Submit Message-toRole-Empty" searchProperties="true" id="90a84b13-2a60-4bd4-ae2a-d9b213b6bb83" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS029-Submit Message-toRole-Empty" searchProperties="true" id="90a84b13-2a60-4bd4-ae2a-d9b213b6bb83">
             <con:settings/>
             
             
@@ -2497,9 +2533,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="ed513cd7-9347-4ca0-9bdd-3e526646ac38"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2515,7 +2553,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS029-");
 
  
@@ -2535,7 +2573,7 @@ test.cleanDBMessageID("-DomJMS029-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS032-Submit Message-fromPartyId-Mandatory" searchProperties="true" id="9e2a4edf-8f4f-4861-bab4-bd04f7249d0e" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS032-Submit Message-fromPartyId-Mandatory" searchProperties="true" id="9e2a4edf-8f4f-4861-bab4-bd04f7249d0e">
             <con:settings/>
             
             
@@ -2550,9 +2588,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="0091ad82-3d01-4c7e-9428-6e0be694aaa6"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("Timestamp", "2016-01-10");
@@ -2569,7 +2609,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS032-1-");
 
 
@@ -2583,9 +2623,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="35f620d6-80d8-46cf-9c64-778f37ad2a04"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2601,7 +2643,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS032-2-");
 
 
@@ -2622,7 +2664,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS032-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS034-Submit Message-fromPartyType-Mandatory" searchProperties="true" id="f353ec96-46d2-4185-ab21-47baaa4774e1" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS034-Submit Message-fromPartyType-Mandatory" searchProperties="true" id="f353ec96-46d2-4185-ab21-47baaa4774e1">
             <con:settings/>
             
             
@@ -2637,9 +2679,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="b119d5f3-172a-40ad-8324-5ec458df8cbc"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2655,7 +2699,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS034-1-");
 
 
@@ -2669,9 +2713,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="d3f68c58-4b68-46bc-8704-f1edb9d34c42"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2687,7 +2733,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS034-2-");
 
 
@@ -2708,7 +2754,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS034-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS036-Submit Message-toPartyId-Mandatory" searchProperties="true" id="d54e2764-d1fd-48fd-ba11-37c01af50029" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS036-Submit Message-toPartyId-Mandatory" searchProperties="true" id="d54e2764-d1fd-48fd-ba11-37c01af50029">
             <con:settings/>
             
             
@@ -2723,9 +2769,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="1df7b104-92b7-445f-917f-e4140a2da20d"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2741,7 +2789,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS036-1-");
 
 
@@ -2755,9 +2803,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="fd4cfb9a-bdf0-439b-b6d2-cca17f7d0615"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2773,7 +2823,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS036-2-");
 
 
@@ -2794,7 +2844,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS036-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS038-Submit Message-toPartyType-Mandatory" searchProperties="true" id="b003c336-b690-44c9-99e0-5c1ff919048f" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS038-Submit Message-toPartyType-Mandatory" searchProperties="true" id="b003c336-b690-44c9-99e0-5c1ff919048f">
             <con:settings/>
             
             
@@ -2809,9 +2859,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="a75461bb-5b6a-4d45-9b00-3dfbc9a58388"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2827,7 +2879,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS038-1-");
 
 
@@ -2841,9 +2893,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="0ecc34d2-dbfe-43a5-8af6-9105caf8e153"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2859,7 +2913,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS038-2-");
 
 
@@ -2880,7 +2934,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS038-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS044-Submit Message-totalNumberOfPayloads-Mandatory" searchProperties="true" id="4a96f22c-fca2-42da-ae0a-6aed0710055d" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS044-Submit Message-totalNumberOfPayloads-Mandatory" searchProperties="true" id="4a96f22c-fca2-42da-ae0a-6aed0710055d">
             <con:settings/>
             
             
@@ -2895,9 +2949,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="2bbb96c1-220a-4401-9746-0548ab3ac824"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2913,7 +2969,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS044-1-");
 
 
@@ -2927,9 +2983,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="0397833f-77b1-440b-9feb-f7ac4489c1c0"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2945,7 +3003,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS044-2-");
 
 
@@ -2966,7 +3024,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS044-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS048-Submit Message-payload_contentId" searchProperties="true" id="54f6fee5-5c15-4cfe-a15a-9563cc36350e" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS048-Submit Message-payload_contentId" searchProperties="true" id="54f6fee5-5c15-4cfe-a15a-9563cc36350e">
             <con:settings/>
             
             
@@ -2981,9 +3039,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="7c827055-45b0-45dd-a587-b8aaebd57daa"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -2999,7 +3059,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS048-1-");
 
 
@@ -3013,9 +3073,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="fd8d0657-7f7f-4be2-b829-f342b2af3493"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3031,7 +3093,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS048-2-");
 
 
@@ -3045,9 +3107,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="0f86433c-a074-4609-a50f-1f736eb809a4"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3063,7 +3127,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS048-3-");
 
 
@@ -3085,10 +3149,12 @@ test.cleanDBMessageIDStartsWith("-DomJMS048-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="2f1193e0-c579-43f3-af5a-d29ceb8f3ba7" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS050-Test Experience-Several payloads" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Submit Message" id="bc0c6b20-3447-4719-a2d2-b67f44da361d"><con:settings/><con:config><script>import javax.jms.*
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="2f1193e0-c579-43f3-af5a-d29ceb8f3ba7" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS050-Test Experience-Several payloads" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Submit Message" id="bc0c6b20-3447-4719-a2d2-b67f44da361d"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3104,7 +3170,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS050-");
 
 messageMap.setStringProperty("p1InBody", "false"); 
@@ -3137,7 +3203,7 @@ test.finalize();</script></con:config></con:testStep><con:tearDownScript>def tes
 test.cleanDBMessageID("-DomJMS050-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
-</con:tearDownScript><con:properties/><con:reportParameters/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS051-Submit message-Tab and spaces" searchProperties="true" id="9dbc9ef3-1aa8-47a4-a0a7-f38a8c74a9e6" disabled="true">
+</con:tearDownScript><con:properties/><con:reportParameters/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS051-Submit message-Tab and spaces" searchProperties="true" id="9dbc9ef3-1aa8-47a4-a0a7-f38a8c74a9e6">
             <con:settings/>
             
             
@@ -3152,9 +3218,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="aa0a128f-f16d-435e-8f22-c096a2ff4598"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", " bdx:noprocess	");
@@ -3170,7 +3238,7 @@ messageMap.setStringProperty("originalSender", " urn:oasis:names:tc:ebcore:party
 messageMap.setStringProperty("finalRecipient", "		urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS051-");
 
 
@@ -3190,7 +3258,7 @@ test.cleanDBMessageID("-DomJMS051-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>1296a5b0-a2bc-4847-9b70-f896c3bc1ce2</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS052-Test Experience-Truststore Update" searchProperties="true" id="ff55d964-18c9-4e7b-b115-3951aaa82ee1" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>1296a5b0-a2bc-4847-9b70-f896c3bc1ce2</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS052-Test Experience-Truststore Update" searchProperties="true" id="ff55d964-18c9-4e7b-b115-3951aaa82ee1">
             <con:settings/>
             
             
@@ -3210,9 +3278,11 @@ Domibus.uploadTruststore("sender","special","/DynamicDiscovery/C2/oasis/gateway_
 
 
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="08df79cf-6a8c-4c6c-8c35-fe9902d5b837"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="3d466139-a0b8-48ca-a209-27787aa80a4f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3228,7 +3298,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS052-1-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -3246,9 +3316,11 @@ test.verifyMessagePresence(1,0,"-DomJMS052-1-");
 test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="6fa68f75-7596-4414-8cbd-e89d0ec28650"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Restore Truststore" id="b355b6b6-4a06-43d1-ae35-fdc0a70d7316"><con:settings/><con:config><script>// Upload default truststore for blue.  
 Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D4" id="405947a7-04d2-4daf-8845-3cf93e4b4ab8"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="c731a8de-a071-4454-8103-2510abed3feb"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3264,7 +3336,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS052-2-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -3286,7 +3358,7 @@ testRunner.testCase.testSteps['Restore Truststore'].run(testRunner, context);
 
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>bed6d5e9-a752-4924-85f2-7d968b646bac</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS054-Manual-EDELIVERY-1684-Message Id should always be present in the messages sent" searchProperties="true" id="1f50f26e-5224-4b2d-8bc2-8658055b9892" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>bed6d5e9-a752-4924-85f2-7d968b646bac</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS054-Manual-EDELIVERY-1684-Message Id should always be present in the messages sent" searchProperties="true" id="1f50f26e-5224-4b2d-8bc2-8658055b9892">
             <con:settings/>
             
             
@@ -3301,9 +3373,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="fea2782b-272f-478b-be91-bccf90a928bf"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3319,7 +3393,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS054-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -3332,9 +3406,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="feb1fe7c-9923-4031-ad5e-0b87f98ac623"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3350,7 +3426,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS054-"); // intentionally send second message with same ID the message should end in [internal] domibus.DLQ queue
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -3371,7 +3447,7 @@ test.finalize();
 
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>90414ed1-d501-45a8-86b6-466a1352735c</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS056-EDELIVERY-3119-Issue with custom properties using JMS plugin" searchProperties="true" id="155ee545-2649-4b3a-b4bc-e590ccd36717" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>90414ed1-d501-45a8-86b6-466a1352735c</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS056-EDELIVERY-3119-Issue with custom properties using JMS plugin" searchProperties="true" id="155ee545-2649-4b3a-b4bc-e590ccd36717">
             <con:settings/>
             
             
@@ -3386,9 +3462,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="9e84086f-55d3-456e-aaff-aa3c982fbbab"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3404,7 +3482,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS056-");
 messageMap.setStringProperty("property_propWithoutType", "some value");
 messageMap.setStringProperty("property_propWithType", "value");
@@ -3443,9 +3521,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="46eb0868-5791-4f4b-a448-f72b820a3e27"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3463,7 +3543,7 @@ messageMap.setStringProperty("protocol", "AS4");
 
 def u = context.expand('${#Project#pluginAdminC2Default}')
 def p = context.expand('${#Project#adminDefaultPassword}')
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap, u, p + "incorect" )
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap, u, p + "incorect" )
 
 messageMap.setStringProperty("messageId", "-DomJMS057-");
 
@@ -3499,9 +3579,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="2ad4662e-8198-48de-8926-323beb535a8a"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3519,7 +3601,7 @@ messageMap.setStringProperty("protocol", "AS4");
 
 def u = context.expand('${#Project#pluginAdminC2Default}')
 def p = context.expand('${#Project#adminDefaultPassword}')
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap, u + "not existing", p)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap, u + "not existing", p)
 
 messageMap.setStringProperty("messageId", "-DomJMS058-");
 
@@ -3555,9 +3637,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="092312eb-4a86-41ab-b550-6779988b20e5"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3574,7 +3658,7 @@ messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("protocol", "AS4");
 
 // Authentication information not added to message properties
-// Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+// domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 messageMap.setStringProperty("messageId", "-DomJMS058-");
 
@@ -3595,7 +3679,7 @@ test.cleanDBMessageID("-DomJMS058-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS060-Submit Message-send larger payload" searchProperties="true" id="2879ef39-8897-4b3d-84b2-183845ed520c" disabled="true">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS060-Submit Message-send larger payload" searchProperties="true" id="2879ef39-8897-4b3d-84b2-183845ed520c">
             <con:settings/>
             
             
@@ -3610,9 +3694,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="2b4f2dfb-2a04-49a5-82d3-df6da6c13a19"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3628,7 +3714,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS060-");
 
 
@@ -3729,7 +3815,7 @@ try {
 	
 	// Set Plugin username and password in case security is enable
 	 
-	Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+	domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 	// messageMap.setStringProperty("username", "plugin_admin");
 	// messageMap.setStringProperty("password", "Domibus-123");
 
@@ -3793,7 +3879,7 @@ try {
 	messageMap.setStringProperty("messageType", "submitMessage");
 	
 	// Set Plugin username and password in case security is enable
-	 Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+	 domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 	// messageMap.setStringProperty("username", "plugin_admin");
 	// messageMap.setStringProperty("password", "Domibus-123");
 
@@ -3931,9 +4017,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
             
             
             <con:testStep type="groovy" name="Stop Receiver MSH" id="c2c033d6-c56a-4e70-8dc2-85910b94fa27"><con:settings/><con:config><script>Domibus.stopMSH("receiver",context, log);</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="af1c8abf-19a2-42f7-811e-4c5390057bdf"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="02027f3d-c570-42a5-a683-a9137054dda7"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -3949,7 +4037,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS005-");
 
  
@@ -3996,9 +4084,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="d5ede536-6f40-40b8-8761-9c641a58f2ab"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4057,9 +4147,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="9684714d-a120-47b9-891a-d5920c577007"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 //messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4118,9 +4210,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="08383fb9-7ab1-4c91-b1fe-1f6a163cf932"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4179,9 +4273,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="31693f86-ef2d-4265-9364-e130a115d5c8"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4239,9 +4335,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="2b833887-18ff-42a0-8916-b29a774c4463"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4300,9 +4398,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="5241503d-9447-4033-89a8-c0ccdb2214a6"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4361,9 +4461,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="4304cb28-9411-4274-98bf-2b7a1d8c5423"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4422,9 +4524,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="37a4d2d4-85ed-4c4b-8777-ee78877ec25a"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4483,9 +4587,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="37eae58a-910e-42dc-8398-4d9e891e4678"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4544,9 +4650,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="956aa314-f763-4c4e-a8fe-a56248369605"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4596,9 +4704,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="ab3a1c3c-ac72-42aa-b4a0-eb3f9bfab012"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4648,9 +4758,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="8b02a9a5-947f-4893-816b-51a7873805b9"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4680,9 +4792,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="a5f43912-a9c1-42f0-907a-809761bb1b82"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4712,9 +4826,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="4cc4044a-7f44-452f-8436-8527ea1ec401"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4767,9 +4883,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="966efe2c-01a5-4e5f-8b4b-22e3c350833c"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4819,9 +4937,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="fcbe828b-87e0-4b03-9e50-3b1579c0c6ab"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4871,9 +4991,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="47a5a33a-0362-4bc9-b4a7-ad0523857161"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4923,9 +5045,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="ecc2f5bf-8164-47ad-8736-b038baa5b8b4"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -4954,9 +5078,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="d41e979a-fd5d-4b87-8c7a-15936e58300d"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5008,9 +5134,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="70290cb0-c91d-45c8-94b0-548977b7b3f2"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5039,9 +5167,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="66fdb096-973d-407a-8185-564c80ad2dd0"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5081,9 +5211,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS053-Test Experience-Heavy Logs" searchProperties="true" id="ba69c1f4-7801-4746-974f-4488cd8419e3" disabled="true">
             <con:settings/>
             <con:testStep type="groovy" name="Start a load test" id="842f9eca-3e10-4d03-b2a5-238ae54ec5e2"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5164,9 +5296,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="0a7d0f02-3ce2-44fa-b332-9a55b76fb582"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5182,7 +5316,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS014-");
 
  
@@ -5217,9 +5351,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="7985bf11-d5c7-416a-b126-92e11620ce93"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5235,7 +5371,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS020-1-");
 messageMap.setStringProperty("agreementRef", "agreementForDomJMS020Value");
 
@@ -5250,9 +5386,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="fec00bff-74e1-4ad5-93af-bde17fc6702f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5268,7 +5406,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS020-2-eee");
 
 
@@ -5305,9 +5443,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="35498825-45f9-4b8a-87b1-22a147db5e39"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5323,7 +5463,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS023-1-");
 messageMap.setStringProperty("agreementRef", "agreementForDomJMS023Value");
 messageMap.setStringProperty("agreementRefType", "random");
@@ -5338,9 +5478,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="38a77b8f-29f0-4c0c-9c29-75a9da2fbe61"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5356,7 +5498,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS023-2-");
 messageMap.setStringProperty("agreementRefType", "useless");
  
@@ -5392,9 +5534,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message" id="24b1a670-e5db-4f5c-ada5-b09c6df9b1d9"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5410,7 +5554,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS040-");
 messageMap.setStringProperty("JMScorrelationId", "-DomJMS040-JMScorrelationId-");
 
@@ -5425,9 +5569,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Copy of Submit Message" id="53d1a31e-fa20-4b4e-a1a8-900197f7efdd"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5443,7 +5589,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS040-2-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -5486,9 +5632,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="7fa3ccd7-8c06-4742-8c9c-1d219a899373"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5504,7 +5652,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 //messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS043-1-");
 
 
@@ -5518,9 +5666,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="9724a884-879e-412d-9622-78df8034be65"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5536,7 +5686,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS043-2-");
 
 
@@ -5550,9 +5700,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="037f34f5-e2ba-427d-87a8-861f47467fa9"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5568,7 +5720,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS043-3-");
 
 
@@ -5582,9 +5734,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 4" id="046c022f-8690-4d0c-ac89-c6a82bc08d5a"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5600,7 +5754,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS2");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS043-4-");
 
 
@@ -5641,9 +5795,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="b953abe1-2eba-4397-8830-a6ff58536ba6"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5659,7 +5815,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS045-1-");
 
 
@@ -5673,9 +5829,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="30f84712-feeb-4207-b0be-b1e0c9d9954d"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5691,7 +5849,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS045-2-");
 
 
@@ -5731,9 +5889,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
 Update P1InBody value (set line to P1InBody = true) in Sender and Receiver config files (jms-business-defaults.properties), remeber to restart both"""
 , log, testRunner); 
 </script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="65575c84-0f00-4ae9-8a62-cce43f79bd71"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5749,7 +5909,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS046-1-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -5762,9 +5922,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="1e74542e-e3ee-467c-82a4-0ca93955d378"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5780,7 +5942,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS046-2-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -5798,9 +5960,11 @@ test.verifyMessagePresence(0,0,"-DomJMS046-2-");
 test.finalize();</script></con:config></con:testStep><con:testStep type="groovy" name="Update Default properties file 2" id="17314e3f-9fb3-4aee-b3a5-3176a1e8776a"><con:settings/><con:config><script>DomibusUtils.showPopUpForManualConfigurationChange("""
 Comment P1InBody value (set line to #P1InBody = false) in Sender and Receiver config files (jms-business-defaults.properties), remeber to restart both"""
 , log, testRunner); </script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="199b8475-fb12-4687-9ab6-6f10033727fa"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5816,7 +5980,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS046-3-");
 
 
@@ -5835,9 +5999,11 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="groovy"
 Update P1InBody value (set line to P1InBody = false) in Sender and Receiver config files (jms-business-defaults.properties), remeber to restart both"""
 , log, testRunner); 
 </script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 4" id="c2ab354b-fc5c-4ba8-bf38-b404ea519236"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5853,7 +6019,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS046-4-");
 
 
@@ -5888,9 +6054,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="d18dcba2-338f-4cba-abf9-8ec7fec2cfe8"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5906,7 +6074,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS047-1-");
 
 
@@ -5920,9 +6088,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="2536663a-e2a6-4eb0-84fc-f10dae14f5c8"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5938,7 +6108,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS047-2-");
 
 
@@ -5952,9 +6122,11 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="2a41879d-0295-4b6c-8e0c-a555fa4bb904"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -5970,7 +6142,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS047-3-");
 
 
@@ -6009,9 +6181,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             
             
             <con:testStep type="groovy" name="Submit Message 1" id="e45ea9bf-3310-4734-b33f-962dc7d24f62"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -6027,7 +6201,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS049-1-");
 
 messageMap.setStringProperty("totalNumberOfPayloads", "1");
@@ -6055,9 +6229,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="025c06de-40dc-405c-95d7-afcfd5cf4c3f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -6073,7 +6249,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS049-2-");
 
 
@@ -6109,9 +6285,11 @@ else if(result == javax.swing.JOptionPane.NO_OPTION)
 	log.info "script aborted";
 	testRunner.fail("Test aborted by user");
 }</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 3" id="6a8d6204-cb54-470e-b377-49012d1b896e"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
 
-def domUtils = new Domibus(log, context)
-def MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage");
 messageMap.setStringProperty("service", "bdx:noprocess");
@@ -6127,7 +6305,7 @@ messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyi
 messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 messageMap.setStringProperty("protocol", "AS4");
 
-Domibus.addPluginCredentialsIfNeeded(context, log, messageMap)
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 messageMap.setStringProperty("messageId", "-DomJMS049-3-");
 
 
