@@ -5,7 +5,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
-import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;

@@ -42,10 +42,11 @@ public class DomibusPropertyBlacklistValidator extends BaseBlacklistValidator<Do
             return true;
         }
         // apply ordinary blacklist validation when there is no type validation
-        LOG.trace("Perform black-list validation for property [{}] as it is of STRING type.", propName);
+        LOG.trace("Perform black-list validation for property [{}] as it is of [{}] type.", propName, property.getMetadata().getTypeAsEnum());
         boolean isValid = super.isValidValue(property.getValue());
         if (!isValid) {
-            LOG.debug("Forbidden character detected in property [{}] value: [{}]", propName, property.getValue());
+            message = "Forbidden character detected in " + propName + "'s property value: " + property.getValue();
+            LOG.debug(message);
         }
         return isValid;
     }
