@@ -1361,7 +1361,7 @@ public class JMSDomibusTest {
 def smw = new JMSDomibusTest();
 
 smw.run(log);
-</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4">
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="fed27991-dbd5-4fb3-ae9e-424b3ad9a813" name="JMS-oneway Push-Auto for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS000-Setup Environment and Database" searchProperties="true" id="b56b6acf-eb4c-4913-8757-3714c15529c4" disabled="true">
             <con:settings/>
             
             
@@ -3679,7 +3679,7 @@ test.cleanDBMessageID("-DomJMS058-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS060-Submit Message-send larger payload" searchProperties="true" id="2879ef39-8897-4b3d-84b2-183845ed520c">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS060-Submit Message-send larger payload" searchProperties="true" id="2879ef39-8897-4b3d-84b2-183845ed520c" disabled="true">
             <con:settings/>
             
             

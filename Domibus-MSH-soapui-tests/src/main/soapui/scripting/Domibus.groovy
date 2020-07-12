@@ -2842,6 +2842,7 @@ static def String pathToLogFiles(side, log, context) {
 						"-H",  "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 						"--data-binary", json,
+						"-X", "GET",
 						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
 
 			commandResult = runCommandInShell(commandString, log);
