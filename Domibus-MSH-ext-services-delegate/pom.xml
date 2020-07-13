@@ -176,6 +176,12 @@
             <artifactId>reflections</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+            <version>${jacorb-omgapi.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- End Test dependencies -->
 
         <!--Swagger-->
