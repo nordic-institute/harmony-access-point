@@ -41,7 +41,12 @@ public class MessageListenerContainerConfiguration {
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
     private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;
 
-
+    public static final String DISPATCH_CONTAINER = "dispatchContainer";
+    public static final String SEND_LARGE_MESSAGE_CONTAINER = "sendLargeMessageContainer";
+    public static final String SPLIT_AND_JOIN_CONTAINER = "splitAndJoinContainer";
+    public static final String PULL_RECEIPT_CONTAINER = "pullReceiptContainer";
+    public static final String RETENTION_CONTAINER = "retentionContainer";
+    public static final String PULL_MESSAGE_CONTAINER = "pullMessageContainer";
 
     @Autowired
     @Qualifier("sendMessageQueue")
@@ -104,7 +109,7 @@ public class MessageListenerContainerConfiguration {
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
 
-    @Bean(name = "dispatchContainer")
+    @Bean(name = DISPATCH_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createSendMessageListener(Domain domain) {
         LOG.debug("Instantiating the DefaultMessageListenerContainer for domain [{}]", domain);
@@ -119,7 +124,7 @@ public class MessageListenerContainerConfiguration {
      * @param domain
      * @return
      */
-    @Bean(name = "sendLargeMessageContainer")
+    @Bean(name = SEND_LARGE_MESSAGE_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createSendLargeMessageListener(Domain domain) {
         LOG.debug("Instantiating the createSendLargeMessageListenerContainer for domain [{}]", domain);
@@ -135,7 +140,7 @@ public class MessageListenerContainerConfiguration {
      * @param domain
      * @return
      */
-    @Bean(name = "splitAndJoinContainer")
+    @Bean(name = SPLIT_AND_JOIN_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createSplitAndJoinListener(Domain domain) {
         LOG.debug("Instantiating the createSplitAndJoinListener for domain [{}]", domain);
@@ -145,7 +150,7 @@ public class MessageListenerContainerConfiguration {
         );
     }
 
-    @Bean(name = "pullReceiptContainer")
+    @Bean(name = PULL_RECEIPT_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createPullReceiptListener(Domain domain) {
         LOG.debug("Instantiating the createPullReceiptListener for domain [{}]", domain);
@@ -161,7 +166,7 @@ public class MessageListenerContainerConfiguration {
      * @param domain the domain to which this bean is created for
      * @return the retention listener prototype bean dedicated to the provided domain
      */
-    @Bean(name = "retentionContainer")
+    @Bean(name = RETENTION_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createRetentionListener(Domain domain) {
         LOG.debug("Instantiating the createRetentionListener for domain [{}]", domain);
@@ -170,7 +175,7 @@ public class MessageListenerContainerConfiguration {
                 retentionListener, transactionManager, PROPERTY_RETENTION_JMS_CONCURRENCY);
     }
 
-    @Bean(name = "pullMessageContainer")
+    @Bean(name = PULL_MESSAGE_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createPullMessageListener(Domain domain) {
         LOG.debug("Instantiating the pullMessageListener for domain [{}]", domain);
@@ -208,6 +213,7 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
+        messageListenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
 
         final String concurrency = domibusPropertyProvider.getProperty(domain, domainPropertyConcurrency);
         messageListenerContainer.setConcurrency(concurrency);
@@ -223,5 +229,4 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;
     }
-
 }

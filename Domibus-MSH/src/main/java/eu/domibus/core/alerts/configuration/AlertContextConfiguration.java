@@ -47,7 +47,7 @@ public class AlertContextConfiguration {
     }
 
     @Bean
-    public JmsTemplate jsonJmsTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate jsonJmsTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                        MappingJackson2MessageConverter jackson2MessageConverter) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

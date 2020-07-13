@@ -280,7 +280,7 @@ public class DomibusPropertiesChangeListenersTest {
             cryptoService.reset();
             gatewayConfigurationValidator.validateConfiguration();
             domibusProxyService.resetProxy();
-            messageListenerContainerInitializer.createSendMessageListenerContainer((Domain) any);
+            messageListenerContainerInitializer.setConcurrency((Domain) any, anyString, anyString);
             domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);
             domibusCacheService.clearCache(anyString);
             pModeProvider.refresh();

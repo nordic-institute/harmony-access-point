@@ -32,20 +32,18 @@ public class DomibusActiveMQConfiguration {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Bean(name = "broker")
+    @Bean(name = "brokerFactory")
     @Conditional(DummyEmbeddedActiveMQCondition.class)
     public Object dummyActiveMQBroker() {
         LOGGER.debug("Creating a dummy bean to satisfy the depends-on dependencies");
         return new Object();
     }
 
-    @Bean(name = "broker")
+    @Bean(name = "brokerFactory")
     @Conditional(EmbeddedActiveMQCondition.class)
     public BrokerFactoryBean activeMQBroker() {
         LOGGER.debug("Creating the embedded Active MQ broker from [{}]", activeMQConfiguration);
-        final DomibusBrokerFactoryBean brokerFactoryBean = new DomibusBrokerFactoryBean();
-        brokerFactoryBean.setConfig(activeMQConfiguration);
-        return brokerFactoryBean;
+        return new DomibusBrokerFactoryBean(activeMQConfiguration);
     }
 
     @Bean(name = "xaJmsConnectionFactory")
