@@ -122,8 +122,8 @@ public class ConfigurationPropertyResourceIT extends AbstractIT {
 
     @Test
     public void testGetProperty() {
-        DomibusProperty prop = configurationPropertyResourceHelper.getProperty("domibus.ui.title.name");
+        DomibusProperty prop = configurationPropertyResourceHelper.getProperty("domibus.UI.title.name");
         Assert.assertNotNull(prop);
-        Assert.assertEquals("domibus.ui.title.name", prop.getMetadata().getName());
+        Assert.assertEquals("domibus.UI.title.name", prop.getMetadata().getName());
     }
 }
