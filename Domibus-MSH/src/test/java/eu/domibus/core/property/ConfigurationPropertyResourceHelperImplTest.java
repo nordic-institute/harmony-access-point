@@ -133,7 +133,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_error() {
+    public void setPropertyValueError() {
         String name = DOMIBUS_UI_TITLE_NAME;
         boolean isDomain = false;
         String value = "propValue";
@@ -153,7 +153,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void setPropertyValue_global() throws Exception {
+    public void setPropertyValueGlobal() throws Exception {
         String name = "some.global.property";
         boolean isDomain = false;
         String value = "propValue";
@@ -161,10 +161,12 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             authUtils.isSuperAdmin();
             result = true;
+            globalPropertyMetadataManager.hasKnownProperty(name);
+            result = true;
         }};
 
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
-        mockExecutorSubmit_void();
+        mockExecutorSubmitVoid();
 
         new Verifications() {{
             domibusPropertyProvider.setProperty(name, value);
@@ -209,7 +211,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void filterProperties_singleTenancy() {
+    public void filterPropertiesSingleTenancy() {
         String name = "domibus.UI";
         Boolean showDomain = false;
 
@@ -242,7 +244,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void getPropertyValue_global(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
+    public void getPropertyValueGlobal(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
         String expectedValue = "my val";
         new Expectations(configurationPropertyResourceHelper) {{
             propMeta.isDomain();
@@ -276,13 +278,24 @@ public class ConfigurationPropertyResourceHelperImplTest {
         }};
     }
 
+    @Test(expected = DomibusPropertyException.class)
+    public void getPropertyUnknown() {
+        String propName = "some.unknown.property";
+        new Expectations() {{
+            globalPropertyMetadataManager.hasKnownProperty(propName);
+            result = false;
+        }};
+
+        configurationPropertyResourceHelper.getProperty(propName);
+    }
+
     private <T> T mockExecutorSubmit() throws Exception {
         Mockito.verify(domainTaskExecutor).submit((Callable) argCaptor.capture());
         Callable<T> callable = (Callable<T>) argCaptor.getValue();
         return callable.call();
     }
 
-    private void mockExecutorSubmit_void() {
+    private void mockExecutorSubmitVoid() {
         Mockito.verify(domainTaskExecutor).submit((Runnable) argCaptor.capture());
         Runnable runnable = (Runnable) argCaptor.getValue();
         runnable.run();

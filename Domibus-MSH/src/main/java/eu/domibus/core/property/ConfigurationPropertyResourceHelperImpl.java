@@ -90,6 +90,10 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     @Override
     public DomibusProperty getProperty(String propertyName) {
+        if (!globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            throw new DomibusPropertyException("Unknown property: " + propertyName);
+        }
+
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         return getValueAndCreateProperty(propertyMetadata);
     }
