@@ -31,4 +31,11 @@ public interface GlobalPropertyMetadataManager {
      * @throws DomibusPropertyException in case the property is not found anywhere
      */
     DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException;
+
+    /**
+     * Checks if a domibus property exists with the specified name
+     * @param propertyName the name of the propertyto check
+     * @return true if it exists; otherwise false
+     */
+    boolean hasKnownProperty(String propertyName);
 }

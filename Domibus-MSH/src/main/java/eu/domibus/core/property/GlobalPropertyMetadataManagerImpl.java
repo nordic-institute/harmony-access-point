@@ -115,6 +115,11 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         throw new DomibusPropertyException("Property " + propertyName + " could not be found anywhere.");
     }
 
+    @Override
+    public boolean hasKnownProperty(String propertyName) {
+        return hasProperty(getAllProperties(), propertyName);
+    }
+
     /**
      * Initializes the metadata map with internal and/or external properties,
      * until the given property is found.

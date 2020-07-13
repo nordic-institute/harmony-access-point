@@ -254,7 +254,7 @@ public class CachingPModeProviderTest {
         Assert.assertEquals(configuration, cachingPModeProvider.getConfiguration());
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test(expected = EbMS3Exception.class)
     public void testGetBusinessProcessRoleFail() throws Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations() {{
@@ -267,7 +267,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.getBusinessProcessRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/notMyInitiator");
             fail();
-        } catch (ConfigurationException cex) {
+        } catch (EbMS3Exception cex) {
             assertEquals("No matching role found with value: http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/notMyInitiator", cex.getMessage());
             throw cex;
         }
@@ -401,9 +401,7 @@ public class CachingPModeProviderTest {
 
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+
         // When
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 

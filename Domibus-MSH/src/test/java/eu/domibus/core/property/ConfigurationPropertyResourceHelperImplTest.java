@@ -4,6 +4,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import mockit.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Assert;
@@ -52,6 +54,12 @@ public class ConfigurationPropertyResourceHelperImplTest {
     @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
+    @Injectable
+    DomibusPropertyBlacklistValidator domibusPropertyValueBlacklistValidator;
+
+    @Injectable
+    private FieldBlacklistValidator propertyNameBlacklistValidator;
+
     Map<String, DomibusPropertyMetadata> props1, props2, allProps;
     List<DomibusPropertyMetadata> propertiesMetadataList;
 
@@ -82,6 +90,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     @Test
     public void getAllWritableProperties() {
         String name = "domibus.UI";
+        String value = "My Domibus";
         Boolean showDomain = true;
 
         List<DomibusProperty> properties = propertiesMetadataList.stream().map(el -> {
@@ -94,13 +103,15 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             globalPropertyMetadataManager.getAllProperties();
             result = allProps;
-            configurationPropertyResourceHelper.filterProperties(name, showDomain, allProps);
+            configurationPropertyResourceHelper.filterProperties(allProps, name, showDomain, null, null);
             result = propertiesMetadataList;
             configurationPropertyResourceHelper.createProperties(propertiesMetadataList);
             result = properties;
+            configurationPropertyResourceHelper.filterByValue(value, properties);
+            result = properties;
         }};
 
-        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain);
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain, null, null, value);
 
         Assert.assertEquals(4, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
@@ -114,6 +125,10 @@ public class ConfigurationPropertyResourceHelperImplTest {
         boolean isDomain = true;
         String value = "propValue";
 
+        new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.validateProperty(name, value);
+        }};
+
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
 
         new Verifications() {{
@@ -122,12 +137,13 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_error() {
+    public void setPropertyValueError() {
         String name = DOMIBUS_UI_TITLE_NAME;
         boolean isDomain = false;
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.validateProperty(name, value);
             authUtils.isSuperAdmin();
             result = false;
         }};
@@ -141,7 +157,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void setPropertyValue_global() throws Exception {
+    public void setPropertyValueGlobal() throws Exception {
         String name = "some.global.property";
         boolean isDomain = false;
         String value = "propValue";
@@ -149,10 +165,12 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             authUtils.isSuperAdmin();
             result = true;
+            globalPropertyMetadataManager.hasKnownProperty(name);
+            result = true;
         }};
 
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
-        mockExecutorSubmit_void();
+        mockExecutorSubmitVoid();
 
         new Verifications() {{
             domibusPropertyProvider.setProperty(name, value);
@@ -190,14 +208,14 @@ public class ConfigurationPropertyResourceHelperImplTest {
             result = true;
         }};
 
-        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(name, showDomain, props1);
+        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, name, showDomain, null, null);
 
         Assert.assertEquals(2, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
     @Test
-    public void filterProperties_singleTenancy() {
+    public void filterPropertiesSingleTenancy() {
         String name = "domibus.UI";
         Boolean showDomain = false;
 
@@ -206,7 +224,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
             result = false;
         }};
 
-        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(name, showDomain, props1);
+        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, name, showDomain, null, null);
 
         Assert.assertEquals(2, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
@@ -230,7 +248,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void getPropertyValue_global(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
+    public void getPropertyValueGlobal(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
         String expectedValue = "my val";
         new Expectations(configurationPropertyResourceHelper) {{
             propMeta.isDomain();
@@ -247,13 +265,42 @@ public class ConfigurationPropertyResourceHelperImplTest {
         Assert.assertEquals(expectedValue, returnedValue);
     }
 
+    @Test
+    public void validateProperty(@Mocked DomibusProperty prop) {
+        String propertyName = "propName";
+        String propertyValue = "prop value";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.getProperty(propertyName);
+            result = prop;
+        }};
+
+        configurationPropertyResourceHelper.validateProperty(propertyName, propertyValue);
+
+        new Verifications() {{
+            propertyNameBlacklistValidator.validate(propertyName);
+            domibusPropertyValueBlacklistValidator.validate(prop);
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void getPropertyUnknown() {
+        String propName = "some.unknown.property";
+        new Expectations() {{
+            globalPropertyMetadataManager.hasKnownProperty(propName);
+            result = false;
+        }};
+
+        configurationPropertyResourceHelper.getProperty(propName);
+    }
+
     private <T> T mockExecutorSubmit() throws Exception {
         Mockito.verify(domainTaskExecutor).submit((Callable) argCaptor.capture());
         Callable<T> callable = (Callable<T>) argCaptor.getValue();
         return callable.call();
     }
 
-    private void mockExecutorSubmit_void() {
+    private void mockExecutorSubmitVoid() {
         Mockito.verify(domainTaskExecutor).submit((Runnable) argCaptor.capture());
         Runnable runnable = (Runnable) argCaptor.getValue();
         runnable.run();

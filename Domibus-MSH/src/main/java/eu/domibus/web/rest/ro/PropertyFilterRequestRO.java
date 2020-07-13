@@ -17,7 +17,11 @@ public class PropertyFilterRequestRO implements Serializable {
 
     private boolean showDomain = true;
 
+    private String type;
 
+    private String module;
+
+    private String value;
 
     public int getPage() {
         return page;
@@ -49,5 +53,29 @@ public class PropertyFilterRequestRO implements Serializable {
 
     public void setShowDomain(boolean showDomain) {
         this.showDomain = showDomain;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getModule() {
+        return module;
+    }
+
+    public void setModule(String module) {
+        this.module = module;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

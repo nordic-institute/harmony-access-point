@@ -13,6 +13,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -38,10 +39,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 import static java.util.stream.Collectors.*;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -69,6 +72,9 @@ public class PartyServiceImpl implements PartyService {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * {@inheritDoc}
@@ -442,6 +448,9 @@ public class PartyServiceImpl implements PartyService {
 
     @Override
     public List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
+
+        validatePartyCertificates(partyToCertificateMap);
+
         final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
         if (currentPmode == null) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not update PMode parties: PMode not found!");
@@ -464,6 +473,28 @@ public class PartyServiceImpl implements PartyService {
         updatePartyCertificate(partyToCertificateMap, replacementResult);
 
         return result;
+    }
+
+
+    protected void validatePartyCertificates(Map<String, String> partyToCertificateMap) {
+        int maxSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+
+        List<Map.Entry<String, String>> wrongCertificates = partyToCertificateMap.entrySet().stream()
+                .filter(entry -> entry.getValue().length() > maxSize)
+                .collect(toList());
+        if (wrongCertificates.size() == 0) {
+            LOG.trace("All certificates pass max length validation");
+            return;
+        }
+
+        List<ValidationIssue> errors = wrongCertificates.stream()
+                .map(entry -> new ValidationIssue(
+                                entry.getKey() + " party certificate: " + "The size " + entry.getValue().length() + " exceeds the maximum size limit of " + maxSize,
+                                ValidationIssue.Level.ERROR
+                        )
+                )
+                .collect(Collectors.toList());
+        throw new PModeValidationException("Error validating party certificates.", errors);
     }
 
     protected List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
@@ -550,7 +581,8 @@ public class PartyServiceImpl implements PartyService {
 
     /**
      * {@inheritDoc}
-     * @param party Party object
+     *
+     * @param party              Party object
      * @param certificateContent certificate content in base64
      */
     @Override
@@ -620,7 +652,6 @@ public class PartyServiceImpl implements PartyService {
     }
 
     /**
-     *
      * @param party
      * @param process
      * @param configuration
@@ -639,7 +670,6 @@ public class PartyServiceImpl implements PartyService {
     }
 
     /**
-     *
      * @param party
      * @param process
      * @param configuration
@@ -676,6 +706,7 @@ public class PartyServiceImpl implements PartyService {
 
     /**
      * {@inheritDoc}
+     *
      * @param partyName
      */
     @Override
@@ -726,7 +757,7 @@ public class PartyServiceImpl implements PartyService {
         return partyToSearch;
     }
 
-    protected void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration)  throws PModeException {
+    protected void removePartyFromConfiguration(eu.domibus.common.model.configuration.Party partyToBeDeleted, Configuration configuration) throws PModeException {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         Parties parties = businessProcesses.getPartiesXml();
         if (!parties.getParty().remove(partyToBeDeleted)) {
@@ -735,7 +766,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     protected void removePartyIdTypes(eu.domibus.common.model.configuration.Party partyToBeDeleted,
-                                    Configuration configuration) {
+                                      Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         List<PartyIdType> partyIdTypeList = businessProcesses.getPartiesXml().getPartyIdTypes().getPartyIdType();
 

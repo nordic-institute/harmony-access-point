@@ -313,10 +313,10 @@ ABC<div style="x:\xE2\x80\x89expression(javascript:alert(1)">DEF
 <a href="javascript\x09:javascript:alert(1)" id="fuzzelement1">test</a>
 <a href="javascript\x0D:javascript:alert(1)" id="fuzzelement1">test</a>
 <a href="javascript\x0A:javascript:alert(1)" id="fuzzelement1">test</a>
-`"'><img src=xxx:x \x0Aonerror=javascript:alert(1)>
-`"'><img src=xxx:x \x22onerror=javascript:alert(1)>
-`"'><img src=xxx:x \x0Bonerror=javascript:alert(1)>
-`"'><img src=xxx:x \x0Donerror=javascript:alert(1)>
+`"'><img src="https://placekitten.com/200/300"xxx:x \x0Aonerror=javascript:alert(1)>
+`"'><img src="https://placekitten.com/200/300"xxx:x \x22onerror=javascript:alert(1)>
+`"'><img src="https://placekitten.com/200/300"xxx:x \x0Bonerror=javascript:alert(1)>
+`"'><img src="https://placekitten.com/200/300"xxx:x \x0Donerror=javascript:alert(1)>
 `"'><img src=xxx:x \x2Fonerror=javascript:alert(1)>
 `"'><img src=xxx:x \x09onerror=javascript:alert(1)>
 `"'><img src=xxx:x \x0Conerror=javascript:alert(1)>
@@ -513,3 +513,33 @@ Powerلُلُصّبُلُلصّبُررً ॣ ॣh ॣ ॣ冗
 🏳0🌈️
 జ్ఞ‌ా
 گچپژ
+'
+''
+`
+``
+,
+"
+""
+/
+//
+\
+\\
+;
+' or "
+-- or #
+' OR '1
+' OR 1 -- -
+" OR "" = "
+" OR 1 = 1 -- -
+' OR '' = '
+'='
+'LIKE'
+'=0--+
+ OR 1=1
+' OR 'x'='x
+' AND id IS NULL; --
+'''''''''''''UNION SELECT '2
+%00
+/*…*/
++        addition, concatenate (or space in url)
+||        (double pipe) concatenate

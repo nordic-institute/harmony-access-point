@@ -1,6 +1,8 @@
 package eu.domibus.plugin.webService.property;
 
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -31,9 +33,9 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
 
     public WSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.WS_PLUGIN, DomibusPropertyMetadataDTO.Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
