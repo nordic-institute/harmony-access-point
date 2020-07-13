@@ -42,7 +42,7 @@ export class TrustStoreUploadComponent {
     if (this.isFormValid()) {
       const fileToUpload = this.fileInput.nativeElement.files[0];
       try {
-        await this.fileUploadService.validateSize(fileToUpload);
+        await this.fileUploadService.validateFileSize(fileToUpload);
 
         this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
           .subscribe(res => {

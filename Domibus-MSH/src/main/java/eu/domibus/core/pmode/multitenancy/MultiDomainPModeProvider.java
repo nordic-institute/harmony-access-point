@@ -204,7 +204,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Role getBusinessProcessRole(String roleValue) {
+    public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         return getCurrentPModeProvider().getBusinessProcessRole(roleValue);
     }
 
