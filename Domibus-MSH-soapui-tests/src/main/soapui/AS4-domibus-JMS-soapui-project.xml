@@ -1680,8 +1680,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="e56dc2ed-5618-455f-9b7f-0c5aefd8f772"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS007-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS007-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS007-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -1735,8 +1735,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="ff79153d-44ec-480e-8c97-72e826a8b0b3"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS007-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS008-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS008-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -1791,8 +1791,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="24a3c9f2-8978-4d9a-a944-99eaf5c5ff95"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS009-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS009-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS009-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -1847,8 +1847,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="a9e037d4-8ec5-4ec8-88b4-30f3f51b939c"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS012-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS012-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS012-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -1903,8 +1903,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="e6ae19ea-1238-4490-9f7e-c65f0e1dcda1"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS015-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS015-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS015-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2246,9 +2246,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="2f249bad-bc1e-4fee-be35-2e81ca8010c7"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS024-1-");
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS024-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS024-2-")
+test.verifyMessagePresence(0,0,"-DomJMS024-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS024-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2302,8 +2302,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="6d956f7b-8efb-4c46-9b91-287d46f7c733"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS025-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS025-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS025-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2448,8 +2448,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="5bcedb1e-4c36-48bf-9e18-c01e55f7f486"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS029-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS029-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS029-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2538,9 +2538,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="f7594b18-6d64-4906-8666-46b2270120e3"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS032-1-");
-test.verifyMessagePresence(1,1,"-DomJMS032-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS032-2-")
+test.verifyMessagePresence(0,0,"-DomJMS032-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS032-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2628,9 +2628,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="e1d96915-7432-43cd-90c5-2ee6e1ee8912"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS034-1-");
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS034-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS034-2-")
+test.verifyMessagePresence(0,0,"-DomJMS034-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS034-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2718,9 +2718,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="527cfc03-3c0e-4f24-9ea3-e4dae6b92b9d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS036-1-");
-test.verifyMessagePresence(1,1,"-DomJMS036-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS036-2-")
+test.verifyMessagePresence(0,0,"-DomJMS036-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS036-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2808,9 +2808,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="70ad0cc2-38a5-42a9-b19d-4e96c7ef7841"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS038-1-");
-test.verifyMessagePresence(1,1,"-DomJMS038-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS038-2-")
+test.verifyMessagePresence(0,0,"-DomJMS038-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS038-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -2898,9 +2898,9 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="974aa5ff-accf-41af-855e-2f3d17229732"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS044-1-");
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS044-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS044-2-")
+test.verifyMessagePresence(0,0,"-DomJMS044-1-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS044-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -3022,10 +3022,10 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="309866f1-a0c5-40f3-b05f-c267713a1364"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS048-1-");
-test.verifyMessagePresence(0,0,"-DomJMS048-2-");
-test.verifyMessagePresence(0,0,"-DomJMS048-3-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS048-1-")
+test.verifyMessagePresence(0,0,"-DomJMS048-2-")
+test.verifyMessagePresence(0,0,"-DomJMS048-3-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS048-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -3139,107 +3139,7 @@ test.cleanDBMessageID("-DomJMS051-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>1296a5b0-a2bc-4847-9b70-f896c3bc1ce2</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS052-Test Experience-Truststore Update" searchProperties="true" id="ff55d964-18c9-4e7b-b115-3951aaa82ee1">
-            <con:settings/>
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            <con:testStep type="groovy" name="Upload unsuitable truststore Blue" id="d4abae1b-2817-4150-82f0-4adc027da343"><con:settings/><con:config><script>// Upload unsuitable truststore to blue.  
-Domibus.uploadTruststore("sender","special","/DynamicDiscovery/C2/oasis/gateway_truststore.jks",context,log);
-
-
-
-</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="08df79cf-6a8c-4c6c-8c35-fe9902d5b837"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="3d466139-a0b8-48ca-a209-27787aa80a4f"><con:settings/><con:config><script>import javax.jms.*
-import eu.domibus.test.jms.DomibusJMSPlugin
-
-def MapMessage messageMap = null
-def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
-messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
-
-messageMap.setStringProperty("messageType", "submitMessage");
-messageMap.setStringProperty("service", "bdx:noprocess");
-messageMap.setStringProperty("serviceType", "tc10");
-messageMap.setStringProperty("action", "TC10Leg1");
-messageMap.setStringProperty("fromPartyId", "domibus-blue");
-messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-messageMap.setStringProperty("toPartyId", "domibus-red");
-messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
-messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
-messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
-messageMap.setStringProperty("protocol", "AS4");
-
-domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
-messageMap.setStringProperty("messageId", "-DomJMS052-1-");
-
-messageMap.setStringProperty("totalNumberOfPayloads", "1");
-messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
-messageMap.setStringProperty("payload_1_mimeType", "text/xml");
-messageMap.setStringProperty("payload_1_description", "message");
-String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
-byte[] payload = pay1.getBytes();
-messageMap.setBytes("payload_1", payload);
-
-domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="6d16b3db-49d9-41e5-bfab-ef4fb12eac77"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test" id="1752fd64-6aed-4bd9-a397-60d57afff83e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.waitForStatus("WAITING_FOR_RETRY",null,"-DomJMS052-1-");
-test.verifyMessagePresence(1,0,"-DomJMS052-1-");
-test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="6fa68f75-7596-4414-8cbd-e89d0ec28650"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Restore Truststore" id="b355b6b6-4a06-43d1-ae35-fdc0a70d7316"><con:settings/><con:config><script>// Upload default truststore for blue.  
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
-</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="405947a7-04d2-4daf-8845-3cf93e4b4ab8"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="c731a8de-a071-4454-8103-2510abed3feb"><con:settings/><con:config><script>import javax.jms.*
-import eu.domibus.test.jms.DomibusJMSPlugin
-
-def MapMessage messageMap = null
-def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
-messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
-
-messageMap.setStringProperty("messageType", "submitMessage");
-messageMap.setStringProperty("service", "bdx:noprocess");
-messageMap.setStringProperty("serviceType", "tc10");
-messageMap.setStringProperty("action", "TC10Leg1");
-messageMap.setStringProperty("fromPartyId", "domibus-blue");
-messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-messageMap.setStringProperty("toPartyId", "domibus-red");
-messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
-messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
-messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
-messageMap.setStringProperty("protocol", "AS4");
-
-domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
-messageMap.setStringProperty("messageId", "-DomJMS052-2-");
-
-messageMap.setStringProperty("totalNumberOfPayloads", "1");
-messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
-messageMap.setStringProperty("payload_1_mimeType", "text/xml");
-messageMap.setStringProperty("payload_1_description", "message");
-String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
-byte[] payload = pay1.getBytes();
-messageMap.setBytes("payload_1", payload);
-
-domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="6cdb7806-3b13-4c45-92b8-572181e30f14"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test good truststore" id="9152946c-b96c-4fed-8ea0-fb38d64e6f9d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS052-2-");
-test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
-test.cleanDBMessageIDStartsWith("-DomJMS052-");
-test.finalize();
-
-testRunner.testCase.testSteps['Restore Truststore'].run(testRunner, context);
-
-Domibus.reportTestCaseCsv(testRunner, log)
-</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>bed6d5e9-a752-4924-85f2-7d968b646bac</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS056-EDELIVERY-3119-Issue with custom properties using JMS plugin" searchProperties="true" id="155ee545-2649-4b3a-b4bc-e590ccd36717">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>1296a5b0-a2bc-4847-9b70-f896c3bc1ce2</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS056-EDELIVERY-3119-Issue with custom properties using JMS plugin" searchProperties="true" id="155ee545-2649-4b3a-b4bc-e590ccd36717">
             <con:settings/>
             
             
@@ -3350,8 +3250,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="e4e9ad4b-1441-4e7d-b1b2-85d5e3382431"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS057-");
-test.finalize();</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS057-")
+test.finalize()</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS057-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -3408,8 +3308,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="6081eb02-a919-4704-a0d3-306d3acc2990"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS058-");
-test.finalize();</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS058-")
+test.finalize()</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS058-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -3465,8 +3365,8 @@ messageMap.setBytes("payload_1", payload);
 
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="31affd46-d3b6-4df5-bafc-865b77afd3c0"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS059-");
-test.finalize();</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS059-")
+test.finalize()</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS058-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log)
@@ -3702,7 +3602,107 @@ test.finalize()
 testRunner.testCase.testSteps['Revert - upload default blue Pmode'].run(testRunner, context);
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>9c6f08d0-5ce3-4757-b59f-44bb1b1640b3</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>0a2b3efa-6626-42cd-bf6a-1b83dd688944</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS054-Manual-EDELIVERY-1684-Message Id should always be present in the messages sent" searchProperties="true" id="1f50f26e-5224-4b2d-8bc2-8658055b9892">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>9c6f08d0-5ce3-4757-b59f-44bb1b1640b3</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>0a2b3efa-6626-42cd-bf6a-1b83dd688944</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS052-Test Experience-Truststore Update" searchProperties="true" id="ff55d964-18c9-4e7b-b115-3951aaa82ee1">
+            <con:settings/>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <con:testStep type="groovy" name="Upload unsuitable truststore Blue" id="d4abae1b-2817-4150-82f0-4adc027da343"><con:settings/><con:config><script>// Upload unsuitable truststore to blue.  
+Domibus.uploadTruststore("sender","special","/DynamicDiscovery/C2/oasis/gateway_truststore.jks",context,log);
+
+
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="08df79cf-6a8c-4c6c-8c35-fe9902d5b837"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="3d466139-a0b8-48ca-a209-27787aa80a4f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage");
+messageMap.setStringProperty("service", "bdx:noprocess");
+messageMap.setStringProperty("serviceType", "tc10");
+messageMap.setStringProperty("action", "TC10Leg1");
+messageMap.setStringProperty("fromPartyId", "domibus-blue");
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+messageMap.setStringProperty("toPartyId", "domibus-red");
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
+messageMap.setStringProperty("protocol", "AS4");
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+messageMap.setStringProperty("messageId", "-DomJMS052-1-");
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1");
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
+messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+messageMap.setStringProperty("payload_1_description", "message");
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes();
+messageMap.setBytes("payload_1", payload);
+
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="6d16b3db-49d9-41e5-bfab-ef4fb12eac77"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test" id="1752fd64-6aed-4bd9-a397-60d57afff83e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY",null,"-DomJMS052-1-");
+test.verifyMessagePresence(1,0,"-DomJMS052-1-");
+test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="6fa68f75-7596-4414-8cbd-e89d0ec28650"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Restore Truststore" id="b355b6b6-4a06-43d1-ae35-fdc0a70d7316"><con:settings/><con:config><script>// Upload default truststore for blue.  
+Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
+</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="405947a7-04d2-4daf-8845-3cf93e4b4ab8"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="c731a8de-a071-4454-8103-2510abed3feb"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage");
+messageMap.setStringProperty("service", "bdx:noprocess");
+messageMap.setStringProperty("serviceType", "tc10");
+messageMap.setStringProperty("action", "TC10Leg1");
+messageMap.setStringProperty("fromPartyId", "domibus-blue");
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+messageMap.setStringProperty("toPartyId", "domibus-red");
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
+messageMap.setStringProperty("protocol", "AS4");
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+messageMap.setStringProperty("messageId", "-DomJMS052-2-");
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1");
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
+messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+messageMap.setStringProperty("payload_1_description", "message");
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes();
+messageMap.setBytes("payload_1", payload);
+
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="6cdb7806-3b13-4c45-92b8-572181e30f14"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test good truststore" id="9152946c-b96c-4fed-8ea0-fb38d64e6f9d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS052-2-");
+test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageIDStartsWith("-DomJMS052-");
+test.finalize();
+
+testRunner.testCase.testSteps['Restore Truststore'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)
+</con:tearDownScript><con:properties/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>bed6d5e9-a752-4924-85f2-7d968b646bac</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS054-Manual-EDELIVERY-1684-Message Id should always be present in the messages sent" searchProperties="true" id="1f50f26e-5224-4b2d-8bc2-8658055b9892">
             <con:settings/>
             
             

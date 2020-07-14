@@ -31,8 +31,8 @@ class Domibus{
     def allDomainsProperties = null;
     def allDomains = null;
 
-    // sleepDelay value is increased from 2000 to 6000 because of pull request take longer ...
-    def sleepDelay = 6000
+    // sleepDelay value is increased to 10 s because of execution in Docker containers
+    def sleepDelay = 10_000
 
     def dbConnections = [:]
     def blueDomainID = null //"C2Default"
@@ -473,6 +473,7 @@ def findNumberOfDomain(String inputSite) {
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         // Verification of message existence
+		// TODO: change this to wait in loop
         def verifyMessagePresence(int presence1, int presence2, String IDMes = null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"verifyMessagePresence\".", log)
         def messageID = null;
