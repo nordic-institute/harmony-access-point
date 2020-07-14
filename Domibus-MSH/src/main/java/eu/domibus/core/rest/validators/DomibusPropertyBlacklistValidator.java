@@ -5,6 +5,8 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.DomibusPropertyWhiteListed;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
@@ -16,6 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DomibusPropertyBlacklistValidator extends BaseBlacklistValidator<DomibusPropertyWhiteListed, DomibusProperty> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyBlacklistValidator.class);
@@ -42,10 +45,11 @@ public class DomibusPropertyBlacklistValidator extends BaseBlacklistValidator<Do
             return true;
         }
         // apply ordinary blacklist validation when there is no type validation
-        LOG.trace("Perform black-list validation for property [{}] as it is of STRING type.", propName);
+        LOG.trace("Perform black-list validation for property [{}] as it is of [{}] type.", propName, property.getMetadata().getTypeAsEnum());
         boolean isValid = super.isValidValue(property.getValue());
         if (!isValid) {
-            LOG.debug("Forbidden character detected in property [{}] value: [{}]", propName, property.getValue());
+            message = "Forbidden character detected in " + propName + "'s property value: " + property.getValue();
+            LOG.debug(message);
         }
         return isValid;
     }
