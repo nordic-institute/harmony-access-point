@@ -91,7 +91,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         return isValid;
     }
 
-    public synchronized void validate(T value) {
+    public void validate(T value) {
         if (!isValid(value)) {
             LOG.debug("Value [{}] is not valid; Throwing exception.", value);
             throw new ValidationException(getErrorMessage());

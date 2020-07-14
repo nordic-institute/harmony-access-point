@@ -5,6 +5,8 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.DomibusPropertyWhiteListed;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
@@ -16,6 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DomibusPropertyBlacklistValidator extends BaseBlacklistValidator<DomibusPropertyWhiteListed, DomibusProperty> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyBlacklistValidator.class);
