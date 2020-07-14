@@ -1130,7 +1130,7 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="1564477107969-104">
-        <comment>create indexes</comment>
+        <comment>create indexes - part 1</comment>
         <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -1559,13 +1559,20 @@
             <column name="NAME"/>
             <column name="MESSAGEPROPERTIES_ID"/>
         </createIndex>
-
+    </changeSet>
+    <changeSet author="Catalin Enache" id="1564477107969-104_2">
+        <comment>create indexes - part 2</comment>
         <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL" tableName="TB_PROPERTY">
             <column name="NAME"/>
             <column name="MESSAGEPROPERTIES_ID"/>
             <column name="VALUE"/>
         </createIndex>
-
+        <modifySql dbms="mysql">
+            <replace replace="VALUE" with="VALUE(255)"/>
+        </modifySql>
+    </changeSet>
+    <changeSet author="Catalin Enache" id="1564477107969-104_3">
+        <comment>create indexes - part 3</comment>
         <createIndex indexName="IDX_RAWENVELOPE_MESSAGE_ID" tableName="TB_RAWENVELOPE_LOG">
             <column name="MESSAGE_ID"/>
         </createIndex>

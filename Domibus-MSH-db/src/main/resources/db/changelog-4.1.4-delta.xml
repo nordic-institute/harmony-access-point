@@ -22,7 +22,17 @@
         </sql>
     </changeSet>
     <changeSet id="EDELIVERY-6856" author="Catalin Enache">
-        <modifyDataType tableName="TB_PARTY" newDataType="TEXT" columnName="VALUE"/>
+        <dropIndex tableName="TB_PROPERTY" indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL"/>
+        <modifyDataType  columnName="VALUE" tableName="TB_PARTY" newDataType="TEXT"/>
+
+        <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL" tableName="TB_PROPERTY">
+            <column name="NAME"/>
+            <column name="MESSAGEPROPERTIES_ID"/>
+            <column name="VALUE"/>
+        </createIndex>
+        <modifySql dbms="mysql">
+            <replace replace="VALUE" with="VALUE(255)"/>
+        </modifySql>
     </changeSet>
 
 </databaseChangeLog>
