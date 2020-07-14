@@ -21,5 +21,8 @@
             UPDATE TB_MESSAGE_LOG SET VERSION = 0 WHERE MESSAGE_TYPE = 'USER_MESSAGE';
         </sql>
     </changeSet>
+    <changeSet id="EDELIVERY-6856" author="Catalin Enache">
+        <modifyDataType tableName="TB_PARTY" newDataType="TEXT" columnName="VALUE"/>
+    </changeSet>
 
 </databaseChangeLog>

@@ -809,7 +809,7 @@
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="TEXT"/>
             <column name="MESSAGEPROPERTIES_ID" type="BIGINT"/>
             <column name="PARTPROPERTIES_ID" type="BIGINT"/>
             <column name="TYPE" type="VARCHAR(255)"/>
