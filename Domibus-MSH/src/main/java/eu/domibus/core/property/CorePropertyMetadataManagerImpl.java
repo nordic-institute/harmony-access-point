@@ -111,7 +111,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PATTERN, Type.REGEXP, Usage.DOMAIN_AND_SUPER, true),
-            new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE, Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE, Type.FREE_TEXT, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_EXPIRATION, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_WARNING_BEFORE_EXPIRATION, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
@@ -119,7 +119,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD, Type.BOOLEAN),
 
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, Type.REGEXP, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, Type.FREE_TEXT, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, Type.NUMERIC, Usage.DOMAIN, true),
