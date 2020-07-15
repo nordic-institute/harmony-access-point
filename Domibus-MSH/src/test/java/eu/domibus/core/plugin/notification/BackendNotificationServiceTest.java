@@ -11,14 +11,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.CriteriaFactory;
@@ -29,6 +27,7 @@ import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.CollaborationInfo;
+import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
@@ -44,8 +43,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationContext;
 
@@ -54,14 +51,26 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.common.NotificationType.*;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 /**
  * Created by baciuco on 08/08/2016.
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class BackendNotificationServiceTest {
 
+    public static final String FINAL_RECIPIENT = "finalRecipient";
+    public static final String MESSAGE_ID = "MessageId";
+    public static final Timestamp TIMESTAMP = new Timestamp(System.currentTimeMillis());
+    public static final String ORIGINAL_FILENAME = "originalFilename";
+    public static final String BACKEND_NAME = "backendName";
+    public static final String MIME = "mime";
+    public static final String HREF = "Href";
+    public static final String UNKNOWN_RECEIVER_QUEUE = "unknownReceiverQueue";
     @Injectable
     JMSManager jmsManager;
 
@@ -78,7 +87,7 @@ public class BackendNotificationServiceTest {
     RoutingService routingService;
 
     @Injectable
-    UserMessageLogDao messageLogDao;
+    UserMessageLogDao userMessageLogDao;
 
     @Injectable
     SubmissionAS4Transformer submissionAS4Transformer;
@@ -88,8 +97,6 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     UserMessageHandlerService userMessageHandlerService;
-
-    List<NotificationListener> notificationListenerServices;
 
     @Injectable
     List<CriteriaFactory> routingCriteriaFactories;
@@ -131,7 +138,7 @@ public class BackendNotificationServiceTest {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
-    protected List<BackendConnector> backendConnectors;
+    protected List<BackendConnector<?, ?>> backendConnectors;
 
     @Injectable
     UserMessageService userMessageService;
@@ -146,18 +153,14 @@ public class BackendNotificationServiceTest {
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
 
-    @Captor
-    ArgumentCaptor argCaptor;
-
     @Test
-    public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission, @Injectable final UserMessage userMessage) throws Exception {
+    public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission,
+                                                                     @Injectable final UserMessage userMessage) {
         final String backendName = "customPlugin";
         backendNotificationService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED_FAILURE);
 
-        new Verifications() {{
-            submissionValidatorListProvider.getSubmissionValidatorList(backendName);
-            times = 0;
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -165,7 +168,7 @@ public class BackendNotificationServiceTest {
                                                                         @Injectable final UserMessage userMessage,
                                                                         @Injectable final SubmissionValidatorList submissionValidatorList,
                                                                         @Injectable final SubmissionValidator validator1,
-                                                                        @Injectable final SubmissionValidator validator2) throws Exception {
+                                                                        @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
             submissionAS4Transformer.transformFromMessaging(userMessage);
@@ -173,7 +176,7 @@ public class BackendNotificationServiceTest {
             submissionValidatorListProvider.getSubmissionValidatorList(backendName);
             result = submissionValidatorList;
             submissionValidatorList.getSubmissionValidators();
-            result = Arrays.asList(new SubmissionValidator[]{validator1, validator2});
+            result = new SubmissionValidator[]{validator1, validator2};
             validator1.validate(submission);
             result = new SubmissionValidationException("Exception in the validator1");
         }};
@@ -181,10 +184,8 @@ public class BackendNotificationServiceTest {
         thrown.expect(SubmissionValidationException.class);
         backendNotificationService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
 
-        new Verifications() {{
-            validator2.validate(submission);
-            times = 0;
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -192,7 +193,7 @@ public class BackendNotificationServiceTest {
                                                               @Injectable final UserMessage userMessage,
                                                               @Injectable final SubmissionValidatorList submissionValidatorList,
                                                               @Injectable final SubmissionValidator validator1,
-                                                              @Injectable final SubmissionValidator validator2) throws Exception {
+                                                              @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
             submissionAS4Transformer.transformFromMessaging(userMessage);
@@ -200,12 +201,12 @@ public class BackendNotificationServiceTest {
             submissionValidatorListProvider.getSubmissionValidatorList(backendName);
             result = submissionValidatorList;
             submissionValidatorList.getSubmissionValidators();
-            result = Arrays.asList(new SubmissionValidator[]{validator1, validator2});
+            result = new SubmissionValidator[]{validator1, validator2};
         }};
 
         backendNotificationService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
 
-        new Verifications() {{
+        new FullVerifications() {{
             validator1.validate(submission);
             times = 1;
             validator2.validate(submission);
@@ -214,8 +215,26 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
+    public void testValidateSubmission_noValidator(@Injectable final Submission submission,
+                                                   @Injectable final UserMessage userMessage,
+                                                   @Injectable final SubmissionValidatorList submissionValidatorList,
+                                                   @Injectable final SubmissionValidator validator1,
+                                                   @Injectable final SubmissionValidator validator2) {
+        final String backendName = "customPlugin";
+        new Expectations() {{
+            submissionValidatorListProvider.getSubmissionValidatorList(backendName);
+            result = null;
+        }};
+
+        backendNotificationService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
     public void testGetNotificationListener(@Injectable final NotificationListener notificationListener1,
-                                            @Injectable final NotificationListener notificationListener2) throws Exception {
+                                            @Injectable final NotificationListener notificationListener2) {
         final String backendName = "customPlugin";
         new Expectations() {{
             notificationListener1.getBackendName();
@@ -235,55 +254,103 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testValidateAndNotify(@Injectable final UserMessage userMessage) throws Exception {
+    public void testGetNotificationListener_empty(@Injectable final NotificationListener notificationListener1,
+                                                  @Injectable final NotificationListener notificationListener2) {
+        final String backendName = "customPlugin";
+
+        backendNotificationService.notificationListenerServices = new ArrayList<>();
+
+        NotificationListener notificationListener = backendNotificationService.getNotificationListener(backendName);
+        assertNull(notificationListener);
+
+    }
+
+    @Test
+    public void testValidateAndNotify_propertyNull(@Injectable final UserMessage userMessage) {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
             backendNotificationService.validateSubmission(userMessage, backendName, notificationType);
-            result = null;
+
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = "finalRecipient";
+
+            userMessage.getMessageInfo().getMessageId();
+            result = "messageId";
+
             backendNotificationService.notify(anyString, backendName, notificationType, null);
-            result = null;
         }};
 
+        backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateAndNotify(@Injectable final UserMessage userMessage) {
         Map<String, Object> properties = new HashMap<>();
+
+        String backendName = "backendName";
+        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.validateSubmission(userMessage, backendName, notificationType);
+
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = FINAL_RECIPIENT;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = "messageId";
+
+            backendNotificationService.notify(anyString, backendName, notificationType, properties);
+        }};
+
+
         backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, properties);
 
-        new Verifications() {{
-            backendNotificationService.validateSubmission(userMessage, backendName, notificationType);
-            times = 1;
-            backendNotificationService.notify(anyString, backendName, notificationType, null);
-            times = 1;
-        }};
+        assertThat(properties.size(), is(1));
+        assertThat(properties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testNotifyWithNoConfiguredNoficationListener(
+    public void notifyParent(@Injectable NotificationType notificationType) {
+        new Expectations(backendNotificationService){{
+            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, null);
+            times = 1;
+        }};
+
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType);
+
+        new FullVerifications(){};
+    }
+
+    @Test
+    public void testNotifyWithNoConfiguredNotificationListener(
             @Injectable final NotificationType notificationType,
-            @Injectable final Queue queue) throws Exception {
+            @Injectable final Queue queue) {
         final String backendName = "customPlugin";
         new Expectations(backendNotificationService) {{
             backendNotificationService.getNotificationListener(backendName);
             result = null;
         }};
 
-        backendNotificationService.notify("messageId", backendName, notificationType);
+        backendNotificationService.notify("messageId", backendName, notificationType, null);
 
-        new Verifications() {{
-            jmsManager.sendMessageToQueue(withAny(new JmsMessage()), withAny(queue));
-            times = 0;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void testNotifyWithConfiguredNotificationListener(
+    public void notify(
             @Injectable final NotificationListener notificationListener,
-            @Injectable final Queue queue) throws Exception {
+            @Injectable final Queue queue) {
 
-        final String backendName = "customPlugin";
         List<NotificationType> requiredNotifications = new ArrayList<>();
         requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
+
         new Expectations(backendNotificationService) {{
-            backendNotificationService.getNotificationListener(backendName);
+            backendNotificationService.getNotificationListener(BACKEND_NAME);
             result = notificationListener;
 
             notificationListener.getRequiredNotificationTypeList();
@@ -293,18 +360,91 @@ public class BackendNotificationServiceTest {
             result = queue;
         }};
 
-        final String messageId = "123";
-        final NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-        backendNotificationService.notify(messageId, backendName, notificationType);
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
-        new Verifications() {{
-            JmsMessage jmsMessage = null;
+        new FullVerifications() {{
+            JmsMessage jmsMessage;
             jmsManager.sendMessageToQueue(jmsMessage = withCapture(), queue);
             times = 1;
 
-            assertEquals(jmsMessage.getProperty(MessageConstants.MESSAGE_ID), messageId);
-            assertEquals(jmsMessage.getProperty(MessageConstants.NOTIFICATION_TYPE), notificationType.name());
+            assertEquals(jmsMessage.getProperty(MessageConstants.MESSAGE_ID), MESSAGE_ID);
+            assertEquals(jmsMessage.getProperty(MessageConstants.NOTIFICATION_TYPE), NotificationType.MESSAGE_RECEIVED.name());
         }};
+    }
+
+    @Test
+    public void notify_propertiesNotNull_backendNotificationQueueNull(
+            @Injectable final NotificationListener notificationListener,
+            @Injectable final Queue queue) {
+
+        List<NotificationType> requiredNotifications = new ArrayList<>();
+        requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getNotificationListener(BACKEND_NAME);
+            result = notificationListener;
+
+            notificationListener.getRequiredNotificationTypeList();
+            result = requiredNotifications;
+
+            notificationListener.getBackendNotificationQueue();
+            result = null;
+        }};
+
+        HashMap<String, Object> properties = new HashMap<>();
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, properties);
+
+        new FullVerifications() {{
+            notificationListener.notify(MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notify_NoNotification(
+            @Injectable final NotificationListener notificationListener,
+            @Injectable final Queue queue) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getNotificationListener(BACKEND_NAME);
+            result = notificationListener;
+
+            notificationListener.getRequiredNotificationTypeList();
+            result = null;
+
+            notificationListener.getMode();
+            result = BackendConnector.Mode.PUSH;
+
+        }};
+
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void notify_NotificationNotMatchType(
+            @Injectable final NotificationListener notificationListener,
+            @Injectable final Queue queue) {
+
+        List<NotificationType> requiredNotifications = new ArrayList<>();
+        requiredNotifications.add(MESSAGE_STATUS_CHANGE);
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getNotificationListener(BACKEND_NAME);
+            result = notificationListener;
+
+            notificationListener.getRequiredNotificationTypeList();
+            result = requiredNotifications;
+
+            notificationListener.getMode();
+            result = BackendConnector.Mode.PUSH;
+
+        }};
+
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {};
     }
 
     @Test
@@ -456,7 +596,7 @@ public class BackendNotificationServiceTest {
         final boolean backendFilterMatching = backendNotificationService.isBackendFilterMatching(filter, criteriaMap, userMessage);
         Assert.assertFalse(backendFilterMatching);
 
-        new Verifications() {{
+        new FullVerifications() {{
             criteriaMap.get(actionCriteriaName);
             times = 0;
 
@@ -500,15 +640,24 @@ public class BackendNotificationServiceTest {
 
             fromRoutingCriteriaConfiguration.matches(userMessage, fromRoutingCriteria.getExpression());
             result = true;
+
+            actionRoutingCriteria.getName();
+            result = actionCriteriaName;
+
+            actionRoutingCriteria.getExpression();
+            result = "domibus-blue:partyType";
+
+            criteriaMap.get(actionCriteriaName);
+            result = actionRoutingCriteriaConfiguration;
+
+            actionRoutingCriteriaConfiguration.matches(userMessage, actionRoutingCriteria.getExpression());
+            result = false;
         }};
 
         final boolean backendFilterMatching = backendNotificationService.isBackendFilterMatching(filter, criteriaMap, userMessage);
         Assert.assertFalse(backendFilterMatching);
 
-        new Verifications() {{
-            criteriaMap.get(actionCriteriaName);
-            times = 0;
-
+        new FullVerifications() {{
             actionRoutingCriteriaConfiguration.matches(userMessage, anyString);
             times = 1;
         }};
@@ -531,7 +680,7 @@ public class BackendNotificationServiceTest {
         final boolean backendFilterMatching = backendNotificationService.isBackendFilterMatching(filter, criteriaMap, userMessage);
         Assert.assertTrue(backendFilterMatching);
 
-        new Verifications() {{
+        new FullVerifications() {{
             criteriaMap.get(anyString);
             times = 0;
         }};
@@ -552,14 +701,10 @@ public class BackendNotificationServiceTest {
         criteriaList.add(actionRoutingCriteria);
 
         final String fromCriteriaName = "FROM";
-        final String actionCriteriaName = "ACTION";
 
         new Expectations() {{
             filter.getRoutingCriterias();
             result = criteriaList;
-
-            //filter.getCriteriaOperator();
-            //result = LogicalOperator.OR;
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -579,22 +724,78 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage, @Injectable final List<BackendFilter> backendFilters) throws Exception {
+    public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage,
+                                             @Injectable final List<BackendFilter> backendFilters) {
         new Expectations(backendNotificationService) {{
             backendNotificationService.getBackendFiltersWithCache();
             result = backendFilters;
+            backendNotificationService.getMatchingBackendFilter(backendFilters, withAny(new HashMap<>()), userMessage);
         }};
 
         backendNotificationService.getMatchingBackendFilter(userMessage);
 
-        new Verifications() {{
-            backendNotificationService.getMatchingBackendFilter(backendFilters, withAny(new HashMap<String, IRoutingCriteria>()), userMessage);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyOfMessageStatusChange(@Injectable final UserMessageLog messageLog) {
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(messageLog, status, TIMESTAMP);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
+            @Injectable final UserMessageLog messageLog,
+            @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration) {
+        final String messageId = "1";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            messageLog.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole();
+            result = role;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
+
+        new FullVerificationsInOrder() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
         }};
     }
 
     @Test
-    public void testNotifyOfMessageStatusChange(@Injectable final UserMessageLog messageLog,
-                                                @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration) throws Exception {
+    public void notifyOfMessageStatusChange_notFragment(@Injectable final UserMessageLog messageLog,
+                                                        @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration,
+                                                        @Injectable final UserMessage userMessage) {
         final String messageId = "1";
         final String backend = "JMS";
         final MSHRole role = MSHRole.SENDING;
@@ -602,8 +803,17 @@ public class BackendNotificationServiceTest {
         MessageStatus status = MessageStatus.ACKNOWLEDGED;
         final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
         new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
+            times = 1;
 
             messageLog.getMessageStatus();
             result = previousStatus;
@@ -617,37 +827,133 @@ public class BackendNotificationServiceTest {
             messageLog.getBackend();
             result = backend;
 
+            messageLog.getMessageFragment();
+            result = false;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
+            result = new HashMap<String, Object>();
+
+            backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
+
+        new FullVerificationsInOrder() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfMessageStatusChange_fragment(@Injectable final UserMessageLog messageLog,
+                                                        @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration,
+                                                        @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+        final String backend = "JMS";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
+        new Expectations(backendNotificationService) {{
             messagingConfigurationManager.getConfiguration();
             result = messageCommunicationConfiguration;
+            times = 1;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
             result = true;
+            times = 1;
 
-            backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<String, Object>()));
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            messageLog.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole();
+            result = role;
+
+            messageLog.getBackend();
+            result = backend;
+
+            messageLog.getMessageFragment();
+            result = true;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+            backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
+            result = new HashMap<String, Object>();
+
+            backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, withAny(new HashMap<>()));
+            times = 1;
         }};
 
+        backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
 
-        backendNotificationService.notifyOfMessageStatusChange(messageLog, status, new Timestamp(System.currentTimeMillis()));
-
-        new VerificationsInOrder() {{
+        new FullVerificationsInOrder() {{
             eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
-            String capturedMessageId = null;
-            String capturedBackend = null;
-            Map<String, Object> properties = null;
-            backendNotificationService.notify(capturedMessageId = withCapture(), capturedBackend = withCapture(), NotificationType.MESSAGE_STATUS_CHANGE, properties = withCapture());
+            times = 1;
+        }};
+    }
 
-            assertEquals(messageId, capturedMessageId);
-            assertEquals(capturedBackend, backend);
+    @Test
+    public void notifyOfMessageStatusChange_SameState(@Injectable final UserMessageLog messageLog,
+                                                      @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration,
+                                                      @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.ACKNOWLEDGED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            messageLog.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole();
+            result = role;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
+
+        new FullVerifications() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
         }};
     }
 
     @Test
     public void testInitWithOutEmptyBackendFilter(@Injectable NotificationListener notificationListener,
                                                   @Injectable CriteriaFactory criteriaFactory,
-                                                  @Injectable BackendFilterEntity backendFilterEntity) {
+                                                  @Injectable BackendFilterEntity backendFilterEntity,
+                                                  @Injectable IRoutingCriteria iRoutingCriteria) {
 
-        Map notificationListenerBeanMap = new HashMap();
+        Map<String, NotificationListener> notificationListenerBeanMap = new HashMap<>();
+        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
         routingCriteriaFactories.add(criteriaFactory);
+        backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         notificationListenerBeanMap.put("1", notificationListener);
         backendFilterEntities.add(backendFilterEntity);
@@ -660,15 +966,24 @@ public class BackendNotificationServiceTest {
             backendFilterDao.findAll();
             result = backendFilterEntity;
 
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
             backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
             times = 1;
+
+            criteriaFactory.getName();
+            result = "Name criteriaFactory";
+
+            criteriaFactory.getInstance();
+            result = iRoutingCriteria;
         }};
 
         backendNotificationService.init();
 
-        new Verifications() {{
-            backendNotificationService.createBackendFiltersWithDefaultPriority();
-            times = 0;
+        new FullVerifications() {{
+            backendNotificationService.createBackendFilters();
+            times = 1;
         }};
     }
 
@@ -679,12 +994,12 @@ public class BackendNotificationServiceTest {
                                                            @Injectable Domain domain,
                                                            @Injectable IRoutingCriteria iRoutingCriteria) {
 
-        Map notificationListenerBeanMap = new HashMap();
+        Map<String, NotificationListener> notificationListenerBeanMap = new HashMap<>();
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
         routingCriteriaFactories.add(routingCriteriaFactory);
         backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
-        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
-        backendFilterEntities.add(backendFilterEntity);
+//        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+//        backendFilterEntities.add(backendFilterEntity);
         notificationListenerBeanMap.put("1", notificationListener);
         List<Domain> domains = new ArrayList<>();
         domains.add(domain);
@@ -728,22 +1043,58 @@ public class BackendNotificationServiceTest {
             times = 1;
         }};
         backendNotificationService.createBackendFilters();
-        new Verifications() {{
-            backendNotificationService.createBackendFiltersWithDefaultPriority();
-            times = 0;
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testInitWithEmptyBackendFilter(@Injectable NotificationListener notificationListener,
-                                               @Injectable CriteriaFactory routingCriteriaFactory,
-                                               @Injectable BackendFilterEntity backendFilterEntity) {
+    public void testCreateBackendFilters_empty(@Injectable BackendFilterEntity backendFilterEntity) {
+        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
 
-        Map notificationListenerBeanMap = new HashMap();
+        new Expectations(backendNotificationService) {{
+            backendFilterDao.findAll();
+            result = backendFilterEntities;
+            backendNotificationService.createBackendFiltersWithDefaultPriority();
+            times = 1;
+        }};
+        backendNotificationService.createBackendFilters();
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testInit_noNotificationListenerBeanMap(@Injectable NotificationListener notificationListener,
+                                                       @Injectable CriteriaFactory routingCriteriaFactory,
+                                                       @Injectable BackendFilterEntity backendFilterEntity) {
+
+        Map<String, NotificationListener> notificationListenerBeanMap = new HashMap<>();
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
         routingCriteriaFactories.add(routingCriteriaFactory);
         backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
-        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+
+            applicationContext.getBeansOfType(NotificationListener.class);
+            result = notificationListenerBeanMap;
+        }};
+
+        thrown.expect(ConfigurationException.class);
+        backendNotificationService.init();
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testInitMultiAware(@Injectable NotificationListener notificationListener,
+                                   @Injectable CriteriaFactory routingCriteriaFactory,
+                                   @Injectable BackendFilterEntity backendFilterEntity,
+                                   @Injectable Domain domain) {
+
+        Map<String, NotificationListener> notificationListenerBeanMap = new HashMap<>();
+        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
+        routingCriteriaFactories.add(routingCriteriaFactory);
+        backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
         notificationListenerBeanMap.put("1", notificationListener);
 
         new Expectations(backendNotificationService) {{
@@ -751,24 +1102,66 @@ public class BackendNotificationServiceTest {
             applicationContext.getBeansOfType(NotificationListener.class);
             result = notificationListenerBeanMap;
 
-            backendFilterDao.findAll();
-            result = backendFilterEntities;
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
 
-            backendNotificationService.createBackendFiltersWithDefaultPriority();
-            times = 1;
+            domainService.getDomains();
+            result = Collections.singletonList(domain);
+
+            routingCriteriaFactory.getName();
+            result = "routingCriteriaFactory";
+
+            routingCriteriaFactory.getInstance();
+            result = null;
         }};
 
         backendNotificationService.init();
 
-        new Verifications() {{
-            backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
-            times = 0;
+        new FullVerifications() {{
+            domainTaskExecutor.submit((Runnable) any, domain);
+            times = 1;
         }};
     }
 
     @Test
+    public void testInit_NonMultiTenancy(@Injectable NotificationListener notificationListener,
+                                         @Injectable CriteriaFactory routingCriteriaFactory,
+                                         @Injectable BackendFilterEntity backendFilterEntity,
+                                         @Injectable Domain domain) {
+
+        Map<String, NotificationListener> notificationListenerBeanMap = new HashMap<>();
+        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
+        routingCriteriaFactories.add(routingCriteriaFactory);
+        backendNotificationService.routingCriteriaFactories = routingCriteriaFactories;
+        notificationListenerBeanMap.put("1", notificationListener);
+
+        new Expectations(backendNotificationService) {{
+
+            applicationContext.getBeansOfType(NotificationListener.class);
+            result = notificationListenerBeanMap;
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            routingCriteriaFactory.getName();
+            result = "routingCriteriaFactory";
+
+            routingCriteriaFactory.getInstance();
+            result = null;
+
+            backendNotificationService.createBackendFilters();
+        }};
+
+        backendNotificationService.init();
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
     public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
-                                                                    @Injectable NotificationListener notificationListener) {
+                                                                    @Injectable NotificationListener notificationListener,
+                                                                    @Injectable List<BackendFilterEntity> backendFilters) {
 
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
@@ -798,24 +1191,23 @@ public class BackendNotificationServiceTest {
             notificationListenerPluginsList.removeAll(backendFilterPluginList);
             times = 1;
 
+            notificationListenerPluginsList.isEmpty();
+            result = false;
+
             backendFilterEntities.stream().max(Comparator.comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new);
             result = priority;
+
+            backendNotificationService.assignPriorityToPlugins(notificationListenerPluginsList, backendFilterEntity.getIndex());
+            result = backendFilters;
         }};
 
         backendNotificationService.createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
 
-        new Verifications() {{
-            List<String> capturedList = null;
-            int capturedPriority;
-            backendNotificationService.assignPriorityToPlugins(capturedList = withCapture(), capturedPriority = withCapture());
+        new FullVerifications() {{
+            backendFilterDao.create(backendFilters);
             times = 1;
-
-            assertEquals(capturedList, notificationListenerPluginsList);
-            assertEquals(capturedPriority, priority);
-
-            backendFilterDao.create(backendFilterEntities);
-            times = 0;
         }};
+
     }
 
     @Test
@@ -855,7 +1247,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.createBackendFiltersWithDefaultPriority();
 
-        new Verifications() {{
+        new FullVerifications() {{
             backendFilterDao.create(backendFilters);
             times = 1;
         }};
@@ -864,13 +1256,19 @@ public class BackendNotificationServiceTest {
     @Test
     public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
         new Expectations(backendNotificationService) {{
+            domainContextProvider.getCurrentDomain();
+            result = new Domain();
+
             backendNotificationService.getBackendFilters();
             result = backendFilters;
         }};
 
-        backendNotificationService.backendFiltersCache = null;
-        backendNotificationService.getBackendFiltersWithCache();
-        backendNotificationService.getBackendFiltersWithCache();
+        backendNotificationService.backendFiltersCache = new HashMap<>();
+        List<BackendFilter> backendFiltersWithCache = backendNotificationService.getBackendFiltersWithCache();
+        List<BackendFilter> backendFiltersWithCache1 = backendNotificationService.getBackendFiltersWithCache();
+
+        assertNotNull(backendFiltersWithCache);
+        assertNotNull(backendFiltersWithCache1);
 
         new FullVerifications() {{
             backendNotificationService.getBackendFilters();
@@ -888,6 +1286,8 @@ public class BackendNotificationServiceTest {
         String service = "my service";
         String serviceType = "service type";
         String action = "my action";
+
+        List<Map<String, Object>> propertiesList = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
             errorResult.getErrorCode().getErrorCodeName();
@@ -919,19 +1319,682 @@ public class BackendNotificationServiceTest {
 
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
+
+            backendNotificationService.notifyOfIncoming(userMessage, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
+
         }};
 
         backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
 
-        new Verifications() {{
-            Map<String, Object> properties = null;
-            backendNotificationService.notifyOfIncoming(userMessage, NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE, properties = withCapture());
+        assertEquals(propertiesList.size(), 1);
 
-            assertEquals(errorCodeName, properties.get(MessageConstants.ERROR_CODE));
-            assertEquals(errorDetail, properties.get(MessageConstants.ERROR_DETAIL));
-            assertEquals(service, properties.get(MessageConstants.SERVICE));
-            assertEquals(serviceType, properties.get(MessageConstants.SERVICE_TYPE));
-            assertEquals(action, properties.get(MessageConstants.ACTION));
+        assertEquals(errorCodeName, propertiesList.get(0).get(MessageConstants.ERROR_CODE));
+        assertEquals(errorDetail, propertiesList.get(0).get(MessageConstants.ERROR_DETAIL));
+        assertEquals(service, propertiesList.get(0).get(MessageConstants.SERVICE));
+        assertEquals(serviceType, propertiesList.get(0).get(MessageConstants.SERVICE_TYPE));
+        assertEquals(action, propertiesList.get(0).get(MessageConstants.ACTION));
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageReceivedFailure_PluginNotificationDisabled(@Injectable UserMessage userMessage,
+                                                                            @Injectable ErrorResult errorResult,
+                                                                            @Injectable CollaborationInfo collaborationInfo) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
         }};
+
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void invalidateBackendFiltersCache() {
+        backendNotificationService.backendFiltersCache = new HashMap<>();
+        backendNotificationService.backendFiltersCache.put(new Domain(), new ArrayList<>());
+
+        assertEquals(backendNotificationService.backendFiltersCache.size(), 1);
+
+        backendNotificationService.invalidateBackendFiltersCache();
+
+        assertEquals(backendNotificationService.backendFiltersCache.size(), 0);
+    }
+
+    @Test
+    public void getBackendFilters_backendFilterNotEmptyInDao() {
+        ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
+        backendFilterEntityList.add(new BackendFilterEntity());
+
+        ArrayList<BackendFilter> backendFilters = new ArrayList<>();
+
+        new Expectations() {{
+            backendFilterDao.findAll();
+            result = backendFilterEntityList;
+
+            coreConverter.convert(backendFilterEntityList, BackendFilter.class);
+            result = backendFilters;
+        }};
+        List<BackendFilter> actual = backendNotificationService.getBackendFilters();
+
+        assertEquals(backendFilters, actual);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getBackendFilters_empty() {
+        ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
+
+        ArrayList<BackendFilter> backendFilters = new ArrayList<>();
+
+        new Expectations() {{
+            backendFilterDao.findAll();
+            result = backendFilterEntityList;
+
+            routingService.getBackendFilters();
+            result = backendFilters;
+        }};
+
+        List<BackendFilter> actual = backendNotificationService.getBackendFilters();
+
+        assertTrue(actual.isEmpty());
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getBackendFilters_return1() {
+        ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
+
+        ArrayList<BackendFilter> backendFilters = new ArrayList<>();
+        backendFilters.add(new BackendFilter());
+
+        new Expectations() {{
+            backendFilterDao.findAll();
+            result = backendFilterEntityList;
+
+            routingService.getBackendFilters();
+            result = backendFilters;
+        }};
+
+        List<BackendFilter> actual = backendNotificationService.getBackendFilters();
+
+        assertEquals(backendFilters, actual);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getBackendFilters_return2() {
+        ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
+
+        ArrayList<BackendFilter> backendFilters = new ArrayList<>();
+        backendFilters.add(new BackendFilter());
+        backendFilters.add(new BackendFilter());
+
+        new Expectations() {{
+            backendFilterDao.findAll();
+            result = backendFilterEntityList;
+
+            routingService.getBackendFilters();
+            result = backendFilters;
+        }};
+
+        List<BackendFilter> actual = backendNotificationService.getBackendFilters();
+
+        assertTrue(actual.isEmpty());
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void isPluginNotificationDisabled() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
+            result = true;
+        }};
+        boolean pluginNotificationDisabled = backendNotificationService.isPluginNotificationDisabled();
+        assertFalse(pluginNotificationDisabled);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+        }};
+        backendNotificationService.notifyOfSendSuccess(userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess_notFragment(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessageLog.getMessageId();
+            result = MESSAGE_ID;
+            times = 1;
+
+            userMessageLog.getMessageFragment();
+            result = false;
+            times = 1;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+            times = 1;
+
+            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
+            times = 1;
+
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+        backendNotificationService.notifyOfSendSuccess(userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess_fragment(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessageLog.getMessageId();
+            result = MESSAGE_ID;
+            times = 1;
+
+            userMessageLog.getMessageFragment();
+            result = true;
+            times = 1;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+            times = 1;
+
+            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
+            times = 1;
+
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfSendSuccess(userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageReceived_isPluginNotificationDisabled(
+            @Injectable final BackendFilter matchingBackendFilter,
+            @Injectable final UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+        }};
+
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageReceived_fragment(
+            @Injectable final BackendFilter matchingBackendFilter,
+            @Injectable final UserMessage userMessage) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.isUserMessageFragment();
+            result = true;
+            times = 1;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_FRAGMENT_RECEIVED, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageReceived_Notfragment(
+            @Injectable final BackendFilter matchingBackendFilter,
+            @Injectable final UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.isUserMessageFragment();
+            result = false;
+            times = 1;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_RECEIVED, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyPayloadSubmitted(
+            @Injectable UserMessage userMessage,
+            @Injectable PartInfo partInfo,
+            @Injectable BackendConnector<?, ?> backendConnector) {
+        List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = false;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = MESSAGE_ID;
+
+            backendNotificationService.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            partInfo.getHref();
+            result = HREF;
+
+            partInfo.getMime();
+            result = MIME;
+
+            backendConnector.payloadSubmittedEvent(withCapture(valueHolderForMultipleInvocations));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+        assertEquals(valueHolderForMultipleInvocations.size(), 1);
+        assertEquals(valueHolderForMultipleInvocations.get(0).getCid(), HREF);
+        assertEquals(valueHolderForMultipleInvocations.get(0).getFileName(), ORIGINAL_FILENAME);
+        assertEquals(valueHolderForMultipleInvocations.get(0).getMessageId(), MESSAGE_ID);
+        assertEquals(valueHolderForMultipleInvocations.get(0).getMime(), MIME);
+    }
+
+    @Test
+    public void notifyPayloadSubmitted_test(
+            @Injectable UserMessage userMessage,
+            @Injectable PartInfo partInfo) {
+
+        new Expectations() {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = true;
+        }};
+
+        backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyPayloadProcessed(
+            @Injectable UserMessage userMessage,
+            @Injectable PartInfo partInfo,
+            @Injectable BackendConnector<?, ?> backendConnector) {
+        List<PayloadProcessedEvent> payloadList = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = false;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = MESSAGE_ID;
+
+            backendNotificationService.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            partInfo.getHref();
+            result = HREF;
+
+            partInfo.getMime();
+            result = MIME;
+
+            backendConnector.payloadProcessedEvent(withCapture(payloadList));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+        assertEquals(payloadList.size(), 1);
+        assertEquals(payloadList.get(0).getCid(), HREF);
+        assertEquals(payloadList.get(0).getFileName(), ORIGINAL_FILENAME);
+        assertEquals(payloadList.get(0).getMessageId(), MESSAGE_ID);
+        assertEquals(payloadList.get(0).getMime(), MIME);
+    }
+
+    @Test
+    public void notifyPayloadProcessed_test(
+            @Injectable UserMessage userMessage,
+            @Injectable PartInfo partInfo) {
+
+        new Expectations() {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = true;
+        }};
+
+        backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+    }
+
+    @Test
+    public void getBackendConnector_empty() {
+        backendNotificationService.backendConnectors = new ArrayList<>();
+
+        BackendConnector<?, ?> backendConnector = backendNotificationService.getBackendConnector(BACKEND_NAME);
+
+        assertNull(backendConnector);
+    }
+
+    @Test
+    public void getBackendConnector(@Injectable BackendConnector<?, ?> b1,
+                                    @Injectable BackendConnector<?, ?> b2,
+                                    @Injectable BackendConnector<?, ?> b3) {
+        backendNotificationService.backendConnectors = Arrays.asList(b1, b2, b3);
+        new Expectations() {{
+            b1.getName();
+            result = "b1";
+            b2.getName();
+            result = "b2";
+            b3.getName();
+            result = BACKEND_NAME;
+        }};
+
+        BackendConnector<?, ?> backendConnector = backendNotificationService.getBackendConnector(BACKEND_NAME);
+
+        assertEquals(b3, backendConnector);
+    }
+
+    @Test
+    public void notifyOfIncoming_matchingBackendFilterNull(
+            @Injectable UserMessage userMessage,
+            @Injectable NotificationType notificationType) {
+
+        Map<String, Object> properties = new HashMap<>();
+
+        new Expectations() {{
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = FINAL_RECIPIENT;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        backendNotificationService.notifyOfIncoming(
+                null,
+                userMessage,
+                notificationType,
+                properties);
+
+        //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, unknownReceiverQueue);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfIncoming(
+            @Injectable BackendFilter matchingBackendFilter,
+            @Injectable UserMessage userMessage,
+            @Injectable NotificationType notificationType,
+            @Injectable Map<String, Object> properties) {
+
+        new Expectations(backendNotificationService) {{
+            matchingBackendFilter.getBackendName();
+            result = BACKEND_NAME;
+
+            backendNotificationService.validateAndNotify(userMessage, BACKEND_NAME, notificationType, properties);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfIncoming(
+                matchingBackendFilter,
+                userMessage,
+                notificationType,
+                properties);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfIncoming(@Injectable UserMessage userMessage,
+                                 @Injectable NotificationType notificationType,
+                                 @Injectable Map<String, Object> properties,
+                                 @Injectable BackendFilter matchingBackendFilter) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getMatchingBackendFilter(userMessage);
+            result = matchingBackendFilter;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getMatchingBackendFilter(
+            @Injectable Map<String, IRoutingCriteria> criteriaMap,
+            @Injectable UserMessage userMessage,
+            @Injectable BackendFilter backendFilter1,
+            @Injectable BackendFilter backendFilter2) {
+        List<BackendFilter> backendFilters = Arrays.asList(backendFilter1, backendFilter2);
+
+        new Expectations(backendNotificationService) {{
+            userMessage.getMessageInfo().getMessageId();
+            result = MESSAGE_ID;
+
+            backendNotificationService.isBackendFilterMatching(backendFilter1, criteriaMap, userMessage);
+            result = false;
+
+            backendNotificationService.isBackendFilterMatching(backendFilter2, criteriaMap, userMessage);
+            result = true;
+        }};
+
+        BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
+
+        assertEquals(backendFilter2, matchingBackendFilter);
+
+        //No fullVerifications because of UnexpectedInvocation BackendFilter#toString()
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void getMatchingBackendFilter_noFilters(
+            @Injectable Map<String, IRoutingCriteria> criteriaMap,
+            @Injectable UserMessage userMessage) {
+        List<BackendFilter> backendFilters = new ArrayList<>();
+
+        new Expectations() {{
+            userMessage.getMessageInfo().getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
+
+        assertNull(matchingBackendFilter);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendFailure_isPluginNotificationDisabled(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+        }};
+        backendNotificationService.notifyOfSendFailure(userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendFailure_fragment(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessageLog.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+
+            userMessageLog.getMessageFragment();
+            result = true;
+
+            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
+        }};
+
+        backendNotificationService.notifyOfSendFailure(userMessageLog);
+
+        new FullVerifications() {{
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfSendFailure_Nofragment(@Injectable UserMessageLog userMessageLog) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessageLog.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+
+            userMessageLog.getMessageFragment();
+            result = false;
+
+            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfSendFailure(userMessageLog);
+
+        new FullVerifications() {{
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getMessageProperties(@Injectable MessageLog messageLog,
+                                     @Injectable UserMessage userMessage) {
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+
+        new Expectations(){{
+            messageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            messageLog.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessage.getCollaborationInfo().getService().getValue();
+            result = "CollabInfoValue";
+
+            userMessage.getCollaborationInfo().getService().getType();
+            result = "CollabInfoType";
+
+            userMessage.getCollaborationInfo().getAction();
+            result = "CollabInfoAction";
+
+        }};
+
+        Map<String, Object> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
+
+        assertThat(messageProperties.size(), is(6));
+        assertThat(messageProperties.get(MessageConstants.STATUS_FROM), is(MessageStatus.SEND_ENQUEUED.toString()));
+        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(TIMESTAMP.getTime()));
+        assertThat(messageProperties.get(MessageConstants.SERVICE), is("CollabInfoValue"));
+        assertThat(messageProperties.get(MessageConstants.SERVICE_TYPE), is("CollabInfoType"));
+        assertThat(messageProperties.get(MessageConstants.ACTION), is("CollabInfoAction"));
+
+        new FullVerifications(){};
+
+    }
+
+    @Test
+    public void getMessageProperties_noMessage_NoUserMessage(@Injectable MessageLog messageLog,
+                                     @Injectable UserMessage userMessage) {
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+
+        new Expectations(){{
+            messageLog.getMessageStatus();
+            result = null;
+
+        }};
+
+        Map<String, Object> messageProperties = backendNotificationService.getMessageProperties(messageLog, null, newStatus, TIMESTAMP);
+
+        assertThat(messageProperties.size(), is(2));
+        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(TIMESTAMP.getTime()));
+
+        new FullVerifications(){};
+
     }
 }

@@ -2,6 +2,7 @@ package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -87,7 +88,7 @@ public class BackendNotificationService {
 
     @Autowired
     @Qualifier("unknownReceiverQueue")
-    private Queue unknownReceiverQueue;
+    protected Queue unknownReceiverQueue;
 
     @Autowired
     private MessagingDao messagingDao;
@@ -117,7 +118,7 @@ public class BackendNotificationService {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
-    protected List<BackendConnector> backendConnectors;
+    protected List<BackendConnector<?,?>> backendConnectors;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -131,20 +132,23 @@ public class BackendNotificationService {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
-    protected Object backendFiltersCacheLock = new Object();
-    protected volatile List<BackendFilter> backendFiltersCache;
+    protected final Object backendFiltersCacheLock = new Object();
+    protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
     @PostConstruct
     public void init() {
-        Map notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
+        Map<String, NotificationListener> notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
         if (notificationListenerBeanMap.isEmpty()) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         } else {
 
-            notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
+            notificationListenerServices = new ArrayList<>(notificationListenerBeanMap.values());
             if (!domibusConfigurationService.isMultiTenantAware()) {
                 LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
                 createBackendFilters();
@@ -153,7 +157,7 @@ public class BackendNotificationService {
                 final List<Domain> domains = domainService.getDomains();
                 LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
                 for (Domain domain : domains) {
-                    domainTaskExecutor.submit(() -> createBackendFilters(), domain);
+                    domainTaskExecutor.submit(this::createBackendFilters, domain);
                 }
             }
         }
@@ -180,7 +184,6 @@ public class BackendNotificationService {
     /**
      * Create Backend Filters of plugins in DB by checking the existing User Priority
      *
-     * @param backendFilterEntities
      */
     protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
 
@@ -207,8 +210,6 @@ public class BackendNotificationService {
     /**
      * Assigning priorities to the default plugin, which doesn't have any priority set by User
      *
-     * @param pluginList
-     * @param priority
      * @return backendFilters
      */
     protected List<BackendFilterEntity> assignPriorityToPlugins(List<String> pluginList, int priority) {
@@ -222,8 +223,9 @@ public class BackendNotificationService {
             BackendFilterEntity filterEntity = new BackendFilterEntity();
             filterEntity.setBackendName(pluginName);
             BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(pluginName);
-            if (backEndPluginEnum != null)
+            if (backEndPluginEnum != null) {
                 filterEntity.setIndex(++priority);
+            }
             LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
             backendFilters.add(filterEntity);
         }
@@ -279,7 +281,7 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
-        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<String, Object>());
+        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
@@ -288,7 +290,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?,?> backendConnector = getBackendConnector(backendName);
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
         payloadSubmittedEvent.setFileName(originalFilename);
@@ -303,7 +305,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?,?> backendConnector = getBackendConnector(backendName);
         PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
         payloadProcessedEvent.setCid(partInfo.getHref());
         payloadProcessedEvent.setFileName(originalFilename);
@@ -363,20 +365,26 @@ public class BackendNotificationService {
     public void invalidateBackendFiltersCache() {
         LOG.debug("Invalidating the backend filter cache");
 
-        this.backendFiltersCache = null;
+        this.backendFiltersCache = new HashMap<>();
     }
 
     protected List<BackendFilter> getBackendFiltersWithCache() {
-        if (backendFiltersCache == null) {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+        LOG.trace("Get backend filters with cache for domain [{}]", currentDomain);
+        List<BackendFilter> backendFilters = backendFiltersCache.get(currentDomain);
+
+        if (backendFilters == null) {
             synchronized (backendFiltersCacheLock) {
-                LOG.debug("Initializing backendFilterCache");
-                if (backendFiltersCache == null) {
-                    List<BackendFilter> backendFilters = getBackendFilters();
-                    backendFiltersCache = backendFilters;
+                // retrieve again from map, otherwise it is null even for the second thread(because the variable has method scope)
+                backendFilters = backendFiltersCache.get(currentDomain);
+                if (backendFilters == null) {
+                    LOG.debug("Initializing backendFilterCache for domain [{}]", currentDomain);
+                    backendFilters = getBackendFilters();
+                    backendFiltersCache.put(currentDomain, backendFilters);
                 }
             }
         }
-        return backendFiltersCache;
+        return backendFilters;
     }
 
     protected List<BackendFilter> getBackendFilters() {
@@ -391,7 +399,7 @@ public class BackendNotificationService {
             LOG.error("There are no backend plugins deployed on this server");
         }
         if (backendFilters.size() > 1) { //There is more than one unconfigured backend available. For security reasons we cannot send the message just to the first one
-            LOG.error("There are multiple unconfigured backend plugins available. Please set up the configuration using the \"Message filter\" pannel of the administrative GUI.");
+            LOG.error("There are multiple unconfigured backend plugins available. Please set up the configuration using the \"Message filter\" panel of the administrative GUI.");
             backendFilters.clear(); // empty the list so its handled in the desired way.
         }
         //If there is only one backend deployed we send it to that as this is most likely the intent
@@ -426,8 +434,8 @@ public class BackendNotificationService {
         return null;
     }
 
-    public BackendConnector getBackendConnector(String backendName) {
-        for (final BackendConnector backendConnector : backendConnectors) {
+    public BackendConnector<?,?> getBackendConnector(String backendName) {
+        for (final BackendConnector<?,?> backendConnector : backendConnectors) {
             if (backendConnector.getName().equalsIgnoreCase(backendName)) {
                 return backendConnector;
             }
@@ -561,7 +569,6 @@ public class BackendNotificationService {
         }
         properties.put(MessageConstants.STATUS_TO, newStatus.toString());
         properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
-
 
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());
