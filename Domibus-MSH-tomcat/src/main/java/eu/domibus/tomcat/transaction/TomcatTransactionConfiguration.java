@@ -74,8 +74,8 @@ public class TomcatTransactionConfiguration {
         return new J2eeUserTransaction();
     }
 
-    @DependsOn({JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY, DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE,
-                DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE})
+    @DependsOn({JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY, JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY,
+                DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE})
     @Bean("transactionManager")
     public JtaTransactionManager jtaTransactionManager(@Qualifier("atomikosTransactionManager") UserTransactionManager userTransactionManager,
                                                        @Qualifier("atomikosUserTransaction") J2eeUserTransaction j2eeUserTransaction) {

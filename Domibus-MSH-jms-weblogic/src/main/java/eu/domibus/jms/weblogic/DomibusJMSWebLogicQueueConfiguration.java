@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -27,22 +28,21 @@ public class DomibusJMSWebLogicQueueConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWebLogicQueueConfiguration.class);
 
-    private static final String WEBLOGIC_CONNECTION_FACTORY = "weblogicConnectionFactory";
-
-    @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
-    public ConnectionFactory connectionFactory(@Qualifier(WEBLOGIC_CONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
+    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
         cachingConnectionFactory.setSessionCacheSize(sessionCacheSize);
         cachingConnectionFactory.setTargetConnectionFactory(weblogicConnectionFactory);
+        cachingConnectionFactory.setCacheConsumers(false);
 
         return cachingConnectionFactory;
     }
 
-    @Bean(WEBLOGIC_CONNECTION_FACTORY)
-    public JndiObjectFactoryBean weblogicConnectionFactory() {
+    @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
         jndiObjectFactoryBean.setLookupOnStartup(false);

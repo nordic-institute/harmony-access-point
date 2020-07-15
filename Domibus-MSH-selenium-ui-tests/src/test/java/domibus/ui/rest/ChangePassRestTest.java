@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import rest.BaseRestClient;
 
-public class ChangePassTest extends RestTest {
+public class ChangePassRestTest extends RestTest {
 	
 	@Test(description = "CP-3")
 	public void changePass() throws Exception {

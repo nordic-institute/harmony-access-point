@@ -111,8 +111,8 @@ public class DomibusPropertyMetadata {
         return res;
     }
 
-    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, boolean encrypted) {
-        return new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, encrypted, false);
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type, boolean encrypted) {
+        return new DomibusPropertyMetadata(name, type, Module.MSH, false, Usage.GLOBAL, false, false, encrypted, false);
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, String module) {
@@ -162,6 +162,10 @@ public class DomibusPropertyMetadata {
         this(name, Module.MSH, writable, usage, withFallback, true, encrypted, false);
     }
 
+    public DomibusPropertyMetadata(String name, Type type, boolean writable, int usage, boolean withFallback, boolean encrypted) {
+        this(name, type, Module.MSH, writable, usage, withFallback, true, encrypted, false);
+    }
+
     public String getName() {
         return name;
     }
@@ -172,6 +176,10 @@ public class DomibusPropertyMetadata {
 
     public String getType() {
         return type;
+    }
+
+    public Type getTypeAsEnum() {
+        return Type.valueOf(type);
     }
 
     public void setType(String type) {
@@ -311,7 +319,7 @@ public class DomibusPropertyMetadata {
     }
 
     /**
-     * States if a property is used as a global, domain super one or a valid combination of them
+     * States if a property is used as a global, domain, super or a valid combination of them
      */
     public class Usage {
         public static final int GLOBAL = 1;
@@ -322,7 +330,7 @@ public class DomibusPropertyMetadata {
     }
 
     /**
-     * Metadata being an internal class, we control everything so I added the type as an enum as it has some convenience methods and type-safety
+     * Metadata being an internal class, we control everything so we added the type as an enum as it has some convenience methods and type-safety
      * More types can be added later without any breaking changes
      */
     public enum Type {
@@ -331,8 +339,21 @@ public class DomibusPropertyMetadata {
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
         EMAIL("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$"),
         CRON(new CronValidator()),
+
+        // added so that the default black-list validation is skipped and the type validation is properly done
+        PASSWORD(".*"),
+        REGEXP(".*"),
+        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]+$"),
+        CLASS("^[a-zA-Z0-9_\\.]+$"),
+        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]+$"),
+        HYPHENED_NAME("^[a-zA-Z0-9_\\-]+$"),
+        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]+$"),
+        FREE_TEXT("^[\\x20-\\x7D]*$"),
+
+        // no type validation for String except for the default black-list validation
         STRING();
 
+        // properties
         private String regularExpression;
 
         private DomibusPropertyValidator validator;

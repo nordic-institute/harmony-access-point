@@ -134,10 +134,12 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         }
 
         boolean valid = value.matches(whitelist);
-        if (!valid && customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
-            Optional<Character> forbiddenChar = value.chars().mapToObj(c -> (char) c).map(c -> c.toString())
-                    .filter(el -> !el.matches(whitelist) && !customAnnotation.permitted().contains(el))
-                    .map(s -> s.charAt(0))
+        final String additionalPermitted = customAnnotation != null ? customAnnotation.permitted() : null;
+        if (!valid && StringUtils.isNotEmpty(additionalPermitted)) {
+            Optional<Character> forbiddenChar = value.chars().mapToObj(valueChar -> (char) valueChar)
+                    .map(valueChar -> valueChar.toString())
+                    .filter(valueLetter -> !valueLetter.matches(whitelist) && !additionalPermitted.contains(valueLetter))
+                    .map(valueLetter -> valueLetter.charAt(0))
                     .findFirst();
             valid = !forbiddenChar.isPresent();
             if (!valid) {
@@ -160,11 +162,16 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         }
 
         boolean res;
-        if (customAnnotation != null && StringUtils.isNotEmpty(customAnnotation.permitted())) {
-            res = value.chars().mapToObj(c -> (char) c).noneMatch(el -> blacklist.contains(el)
-                    && !customAnnotation.permitted().contains(el.toString()));
+        String additionalPermitted = customAnnotation != null ? customAnnotation.permitted() : null;
+        if (StringUtils.isNotEmpty(additionalPermitted)) {
+            res = value.chars()
+                    .mapToObj(valueChar -> (char) valueChar)
+                    .noneMatch(valueChar -> blacklist.contains(valueChar)
+                            && !additionalPermitted.contains(valueChar.toString()));
         } else {
-            res = value.chars().mapToObj(c -> (char) c).noneMatch(el -> blacklist.contains(el));
+            res = value.chars()
+                    .mapToObj(valueChar -> (char) valueChar)
+                    .noneMatch(valueChar -> blacklist.contains(valueChar));
         }
         LOG.trace("Validated value [{}] for blacklist and the outcome is [{}]", value, res);
         return res;

@@ -8,7 +8,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -17,13 +17,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Ion Perpegel
  * since 4.1
  */
-@Target({TYPE})
+@Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
 @Constraint(validatedBy = ObjectBlacklistValidator.class)
 @Documented
 public @interface ObjectWhiteListed {
 
-    static String MESSAGE = "Forbidden character detected in property: %s ";
+    static String MESSAGE = "Forbidden character detected in property ";
 
     String message() default MESSAGE;
 

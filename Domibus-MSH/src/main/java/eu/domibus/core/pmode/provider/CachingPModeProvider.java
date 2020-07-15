@@ -89,7 +89,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.debug("Initialising the configuration");
         this.configuration = this.configurationDAO.readEager();
-        LOG.trace("Configuration initialized: [{}]", this.configuration.getEntityId());
+        LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
 
         initPullProcessesCache();
     }
@@ -548,7 +548,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Role getBusinessProcessRole(String roleValue) {
+    public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         for (Role role : this.getConfiguration().getBusinessProcesses().getRoles()) {
             if (StringUtils.equalsIgnoreCase(role.getValue(), roleValue)) {
                 LOG.debug("Found role [{}]", roleValue);
@@ -558,7 +558,7 @@ public class CachingPModeProvider extends PModeProvider {
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if(rolesEnabled) {
-            throw new ConfigurationException("No matching role found with value: " + roleValue);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
         }
 
         return null;
