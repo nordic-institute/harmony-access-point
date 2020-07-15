@@ -23,8 +23,8 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
-    @Timer
-    @Counter
+    @Timer(clazz = MessageSenderListener.class,value="onMessage")
+    @Counter(clazz = MessageSenderListener.class,value="onMessage")
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
         super.onMessage(message);

@@ -1,13 +1,9 @@
 package eu.domibus.core.property;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.MetricsAspect;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -21,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * Helper class involved in managing the property metadata of core or external property managers ( metadata integrator)

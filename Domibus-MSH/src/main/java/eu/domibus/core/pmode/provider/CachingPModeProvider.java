@@ -457,8 +457,6 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    @Timer()
-    @Counter()
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);
         for (final LegConfiguration legConfiguration : this.getConfiguration().getBusinessProcesses().getLegConfigurations()) {

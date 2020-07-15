@@ -1,12 +1,10 @@
 package eu.domibus.plugin.jms;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,9 +20,7 @@ public class BackendJMSConfiguration {
     @Bean
     public BackendJMSQueueService backendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
                                                          DomainContextExtService domainContextExtService,
-                                                         JmsPluginPropertyManager jmsPluginPropertyManager,
-                                                         MessageRetriever messageRetriever,
-                                                         MetricRegistry metricRegistry) {
-        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, jmsPluginPropertyManager, messageRetriever,metricRegistry);
+                                                         MessageRetriever messageRetriever) {
+        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, messageRetriever);
     }
 }

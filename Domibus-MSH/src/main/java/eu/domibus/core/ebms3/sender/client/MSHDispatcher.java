@@ -51,8 +51,8 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Timer
-    @Counter
+    @Timer(clazz = MSHDispatcher.class,value = "dispatch")
+    @Counter(clazz = MSHDispatcher.class,value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
