@@ -45,9 +45,6 @@ public class DomibusPropertyChangeManager {
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
-        // validate the property value against the type
-        validatePropertyValue(propMeta, propertyValue);
-
         //keep old value in case of an exception
         String oldValue = getInternalPropertyValue(domain, propertyName);
 
@@ -63,34 +60,6 @@ public class DomibusPropertyChangeManager {
             return domibusPropertyProvider.getInternalProperty(propertyName);
         }
         return domibusPropertyProvider.getInternalProperty(domain, propertyName);
-    }
-
-    protected void validatePropertyValue(DomibusPropertyMetadata propMeta, String propertyValue) throws DomibusPropertyException {
-        if (propMeta == null) {
-            LOG.warn("Property metadata is null; exiting validation.");
-            return;
-        }
-
-        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
-        if (!enabled) {
-            LOG.debug("Domibus property validation is not enabled; exiting validation.");
-            return;
-        }
-
-        try {
-            DomibusPropertyMetadata.Type type = propMeta.getTypeAsEnum();
-            DomibusPropertyValidator validator = type.getValidator();
-            if (validator == null) {
-                LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());
-                return;
-            }
-
-            if (!validator.isValid(propertyValue)) {
-                throw new DomibusPropertyException("Property value [" + propertyValue + "] of property [" + propMeta.getName() + "] does not match property type [" + type.name() + "].");
-            }
-        } catch (IllegalArgumentException ex) {
-            LOG.warn("Property type [{}] of property [{}] is not known; exiting validation.", propMeta.getType(), propMeta.getName());
-        }
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {

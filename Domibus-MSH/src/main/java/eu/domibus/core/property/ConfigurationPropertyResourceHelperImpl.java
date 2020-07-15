@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
+import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +36,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private DomibusPropertyBlacklistValidator domibusPropertyNameBlacklistValidator;
+    private DomibusPropertyValueValidator domibusPropertyValueValidator;
 
     private FieldBlacklistValidator propertyNameBlacklistValidator;
 
@@ -45,30 +45,28 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                                                    AuthUtils authUtils,
                                                    DomainTaskExecutor domainTaskExecutor,
                                                    GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                                   DomibusPropertyBlacklistValidator domibusPropertyNameBlacklistValidator,
+                                                   DomibusPropertyValueValidator domibusPropertyValueValidator,
                                                    FieldBlacklistValidator propertyNameBlacklistValidator) {
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.authUtils = authUtils;
         this.domainTaskExecutor = domainTaskExecutor;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.domibusPropertyNameBlacklistValidator = domibusPropertyNameBlacklistValidator;
-        this.domibusPropertyNameBlacklistValidator.init();
+        this.domibusPropertyValueValidator = domibusPropertyValueValidator;
         this.propertyNameBlacklistValidator = propertyNameBlacklistValidator;
         this.propertyNameBlacklistValidator.init();
     }
 
     @Override
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value) {
-        List<DomibusProperty> result = new ArrayList<>();
-
         List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
                 name, showDomain, type, module);
 
         List<DomibusProperty> properties = createProperties(propertiesMetadata);
 
-        List<DomibusProperty> filteredProps = filterByValue(value, properties);
-        result.addAll(filteredProps);
+        List<DomibusProperty> result = filterByValue(value, properties);
+
+        result.sort((a, b) -> StringUtils.compare(a.getMetadata().getName(), b.getMetadata().getName()));
 
         return result;
     }
@@ -118,7 +116,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         DomibusProperty prop = getProperty(propertyName);
         prop.setValue(propertyValue);
-        domibusPropertyNameBlacklistValidator.validate(prop);
+        domibusPropertyValueValidator.validate(prop);
     }
 
     protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {

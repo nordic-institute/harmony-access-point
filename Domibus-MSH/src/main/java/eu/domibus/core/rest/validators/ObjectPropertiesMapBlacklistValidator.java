@@ -71,7 +71,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
             String[] val = pair.getValue();
             if (!listValidator.isValid(val, whitelistAnnotation)) {
-                message = String.format("Forbidden character detected in the query parameter [%s]:[%s] ",
+                message = String.format("Forbidden character detected in the parameter [%s]:[%s] ",
                         pair.getKey(), Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg));
                 LOG.debug(message);
                 return false;

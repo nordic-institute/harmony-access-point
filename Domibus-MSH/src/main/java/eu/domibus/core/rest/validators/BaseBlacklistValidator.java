@@ -15,8 +15,9 @@ import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_BLACK_LIST;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_WHITE_LIST;
@@ -112,7 +113,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
         boolean res = isWhiteListValid(value, customAnnotation) && isBlackListValid(value, customAnnotation);
-        LOG.debug("Validated value [{}] and the outcome is [{}]", value, res);
+        LOG.trace("Validated value [{}] and the outcome is [{}]", value, res);
         return res;
     }
 
@@ -133,21 +134,31 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             return true;
         }
 
-        boolean valid = value.matches(whitelist);
+        if (value.matches(whitelist)) {
+            LOG.trace("Value [{}] matches the whitelist", value);
+            return true;
+        }
+
+        List<Character> forbiddenChars = value.chars().mapToObj(valueChar -> (char) valueChar)
+                .map(valueChar -> valueChar.toString())
+                .filter(valueLetter -> !valueLetter.matches(whitelist))
+                .map(valueLetter -> valueLetter.charAt(0))
+                .distinct()
+                .collect(Collectors.toList());
+
         final String additionalPermitted = customAnnotation != null ? customAnnotation.permitted() : null;
-        if (!valid && StringUtils.isNotEmpty(additionalPermitted)) {
-            Optional<Character> forbiddenChar = value.chars().mapToObj(valueChar -> (char) valueChar)
-                    .map(valueChar -> valueChar.toString())
-                    .filter(valueLetter -> !valueLetter.matches(whitelist) && !additionalPermitted.contains(valueLetter))
-                    .map(valueLetter -> valueLetter.charAt(0))
-                    .findFirst();
-            valid = !forbiddenChar.isPresent();
-            if (!valid) {
-                LOG.debug("Forbidden char: [{}]", forbiddenChar.get());
+        if (StringUtils.isNotEmpty(additionalPermitted)) {
+            forbiddenChars = forbiddenChars.stream()
+                    .filter(valueChar -> !additionalPermitted.contains(valueChar.toString()))
+                    .collect(Collectors.toList());
+            if (forbiddenChars.isEmpty()) {
+                LOG.trace("Value [{}] does not match the global whitelist, but matches the additional permitted list: [{}]", value, additionalPermitted);
+                return true;
             }
         }
-        LOG.trace("Validated value [{}] for whitelist and the outcome is [{}]", value, valid);
-        return valid;
+
+        LOG.debug("Forbidden chars: [{}]", forbiddenChars);
+        return false;
     }
 
     public boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {

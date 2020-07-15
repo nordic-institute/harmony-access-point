@@ -83,7 +83,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName,
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
-                            @Valid @RequestBody String propertyValue) {
+                            @Valid @RequestBody(required = false) String propertyValue) {
 
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);

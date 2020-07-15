@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.*;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
+import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import mockit.*;
 import org.apache.commons.collections.map.HashedMap;
@@ -55,7 +55,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Injectable
-    DomibusPropertyBlacklistValidator domibusPropertyValueBlacklistValidator;
+    DomibusPropertyValueValidator domibusPropertyValueValidator;
 
     @Injectable
     private FieldBlacklistValidator propertyNameBlacklistValidator;
@@ -279,7 +279,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         new Verifications() {{
             propertyNameBlacklistValidator.validate(propertyName);
-            domibusPropertyValueBlacklistValidator.validate(prop);
+            domibusPropertyValueValidator.validate(prop);
         }};
     }
 
