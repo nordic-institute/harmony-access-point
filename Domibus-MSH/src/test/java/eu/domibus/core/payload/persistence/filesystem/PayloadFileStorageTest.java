@@ -55,10 +55,10 @@ public class PayloadFileStorageTest {
     @Test
     public void createLocationWithRelativePath() {
 
-        final String location = "../domibus_blue/domibus/payload_storage";
-
+        final String location = "..\\domibus_blue\\domibus\\payload_storage";
         try {
             payloadFileStorage.createLocation(location);
+            Assert.fail();
         } catch (DomibusCoreException ex) {
             Assert.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:Relative path [..\\domibus_blue\\domibus\\payload_storage] is forbidden. Please provide absolute path for payload storage");
@@ -66,15 +66,11 @@ public class PayloadFileStorageTest {
     }
 
     @Test
-    public void createLocationWithAbsolutePath() {
+    public void createLocationWithAbsolutePath(@Injectable Path path) {
 
-        final String location = "D:/domibus_tomcat/domibus_blue/domibus/payload_storage";
-
-        try {
-            payloadFileStorage.createLocation(location);
-        } catch (Exception ex) {
-            Assert.assertEquals(ex.getMessage(), "Write permission for payload folder D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage is not granted.");
-        }
+        final String location = "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
+        path = payloadFileStorage.createLocation(location);
+        Assert.assertNotNull(path);
     }
 
     @Test
