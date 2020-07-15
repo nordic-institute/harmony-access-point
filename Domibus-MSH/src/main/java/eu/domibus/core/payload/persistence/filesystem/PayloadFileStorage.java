@@ -87,21 +87,24 @@ public class PayloadFileStorage {
      * @param path
      * @return Path
      */
-    private Path createLocation(String path) {
+    protected Path createLocation(String path) {
         Path payloadPath = null;
         try {
             payloadPath = Paths.get(path).normalize();
+            if (!payloadPath.isAbsolute()) {
+                throw new IOException("Relative path " + payloadPath + " is forbidden. Please provide absolute path for payload storage");
+            }
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
                 Files.createDirectories(payloadPath);
-                LOG.info("The payload folder " + payloadPath.toAbsolutePath() + " has been created!");
+                LOG.info("The payload folder " + payloadPath + " has been created!");
             } else {
                 if (Files.isSymbolicLink(payloadPath)) {
                     payloadPath = Files.readSymbolicLink(payloadPath);
                 }
 
                 if (!Files.isWritable(payloadPath)) {
-                    throw new IOException("Write permission for payload folder " + payloadPath.toAbsolutePath() + " is not granted.");
+                    throw new IOException("Write permission for payload folder " + payloadPath + " is not granted.");
                 }
             }
         } catch (IOException ioEx) {
