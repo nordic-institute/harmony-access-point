@@ -97,14 +97,14 @@ public class PayloadFileStorage {
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
                 Files.createDirectories(payloadPath);
-                LOG.info("The payload folder " + payloadPath + " has been created!");
+                LOG.info("The payload folder " + payloadPath.toAbsolutePath() + " has been created!");
             } else {
                 if (Files.isSymbolicLink(payloadPath)) {
                     payloadPath = Files.readSymbolicLink(payloadPath);
                 }
 
                 if (!Files.isWritable(payloadPath)) {
-                    throw new IOException("Write permission for payload folder " + payloadPath + " is not granted.");
+                    throw new IOException("Write permission for payload folder " + payloadPath.toAbsolutePath() + " is not granted.");
                 }
             }
         } catch (IOException ioEx) {
