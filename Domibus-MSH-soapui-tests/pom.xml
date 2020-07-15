@@ -33,6 +33,9 @@
         <sonar.jacoco.remoteAddress.blue>${jacocoRemoteAddressBlue}</sonar.jacoco.remoteAddress.blue>
         <sonar.jacoco.remotePort.red>${jacocoRemotePortRed}</sonar.jacoco.remotePort.red>
         <sonar.jacoco.remoteAddress.red>${jacocoRemoteAddressRed}</sonar.jacoco.remoteAddress.red>
+		
+		<!-- Added default dummy value for allJMSDomainsProperties -->
+		<allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
     </properties>
 
     <pluginRepositories>
