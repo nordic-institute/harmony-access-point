@@ -3,10 +3,8 @@ package eu.domibus.core.rest.validators;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
-import eu.domibus.api.validators.CustomWhiteListed;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,53 +15,50 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class DomibusPropertyBlacklistValidatorTest {
+public class DomibusPropertyValueValidatorTest {
 
     @Tested
-    DomibusPropertyBlacklistValidator domibusPropertyBlacklistValidator;
+    DomibusPropertyValueValidator domibusPropertyValueValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    FieldBlacklistValidator fieldBlacklistValidator;
+
     @Test
-    public void isValid_blackListValidation(@Mocked DomibusProperty property, @Mocked CustomWhiteListed customAnnotation) {
-        boolean isValid = true;
-        new Expectations(domibusPropertyBlacklistValidator) {{
-            property.getMetadata().getTypeAsEnum().getValidator();
+    public void shouldUseBlacklistValidatorForStrings(@Mocked DomibusProperty property) {
+        new Expectations(domibusPropertyValueValidator) {{
+            domibusPropertyValueValidator.getValidator(property.getMetadata());
             result = null;
-            domibusPropertyBlacklistValidator.isValidValue(property.getValue());
-            result = isValid;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
             result = true;
         }};
 
-        boolean result = domibusPropertyBlacklistValidator.isValid(property, customAnnotation);
+        domibusPropertyValueValidator.validate(property);
 
         new Verifications() {{
-            domibusPropertyBlacklistValidator.isValidValue(property.getValue());
+            fieldBlacklistValidator.validate(property.getValue());
         }};
-
-        Assert.assertEquals(isValid, result);
     }
 
     @Test
-    public void isValid_typeValidation(@Mocked DomibusProperty property,
-                                       @Mocked CustomWhiteListed customAnnotation,
-                                       @Mocked DomibusPropertyValidator domibusPropertyValidator) {
-        new Expectations() {{
-            property.getMetadata().getTypeAsEnum().getValidator();
-            result = domibusPropertyValidator;
+    public void shouldUsePropertyValueValidatorWhenAvailable(@Mocked DomibusProperty property, @Mocked DomibusPropertyValidator validator) {
+        new Expectations(domibusPropertyValueValidator) {{
+            domibusPropertyValueValidator.getValidator(property.getMetadata());
+            result = validator;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+            result = true;
+            validator.isValid(property.getValue());
             result = true;
         }};
 
-        boolean result = domibusPropertyBlacklistValidator.isValid(property, customAnnotation);
+        domibusPropertyValueValidator.validate(property);
 
         new Verifications() {{
-            domibusPropertyBlacklistValidator.isValidValue(property.getValue());
+            fieldBlacklistValidator.validate(property.getValue());
             times = 0;
         }};
-
-        Assert.assertEquals(true, result);
     }
+
 }
