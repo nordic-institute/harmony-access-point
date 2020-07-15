@@ -36,7 +36,6 @@ public class TomcatTaskExecutorConfigurationTest {
 
         new FullVerifications() {{
             poolTaskExecutor.setThreadCount(threadCount);
-            poolTaskExecutor.setWaitForJobsToCompleteOnShutdown(true);
         }};
     }
 }
