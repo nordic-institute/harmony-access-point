@@ -34,7 +34,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
 
 
     @Bean("internalJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier("weblogicConnectionFactory") ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                   PlatformTransactionManager transactionManager,
                                                                                   DomibusPropertyProvider domibusPropertyProvider,
                                                                                   Optional<JndiDestinationResolver> internalDestinationResolver,
