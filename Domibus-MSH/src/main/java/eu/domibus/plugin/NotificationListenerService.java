@@ -1,6 +1,7 @@
 
 package eu.domibus.plugin;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT;
 
 /**
@@ -69,6 +71,9 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected MetricRegistry metricRegistry;
 
     private Queue backendNotificationQueue;
     private BackendConnector.Mode mode;
@@ -114,9 +119,10 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
-    @Timer(clazz = NotificationListenerService.class,value = "onMessageNotify")
-    @Counter(clazz = NotificationListenerService.class,value = "onMessageNotify")
     public void onMessage(final Message message) {
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(NotificationListenerService.class, "onMessageNotify", "_timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(NotificationListenerService.class, "onMessageNotify", "_counter"));
+        methodCounter.inc();
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
         }
@@ -156,6 +162,10 @@ public class NotificationListenerService implements MessageListener, JmsListener
         } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
+        }
+        finally {
+            methodTimer.stop();
+            methodCounter.dec();
         }
     }
 

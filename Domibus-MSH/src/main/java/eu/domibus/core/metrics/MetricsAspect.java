@@ -38,7 +38,6 @@ public class MetricsAspect {
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
         Class<?> clazz = timer.clazz();
         String value = timer.value();
-        //LOG.trace("adding a timer with name:[{}] in class:[{}]", value, clazz.getName());
         com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(getMetricsName(clazz, value, "_timer")).time();
         try {
             return pjp.proceed();
@@ -50,12 +49,6 @@ public class MetricsAspect {
     }
 
     private String getMetricsName(Class<?> clazz, String name,String suffix) {
-       /* if(MetricNames.VOID.equals(timerName)){
-            return name(declaringClass, method.getName()+suffix);
-        }
-        if (Default.class.isAssignableFrom(clazz)) {
-            return timerName.name()+suffix;
-        } else {*/
         return name(clazz, name + suffix);
 
     }
@@ -64,7 +57,6 @@ public class MetricsAspect {
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
         Class<?> clazz = counter.clazz();
         String value = counter.value();
-      //  LOG.trace("adding a counter with name:[{}] in class:[{}]", clazz, value);
         com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz,value, "_counter"));
         try {
             methodCounter.inc();
@@ -74,11 +66,4 @@ public class MetricsAspect {
         }
     }
 
-    protected String getMetricsName(final Class<?> clazz, final String timerName) {
-        if (Default.class.isAssignableFrom(clazz)) {
-            return timerName;
-        } else {
-            return name(clazz, timerName);
-        }
-    }
 }
