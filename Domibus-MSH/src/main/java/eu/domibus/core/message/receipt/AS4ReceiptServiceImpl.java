@@ -130,8 +130,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
 
     @Override
-    @Timer()
-    @Counter()
+    @Timer(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
+    @Counter(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
                                        final ReplyPattern replyPattern,

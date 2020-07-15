@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
@@ -42,6 +43,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
         result.setTaskExecutor(schedulingTaskExecutor);
+        result.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONSUMER);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_INTERNAL_QUEUE_CONCURENCY);
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_INTERNAL_QUEUE_CONCURENCY, concurrency);

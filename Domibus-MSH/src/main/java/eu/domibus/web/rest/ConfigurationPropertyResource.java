@@ -1,19 +1,17 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.DomibusPropertyRO;
-import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;
-import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
-import eu.domibus.web.rest.ro.PropertyResponseRO;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,23 +33,31 @@ import java.util.stream.Collectors;
 public class ConfigurationPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResource.class);
 
-    @Autowired
     private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
-
-    @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
-    protected DomainCoreConverter domainCoreConverter;
+    private ErrorHandlerService errorHandlerService;
+
+    public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
+                                         DomainCoreConverter domainConverter,
+                                         ErrorHandlerService errorHandlerService) {
+        this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
+        this.domainConverter = domainConverter;
+        this.errorHandlerService = errorHandlerService;
+    }
+
+    @ExceptionHandler({DomibusPropertyException.class})
+    public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
 
     @GetMapping
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
 
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(), request.isShowDomain());
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(),
+                request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -65,10 +71,20 @@ public class ConfigurationPropertyResource extends BaseResource {
         return response;
     }
 
+    /**
+     * Sets the specified value for the specified property name
+     * We skip the default blacklist validator because some properties have values that ae normally in the black-list
+     *
+     * @param propertyName  the name of the property
+     * @param isDomain      tells if it is set in a domain context
+     * @param propertyValue the value of the property
+     */
     @PutMapping(path = "/{propertyName:.+}")
     @SkipWhiteListed
-    public void setProperty(@PathVariable String propertyName, @RequestParam(required = false, defaultValue = "true") boolean isDomain,
-                            @RequestBody String propertyValue) {
+    public void setProperty(@PathVariable String propertyName,
+                            @RequestParam(required = false, defaultValue = "true") boolean isDomain,
+                            @Valid @RequestBody String propertyValue) {
+
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);
 
@@ -80,7 +96,8 @@ public class ConfigurationPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(), request.isShowDomain());
+        List<DomibusProperty> items = configurationPropertyResourceHelper
+                .getAllWritableProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
         getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);
@@ -99,12 +116,13 @@ public class ConfigurationPropertyResource extends BaseResource {
         LOG.debug("Getting domibus property metadata types.");
 
         DomibusPropertyMetadata.Type[] types = DomibusPropertyMetadata.Type.values();
-        List<DomibusPropertyTypeRO> res = domainCoreConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
+        List<DomibusPropertyTypeRO> res = domainConverter.convert(Arrays.asList(types), DomibusPropertyTypeRO.class);
         return res;
     }
 
     /**
      * Returns the property metadata and the current value for a property
+     *
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */

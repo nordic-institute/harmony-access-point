@@ -156,9 +156,9 @@ export class PartyComponent extends mix(BaseListComponent)
 
   async doSave(): Promise<any> {
     try {
-      this.partyService.validateParties(this.allRows)
+      await this.partyService.validateParties(this.allRows)
     } catch (err) {
-      this.alertService.exception('Party validation error:', err);
+      this.alertService.exception('Party validation error: <br>', err);
       return false;
     }
 

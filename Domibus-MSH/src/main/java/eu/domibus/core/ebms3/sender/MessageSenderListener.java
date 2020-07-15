@@ -23,6 +23,8 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
+    @Timer(clazz = MessageSenderListener.class,value="onMessage")
+    @Counter(clazz = MessageSenderListener.class,value="onMessage")
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
         super.onMessage(message);
@@ -30,12 +32,12 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @Override
     public void scheduleSending(String messageId, Long delay) {
-        super.userMessageService.scheduleSending(messageId, delay, false);
+        super.userMessageService.scheduleSending(messageId, delay);
     }
 
     @Override
     public void sendUserMessage(String messageId, int retryCount) {
-        super.messageSenderService.sendUserMessage(messageId, retryCount, false);
+        super.messageSenderService.sendUserMessage(messageId, retryCount);
     }
 
 }

@@ -78,8 +78,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
     @Transactional
     @Override
-    @Timer(INCOMING_USER_MESSAGE_RECEIPT)
-    @Counter(INCOMING_USER_MESSAGE_RECEIPT)
+    @Timer(clazz = IncomingUserMessageReceiptHandler.class,value  ="INCOMING_USER_MESSAGE_RECEIPT")
+    @Counter(clazz = IncomingUserMessageReceiptHandler.class,value  ="INCOMING_USER_MESSAGE_RECEIPT")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.debug("Processing UserMessage receipt");
         final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging);

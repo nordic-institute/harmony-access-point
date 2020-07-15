@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
+
 /**
  * Helper class involved in changing of domibus properties at runtime
  *
@@ -52,7 +54,7 @@ public class DomibusPropertyChangeManager {
         //try to set the new value
         doSetPropertyValue(domain, propertyName, propertyValue);
 
-        //let the custom property listeners to do their job
+        //let the custom property listeners do their job
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
     }
 
@@ -69,8 +71,14 @@ public class DomibusPropertyChangeManager {
             return;
         }
 
+        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
+        if (!enabled) {
+            LOG.debug("Domibus property validation is not enabled; exiting validation.");
+            return;
+        }
+
         try {
-            DomibusPropertyMetadata.Type type = DomibusPropertyMetadata.Type.valueOf(propMeta.getType());
+            DomibusPropertyMetadata.Type type = propMeta.getTypeAsEnum();
             DomibusPropertyValidator validator = type.getValidator();
             if (validator == null) {
                 LOG.debug("Validator for type [{}] of property [{}] is null; exiting validation.", propMeta.getType(), propMeta.getName());

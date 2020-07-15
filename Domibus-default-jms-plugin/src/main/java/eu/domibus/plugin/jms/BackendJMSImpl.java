@@ -97,8 +97,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional
-    @Timer
-    @Counter
+    @Timer(clazz = BackendJMSImpl.class,value = "receiveMessage")
+    @Counter(clazz = BackendJMSImpl.class,value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
@@ -154,8 +154,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
-    @Timer
-    @Counter
+    @Timer(clazz = BackendJMSImpl.class,value = "deliverMessage")
+    @Counter(clazz = BackendJMSImpl.class,value = "deliverMessage")
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message [{}]", messageId);
         final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);

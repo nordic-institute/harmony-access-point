@@ -72,8 +72,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     private ErrorLogDao errorLogDao;
 
     @Override
-    @Timer(OUTGOING_USER_MESSAGE)
-    @Counter(OUTGOING_USER_MESSAGE)
+    @Timer(clazz=AbstractUserMessageSender.class,value = "OUTGOING_USER_MESSAGE")
+    @Counter(clazz=AbstractUserMessageSender.class,value = "OUTGOING_USER_MESSAGE")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -117,6 +117,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 throw ex;
             }
 
+            getLog().debug("pModeKey is [{}]", pModeKey);
             Party sendingParty = pModeProvider.getSenderParty(pModeKey);
             Validate.notNull(sendingParty, "Initiator party was not found");
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);

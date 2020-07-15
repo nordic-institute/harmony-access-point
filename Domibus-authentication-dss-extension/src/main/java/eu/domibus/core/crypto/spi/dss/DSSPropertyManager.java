@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import org.springframework.stereotype.Service;
-
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public class DSSPropertyManager extends DomibusPropertyExtServiceDelegateAbstrac
             DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_NAME,
             DOMIBUS_AUTHENTICATION_DSS_CONSTRAINT_STATUS
     })
-            .map(name -> new DomibusPropertyMetadataDTO(name, Module.DSS, false, DomibusPropertyMetadataDTO.Usage.DOMAIN, true, true, false, true))
+            .map(name -> new DomibusPropertyMetadataDTO(name, Module.DSS, false, Usage.DOMAIN, true, true, false, true))
             .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     @Override

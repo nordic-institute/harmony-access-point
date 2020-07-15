@@ -1,6 +1,8 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 /**
@@ -30,4 +32,12 @@ public class DomainMessageListenerContainer extends DefaultMessageListenerContai
      * @return the domain
      */
     public Domain getDomain() { return this.domain; }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", getName())
+                .append("domain", domain)
+                .toString();
+    }
 }

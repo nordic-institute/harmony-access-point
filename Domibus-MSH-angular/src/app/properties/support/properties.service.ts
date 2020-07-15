@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
 
@@ -22,9 +22,8 @@ export class PropertiesService {
     return result;
   }
 
-  updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
-    this.validateValue(prop);
-
+  async updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
+    await this.validateValue(prop);
     const payload = JSON.stringify(prop.value);
     const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
     const options = {params: {isDomain: isDomain.toString()}, headers: headers};
@@ -34,7 +33,11 @@ export class PropertiesService {
       }).toPromise()
   }
 
-  validateValue(prop) {
+  async validateValue(prop) {
+    const validationEnabled = await this.isPropertyValidationEnabled();
+    if (!validationEnabled) {
+      return;
+    }
     const propType = prop.type;
     const regexp = this.regularExpressions.get(propType);
     if (!regexp) {
@@ -54,6 +57,10 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
+  private async isPropertyValidationEnabled(): Promise<boolean> {
+    let enabledProp = await this.getProperty('domibus.property.validation.enabled');
+    return enabledProp && enabledProp.value && enabledProp.value.toLowerCase() == 'true';
+  }
 }
 
 export interface PropertyModel {

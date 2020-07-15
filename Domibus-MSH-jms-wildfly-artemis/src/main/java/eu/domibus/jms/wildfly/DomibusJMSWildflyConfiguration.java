@@ -2,6 +2,7 @@ package eu.domibus.jms.wildfly;
 
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -52,8 +53,8 @@ public class DomibusJMSWildflyConfiguration {
     }
 
     @Bean("jmsSender")
-    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
-        JmsTemplate result = new JmsTemplate();
+    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+        PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         result.setConnectionFactory(connectionFactory);

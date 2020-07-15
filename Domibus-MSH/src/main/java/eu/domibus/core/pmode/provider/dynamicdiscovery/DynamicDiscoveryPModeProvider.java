@@ -18,6 +18,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,9 +65,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected DomainContextProvider domainProvider;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     @Qualifier("dynamicDiscoveryServiceOASIS")
     private DynamicDiscoveryService dynamicDiscoveryServiceOASIS;
 
@@ -94,6 +92,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Override
     public void init() {
         super.init();
+        LOG.debug("Initialising the dynamic discovery configuration.");
         dynamicResponderProcesses = findDynamicResponderProcesses();
         dynamicInitiatorProcesses = findDynamicSenderProcesses();
         if(DynamicDiscoveryClientSpecification.PEPPOL.getName().equalsIgnoreCase(domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION))) {
@@ -101,6 +100,17 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         } else { // OASIS client is used by default
             dynamicDiscoveryService = dynamicDiscoveryServiceOASIS;
         }
+    }
+
+    public Collection<eu.domibus.common.model.configuration.Process> getDynamicProcesses(final MSHRole mshRole) {
+        // TODO investigate why the configuration is empty when these lists are initialized in the first place
+        if(CollectionUtils.isEmpty(dynamicResponderProcesses) && CollectionUtils.isEmpty(dynamicInitiatorProcesses) ){
+            // this is needed when the processes were not initialized in the init()
+            LOG.debug("Refreshing the configuration.");
+            refresh();
+        }
+
+        return MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
     }
 
     protected Collection<eu.domibus.common.model.configuration.Process> findDynamicResponderProcesses() {
@@ -388,8 +398,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * Check all dynamic processes to find candidates for dynamic discovery lookup.
      */
     protected Collection<eu.domibus.common.model.configuration.Process> findCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
+        LOG.debug("Finding candidate processes.");
         Collection<eu.domibus.common.model.configuration.Process> candidates = new HashSet<>();
-        Collection<eu.domibus.common.model.configuration.Process> processes = MSHRole.SENDING.equals(mshRole) ? dynamicResponderProcesses : dynamicInitiatorProcesses;
+        Collection<eu.domibus.common.model.configuration.Process> processes = getDynamicProcesses(mshRole);
 
         for (final Process process : processes) {
             if (matchProcess(process, mshRole)) {

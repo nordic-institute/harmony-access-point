@@ -38,6 +38,9 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected DomainCoreConverter domainConverter;
 
+   /* @Autowired
+    private MetricRegistry metricRegistry;*/
+
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
@@ -53,30 +56,39 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-        loadPropertiesIfNotFound(propertyName);
+      /*  com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_counter"));
+        methodCounter.inc();
+        com.codahale.metrics.Timer surrounding = metricRegistry.timer(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_timer"));
+        com.codahale.metrics.Timer.Context surroundingContext = surrounding.time();
+        try {*/
+            loadPropertiesIfNotFound(propertyName);
 
-        DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
-        if (prop != null) {
-            LOG.trace("Found property [{}], returning its metadata.", propertyName);
-            return prop;
-        }
+            DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
+            if (prop != null) {
+                LOG.trace("Found property [{}], returning its metadata.", propertyName);
+                return prop;
+            }
 
-        // try to see if it is a compose-able property, i.e. propertyName+suffix
-        Optional<DomibusPropertyMetadata> propMeta = allPropertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
-        if (propMeta.isPresent()) {
-            LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-            DomibusPropertyMetadata meta2 = addMetadataForAPrefixedProperty(propertyName, propMeta.get());
-            return meta2;
-        }
+            synchronized (propertyMetadataMapLock) {
+                LOG.trace("Acquired lock to search new property: [{}]", propertyName);
 
-        // if still not found, initialize metadata on-the-fly
-        LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
-        synchronized (propertyMetadataMapLock) {
-            DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
-            allPropertyMetadataMap.put(propertyName, newProp);
-            internalPropertyMetadataMap.put(propertyName, prop);
-            return newProp;
-        }
+                // try to see if it is a compose-able property, i.e. propertyName+suffix
+                DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
+                if (propMeta != null) {
+                    LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
+                    return clonePropertyMetadata(propertyName, propMeta);
+                }
+
+                // if still not found, initialize metadata on-the-fly
+                LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
+                DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
+                return clonePropertyMetadata(propertyName, newProp);
+            }
+      /*  } finally {
+            methodCounter.dec();
+            surroundingContext.stop();
+        }*/
+
     }
 
     protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
@@ -84,22 +96,24 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             return true;
         }
 
-        try {
-            Optional<DomibusPropertyMetadata> propMeta = map.values().stream().filter(
-                    p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
-            return propMeta.isPresent();
-        } catch (Exception ex) {
-            LOG.error("Could not find metadata of [{}] property in property map [{}]", propertyName, map);
-            return false;
+        synchronized (propertyMetadataMapLock) {
+            LOG.trace("Acquired lock to search new property: [{}]", propertyName);
+            return getComposableProperty(map, propertyName) != null;
         }
+    }
+
+    protected DomibusPropertyMetadata getComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+        return map.values().stream().filter(
+                propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName()))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         loadPropertiesIfNotFound(propertyName);
         if (hasProperty(internalPropertyMetadataMap, propertyName)) {
-            //core property, no external manager involved
-            LOG.trace("Property [{}] is internal, returning null as the manager.", propertyName);
+            LOG.trace("Property [{}] is internal, returning null as the manager (no external manager involved).", propertyName);
             return null;
         }
 
@@ -111,16 +125,24 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             return found.get();
         }
 
-        throw new DomibusPropertyException("Property" + propertyName + "could not be found anywhere.");
+        throw new DomibusPropertyException("Property " + propertyName + " could not be found anywhere.");
+    }
+
+    @Override
+    public boolean hasKnownProperty(String propertyName) {
+        return hasProperty(getAllProperties(), propertyName);
     }
 
     /**
-     * Initializes the metadata map.
-     * Initially, during the bean creation stage, only a few domibus-core properties are needed;
+     * Initializes the metadata map with internal and/or external properties,
+     * until the given property is found.
+     *
+     * @param propertyName the name of the property to search for
+     * @implNote Initially, during the bean creation stage, only a few domibus-core properties are needed;
      * later on, the properties from all managers will be added to the map.
      */
     protected void loadPropertiesIfNotFound(String propertyName) {
-        // add domibus-core and specific server  properties first, to avoid infinite loop of bean creation (due to DB properties)
+        // We add domibus-core and specific server properties first to avoid infinite loop of bean creation (due to DB properties)
         if (internalPropertyMetadataMap == null) {
             synchronized (propertyMetadataMapLock) {
                 if (!internalPropertiesLoaded) { // double-check locking
@@ -141,7 +163,10 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         loadExternalPropertiesIfNeeded();
     }
 
-    // load external properties (i.e. plugin properties and extension properties) the first time one of them is needed
+    /**
+     * Loads external properties (i.e. plugin properties and extension properties)
+     * the first time one of them is needed
+     */
     protected void loadExternalPropertiesIfNeeded() {
         if (!externalPropertiesLoaded) {
             synchronized (propertyMetadataMapLock) {
@@ -186,10 +211,11 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         }
     }
 
-    protected DomibusPropertyMetadata addMetadataForAPrefixedProperty(String propertyName, DomibusPropertyMetadata propMeta) {
-        //make a clone
+    protected DomibusPropertyMetadata clonePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
+        // make a clone and then add it to the map
         DomibusPropertyMetadata newPropMeta = domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
-        // metadata name is a prefix of propertyName so we set the whole property name here to be correctly used down the stream. Not beautiful
+        // metadata name may be just the prefix, not be the concrete propertyName,
+        // so we set the whole property name here to be correctly used down the stream. Not beautiful
         newPropMeta.setName(propertyName);
 
         allPropertyMetadataMap.put(propertyName, newPropMeta);

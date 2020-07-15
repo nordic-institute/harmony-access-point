@@ -89,8 +89,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(INCOMING_PULL_REQUEST_RECEIPT)
-    @Counter(INCOMING_PULL_REQUEST_RECEIPT)
+    @Timer(clazz = IncomingPullReceiptHandler.class,value ="INCOMING_PULL_REQUEST_RECEIPT")
+    @Counter(clazz = IncomingPullReceiptHandler.class,value ="INCOMING_PULL_REQUEST_RECEIPT")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.trace("before pull receipt.");
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);
@@ -145,6 +145,13 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
+        if((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
+                (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
+            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("There was an error processing the receipt for pulled message:[%s].", messageId), messageId, null);
+            return messageBuilder.getSoapMessage(ebMS3Exception);
+        }
+
+        // when the pull receipt is valid, no response is expected back
         return null;
     }
 

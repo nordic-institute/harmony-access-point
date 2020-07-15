@@ -11,6 +11,7 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.pmode.validation.validators.OneWayMepValidator;
 import eu.domibus.core.property.*;
@@ -83,11 +84,6 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public PropertyResolver propertyResolver() {
-            return Mockito.mock(PropertyResolver.class);
-        }
-
-        @Bean
         public DomainContextProvider domainContextProvider() {
             return Mockito.mock(DomainContextProviderImpl.class);
         }
@@ -156,6 +152,12 @@ public class PModeValidationServiceImplIT {
         public PrimitivePropertyTypesManager primitivePropertyTypesManager() {
             return Mockito.mock(PrimitivePropertyTypesManager.class);
         }
+
+        @Bean
+        public DomibusCacheService domibusCacheService() {
+            return Mockito.mock(DomibusCacheService.class);
+        }
+
     }
 
     @Autowired

@@ -57,8 +57,6 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
-    void scheduleSending(String messageId, boolean isSplitAndJoin);
-
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *
@@ -118,9 +116,7 @@ public interface UserMessageService {
 
     void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
 
-    void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin);
-
-    void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin);
+    void scheduleSending(String messageId, Long delay);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt

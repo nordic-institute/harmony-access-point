@@ -37,7 +37,7 @@
 
     <bean id="mshToBackendTemplate"
           class="org.springframework.jms.core.JmsTemplate"
-          c:connectionFactory-ref="domibusJMS-XAConnectionFactory"
+          c:connectionFactory-ref="domibusJMS-CachingXAConnectionFactory"
           p:sessionTransacted="true"
           p:sessionAcknowledgeMode="0"/>
 </beans>

@@ -114,8 +114,8 @@ public class NotificationListenerService implements MessageListener, JmsListener
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
-    @Timer
-    @Counter
+    @Timer(clazz = NotificationListenerService.class,value = "onMessageNotify")
+    @Counter(clazz = NotificationListenerService.class,value = "onMessageNotify")
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);

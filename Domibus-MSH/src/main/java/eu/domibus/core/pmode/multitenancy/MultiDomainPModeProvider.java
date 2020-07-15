@@ -20,7 +20,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -95,13 +94,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception {
-        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action);
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole) throws EbMS3Exception {
+        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole);
     }
 
     @Override
-    public String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception {
-        return getCurrentPModeProvider().findPullLegName(agreementRef, senderParty, receiverParty, service, action, mpc);
+    public String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc, Role initiatorRole, Role responderRole) throws EbMS3Exception {
+        return getCurrentPModeProvider().findPullLegName(agreementRef, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
     }
 
     @Override
@@ -205,7 +204,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Role getBusinessProcessRole(String roleValue) {
+    public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         return getCurrentPModeProvider().getBusinessProcessRole(roleValue);
     }
 

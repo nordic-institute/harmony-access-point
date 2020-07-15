@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -34,7 +35,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 
 /**
  * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
@@ -88,7 +89,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.debug("Initialising the configuration");
         this.configuration = this.configurationDAO.readEager();
-        LOG.trace("Configuration initialized: [{}]", this.configuration.getEntityId());
+        LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
 
         initPullProcessesCache();
     }
@@ -214,12 +215,14 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String findPullLegName(final String agreementName, final String senderParty,
-                                  final String receiverParty, final String service, final String action, final String mpc) throws EbMS3Exception {
+                                  final String receiverParty, final String service, final String action, final String mpc, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(
                 MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
         processes = processes.stream().filter(process -> matchAgreement(process, agreementName))
+                .filter(process -> matchRole(process.getInitiatorRole(), initiatorRole))
+                .filter(process -> matchRole(process.getResponderRole(), responderRole))
                 .filter(process -> MessageExchangePattern.ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
                 .filter(process -> matchInitiator(process, processTypePartyExtractor))
                 .filter(process -> matchResponder(process, processTypePartyExtractor)).collect(Collectors.toList());
@@ -252,7 +255,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     //FIXME: only works for the first leg, as sender=initiator
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                              final String service, final String action) throws EbMS3Exception {
+                              final String service, final String action, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         //TODO Refactor the nested for loop and conditions
         for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
@@ -261,15 +264,10 @@ public class CachingPModeProvider extends PModeProvider {
                 if (StringUtils.equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
                     for (final Party responder : process.getResponderParties()) {
                         if (StringUtils.equalsIgnoreCase(responder.getName(), processTypePartyExtractor.getReceiverParty())) {
-                            if (process.getAgreement() != null && StringUtils.equalsIgnoreCase(process.getAgreement().getName(), agreementName)
-                                    || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() == null)
-                                    // Please notice that this is only for backward compatibility and will be removed ASAP!
-                                    || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() != null && StringUtils.isEmpty(process.getAgreement().getValue()))
-                            ) {
-                                /**
-                                 * The Process is a candidate because either has an Agreement and its name matches the Agreement name found previously
-                                 * or it has no Agreement configured and the Agreement name was not indicated in the submitted message.
-                                 **/
+                            if (matchAgreement(process, agreementName) &&
+                                    matchRole(process.getInitiatorRole(), initiatorRole) &&
+                                    matchRole(process.getResponderRole(), responderRole)) {
+                                LOG.debug("Add candidate legs [{}] for process [{}]", process.getLegs(), process);
                                 candidates.addAll(process.getLegs());
                             }
                         }
@@ -288,6 +286,23 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found for service [" + service + "] and action [" + action + "]", null, null);
+    }
+
+    protected boolean matchRole(final Role processRole, final Role role) {
+        boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+        if(!rolesEnabled) {
+            LOG.debug("Roles validation disabled");
+            return true;
+        }
+
+        LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
+        if(Objects.equals(role, processRole)) {
+            LOG.debug("Roles match");
+            return true;
+        }
+
+        LOG.debug("Roles do not match");
+        return false;
     }
 
     @Override
@@ -442,8 +457,6 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    @Timer()
-    @Counter()
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);
         for (final LegConfiguration legConfiguration : this.getConfiguration().getBusinessProcesses().getLegConfigurations()) {
@@ -535,13 +548,19 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Role getBusinessProcessRole(String roleValue) {
+    public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         for (Role role : this.getConfiguration().getBusinessProcesses().getRoles()) {
             if (StringUtils.equalsIgnoreCase(role.getValue(), roleValue)) {
+                LOG.debug("Found role [{}]", roleValue);
                 return role;
             }
         }
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
+        boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+        if(rolesEnabled) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
+        }
+
         return null;
     }
 

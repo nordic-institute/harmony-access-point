@@ -278,7 +278,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending((UserMessageLog) any);
+            userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
         }};
 
     }
@@ -352,7 +352,7 @@ public class DatabaseMessageHandlerTest {
 //            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-            userMessageService.scheduleSending(MESS_ID, anyBoolean);
+            userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
         }};
 
@@ -647,7 +647,6 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
-
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
@@ -685,7 +684,7 @@ public class DatabaseMessageHandlerTest {
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
-            userMessageService.scheduleSending(MESS_ID, anyBoolean);
+            userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
         }};
     }

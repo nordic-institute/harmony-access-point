@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.multitenancy;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -59,6 +60,9 @@ public class MultiDomainPModeProviderTest {
 
     @Injectable
     protected MpcService mpcService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     MultiDomainPModeProvider multiDomainPModeProvider;

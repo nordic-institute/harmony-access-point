@@ -273,5 +273,14 @@ public class DomibusPropertyMetadataDTO {
         public static final String CRON = "CRON";
         public static final String CONCURRENCY = "CONCURRENCY";
         public static final String EMAIL = "EMAIL";
+
+        public static final String PASSWORD = "PASSWORD"; //NOSONAR 
+        public static final String REGEXP = "REGEXP";
+        public static final String URI = "URI";
+        public static final String CLASS = "CLASS";
+        public static final String HYPHENED_NAME = "HYPHENED_NAME";
+        public static final String COMMA_SEPARATED_LIST = "COMMA_SEPARATED_LIST";
+        public static final String JNDI = "JNDI";
+        public static final String FREE_TEXT = "FREE_TEXT";
     }
 }

@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -91,6 +92,9 @@ public abstract class PModeProvider {
 
     @Autowired
     PModeValidationService pModeValidationService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     protected abstract void init();
 
@@ -268,6 +272,8 @@ public abstract class PModeProvider {
 
         try {
             agreementName = findAgreement(userMessage.getCollaborationInfo().getAgreementRef());
+            final Role initiatorRole = getBusinessProcessRole(userMessage.getPartyInfo().getFrom().getRole());
+            final Role responderRole = getBusinessProcessRole(userMessage.getPartyInfo().getTo().getRole());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getCollaborationInfo().getAgreementRef());
             try {
                 senderParty = findPartyName(fromPartyId);
@@ -300,10 +306,10 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_ACTION_FOUND, action, userMessage.getCollaborationInfo().getAction());
             if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc())) {
                 mpc = mpcService.extractBaseMpc(userMessage.getMpc());
-                leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc);
+                leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
             } else {
                 mpc = userMessage.getMpc();
-                leg = findLegName(agreementName, senderParty, receiverParty, service, action);
+                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole);
             }
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
@@ -345,9 +351,9 @@ public abstract class PModeProvider {
 
     public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
 
-    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action) throws EbMS3Exception;
+    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole) throws EbMS3Exception;
 
-    public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc) throws EbMS3Exception;
+    public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc, Role initiatorRole, Role responderRole) throws EbMS3Exception;
 
     public abstract String findActionName(String action) throws EbMS3Exception;
 
@@ -413,7 +419,7 @@ public abstract class PModeProvider {
 
     public abstract int getRetentionUndownloadedByMpcURI(final String mpcURI);
 
-    public abstract Role getBusinessProcessRole(String roleValue);
+    public abstract Role getBusinessProcessRole(String roleValue) throws EbMS3Exception;
 
     public String getSenderPartyNameFromPModeKey(final String pModeKey) {
         return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[0];
