@@ -112,7 +112,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected void validateProperty(String propertyName, String propertyValue) {
-        propertyNameBlacklistValidator.validate(propertyName);
+        propertyNameBlacklistValidator.validate(propertyName, ".");
 
         DomibusProperty prop = getProperty(propertyName);
         prop.setValue(propertyValue);

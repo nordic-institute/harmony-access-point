@@ -278,7 +278,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
         configurationPropertyResourceHelper.validateProperty(propertyName, propertyValue);
 
         new Verifications() {{
-            propertyNameBlacklistValidator.validate(propertyName);
+            propertyNameBlacklistValidator.validate(propertyName, ".");
             domibusPropertyValueValidator.validate(prop);
         }};
     }

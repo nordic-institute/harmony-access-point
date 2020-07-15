@@ -93,10 +93,32 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     public void validate(T value) {
-        if (!isValid(value)) {
+        validate(value, null);
+    }
+
+    public void validate(T value, String additionalWhitelist) {
+        CustomWhiteListed customWhitelist = createCustomWhitelist(additionalWhitelist);
+        if (!isValid(value, customWhitelist)) {
             LOG.debug("Value [{}] is not valid; Throwing exception.", value);
             throw new ValidationException(getErrorMessage());
         }
+    }
+
+    protected CustomWhiteListed createCustomWhitelist(CharSequence whitelistedCharacters) {
+        if (StringUtils.isEmpty(whitelistedCharacters)) {
+            return null;
+        }
+        return new CustomWhiteListed() {
+            @Override
+            public String permitted() {
+                return whitelistedCharacters.toString();
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return CustomWhiteListed.class;
+            }
+        };
     }
 
     public abstract String getErrorMessage();
