@@ -12,6 +12,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -32,7 +34,7 @@ public class PayloadFileStorageTest {
     @Test
     public void initFileSystemStorage(@Injectable Domain domain, @Injectable Path path) {
 
-        final String location =  "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
+        final String location = "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
         final String ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.storage.location";
 
         new Expectations(payloadFileStorage) {{
@@ -66,11 +68,11 @@ public class PayloadFileStorageTest {
     }
 
     @Test
-    public void createLocationWithAbsolutePath(@Injectable Path path) {
-
-        final String location = "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
+    public void createLocationWithAbsolutePath(@Injectable Path path, @Injectable Files files) throws IOException {
+        final String location = "D:\\domibus_tomcat";
         path = payloadFileStorage.createLocation(location);
-        Assert.assertNotNull(path);
+        Assert.assertTrue(Files.exists(path));
+        files.delete(path);
     }
 
     @Test
