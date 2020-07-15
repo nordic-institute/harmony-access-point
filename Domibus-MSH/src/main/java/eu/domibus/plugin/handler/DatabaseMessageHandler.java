@@ -22,6 +22,7 @@ import eu.domibus.common.services.MessageExchangeService;
 import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
+import eu.domibus.common.validators.MessagePropertyValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -52,7 +53,6 @@ import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -138,6 +138,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -443,6 +446,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             payloadProfileValidator.validate(message, pModeKey);
             propertyProfileValidator.validate(message, pModeKey);
+            messagePropertyValidator.validate(message, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSplitAndJoin(splitAndJoin);
