@@ -43,7 +43,7 @@ public class DomibusJMSActiveMQConfigurationTest {
             this.result = maxPoolSize;
         }};
 
-        domibusJMSActiveMQConfiguration.atomikosConnectionFactoryBean(activeMQXAConnectionFactory, domibusPropertyProvider);
+        domibusJMSActiveMQConfiguration.connectionFactory(activeMQXAConnectionFactory, domibusPropertyProvider);
 
         new Verifications() {{
             atomikosConnectionFactoryBean.setUniqueResourceName("domibusJMS-XA");

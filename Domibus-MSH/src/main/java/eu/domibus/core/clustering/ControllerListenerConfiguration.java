@@ -38,6 +38,7 @@ public class ControllerListenerConfiguration {
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
+        messageListenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
         LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);
