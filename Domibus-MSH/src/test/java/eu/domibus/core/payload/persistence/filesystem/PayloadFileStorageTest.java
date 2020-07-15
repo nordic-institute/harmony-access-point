@@ -1,5 +1,7 @@
 package eu.domibus.core.payload.persistence.filesystem;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
@@ -57,8 +59,9 @@ public class PayloadFileStorageTest {
 
         try {
             payloadFileStorage.createLocation(location);
-        } catch (Exception ex) {
-            Assert.assertEquals(ex.getMessage(), "Relative path ..\\domibus_blue\\domibus\\payload_storage is forbidden. Please provide absolute path for payload storage");
+        } catch (DomibusCoreException ex) {
+            Assert.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
+            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Relative path [..\\domibus_blue\\domibus\\payload_storage] is forbidden. Please provide absolute path for payload storage");
         }
     }
 
