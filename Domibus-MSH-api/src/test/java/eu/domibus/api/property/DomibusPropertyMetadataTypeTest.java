@@ -58,6 +58,7 @@ public class DomibusPropertyMetadataTypeTest {
         DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.EMAIL.getValidator();
 
         Assert.assertTrue(validator.isValid("abc_ABC@domibus-host.com"));
+        Assert.assertTrue(validator.isValid("abc_ABC@domibus-host.com ; second.address@example.org "));
         Assert.assertFalse(validator.isValid("invalid@@email.com"));
     }
 
@@ -66,7 +67,7 @@ public class DomibusPropertyMetadataTypeTest {
         DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST.getValidator();
 
         Assert.assertTrue(validator.isValid("domibus-blue, domibus-123"));
-        Assert.assertFalse(validator.isValid("aaa'"));
+        Assert.assertFalse(validator.isValid("aaa;"));
     }
 
     @Test

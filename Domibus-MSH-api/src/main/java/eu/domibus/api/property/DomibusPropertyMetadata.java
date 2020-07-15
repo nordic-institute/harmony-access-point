@@ -337,7 +337,7 @@ public class DomibusPropertyMetadata {
         NUMERIC("^(-?[1-9]\\d*|0)$"),
         BOOLEAN("^(true|false)$"),
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
-        EMAIL("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$"),
+        EMAIL("^(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,})[\\s\\;]*)*$"),
         CRON(new CronValidator()),
 
         // added so that the default black-list validation is skipped and the type validation is properly done
