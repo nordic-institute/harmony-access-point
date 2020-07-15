@@ -32,7 +32,7 @@ public class PayloadFileStorageTest {
     @Test
     public void initFileSystemStorage(@Injectable Domain domain, @Injectable Path path) {
 
-        final String location = "../domibus_blue/domibus/payload_storage";
+        final String location =  "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
         final String ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.storage.location";
 
         new Expectations(payloadFileStorage) {{
