@@ -34,7 +34,7 @@ public class MessagePropertyValidator {
 
         for (Property property : properties) {
             if (property.getValue().length() > Property.VALUE_MAX_SIZE) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PROPERTY_SIZE_EXCEEDS, property.getName(), Property.VALUE_MAX_SIZE);
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PROPERTY_SIZE_EXCEEDED, property.getName(), Property.VALUE_MAX_SIZE);
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, property.getName() + " property has a value which exceeds " + Property.VALUE_MAX_SIZE + " characters size.", messageId, null);
                 ex.setMshRole(mshRole);
                 throw ex;

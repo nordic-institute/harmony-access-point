@@ -1568,7 +1568,7 @@
             <column name="VALUE"/>
         </createIndex>
         <modifySql dbms="mysql">
-            <replace replace="VALUE" with="VALUE(255)"/>
+            <replace replace="VALUE" with="VALUE(1024)"/>
         </modifySql>
     </changeSet>
     <changeSet author="Catalin Enache" id="1564477107969-104_3">
