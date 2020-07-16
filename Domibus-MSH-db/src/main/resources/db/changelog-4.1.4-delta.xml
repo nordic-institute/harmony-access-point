@@ -21,10 +21,11 @@
             UPDATE TB_MESSAGE_LOG SET VERSION = 0 WHERE MESSAGE_TYPE = 'USER_MESSAGE';
         </sql>
     </changeSet>
-    <changeSet id="EDELIVERY-6856" author="Catalin Enache">
+    <changeSet id="EDELIVERY-6856-1" author="Catalin Enache">
         <dropIndex tableName="TB_PROPERTY" indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL"/>
         <modifyDataType  columnName="VALUE" tableName="TB_PROPERTY" newDataType="VARCHAR(1024)"/>
-
+    </changeSet>
+    <changeSet id="EDELIVERY-6856-2" author="Catalin Enache">
         <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL" tableName="TB_PROPERTY">
             <column name="NAME"/>
             <column name="MESSAGEPROPERTIES_ID"/>
