@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPropertyResourceHelper {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
+
+    public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = ".";
 
     private DomibusConfigurationService domibusConfigurationService;
 
@@ -76,10 +79,17 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         }
 
         properties = filterByValue(value, properties);
-
-        properties.sort((a, b) -> StringUtils.compare(a.getMetadata().getName(), b.getMetadata().getName()));
+        properties = sortProperties(properties);
 
         return properties;
+    }
+
+    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
+        List<DomibusProperty> list = properties.stream()
+                .filter(property -> property.getMetadata() != null && property.getMetadata().getName() != null)
+                .collect(Collectors.toList());
+        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
+        return list;
     }
 
     @Override
@@ -123,7 +133,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected void validateProperty(String propertyName, String propertyValue) {
-        propertyNameBlacklistValidator.validate(propertyName, ".");
+        propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
         DomibusProperty prop = getProperty(propertyName);
         prop.setValue(propertyValue);

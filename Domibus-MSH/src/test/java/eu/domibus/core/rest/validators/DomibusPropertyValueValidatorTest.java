@@ -72,11 +72,7 @@ public class DomibusPropertyValueValidatorTest {
 
         domibusPropertyValueValidator.validate(property);
 
-        new Verifications() {{
-            fieldBlacklistValidator.validate(anyString);
-            times = 0;
-            property.getMetadata();
-            times = 0;
+        new FullVerifications() {{
         }};
     }
 

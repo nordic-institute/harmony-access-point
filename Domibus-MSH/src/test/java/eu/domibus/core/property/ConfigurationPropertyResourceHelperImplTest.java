@@ -25,6 +25,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl.ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationPropertyResourceHelperImplTest {
@@ -90,13 +91,13 @@ public class ConfigurationPropertyResourceHelperImplTest {
     @Test
     public void getAllWritableProperties() {
         String name = "domibus.UI";
-        String value = "My Domibus";
+        String testValue = "My Domibus value";
         Boolean showDomain = true;
 
         List<DomibusProperty> properties = propertiesMetadataList.stream().map(el -> {
             DomibusProperty res = new DomibusProperty();
             res.setMetadata(el);
-            res.setValue("val1");
+            res.setValue(testValue);
             return res;
         }).collect(Collectors.toList());
 
@@ -107,16 +108,14 @@ public class ConfigurationPropertyResourceHelperImplTest {
             result = propertiesMetadataList;
             configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
             result = properties;
-            configurationPropertyResourceHelper.filterByValue(value, properties);
-            result = properties;
         }};
 
-        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain, null, null, value);
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllWritableProperties(name, showDomain, null, null, testValue);
 
         Assert.assertEquals(4, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_REPLICATION_ENABLED)));
-        Assert.assertEquals("val1", actual.stream().filter(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)).findFirst().get().getValue());
+        Assert.assertEquals(testValue, actual.stream().filter(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)).findFirst().get().getValue());
     }
 
     @Test
@@ -258,7 +257,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
         configurationPropertyResourceHelper.validateProperty(propertyName, propertyValue);
 
         new Verifications() {{
-            propertyNameBlacklistValidator.validate(propertyName, ".");
+            propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
             domibusPropertyValueValidator.validate(prop);
         }};
     }
