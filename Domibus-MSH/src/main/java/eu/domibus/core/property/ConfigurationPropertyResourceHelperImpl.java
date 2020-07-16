@@ -6,6 +6,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -61,14 +62,24 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value) {
         List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
                 name, showDomain, type, module);
+        if (CollectionUtils.isEmpty(propertiesMetadata)) {
+            return new ArrayList();
+        }
 
-        List<DomibusProperty> properties = createProperties(propertiesMetadata);
+        List<DomibusProperty> properties;
 
-        List<DomibusProperty> result = filterByValue(value, properties);
+        if (showDomain) {
+            properties = getPropertyValues(propertiesMetadata);
+        } else {
+            // for non-domain properties, we get the values in the null-domain context:
+            properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
+        }
 
-        result.sort((a, b) -> StringUtils.compare(a.getMetadata().getName(), b.getMetadata().getName()));
+        properties = filterByValue(value, properties);
 
-        return result;
+        properties.sort((a, b) -> StringUtils.compare(a.getMetadata().getName(), b.getMetadata().getName()));
+
+        return properties;
     }
 
     @Override
@@ -119,7 +130,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         domibusPropertyValueValidator.validate(prop);
     }
 
-    protected List<DomibusProperty> createProperties(List<DomibusPropertyMetadata> properties) {
+    protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
         List<DomibusProperty> list = new ArrayList<>();
 
         for (DomibusPropertyMetadata propMeta : properties) {
@@ -131,23 +142,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
-        String propertyValue = getPropertyValue(propMeta);
+        String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
         return createProperty(propMeta, propertyValue);
-    }
-
-    protected String getPropertyValue(DomibusPropertyMetadata propMeta) {
-        if (propMeta.isDomain()) {
-            String name = propMeta.getName();
-            LOG.debug("Getting the value for the domain property [{}].", name);
-            return domibusPropertyProvider.getProperty(name);
-        }
-
-        // for non-domain properties, we get the value in the null-domain context:
-        return domainTaskExecutor.submit(() -> {
-            String name = propMeta.getName();
-            LOG.debug("Getting the value for the global/super property [{}].", name);
-            return domibusPropertyProvider.getProperty(name);
-        });
     }
 
     protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue) {

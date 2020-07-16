@@ -105,7 +105,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
             result = allProps;
             configurationPropertyResourceHelper.filterProperties(allProps, name, showDomain, null, null);
             result = propertiesMetadataList;
-            configurationPropertyResourceHelper.createProperties(propertiesMetadataList);
+            configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
             result = properties;
             configurationPropertyResourceHelper.filterByValue(value, properties);
             result = properties;
@@ -179,13 +179,13 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void createProperties() {
+    public void getPropertyValues() {
         new Expectations(configurationPropertyResourceHelper) {{
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(0).getName());
             result = "val1";
         }};
 
-        List<DomibusProperty> actual = configurationPropertyResourceHelper.createProperties(propertiesMetadataList);
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
 
         Assert.assertEquals(4, actual.size());
         Assert.assertEquals("val1", actual.get(0).getValue());
@@ -235,8 +235,6 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String propertyValue = "prop value";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            propMeta.isDomain();
-            result = true;
             domibusPropertyProvider.getProperty(propMeta.getName());
             result = propertyValue;
         }};
@@ -245,24 +243,6 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(propertyValue, actual.getValue());
-    }
-
-    @Test
-    public void getPropertyValueGlobal(@Mocked DomibusPropertyMetadata propMeta) throws Exception {
-        String expectedValue = "my val";
-        new Expectations(configurationPropertyResourceHelper) {{
-            propMeta.isDomain();
-            result = false;
-            propMeta.getName();
-            result = "my.global.prop.name";
-            domibusPropertyProvider.getProperty(propMeta.getName());
-            result = expectedValue;
-        }};
-
-        configurationPropertyResourceHelper.getPropertyValue(propMeta);
-        String returnedValue = mockExecutorSubmit();
-
-        Assert.assertEquals(expectedValue, returnedValue);
     }
 
     @Test
