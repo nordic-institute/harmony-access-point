@@ -23,7 +23,7 @@
     </changeSet>
     <changeSet id="EDELIVERY-6856" author="Catalin Enache">
         <dropIndex tableName="TB_PROPERTY" indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL"/>
-        <modifyDataType  columnName="VALUE" tableName="TB_PROPERTY" newDataType="TEXT"/>
+        <modifyDataType  columnName="VALUE" tableName="TB_PROPERTY" newDataType="VARCHAR(1024)"/>
 
         <createIndex indexName="IDX_PROP_NAME_MSGPROPS_ID_VAL" tableName="TB_PROPERTY">
             <column name="NAME"/>
@@ -31,7 +31,7 @@
             <column name="VALUE"/>
         </createIndex>
         <modifySql dbms="mysql">
-            <replace replace="VALUE" with="VALUE(1024)"/>
+            <replace replace="VALUE" with="VALUE(500)"/>
         </modifySql>
     </changeSet>
 
