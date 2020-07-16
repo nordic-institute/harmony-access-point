@@ -35,6 +35,7 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
     public static final String MIME_TYPE = "MimeType";
     public static final String CHARSET = "CharacterSet";
     public static final Pattern CHARSET_PATTERN = Pattern.compile("[A-Za-z]([A-Za-z0-9._-])*");
+    public static final int VALUE_MAX_SIZE = 1024;
 
     @XmlValue
     @Column(name = "VALUE")

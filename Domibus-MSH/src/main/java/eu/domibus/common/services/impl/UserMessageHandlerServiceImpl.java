@@ -16,6 +16,7 @@ import eu.domibus.common.metrics.Timer;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.services.MessagingService;
+import eu.domibus.common.validators.MessagePropertyValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.fragment.*;
@@ -135,6 +136,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected PayloadFileStorageProvider storageProvider;
 
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
+
     @Override
     @Timer(value = INCOMING_USER_MESSAGE)
     @Counter(INCOMING_USER_MESSAGE)
@@ -164,6 +168,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (messageExists) {
@@ -203,6 +208,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging,MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {
@@ -276,6 +282,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
         }
     }
+
+
 
     /**
      * {@inheritDoc}

@@ -2,7 +2,6 @@ package eu.domibus.plugin.handler;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -21,6 +20,7 @@ import eu.domibus.common.services.MessagingService;
 import eu.domibus.common.services.impl.CompressionService;
 import eu.domibus.common.services.impl.MessageIdGenerator;
 import eu.domibus.common.validators.BackendMessageValidator;
+import eu.domibus.common.validators.MessagePropertyValidator;
 import eu.domibus.common.validators.PayloadProfileValidator;
 import eu.domibus.common.validators.PropertyProfileValidator;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -165,6 +165,9 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     protected PModeDefaultService pModeDefaultService;
 
+    @Injectable
+    MessagePropertyValidator messagePropertyValidator;
+
 
     protected Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();
@@ -288,6 +291,7 @@ public class DatabaseMessageHandlerTest {
             userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending(MESS_ID, anyBoolean);
@@ -362,6 +366,7 @@ public class DatabaseMessageHandlerTest {
             UserMessage message;
 //            assertEquals("TC2Leg1", message.getCollaborationInfo().getAction());
 //            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending(MESS_ID, anyBoolean);
@@ -416,6 +421,7 @@ public class DatabaseMessageHandlerTest {
             userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
         }};
@@ -522,7 +528,6 @@ public class DatabaseMessageHandlerTest {
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
-            ;
 
             // Here the configuration of the access point is supposed to be BLUE!
             Party confParty = new Party();
@@ -555,6 +560,8 @@ public class DatabaseMessageHandlerTest {
             backendMessageValidator.validateResponderParty(withAny(new Party()), withAny(new Party()));
             times = 0;
             pModeProvider.getLegConfiguration(anyString);
+            times = 0;
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             times = 0;
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
