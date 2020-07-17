@@ -38,6 +38,7 @@ import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class BackendNotificationServiceTest {
     public static final String BACKEND_NAME = "backendName";
     public static final String MIME = "mime";
     public static final String HREF = "Href";
-    public static final String UNKNOWN_RECEIVER_QUEUE = "unknownReceiverQueue";
+    public static final int MAX_INDEX = 10;
     @Injectable
     JMSManager jmsManager;
 
@@ -318,14 +319,15 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyParent(@Injectable NotificationType notificationType) {
-        new Expectations(backendNotificationService){{
+        new Expectations(backendNotificationService) {{
             backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, null);
             times = 1;
         }};
 
         backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -340,7 +342,8 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notify("messageId", backendName, notificationType, null);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -421,7 +424,8 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -446,7 +450,8 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -852,8 +857,8 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyOfMessageStatusChange_fragment(@Injectable final UserMessageLog messageLog,
-                                                        @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration,
-                                                        @Injectable final UserMessage userMessage) {
+                                                     @Injectable final MessagingModuleConfiguration messageCommunicationConfiguration,
+                                                     @Injectable final UserMessage userMessage) {
         final String messageId = "1";
         final String backend = "JMS";
         final MSHRole role = MSHRole.SENDING;
@@ -978,7 +983,8 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.init();
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1021,47 +1027,6 @@ public class BackendNotificationServiceTest {
             minTimes = 1;
         }};
 
-    }
-
-    @Test
-    public void testCreateBackendFilters(@Injectable BackendFilterEntity backendFilterEntity) {
-        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
-        backendFilterEntities.add(backendFilterEntity);
-        List<BackendFilterEntity> toBeCreated = new ArrayList<>();
-
-        new Expectations(backendNotificationService) {{
-            backendFilterDao.findAll();
-            result = backendFilterEntities;
-
-            backendNotificationService.createMissingBackendFilters(backendFilterEntities);
-            result = toBeCreated;
-            times = 1;
-        }};
-
-        backendNotificationService.createBackendFilters();
-        new FullVerifications() {{
-            backendFilterDao.create(toBeCreated);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testCreateBackendFilters_empty(@Injectable BackendFilterEntity backendFilterEntity,
-                                               @Injectable List<BackendFilterEntity> entities) {
-        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
-
-        new Expectations(backendNotificationService) {{
-            backendFilterDao.findAll();
-            result = backendFilterEntities;
-            backendNotificationService.createAllBackendFilters();
-            times = 1;
-            result = entities;
-        }};
-        backendNotificationService.createBackendFilters();
-        new FullVerifications() {{
-            backendFilterDao.create(entities);
-            times = 1;
-        }};
     }
 
     @Test
@@ -1198,11 +1163,19 @@ public class BackendNotificationServiceTest {
             result = backendFilterEntities;
         }};
 
-        List<BackendFilterEntity> missingBackendFilters = backendNotificationService.createMissingBackendFilters(backendFilterEntities);
+        List<String> pluginToAdd = backendNotificationService.notificationListenerServices
+                .stream()
+                .map(NotificationListener::getBackendName)
+                .collect(Collectors.toList());
+
+        pluginToAdd.removeAll(backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
+
+        List<BackendFilterEntity> missingBackendFilters = backendNotificationService.createBackendFilterEntities(pluginToAdd, backendNotificationService.getMaxIndex(backendFilterEntities) + 1);
 
         assertEquals(backendFilterEntities, missingBackendFilters);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1239,29 +1212,16 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testCreateWSBackendFiltersWithDefaultPriority(@Injectable NotificationListener notificationListener1,
+    public void createBackendFilterEntities_defaultPlugin(@Injectable NotificationListener notificationListener1,
                                                               @Injectable NotificationListener notificationListener2,
                                                               @Injectable NotificationListener notificationListener3,
                                                               @Injectable BackendFilterEntity backendFilterEntity) {
 
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener1);
-        notificationListenerServices.add(notificationListener2);
-        notificationListenerServices.add(notificationListener3);
-        backendNotificationService.notificationListenerServices = notificationListenerServices;
+        List<String> pluginToAdd = asList(FS_PLUGIN.getPluginName(),
+                JMS_PLUGIN.getPluginName(),
+                WS_PLUGIN.getPluginName());
 
-        new Expectations() {{
-            notificationListener1.getBackendName();
-            result = FS_PLUGIN.getPluginName();
-            notificationListener2.getBackendName();
-            result = JMS_PLUGIN.getPluginName();
-            notificationListener3.getBackendName();
-            result = WS_PLUGIN.getPluginName();
-        }};
-
-        List<BackendFilterEntity> allBackendFilters = backendNotificationService.createAllBackendFilters();
-
-        new FullVerifications() {};
+        List<BackendFilterEntity> allBackendFilters = backendNotificationService.createBackendFilterEntities(pluginToAdd, 0);
 
         assertThat(allBackendFilters.size(), is(3));
         assertThat(allBackendFilters.get(2).getBackendName(), is(FS_PLUGIN.getPluginName()));
@@ -1272,51 +1232,93 @@ public class BackendNotificationServiceTest {
         assertThat(allBackendFilters.get(0).getIndex(), is(0));
     }
 
-
     @Test
-    public void testCreateWSBackendFiltersWithDefaultPriority2(@Injectable NotificationListener default1,
-                                                              @Injectable NotificationListener default2,
-                                                              @Injectable NotificationListener default3,
-                                                              @Injectable NotificationListener other1,
-                                                              @Injectable NotificationListener other2,
-                                                              @Injectable BackendFilterEntity backendFilterEntity) {
+    public void createBackendFilters_emptyDbEntities(@Injectable NotificationListener default1,
+                                                               @Injectable NotificationListener default2,
+                                                               @Injectable List<BackendFilterEntity> backendFilterEntities) {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(other1);
         notificationListenerServices.add(default1);
         notificationListenerServices.add(default2);
-        notificationListenerServices.add(default3);
-        notificationListenerServices.add(other2);
         backendNotificationService.notificationListenerServices = notificationListenerServices;
 
-        new Expectations() {{
-            other1.getBackendName();
-            result = "OTHER1";
+        List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
+        List<List<String>> pluginLists = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            backendFilterDao.findAll();
+            result = entitiesInDb;
+
             default1.getBackendName();
             result = FS_PLUGIN.getPluginName();
+
             default2.getBackendName();
             result = JMS_PLUGIN.getPluginName();
-            default3.getBackendName();
-            result = WS_PLUGIN.getPluginName();
-            other2.getBackendName();
-            result = "OTHER2";
+
+            backendNotificationService.getMaxIndex(entitiesInDb);
+            result = MAX_INDEX;
+
+            backendNotificationService.createBackendFilterEntities(withCapture(pluginLists), MAX_INDEX + 1);
+            result = backendFilterEntities;
         }};
 
-        List<BackendFilterEntity> allBackendFilters = backendNotificationService.createAllBackendFilters();
+        backendNotificationService.createBackendFilters();
 
-        new FullVerifications() {};
+        new FullVerifications() {{
+            backendFilterDao.create(backendFilterEntities);
+            times = 1;
+        }};
 
-        assertThat(allBackendFilters.size(), is(5));
-        assertThat(allBackendFilters.get(0).getBackendName(), is("OTHER1"));
-        assertThat(allBackendFilters.get(0).getIndex(), is(0));
-        assertThat(allBackendFilters.get(1).getBackendName(), is("OTHER2"));
-        assertThat(allBackendFilters.get(1).getIndex(), is(1));
-        assertThat(allBackendFilters.get(2).getBackendName(), is(WS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(2).getIndex(), is(2));
-        assertThat(allBackendFilters.get(3).getBackendName(), is(JMS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(3).getIndex(), is(3));
-        assertThat(allBackendFilters.get(4).getBackendName(), is(FS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(4).getIndex(), is(4));
+        assertThat(pluginLists.size(), is(1));
+        assertThat(pluginLists.get(0), CoreMatchers.hasItems(
+                JMS_PLUGIN.getPluginName(),
+                FS_PLUGIN.getPluginName()));
+    }
+
+    @Test
+    public void createBackendFilters(@Injectable NotificationListener default1,
+                                                               @Injectable NotificationListener default2,
+                                                               @Injectable BackendFilterEntity backendFilterEntity,
+                                                               @Injectable List<BackendFilterEntity> backendFilterEntities) {
+
+        List<NotificationListener> notificationListenerServices = new ArrayList<>();
+        notificationListenerServices.add(default1);
+        notificationListenerServices.add(default2);
+        backendNotificationService.notificationListenerServices = notificationListenerServices;
+
+        List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
+        entitiesInDb.add(backendFilterEntity);
+        List<List<String>> pluginLists = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            backendFilterDao.findAll();
+            result = entitiesInDb;
+
+            backendFilterEntity.getBackendName();
+            result = FS_PLUGIN.getPluginName();
+
+            default1.getBackendName();
+            result = FS_PLUGIN.getPluginName();
+
+            default2.getBackendName();
+            result = JMS_PLUGIN.getPluginName();
+
+            backendNotificationService.getMaxIndex(entitiesInDb);
+            result = MAX_INDEX;
+
+            backendNotificationService.createBackendFilterEntities(withCapture(pluginLists), MAX_INDEX + 1);
+            result = backendFilterEntities;
+        }};
+
+        backendNotificationService.createBackendFilters();
+
+        new FullVerifications() {{
+            backendFilterDao.create(backendFilterEntities);
+            times = 1;
+        }};
+
+        assertThat(pluginLists.size(), is(1));
+        assertThat(pluginLists.get(0), CoreMatchers.hasItems(JMS_PLUGIN.getPluginName()));
     }
 
     @Test
@@ -1430,7 +1432,7 @@ public class BackendNotificationServiceTest {
 
         assertEquals(2, backendNotificationService.backendFiltersCache.size());
 
-        new Expectations(){{
+        new Expectations() {{
             domainContextProvider.getCurrentDomain();
             result = domain1;
         }};
@@ -1666,7 +1668,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void notifyMessageReceived_Notfragment(
+    public void notifyMessageReceived_NotFragment(
             @Injectable final BackendFilter matchingBackendFilter,
             @Injectable final UserMessage userMessage) {
         new Expectations(backendNotificationService) {{
@@ -1987,7 +1989,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void notifyOfSendFailure_Nofragment(@Injectable UserMessageLog userMessageLog) {
+    public void notifyOfSendFailure_NoFragment(@Injectable UserMessageLog userMessageLog) {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
@@ -2021,7 +2023,7 @@ public class BackendNotificationServiceTest {
                                      @Injectable UserMessage userMessage) {
         MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
 
-        new Expectations(){{
+        new Expectations() {{
             messageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
@@ -2049,16 +2051,17 @@ public class BackendNotificationServiceTest {
         assertThat(messageProperties.get(MessageConstants.SERVICE_TYPE), is("CollabInfoType"));
         assertThat(messageProperties.get(MessageConstants.ACTION), is("CollabInfoAction"));
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
 
     }
 
     @Test
     public void getMessageProperties_noMessage_NoUserMessage(@Injectable MessageLog messageLog,
-                                     @Injectable UserMessage userMessage) {
+                                                             @Injectable UserMessage userMessage) {
         MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
 
-        new Expectations(){{
+        new Expectations() {{
             messageLog.getMessageStatus();
             result = null;
 
@@ -2070,6 +2073,41 @@ public class BackendNotificationServiceTest {
         assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
         assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(TIMESTAMP.getTime()));
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getMaxIndex_empty() {
+        int maxIndex = backendNotificationService.getMaxIndex(new ArrayList<>());
+        assertEquals(0, maxIndex);
+    }
+
+    @Test
+    public void getMaxIndex_null() {
+        int maxIndex = backendNotificationService.getMaxIndex(null);
+        assertEquals(0, maxIndex);
+    }
+
+    @Test
+    public void getMaxIndex_maxIndex(@Injectable BackendFilterEntity b1,
+                                     @Injectable BackendFilterEntity b2,
+                                     @Injectable BackendFilterEntity b3) {
+        new Expectations() {{
+            b1.getIndex();
+            result = MAX_INDEX - 2;
+
+            b2.getIndex();
+            result = MAX_INDEX - 1;
+
+            b3.getIndex();
+            result = MAX_INDEX;
+        }};
+
+        int maxIndex = backendNotificationService.getMaxIndex(asList(b1, b2, b3));
+        assertEquals(10, maxIndex);
+
+        new FullVerifications() {
+        };
     }
 }

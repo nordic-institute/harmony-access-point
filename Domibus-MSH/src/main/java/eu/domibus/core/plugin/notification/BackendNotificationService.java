@@ -38,7 +38,7 @@ import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
-import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,22 +175,8 @@ public class BackendNotificationService {
      * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
      */
     protected void createBackendFilters() {
-        List<BackendFilterEntity> backendFiltersInDB = backendFilterDao.findAll();
-        List<BackendFilterEntity> backendFiltersToBeCreated;
+        List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
 
-        if (backendFiltersInDB.isEmpty()) {
-            LOG.info("No Plugins details available in database!");
-            backendFiltersToBeCreated = createAllBackendFilters();
-        } else {
-            backendFiltersToBeCreated = createMissingBackendFilters(backendFiltersInDB);
-        }
-        backendFilterDao.create(backendFiltersToBeCreated);
-    }
-
-    /**
-     * Create Backend Filters of plugins in DB by checking the existing User Priority
-     */
-    protected List<BackendFilterEntity> createMissingBackendFilters(List<BackendFilterEntity> backendFilterEntitiesInDB) {
         List<String> pluginToAdd = notificationListenerServices
                 .stream()
                 .map(NotificationListener::getBackendName)
@@ -198,11 +184,18 @@ public class BackendNotificationService {
 
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
-        return createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+        backendFilterDao.create(createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1));
     }
 
     protected int getMaxIndex(List<BackendFilterEntity> backendFilterEntitiesInDB) {
-        return backendFilterEntitiesInDB.stream().max(comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new).getIndex();
+        if(CollectionUtils.isEmpty(backendFilterEntitiesInDB)){
+            return 0;
+        }
+        return backendFilterEntitiesInDB
+                .stream()
+                .map(BackendFilterEntity::getIndex)
+                .max(Integer::compareTo)
+                .orElse(0);
     }
 
     /**
@@ -211,19 +204,19 @@ public class BackendNotificationService {
      * @return backendFilters
      */
     protected List<BackendFilterEntity> createBackendFilterEntities(List<String> pluginList, int priority) {
-        if (ListUtils.emptyIfNull(pluginList).isEmpty()) {
+        if (CollectionUtils.isEmpty(pluginList)) {
             return new ArrayList<>();
         }
 
-        List<BackendFilterEntity> backendFilters = new ArrayList<>();
         List<String> defaultPluginOrderList = stream(BackendPluginEnum.values())
                 .sorted(comparing(BackendPluginEnum::getPriority))
                 .map(BackendPluginEnum::getPluginName)
                 .collect(Collectors.toList());
         // If plugin not part of the list of default plugin, it will be put in highest priority by default
         pluginList.sort(comparing(defaultPluginOrderList::indexOf));
-        LOG.debug("Assigning lower priorities to the backend plugins which doesn't have any existing priority set by User.");
+        LOG.debug("Assigning lower priorities (over [{}]) to the backend plugins which don't have any existing priority", priority);
 
+        List<BackendFilterEntity> backendFilters = new ArrayList<>();
         for (String pluginName : pluginList) {
             LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
             BackendFilterEntity filterEntity = new BackendFilterEntity();
@@ -232,14 +225,6 @@ public class BackendNotificationService {
             backendFilters.add(filterEntity);
         }
         return backendFilters;
-    }
-
-    /**
-     * create BackendFilters With Priorities in the order of WS, JMS and FS when No Plugins priorities already set by User.
-     */
-    protected List<BackendFilterEntity> createAllBackendFilters() {
-        List<String> collect = notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
-        return createBackendFilterEntities(collect, 0);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
