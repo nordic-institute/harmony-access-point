@@ -27,19 +27,4 @@ public enum BackendPluginEnum {
     public String getPluginName() {
         return pluginName;
     }
-
-    /**
-     * Find the respective BackendPluginEnum based on the plugin name
-     *
-     * @param pluginName
-     * @return BackEndPluginEnum
-     */
-    public static BackendPluginEnum getBackendPluginEnum(final String pluginName) {
-        for (final BackendPluginEnum backEndPlugin : BackendPluginEnum.values()) {
-            if (pluginName.equals(backEndPlugin.getPluginName())) {
-                return backEndPlugin;
-            }
-        }
-        throw new IllegalArgumentException("No Default BackEnd Plugin found for pluginName: " + pluginName);
-    }
 }

@@ -38,6 +38,8 @@ import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,6 +55,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static java.util.Arrays.stream;
+import static java.util.Comparator.comparing;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -118,7 +122,7 @@ public class BackendNotificationService {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
-    protected List<BackendConnector<?,?>> backendConnectors;
+    protected List<BackendConnector<?, ?>> backendConnectors;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -171,40 +175,34 @@ public class BackendNotificationService {
      * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
      */
     protected void createBackendFilters() {
-        List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
+        List<BackendFilterEntity> backendFiltersInDB = backendFilterDao.findAll();
+        List<BackendFilterEntity> backendFiltersToBeCreated;
 
-        if (backendFilterEntities.isEmpty()) {
+        if (backendFiltersInDB.isEmpty()) {
             LOG.info("No Plugins details available in database!");
-            createBackendFiltersWithDefaultPriority();
+            backendFiltersToBeCreated = createAllBackendFilters();
         } else {
-            createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
+            backendFiltersToBeCreated = createMissingBackendFilters(backendFiltersInDB);
         }
+        backendFilterDao.create(backendFiltersToBeCreated);
     }
 
     /**
      * Create Backend Filters of plugins in DB by checking the existing User Priority
-     *
      */
-    protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
+    protected List<BackendFilterEntity> createMissingBackendFilters(List<BackendFilterEntity> backendFilterEntitiesInDB) {
+        List<String> pluginToAdd = notificationListenerServices
+                .stream()
+                .map(NotificationListener::getBackendName)
+                .collect(Collectors.toList());
 
-        LOG.debug("Some Backend Plugins are available in database with user priority. So Creating backend filters for the other plugins by giving more priorities to the existing plugins.");
+        pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
-        List<String> notificationListenerPluginsList = notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
-        LOG.debug("Total number of plugins configured in the application: [{}]", notificationListenerPluginsList.size());
+        return createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+    }
 
-        List<String> backendFilterPluginList = backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
-        LOG.debug("Number of Backend Plugins with user priority: [{}]", backendFilterPluginList.size());
-
-        notificationListenerPluginsList.removeAll(backendFilterPluginList);
-        LOG.debug("Number of Backend Plugins without user priority: [{}]", notificationListenerPluginsList.size());
-
-        BackendFilterEntity backendFilterEntity = backendFilterEntities.stream().max(Comparator.comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new);
-        LOG.debug("Lowest user defined priority of the existing Backend Plugins in the database: [{}]", backendFilterEntity.getIndex());
-
-        if (!notificationListenerPluginsList.isEmpty()) {
-            List<BackendFilterEntity> backendFilters = assignPriorityToPlugins(notificationListenerPluginsList, backendFilterEntity.getIndex());
-            backendFilterDao.create(backendFilters);
-        }
+    protected int getMaxIndex(List<BackendFilterEntity> backendFilterEntitiesInDB) {
+        return backendFilterEntitiesInDB.stream().max(comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new).getIndex();
     }
 
     /**
@@ -212,21 +210,25 @@ public class BackendNotificationService {
      *
      * @return backendFilters
      */
-    protected List<BackendFilterEntity> assignPriorityToPlugins(List<String> pluginList, int priority) {
+    protected List<BackendFilterEntity> createBackendFilterEntities(List<String> pluginList, int priority) {
+        if (ListUtils.emptyIfNull(pluginList).isEmpty()) {
+            return new ArrayList<>();
+        }
 
         List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        List<String> defaultPluginOrderList = Arrays.asList(BackendPluginEnum.WS_PLUGIN.getPluginName(), BackendPluginEnum.JMS_PLUGIN.getPluginName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
-        pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
+        List<String> defaultPluginOrderList = stream(BackendPluginEnum.values())
+                .sorted(comparing(BackendPluginEnum::getPriority))
+                .map(BackendPluginEnum::getPluginName)
+                .collect(Collectors.toList());
+        // If plugin not part of the list of default plugin, it will be put in highest priority by default
+        pluginList.sort(comparing(defaultPluginOrderList::indexOf));
         LOG.debug("Assigning lower priorities to the backend plugins which doesn't have any existing priority set by User.");
 
         for (String pluginName : pluginList) {
+            LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
             BackendFilterEntity filterEntity = new BackendFilterEntity();
             filterEntity.setBackendName(pluginName);
-            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(pluginName);
-            if (backEndPluginEnum != null) {
-                filterEntity.setIndex(++priority);
-            }
-            LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
+            filterEntity.setIndex(priority++);
             backendFilters.add(filterEntity);
         }
         return backendFilters;
@@ -235,18 +237,9 @@ public class BackendNotificationService {
     /**
      * create BackendFilters With Priorities in the order of WS, JMS and FS when No Plugins priorities already set by User.
      */
-    protected void createBackendFiltersWithDefaultPriority() {
-        List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        LOG.debug("Creating Plugin backend filters in the default order of WS_PLUGIN, JMS_PLUGIN and FS_PLUGIN, because no other priorities are already set by User");
-        for (NotificationListener notificationListener : notificationListenerServices) {
-            BackendFilterEntity backendFilterEntity = new BackendFilterEntity();
-            LOG.debug("Loading Plugin with BackendName [{}] to database.", notificationListener.getBackendName());
-            backendFilterEntity.setBackendName(notificationListener.getBackendName());
-            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(notificationListener.getBackendName());
-            backendFilterEntity.setIndex(backEndPluginEnum.getPriority());
-            backendFilters.add(backendFilterEntity);
-        }
-        backendFilterDao.create(backendFilters);
+    protected List<BackendFilterEntity> createAllBackendFilters() {
+        List<String> collect = notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
+        return createBackendFilterEntities(collect, 0);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -290,7 +283,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector<?,?> backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?, ?> backendConnector = getBackendConnector(backendName);
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
         payloadSubmittedEvent.setFileName(originalFilename);
@@ -305,7 +298,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector<?,?> backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?, ?> backendConnector = getBackendConnector(backendName);
         PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
         payloadProcessedEvent.setCid(partInfo.getHref());
         payloadProcessedEvent.setFileName(originalFilename);
@@ -321,7 +314,7 @@ public class BackendNotificationService {
 
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
         if (matchingBackendFilter == null) {
-            LOG.error("No backend responsible for message [" + userMessage.getMessageInfo().getMessageId() + "] found. Sending notification to [" + unknownReceiverQueue + "]");
+            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageInfo().getMessageId(), unknownReceiverQueue);
             String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
             jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getMessageInfo().getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
@@ -341,7 +334,7 @@ public class BackendNotificationService {
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
             if (backendFilterMatching) {
-                LOG.debug("Filter [" + filter + "] matched for message [" + userMessage.getMessageInfo().getMessageId() + "]");
+                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageInfo().getMessageId());
                 return filter;
             }
         }
@@ -363,9 +356,9 @@ public class BackendNotificationService {
     }
 
     public void invalidateBackendFiltersCache() {
-        LOG.debug("Invalidating the backend filter cache");
-
-        this.backendFiltersCache = new HashMap<>();
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        LOG.debug("Invalidating the backend filter cache for domain [{}]", currentDomain);
+        backendFiltersCache.remove(currentDomain);
     }
 
     protected List<BackendFilter> getBackendFiltersWithCache() {
@@ -408,16 +401,16 @@ public class BackendNotificationService {
 
     public void validateSubmission(UserMessage userMessage, String backendName, NotificationType notificationType) {
         if (NotificationType.MESSAGE_RECEIVED != notificationType) {
-            LOG.debug("Validation is not configured to be done for notification of type [" + notificationType + "]");
+            LOG.debug("Validation is not configured to be done for notification of type [{}]", notificationType);
             return;
         }
 
         SubmissionValidatorList submissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList(backendName);
         if (submissionValidatorList == null) {
-            LOG.debug("No submission validators found for backend [" + backendName + "]");
+            LOG.debug("No submission validators found for backend [{}]", backendName);
             return;
         }
-        LOG.info("Performing submission validation for backend [" + backendName + "]");
+        LOG.info("Performing submission validation for backend [{}]", backendName);
         Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage);
         List<SubmissionValidator> submissionValidators = submissionValidatorList.getSubmissionValidators();
         for (SubmissionValidator submissionValidator : submissionValidators) {
@@ -434,8 +427,8 @@ public class BackendNotificationService {
         return null;
     }
 
-    public BackendConnector<?,?> getBackendConnector(String backendName) {
-        for (final BackendConnector<?,?> backendConnector : backendConnectors) {
+    public BackendConnector<?, ?> getBackendConnector(String backendName) {
+        for (final BackendConnector<?, ?> backendConnector : backendConnectors) {
             if (backendConnector.getName().equalsIgnoreCase(backendName)) {
                 return backendConnector;
             }
@@ -461,7 +454,7 @@ public class BackendNotificationService {
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
         NotificationListener notificationListener = getNotificationListener(backendName);
         if (notificationListener == null) {
-            LOG.warn("No notification listeners found for backend [" + backendName + "]");
+            LOG.warn("No notification listeners found for backend [{}]", backendName);
             return;
         }
 
@@ -496,7 +489,7 @@ public class BackendNotificationService {
         final String messageId = userMessageLog.getMessageId();
         final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if (userMessageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
         }
 
@@ -512,7 +505,7 @@ public class BackendNotificationService {
         }
         String messageId = userMessageLog.getMessageId();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
-        if (userMessageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
         }
 
@@ -555,7 +548,7 @@ public class BackendNotificationService {
 
         final Map<String, Object> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
-        if (messageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(messageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
         }
 
