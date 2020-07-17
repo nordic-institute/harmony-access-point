@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.proxy.DomibusProxy;
@@ -430,5 +431,25 @@ public class DynamicDiscoveryServiceOASISTest {
 
         Assert.assertEquals(responderRole, DEFAULT_RESPONDER_ROLE);
     }
-}
 
+    @Test(expected = ConfigurationException.class)
+    public void testSmlZoneEmpty() throws EbMS3Exception {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            result = "";
+            times = 1;
+        }};
+        dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void testSmlZoneNull() throws EbMS3Exception {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            result = null;
+            times = 1;
+        }};
+        dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+    }
+
+}
