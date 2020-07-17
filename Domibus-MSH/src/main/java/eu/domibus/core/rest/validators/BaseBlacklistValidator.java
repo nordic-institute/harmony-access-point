@@ -97,6 +97,8 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     public void validate(T value, String additionalWhitelist) {
+        // create a "custom whitelist" instance to be able to include additional whitelisted characters
+        // while validating against the default blacklist/whitelist configuration
         CustomWhiteListed customWhitelist = createCustomWhitelist(additionalWhitelist);
         if (!isValid(value, customWhitelist)) {
             LOG.debug("Value [{}] is not valid; Throwing exception.", value);
