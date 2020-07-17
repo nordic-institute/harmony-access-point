@@ -6,6 +6,7 @@ import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.Property;
 import mockit.Expectations;
+import mockit.FullVerifications;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -47,6 +48,10 @@ public class MessagePropertyValidatorTest {
         }};
 
         messagePropertyValidator.validate(messaging, MSHRole.SENDING);
+
+        new FullVerifications() {{
+
+        }};
     }
 
     @Test
@@ -78,5 +83,32 @@ public class MessagePropertyValidatorTest {
         } catch (EbMS3Exception e) {
             Assert.assertTrue(e.getMessage().contains("property has a value which exceeds 1024 characters size."));
         }
+    }
+
+    @Test
+    public void test_validate_MessageProperty_Null(final @Mocked Messaging messaging,
+                                                 final @Mocked MessageProperties messageProperties,
+                                                 final @Mocked Property property) throws Exception {
+
+        new Expectations() {{
+            messaging.getUserMessage().getMessageInfo().getMessageId();
+            result = "message " + UUID.randomUUID();
+
+            messaging.getUserMessage().getMessageProperties();
+            result = messageProperties;
+
+            messaging.getUserMessage().getMessageProperties().getProperty();
+            result = Collections.singleton(property);
+
+            property.getValue();
+            result = null;
+
+        }};
+
+        messagePropertyValidator.validate(messaging, MSHRole.SENDING);
+
+        new FullVerifications() {{
+
+        }};
     }
 }
