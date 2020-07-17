@@ -2576,7 +2576,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         def authenticationPwd = authPwd;
 		def jsonSlurper = new JsonSlurper()
 		def propMetadata=null;
-		def usersMap=null;
+		def propMap=null;
 		def i=0;
 		def propValue=null;
 
@@ -2586,27 +2586,19 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?name=$propName&pageSize=10",
+			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/$propName",
 							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 							"-H",  "Content-Type: text/xml",
 							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 							"-v"]
             def commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getPropertyAtRuntime: Error while trying to connect to domibus.";
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getPropertyAtRuntime: Error while fetching property of $propName.";
 			propMetadata=commandResult[0].substring(5);
-			debugLog("  getPropertyAtRuntime  [][]  Property serach result: $propMetadata", log);
-			usersMap = jsonSlurper.parseText(propMetadata);
-			assert(usersMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null value found.";
-			assert(usersMap.items != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value.";
-
-            while ( (i < usersMap.items.size()) && (propValue == null) ) {
-                assert(usersMap.items[i] != null),"Error:getPropertyAtRuntime: Error while parsing the list of returned properties.";
-                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].name + "--.", log)
-                if (usersMap.items[i].name == propName) {
-					propValue = usersMap.items[i].value;
-                }
-                i++;
-            }
+			debugLog("  getPropertyAtRuntime  [][]  Property get result: $propMetadata", log);
+			propMap = jsonSlurper.parseText(propMetadata);
+			assert(propMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null result found.";
+			propValue=propMap.value;
+			
             assert(propValue!=null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\""
 			log.info "  getPropertyAtRuntime  [][]  Property \"$propName\" value = \"$propValue\"."
 
