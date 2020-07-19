@@ -137,6 +137,7 @@
                             <junitReport>true</junitReport>
                             <printReport>true</printReport>
                             <testSuite>WS-Auto-for-Bamboo</testSuite>
+                            <testCase>Dom157-EDELIVERY-2822-Reliability checker issue</testCase>
                             <projectFile>${soapui.root.folder}/AS4-domibus-WS-soapui-project.xml</projectFile>
                             <projectProperties>
                                 <value>${localUrl}</value>
