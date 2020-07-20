@@ -88,31 +88,6 @@ public class DomibusPropertyChangeManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_exception() {
-        String propValue = "propValue";
-        String propertyName = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-        DomibusPropertyMetadata propMeta = props.get(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
-
-        new Expectations(domibusPropertyChangeManager) {{
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            result = props.get(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
-            domibusPropertyChangeManager.validatePropertyValue(propMeta, propValue);
-            result = new DomibusPropertyException("Property change listener error");
-        }};
-
-        domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propValue, true);
-
-        new Verifications() {{
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            domibusPropertyProvider.getInternalProperty(domain, propertyName);
-            times = 0;
-            domibusPropertyChangeManager.doSetPropertyValue(domain, propertyName, propValue);
-            times = 0;
-
-        }};
-    }
-
     @Test()
     public void setPropertyValue_MultiTenancy_Domain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
@@ -228,47 +203,4 @@ public class DomibusPropertyChangeManagerTest {
         }};
     }
 
-    @Test
-    public void validatePropertyValue_noValidation(@Mocked DomibusPropertyMetadata propMeta) {
-        new Expectations() {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.STRING;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
-            result = true;
-        }};
-
-        try {
-            domibusPropertyChangeManager.validatePropertyValue(propMeta, "doesn't matter");
-        } catch (DomibusPropertyException ex) {
-            Assert.fail();
-        }
-    }
-
-    @Test
-    public void validatePropertyValue_success(@Mocked DomibusPropertyMetadata propMeta) {
-        new Expectations(domibusPropertyChangeManager) {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.NUMERIC;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
-            result = true;
-        }};
-
-        try {
-            domibusPropertyChangeManager.validatePropertyValue(propMeta, "123");
-        } catch (DomibusPropertyException ex) {
-            Assert.fail();
-        }
-    }
-
-    @Test(expected = DomibusPropertyException.class)
-    public void validatePropertyValue_Invalid(@Mocked DomibusPropertyMetadata propMeta) {
-        new Expectations(domibusPropertyChangeManager) {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.NUMERIC;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED);
-            result = true;
-        }};
-
-        domibusPropertyChangeManager.validatePropertyValue(propMeta, "non_numeric_value");
-    }
 }

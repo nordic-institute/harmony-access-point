@@ -2,8 +2,11 @@ Domibus 4.2 (from 4.1.4):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max
-                - add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
-                - add a configuration file named super-domibus.properties for properties specific to super users
+                - [multitenancy only]
+                    o add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
+                    o add a configuration file named super-domibus.properties for properties specific to super users
+                    o in the domain_name-domibus.properties files, replace the names of the domain_name.payload.temp.* properties
+                with domain_name.domibus.payload.temp.*
                 - PMode payload profile maxSize re-enabled: remove the comment about maxSize <payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
                 and replace the value with maxSize="2147483647"
                 - Wildfly standalone-full.xml - search for

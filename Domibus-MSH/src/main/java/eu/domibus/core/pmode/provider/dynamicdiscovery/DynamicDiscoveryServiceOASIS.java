@@ -109,16 +109,16 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
-        if (smlInfo == null) {
+        if (StringUtils.isEmpty(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Please configure it.");
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
         if (StringUtils.isEmpty(certRegex)) {
-            LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
+            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_REGEX);
         }
 
-        LOG.debug("Load trustore for the smpClient");
+        LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
