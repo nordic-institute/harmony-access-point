@@ -71,8 +71,6 @@ public class DefaultDomibusConfigurationServiceTest {
         String defaultConfigLocation = "/home";
         String domainConfigFile = "default.key";
 
-        String configurationFile = defaultConfigLocation + File.separator + domainConfigFile;
-
         new Expectations(defaultDomibusConfigurationService) {{
             defaultDomibusConfigurationService.getConfigLocation();
             result = defaultConfigLocation;
@@ -87,7 +85,7 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(DomainService.DEFAULT_DOMAIN);
-        Assert.assertEquals(configurationFile, configurationFileName);
+        Assert.assertEquals(domainConfigFile, configurationFileName);
     }
 
     @Test

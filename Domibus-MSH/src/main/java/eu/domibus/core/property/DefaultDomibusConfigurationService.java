@@ -100,7 +100,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
             LOG.debug("Checking if file [{}] exists", configurationFile);
             if (new File(configurationFile).exists()) {
                 LOG.debug("Using property file [{}]", configurationFile);
-                propertyFileName = configurationFile;
+                propertyFileName = getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
             } else {
                 LOG.debug("File [{}] does not exists, using [{}]", configurationFile, DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE);
                 propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
