@@ -73,23 +73,18 @@ public class MessageListenerContainerConfiguration {
     private Queue retentionMessageQueue;
 
     @Autowired
-    @Qualifier("messageSenderListener")
     private MessageSenderListener messageSenderListener;
 
     @Autowired
-    @Qualifier("largeMessageSenderListener")
     private LargeMessageSenderListener largeMessageSenderListener;
 
     @Autowired
-    @Qualifier("splitAndJoinListener")
     private SplitAndJoinListener splitAndJoinListener;
 
     @Autowired
-    @Qualifier("pullReceiptListener")
     private PullReceiptListener pullReceiptListener;
 
     @Autowired
-    @Qualifier("retentionListener")
     private RetentionListener retentionListener;
 
     @Autowired
@@ -108,7 +103,6 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
-
     @Bean(name = DISPATCH_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createSendMessageListener(Domain domain) {
@@ -120,9 +114,6 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the large message JMS listener(domain dependent)
-     *
-     * @param domain
-     * @return
      */
     @Bean(name = SEND_LARGE_MESSAGE_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -136,9 +127,6 @@ public class MessageListenerContainerConfiguration {
 
     /**
      * Creates the SplitAndJoin JMS listener(domain dependent)
-     *
-     * @param domain
-     * @return
      */
     @Bean(name = SPLIT_AND_JOIN_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -193,7 +181,6 @@ public class MessageListenerContainerConfiguration {
      * @param messageListener           JMS message listener
      * @param transactionManager        Transaction manager
      * @param domainPropertyConcurrency domain property key for retrieving queue concurrency value
-     * @return
      */
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
                                                                                   MessageListener messageListener, PlatformTransactionManager transactionManager,
