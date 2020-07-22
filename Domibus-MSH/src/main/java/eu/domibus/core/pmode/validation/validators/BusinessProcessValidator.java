@@ -66,7 +66,7 @@ public class BusinessProcessValidator implements PModeValidator {
         Set<Party> validResponderParties = validateResponderParties(issues, process, partyIdTypes);
 
         //leg configuration
-        validateLegConfiguration(issues, process, validResponderParties);
+        validateLegConfiguration(issues, process);
     }
 
     protected void validateAgreement(List<ValidationIssue> issues, Process process) {
@@ -175,7 +175,7 @@ public class BusinessProcessValidator implements PModeValidator {
         validResponderParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
     }
 
-    protected void validateLegConfiguration(List<ValidationIssue> issues, Process process, Set<Party> validResponderParties) {
+    protected void validateLegConfiguration(List<ValidationIssue> issues, Process process) {
         Set<LegConfiguration> validLegs = process.getLegs();
         Legs legsXml = pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
         if (legsXml == null) {
@@ -183,8 +183,8 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         List<Leg> allLegs = legsXml.getLeg();
-        if (CollectionUtils.isEmpty(allLegs) || allLegs.size() == validResponderParties.size()) {
-            LOG.trace("allLegs list is empty or allLegs.size() == validResponderParties.size()");
+        if (CollectionUtils.isEmpty(allLegs) || allLegs.size() == validLegs.size()) {
+            LOG.trace("allLegs list is empty or allLegs.size() == validLegs.size()");
             return;
         }
         allLegs.stream()

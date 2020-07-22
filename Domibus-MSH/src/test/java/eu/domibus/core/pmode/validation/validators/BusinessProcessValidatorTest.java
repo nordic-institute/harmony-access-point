@@ -231,7 +231,6 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateLegConfiguration(final @Mocked ValidationIssue validationIssue,
                                               final @Mocked Process process,
-                                              final @Mocked Set<Party> validResponderParties,
                                               final @Mocked Set<LegConfiguration> legConfigurations,
                                               final @Mocked Legs legs,
                                               final @Mocked List<Leg> legList) {
@@ -250,7 +249,7 @@ public class BusinessProcessValidatorTest {
         }};
 
         //tested method
-        businessProcessValidator.validateLegConfiguration(issues, process, validResponderParties);
+        businessProcessValidator.validateLegConfiguration(issues, process);
 
         new FullVerifications(businessProcessValidator) {{
         }};
