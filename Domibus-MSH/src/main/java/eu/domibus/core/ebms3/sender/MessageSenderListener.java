@@ -4,8 +4,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Message;
 
@@ -17,7 +15,7 @@ import javax.jms.Message;
  * @author Cosmin Baciu
  * @since 3.0
  */
-@Service(value = "messageSenderListener")
+@Service
 public class MessageSenderListener extends AbstractMessageSenderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
 
