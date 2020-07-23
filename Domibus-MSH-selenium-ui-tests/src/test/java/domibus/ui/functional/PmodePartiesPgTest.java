@@ -1,7 +1,6 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import utils.BaseTest;
@@ -745,6 +744,53 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertTrue(options.contains(newPartyId), "Black party is  present");
         soft.assertAll();
     }
+
+    @Test(description = "PMP-32", groups = {"multiTenancy", "singleTenancy"})
+    public void deleteAllParty() throws Exception {
+
+        log.info("Login and Navigate to Pmode Current page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+        log.info("upload Pmode");
+        rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
+
+        SoftAssert soft = new SoftAssert();
+        DomibusPage page = new DomibusPage(driver);
+
+        log.info("Extract system party name from current pmode");
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
+                parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
+        String systemParty = doc.getDocumentElement().getAttribute("party");
+
+        page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+        PModePartiesPage pPage = new PModePartiesPage(driver);
+
+        log.info("Total number of available pmode parties");
+        int count = pPage.grid().getPagination().getTotalItems();
+
+        for (int i = count - 1; i > 0; i--) {
+
+            String selectedParty=pPage.grid().getRowInfo(i).get("Party Name");
+            log.info("party name"+ selectedParty + "for row " + i);
+
+            log.info("select and delete pmode party for row " + i );
+            pPage.grid().selectRow(i);
+            pPage.getDeleteButton().click();
+            pPage.getSaveButton().click();
+
+            if (selectedParty.equals(systemParty)) {
+                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Party update error"));
+            } else {
+                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Parties saved successfully"));
+            }
+            pPage.refreshPage();
+            pPage.grid().waitForRowsToLoad();
+        }
+        soft.assertAll();
+
+    }
+
+
 }
 
 
