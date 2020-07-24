@@ -337,17 +337,18 @@ public class DomibusPropertyMetadata {
         NUMERIC("^(-?[1-9]\\d*|0)$"),
         BOOLEAN("^(true|false)$"),
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
-        EMAIL("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$"),
+        EMAIL("^(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,})[\\s\\;]*)*$"),
         CRON(new CronValidator()),
 
         // added so that the default black-list validation is skipped and the type validation is properly done
         PASSWORD(".*"),
         REGEXP(".*"),
-        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]+$"),
-        CLASS("^[a-zA-Z0-9_\\.]+$"),
-        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]+$"),
-        HYPHENED_NAME("^[a-zA-Z0-9_\\-]+$"),
-        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]+$"),
+        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]*$"),
+        CLASS("^[a-zA-Z0-9_\\.]*$"),
+        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]*$"),
+        HYPHENED_NAME("^[a-zA-Z0-9_\\-]*$"),
+        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]*$"),
+        FREE_TEXT("^[\\x20-\\x7D]*$"),
 
         // no type validation for String except for the default black-list validation
         STRING();

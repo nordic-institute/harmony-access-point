@@ -36,23 +36,23 @@ public class DomibusJMSActiveMQConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQConfiguration.class);
 
     public static final String MQ_BROKER_NAME = "org.apache.activemq:type=Broker,brokerName=";
-    private static final String ATOMIKOS_CONNECTION_FACTORY = "atomikosConnectionFactory";
 
-    @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
-    public ConnectionFactory connectionFactory(@Qualifier(ATOMIKOS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
+    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
         cachingConnectionFactory.setSessionCacheSize(sessionCacheSize);
         cachingConnectionFactory.setTargetConnectionFactory(activemqConnectionFactory);
+        cachingConnectionFactory.setCacheConsumers(false);
 
         return cachingConnectionFactory;
     }
 
-    @DependsOn("broker")
-    @Bean(value = ATOMIKOS_CONNECTION_FACTORY, initMethod = "init", destroyMethod = "close")
-    public AtomikosConnectionFactoryBean atomikosConnectionFactoryBean(@Qualifier("xaJmsConnectionFactory") ActiveMQXAConnectionFactory activeMQXAConnectionFactory,
+    @DependsOn("brokerFactory")
+    @Bean(value = JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY, initMethod = "init", destroyMethod = "close")
+    public AtomikosConnectionFactoryBean connectionFactory(@Qualifier("xaJmsConnectionFactory") ActiveMQXAConnectionFactory activeMQXAConnectionFactory,
                                                                        DomibusPropertyProvider domibusPropertyProvider) {
         AtomikosConnectionFactoryBean atomikosConnectionFactoryBean = new AtomikosConnectionFactoryBean();
         atomikosConnectionFactoryBean.setUniqueResourceName("domibusJMS-XA");
@@ -92,7 +92,7 @@ public class DomibusJMSActiveMQConfiguration {
     }
 
     @Bean("jmsSender")
-    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

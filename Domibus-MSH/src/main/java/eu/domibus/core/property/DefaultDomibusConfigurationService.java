@@ -96,11 +96,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     public String getConfigurationFileName(Domain domain) {
         String propertyFileName = null;
         if (DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            final String configurationFile = getConfigLocation() + File.separator + getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+            String defaultDomainConfigFile = getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+            final String configurationFile = getConfigLocation() + File.separator + defaultDomainConfigFile;
             LOG.debug("Checking if file [{}] exists", configurationFile);
             if (new File(configurationFile).exists()) {
-                LOG.debug("Using property file [{}]", configurationFile);
-                propertyFileName = configurationFile;
+                LOG.debug("File [{}] exists. Using property file [{}]", configurationFile, defaultDomainConfigFile);
+                propertyFileName = defaultDomainConfigFile;
             } else {
                 LOG.debug("File [{}] does not exists, using [{}]", configurationFile, DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE);
                 propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;

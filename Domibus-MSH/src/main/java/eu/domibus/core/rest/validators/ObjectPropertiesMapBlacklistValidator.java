@@ -5,6 +5,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +22,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, ObjectPropertiesMapBlacklistValidator.Parameter> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesMapBlacklistValidator.class);
@@ -43,7 +46,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
     public boolean isValid(ObjectPropertiesMapBlacklistValidator.Parameter value, CustomWhiteListed customAnnotation) {
         Map<String, String[]> valuesMap = value.getValues();
         if (valuesMap == null || valuesMap.isEmpty()) {
-            LOG.debug("Parameters map is empty, exiting");
+            LOG.trace("Parameters map is empty, exiting");
             return true;
         }
 
@@ -68,14 +71,15 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
             String[] val = pair.getValue();
             if (!listValidator.isValid(val, whitelistAnnotation)) {
-                message = String.format("Forbidden character detected in the query parameter [%s]:[%s] ",
-                        pair.getKey(), Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg));
+                message = "Forbidden character(s) detected in the parameter ["
+                        + pair.getKey() + "]: ["
+                        + Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg) + "]";
                 LOG.debug(message);
                 return false;
             }
         }
 
-        LOG.debug("Successfully validated values: [{}]", valuesMap);
+        LOG.trace("Successfully validated values: [{}]", valuesMap);
         return true;
     }
 
@@ -91,7 +95,6 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
         public void setParameterType(Class parameterType) {
             this.parameterType = parameterType;
         }
-
 
         public CustomWhiteListed getParameterAnnotation() {
             return parameterAnnotation;

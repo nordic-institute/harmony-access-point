@@ -1,5 +1,7 @@
 package eu.domibus.core.payload.persistence.filesystem;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.WarningUtil;
@@ -87,10 +89,13 @@ public class PayloadFileStorage {
      * @param path
      * @return Path
      */
-    private Path createLocation(String path) {
+    protected Path createLocation(String path) {
         Path payloadPath = null;
         try {
             payloadPath = Paths.get(path).normalize();
+            if (!payloadPath.isAbsolute()) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Relative path [" + payloadPath + "] is forbidden. Please provide absolute path for payload storage");
+            }
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
                 Files.createDirectories(payloadPath);

@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @author Cosmin Baciu
  * @since 4.0
- * <p>
+ *
  * Class that manages the creation, reset and destruction of message listener containers
  * The instances are kept so that they can be recreated on property changes at runtime and also stoped at shutdown
  */
@@ -76,25 +77,35 @@ public class MessageListenerContainerInitializer {
     public void destroy() {
         LOG.info("Shutting down MessageListenerContainer instances");
 
-        for (MessageListenerContainer instance : instances) {
+        // There is an issue with destroying / shutting down the message listener containers on Tomcat while stopping
+        // it, so we first stop all the instances and then shut them all down (stopping down all instances first seems
+        // to be avoiding the issue related to the XA exceptions being thrown when the ApplicationContext shuts down,
+        // even thought the shutdown operations stop the instances too, but this happens one listener at a time)
+        instances.forEach(instance -> {
             try {
-                // There is an issue with destroying (shutting down) the message listener container on Tomcat while
-                // stopping so we just stop the instances on the ApplicationContext shutdown (the invokers will
-                // close on JVM exit)
+                LOG.info("Stopping MessageListenerContainer instance: {}", instance);
                 instance.stop();
+            } catch (Exception e) {
+                LOG.error("Error while stopping MessageListenerContainer", e);
+            }
+        });
+
+        instances.forEach(instance -> {
+            try {
+                LOG.info("Shutting down MessageListenerContainer instance: {}", instance);
+                ((AbstractMessageListenerContainer)instance).shutdown();
             } catch (Exception e) {
                 LOG.error("Error while shutting down MessageListenerContainer", e);
             }
-        }
+        });
     }
-
 
     /**
      * It will collect and instantiate all {@link PluginMessageListenerContainer} defined in plugins
      *
      * @param domain
      */
-    public void createMessageListenersForPlugins(Domain domain) {
+    protected void createMessageListenersForPlugins(Domain domain) {
         DomainDTO domainDTO = domainConverter.convert(domain, DomainDTO.class);
 
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
@@ -163,7 +174,6 @@ public class MessageListenerContainerInitializer {
         LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
 
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
@@ -174,68 +184,56 @@ public class MessageListenerContainerInitializer {
 
         DomainMessageListenerContainer listenerContainer = messageListenerContainerFactory.createSendMessageListenerContainer(domain, selector, concurrencyPropertyName);
         listenerContainer.setBeanName(messageListenerName);
-        removeInstance(domain, listenerContainer.getName());
         listenerContainer.start();
         instances.add(listenerContainer);
 
         LOG.info("MessageListenerContainer initialized for domain [{}] with selector [{}] and concurrency property [{}]", domain, selector, concurrencyPropertyName);
     }
 
-    public void createSendLargeMessageListenerContainer(Domain domain) {
+    protected void createSendLargeMessageListenerContainer(Domain domain) {
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendLargeMessageListenerContainer(domain);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("LargeMessageListenerContainer initialized for domain [{}]", domain);
     }
 
-    public void createPullReceiptListenerContainer(Domain domain) {
+    protected void createPullReceiptListenerContainer(Domain domain) {
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullReceiptListenerContainer(domain);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("PullReceiptListenerContainer initialized for domain [{}]", domain);
     }
 
-    public void createSplitAndJoinListenerContainer(Domain domain) {
+    protected void createSplitAndJoinListenerContainer(Domain domain) {
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createSplitAndJoinListenerContainer(domain);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("SplitAndJoinListenerContainer initialized for domain [{}]", domain);
     }
 
-    public void createRetentionListenerContainer(Domain domain) {
+    protected void createRetentionListenerContainer(Domain domain) {
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createRetentionListenerContainer(domain);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("RetentionListenerContainer initialized for domain [{}]", domain);
     }
 
-    public void createPullMessageListenerContainer(Domain domain) {
+    protected void createPullMessageListenerContainer(Domain domain) {
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createPullMessageListenerContainer(domain);
-        removeInstance(domain, instance.getName());
         instance.start();
         instances.add(instance);
         LOG.info("PullListenerContainer initialized for domain [{}]", domain);
     }
 
-    private void removeInstance(Domain domain, String beanName) {
+    public void setConcurrency(Domain domain, String beanName, String concurrency) {
         DomainMessageListenerContainer oldInstance = instances.stream()
-                .filter(instance -> instance instanceof DomainMessageListenerContainer)
-                .map(instance -> (DomainMessageListenerContainer) instance)
-                .filter(instance -> domain.equals(instance.getDomain()))
-                .filter(instance -> beanName.equals(instance.getName()))
-                .findFirst().orElse(null);
+                                                              .filter(instance -> instance instanceof DomainMessageListenerContainer)
+                                                              .map(instance -> (DomainMessageListenerContainer) instance)
+                                                              .filter(instance -> domain.equals(instance.getDomain()))
+                                                              .filter(instance -> beanName.equals(instance.getName()))
+                                                              .findFirst().orElse(null);
         if (oldInstance != null) {
-            try {
-                oldInstance.shutdown();
-            } catch (Exception e) {
-                LOG.error("Error while shutting down [{}] MessageListenerContainer for domain [{}]", beanName, domain, e);
-            }
-            instances.remove(oldInstance);
+            oldInstance.setConcurrency(concurrency);
         }
     }
-
 }
