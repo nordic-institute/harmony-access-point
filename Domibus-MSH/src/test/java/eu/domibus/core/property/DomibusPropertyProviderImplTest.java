@@ -626,7 +626,7 @@ public class DomibusPropertyProviderImplTest {
             result = false;
         }};
 
-        String propertyPrefix = domibusPropertyProvider.getPropertyPrefix(prefix);
+        String propertyPrefix = domibusPropertyProvider.getPropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
         assertEquals(prefix + ".", propertyPrefix);
 
         new Verifications() {{
@@ -653,7 +653,7 @@ public class DomibusPropertyProviderImplTest {
         }};
 
 
-        String propertyName = domibusPropertyProvider.getPropertyPrefix(prefix);
+        String propertyName = domibusPropertyProvider.getPropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
         assertEquals(propertyPrefix, propertyName);
     }
 

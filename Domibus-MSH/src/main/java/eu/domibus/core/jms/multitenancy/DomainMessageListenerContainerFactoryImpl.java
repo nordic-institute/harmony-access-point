@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 4.0
- *
+ * <p>
  * Class for creating Message Listener containers for a specified domain
  */
 @Service
@@ -22,9 +22,9 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     protected ApplicationContext applicationContext;
 
     @Override
-    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain) {
-        LOG.debug("Creating the SendMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean("dispatchContainer", domain);
+    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain, String selector, String concurrencyPropertyName) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] with selector [{}] and concurrency [{}]", domain, selector, concurrencyPropertyName);
+        return (DomainMessageListenerContainer) applicationContext.getBean("dispatchContainer", domain, selector, concurrencyPropertyName);
     }
 
     @Override
