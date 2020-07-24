@@ -53,7 +53,7 @@ export class PluginUserService {
       const usersWithoutDomain = users.filter(user => !user.domain);
       if (usersWithoutDomain.length > 0) {
         const userNames = usersWithoutDomain.map(u => u.userName || u.certificateId).join(', ');
-        this.alertService.error(`The following plugin users are not configured correctly for multiteancy: ${userNames}`);
+        this.alertService.error(`The following plugin users are not configured correctly for multitenancy: ${userNames}`);
       }
     }
   }
