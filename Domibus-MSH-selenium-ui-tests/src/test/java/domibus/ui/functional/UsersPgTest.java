@@ -638,9 +638,40 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertAll();
 	}
+	/*USR-39 - Change password of Super user by Another super user*/
+	@Test(description = "USR-39", groups = {"multiTenancy"})
+	public void changePassSuperUsr() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		DomibusPage page = new DomibusPage(driver);
 
+		do {
+			log.info("Add new Super user");
+			String userName = getUser(null, DRoles.SUPER, true, false, true).
+					getString("userName");
+			log.info("Login with default Super user");
+			loginAndGoToUsersPage(data.getAdminUser());
 
+			HashMap<String, String> params = new HashMap<>();
+			params.put("password", data.getNewTestPass());
 
-
+			log.info("Change password of new super user  with username " + userName);
+			rest.updateUser(userName, params, null);
+			log.info("logout and login with new password");
+			logout();
+			login(userName, data.getNewTestPass());
+			soft.assertTrue(page.getTitle().contains("Messages"), "User is able to login with new password successfully");
+			if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+				log.info("break from loop if current domain is other than default");
+				break;
+			}
+		} while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+		soft.assertAll();
+	}
 
 }
+
+
+
+
+
+

@@ -8,6 +8,8 @@ import pages.truststore.TruststorePage;
 import utils.BaseTest;
 import utils.DFileUtils;
 
+import java.io.File;
+
 /**
  * @author Rupam
  **/
@@ -215,5 +217,40 @@ public class TruststorePgTest extends BaseTest {
         soft.assertAll();
 
     }
+
+    /*  This method wil verify successful upload of jks file with special char àøýßĉæãäħ */
+    @Test(description = "TRST-18", groups = {"multiTenancy", "singleTenancy"})
+    public void uploadTruststoreWithSpclChar() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
+        log.info("Login into application and navigate to Truststore page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);
+        DomibusPage page = new DomibusPage(driver);
+        TruststorePage tPage = new TruststorePage(driver);
+        do {
+            log.info("Try to upload random file ");
+            String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator
+                    + "truststore" + File.separator + "àøýßĉæãäħ.jks";
+
+            tPage.uploadFile(path, "test123", soft);
+
+            log.info("Validate success message ");
+            soft.assertEquals(tPage.getAlertArea().getAlertMessage(), "\"Truststore file has been successfully replaced.\"");
+            tPage.getAlertArea().closeButton.click();
+
+            page.waitForTitle();
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+               log.info("break from loop if current domain is other than default");
+                break;
+            }
+            if (data.isMultiDomain()) {
+                log.info("Change domain other than default");
+                page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+                page.waitForTitle();
+            }
+        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+    }
+
 
 }

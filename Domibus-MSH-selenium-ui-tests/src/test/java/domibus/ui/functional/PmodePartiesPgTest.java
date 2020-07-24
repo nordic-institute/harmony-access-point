@@ -745,47 +745,58 @@ public class PmodePartiesPgTest extends BaseTest {
         soft.assertAll();
     }
 
+    /* This method will check successful deletion of all parties except the one which defines system */
     @Test(description = "PMP-32", groups = {"multiTenancy", "singleTenancy"})
     public void deleteAllParty() throws Exception {
-
+        SoftAssert soft = new SoftAssert();
         log.info("Login and Navigate to Pmode Current page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
-
-        log.info("upload Pmode");
-        rest.uploadPMode("pmodes/Edelivery-blue.xml", null);
-
-        SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
 
-        log.info("Extract system party name from current pmode");
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
-                parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
-        String systemParty = doc.getDocumentElement().getAttribute("party");
+        do {
+            log.info("upload Pmode");
+            rest.uploadPMode("pmodes/Edelivery-blue.xml", page.getDomainFromTitle());
 
-        page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-        PModePartiesPage pPage = new PModePartiesPage(driver);
+            log.info("Extract system party name from current pmode");
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
+                    parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
+            String systemParty = doc.getDocumentElement().getAttribute("party");
 
-        log.info("Total number of available pmode parties");
-        int count = pPage.grid().getPagination().getTotalItems();
+            page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+            PModePartiesPage pPage = new PModePartiesPage(driver);
 
-        for (int i = count - 1; i > 0; i--) {
+            log.info("Total number of available pmode parties");
+            int count = pPage.grid().getPagination().getTotalItems();
 
-            String selectedParty=pPage.grid().getRowInfo(i).get("Party Name");
-            log.info("party name"+ selectedParty + "for row " + i);
+            for (int i = count - 1; i >= 0; i--) {
 
-            log.info("select and delete pmode party for row " + i );
-            pPage.grid().selectRow(i);
-            pPage.getDeleteButton().click();
-            pPage.getSaveButton().click();
+                String selectedParty = pPage.grid().getRowInfo(i).get("Party Name");
+                log.info("party name" + selectedParty + "for row " + i + page.getDomainFromTitle());
 
-            if (selectedParty.equals(systemParty)) {
-                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Party update error"));
-            } else {
-                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Parties saved successfully"));
+                log.info("select and delete pmode party for row " + i + page.getDomainFromTitle());
+                pPage.grid().selectRow(i);
+                pPage.getDeleteButton().click();
+                pPage.getSaveButton().click();
+
+                log.info("Alert Message  for row " + i + " for domain " + page.getDomainFromTitle() + " : " + pPage.getAlertArea().alertMessage.getText());
+                if (selectedParty.equals(systemParty)) {
+                    soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Party update error"));
+                } else {
+                    soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Parties saved successfully"));
+                }
+                pPage.refreshPage();
+                pPage.grid().waitForRowsToLoad();
             }
-            pPage.refreshPage();
-            pPage.grid().waitForRowsToLoad();
-        }
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("break from loop if current domain is other than default");
+                break;
+            }
+            if (data.isMultiDomain()) {
+                log.info("Change domain other than default");
+                page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+                page.waitForTitle();
+            }
+        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
         soft.assertAll();
 
     }
