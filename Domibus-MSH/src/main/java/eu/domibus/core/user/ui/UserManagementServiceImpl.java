@@ -31,11 +31,12 @@ import java.util.function.Function;
  * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
  */
-@Service("userManagementService")
-@Primary
+@Service(UserManagementServiceImpl.BEAN_NAME)
 public class UserManagementServiceImpl implements UserService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceImpl.class);
+
+    public static final String BEAN_NAME = "userManagementService";
 
     @Autowired
     protected UserDao userDao;
