@@ -184,7 +184,7 @@ public class BusinessProcessValidator implements PModeValidator {
         }
         List<Leg> allLegs = legsXml.getLeg();
         if (CollectionUtils.isEmpty(allLegs)) {
-            createIssue(issues, process, "", "Empty legs are not allowed for the process.");
+            createIssue(issues, process, "", "Empty legs are not allowed for the process [%s].");
         }
         allLegs.stream()
                 .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equals(leg.getName())))
