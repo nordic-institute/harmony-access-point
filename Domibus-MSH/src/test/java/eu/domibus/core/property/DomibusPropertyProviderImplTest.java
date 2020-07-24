@@ -645,9 +645,6 @@ public class DomibusPropertyProviderImplTest {
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
-            domainContextProvider.getCurrentDomain();
-            result = DomainService.DEFAULT_DOMAIN;
-
             domibusPropertyProvider.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
             result = domainPrefix;
         }};
