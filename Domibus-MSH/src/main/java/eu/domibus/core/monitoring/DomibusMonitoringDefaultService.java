@@ -1,14 +1,16 @@
 package eu.domibus.core.monitoring;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.monitoring.DomibusMonitoringService;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.api.monitoring.DomibusMonitoringService;
-import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringDefaultService.class);
 
     @Autowired
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userService;
 
     @Autowired

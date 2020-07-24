@@ -20,10 +20,12 @@ import java.util.stream.Collectors;
  * @author Ion Perpegel
  * @since 4.0
  */
-@Service("superUserManagementService")
+@Service(SuperUserManagementServiceImpl.BEAN_NAME)
 public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SuperUserManagementServiceImpl.class);
+
+    public static final String BEAN_NAME = "superUserManagementService";
 
     @Autowired
     protected UserDomainService userDomainService;
