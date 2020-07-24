@@ -256,6 +256,35 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
+    public void test_validateEmptyLegs(final @Mocked ValidationIssue validationIssue,
+                                       final @Mocked Process process,
+                                       final @Mocked Set<LegConfiguration> legConfigurations,
+                                       final @Mocked Legs legs,
+                                       final @Mocked Leg leg) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+
+        List<Leg> legList = new ArrayList<>();
+
+        new Expectations(businessProcessValidator) {{
+            process.getLegs();
+            result = legConfigurations;
+
+            pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
+            result = legs;
+
+            legs.getLeg();
+            result = legList;
+        }};
+
+        //tested method
+        businessProcessValidator.validateLegConfiguration(issues, process);
+
+        new FullVerifications(businessProcessValidator) {{
+        }};
+    }
+
+    @Test
     public void test_validateLegConfigurationWithError(final @Mocked ValidationIssue validationIssue,
                                                        final @Mocked Process process,
                                                        final @Mocked LegConfiguration legConfiguration,
