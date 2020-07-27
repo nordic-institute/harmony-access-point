@@ -32,7 +32,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
     DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory;
 
     @Test
-    public void alertJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
+    public void internalJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
                                                  @Injectable PlatformTransactionManager transactionManager,
                                                  @Injectable DomibusPropertyProvider domibusPropertyProvider,
                                                  @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
