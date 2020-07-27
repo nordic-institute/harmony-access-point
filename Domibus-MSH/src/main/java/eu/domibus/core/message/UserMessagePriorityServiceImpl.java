@@ -83,8 +83,9 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
         List<UserMessagePriorityConfiguration> result = new ArrayList<>();
         for (String priorityRuleName : priorityRuleNames) {
             UserMessagePriorityConfiguration priorityConfiguration = getPriorityConfiguration(domain, priorityRuleName);
-            if (StringUtils.isNotBlank(priorityConfiguration.getConcurrencyPropertyName())) {
-                LOG.debug("Adding UserMessage priority configuration [{}] for rule [{}]", priorityConfiguration, priorityRuleName);
+            final String concurrency = domibusPropertyProvider.getProperty(domain, priorityConfiguration.getConcurrencyPropertyName());
+            if (StringUtils.isNotBlank(concurrency)) {
+                LOG.debug("Adding UserMessage priority configuration [{}]", priorityConfiguration);
                 result.add(priorityConfiguration);
             }
         }

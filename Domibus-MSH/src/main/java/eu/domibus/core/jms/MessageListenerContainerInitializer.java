@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
+import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -137,7 +138,7 @@ public class MessageListenerContainerInitializer {
 
         List<Integer> priorities = getPriorities(configuredPrioritiesWithConcurrency);
         String selectorForDefaultDispatcher = getSelectorForDefaultDispatcher(priorities);
-        createMessageListenersWithPriority(domain, "dispatchContainer", selectorForDefaultDispatcher, DOMIBUS_DISPATCHER_CONCURENCY);
+        createMessageListenersWithPriority(domain, MessageListenerContainerConfiguration.DISPATCH_CONTAINER, selectorForDefaultDispatcher, DOMIBUS_DISPATCHER_CONCURENCY);
 
         LOG.info("Finished creating SendMessageListenerContainers");
     }
