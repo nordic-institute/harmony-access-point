@@ -3,7 +3,6 @@ package eu.domibus.core.message;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY;
 
 /**
  * @author Cosmin Baciu
@@ -47,7 +48,7 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
      */
     @Override
     public Integer getPriority(String userMessageService, String userMessageAction) {
-        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY);
+        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(DOMIBUS_DISPATCHER_PRIORITY);
 
         if (CollectionUtils.isEmpty(priorityRuleNames)) {
             LOG.debug("No dispatcher priority rules defined");
@@ -73,7 +74,7 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
 
     @Override
     public List<UserMessagePriorityConfiguration> getConfiguredRulesWithConcurrency(Domain domain) throws UserMessageException {
-        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY);
+        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY);
 
         if (CollectionUtils.isEmpty(priorityRuleNames)) {
             LOG.debug("No dispatcher priority rules defined");
@@ -157,11 +158,11 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     }
 
     protected String getConcurrencyPropertyName(String priorityRuleName) {
-        return getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, CONCURRENCY);
+        return getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, CONCURRENCY);
     }
 
     protected String getConfiguredPriorityForRule(Domain domain, String priorityRuleName) {
-        String priorityPropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, VALUE);
+        String priorityPropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, VALUE);
         String priorityPropertyValue = domibusPropertyProvider.getProperty(domain, priorityPropertyName);
 
         if (StringUtils.isBlank(priorityPropertyValue)) {
@@ -173,14 +174,14 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     }
 
     protected String getConfiguredActionForRule(String priorityRuleName) {
-        String actionPropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, ACTION);
+        String actionPropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, ACTION);
         String actionPropertyValue = domibusPropertyProvider.getProperty(actionPropertyName);
         LOG.debug("Determined action value [{}] using property [{}]", actionPropertyValue, actionPropertyName);
         return actionPropertyValue;
     }
 
     protected String getConfiguredServiceForRule(String priorityRuleName) {
-        String servicePropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, SERVICE);
+        String servicePropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, SERVICE);
         String servicePropertyValue = domibusPropertyProvider.getProperty(servicePropertyName);
         LOG.debug("Determined service value [{}] using property [{}]", servicePropertyValue, servicePropertyName);
         return servicePropertyValue;
