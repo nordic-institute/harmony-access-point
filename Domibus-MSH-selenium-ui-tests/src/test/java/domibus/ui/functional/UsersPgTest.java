@@ -5,6 +5,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import org.json.JSONArray;
 import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -627,7 +628,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
 
-		log.info("deleteing created user");
+		log.info("deleting created user");
 		page.grid().scrollToAndSelect("Username", username);
 		page.getDeleteBtn().click();
 
@@ -681,15 +682,15 @@ public class UsersPgTest extends BaseTest {
 		int userCount = rest.getUsers(page.getDomainFromTitle()).length();
 
 		log.info("Delete all super user except Default one");
+		JSONArray userArray =rest.getUsers(page.getDomainFromTitle());
 
 		for (int i = 0; i < userCount; i++) {
-			String userName = rest.getUsers(page.getDomainFromTitle()).getJSONObject(i).get("userName").toString();
-			String role = rest.getUsers(page.getDomainFromTitle()).getJSONObject(i).get("roles").toString();
+			String userName = userArray.getJSONObject(i).get("userName").toString();
+			String role = userArray.getJSONObject(i).get("roles").toString();
 			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
 				rest.deleteUser(userName, "");
 			}
 		}
-		log.info("Change password of new super user  with username " + data.getAdminUser().get("username"));
 		UsersPage uPage = new UsersPage(driver);
 
 		uPage.grid().scrollToAndSelect("Username", "super");
@@ -703,7 +704,7 @@ public class UsersPgTest extends BaseTest {
 
 		soft.assertTrue(modal.getRoleSelect().getOptionsTexts().size() == 1, "only one role is present ");
 		uPage.clickVoidSpace();
-		log.info("Role change is not possible for super user as no other super user exists");
+		log.info("Role change is not possible for super user ");
 		soft.assertAll();
 	}
 

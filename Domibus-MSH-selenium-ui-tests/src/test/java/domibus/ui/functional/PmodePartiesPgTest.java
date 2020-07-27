@@ -762,6 +762,7 @@ public class PmodePartiesPgTest extends BaseTest {
             log.info("Extract system party name from current pmode");
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
                     parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
+
             String systemParty = doc.getDocumentElement().getAttribute("party");
 
             page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
@@ -807,12 +808,13 @@ public class PmodePartiesPgTest extends BaseTest {
     @Test(description = "PMP-31", groups = {"multiTenancy", "singleTenancy"})
     public void searchWithForbiddenChar() throws Exception {
         SoftAssert soft = new SoftAssert();
-        log.info("Login and Navigate to Pmode Current page");
+        log.info("Login and Navigate to Pmode Parties page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage page= new PModePartiesPage(driver);
         PartiesFilters pfPage= new PartiesFilters(driver);
+
         do {
-            log.info("Search with forbidden char ");
+            log.info("Search with default forbidden char ");
             pfPage.getNameInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
             pfPage.getEndpointInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
             pfPage.getPartyIDInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
@@ -826,7 +828,7 @@ public class PmodePartiesPgTest extends BaseTest {
             try {
                 soft.assertFalse(apage.alertMessage.isDisplayed(), "no alert message is shown for forbidden char");
             } catch (Exception e) {
-                log.info("No alert message is shown ");
+                log.info("No alert area is present ");
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("break from loop if current domain is other than default");
