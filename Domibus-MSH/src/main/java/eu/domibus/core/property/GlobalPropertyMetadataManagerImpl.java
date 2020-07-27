@@ -38,8 +38,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected DomainCoreConverter domainConverter;
 
-   /* @Autowired
-    private MetricRegistry metricRegistry;*/
+
 
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
@@ -56,11 +55,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
-      /*  com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_counter"));
-        methodCounter.inc();
-        com.codahale.metrics.Timer surrounding = metricRegistry.timer(name(GlobalPropertyMetadataManagerImpl.class, "getPropertyMetadata", "_timer"));
-        com.codahale.metrics.Timer.Context surroundingContext = surrounding.time();
-        try {*/
+
             loadPropertiesIfNotFound(propertyName);
 
             DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
@@ -84,10 +79,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                 DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
                 return clonePropertyMetadata(propertyName, newProp);
             }
-      /*  } finally {
-            methodCounter.dec();
-            surroundingContext.stop();
-        }*/
+
 
     }
 

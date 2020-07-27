@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -62,8 +61,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-
-import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Thomas Dussart
@@ -142,26 +139,17 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessagingDao messagingDao;
 
-    @Autowired
-    protected MetricRegistry metricRegistry;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @Timer(clazz = UserMessageHandlerServiceImpl.class,value = "handleNewUserMessage")
-    @Counter(clazz = UserMessageHandlerServiceImpl.class,value = "handleNewUserMessage")
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
-        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "handleNewUserMessage", "internal")).time();
-        try {
-            final boolean selfSendingFlag = checkSelfSending(pmodeKey);
-            final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
-
-            handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
-
-            return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
-        }finally {
-            persistReceivedMessage.stop();
-        }
+        final boolean selfSendingFlag = checkSelfSending(pmodeKey);
+        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+        handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
+        return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
     }
 
     @Override
@@ -207,10 +195,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
 
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
     protected void handleIncomingMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
-        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "handleIncomingMessage", ".intro")).time();
         soapUtil.logMessage(request);
-
         if (selfSending) {
                 /* we add a defined suffix in order to assure DB integrity - messageId uniqueness
                 basically we are generating another messageId for Signal Message on receiver side
@@ -222,7 +210,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         checkCharset(messaging);
 
         LOG.debug("Message duplication status:{}", messageExists);
-        persistReceivedMessage.stop();
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
@@ -338,25 +325,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @throws IOException
      * @throws EbMS3Exception
      */
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
         UserMessage userMessage = messaging.getUserMessage();
-
         if (messageFragmentType != null) {
             handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
         }
-
-        com.codahale.metrics.Timer.Context surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".handlePayloads")).time();
         handlePayloads(request, userMessage);
-        surrounding.stop();
-
-        surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".handleDecompression")).time();
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
-        surrounding.stop();
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-        surrounding = metricRegistry.timer(name(UserMessageHandlerServiceImpl.class, "persistReceivedMessage", ".saveReceivedMessage")).time();
         String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
-        surrounding.stop();
         return s;
     }
 

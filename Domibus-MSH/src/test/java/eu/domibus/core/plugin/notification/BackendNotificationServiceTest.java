@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;

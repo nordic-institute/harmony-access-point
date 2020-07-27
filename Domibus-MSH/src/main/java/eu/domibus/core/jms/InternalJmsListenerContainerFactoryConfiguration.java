@@ -3,16 +3,13 @@ package eu.domibus.core.jms;
 import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -38,7 +35,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
                                                                                   PlatformTransactionManager transactionManager,
                                                                                   DomibusPropertyProvider domibusPropertyProvider,
                                                                                   Optional<JndiDestinationResolver> internalDestinationResolver,
-                                                                                  @Qualifier("internalNotificationWorkExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
+                                                                                  @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);

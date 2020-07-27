@@ -1,7 +1,5 @@
 package eu.domibus.core.ebms3.ws.attachment;
 
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.attachment.AttachmentDataSource;

@@ -6,7 +6,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ext.domain.metrics.Counter;

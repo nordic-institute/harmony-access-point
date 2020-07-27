@@ -12,10 +12,10 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -33,8 +33,6 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
-
-import static eu.domibus.ext.domain.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
 
 /**
  * @author idragusa

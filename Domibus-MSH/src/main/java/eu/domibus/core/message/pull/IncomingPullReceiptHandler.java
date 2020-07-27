@@ -18,14 +18,14 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -37,8 +37,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
-
-import static eu.domibus.ext.domain.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
 
 /**
  * Handles the incoming AS4 pull receipt

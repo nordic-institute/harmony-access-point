@@ -15,8 +15,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.status.DomibusStatusService;
@@ -25,6 +23,8 @@ import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -47,8 +47,6 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
-
-import static eu.domibus.ext.domain.metrics.MetricNames.OUTGOING_PULL_REQUEST;
 
 /**
  * @author Thomas Dussart

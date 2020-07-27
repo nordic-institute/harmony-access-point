@@ -2,19 +2,14 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Default;
-import eu.domibus.ext.domain.metrics.MetricNames;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 import static com.codahale.metrics.MetricRegistry.name;
 

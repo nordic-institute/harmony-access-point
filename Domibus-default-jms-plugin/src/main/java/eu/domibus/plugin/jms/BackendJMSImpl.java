@@ -159,10 +159,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     public void deliverMessage(final String messageId) {
         LOG.debug("Delivering message [{}]", messageId);
         final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
-
         LOG.info("Sending message to queue [{}]", queueValue);
-        DownloadMessageCreator messageCreator = new DownloadMessageCreator(messageId);
-        mshToBackendTemplate.send(queueValue, messageCreator);
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
     }
 
     @Override

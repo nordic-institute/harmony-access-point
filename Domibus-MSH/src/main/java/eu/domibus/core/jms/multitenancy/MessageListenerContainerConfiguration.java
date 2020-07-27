@@ -104,7 +104,7 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
-    @Qualifier("sendingQueueWorkExecutor")
+    @Qualifier("taskExecutor")
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 

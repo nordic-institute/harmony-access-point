@@ -1,6 +1,5 @@
 package eu.domibus.core.plugin.notification;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -29,6 +28,8 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -52,10 +53,12 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
@@ -140,9 +143,6 @@ public class BackendNotificationService {
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected MetricRegistry metricRegistry;
 
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
@@ -255,8 +255,9 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
+    @Timer(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
+    @Counter(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
-        com.codahale.metrics.Timer.Context persistReceivedMessage = metricRegistry.timer(name(BackendNotificationService.class, "notifyMessageReceived")).time();
         if (isPluginNotificationDisabled()) {
             return;
         }
@@ -266,7 +267,6 @@ public class BackendNotificationService {
         }
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
-        persistReceivedMessage.stop();
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
