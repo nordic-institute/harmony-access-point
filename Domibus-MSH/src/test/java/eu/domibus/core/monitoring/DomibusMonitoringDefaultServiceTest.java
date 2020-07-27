@@ -25,7 +25,7 @@ public class DomibusMonitoringDefaultServiceTest {
     DomibusMonitoringDefaultService domibusMonitoringDefaultService;
 
     @Injectable
-    UserService userService;
+    UserService userManagementService;
 
     @Injectable
     JMSManager jmsManager;
@@ -52,7 +52,7 @@ public class DomibusMonitoringDefaultServiceTest {
         List<String> filter = new ArrayList<>();
         filter.add(DB_STATUS_FILTER);
         new Expectations() {{
-            userService.findUsers();
+            userManagementService.findUsers();
             times =1;
         }};
        MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
@@ -111,7 +111,7 @@ public class DomibusMonitoringDefaultServiceTest {
         List<String> filter = new ArrayList<>();
         filter.add(ALL_STATUS_FILTER);
         new Expectations() {{
-            userService.findUsers();
+            userManagementService.findUsers();
             times =1;
             jmsManager.getDestinationSize("pull");
             result = 5;
@@ -126,7 +126,7 @@ public class DomibusMonitoringDefaultServiceTest {
     @Test
     public void getDataBaseDetailsTest() {
         new Expectations(domibusMonitoringDefaultService) {{
-            userService.findUsers();
+            userManagementService.findUsers();
             times =1;
         }};
 
