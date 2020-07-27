@@ -336,8 +336,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         handlePayloads(request, userMessage);
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-        String s = saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
-        return s;
+        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
     }
 
     /**
