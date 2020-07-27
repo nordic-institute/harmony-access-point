@@ -5,10 +5,7 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +29,9 @@ public class PayloadProfilesValidatorTest {
     PModeValidationHelper pModeValidationHelper;
 
     @Test
-    public void test_validate(final @Injectable Configuration configuration,
-                              final @Injectable PayloadProfile payloadProfile,
-                              final @Injectable Set<Payload> validPayloads) {
+    public void test_validate(final @Mocked Configuration configuration,
+                              final @Mocked PayloadProfile payloadProfile,
+                              final @Mocked Set<Payload> validPayloads) {
 
 
         final Set<PayloadProfile> payloadProfileList = Collections.singleton(payloadProfile);
@@ -56,8 +53,8 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
-    public void test_validatePayloadProfile(final @Injectable PayloadProfile payloadProfile,
-                                            final @Injectable Set<Payload> validPayloads) {
+    public void test_validatePayloadProfile(final @Mocked PayloadProfile payloadProfile,
+                                            final @Mocked Set<Payload> validPayloads) {
         final List<Attachment> attachmentList = new ArrayList<>();
 
         new Expectations() {{
@@ -75,12 +72,12 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
-    public void test_validatePayloadProfile_MaxSizeNegative(final @Injectable PayloadProfile payloadProfile,
-                                                            final @Injectable Set<Payload> validPayloads,
-                                                            final @Injectable Attachment attachment) {
+    public void test_validatePayloadProfile_MaxSizeNegative(final @Mocked PayloadProfile payloadProfile,
+                                                            final @Mocked Set<Payload> validPayloads,
+                                                            final @Mocked List<Attachment> attachmentList) {
         new Expectations(payloadProfilesValidator) {{
             pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
-            result = Collections.singletonList(attachment);
+            result = attachmentList;
 
             payloadProfile.getMaxSize();
             result = -20;
@@ -94,7 +91,7 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
-    public void test_createIssue(final @Injectable PayloadProfile payloadProfile) {
+    public void test_createIssue(final @Mocked PayloadProfile payloadProfile) {
         final String message = "message";
         final String name = "name";
 
