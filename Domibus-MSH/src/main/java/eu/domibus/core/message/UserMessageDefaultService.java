@@ -35,6 +35,8 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -324,6 +326,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
+    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");

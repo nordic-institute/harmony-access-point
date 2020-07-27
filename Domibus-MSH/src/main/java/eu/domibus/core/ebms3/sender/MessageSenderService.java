@@ -9,6 +9,8 @@ import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -52,6 +54,8 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
+    @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
+    @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
     public void sendUserMessage(final String messageId, int retryCount) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
