@@ -65,7 +65,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testSaveMessageAcknowledge() throws Exception {
+    public void testSaveMessageAcknowledge() {
         String user = "baciuco";
         String messageId = "123";
         Timestamp acknowledgetTimestamp = new Timestamp(System.currentTimeMillis());

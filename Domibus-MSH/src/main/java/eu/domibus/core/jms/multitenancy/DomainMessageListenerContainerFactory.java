@@ -10,7 +10,7 @@ import eu.domibus.api.multitenancy.Domain;
  */
 public interface DomainMessageListenerContainerFactory {
 
-    DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain, String selector, String concurrency);
 
     DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);
 
