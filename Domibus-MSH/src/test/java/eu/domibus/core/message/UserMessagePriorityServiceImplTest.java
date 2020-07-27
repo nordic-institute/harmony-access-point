@@ -235,6 +235,9 @@ public class UserMessagePriorityServiceImplTest {
             result = priorityConfiguration;
 
             priorityConfiguration.getConcurrencyPropertyName();
+            result = "domibus.dispatcher.priority.rule1.concurrency";
+
+            domibusPropertyProvider.getProperty(domain, priorityConfiguration.getConcurrencyPropertyName());
             result = "1-6";
         }};
 
