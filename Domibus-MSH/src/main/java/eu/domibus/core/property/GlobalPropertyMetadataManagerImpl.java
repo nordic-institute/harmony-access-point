@@ -38,8 +38,6 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected DomainCoreConverter domainConverter;
 
-
-
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
@@ -55,32 +53,29 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        loadPropertiesIfNotFound(propertyName);
 
-            loadPropertiesIfNotFound(propertyName);
+        DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
+        if (prop != null) {
+            LOG.trace("Found property [{}], returning its metadata.", propertyName);
+            return prop;
+        }
 
-            DomibusPropertyMetadata prop = allPropertyMetadataMap.get(propertyName);
-            if (prop != null) {
-                LOG.trace("Found property [{}], returning its metadata.", propertyName);
-                return prop;
+        synchronized (propertyMetadataMapLock) {
+            LOG.trace("Acquired lock to search new property: [{}]", propertyName);
+
+            // try to see if it is a compose-able property, i.e. propertyName+suffix
+            DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
+            if (propMeta != null) {
+                LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
+                return clonePropertyMetadata(propertyName, propMeta);
             }
 
-            synchronized (propertyMetadataMapLock) {
-                LOG.trace("Acquired lock to search new property: [{}]", propertyName);
-
-                // try to see if it is a compose-able property, i.e. propertyName+suffix
-                DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
-                if (propMeta != null) {
-                    LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-                    return clonePropertyMetadata(propertyName, propMeta);
-                }
-
-                // if still not found, initialize metadata on-the-fly
-                LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
-                DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
-                return clonePropertyMetadata(propertyName, newProp);
-            }
-
-
+            // if still not found, initialize metadata on-the-fly
+            LOG.info("Creating on-the-fly global metadata for unknown property: [{}]", propertyName);
+            DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName, Module.UNKNOWN);
+            return clonePropertyMetadata(propertyName, newProp);
+        }
     }
 
     protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
