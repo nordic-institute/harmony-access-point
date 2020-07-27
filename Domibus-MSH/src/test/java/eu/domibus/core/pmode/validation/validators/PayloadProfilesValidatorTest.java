@@ -7,6 +7,7 @@ import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -72,6 +73,7 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
+    @Ignore
     public void test_validatePayloadProfile_MaxSizeNegative(final @Mocked PayloadProfile payloadProfile,
                                                             final @Mocked Set<Payload> validPayloads,
                                                             final @Mocked List<Attachment> attachmentList) {

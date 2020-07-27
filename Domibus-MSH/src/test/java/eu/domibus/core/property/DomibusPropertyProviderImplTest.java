@@ -626,7 +626,7 @@ public class DomibusPropertyProviderImplTest {
             result = false;
         }};
 
-        String propertyPrefix = domibusPropertyProvider.getPropertyPrefix(prefix);
+        String propertyPrefix = domibusPropertyProvider.getPropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
         assertEquals(prefix + ".", propertyPrefix);
 
         new Verifications() {{
@@ -645,15 +645,12 @@ public class DomibusPropertyProviderImplTest {
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
-            domainContextProvider.getCurrentDomain();
-            result = DomainService.DEFAULT_DOMAIN;
-
             domibusPropertyProvider.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
             result = domainPrefix;
         }};
 
 
-        String propertyName = domibusPropertyProvider.getPropertyPrefix(prefix);
+        String propertyName = domibusPropertyProvider.getPropertyPrefix(DomainService.DEFAULT_DOMAIN, prefix);
         assertEquals(propertyPrefix, propertyName);
     }
 
