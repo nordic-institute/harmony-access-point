@@ -1,8 +1,10 @@
 package domibus.ui.functional;
 
+import ddsl.dcomponents.AlertArea;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
+import pages.pmode.PartiesFilters;
 import utils.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
@@ -801,6 +803,44 @@ public class PmodePartiesPgTest extends BaseTest {
 
     }
 
+    /* This method will verify search with forbidden char  */
+    @Test(description = "PMP-31", groups = {"multiTenancy", "singleTenancy"})
+    public void searchWithForbiddenChar() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        log.info("Login and Navigate to Pmode Current page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
+        PModePartiesPage page= new PModePartiesPage(driver);
+        PartiesFilters pfPage= new PartiesFilters(driver);
+        do {
+            log.info("Search with forbidden char ");
+            pfPage.getNameInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
+            pfPage.getEndpointInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
+            pfPage.getPartyIDInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
+            pfPage.getProcessInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
+
+            log.info("Click on search button");
+            pfPage.getSearchButton().click();
+
+            soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "No grid result");
+            AlertArea apage = new AlertArea(driver);
+            try {
+                soft.assertFalse(apage.alertMessage.isDisplayed(), "no alert message is shown for forbidden char");
+            } catch (Exception e) {
+                log.info("No alert message is shown ");
+            }
+            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+                log.info("break from loop if current domain is other than default");
+                break;
+            }
+            if(data.isMultiDomain()){
+                log.info("Change domain if it is multitenant");
+                page.getDomainSelector().selectOptionByIndex(1);
+            }
+        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+
+
+    }
 
 }
 

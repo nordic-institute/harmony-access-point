@@ -157,5 +157,45 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
     }
 
 
+    /* This method will verify grid element changes on row selection with single click */
+    @Test(description = "PMP-18", groups = {"multiTenancy", "singleTenancy"})
+    public void singleClick() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
+        log.info("Navigate to Pmode parties page");
+        new DomibusPage(driver).getSidebar().goToPage(PAGES.PMODE_PARTIES);
+
+        PModePartiesPage page = new PModePartiesPage(driver);
+        do{
+        page.grid().waitForRowsToLoad();
+
+        log.info("Check status of New, Edit & Delete button");
+        soft.assertTrue(page.getNewButton().isEnabled() , " New button is enabled");
+        soft.assertFalse(page.getEditButton().isEnabled(), "Edit button is enabled");
+        soft.assertFalse(page.getDeleteButton().isEnabled(), "Delete button is enabled");
+
+        log.info("Select first row");
+        page.grid().selectRow(0);
+
+        log.info("Check New, Edit & Delete button status after row selection");
+        soft.assertTrue(page.getNewButton().isEnabled(), " New button is enabled");
+        soft.assertTrue(page.getEditButton().isEnabled(), " Edit button is enabled");
+        soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled");
+
+        if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+            log.info("break from loop if current domain is other than default");
+            break;
+        }
+        if (data.isMultiDomain()) {
+            log.info("Change domain other than default");
+            page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
+            page.waitForTitle();
+        }
+    } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        soft.assertAll();
+
+    }
+
+
 }
 
