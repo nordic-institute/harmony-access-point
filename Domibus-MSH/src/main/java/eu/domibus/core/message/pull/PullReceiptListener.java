@@ -40,7 +40,7 @@ import static eu.domibus.ext.domain.metrics.MetricNames.OUTGOING_PULL_RECEIPT;
  * @author idragusa
  * @since 4.1
  */
-@Service(value = "pullReceiptListener")
+@Service
 public class PullReceiptListener implements MessageListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullReceiptListener.class);
 

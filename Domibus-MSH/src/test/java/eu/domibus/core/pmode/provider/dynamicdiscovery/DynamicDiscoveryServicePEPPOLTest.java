@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
@@ -198,6 +199,26 @@ public class DynamicDiscoveryServicePEPPOLTest {
         new Verifications() {{
             ProcessIdentifier.of(processId);
         }};
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void testSmlZoneEmpty() throws EbMS3Exception {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            result = "";
+            times = 1;
+        }};
+        dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void testSmlZoneNull() throws EbMS3Exception {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            result = null;
+            times = 1;
+        }};
+        dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
     }
 
 }

@@ -63,10 +63,10 @@ public class BusinessProcessValidator implements PModeValidator {
         validateInitiatorParties(issues, process, partyIdTypes);
 
         //responder Parties
-        Set<Party> validResponderParties = validateResponderParties(issues, process, partyIdTypes);
+        validateResponderParties(issues, process, partyIdTypes);
 
         //leg configuration
-        validateLegConfiguration(issues, process, validResponderParties);
+        validateLegConfiguration(issues, process);
     }
 
     protected void validateAgreement(List<ValidationIssue> issues, Process process) {
@@ -150,12 +150,12 @@ public class BusinessProcessValidator implements PModeValidator {
         });
     }
 
-    protected Set<Party> validateResponderParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
+    protected void validateResponderParties(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
         Set<Party> validResponderParties = process.getResponderParties();
         ResponderParties responderPartiesXml = process.getResponderPartiesXml();
         if (responderPartiesXml == null) {
             LOG.trace("responderPartiesXml is null, exiting");
-            return validResponderParties;
+            return;
         }
         List<ResponderParty> allResponderParties = responderPartiesXml.getResponderParty();
         if (!CollectionUtils.isEmpty(allResponderParties) && allResponderParties.size() != validResponderParties.size()) {
@@ -164,7 +164,6 @@ public class BusinessProcessValidator implements PModeValidator {
                     .forEach(party -> createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties"));
         }
         validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
-        return validResponderParties;
     }
 
     protected void validateResponderPartyIdType(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Set<Party> validResponderParties) {
@@ -175,7 +174,7 @@ public class BusinessProcessValidator implements PModeValidator {
         validResponderParties.forEach(party -> checkPartyIdentifiers(issues, process, partyIdTypes, party, "Responder Party's [%s] partyIdType of process [%s] not found in business process partyId types"));
     }
 
-    protected void validateLegConfiguration(List<ValidationIssue> issues, Process process, Set<Party> validResponderParties) {
+    protected void validateLegConfiguration(List<ValidationIssue> issues, Process process) {
         Set<LegConfiguration> validLegs = process.getLegs();
         Legs legsXml = pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
         if (legsXml == null) {
@@ -183,13 +182,12 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         List<Leg> allLegs = legsXml.getLeg();
-        if (CollectionUtils.isEmpty(allLegs) || allLegs.size() == validResponderParties.size()) {
-            LOG.trace("allLegs list is empty or allLegs.size() == validResponderParties.size()");
-            return;
+        if (CollectionUtils.isEmpty(allLegs)) {
+            createIssue(issues, process, "", "Empty legs are not allowed for the process [%s].");
         }
         allLegs.stream()
                 .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equals(leg.getName())))
-                .forEach(party -> createIssue(issues, process, party.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
+                .forEach(leg -> createIssue(issues, process, leg.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
     }
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {

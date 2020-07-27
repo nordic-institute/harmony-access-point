@@ -4,10 +4,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,6 +34,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     BCryptPasswordEncoder bcryptEncoder;
 
     @Autowired
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userService;
 
     @Autowired

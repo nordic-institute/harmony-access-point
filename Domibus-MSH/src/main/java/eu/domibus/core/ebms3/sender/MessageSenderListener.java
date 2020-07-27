@@ -17,7 +17,7 @@ import javax.jms.Message;
  * @author Cosmin Baciu
  * @since 3.0
  */
-@Service(value = "messageSenderListener")
+@Service
 public class MessageSenderListener extends AbstractMessageSenderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
 

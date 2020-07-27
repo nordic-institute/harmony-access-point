@@ -44,7 +44,7 @@ public class DomibusPropertyProviderDispatcherTest {
     private Domain domain = new Domain("domain1", "Domain 1");
 
     @Test()
-    public void getInternalOrExternalPproperty_internal() {
+    public void getInternalOrExternalProperty_internal() {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -66,7 +66,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void getInternalOrExternalPproperty_external(@Mocked DomibusPropertyManagerExt manager) {
+    public void getInternalOrExternalProperty_external(@Mocked DomibusPropertyManagerExt manager) {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -89,7 +89,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void getInternalOrExternalPproperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    public void getInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -108,7 +108,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void setInternalOrExternalPproperty_internal() {
+    public void setInternalOrExternalProperty_internal() {
         String currentValue = "currentVal";
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -129,7 +129,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void setInternalOrExternalPproperty_external(@Mocked DomibusPropertyManagerExt manager) {
+    public void setInternalOrExternalProperty_external(@Mocked DomibusPropertyManagerExt manager) {
 
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -150,7 +150,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void setInternalOrExternalPproperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    public void setInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
 
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
