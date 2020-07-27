@@ -5,11 +5,9 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Mpcs;
-import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,9 +27,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by Cosmin Baciu on 16-Sep-16.
@@ -86,7 +82,6 @@ public class SamplePModeTestIT {
     protected eu.domibus.common.model.configuration.Configuration  readPMode(String location) throws Exception {
         File pmodeFile = new File(location);
         String pmodeContent = FileUtils.readFileToString(pmodeFile, "UTF-8");
-        pmodeContent = StringUtils.replaceEach(pmodeContent, new String[]{"<red_hostname>", "<blue_hostname>"}, new String[]{"red_hostname", "blue_hostname"});
 
         UnmarshallerResult unmarshal = xmlUtil.unmarshal(false, jaxbContext, IOUtils.toInputStream(pmodeContent, "UTF-8"), null);
         return unmarshal.getResult();
