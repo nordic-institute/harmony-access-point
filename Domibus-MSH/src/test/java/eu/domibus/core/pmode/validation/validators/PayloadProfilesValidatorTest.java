@@ -77,10 +77,10 @@ public class PayloadProfilesValidatorTest {
     @Test
     public void test_validatePayloadProfile_MaxSizeNegative(final @Injectable PayloadProfile payloadProfile,
                                                             final @Injectable Set<Payload> validPayloads,
-                                                            final @Injectable List<Attachment> attachmentList) {
+                                                            final @Injectable Attachment attachment) {
         new Expectations(payloadProfilesValidator) {{
             pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
-            result = attachmentList;
+            result = Collections.singletonList(attachment);
 
             payloadProfile.getMaxSize();
             result = -20;
