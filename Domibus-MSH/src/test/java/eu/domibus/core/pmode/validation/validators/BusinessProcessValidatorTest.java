@@ -231,6 +231,7 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateLegConfiguration(final @Mocked ValidationIssue validationIssue,
                                               final @Mocked Process process,
+                                              final @Mocked Set<Party> validResponderParties,
                                               final @Mocked Set<LegConfiguration> legConfigurations,
                                               final @Mocked Legs legs,
                                               final @Mocked List<Leg> legList) {
@@ -249,78 +250,10 @@ public class BusinessProcessValidatorTest {
         }};
 
         //tested method
-        businessProcessValidator.validateLegConfiguration(issues, process);
+        businessProcessValidator.validateLegConfiguration(issues, process, validResponderParties);
 
         new FullVerifications(businessProcessValidator) {{
         }};
     }
 
-    @Test
-    public void test_validateEmptyLegs(final @Mocked ValidationIssue validationIssue,
-                                       final @Mocked Process process,
-                                       final @Mocked Set<LegConfiguration> legConfigurations,
-                                       final @Mocked Legs legs,
-                                       final @Mocked Leg leg) {
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(validationIssue);
-
-        List<Leg> legList = new ArrayList<>();
-
-        new Expectations(businessProcessValidator) {{
-            process.getLegs();
-            result = legConfigurations;
-
-            pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
-            result = legs;
-
-            legs.getLeg();
-            result = legList;
-        }};
-
-        //tested method
-        businessProcessValidator.validateLegConfiguration(issues, process);
-
-        new FullVerifications(businessProcessValidator) {{
-        }};
-    }
-
-    @Test
-    public void test_validateLegConfigurationWithError(final @Mocked ValidationIssue validationIssue,
-                                                       final @Mocked Process process,
-                                                       final @Mocked LegConfiguration legConfiguration,
-                                                       final @Mocked Legs legs,
-                                                       final @Mocked Leg leg,
-                                                       final @Mocked Leg leg1) {
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(validationIssue);
-        List<Leg> allLegs = new ArrayList<>();
-        allLegs.add(leg);
-        allLegs.add(leg1);
-        Set<LegConfiguration> validLegs = new HashSet<>();
-        validLegs.add(legConfiguration);
-
-        new Expectations(businessProcessValidator) {{
-            process.getLegs();
-            result = validLegs;
-
-            pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
-            result = legs;
-
-            legs.getLeg();
-            result = allLegs;
-
-            leg.getName();
-            result = "test1";
-
-            legConfiguration.getName();
-            result = "test2";
-        }};
-
-        //tested method
-        businessProcessValidator.validateLegConfiguration(issues, process);
-
-        new FullVerifications(businessProcessValidator) {{
-            businessProcessValidator.createIssue(issues, process, anyString, "Leg [%s] of process [%s] not found in business process leg configurations");
-        }};
-    }
 }
