@@ -1,5 +1,6 @@
 package eu.domibus.core.logging;
 
+import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import mockit.Injectable;
 import mockit.Tested;
@@ -11,6 +12,9 @@ import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -27,6 +31,12 @@ public class LoggingSetLevelCommandTaskTest {
 
     @Test
     public void canHandle() {
+        assertTrue(loggingSetLevelCommandTask.canHandle(Command.LOGGING_SET_LEVEL));
+    }
+
+    @Test
+    public void canHandleWithDifferentCommand() {
+        assertFalse(loggingSetLevelCommandTask.canHandle("anothercommand"));
     }
 
     @Test

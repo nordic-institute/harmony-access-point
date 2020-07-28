@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
@@ -12,6 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Map;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -31,6 +35,12 @@ public class ReloadTruststoreCommandTaskTest {
 
     @Test
     public void canHandle() {
+        assertTrue(reloadTruststoreCommandTask.canHandle(Command.RELOAD_TRUSTSTORE));
+    }
+
+    @Test
+    public void canHandleWithDifferentCommand() {
+        assertFalse(reloadTruststoreCommandTask.canHandle("anothercommand"));
     }
 
     @Test
