@@ -648,32 +648,27 @@ public class UsersPgTest extends BaseTest {
 
 		log.info("Login with default Super user");
 		loginAndGoToUsersPage(data.getAdminUser());
-		do {
-			log.info("Add new Super user");
-			String userName = getUser(page.getDomainFromTitle(), DRoles.SUPER, true, false, true).
+		List<String> domains = rest.getDomainNames();
+
+		for (String domain : domains) {
+			log.info("verify and select current domain :" + domain);
+			page.getDomainSelector().selectOptionByText(domain);
+
+			log.info("Add new Super user for domain :" + domain);
+			String userName = getUser(domain, DRoles.SUPER, true, false, true).
 					getString("userName");
 
 			HashMap<String, String> params = new HashMap<>();
 			params.put("password", data.getNewTestPass());
 
-			log.info("Change password of new super user  with username " + userName);
-			rest.updateUser(userName, params, page.getDomainFromTitle());
-			log.info("logout and login with new password");
+			log.info("Change password of new super user  with username :" + userName);
+			rest.updateUser(userName, params, domain);
+			log.info("logout and login with new password for super user " + userName + "for domain "+domain);
 			logout();
 
 			login(userName, data.getNewTestPass());
 			soft.assertTrue(page.getTitle().contains("Messages"), "User is able to login with new password successfully");
-
-			if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-				log.info("break from loop if current domain is other than default");
-				break;
-			}
-			if (data.isMultiDomain()) {
-				log.info("Change domain if it is multitenant");
-				page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
-			}
-
-		} while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+		}
 		soft.assertAll();
 	}
 
