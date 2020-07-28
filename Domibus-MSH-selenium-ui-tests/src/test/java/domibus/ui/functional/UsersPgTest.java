@@ -737,7 +737,7 @@ public class UsersPgTest extends BaseTest {
 		uPage.saveAndConfirm();
 		soft.assertEquals(uPage.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
 
-		log.info("Delete new Super user  " + userName);
+		log.info("Delete new Super user {}", userName);
 
 		uPage.grid().scrollToAndSelect("Username", userName);
 		uPage.getDeleteBtn().click();
