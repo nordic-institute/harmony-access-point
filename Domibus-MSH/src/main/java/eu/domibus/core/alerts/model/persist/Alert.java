@@ -167,7 +167,8 @@ public class Alert extends AbstractBaseEntity{
     @Override
     public String toString() {
         return "Alert{" +
-                "processed=" + processed +
+                "id=" + getEntityId() +
+                ", processed=" + processed +
                 ", processedTime=" + processedTime +
                 ", alertType=" + alertType +
                 ", reportingTime=" + reportingTime +
