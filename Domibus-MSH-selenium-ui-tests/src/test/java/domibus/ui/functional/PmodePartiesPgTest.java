@@ -2,6 +2,8 @@ package domibus.ui.functional;
 
 import ddsl.dcomponents.AlertArea;
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DObject;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import pages.pmode.PartiesFilters;
@@ -754,52 +756,36 @@ public class PmodePartiesPgTest extends BaseTest {
         log.info("Login and Navigate to Pmode Current page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
         DomibusPage page = new DomibusPage(driver);
+        page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+        PModePartiesPage pPage = new PModePartiesPage(driver);
+        log.info("Extract system party name from current pmode");
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
+                parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
 
-        do {
+        String systemParty = doc.getDocumentElement().getAttribute("party");
+        String path = "pmodes/Edelivery-blue.xml";
+        //for multitenancy
+        if (data.isMultiDomain()) {
+            List<String> domains = rest.getDomainNames();
+            for (String domain : domains) {
+                log.info("verify and select current domain :" + domain);
+                page.getDomainSelector().selectOptionByText(domain);
+                page.waitForTitle();
+                log.info("upload Pmode");
+                rest.uploadPMode("pmodes/Edelivery-blue.xml", pPage.getDomainFromTitle());
+                log.info("Total number of available pmode parties");
+                int count = pPage.grid().getPagination().getTotalItems();
+                partyDelAlertMsg(soft, pPage, systemParty,count);
+            }
+        }
+        //single tenancy
+        else {
             log.info("upload Pmode");
-            rest.uploadPMode("pmodes/Edelivery-blue.xml", page.getDomainFromTitle());
-
-            log.info("Extract system party name from current pmode");
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
-                    parse(new File("./src/main/resources/pmodes/Edelivery-blue.xml"));
-
-            String systemParty = doc.getDocumentElement().getAttribute("party");
-
-            page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-            PModePartiesPage pPage = new PModePartiesPage(driver);
-
+            rest.uploadPMode("pmodes/Edelivery-blue.xml", pPage.getDomainFromTitle());
             log.info("Total number of available pmode parties");
             int count = pPage.grid().getPagination().getTotalItems();
-
-            for (int i = count - 1; i >= 0; i--) {
-
-                String selectedParty = pPage.grid().getRowInfo(i).get("Party Name");
-                log.info("party name" + selectedParty + "for row " + i + page.getDomainFromTitle());
-
-                log.info("select and delete pmode party for row " + i + page.getDomainFromTitle());
-                pPage.grid().selectRow(i);
-                pPage.getDeleteButton().click();
-                pPage.getSaveButton().click();
-
-                log.info("Alert Message  for row " + i + " for domain " + page.getDomainFromTitle() + " : " + pPage.getAlertArea().alertMessage.getText());
-                if (selectedParty.equals(systemParty)) {
-                    soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Party update error"));
-                } else {
-                    soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Parties saved successfully"));
-                }
-                pPage.refreshPage();
-                pPage.grid().waitForRowsToLoad();
-            }
-            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-                log.info("break from loop if current domain is other than default");
-                break;
-            }
-            if (data.isMultiDomain()) {
-                log.info("Change domain other than default");
-                page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
-                page.waitForTitle();
-            }
-        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+            partyDelAlertMsg(soft, pPage, systemParty,count);
+        }
         soft.assertAll();
 
     }
@@ -812,38 +798,70 @@ public class PmodePartiesPgTest extends BaseTest {
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
         PModePartiesPage page= new PModePartiesPage(driver);
         PartiesFilters pfPage= new PartiesFilters(driver);
+        String searchData="'\\u0022(){}[];,+=%&*#<>/\\\\";
+        AlertArea apage = new AlertArea(driver);
 
-        do {
-            log.info("Search with default forbidden char ");
-            pfPage.getNameInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
-            pfPage.getEndpointInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
-            pfPage.getPartyIDInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
-            pfPage.getProcessInput().fill("'\\u0022(){}[];,+=%&*#<>/\\\\");
+        //for multitenancy
+        if (data.isMultiDomain()) {
+            List<String> domains = rest.getDomainNames();
+            for (String domain : domains) {
+                log.info("verify and select current domain :" + domain);
+                page.getDomainSelector().selectOptionByText(domain);
+                page.waitForTitle();
+                log.info("Validate searching" + page.getDomainFromTitle());
+                soft.assertTrue(validateSearchForForbiddenChar(page, searchData)==0,"Blank grid is shown");
+                soft.assertFalse(new DObject(driver, apage.alertMessage).isPresent(), "No alert message is shown for forbidden char");
 
-            log.info("Click on search button");
-            pfPage.getSearchButton().click();
+            }
+        }
+        //single tenancy
+        else {
+            log.info("Validate searching for single tenancy ");
+            soft.assertTrue(validateSearchForForbiddenChar(page, searchData)==0,"Blank grid is shown");
+            soft.assertFalse(new DObject(driver, apage.alertMessage).isPresent(), "No alert message is shown for forbidden char");
 
-            soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "No grid result");
-            AlertArea apage = new AlertArea(driver);
-            try {
-                soft.assertFalse(apage.alertMessage.isDisplayed(), "no alert message is shown for forbidden char");
-            } catch (Exception e) {
-                log.error("No alert area is present ", e);
-            }
-            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-                log.info("break from loop if current domain is other than default");
-                break;
-            }
-            if(data.isMultiDomain()){
-                log.info("Change domain if it is multitenant");
-                page.getDomainSelector().selectOptionByIndex(1);
-            }
-        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        }
+
         soft.assertAll();
 
 
     }
+    private int validateSearchForForbiddenChar(PModePartiesPage page,String data) throws Exception{
+        log.info("Search with default forbidden char");
+        page.filters().getNameInput().fill(data);
+        page.filters().getEndpointInput().fill(data);
+        page.filters().getPartyIDInput().fill(data);
+        page.filters().getProcessInput().fill(data);
+
+        log.info("Click on search button");
+        page.filters().getSearchButton().click();
+        return page.grid().getPagination().getTotalItems();
+    }
+
+    private void partyDelAlertMsg(SoftAssert soft, PModePartiesPage pPage,String systemParty,int partyCount) throws Exception {
+
+        for (int i = partyCount - 1; i >= 0; i--) {
+
+            String selectedParty = pPage.grid().getRowInfo(i).get("Party Name");
+            log.info("party name" + selectedParty + "for row " + i + pPage.getDomainFromTitle());
+
+            pPage.grid().selectRow(i);
+            pPage.getDeleteButton().click();
+            pPage.getSaveButton().click();
+
+            soft.assertTrue(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "Alert is present on deletion");
+            if (selectedParty.equals(systemParty)) {
+                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Party update error"));
+            } else {
+                soft.assertTrue(pPage.getAlertArea().alertMessage.getText().contains("Parties saved successfully"));
+            }
+            pPage.refreshPage();
+            pPage.grid().waitForRowsToLoad();
+        }
+    }
+
 
 }
+
 
 

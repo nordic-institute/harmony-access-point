@@ -5,10 +5,13 @@ import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
+import pages.users.UsersPage;
 import utils.BaseTest;
 import utils.DFileUtils;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Rupam
@@ -225,32 +228,36 @@ public class TruststorePgTest extends BaseTest {
 
         log.info("Login into application and navigate to Truststore page");
         login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);
-        DomibusPage page = new DomibusPage(driver);
         TruststorePage tPage = new TruststorePage(driver);
-        do {
-            log.info("Try to upload random file");
-            String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator
-                    + "truststore" + File.separator + "àøýßĉæãäħ.jks";
 
-            tPage.uploadFile(path, "test123", soft);
+        String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator
+                + "truststore" + File.separator + "àøýßĉæãäħ.jks";
 
-            log.info("Validate success message");
-            soft.assertEquals(tPage.getAlertArea().getAlertMessage(), "\"Truststore file has been successfully replaced.\"");
-            tPage.getAlertArea().closeButton.click();
-
-            page.waitForTitle();
-            if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
-               log.info("break from loop if current domain is other than default");
-                break;
+        //for multitenancy
+        if (data.isMultiDomain()) {
+            List<String> domains = rest.getDomainNames();
+            for (String domain : domains) {
+                log.info("verify and select current domain :" + domain);
+                tPage.getDomainSelector().selectOptionByText(domain);
+                tPage.waitForTitle();
+                log.info("Try to upload jks file for domain" + tPage.getDomainFromTitle());
+                uploadTrustStore(path, soft, tPage, "test123");
             }
-            if (data.isMultiDomain()) {
-                log.info("Change domain other than default");
-                page.getDomainSelector().selectOptionByText(getNonDefaultDomain());
-                page.waitForTitle();
-            }
-        } while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+        }
+        //single tenancy
+        else {
+            log.info("Try to upload jks file for single tenancy ");
+            uploadTrustStore(path, soft, tPage, "test123");
+        }
         soft.assertAll();
     }
 
+    private void uploadTrustStore(String filePath, SoftAssert soft, TruststorePage tPage, String pass) throws Exception {
+
+        tPage.uploadFile(filePath, pass, soft);
+        log.info("Validate success message");
+        soft.assertEquals(tPage.getAlertArea().getAlertMessage(), "\"Truststore file has been successfully replaced.\"");
+        tPage.getAlertArea().closeButton.click();
+    }
 
 }
