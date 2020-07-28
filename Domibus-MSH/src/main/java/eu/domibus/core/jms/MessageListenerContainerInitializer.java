@@ -2,13 +2,18 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
+import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
+import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
+import eu.domibus.core.message.UserMessagePriorityConfiguration;
+import eu.domibus.core.message.UserMessagePriorityService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
-import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
-import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.listener.AbstractMessageListenerContainer;
@@ -20,6 +25,8 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONCURENCY;
 
 /**
  * @author Ion Perpegel
@@ -33,6 +40,7 @@ import java.util.Map;
 public class MessageListenerContainerInitializer {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
+    public static final String JMS_PRIORITY = "JMSPriority";
 
     @Autowired
     ApplicationContext applicationContext;
@@ -46,13 +54,16 @@ public class MessageListenerContainerInitializer {
     @Autowired
     protected DomainExtConverter domainConverter;
 
+    @Autowired
+    protected UserMessagePriorityService userMessagePriorityService;
+
     protected List<MessageListenerContainer> instances = new ArrayList<>();
 
     @PostConstruct
     public void init() {
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            createSendMessageListenerContainer(domain);
+            createSendMessageListenerContainers(domain);
             createSendLargeMessageListenerContainer(domain);
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
@@ -111,11 +122,73 @@ public class MessageListenerContainerInitializer {
         }
     }
 
-    protected void createSendMessageListenerContainer(Domain domain) {
-        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain);
+    protected void createSendMessageListenerContainers(Domain domain) {
+        LOG.info("Creating SendMessageListenerContainers");
+
+        List<UserMessagePriorityConfiguration> configuredPrioritiesWithConcurrency = userMessagePriorityService.getConfiguredRulesWithConcurrency(domain);
+        if (CollectionUtils.isEmpty(configuredPrioritiesWithConcurrency)) {
+            createSendMessageListenerContainer(domain);
+            return;
+        }
+
+        for (UserMessagePriorityConfiguration userMessagePriorityConfiguration : configuredPrioritiesWithConcurrency) {
+            String selector = getSelectorForPriority(userMessagePriorityConfiguration.getPriority());
+            createMessageListenersWithPriority(domain, userMessagePriorityConfiguration.getRuleName() + "dispatcher", selector, userMessagePriorityConfiguration.getConcurrencyPropertyName());
+        }
+
+        List<Integer> priorities = getPriorities(configuredPrioritiesWithConcurrency);
+        String selectorForDefaultDispatcher = getSelectorForDefaultDispatcher(priorities);
+        createMessageListenersWithPriority(domain, MessageListenerContainerConfiguration.DISPATCH_CONTAINER, selectorForDefaultDispatcher, DOMIBUS_DISPATCHER_CONCURENCY);
+
+        LOG.info("Finished creating SendMessageListenerContainers");
+    }
+
+    protected String getSelectorForPriority(Integer priority) {
+        return JMS_PRIORITY + "=" + priority;
+    }
+
+    protected List<Integer> getPriorities(List<UserMessagePriorityConfiguration> configuredPrioritiesWithConcurrency) {
+        List<Integer> result = new ArrayList<>();
+        for (UserMessagePriorityConfiguration userMessagePriorityConfiguration : configuredPrioritiesWithConcurrency) {
+            result.add(userMessagePriorityConfiguration.getPriority());
+        }
+        return result;
+    }
+
+    protected String getSelectorForDefaultDispatcher(List<Integer> existingPriorities) {
+        StringBuilder selector = new StringBuilder();
+        selector.append("(JMSPriority is null or (");
+        List<String> jmsPrioritySelectors = new ArrayList<>();
+        for (Integer existingPriority : existingPriorities) {
+            jmsPrioritySelectors.add(JMS_PRIORITY + "<>" + existingPriority);
+        }
+        String jmsPrioritySelector = StringUtils.join(jmsPrioritySelectors, " and ");
+        selector.append(jmsPrioritySelector);
+
+        selector.append(") )");
+        LOG.debug("Determined selector [{}]", selector);
+
+        return selector.toString();
+    }
+
+    public void createSendMessageListenerContainer(Domain domain) {
+        LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
+
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
         instance.start();
         instances.add(instance);
         LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
+    }
+
+    protected void createMessageListenersWithPriority(Domain domain, String messageListenerName, String selector, String concurrencyPropertyName) {
+        LOG.info("Initializing MessageListenerContainer for domain [{}] with selector [{}] and concurrency property [{}]", domain, selector, concurrencyPropertyName);
+
+        DomainMessageListenerContainer listenerContainer = messageListenerContainerFactory.createSendMessageListenerContainer(domain, selector, concurrencyPropertyName);
+        listenerContainer.setBeanName(messageListenerName);
+        listenerContainer.start();
+        instances.add(listenerContainer);
+
+        LOG.info("MessageListenerContainer initialized for domain [{}] with selector [{}] and concurrency property [{}]", domain, selector, concurrencyPropertyName);
     }
 
     protected void createSendLargeMessageListenerContainer(Domain domain) {

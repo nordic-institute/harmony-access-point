@@ -1,8 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,7 +11,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY;
 
 /**
  * @author Cosmin Baciu
@@ -22,6 +25,10 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePriorityServiceImpl.class);
     public static final String ACTION_LIST_SEPARATOR = ",";
+    public static final String SERVICE = "service";
+    public static final String ACTION = "action";
+    public static final String VALUE = "value";
+    public static final String CONCURRENCY = "concurrency";
 
     protected DomainContextProvider domainContextProvider;
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -41,7 +48,7 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
      */
     @Override
     public Integer getPriority(String userMessageService, String userMessageAction) {
-        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY);
+        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(DOMIBUS_DISPATCHER_PRIORITY);
 
         if (CollectionUtils.isEmpty(priorityRuleNames)) {
             LOG.debug("No dispatcher priority rules defined");
@@ -53,19 +60,53 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
             LOG.debug("No dispatcher priority found for service [{}] and action [{}]", userMessageService, userMessageAction);
             return null;
         }
+        return getPriorityAsInteger(priorityValueString);
+    }
+
+    protected Integer getPriorityAsInteger(String priorityValueString) {
+        if (StringUtils.isBlank(priorityValueString)) {
+            return null;
+        }
         Integer priorityValue = convertPriorityToInteger(priorityValueString);
         validatePriority(priorityValue);
         return priorityValue;
     }
 
+    @Override
+    public List<UserMessagePriorityConfiguration> getConfiguredRulesWithConcurrency(Domain domain) throws UserMessageException {
+        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY);
+
+        if (CollectionUtils.isEmpty(priorityRuleNames)) {
+            LOG.debug("No dispatcher priority rules defined");
+            return null;
+        }
+
+        List<UserMessagePriorityConfiguration> result = new ArrayList<>();
+        for (String priorityRuleName : priorityRuleNames) {
+            UserMessagePriorityConfiguration priorityConfiguration = getPriorityConfiguration(domain, priorityRuleName);
+            final String concurrency = domibusPropertyProvider.getProperty(domain, priorityConfiguration.getConcurrencyPropertyName());
+            if (StringUtils.isNotBlank(concurrency)) {
+                LOG.debug("Adding UserMessage priority configuration [{}]", priorityConfiguration);
+                result.add(priorityConfiguration);
+            }
+        }
+        return result;
+    }
+
+    protected UserMessagePriorityConfiguration getPriorityConfiguration(Domain domain, String priorityRuleName) throws UserMessageException {
+        String configuredPriorityForRule = getConfiguredPriorityForRule(domain, priorityRuleName);
+        Integer priorityAsInteger = getPriorityAsInteger(configuredPriorityForRule);
+        String concurrencyPropertyName = getConcurrencyPropertyName(priorityRuleName);
+
+        return new UserMessagePriorityConfiguration(priorityRuleName, priorityAsInteger, concurrencyPropertyName);
+    }
+
     protected Integer convertPriorityToInteger(String priorityValueString) {
-        Integer priorityValue = null;
         try {
-            priorityValue = Integer.valueOf(priorityValueString);
+            return Integer.valueOf(priorityValueString);
         } catch (NumberFormatException e) {
             throw new UserMessageException("Priority [" + priorityValueString + "] is not a valid integer");
         }
-        return priorityValue;
     }
 
     protected void validatePriority(Integer priorityValue) {
@@ -102,29 +143,48 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
      * @return the configured priority or null otherwise
      */
     protected String getMatchingPriority(String priorityRuleName, String userMessageService, String userMessageAction) {
-        String servicePropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, "service");
-        String servicePropertyValue = domibusPropertyProvider.getProperty(servicePropertyName);
-        LOG.debug("Determined service value [{}] using property [{}]", servicePropertyValue, servicePropertyName);
+        String configuredServiceForRule = getConfiguredServiceForRule(priorityRuleName);
+        String configuredActionForRule = getConfiguredActionForRule(priorityRuleName);
 
-        String actionPropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, "action");
-        String actionPropertyValue = domibusPropertyProvider.getProperty(actionPropertyName);
-        LOG.debug("Determined action value [{}] using property [{}]", actionPropertyValue, actionPropertyName);
-
-        boolean matches = matchesServiceAndAction(userMessageService, userMessageAction, servicePropertyValue, actionPropertyValue);
+        boolean matches = matchesServiceAndAction(userMessageService, userMessageAction, configuredServiceForRule, configuredActionForRule);
         if (!matches) {
-            LOG.debug("Property values pair: service [{}] and action [{}] does not matches UserMessage service [{}] and action [{}] ", servicePropertyValue, actionPropertyValue, userMessageService, userMessageAction);
+            LOG.debug("Property values pair: service [{}] and action [{}] does not matches UserMessage service [{}] and action [{}] ", configuredServiceForRule, configuredActionForRule, userMessageService, userMessageAction);
             return null;
         }
-        LOG.debug("Property values pair: service [{}] and action [{}] pair matches UserMessage service [{}] and action [{}] ", servicePropertyValue, actionPropertyValue, userMessageService, userMessageAction);
+        LOG.debug("Property values pair: service [{}] and action [{}] pair matches UserMessage service [{}] and action [{}] ", configuredServiceForRule, configuredActionForRule, userMessageService, userMessageAction);
 
-        String priorityPropertyName = getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, "value");
-        String priorityPropertyValue = domibusPropertyProvider.getProperty(priorityPropertyName);
-        LOG.debug("Determined priority value [{}] using property [{}]", priorityPropertyValue, priorityPropertyName);
 
-        if (StringUtils.isEmpty(priorityPropertyValue)) {
-            throw new UserMessageException("No configured priority value found for property [" + priorityPropertyName + "]");
+        return getConfiguredPriorityForRule(domainContextProvider.getCurrentDomainSafely(), priorityRuleName);
+    }
+
+    protected String getConcurrencyPropertyName(String priorityRuleName) {
+        return getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, CONCURRENCY);
+    }
+
+    protected String getConfiguredPriorityForRule(Domain domain, String priorityRuleName) {
+        String priorityPropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, VALUE);
+        String priorityPropertyValue = domibusPropertyProvider.getProperty(domain, priorityPropertyName);
+
+        if (StringUtils.isBlank(priorityPropertyValue)) {
+            throw new UserMessageException("No configured priority value found for property [" + priorityPropertyName + "] and domain [ " + domain + "]");
         }
+
+        LOG.debug("Determined priority value [{}] using property [{}]", priorityPropertyValue, priorityPropertyName);
         return priorityPropertyValue;
+    }
+
+    protected String getConfiguredActionForRule(String priorityRuleName) {
+        String actionPropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, ACTION);
+        String actionPropertyValue = domibusPropertyProvider.getProperty(actionPropertyName);
+        LOG.debug("Determined action value [{}] using property [{}]", actionPropertyValue, actionPropertyName);
+        return actionPropertyValue;
+    }
+
+    protected String getConfiguredServiceForRule(String priorityRuleName) {
+        String servicePropertyName = getPriorityPropertyName(DOMIBUS_DISPATCHER_PRIORITY, priorityRuleName, SERVICE);
+        String servicePropertyValue = domibusPropertyProvider.getProperty(servicePropertyName);
+        LOG.debug("Determined service value [{}] using property [{}]", servicePropertyValue, servicePropertyName);
+        return servicePropertyValue;
     }
 
     /**

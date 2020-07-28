@@ -6,6 +6,8 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -69,12 +71,12 @@ public class AuthenticationResource {
 
     @Autowired
     @Lazy
-    @Qualifier("superUserManagementService")
+    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
     private UserService superUserManagementService;
 
     @Autowired
     @Lazy
-    @Qualifier("userManagementService")
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userManagementService;
 
     @Autowired

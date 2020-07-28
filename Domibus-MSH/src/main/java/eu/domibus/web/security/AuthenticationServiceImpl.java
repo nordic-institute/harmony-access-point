@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
     private AuthenticationManager authenticationManager;
 
     @Autowired
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userService;
 
     @Override
