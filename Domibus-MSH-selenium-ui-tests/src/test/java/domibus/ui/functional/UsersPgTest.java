@@ -667,6 +667,11 @@ public class UsersPgTest extends BaseTest {
 				log.info("break from loop if current domain is other than default");
 				break;
 			}
+			if(data.isMultiDomain()){
+				log.info("Change domain if it is multitenant");
+				page.getDomainSelector().selectOptionByIndex(1);
+			}
+
 		} while (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
 		soft.assertAll();
 	}
