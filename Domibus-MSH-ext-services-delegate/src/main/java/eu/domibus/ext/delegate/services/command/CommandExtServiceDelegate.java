@@ -31,7 +31,7 @@ public class CommandExtServiceDelegate implements CommandExtService {
     }
 
     @Override
-    public void signalCommand(String commandName, Map<String, Object> properties) {
+    public void executeCommand(String commandName, Map<String, Object> properties) {
         properties.put(Command.COMMAND, commandName);
         LOGGER.debug("Added command name [{}] to the command properties", commandName);
 

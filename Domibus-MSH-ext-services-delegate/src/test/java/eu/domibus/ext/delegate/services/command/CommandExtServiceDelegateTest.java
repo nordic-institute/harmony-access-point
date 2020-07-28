@@ -46,7 +46,7 @@ public class CommandExtServiceDelegateTest {
 
         }};
 
-        commandExtServiceDelegate.signalCommand(commandName, properties);
+        commandExtServiceDelegate.executeCommand(commandName, properties);
 
         new Verifications() {{
             properties.put(Command.COMMAND, commandName);
