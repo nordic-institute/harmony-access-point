@@ -246,7 +246,7 @@ public class TruststorePgTest extends BaseTest {
         }
         //single tenancy
         else {
-            log.info("Try to upload jks file for single tenancy ");
+            log.info("Try to upload jks file for single tenancy");
             uploadTrustStore(path, soft, tPage, "test123");
         }
         soft.assertAll();

@@ -3,6 +3,7 @@ package pages.truststore;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.DWait;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -60,6 +61,8 @@ public class TruststorePage extends DomibusPage {
 
     public void uploadFile(String filePath, String password, SoftAssert soft) throws Exception {
         getUploadButton().click();
+        DWait wait= new DWait(driver);
+        wait.forXMillis(100);
         chooseFileButton.sendKeys(filePath);
         soft.assertTrue(passValidationMsg.isDisplayed(), "Validation under password field is present");
         if (!password.isEmpty()) {
