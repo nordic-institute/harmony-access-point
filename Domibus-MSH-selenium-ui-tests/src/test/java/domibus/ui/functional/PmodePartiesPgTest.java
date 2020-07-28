@@ -828,7 +828,7 @@ public class PmodePartiesPgTest extends BaseTest {
             try {
                 soft.assertFalse(apage.alertMessage.isDisplayed(), "no alert message is shown for forbidden char");
             } catch (Exception e) {
-                log.info("No alert area is present ");
+                log.error("No alert area is present ", e);
             }
             if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
                 log.info("break from loop if current domain is other than default");
