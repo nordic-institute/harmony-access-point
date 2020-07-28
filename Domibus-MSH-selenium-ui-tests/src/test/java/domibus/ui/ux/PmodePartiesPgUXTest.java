@@ -170,7 +170,7 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
         page.grid().waitForRowsToLoad();
 
         log.info("Check status of New, Edit & Delete button");
-        soft.assertTrue(page.getNewButton().isEnabled() , " New button is enabled");
+        soft.assertTrue(page.getNewButton().isEnabled() , "New button is enabled");
         soft.assertFalse(page.getEditButton().isEnabled(), "Edit button is enabled");
         soft.assertFalse(page.getDeleteButton().isEnabled(), "Delete button is enabled");
 
@@ -178,8 +178,8 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
         page.grid().selectRow(0);
 
         log.info("Check New, Edit & Delete button status after row selection");
-        soft.assertTrue(page.getNewButton().isEnabled(), " New button is enabled");
-        soft.assertTrue(page.getEditButton().isEnabled(), " Edit button is enabled");
+        soft.assertTrue(page.getNewButton().isEnabled(), "New button is enabled");
+        soft.assertTrue(page.getEditButton().isEnabled(), "Edit button is enabled");
         soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled");
 
         if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
