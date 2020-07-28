@@ -21,9 +21,10 @@ import java.util.Map;
 
 
 /**
- * Created by kochc01 on 02.03.2016.
+ * @author kochc01
+ * @author Cosmin Baciu
  */
-@Service(value = "controllerListenerService")
+@Service
 public class ControllerListenerService implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerService.class);
@@ -62,7 +63,7 @@ public class ControllerListenerService implements MessageListener {
             return;
         }
 
-        commandService.executeCommand(command, domain,  getCommandProperties(message));
+        commandService.executeCommand(command, domain, getCommandProperties(message));
     }
 
     /**
