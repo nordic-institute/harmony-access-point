@@ -52,7 +52,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 	}
 	
 	/* Double click on one error */
-	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ERR-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickErr() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -221,7 +221,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 	}
 	
 	/* Download list of errors */
-	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ERR-9", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ErrorLogPage page = new ErrorLogPage(driver);
@@ -233,7 +233,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		
 		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		log.info("downloaded errors to file " + fileName);
-		page.grid().checkCSVvsGridInfo(fileName, soft);
+		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "datetime"); //checkCSVvsGridInfo(fileName, soft);
 		
 		soft.assertAll();
 	}

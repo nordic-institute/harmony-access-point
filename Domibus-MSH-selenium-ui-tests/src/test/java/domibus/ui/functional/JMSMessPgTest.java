@@ -5,6 +5,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -72,12 +73,17 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+//	This cannot run reliable because messages are pulled from the queues as the tests run
 	/*JMS-8 - Move message*/
 	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
+		
+		rest.sendMessages(5, null);
+		
+		
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
 		log.info("checking no of messages");
 		page.grid().waitForRowsToLoad();
@@ -184,4 +190,48 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+
+	private String getQWithMessages() throws Exception {
+	
+//		destination = queues.getJSONObject(i).getString("name");
+		
+		String source = null;
+		
+		JSONArray queues = rest.jms().getQueues();
+		for (int i = 0; i < queues.length(); i++) {
+			if (queues.getJSONObject(i).getString("name").contains("DLQ")) {
+				continue;
+			} else if (queues.getJSONObject(i).getInt("numberOfMessages") > 0) {
+				source = queues.getJSONObject(i).getString("name");
+			}
+		}
+		
+		if (null == source) {
+			throw new SkipException("No messages found to move");
+		}
+		
+		return source;
+	}
+	
+	private String getDLQName() throws Exception {
+	
+		String destination = null;
+		
+		JSONArray queues = rest.jms().getQueues();
+		for (int i = 0; i < queues.length(); i++) {
+			if (queues.getJSONObject(i).getString("name").contains("DLQ")) {
+				destination = queues.getJSONObject(i).getString("name");
+			}
+		}
+		
+		if (null == destination) {
+			throw new SkipException("Could not find DLQ Q");
+		}
+		return destination;
+	}
+	
+	
+
+
+
 }

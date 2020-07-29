@@ -174,9 +174,9 @@ public class MessFilterRestTest extends RestTest {
 		HashMap<String, String> newFilterInfo = new HashMap<>();
 		newFilterInfo.put("plugin", messageFilterPlugins.get(0));
 		newFilterInfo.put("from", "from:" + rndStr);
-		newFilterInfo.put("to", "to:" + rndStr);
 		newFilterInfo.put("action", "action" + rndStr);
 		newFilterInfo.put("service", "service:" + rndStr);
+		newFilterInfo.put("to", "to:" + rndStr);
 		
 		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
