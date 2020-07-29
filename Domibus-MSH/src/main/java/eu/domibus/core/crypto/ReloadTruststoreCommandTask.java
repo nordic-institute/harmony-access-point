@@ -36,7 +36,7 @@ public class ReloadTruststoreCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOGGER.debug("Reloading PMode command");
+        LOGGER.debug("Reloading truststore command");
 
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         multiDomainCryptoService.refreshTrustStore(currentDomain);

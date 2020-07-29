@@ -35,13 +35,25 @@ public class CommandExtServiceDelegate implements CommandExtService {
         properties.put(Command.COMMAND, commandName);
         LOGGER.debug("Added command name [{}] to the command properties", commandName);
 
-        String domain = (String) properties.get(MessageConstants.DOMAIN);
-        if (StringUtils.isBlank(domain)) {
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            properties.put(MessageConstants.DOMAIN, currentDomain.getCode());
-            LOGGER.debug("Added domain [{}] to the command properties", currentDomain);
-        }
+        setCommand(properties);
 
         signalService.sendMessage(properties);
+    }
+
+    protected void setCommand(Map<String, Object> properties) {
+        String domain = (String) properties.get(MessageConstants.DOMAIN);
+        if (StringUtils.isNotBlank(domain)) {
+            LOGGER.debug("Domain is already added to the properties");
+            return;
+        }
+
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        if(currentDomain == null) {
+            LOGGER.debug("Could not set domain property: domain is null");
+            return;
+        }
+
+        properties.put(MessageConstants.DOMAIN, currentDomain.getCode());
+        LOGGER.debug("Added domain [{}] to the command properties", currentDomain);
     }
 }
