@@ -15,5 +15,5 @@ public interface CommandExtService {
      *
      * @param properties The command properties
      */
-    void executeCommand(String commandName, Map<String, Object> properties);
+    void executeCommand(String commandName, Map<String, String> properties);
 }

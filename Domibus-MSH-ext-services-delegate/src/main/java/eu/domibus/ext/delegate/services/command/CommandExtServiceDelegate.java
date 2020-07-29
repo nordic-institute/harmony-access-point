@@ -11,6 +11,7 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,16 +32,17 @@ public class CommandExtServiceDelegate implements CommandExtService {
     }
 
     @Override
-    public void executeCommand(String commandName, Map<String, Object> properties) {
+    public void executeCommand(String commandName, Map<String, String> properties) {
         properties.put(Command.COMMAND, commandName);
         LOGGER.debug("Added command name [{}] to the command properties", commandName);
 
         setDomain(properties);
 
-        signalService.sendMessage(properties);
+        Map<String, Object> commandProperties = new HashMap<>(properties);
+        signalService.sendMessage(commandProperties);
     }
 
-    protected void setDomain(Map<String, Object> properties) {
+    protected void setDomain(Map<String, String> properties) {
         String domain = (String) properties.get(MessageConstants.DOMAIN);
         if (StringUtils.isNotBlank(domain)) {
             LOGGER.debug("Domain is already added to the properties");

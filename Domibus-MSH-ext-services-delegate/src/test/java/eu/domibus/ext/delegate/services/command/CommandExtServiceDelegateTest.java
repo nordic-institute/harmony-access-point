@@ -13,7 +13,10 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Cosmin Baciu
@@ -32,8 +35,8 @@ public class CommandExtServiceDelegateTest {
     protected DomainContextProvider domainContextProvider;
 
     @Test
-    public void signalCommand(@Injectable Map<String, Object> properties,
-                              @Injectable Domain currentDomain) {
+    public void signalCommand(@Injectable Domain currentDomain) {
+        Map<String, String> properties = new HashMap<>();
         String commandName = "mycommand";
         String domain = "mydomain";
 
@@ -51,6 +54,12 @@ public class CommandExtServiceDelegateTest {
         new Verifications() {{
             properties.put(Command.COMMAND, commandName);
             properties.put(MessageConstants.DOMAIN, domain);
+
+            Map<String, Object> commandProperties = null;
+            signalService.sendMessage(commandProperties = withCapture());
+
+            assertEquals(commandName, commandProperties.get(Command.COMMAND));
+            assertEquals(domain, commandProperties.get(MessageConstants.DOMAIN));
         }};
     }
 }
