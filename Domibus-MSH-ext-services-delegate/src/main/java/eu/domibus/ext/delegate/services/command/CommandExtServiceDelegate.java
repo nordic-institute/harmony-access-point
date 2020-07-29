@@ -35,12 +35,12 @@ public class CommandExtServiceDelegate implements CommandExtService {
         properties.put(Command.COMMAND, commandName);
         LOGGER.debug("Added command name [{}] to the command properties", commandName);
 
-        setCommand(properties);
+        setDomain(properties);
 
         signalService.sendMessage(properties);
     }
 
-    protected void setCommand(Map<String, Object> properties) {
+    protected void setDomain(Map<String, Object> properties) {
         String domain = (String) properties.get(MessageConstants.DOMAIN);
         if (StringUtils.isNotBlank(domain)) {
             LOGGER.debug("Domain is already added to the properties");
