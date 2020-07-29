@@ -3,13 +3,15 @@ package eu.domibus.sti;
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.ext.domain.PartInfoDTO;
+import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitMessageFault;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
-import eu.domibus.rest.client.ApiException;
+/*import eu.domibus.rest.client.ApiException;
 import eu.domibus.rest.client.api.UsermessageApi;
-import eu.domibus.rest.client.model.*;
+import eu.domibus.rest.client.model.*;*/
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,19 +65,19 @@ public class SenderService {
     private Boolean sendMetadataOnly;
 
 
-    protected UsermessageApi usermessageApi;
+    //protected UsermessageApi usermessageApi;
 
     protected NoArgGenerator uuidGenerator;
 
     public SenderService(JmsTemplate jmsTemplate,
-                         BackendInterface backendInterface,
+                         /*BackendInterface backendInterface,*/
                          MetricRegistry metricRegistry,
-                         UsermessageApi usermessageApi,
+                         //UsermessageApi usermessageApi,
                          NoArgGenerator uuidGenerator) {
         this.jmsTemplate = jmsTemplate;
         this.backendInterface = backendInterface;
         this.metricRegistry = metricRegistry;
-        this.usermessageApi = usermessageApi;
+        //this.usermessageApi = usermessageApi;
         this.uuidGenerator = uuidGenerator;
     }
 
@@ -85,7 +87,7 @@ public class SenderService {
             LOG.debug("Reverse and send message through jms in queue");
             jmsTemplate.send(session -> prepareResponse(mapMessage, session));
         } else {
-            try {
+            /*try {
                 LOG.debug("Reverse and send message through webservice in queue");
 
                 Submission submission = prepareSubmission(mapMessage);
@@ -96,7 +98,7 @@ public class SenderService {
                 LOG.error("Error submitting message", submitMessageFault);
             } catch (Exception e) {
                 LOG.error("Error submitting message", e);
-            }
+            }*/
         }
     }
 
@@ -157,7 +159,7 @@ public class SenderService {
 
     }
 
-    private Submission prepareSubmission(MapMessage received) throws JMSException, ApiException {
+    /*private Submission prepareSubmission(MapMessage received) throws JMSException, ApiException {
         final String messageId = received.getStringProperty("messageId");
 
         UserMessageDTO userMessageDTO = usermessageApi.getUserMessage(messageId);//TODO put the payloads in the REST message
@@ -273,7 +275,7 @@ public class SenderService {
         responsePartInfoProperty.setValue(TEXT_XML);
         messaging.setUserMessage(userMessage);
         return new Submission(submitRequest, messaging);
-    }
+    }*/
 
     private DataHandler getPayload(final String payloadContent, final String mediaType) {
         javax.mail.util.ByteArrayDataSource dataSource = null;

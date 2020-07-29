@@ -1,0 +1,585 @@
+MS1 thread pool -Dweblogic.ThreadPoolSize=10
+Nombe maximum connection factory 10 -> 20
+Global concurrency 600 -> 1000 -> 2000
+Maximum thread on MS1 compare with others for rollback.
+Change the concurrency in the STI mock from 50-60 to 25-30
+Equilibrage de charge activée.
+
+Increased session cached size to 200
+Maybe remove cache from jndi session.
+
+Let the out queue fill to reach 60 messages per second.
+Increase session cache to 400
+
+Managed server/réglage/Nb accepté de tâches à traiter: 300->200
+Increased managed server thread 400->600
+Managed server/réglage/Nb accepté de tâches à traiter: 200->400
+
+Change internal concurrency to 100-120
+
+Set this to all servers :-Dweblogic.ThreadPoolSize=10 , -Xmx32000m
+
+remove ThreadPoolSize
+
+Decreased managed server thread 600->400
+Managed server/réglage/Nb accepté de tâches à traiter: 400->200
+
+Decreased session cache 400 - 200
+
+Change internal concurrency to 50-60
+
+Increase ulimit 8192 on MS1
+Nombre maximal de demandes à longue durée d'exécution simultanées global 600 > 2000
+
+Code changes:
+
+Keep only message received in notificationlistener
+Add caching to jms container factory.
+remove adding messages to reply queue.
+
+
+Changement dans le code.
+Jms connnection factory Controle de flux désactivé.
+Jms connnection factory Controle de flux réactivé.
+
+Ms1
+Nombre maximal de nouveaux threads: 400 -> 600
+Taille minimale de pool de threads à réglage automatique: 1-400 -> 300-600
+Nb accepté de tâches à traiter: 300 -> 500
+
+Activate messaging debug on MS1
+Changed maxthread constraint to 5000 -> 500
+partage équitable de partition: 99 ->100
+changed internal concurrency 100
+Changed maxthread constraint to 500 -> 1100
+Changed the ehcache for the jmsdestination.
+
+on jms5
+change session cache in C4 to 30
+Set jms provider url to all servers.
+Change sesscion cache in C3 to 1000
+Change connection pool from 60 -> 100
+Change server max thread 400 - 600 on all servers
+Change maximal number of tasks from 300-400 on all servers.
+Change sesscion cache in C3 to 500
+connection factory/tab2 priorité par défaut: 4 ->0 -> 9
+
+<max-concurrent-new-threads>300</max-concurrent-new-threads>
+<max-concurrent-long-running-requests>1000</max-concurrent-long-running-requests>
+
+
+
+   
+Change server max thread 400 - 600 on all servers
+Nombre maximal de demandes à longue durée d'exécution simultanées: domaine 600 -> 30000
+
+Change server max thread 400 - 400 as origin
+Taille minimale de pool de threads à réglage automatique: 600 -> 30000 -> 200-400
+
+Domaine nombre maximal de nouveaux thread à vérifier avec le backup.
+change session cache and concurrency in C4 to 15 20-30
+domibus.internal.queue.concurency=20-30
+
+jmsplugin.queue.in.concurrency=50-70 20-30
+jmsplugin.queue.in.session.cache.size=50 15
+
+domibus.internal.queue.concurency=30-40 20-30
+
+domibus.jms.connectionFactory.session.cache.size=200 15
+domibus.dispatcher.concurency=80-100 40-60
+
+default gestionnaire
+
+désactivé la prise en charge des transactions globale sur la jmsdatasource.
+
+Fair share 50
+Partitioning on TB_RAW
+
+Monodiffusion -> multidifusion
+
+Change ulimit for all servers.
+Change the max pool thread constraint.
+Changer DomibusWM  to 800. Let's reset to 400.
+
+Jdbc store.
+Concurrent internal queue. 
+
+Increase:
+
+Nombre maximal de nouveaux threads:	
+400
+Nombre maximal de threads d'exécution pouvant être créés par toutes les fabriques de threads gérés dans le serveur.Infos supplémentaires...
+
+Nombre maximal de demandes à longue durée d'exécution simultanées:
+
+SYS.ADV_SQLACCESS6342104
+
+add jdbc tclog store. server configuration service.
+créer tb_raw_enveloper with partitioning.
+
+Gather stats on schema and db.
+Clear buffer and pool.
+Change the log level of managed servers.
+Huge large page only for db.
+Fixed the huge page issue.
+Increase the redo log disk size.
+ON oracle server: Install sar.
+	Modify /etc/hosts
+	Modify /tnsnames.ora and listener.ora
+	Trace enabled/disable.
+	Tuned network parameters in sysctl.confexit
+	Run sql advisor
+	Increase redo logs size and number.
+	Disminished the sga max and target.
+	Increase the number of session
+	Reenable huge page.
+	Increased the number of connections.
+	Change the cache of the sequence.
+	
+	domibus.dispatcher.concurency=50-70 -> 1-100
+	internal 50-70 -> 30-50
+	
+	Communicate
+	Thread repartition issue.
+	Problem with restart.
+	Need an oracle expert.
+	
+TODO:
+
+A tester remeter monodifusion.
+Creéer une partion pour TB_RAW
+Increase JDBC_STORE threading a 2.
+Test weblogic disk.
+Delete old logs.
+Change redo back to old logs.
+Do a rman backup.
+Do a full backup of every envionment.
+Oracle init param, sysctl limits, etc.
+
+
+change weblogic.socket.NIOSocketMuxer" to "weblogic.socket.PosixSocketMuxer"
+
+Something is weird, I do not see the logging for the send in queue.
+Recreate defaultWorkManager.
+
+
+run {restore database from TAG='AFTER-DOWNSIZING-31-3-2020';}
+recover database until cancel;
+alter database open resetlogs;
+
+remove tb_raw_enveloper with partitioning.
+
+
+
+Ajouter des work manager pour internal queue en fonction des work manager suivant:
+
+{
+  "version" : "4.0.0",
+  "gauges" : { },
+  "counters" : {
+    "INCOMING_USER_MESSAGE_counter" : {
+      "count" : 2
+    },
+    "OUTGOING_USER_MESSAGE_counter" : {
+      "count" : 1
+    },
+    "eu.domibus.core.ebms3.receiver.handler.AbstractIncomingMessageHandler.processMessage_counter" : {
+      "count" : 2
+    },
+    "eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService.cleanAttachments_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.message.UserMessageHandlerServiceImpl.checkTestMessage_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.message.UserMessageHandlerServiceImpl.handleNewUserMessage_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.message.receipt.AS4ReceiptServiceImpl.generateReceipt_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.plugin.notification.BackendNotificationService.notifyMessageReceived_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.pmode.provider.CachingPModeProvider.getLegConfiguration_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.core.security.AuthorizationService.authorizeUserMessage_counter" : {
+      "count" : 0
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.deliverMessage_counter" : {
+      "count" : 1
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.in.message.counter" : {
+      "count" : 0
+    }
+  },
+  "histograms" : { },
+  "meters" : { },
+  "timers" : {
+    "INCOMING_USER_MESSAGE_timer" : {
+      "count" : 11734,
+      "max" : 0.24240423800000002,
+      "mean" : 0.1425127666679717,
+      "min" : 0.08653192700000001,
+      "p50" : 0.14223280400000002,
+      "p75" : 0.15425721,
+      "p95" : 0.172572681,
+      "p98" : 0.183113092,
+      "p99" : 0.186348081,
+      "p999" : 0.23900715400000003,
+      "stddev" : 0.01873443119280077,
+      "m15_rate" : 12.26318510943218,
+      "m1_rate" : 33.19995326064966,
+      "m5_rate" : 23.93769510926232,
+      "mean_rate" : 33.1230780724628,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "OUTGOING_USER_MESSAGE_timer" : {
+      "count" : 56206,
+      "max" : 0.449615959,
+      "mean" : 0.0592250894849346,
+      "min" : 0.045215142,
+      "p50" : 0.055440838000000006,
+      "p75" : 0.05927976200000001,
+      "p95" : 0.07052342,
+      "p98" : 0.084354829,
+      "p99" : 0.13986467,
+      "p999" : 0.449615959,
+      "stddev" : 0.0289825232150033,
+      "m15_rate" : 19.853797005517393,
+      "m1_rate" : 32.97256761023783,
+      "m5_rate" : 23.74671243110359,
+      "mean_rate" : 25.36856772392827,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.ebms3.receiver.handler.AbstractIncomingMessageHandler.processMessage_timer" : {
+      "count" : 11734,
+      "max" : 0.33411992100000004,
+      "mean" : 0.1415023873144685,
+      "min" : 0.09768090800000001,
+      "p50" : 0.14098933600000002,
+      "p75" : 0.153787586,
+      "p95" : 0.172092656,
+      "p98" : 0.181522902,
+      "p99" : 0.18551582700000002,
+      "p999" : 0.229952925,
+      "stddev" : 0.018793925988352226,
+      "m15_rate" : 12.263161618767649,
+      "m1_rate" : 33.19982878904924,
+      "m5_rate" : 23.937572390278135,
+      "mean_rate" : 33.12330481717719,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService.cleanAttachments_timer" : {
+      "count" : 11734,
+      "max" : 5.536320000000001E-4,
+      "mean" : 4.905355225261105E-6,
+      "min" : 1.8000000000000001E-6,
+      "p50" : 3.8E-6,
+      "p75" : 4.5E-6,
+      "p95" : 6.1E-6,
+      "p98" : 7.2000000000000005E-6,
+      "p99" : 1.13E-5,
+      "p999" : 5.511320000000001E-4,
+      "stddev" : 1.840609280192791E-5,
+      "m15_rate" : 12.290965945463023,
+      "m1_rate" : 32.875932443538325,
+      "m5_rate" : 23.936083164375713,
+      "mean_rate" : 33.30881696015628,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.message.UserMessageHandlerServiceImpl.checkTestMessage_timer" : {
+      "count" : 192101,
+      "max" : 1.3601E-5,
+      "mean" : 7.474612593116844E-7,
+      "min" : 2.0000000000000002E-7,
+      "p50" : 7.000000000000001E-7,
+      "p75" : 9.000000000000001E-7,
+      "p95" : 1.2000000000000002E-6,
+      "p98" : 1.4000000000000001E-6,
+      "p99" : 1.5E-6,
+      "p999" : 1.3601E-5,
+      "stddev" : 5.592741405765448E-7,
+      "m15_rate" : 80.87327913094715,
+      "m1_rate" : 165.01593996924277,
+      "m5_rate" : 117.86679356795868,
+      "mean_rate" : 86.68357803952154,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.message.UserMessageHandlerServiceImpl.handleNewUserMessage_timer" : {
+      "count" : 11736,
+      "max" : 0.143664079,
+      "mean" : 0.06042612763250912,
+      "min" : 0.054789201,
+      "p50" : 0.059380369,
+      "p75" : 0.06108896900000001,
+      "p95" : 0.066136865,
+      "p98" : 0.07598574000000001,
+      "p99" : 0.08421252,
+      "p999" : 0.09854923,
+      "stddev" : 0.004925427257484457,
+      "m15_rate" : 12.286364036531761,
+      "m1_rate" : 32.98203265635238,
+      "m5_rate" : 23.94121022783726,
+      "mean_rate" : 33.266252236349764,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.message.receipt.AS4ReceiptServiceImpl.generateReceipt_timer" : {
+      "count" : 11736,
+      "max" : 0.12625125,
+      "mean" : 0.04074012360356539,
+      "min" : 0.037286078,
+      "p50" : 0.040175847,
+      "p75" : 0.041336715,
+      "p95" : 0.044043772,
+      "p98" : 0.046403306000000005,
+      "p99" : 0.047743389000000004,
+      "p999" : 0.11701863200000001,
+      "stddev" : 0.0038663571696354007,
+      "m15_rate" : 12.287001536338309,
+      "m1_rate" : 32.97653769878,
+      "m5_rate" : 23.941459763253214,
+      "mean_rate" : 33.269892171788506,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.plugin.notification.BackendNotificationService.notifyMessageReceived_timer" : {
+      "count" : 11736,
+      "max" : 0.030529775000000002,
+      "mean" : 5.484853891423382E-4,
+      "min" : 4.4232600000000005E-4,
+      "p50" : 5.0783E-4,
+      "p75" : 5.77734E-4,
+      "p95" : 7.571440000000001E-4,
+      "p98" : 8.538500000000001E-4,
+      "p99" : 9.50456E-4,
+      "p999" : 0.001838007,
+      "stddev" : 2.213098082272031E-4,
+      "m15_rate" : 12.286537089378923,
+      "m1_rate" : 32.95487374869107,
+      "m5_rate" : 23.938445877370917,
+      "mean_rate" : 33.2689596378385,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.pmode.provider.CachingPModeProvider.getLegConfiguration_timer" : {
+      "count" : 327991,
+      "max" : 5.1603E-5,
+      "mean" : 4.509943448311863E-6,
+      "min" : 1.5E-6,
+      "p50" : 5.101E-6,
+      "p75" : 5.8E-6,
+      "p95" : 7.101E-6,
+      "p98" : 8.501E-6,
+      "p99" : 1.11E-5,
+      "p999" : 4.0002E-5,
+      "stddev" : 2.76924670576384E-6,
+      "m15_rate" : 142.01381591702955,
+      "m1_rate" : 296.6971824727874,
+      "m5_rate" : 211.91663217989387,
+      "mean_rate" : 148.0001590589225,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.core.security.AuthorizationService.authorizeUserMessage_timer" : {
+      "count" : 11736,
+      "max" : 0.083687388,
+      "mean" : 6.873441185826488E-4,
+      "min" : 4.43226E-4,
+      "p50" : 5.289310000000001E-4,
+      "p75" : 6.48738E-4,
+      "p95" : 8.74251E-4,
+      "p98" : 9.88558E-4,
+      "p99" : 0.0010790630000000001,
+      "p999" : 0.083687388,
+      "stddev" : 0.0029033333905137187,
+      "m15_rate" : 12.264634618237938,
+      "m1_rate" : 33.170358425453124,
+      "m5_rate" : 23.935651762399957,
+      "mean_rate" : 33.12918156558655,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.jms.weblogic.InternalJMSManagerWeblogic.sendMessage_with_destination" : {
+      "count" : 67947,
+      "max" : 0.0015236890000000002,
+      "mean" : 3.8009491033763403E-4,
+      "min" : 2.86417E-4,
+      "p50" : 3.4962000000000003E-4,
+      "p75" : 4.0132400000000005E-4,
+      "p95" : 5.41331E-4,
+      "p98" : 6.476380000000001E-4,
+      "p99" : 7.569450000000001E-4,
+      "p999" : 0.0015236890000000002,
+      "stddev" : 1.044225125030798E-4,
+      "m15_rate" : 30.685554916887707,
+      "m1_rate" : 65.99375792592578,
+      "m5_rate" : 47.066538476903496,
+      "mean_rate" : 30.661750041766293,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.deliverMessage_timer" : {
+      "count" : 11733,
+      "max" : 0.161888111,
+      "mean" : 0.022813283181461,
+      "min" : 0.020489997000000003,
+      "p50" : 0.022328504000000002,
+      "p75" : 0.022894937,
+      "p95" : 0.024320821000000003,
+      "p98" : 0.026218032000000002,
+      "p99" : 0.028369055,
+      "p999" : 0.10230087600000001,
+      "stddev" : 0.004960926621175026,
+      "m15_rate" : 12.291018691854273,
+      "m1_rate" : 32.87654703536495,
+      "m5_rate" : 23.936374137067965,
+      "mean_rate" : 33.307834928005576,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.deliverMessage_timer_downloadMessageCreator" : {
+      "count" : 11733,
+      "max" : 4.0802E-5,
+      "mean" : 2.333422658284145E-7,
+      "min" : 0.0,
+      "p50" : 2.0000000000000002E-7,
+      "p75" : 2.0000000000000002E-7,
+      "p95" : 3.0000000000000004E-7,
+      "p98" : 4.0000000000000003E-7,
+      "p99" : 5.000000000000001E-7,
+      "p999" : 2.4901E-5,
+      "stddev" : 1.220260205458962E-6,
+      "m15_rate" : 12.290644065002175,
+      "m1_rate" : 32.86124924478341,
+      "m5_rate" : 23.933985104757088,
+      "mean_rate" : 33.31015416261742,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.deliverMessage_timer_getJmsQueue" : {
+      "count" : 11733,
+      "max" : 0.096118514,
+      "mean" : 0.016523047915109366,
+      "min" : 0.014900071,
+      "p50" : 0.016166345000000002,
+      "p75" : 0.016630171000000003,
+      "p95" : 0.017994651,
+      "p98" : 0.020453695,
+      "p99" : 0.022226099000000003,
+      "p999" : 0.096118514,
+      "stddev" : 0.0034498208567172233,
+      "m15_rate" : 12.290884994471515,
+      "m1_rate" : 32.87073696428326,
+      "m5_rate" : 23.93551934168699,
+      "mean_rate" : 33.307769085728054,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.deliverMessage_timer_sendMessage" : {
+      "count" : 11733,
+      "max" : 0.043725642,
+      "mean" : 0.00612184386905446,
+      "min" : 0.005411816000000001,
+      "p50" : 0.006033153,
+      "p75" : 0.006267666000000001,
+      "p95" : 0.006751094,
+      "p98" : 0.0072250230000000006,
+      "p99" : 0.007910162,
+      "p999" : 0.015008177000000001,
+      "stddev" : 6.276892947572981E-4,
+      "m15_rate" : 12.290618429897513,
+      "m1_rate" : 32.86056222502086,
+      "m5_rate" : 23.933823813588816,
+      "mean_rate" : 33.31091796503177,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.getJMSQueue.createQueueContext" : {
+      "count" : 11733,
+      "max" : 2.5402000000000002E-5,
+      "mean" : 1.4928894491764735E-7,
+      "min" : 0.0,
+      "p50" : 1.0000000000000001E-7,
+      "p75" : 2.0000000000000002E-7,
+      "p95" : 2.0000000000000002E-7,
+      "p98" : 3.0000000000000004E-7,
+      "p99" : 3.0000000000000004E-7,
+      "p999" : 1.0501E-5,
+      "stddev" : 5.893435834754711E-7,
+      "m15_rate" : 12.290644065002175,
+      "m1_rate" : 32.86124924478341,
+      "m5_rate" : 23.933985104757088,
+      "mean_rate" : 33.31004691660668,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.getJMSQueue.getJMSQueue" : {
+      "count" : 11733,
+      "max" : 0.0051761030000000005,
+      "mean" : 1.555917506581482E-4,
+      "min" : 1.06706E-4,
+      "p50" : 1.31408E-4,
+      "p75" : 1.6660900000000002E-4,
+      "p95" : 2.47114E-4,
+      "p98" : 2.94217E-4,
+      "p99" : 3.4122000000000004E-4,
+      "p999" : 0.0016218950000000002,
+      "stddev" : 1.589569879452424E-4,
+      "m15_rate" : 12.290644065002175,
+      "m1_rate" : 32.86124924478341,
+      "m5_rate" : 23.933985104757088,
+      "mean_rate" : 33.310021788556156,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.getJMSQueue.getSubmission" : {
+      "count" : 11733,
+      "max" : 0.10244536400000001,
+      "mean" : 0.01632026789482683,
+      "min" : 0.014652656000000002,
+      "p50" : 0.016026936000000002,
+      "p75" : 0.016467062,
+      "p95" : 0.017848743,
+      "p98" : 0.019719351,
+      "p99" : 0.021182938000000002,
+      "p999" : 0.09581479600000001,
+      "stddev" : 0.003083220502556466,
+      "m15_rate" : 12.290884994471515,
+      "m1_rate" : 32.87073696428326,
+      "m5_rate" : 23.93551934168699,
+      "mean_rate" : 33.3076651647436,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    },
+    "eu.domibus.plugin.jms.BackendJMSImpl.in.message.timer" : {
+      "count" : 56213,
+      "max" : 0.103958772,
+      "mean" : 0.022412956564871973,
+      "min" : 0.019640547,
+      "p50" : 0.021752771,
+      "p75" : 0.022437612000000003,
+      "p95" : 0.024503032,
+      "p98" : 0.029122402000000002,
+      "p99" : 0.043909865,
+      "p999" : 0.103958772,
+      "stddev" : 0.004449100885939376,
+      "m15_rate" : 19.7244074980102,
+      "m1_rate" : 32.88377869109638,
+      "m5_rate" : 23.702134430916924,
+      "mean_rate" : 25.360374167988766,
+      "duration_units" : "seconds",
+      "rate_units" : "calls/second"
+    }
+  }
+}
+
+
+

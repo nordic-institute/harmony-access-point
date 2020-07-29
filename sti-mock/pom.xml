@@ -93,8 +93,11 @@
             <artifactId>domibus-plugin-api</artifactId>
             <version>${domibus.version}</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-model</artifactId>
+            <version>${domibus.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-healthchecks</artifactId>

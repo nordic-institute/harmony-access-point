@@ -1,0 +1,310 @@
+sudo yum install -y make
+sudo yum install -y binutils
+sudo yum install -y gcc
+sudo yum install -y libaio
+sudo yum install -y glibc-common
+sudo yum install -y libstdc++
+sudo yum install -y libXtst
+sudo yum install -y sysstat
+sudo yum install -y glibc
+sudo yum install -y glibc-devel
+sudo yum install -y glibc-devel.i686
+
+lsnrctl start
+
+mkdir -p /u01/oradata
+
+dbca -silent -createDatabase                                                    \
+     -templateName General_Purpose.dbc                                          \
+     -gdbName emrep -sid emrep -responseFile NO_VALUE                           \
+     -characterSet AL32UTF8                                                     \
+     -sysPassword SysTaxud_1                                                     \
+     -systemPassword SysTaxud_1                                                  \
+     -createAsContainerDatabase false                                            \     
+     -automaticMemoryManagement false                                           \
+     -totalMemory 5000                                                          \
+     -storageType FS                                                            \
+     -datafileDestination /u01/oradata                                          \
+     -redoLogFileSize 640                                                       \
+     -emConfiguration NONE                                                      \
+     -ignorePreReqs
+	 
+cat >> $ORACLE_HOME/network/admin/tnsnames.ora <<_EOF_
+ 
+emrepdb=
+(DESCRIPTION_LIST=
+(DESCRIPTION=
+(ADDRESS=(PROTOCOL=tcp)(HOST=10.0.0.6)(PORT=1521))
+(CONNECT_DATA=(SERVICE_NAME=emrepdb))
+))
+_EOF_
+
+
+cat > /tmp/check_Prerequisite.rsp <<_EOF_
+installerMode=emprereqkit
+connectString=(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.0.0.6)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=emrep)))
+dbPassword=SysTaxud_1
+dbRole=sysdba
+dbUser=SYS
+executionType=install
+logLoc=/u01/software/tmp/em13c/prerequisiteResults/log
+prereqResultLoc=/u01/software/tmp/em13c/prerequisiteResults
+reposUser=SYSMAN
+runPrerequisites=true
+_EOF_
+
+./em13200p1_linux64.bin -silent -J-Djava.io.tmpdir=/tmp/ EMPREREQ_KIT=true EMPREREQKIT_PROPERTY_FILE=/tmp/check_Prerequisite.rsp
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64.bin?AuthParam=1578603432_39dba1246412c860c8c7a3b7041179fb" -O em13300_linux64.bin
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64-2.zip?AuthParam=1578603793_9e2f7727f5e39079c58dfafc0cb37e9b" -O em13300_linux64-2.zip
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64-3.zip?AuthParam=1578603871_bf79de3a202be7b3efd89f9f344bb930" -O em13300_linux64-3.zip
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64-4.zip?AuthParam=1578603906_73cf19630c1bd11de430ae6fc72997ea" -O em13300_linux64-4.zip
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64-5.zip?AuthParam=1578603945_4e56b4940497ead3d182c0a575581a05" -O em13300_linux64-5.zip
+wget "https://download.oracle.com/otn/linux/oem/13300/em13300_linux64-6.zip?AuthParam=1578603978_09cb105381637c5d827d8ded8a3ece80" -O em13300_linux64-6.zip
+
+# Set parameters.
+ORACLE_BASE=/u01/app/oracle
+ORA_INVENTORY=/u01/app/oraInventory
+ORACLE_HOSTNAME=${HOSTNAME}
+PDB_NAME=emrep
+SYS_PASSWORD=SysTaxud1
+UNIX_GROUP_NAME=oinstall
+MW_HOME=${ORACLE_BASE}/middleware
+OMS_HOME=${MW_HOME}/oms
+GC_INST=${ORACLE_BASE}/gc_inst
+AGENT_BASE=${ORACLE_BASE}/agent
+WLS_USERNAME=weblogic
+WLS_PASSWORD=Weblogic1
+SYSMAN_PASSWORD=${WLS_PASSWORD}
+AGENT_PASSWORD=${WLS_PASSWORD}
+SOFTWARE_LIBRARY=${ORACLE_BASE}/swlib
+DATABASE_HOSTNAME=localhost
+LISTENER_PORT=1521
+SOFTWARE_DIR=/u01/software
+
+
+vi $ORACLE_HOME/network/admin/sqlnet.ora
+
+SQLNET.ALLOWED_LOGON_VERSION_SERVER=8
+
+${ORACLE_HOME}/bin/orapwd file=${ORACLE_HOME}/dbs/orapwEMCDB password="SysTaxud1" force=y format=12
+
+alter system set parallel_min_servers=0 scope=both ;
+ alter system set processes=600 scope=spfile ;
+ alter system set session_cached_cursors=256 scope=spfile ;
+ alter system set sga_max_size=20000M scope=spfile ;
+ alter system set sga_target=20000M scope=spfile ;
+ alter system set shared_pool_size=6000M scope=both ;
+ alter system set db_securefile=PERMITTED scope=both ;
+ alter system set parallel_max_servers=8 scope=both ;
+ 
+ ./em13300_linux64.bin -silent -J-Djava.io.tmpdir=/tmp/ -getResponseFileTemplates -outputLoc /u01/software/tmp/response
+ ./em13300_linux64.bin -silent -J-Djava.io.tmpdir=/tmp/ -responseFile /u01/software/tmp/response/softonly_uxora.rsp
+ 
+ cat > /u01/software/tmp/response/softonly_uxora.rsp <<_EOF_
+#UNIX_GROUP_NAME=<string>
+#RESPONSEFILE_VERSION=2.2.1.0.0
+#INVENTORY_LOCATION=<string>
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
+DECLINE_SECURITY_UPDATES=true
+MYORACLESUPPORT_USERNAME=oralab01@uxora.com
+#MYORACLESUPPORT_PASSWORD=<string>
+INSTALL_UPDATES_SELECTION=skip
+#STAGE_LOCATION=<string>
+#MYORACLESUPPORT_USERNAME_FOR_SOFTWAREUPDATES=<string>
+#MYORACLESUPPORT_PASSWORD_FOR_SOFTWAREUPDATES=<string>
+ORACLE_MIDDLEWARE_HOME_LOCATION=/u01/app/oracle/product/13.3.0/middleware/oms
+AGENT_BASE_DIR=/u01/app/oracle/product/13.3.0/agent
+ORACLE_HOSTNAME=taxud-db
+b_upgrade=false
+EM_INSTALL_TYPE=NOSEED
+CONFIGURATION_TYPE=LATER
+_EOF_
+
+
+cat > $OMS_HOME/response/newinst_uxora.rsp <<_EOF_
+#RESPONSEFILE_VERSION=2.2.1.0.0
+#UNIX_GROUP_NAME=<string>
+#INVENTORY_LOCATION=<string>
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
+DECLINE_SECURITY_UPDATES=true
+MYORACLESUPPORT_USERNAME=oralab01@uxora.com
+#MYORACLESUPPORT_PASSWORD=<string>
+INSTALL_UPDATES_SELECTION=skip
+#STAGE_LOCATION=<string>
+#MYORACLESUPPORT_USERNAME_FOR_SOFTWAREUPDATES=<string>
+#MYORACLESUPPORT_PASSWORD_FOR_SOFTWAREUPDATES=<string>
+#PROXY_USER=<string>
+#PROXY_PWD=<string>
+#PROXY_HOST=<string>
+#PROXY_PORT=<string>
+ORACLE_MIDDLEWARE_HOME_LOCATION=/u01/app/oracle/product/13.3.0/middleware/oms
+ORACLE_HOSTNAME=taxud-db
+AGENT_BASE_DIR=/u01/app/oracle/product/13.3.0/agent
+WLS_ADMIN_SERVER_USERNAME=weblogic
+WLS_ADMIN_SERVER_PASSWORD=Weblogic_1
+WLS_ADMIN_SERVER_CONFIRM_PASSWORD=Weblogic_1
+NODE_MANAGER_PASSWORD=Weblogic_1
+NODE_MANAGER_CONFIRM_PASSWORD=Weblogic_1
+ORACLE_INSTANCE_HOME_LOCATION=/u01/app/oracle/product/13.3.0/middleware/gc_inst
+CONFIGURE_ORACLE_SOFTWARE_LIBRARY=true
+SOFTWARE_LIBRARY_LOCATION=/u01/app/oracle/product/13.3.0/middleware/sw_lib
+DATABASE_HOSTNAME=taxud-db
+LISTENER_PORT=1521
+SERVICENAME_OR_SID=emrep
+SYS_PASSWORD=SysTaxud_1
+SYSMAN_PASSWORD=SysTaxud_1
+SYSMAN_CONFIRM_PASSWORD=SysTaxud_1
+DEPLOYMENT_SIZE=SMALL
+MANAGEMENT_TABLESPACE_LOCATION=/u01/app/oracle/oradata/emrep/mgmt.dbf
+CONFIGURATION_DATA_TABLESPACE_LOCATION=/u01/app/oracle/oradata/emrep/mgmt_ecm_depot1.dbf
+JVM_DIAGNOSTICS_TABLESPACE_LOCATION=/u01/app/oracle/oradata/emrep/mgmt_deepdive.dbf
+AGENT_REGISTRATION_PASSWORD=OemAgent_pw0
+AGENT_REGISTRATION_CONFIRM_PASSWORD=OemAgent_pw0
+#STATIC_PORTS_FILE=<string>
+PLUGIN_SELECTION={}
+b_upgrade=false
+EM_INSTALL_TYPE=NOSEED
+CONFIGURATION_TYPE=ADVANCED
+CONFIGURE_SHARED_LOCATION_BIP=false
+#CONFIG_LOCATION=<string>
+#CLUSTER_LOCATION=<string>
+_EOF_
+
+$OMS_HOME/sysman/install/ConfigureGC.sh -silent -responseFile $OMS_HOME/response/newinst_uxora.rsp
+
+
+Use the following URL to access:
+
+        1. Enterprise Manager Cloud Control URL: https://taxud-db:7803/em
+        2. Admin Server URL: https://taxud-db:7102/console
+        3. BI Publisher URL: https://taxud-db:9803/xmlpserver/servlet/home
+
+The following details need to be provided while installing an additional OMS:
+
+        1. Admin Server Host Name: taxud-db
+        2. Admin Server Port: 7102
+
+You can find the details on ports used by this deployment at : /u01/app/oracle/product/13.3.0/middleware/oms/install/portlist.ini
+
+
+ NOTE:
+ An encryption key has been generated to encrypt sensitive data in the Management Repository. If this key is lost, all encrypted data in the Repository becomes unusable.
+
+ A backup of the OMS configuration is available in /u01/app/oracle/product/13.3.0/middleware/gc_inst/em/EMGC_OMS1/sysman/backup on host taxud-db. See Cloud Control Administrators Guide for details on how to back up and recover an OMS.
+
+ NOTE: This backup is valid only for the initial OMS configuration. For example, it will not reflect plug-ins installed later, topology changes like the addition of a load balancer, or changes to other properties made using emctl or emcli. Backups should be created on a regular basis to ensure they capture the current OMS configuration. Use the following command to backup the OMS configuration:
+/u01/app/oracle/product/13.3.0/middleware/oms/bin/emctl exportconfig oms -dir <backup dir>
+
+export OMS_HOME=/u01/app/oracle/product/13.3.0/middleware/oms/
+export AGT_HOME=/u01/app/oracle/product/13.3.0/agent/agent_13.3.0.0.0/
+
+UUID=06a0253f-df74-4f47-8748-56affb65cdfc   /taxud-raid   ext4   defaults,discard   0  2 
+
+b4dc4171-5c18-44be-8a86-7f45a918db6f
+UUID=06a0253f-df74-4f47-8748-56affb65cdfc   /taxud-redo-raid   xfs   defaults,discard,nofail   0  2 
+sudo mdadm --create /dev/md129  --level 0 --raid-devices 3 /dev/sdg1 /dev/sdh1 /dev/sdi1
+
+cp /u01/app/oracle/oradata/emrep/redo03.log /taxud-redo-raid/oradata/
+cp /u01/app/oracle/oradata/emrep/redo02.log /taxud-redo-raid/oradata/
+cp /u01/app/oracle/oradata/emrep/redo01.log /taxud-redo-raid/oradata/
+
+
+ALTER DATABASE RENAME FILE   '/taxud-redo-raid/oradata/redoraid01.log' TO '/u01/app/oracle/oradata/emrep/redo01.log';
+
+ALTER DATABASE RENAME FILE  '/u01/app/oracle/oradata/emrep/redo03.log' TO '/taxud-redo-raid/oradata/redo03.log';
+
+HOST MOVE /u01/app/oracle/oradata/emrep/redo01.log /taxud-redo-raid/oradata/RENAME_REDO01.LOG
+
+ALTER DATABASE 
+  RENAME FILE '/diska/logs/log1a.rdo', '/diska/logs/log2a.rdo' 
+           TO '/diskc/logs/log1c.rdo', '/diskc/logs/log2c.rdo';
+		   
+		   /u01/app/oracle/oradata/emrep/redo03.log
+		   
+		   
+		   alter database add logfile
+     ('/taxud-redo-raid/oradata/redo_g4m1.rdo',
+      '/taxud-redo-raid/oradata/redo_g4m2.rdo',
+	  '/taxud-redo-raid/oradata/redo_g4m3.rdo')
+     size 5000m;
+	 
+	 
+	 
+	 DATA_RAID_0
+DATA_RAID_1
+DATA_RAID_2
+DATA_RAID_4
+DATA_RAID_5
+DATA_RAID_3
+REDO_RAID_0
+REDO_RAID_1
+REDO_RAID_2
+JDBC_RAID_0
+JDBC_RAID_1
+JDBC_RAID_2
+
+mdadm -C -v /dev/md0 -l0 -n4 /dev/sd{c,d,e,f}1
+mdadm -C -v /dev/md10 -l0 -n2 /dev/sd{k,l}1
+mdadm -C -v /dev/md2 -l0 -n3 /dev/sd{l,m,n}1
+mdadm -D /dev/md0
+
+sudo mkfs.xfs /dev/md10
+sudo mkfs.xfs /dev/md1
+sudo mkfs.xfs /dev/md2
+UUID=cd8a7078-b297-4787-a1e4-0031e12e899f   /redo1   ext4   defaults,discard,nofail   0  2 	ps 
+
+database backup place:
+
+/u01/app/oracle/product/12.2.0/dbhome_1/dbs/0mulvmgd_1_1
+
+UUID=f0330932-fa4b-4acd-b7c9-d84b31b53f02   /taxud-data-raid   xfs   defaults,discard,nofail   0  2 	
+UUID=5d31cff4-47a3-448b-a97b-175b0807afbe   /taxud-new-redo-raid   xfs   defaults,discard,nofail   0  2 	
+
+
+/dev/md1: UUID="fd99399c-20ad-4104-bc3c-2ee3244fec18" TYPE="xfs"
+/dev/md2: UUID="448ab9e3-e545-4868-a971-e1819e8185e3" TYPE="xfs"
+
+
+sudo mdadm --stop /dev/md1
+sudo mdadm --remove /dev/md1
+
+sudo mkfs -t ext4 /dev/sdo1
+
+cp /lib/systemd/system/vncserver@.service /etc/systemd/system/vncserver-vncuser@\:1.service
+
+yum install -y xorg-x11-fonts-Type1
+
+
+./agentDeploy.sh AGENT_BASE_DIR=/home/edelivery/oracle/agent \
+-force \
+-ignorePrereqs \
+AGENT_PORT=3872 \
+EM_UPLOAD_PORT=4903 \
+OMS_HOST=10.0.0.6 \
+ORACLE_HOSTNAME=10.0.0.6 \
+AGENT_INSTANCE_HOME=/home/edelivery/oracle/agent/agent_inst \
+AGENT_REGISTRATION_PASSWORD=oracle13c \
+SCRATCHPATH=/tmp
+
+ ./agentDeploy.sh AGENT_BASE_DIR=/home/edelivery/oracle/agent -force -ignorePrereqs  AGENT_PORT=3872 EM_UPLOAD_PORT=4903 OMS_HOST=10.0.0.6 ORACLE_HOSTNAME=10.0.0.6 AGENT_INSTANCE_HOME=/home/edelivery/oracle/agent/agent_inst AGENT_REGISTRATION_PASSWORD=Vidaloca33 SCRATCHPATH=/tmp
+ 
+ 
+ clean agent:
+ 
+ rm -rf emd/state/*
+rm -rf emd/collection/*
+rm -rf emd/upload/*
+rm -rf emd/lastupld.xml
+rm -rf emd/agntstmp.txt
+rm -rf emd/protocol.ini
+
+sudo service oneagent stop
+
+sudo update-rc.d disable oneagent
+
+
+-Dweblogic.data.canTransferAnyFile=true -Djava.security.egd=file:/dev/./urandom  -Dweblogic.Name=MS-ms1-vm -Dweblogic.management.server=http://10.0.0.20:7001 -Dhttp.maxConnections=50 -Ddomibus.config.location=/mount/taxud-share/domibus/conf/domibus -Xms8000m -Xmx20000m -Doracle.jdbc.fanEnabled=false -Dweblogic.UseEnhancedIncrementAdvisor=false -Dweblogic.UseEnhancedIncrementAdvisor=fals
+-Dweblogic.data.canTransferAnyFile=true -Djava.security.egd=file:/dev/./urandom -Dweblogic.Name=MS-ms2-vm -Dweblogic.management.server=http://10.0.0.20:7001  -Ddomibus.config.location=/mount/taxud-share/domibus/conf/domibus -Xms8000m -Xmx20000m -Doracle.jdbc.fanEnabled=false -Dweblogic.UseEnhancedIncrementAdvisor=false
+
+
+ expdp edelivery/edelivery@orcl schemas=EDELIVERY directory=dump_dir dumpfile=DOMIBUS_SCHEMA.dmp logfile=domibus_schema_export.log

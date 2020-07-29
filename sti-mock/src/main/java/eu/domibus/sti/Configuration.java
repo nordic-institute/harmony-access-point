@@ -9,13 +9,14 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.BackendService11;
-import eu.domibus.rest.client.ApiClient;
-import eu.domibus.rest.client.api.UsermessageApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
@@ -34,6 +35,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @org.springframework.context.annotation.Configuration
@@ -42,8 +45,6 @@ import java.util.concurrent.TimeUnit;
 public class Configuration {
 
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
-
-    private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
 
     // Url to access to the queue o topic
     @Value("${jms.providerUrl}")
@@ -67,6 +68,8 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
+    @Value("${jms.connection.factory.jndi.name}")
+    private String connectionFactoryJndiName;
 
     @Value("${domibus.url}")
     private String domibusUrl;
@@ -77,6 +80,8 @@ public class Configuration {
     @Value("${jms.session.transacted}")
     private Boolean sessionTransacted;
 
+    private ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(200);
+
     @Bean
     public DefaultJmsListenerContainerFactory myFactory() {
         LOG.info("Initiating jms listener factory");
@@ -84,8 +89,8 @@ public class Configuration {
         factory.setConnectionFactory(connectionFactory());
         factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
-
-        if(sessionTransacted) {
+        factory.setTaskExecutor(executor);
+        if (sessionTransacted) {
             LOG.info("Configuring DefaultJmsListenerContainerFactory: myFactory with session transacted");
             factory.setSessionTransacted(true);
             factory.setSessionAcknowledgeMode(0);
@@ -103,15 +108,19 @@ public class Configuration {
         return new JndiTemplate(env);
     }
 
-    @Bean
+    @Bean(name = "cachedConnectionFactory")
+    public QueueConnectionFactory cachedConnectionFactory(@Qualifier("connectionFactory") QueueConnectionFactory connectionFactory) {
+        CachingConnectionFactory factory = new CachingConnectionFactory(connectionFactory);
+        factory.setSessionCacheSize(cacheSize);
+        return factory;
+    }
+
+    @Bean(name = "connectionFactory")
     public QueueConnectionFactory connectionFactory() {
         try {
-            QueueConnectionFactory lookup = (QueueConnectionFactory) provider().lookup(CONNECTION_FACTORY_JNDI);
-            CachingConnectionFactory factory = new CachingConnectionFactory(lookup);
-            factory.setSessionCacheSize(cacheSize);
-            return factory;
+            return (QueueConnectionFactory) provider().lookup(connectionFactoryJndiName);
         } catch (NamingException e) {
-            LOG.error("Impossible to get connection factory:[{}]", CONNECTION_FACTORY_JNDI, e);
+            LOG.error("Impossible to get connection factory:[{}]", connectionFactoryJndiName, e);
             throw new IllegalStateException("Impossible to get connection factory");
         }
     }
@@ -138,21 +147,22 @@ public class Configuration {
     }
 
     @Bean
-    public JmsListener jmsListener() {
-        return new JmsListener(senderService(), metricRegistry());
+    public JmsListener jmsListener(SenderService senderService) {
+        return new JmsListener(senderService, metricRegistry());
     }
 
     @Bean
-    public JmsTemplate inQueueJmsTemplate() {
-        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
+    public JmsTemplate inQueueJmsTemplate(@Qualifier("cachedConnectionFactory") QueueConnectionFactory connectionFactory) {
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         LOG.info("Configuring jms template for");
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
         jmsTemplate.setDestinationResolver(jmsDestinationResolver());
         jmsTemplate.setReceiveTimeout(5000);
+
         return jmsTemplate;
     }
 
-    @Bean
+   /* @Bean
     public BackendInterface backendInterface() {
         BackendService11 backendService = null;
         try {
@@ -171,29 +181,11 @@ public class Configuration {
 
         return backendPort;
 
-    }
-
-  /*  @Bean(name = "threadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
-        LOG.info("ThreadPool executor used for sending messages configured with size:[{}]",sendingThreadPoolSize);
-        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setMaxPoolSize(sendingThreadPoolSize);
-        threadPoolTaskExecutor.setCorePoolSize(sendingThreadPoolSize);
-        //threadPoolTaskExecutor.setQueueCapacity(sendingThreadPoolSize);
-        return threadPoolTaskExecutor;
     }*/
 
     @Bean
-    public UsermessageApi usermessageApi() {
-        ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath(domibusUrl);
-
-        return new UsermessageApi(apiClient);
-    }
-
-    @Bean
-    public SenderService senderService() {
-        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry(), usermessageApi(), createUUIDGenerator());
+    public SenderService senderService(JmsTemplate inQueueJmsTemplate) {
+        return new SenderService(inQueueJmsTemplate, metricRegistry(), createUUIDGenerator());
     }
 
     @Bean

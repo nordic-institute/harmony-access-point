@@ -1,0 +1,40 @@
+{
+  "services": [
+    {
+      "name": "t2c",
+      "actionMetadata": [
+        {
+          "name": "*",
+          "uumds-metadata": {
+            "domain": "CUST",
+            "application": "ICS2",           
+            "type-of-actor": "EO"
+          }
+        }
+      ]	 
+    },
+	{
+      "name": "testService",
+      "actionMetadata": [
+        {
+          "name": "*",
+          "uumds-metadata": {
+            "domain": "CUST",
+            "application": "ICS2",           
+            "type-of-actor": "EO"
+          }
+        }
+      ]	 
+    }
+  ],
+  "mpcs": [
+    {
+      "name": "MPC_eu_ics2_c2t",
+      "uumds-metadata": {
+        "domain": "CUST",
+        "application": "ICS2",        
+        "type-of-actor": "EO"
+      }
+    }
+  ]
+}
