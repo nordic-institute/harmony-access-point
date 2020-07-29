@@ -102,14 +102,12 @@ public class AlertServiceImpl implements AlertService {
         alert.addEvent(eventEntity);
         alert.setAlertType(alertType);
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-
-        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
+        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
         alert.setAlertLevel(alertLevel);
-        LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
+        LOG.info("New alert saved:\n[{}]\n", alert);
         return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
     }
 
@@ -176,8 +174,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = DOMIBUS_ALERT_RETRY_TIME;
-            final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
+            final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
             alertEntity.setAttempts(attempts);
@@ -276,9 +273,9 @@ public class AlertServiceImpl implements AlertService {
         LOG.info("Deleting alerts: {}", alerts);
 
         alerts.stream()
-            .map(alert -> readAlert(alert))
-            .filter(Objects::nonNull)
-            .forEach(alert -> deleteAlert(alert));
+                .map(alert -> readAlert(alert))
+                .filter(Objects::nonNull)
+                .forEach(alert -> deleteAlert(alert));
     }
 
     private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {
