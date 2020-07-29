@@ -29,7 +29,7 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
     public void dispatch(Alert alert) {
         if (findAlert(alert.getEntityId()) == null) {
             if (alert.getAttempts() >= alert.getMaxAttempts()) {
-                LOG.debug("Alert not found, skip dispatching: [{}]", alert);
+                LOG.debug("Alert not found in the database, skip dispatching: [{}]", alert);
                 return;
             }
             alert.setAttempts(alert.getAttempts() + 1);
