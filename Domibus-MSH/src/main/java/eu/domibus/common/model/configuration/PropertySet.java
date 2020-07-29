@@ -14,7 +14,7 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "propertyRef")
 @Entity
-@Table(name = "TB_MESSAGE_PROPERTY_SET")
+@Table(name = "TB_PM_MESSAGE_PROPERTY")
 public class PropertySet extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name")
@@ -28,7 +28,7 @@ public class PropertySet extends AbstractBaseEntity {
 
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "TB_JOIN_PROPERTY_SET", joinColumns = @JoinColumn(name = "PROPERTY_FK"), inverseJoinColumns = @JoinColumn(name = "SET_FK"))
+    @JoinTable(name = "TB_PM_JOIN_PROPERTY_SET", joinColumns = @JoinColumn(name = "PROPERTY_FK"), inverseJoinColumns = @JoinColumn(name = "SET_FK"))
     private Set<Property> properties;
 
     /**

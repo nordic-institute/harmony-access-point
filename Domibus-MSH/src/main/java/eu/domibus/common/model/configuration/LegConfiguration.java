@@ -12,7 +12,7 @@ import java.util.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "partyMpc")
 @Entity
-@Table(name = "TB_LEG")
+@Table(name = "TB_PM_LEG")
 @NamedQueries({
         @NamedQuery(name = "LegConfiguration.findForPartiesAndAgreements",
                 query = "select p.legs from Process p where :SENDER_PARTY in (select party.name from p.initiatorParties party) and :RECEIVER_PARTY in (select party.name from p.responderParties party) and (p.agreement.name=:AGREEMENT and p.agreement is not null)"),
@@ -32,76 +32,98 @@ public class LegConfiguration extends AbstractBaseEntity {
 
     @Transient
     protected final List<PartyMpc> partyMpc = new ArrayList<>(); //NOSONAR
+
     @XmlTransient
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Mpc.class)
     @MapKeyClass(Party.class)
+    @CollectionTable(name = "TB_PM_LEG_MPC")
     private final Map<Party, Mpc> partyMpcMap = new HashMap<>(); //FIXME: use it
+
     @XmlAttribute(name = "name", required = true)
     @Column(name = "NAME")
     protected String name;
+
     @XmlAttribute(name = "reliability", required = true)
     @Transient
     protected String reliabilityXml;
+
     @XmlAttribute(name = "security", required = true)
     @Transient
     protected String securityXml;
+
     @XmlAttribute(name = "receptionAwareness", required = true)
     @Transient
     protected String receptionAwarenessXml;
+
     @XmlAttribute(name = "service", required = true)
     @Transient
     protected String serviceXml;
+
     @XmlAttribute(name = "action", required = true)
     @Transient
     protected String actionXml;
+
     @XmlAttribute(name = "defaultMpc", required = true)
     @Transient
     protected String mpcXml;
+
     @XmlAttribute(name = "propertySet")
     @Transient
     protected String propertySetXml;
+
     @XmlAttribute(name = "payloadProfile")
     @Transient
     protected String payloadProfileXml;
+
     @XmlAttribute(name = "errorHandling", required = true)
     @Transient
     protected String errorHandlingXml;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_SECURITY")
     private Security security;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_RELIABILITY")
     private Reliability reliability;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_RECEPTION_AWARENESS")
     private ReceptionAwareness receptionAwareness;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_SERVICE")
     private Service service;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_ACTION")
     private Action action;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_MPC")
     private Mpc defaultMpc;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_PROPERTY_SET")
     private PropertySet propertySet;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_PAYLOAD_PROFILE")
     private PayloadProfile payloadProfile;
+
     @XmlTransient
     @ManyToOne
     @JoinColumn(name = "FK_ERROR_HANDLING")
     private ErrorHandling errorHandling;
+
     @XmlAttribute(name = "compressPayloads", required = true)
     @Column(name = "COMPRESS_PAYLOADS")
     private boolean compressPayloads;

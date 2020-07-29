@@ -28,7 +28,7 @@ import java.util.*;
         "processes"
 })
 @Entity
-@Table(name = "TB_BUSINESS_PROCESS")
+@Table(name = "TB_PM_BUSINESS_PROCESS")
 public class BusinessProcesses extends AbstractBaseEntity {
 
     @XmlElement(required = true, name = "roles")

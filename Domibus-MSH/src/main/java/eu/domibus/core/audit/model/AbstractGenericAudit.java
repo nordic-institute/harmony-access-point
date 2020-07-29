@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "TB_ACTION_AUDIT")
+@Table(name = "TB_PM_ACTION_AUDIT")
 @DiscriminatorColumn(name = "AUDIT_TYPE")
 public class AbstractGenericAudit extends AbstractBaseEntity {
 
