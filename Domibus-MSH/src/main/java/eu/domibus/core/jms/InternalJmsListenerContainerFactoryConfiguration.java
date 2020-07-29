@@ -29,7 +29,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(InternalJmsListenerContainerFactoryConfiguration.class);
 
     @Bean("internalJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                PlatformTransactionManager transactionManager,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
