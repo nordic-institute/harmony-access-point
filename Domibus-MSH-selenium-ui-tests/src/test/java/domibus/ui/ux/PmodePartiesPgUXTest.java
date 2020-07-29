@@ -3,6 +3,8 @@ package domibus.ui.ux;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.WebElement;
+import pages.truststore.TruststorePage;
 import utils.BaseUXTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -67,7 +69,7 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
     }
 
 
-    @Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"},enabled = false)
+    @Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void downloadParties() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -84,7 +86,7 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
         page.getSearchButton().click();
 
         log.info("Customized location for download");
-        String filePath = System.getProperty("user.dir")+File.separator +"downloadFiles";
+        String filePath = System.getProperty("user.dir") + File.separator + "downloadFiles";
 
         log.info("Clean given directory");
         FileUtils.cleanDirectory(new File(filePath));
@@ -116,7 +118,7 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
     }
 
     /* column Process from CSV doesn't match Process (I=Initiator, R=Responder, IR=Both) in grid */
-    @Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"},enabled =false)
+    @Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
     public void downloadAllList() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -127,7 +129,7 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
         page.grid().waitForRowsToLoad();
 
         log.info("Customized location for download");
-        String filePath = System.getProperty("user.dir")+File.separator +"downloadFiles";
+        String filePath = System.getProperty("user.dir") + File.separator + "downloadFiles";
 
         log.info("Clean given directory");
         FileUtils.cleanDirectory(new File(filePath));
@@ -157,5 +159,50 @@ public class PmodePartiesPgUXTest extends BaseUXTest {
     }
 
 
+    /* This method will verify grid element changes on row selection with single click */
+    @Test(description = "PMP-18", groups = {"multiTenancy", "singleTenancy"})
+    public void singleClick() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
+        log.info("Navigate to Pmode parties page");
+        new DomibusPage(driver).getSidebar().goToPage(PAGES.PMODE_PARTIES);
+        PModePartiesPage page = new PModePartiesPage(driver);
+
+        //for multitenancy
+        if (data.isMultiDomain()) {
+            List<String> domains = rest.getDomainNames();
+            for (String domain : domains) {
+                log.info("verify and select current domain :" + domain);
+                page.getDomainSelector().selectOptionByText(domain);
+                page.waitForTitle();
+                page.grid().waitForRowsToLoad();
+                log.info("CheckButton status on row selection" + page.getDomainFromTitle());
+                checkButtonStatus(soft, page, 0);
+            }
+        }
+        //single tenancy
+        else {
+            log.info("CheckButton status on row selection for single tenancy");
+            checkButtonStatus(soft, page, 0);
+        }
+        soft.assertAll();
+
+    }
+
+    private void checkButtonStatus(SoftAssert soft, PModePartiesPage page, int rowNumber) throws Exception {
+        log.info("Check status of New, Edit & Delete button");
+        soft.assertTrue(page.getNewButton().isEnabled(), "New button is enabled");
+        soft.assertFalse(page.getEditButton().isEnabled(), "Edit button is enabled");
+        soft.assertFalse(page.getDeleteButton().isEnabled(), "Delete button is enabled");
+
+        log.info("Select given row");
+        page.grid().selectRow(rowNumber);
+
+        log.info("Check New, Edit & Delete button status after row selection");
+        soft.assertTrue(page.getNewButton().isEnabled(), "New button is enabled");
+        soft.assertTrue(page.getEditButton().isEnabled(), "Edit button is enabled");
+        soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled");
+
+    }
 }
 

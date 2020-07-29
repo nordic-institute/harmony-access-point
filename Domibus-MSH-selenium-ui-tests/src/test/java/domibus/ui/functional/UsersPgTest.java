@@ -5,6 +5,7 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import ddsl.enums.DRoles;
+import org.json.JSONArray;
 import utils.BaseTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -627,7 +628,7 @@ public class UsersPgTest extends BaseTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(username, data.defaultPass());
 
-		log.info("deleteing created user");
+		log.info("deleting created user");
 		page.grid().scrollToAndSelect("Username", username);
 		page.getDeleteBtn().click();
 
@@ -639,8 +640,113 @@ public class UsersPgTest extends BaseTest {
 		soft.assertAll();
 	}
 
+	/*USR-39 - Change password of Super user by Another super user*/
+	@Test(description = "USR-39", groups = {"multiTenancy"})
+	public void changePassOtherSuperUsr() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		DomibusPage page = new DomibusPage(driver);
 
+		log.info("Login with default Super user");
+		loginAndGoToUsersPage(data.getAdminUser());
+		List<String> domains = rest.getDomainNames();
 
+		for (String domain : domains) {
+			log.info("verify and select current domain :" + domain);
+			page.getDomainSelector().selectOptionByText(domain);
 
+			log.info("Add new Super user for domain :" + domain);
+			String userName = getUser(domain, DRoles.SUPER, true, false, true).
+					getString("userName");
 
+			HashMap<String, String> params = new HashMap<>();
+			params.put("password", data.getNewTestPass());
+
+			log.info("Change password of new super user  with username :" + userName);
+			rest.updateUser(userName, params, domain);
+			log.info("logout and login with new password for super user " + userName + "for domain "+domain);
+			logout();
+
+			login(userName, data.getNewTestPass());
+			soft.assertTrue(page.getTitle().contains("Messages"), "User is able to login with new password successfully");
+		}
+		soft.assertAll();
+	}
+
+	/*USR-40 - Update/Delete super user when only 1 super user exist*/
+	@Test(description = "USR-40", groups = {"multiTenancy"})
+	public void superDelUpdateSelf() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		DomibusPage page = new DomibusPage(driver);
+
+		log.info("Login with default Super user");
+		loginAndGoToUsersPage(data.getAdminUser());
+		int userCount = rest.getUsers(page.getDomainFromTitle()).length();
+
+		log.info("Delete all super user except Default one");
+		JSONArray userArray =rest.getUsers(page.getDomainFromTitle());
+
+		for (int i = 0; i < userCount; i++) {
+			String userName = userArray.getJSONObject(i).get("userName").toString();
+			String role = userArray.getJSONObject(i).get("roles").toString();
+			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
+				rest.deleteUser(userName, "");
+			}
+		}
+		UsersPage uPage = new UsersPage(driver);
+
+		uPage.grid().scrollToAndSelect("Username", "super");
+		uPage.getDeleteBtn().click();
+		soft.assertTrue(uPage.getAlertArea().getAlertMessage().equals("You cannot delete the logged in user: super"));
+		log.info("Super user can't be deleted as no other super user exists");
+
+		uPage.grid().scrollToAndSelect("Username", "super");
+		uPage.getEditBtn().click();
+		UserModal modal = new UserModal(driver);
+
+		soft.assertTrue(modal.getRoleSelect().getOptionsTexts().size() == 1, "only one role is present ");
+		uPage.clickVoidSpace();
+		log.info("Role change is not possible for super user ");
+		soft.assertAll();
+	}
+
+	/*USR-41 - Update/Delete super user when other super user exist*/
+	@Test(description = "USR-41", groups = {"multiTenancy"})
+	public void superDelUpdateOtherSuper() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Add new Super user");
+		String userName = getUser(null, DRoles.SUPER, true, false, true).
+				getString("userName");
+
+		log.info("Login with default Super user");
+		loginAndGoToUsersPage(data.getAdminUser());
+
+		UsersPage uPage = new UsersPage(driver);
+
+		log.info("Update Email for new Super user  " + userName);
+		uPage.grid().scrollToAndSelect("Username", userName);
+		uPage.getEditBtn().click();
+		UserModal modal = new UserModal(driver);
+
+		modal.fillData(null, "abc@gmail.com", "", "", "");
+		modal.getOkBtn().click();
+		uPage.saveAndConfirm();
+		soft.assertEquals(uPage.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
+
+		log.info("Delete new Super user {}", userName);
+
+		uPage.grid().scrollToAndSelect("Username", userName);
+		uPage.getDeleteBtn().click();
+		uPage.saveAndConfirm();
+
+		soft.assertEquals(uPage.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
+
+		soft.assertAll();
+
+	}
 }
+
+
+
+
+
+

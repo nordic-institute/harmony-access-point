@@ -5,8 +5,13 @@ import ddsl.enums.PAGES;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
+import pages.users.UsersPage;
 import utils.BaseTest;
 import utils.DFileUtils;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Rupam
@@ -214,6 +219,45 @@ public class TruststorePgTest extends BaseTest {
         }
         soft.assertAll();
 
+    }
+
+    /*  This method will verify successful upload of jks file with special char àøýßĉæãäħ */
+    @Test(description = "TRST-18", groups = {"multiTenancy", "singleTenancy"})
+    public void uploadTruststoreWithSpclChar() throws Exception {
+        SoftAssert soft = new SoftAssert();
+
+        log.info("Login into application and navigate to Truststore page");
+        login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);
+        TruststorePage tPage = new TruststorePage(driver);
+
+        String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator
+                + "truststore" + File.separator + "àøýßĉæãäħ.jks";
+
+        //for multitenancy
+        if (data.isMultiDomain()) {
+            List<String> domains = rest.getDomainNames();
+            for (String domain : domains) {
+                log.info("verify and select current domain :" + domain);
+                tPage.getDomainSelector().selectOptionByText(domain);
+                tPage.waitForTitle();
+                log.info("Try to upload jks file for domain" + tPage.getDomainFromTitle());
+                uploadTrustStore(path, soft, tPage, "test123");
+            }
+        }
+        //single tenancy
+        else {
+            log.info("Try to upload jks file for single tenancy");
+            uploadTrustStore(path, soft, tPage, "test123");
+        }
+        soft.assertAll();
+    }
+
+    private void uploadTrustStore(String filePath, SoftAssert soft, TruststorePage tPage, String pass) throws Exception {
+
+        tPage.uploadFile(filePath, pass, soft);
+        log.info("Validate success message");
+        soft.assertEquals(tPage.getAlertArea().getAlertMessage(), "\"Truststore file has been successfully replaced.\"");
+        tPage.getAlertArea().closeButton.click();
     }
 
 }
