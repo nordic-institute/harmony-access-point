@@ -373,7 +373,7 @@ public class UsersPgUXTest extends SeleniumTest {
 	}
 	
 	/* USR-18 - Admin downloads user list (multitenancy)*/
-	@Test(description = "USR-18", groups = {"multiTenancy"}, enabled = false)
+	@Test(description = "USR-18", groups = {"multiTenancy"}, enabled = true)
 	public void csvFileDownloadDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String domainName = rest.getNonDefaultDomain();

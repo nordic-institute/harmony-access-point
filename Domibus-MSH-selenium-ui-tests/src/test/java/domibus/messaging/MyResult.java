@@ -1,6 +1,8 @@
 package domibus.messaging;
 
 import com.sun.jersey.api.client.ClientResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -22,6 +24,7 @@ public class MyResult {
 	private boolean validXML;
 	private String messID;
 	private String errorDetail;
+	private String stacktraceMess;
 	
 	private DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -29,9 +32,20 @@ public class MyResult {
 	
 	private String[] stackTraceIdk = {"Exception", "Caused", "apache", "Stax", "cxf", "catalina", "thread", "at org.", "fault"};
 	
-	
-	
-	
+	public String getStacktraceMess() {
+		String stckMess = null;
+		try {
+			stckMess = doc.getElementsByTagName("message").item(0).getTextContent();
+		} catch (Exception e) {
+			stckMess = doc.getElementsByTagName("soap:Text").item(0).getTextContent();
+		}
+		
+		if(StringUtils.isEmpty(stckMess)){
+			return StringUtils.EMPTY;
+		}
+		
+		return stckMess.replaceAll("\n", "");
+	}
 	
 	public MyResult(String sentXML, ClientResponse response) throws ParserConfigurationException {
 		this.sentXML = sentXML;

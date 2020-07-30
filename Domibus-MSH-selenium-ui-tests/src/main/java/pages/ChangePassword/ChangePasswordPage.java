@@ -18,14 +18,19 @@ public class ChangePasswordPage extends DomibusPage {
 	public final String newPasswordFieldLabel = "New Password";
 	public final String currentPasswordFieldLabel = "Current Password";
 	public final String confirmationFieldLabel = "Confirmation";
+	
 	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
 	protected WebElement fieldHeader;
+	
 	@FindBy(id = "currentPassword_id")
 	private WebElement currentPassField;
+	
 	@FindBy(id = "newPassword_id")
 	private WebElement newPassField;
+	
 	@FindBy(id = "confirmation_id")
 	private WebElement confirmationField;
+	
 	@FindBy(id = "editbuttonok_id")
 	private WebElement updateButton;
 
@@ -35,6 +40,11 @@ public class ChangePasswordPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
+	@Override
+	public void waitForPageTitle(){
+		wait.forElementToBeVisible(fieldHeader);
+	}
+	
 	public DInput getCPassField() {
 		return new DInput(driver, currentPassField);
 	}

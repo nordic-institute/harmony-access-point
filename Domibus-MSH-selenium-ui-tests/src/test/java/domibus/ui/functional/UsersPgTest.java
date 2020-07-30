@@ -367,14 +367,17 @@ public class UsersPgTest extends SeleniumTest {
 	}
 	
 	/* USR-14 - Admin changes password (also applies to user creation) */
-	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-14", groups = {"multiTenancy", "singleTenancy"})
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
-		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
 		
 		log.info("changing password for " + username);
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndSelect("Username", username);
+		page.getEditBtn().click();
+		
 		UserModal modal = new UserModal(driver);
 		modal.getPasswordInput().fill(data.getNewTestPass());
 		modal.getConfirmationInput().fill(data.getNewTestPass());
@@ -398,15 +401,17 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+//	username validations bug reported and not fixed
 	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
 	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void userNameValidations() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		
 		
 		log.info("click New");
 		page.getNewBtn().click();
-		
 		
 		UserModal modal = new UserModal(driver);
 		log.info("checking with only one letter");

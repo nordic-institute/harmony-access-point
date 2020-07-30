@@ -113,12 +113,14 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	//This method will validate presence of all records after deletion of all search criteria
-	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-8", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		
 		log.info("Login into application and navigate to Alerts page");
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
+		
 		if (data.isMultiDomain()) {
 			page.filters().showDomainAlert();
 		}
@@ -172,7 +174,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	//This method will verify alert for message status change
-	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-14", groups = {"multiTenancy", "singleTenancy"})
 	public void msgStatusChangeAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -248,7 +250,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	//This method will verify alert for user account disable after 5 attempts of login with wrong credentials
-	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void userDisableAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -266,11 +268,11 @@ public class AlertPgTest extends SeleniumTest {
 			}
 		}
 		
+		AlertPage apage = new AlertPage(driver);
 		log.info("Login with Super/admin user");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+		apage.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Navigate to Alerts page");
 		
-		AlertPage apage = new AlertPage(driver);
 		log.info("Search by basic filter for alert type : user account disabled");
 		apage.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
 		
@@ -292,7 +294,7 @@ public class AlertPgTest extends SeleniumTest {
 		
 	}
 	
-	@Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUserLoginFailure() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String user = Generator.randomAlphaNumeric(10);
@@ -328,15 +330,18 @@ public class AlertPgTest extends SeleniumTest {
 			page.filters().showDomainAlert();
 		}
 		page.grid().waitForRowsToLoad();
+		
+		HashMap<String, String> info = page.grid().getRowInfo(0);
+		
 		log.info("Validate presence of alert with correct alert type, level ,status and plugin username in parameters");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_LOGIN_FAILURE"), "Alert for Plugin user login failure is shown ");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Alert level is low ");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Alert status is success");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Parameters").contains(user), "Alert has plugin user name in parameters field");
+		soft.assertTrue(info.get("Alert Type").contains("PLUGIN_USER_LOGIN_FAILURE"), "Alert for Plugin user login failure is shown ");
+		soft.assertTrue(info.get("Alert Level").contains("LOW"), "Alert level is low ");
+		soft.assertTrue(info.get("Alert Status").contains("SUCCESS"), "Alert status is success");
+		soft.assertTrue(info.get("Parameters").contains(user), "Alert has plugin user name in parameters field");
 		soft.assertAll();
 	}
 	
-	@Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-22", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUserDisabled() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -378,10 +383,11 @@ public class AlertPgTest extends SeleniumTest {
 		
 		page.grid().waitForRowsToLoad();
 		log.info("Validate presence of alert for plugin_user_account_disabled");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Type").contains("PLUGIN_USER_ACCOUNT_DISABLED"), "Top row alert is for Plugin user account disabled");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Proper alert level is shown");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Status").contains("SUCCESS"), "Proper alert status is shown");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Parameters").contains(user), "Alert is shown for same user");
+		HashMap<String, String> info = page.grid().getRowInfo(0);
+		soft.assertTrue(info.get("Alert Type").contains("PLUGIN_USER_ACCOUNT_DISABLED"), "Top row alert is for Plugin user account disabled");
+		soft.assertTrue(info.get("Alert Level").contains("HIGH"), "Proper alert level is shown");
+		soft.assertTrue(info.get("Alert Status").contains("SUCCESS"), "Proper alert status is shown");
+		soft.assertTrue(info.get("Parameters").contains(user), "Alert is shown for same user");
 		soft.assertAll();
 	}
 	

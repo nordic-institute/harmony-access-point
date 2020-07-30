@@ -33,7 +33,7 @@
 				<identifier partyId="orange_gw" partyIdType="orange_gw"/>
 			</party>
 			<party name="red_gw1" endpoint="http://localhost:8080/">
-				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+				<identifier partyId="domibus-reed" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
@@ -51,7 +51,7 @@
 				<identifier partyId="orange_gw1" partyIdType="orange_gw1"/>
 			</party>
 			<party name="red_gw2" endpoint="http://localhost:8080/">
-				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+				<identifier partyId="dred" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw2" endpoint="http://localhost:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
@@ -69,7 +69,7 @@
 				<identifier partyId="orange_gw2" partyIdType="orange_gw2"/>
 			</party>
 			<party name="red_gw3" endpoint="http://localhost:8080/">
-				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+				<identifier partyId="domi-red" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw3" endpoint="http://localhost:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
@@ -87,7 +87,7 @@
 				<identifier partyId="orange_gw3" partyIdType="orange_gw3"/>
 			</party>
 			<party name="red_gw4" endpoint="http://localhost:8080/">
-				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+				<identifier partyId="domibus-rad" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw4" endpoint="http://localhost:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>

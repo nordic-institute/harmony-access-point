@@ -96,6 +96,10 @@ public class DomibusRestClient extends BaseRestClient {
 		return new LoggingClient(username, password);
 	}
 	
+	public UIReplicationClient uiReplication() {
+		return new UIReplicationClient(username, password);
+	}
+	
 	
 	public String getUsername(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
 		return getUser(domainCode, role, active, deleted, forceNew).getString("userName");

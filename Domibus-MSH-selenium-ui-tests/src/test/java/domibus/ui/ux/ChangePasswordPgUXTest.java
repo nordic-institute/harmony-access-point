@@ -122,7 +122,7 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 	/**
 	 * This method ensures validation message for Confirmation if New password and Confirmation field is different but valid
 	 */
-	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"})
 	public void differentPasswordsValidData() throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -132,6 +132,7 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		log.info("Open change password page by clicking its link");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		cpage.waitForPageTitle();
 		
 		log.info("Fill correct data in current password , valid and different data in new password and confirmation field");
 		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.getNewTestPass());

@@ -35,6 +35,12 @@
 		"type": "boolean",
 		"sortable": true,
 		"visibleByDefault": true
+	  },
+	  {
+		"name": "Expiration Date",
+		"type": "datetimen",
+		"sortable": true,
+		"visibleByDefault": false
 	  }
 	],
 	"pagination": {
