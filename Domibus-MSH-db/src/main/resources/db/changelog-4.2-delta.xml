@@ -1075,22 +1075,5 @@
         <renameTable oldTableName="TB_SERVICE" newTableName="TB_PM_SERVICE"/>
         <renameTable oldTableName="TB_ROLE" newTableName="TB_PM_ROLE"/>
         <renameTable oldTableName="TB_SPLITTING" newTableName="TB_PM_SPLITTING"/>
-
-        <createView
-                replaceIfExists="true"
-                viewName="V_AUDIT_DETAIL">
-            SELECT
-            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
-            rc.MODIFICATION_TYPE as ACTION_TYPE,
-            ri.USER_NAME as USER_NAME ,
-            ri.REVISION_DATE as AUDIT_DATE,
-            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
-            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
-            WHERE ri.ID=rc.REV
-            UNION
-            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_PM_ACTION_AUDIT aa
-        </createView>
     </changeSet>
 </databaseChangeLog>

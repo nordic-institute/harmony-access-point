@@ -2606,7 +2606,7 @@
             WHERE ri.ID=rc.REV
             UNION
             SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_PM_ACTION_AUDIT aa
+            TB_ACTION_AUDIT aa
         </createView>
         <createView
                 replaceIfExists="true"
