@@ -130,6 +130,9 @@ public class DomibusPropertiesChangeListenersTest {
     AlertPluginPasswordImminentExpirationConfigurationChangeListener alertPluginPasswordImminentExpirationConfigurationChangeListener;
 
     @Tested
+    CRLChangeListener crlChangeListener;
+
+    @Tested
     @Injectable
     CorePropertyMetadataManagerImpl corePropertyMetadataManager;
 
@@ -238,6 +241,7 @@ public class DomibusPropertiesChangeListenersTest {
                 proxyChangeListener,
                 pullConfigurationChangeListener,
                 storageChangeListener,
+                crlChangeListener,
 
                 alertActiveChangeListener,
                 alertConsoleAccountDisabledConfigurationChangeListener,
@@ -299,6 +303,7 @@ public class DomibusPropertiesChangeListenersTest {
             pluginPasswordExpiredAlertConfigurationManager.reset();
             consolePasswordImminentExpirationAlertConfigurationManager.reset();
             pluginPasswordImminentExpirationAlertConfigurationManager.reset();
+            domibusCacheService.clearCache(anyString);
         }};
     }
 
