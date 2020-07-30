@@ -14,7 +14,7 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "propertyRef")
 @Entity
-@Table(name = "TB_PM_MESSAGE_PROPERTY")
+@Table(name = "TB_PM_MESSAGE_PROPERTY_SET")
 public class PropertySet extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name")
