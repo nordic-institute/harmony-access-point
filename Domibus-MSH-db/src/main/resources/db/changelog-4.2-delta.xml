@@ -1041,7 +1041,6 @@
     <changeSet author="Catalin Enache" id="EDELIVERY-6921">
         <comment>rename PMode associated tables</comment>
         <renameTable oldTableName="TB_ACTION" newTableName="TB_PM_ACTION"/>
-        <renameTable oldTableName="TB_ACTION_AUDIT" newTableName="TB_PM_ACTION_AUDIT"/>
         <renameTable oldTableName="TB_AGREEMENT" newTableName="TB_PM_AGREEMENT"/>
         <renameTable oldTableName="TB_BUSINESS_PROCESS" newTableName="TB_PM_BUSINESS_PROCESS"/>
         <renameTable oldTableName="TB_CONFIGURATION" newTableName="TB_PM_CONFIGURATION"/>

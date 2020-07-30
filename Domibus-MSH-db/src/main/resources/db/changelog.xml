@@ -59,7 +59,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PM_ACTION_AUDIT">
+        <createTable tableName="TB_ACTION_AUDIT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION_AUDIT"/>
             </column>
