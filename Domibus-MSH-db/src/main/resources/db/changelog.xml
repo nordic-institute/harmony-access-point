@@ -44,7 +44,7 @@
         <comment>create Domibus tables</comment>
         <createTable tableName="TB_PM_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PM_ACTION"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
@@ -61,7 +61,7 @@
 
         <createTable tableName="TB_PM_ACTION_AUDIT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PM_ACTION_AUDIT"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION_AUDIT"/>
             </column>
             <column name="AUDIT_TYPE" type="VARCHAR(31)">
                 <constraints nullable="false"/>
