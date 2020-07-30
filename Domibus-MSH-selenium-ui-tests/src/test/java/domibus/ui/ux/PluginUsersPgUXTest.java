@@ -81,18 +81,21 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	/*	PU-12 - Admin changes password (also applies to user creation)	*/
-	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-12", groups = {"multiTenancy", "singleTenancy"})
 	public void editPassErrMess() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 		
-		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		page.grid().waitForRowsToLoad();
 		
 		log.info("editing user");
-		page.grid().scrollToAndDoubleClick("User Name", username);
+		page.grid().scrollToAndSelect("User Name", username);
+		page.getEditBtn().click();
+		
 		
 		PluginUserModal pum = new PluginUserModal(driver);
 		
@@ -116,17 +119,19 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	/*	PU-10 - Admin wants to edit username	*/
-	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-10", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void editUsername() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("testing for user " + username);
 		
-		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		log.info("opening edit modal");
-		page.grid().scrollToAndDoubleClick("User Name", username);
+		page.grid().scrollToAndSelect("User Name", username);
+		page.getEditBtn().click();
 		
 		PluginUserModal pum = new PluginUserModal(driver);
 		log.info("check that username field is disabled");
