@@ -1,5 +1,6 @@
 package eu.domibus.plugin;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -66,6 +67,9 @@ public class NotificationListenerServiceTest {
 
     @Injectable
     BackendConnectorDelegate backendConnectorDelegate;
+
+    @Injectable
+    MetricRegistry metricRegistry;
 
     @Tested
     NotificationListenerService objNotificationListenerService;

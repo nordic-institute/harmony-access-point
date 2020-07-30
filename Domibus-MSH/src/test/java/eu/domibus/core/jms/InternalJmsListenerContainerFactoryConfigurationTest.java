@@ -47,7 +47,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, internalDestinationResolver,schedulingTaskExecutor);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider,jackson2MessageConverter, internalDestinationResolver,schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;
@@ -71,6 +71,8 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
             Integer sessionAckMode = null;
             defaultJmsListenerContainerFactory.setSessionAcknowledgeMode(sessionAckMode = withCapture());
             Assert.assertEquals(Session.SESSION_TRANSACTED, sessionAckMode.intValue());
+
+            defaultJmsListenerContainerFactory.setTaskExecutor(schedulingTaskExecutor);
         }};
     }
 }

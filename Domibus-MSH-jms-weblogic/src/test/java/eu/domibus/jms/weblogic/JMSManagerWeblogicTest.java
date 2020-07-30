@@ -1,5 +1,6 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
@@ -73,6 +74,9 @@ public class JMSManagerWeblogicTest {
 
     @Injectable
     private JmsDestinationCache jmsDestinationCache;
+
+    @Injectable
+    private MetricRegistry metricRegistry;
 
     @Test
     public void testGetQueueName() throws Exception {
