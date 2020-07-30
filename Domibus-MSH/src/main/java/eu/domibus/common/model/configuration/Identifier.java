@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_PARTY_IDENTIFIER")
+@Table(name = "TB_PM_PARTY_IDENTIFIER")
 @NamedQuery(name = "Identifier.findByTypeAndPartyId", query = "select i from Identifier i where i.partyId = :PARTY_ID and ((:PARTY_ID_TYPE is null and i.partyIdType.value is null) or i.partyIdType.value  = :PARTY_ID_TYPE)")
 public class Identifier extends AbstractBaseEntity {
 

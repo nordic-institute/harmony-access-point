@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_ACTION")
+@Table(name = "TB_PM_ACTION")
 @NamedQueries({@NamedQuery(name = "Action.findByAction", query = "select a.name from Action a where a.value = :ACTION"), @NamedQuery(name = "Action.findByName", query = "select a from Action a where a.name=:NAME")})
 public class Action extends AbstractBaseEntity {
 

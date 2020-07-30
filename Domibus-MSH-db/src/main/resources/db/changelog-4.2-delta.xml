@@ -1037,4 +1037,43 @@
     <changeSet author="Catalin Enache" id="EDELIVERY-6601">
         <modifyDataType columnName="MAX_SIZE" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE" />
     </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-6921">
+        <comment>rename PMode associated tables</comment>
+        <renameTable oldTableName="TB_ACTION" newTableName="TB_PM_ACTION"/>
+        <renameTable oldTableName="TB_AGREEMENT" newTableName="TB_PM_AGREEMENT"/>
+        <renameTable oldTableName="TB_BUSINESS_PROCESS" newTableName="TB_PM_BUSINESS_PROCESS"/>
+        <renameTable oldTableName="TB_CONFIGURATION" newTableName="TB_PM_CONFIGURATION"/>
+        <renameTable oldTableName="TB_CONFIGURATION_AUD" newTableName="TB_PM_CONFIGURATION_AUD"/>
+        <renameTable oldTableName="TB_CONFIGURATION_RAW" newTableName="TB_PM_CONFIGURATION_RAW"/>
+        <renameTable oldTableName="TB_CONFIGURATION_RAW_AUD" newTableName="TB_PM_CONFIGURATION_RAW_AUD"/>
+        <renameTable oldTableName="TB_ERROR_HANDLING" newTableName="TB_PM_ERROR_HANDLING"/>
+        <renameTable oldTableName="TB_JOIN_PAYLOAD_PROFILE" newTableName="TB_PM_JOIN_PAYLOAD_PROFILE"/>
+        <renameTable oldTableName="TB_JOIN_PROCESS_INIT_PARTY" newTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"/>
+        <renameTable oldTableName="TB_JOIN_PROCESS_LEG" newTableName="TB_PM_JOIN_PROCESS_LEG"/>
+        <renameTable oldTableName="TB_JOIN_PROCESS_RESP_PARTY" newTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"/>
+        <renameTable oldTableName="TB_JOIN_PROPERTY_SET" newTableName="TB_PM_JOIN_PROPERTY_SET"/>
+        <renameTable oldTableName="TB_LEG" newTableName="TB_PM_LEG"/>
+        <renameTable oldTableName="TB_MPC" newTableName="TB_PM_MPC"/>
+        <renameTable oldTableName="TB_LEG_TB_MPC" newTableName="TB_PM_LEG_MPC"/>
+        <renameTable oldTableName="TB_MEP" newTableName="TB_PM_MEP"/>
+        <renameTable oldTableName="TB_MEP_BINDING" newTableName="TB_PM_MEP_BINDING"/>
+        <renameTable oldTableName="TB_MESSAGE_PROPERTY" newTableName="TB_PM_MESSAGE_PROPERTY"/>
+        <renameTable oldTableName="TB_MESSAGE_PROPERTY_SET" newTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
+        <renameTable oldTableName="TB_PARTY" newTableName="TB_PM_PARTY"/>
+        <renameTable oldTableName="TB_PARTY_AUD" newTableName="TB_PM_PARTY_AUD"/>
+        <renameTable oldTableName="TB_PARTY_IDENTIFIER" newTableName="TB_PM_PARTY_IDENTIFIER"/>
+        <renameTable oldTableName="TB_PARTY_IDENTIFIER_AUD" newTableName="TB_PM_PARTY_IDENTIFIER_AUD"/>
+        <renameTable oldTableName="TB_PARTY_ID_TYPE" newTableName="TB_PM_PARTY_ID_TYPE"/>
+        <renameTable oldTableName="TB_PARTY_ID_TYPE_AUD" newTableName="TB_PM_PARTY_ID_TYPE_AUD"/>
+        <renameTable oldTableName="TB_PAYLOAD" newTableName="TB_PM_PAYLOAD"/>
+        <renameTable oldTableName="TB_PAYLOAD_PROFILE" newTableName="TB_PM_PAYLOAD_PROFILE"/>
+        <renameTable oldTableName="TB_PROCESS" newTableName="TB_PM_PROCESS"/>
+        <renameTable oldTableName="TB_RECEPTION_AWARENESS" newTableName="TB_PM_RECEPTION_AWARENESS"/>
+        <renameTable oldTableName="TB_RELIABILITY" newTableName="TB_PM_RELIABILITY"/>
+        <renameTable oldTableName="TB_SECURITY" newTableName="TB_PM_SECURITY"/>
+        <renameTable oldTableName="TB_SERVICE" newTableName="TB_PM_SERVICE"/>
+        <renameTable oldTableName="TB_ROLE" newTableName="TB_PM_ROLE"/>
+        <renameTable oldTableName="TB_SPLITTING" newTableName="TB_PM_SPLITTING"/>
+    </changeSet>
 </databaseChangeLog>

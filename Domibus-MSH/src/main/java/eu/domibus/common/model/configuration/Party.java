@@ -50,7 +50,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "identifiers")
 @Entity
-@Table(name = "TB_PARTY")
+@Table(name = "TB_PM_PARTY")
 @NamedQueries({@NamedQuery(name = "Party.findPartyByIdentifier", query = "select p.name from Party p where :PARTY_IDENTIFIER member of p.identifiers"),
         @NamedQuery(name = "Party.findByName", query = "select p from Party p where p.name = :NAME"),
         @NamedQuery(name = "Party.findAll", query = "select p from Party p"),
@@ -64,7 +64,7 @@ public class Party extends AbstractBaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_PARTY")
     @Audited(targetAuditMode = NOT_AUDITED)
-    @AuditJoinTable(name = "TB_PARTY_IDENTIFIER_AUD")
+    @AuditJoinTable(name = "TB_PM_PARTY_IDENTIFIER_AUD")
     protected List<Identifier> identifiers; //NOSONAR
     @XmlAttribute(name = "name", required = true)
     @Column(name = "NAME")
