@@ -21,7 +21,7 @@ Domibus 4.2
 - Perform party roles validation
 - Plugins are able now to define Ehcache config files which will be loaded into Domibus Ehcache Manager:
  *-plugin-default-ehcache.xml (classpath jar file) and external *-plugin-ehcache.xml into /plugins/config folder
-- Domibus internal tables storinng PMode information have been renamed to start with prefix TB_PM_*
+- Domibus internal tables storing PMode information have been renamed to start with prefix TB_PM_*
 Domibus 4.1.4
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
