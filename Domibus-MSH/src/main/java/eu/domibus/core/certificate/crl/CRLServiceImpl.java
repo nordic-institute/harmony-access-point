@@ -31,9 +31,15 @@ public class CRLServiceImpl implements CRLService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    private DomibusCacheService domibusCacheService;
+
     private volatile List<String> supportedCrlProtocols;
 
     private Object supportedCrlProtocolsLock = new Object();
+
+    public CRLServiceImpl() {
+    }
 
     @Override
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
@@ -127,6 +133,12 @@ public class CRLServiceImpl implements CRLService {
             }
         }
         return supportedCrlProtocols;
+    }
+
+    public void reset() {
+        LOG.debug("Clearing supported Crl protocols and cache.");
+        this.supportedCrlProtocols = null;
+        this.domibusCacheService.clearCache(DomibusCacheService.CRL_BY_CERT);
     }
 
 }

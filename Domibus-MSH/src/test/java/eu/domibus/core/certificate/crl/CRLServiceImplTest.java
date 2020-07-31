@@ -1,6 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -38,6 +39,9 @@ public class CRLServiceImplTest {
 
     @Injectable
     X509CRL x509CRL;
+
+    @Injectable
+    DomibusCacheService domibusCacheService;
 
     PKIUtil pkiUtil = new PKIUtil();
 
@@ -201,5 +205,16 @@ public class CRLServiceImplTest {
         X509Certificate certificate = pkiUtil.createCertificate(new BigInteger("0400000000011E44A5E405", 16), null);
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate, crlUrlString);
         assertTrue(certificateRevoked);
+    }
+
+    @Test
+    public void reset() {
+        final String CRL_BY_CERT = "crlByCert";
+
+        crlService.reset();
+
+        new Verifications() {{
+            domibusCacheService.clearCache(CRL_BY_CERT);
+        }};
     }
 }
