@@ -19,10 +19,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class CRLChangeListener implements DomibusPropertyChangeListener {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLChangeListener.class);
+
     @Autowired
     private CRLService crlService;
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLChangeListener.class);
 
 
     @Override

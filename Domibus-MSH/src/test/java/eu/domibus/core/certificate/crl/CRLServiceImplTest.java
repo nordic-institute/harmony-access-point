@@ -209,12 +209,11 @@ public class CRLServiceImplTest {
 
     @Test
     public void reset() {
-        final String CRL_BY_CERT = "crlByCert";
 
         crlService.reset();
 
         new Verifications() {{
-            domibusCacheService.clearCache(CRL_BY_CERT);
+            domibusCacheService.clearCache(domibusCacheService.CRL_BY_CERT);
         }};
     }
 }
