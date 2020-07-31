@@ -56,6 +56,7 @@ public class RetryDefaultService implements RetryService {
     UpdateRetryLoggingService updateRetryLoggingService;
 
     @Override
+    @Transactional
     public void enqueueMessages() {
         final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
 
