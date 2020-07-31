@@ -274,7 +274,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
-		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+//		grid.getPagination().getPageSizeSelect().selectOptionByText("25");
 		grid.getGridCtrl().showAllColumns();
 		grid.waitForRowsToLoad();
 
