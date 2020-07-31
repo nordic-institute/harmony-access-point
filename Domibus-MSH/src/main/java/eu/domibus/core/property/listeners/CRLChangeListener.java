@@ -34,6 +34,6 @@ public class CRLChangeListener implements DomibusPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         LOG.trace("Clearing cache and supported CrlProtocols.");
-        crlService.reset();
+        crlService.resetCacheCrlProtocols();
     }
 }

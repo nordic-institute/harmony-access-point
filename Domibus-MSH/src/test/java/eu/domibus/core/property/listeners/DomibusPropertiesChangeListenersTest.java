@@ -307,7 +307,7 @@ public class DomibusPropertiesChangeListenersTest {
             pluginPasswordExpiredAlertConfigurationManager.reset();
             consolePasswordImminentExpirationAlertConfigurationManager.reset();
             pluginPasswordImminentExpirationAlertConfigurationManager.reset();
-            crlService.reset();
+            crlService.resetCacheCrlProtocols();
         }};
     }
 

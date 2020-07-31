@@ -31,5 +31,5 @@ public interface CRLService {
     /**
      * Reset cache and Crl Protocols
      */
-    void reset();
+    void resetCacheCrlProtocols();
 }

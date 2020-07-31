@@ -132,7 +132,7 @@ public class CRLServiceImpl implements CRLService {
         return supportedCrlProtocols;
     }
 
-    public void reset() {
+    public void resetCacheCrlProtocols() {
         LOG.debug("Clearing supported Crl protocols and cache.");
         this.supportedCrlProtocols = null;
         this.domibusCacheService.clearCache(DomibusCacheService.CRL_BY_CERT);

@@ -208,9 +208,9 @@ public class CRLServiceImplTest {
     }
 
     @Test
-    public void reset() {
+    public void resetCacheCrlProtocols() {
 
-        crlService.reset();
+        crlService.resetCacheCrlProtocols();
 
         new Verifications() {{
             domibusCacheService.clearCache(domibusCacheService.CRL_BY_CERT);
