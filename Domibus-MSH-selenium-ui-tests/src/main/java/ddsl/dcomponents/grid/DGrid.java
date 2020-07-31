@@ -368,20 +368,7 @@ public class DGrid extends DComponent {
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	
-//	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
-//		//-----------Show - Modify - Hide
-//		for (String colName : chkOptions) {
-//			log.info("checking checkbox for " + colName);
-//			getGridCtrl().showCtrls();
-//			getGridCtrl().checkBoxWithLabel(colName);
-//			soft.assertTrue(columnsVsCheckboxes());
-//
-//			getGridCtrl().uncheckBoxWithLabel(colName);
-//			soft.assertTrue(columnsVsCheckboxes());
-//		}
-//	}
-	
+
 	public void checkModifyVisibleColumns(SoftAssert soft) throws Exception {
 		
 		List<String> chkOptions = getGridCtrl().getAllCheckboxLabels();

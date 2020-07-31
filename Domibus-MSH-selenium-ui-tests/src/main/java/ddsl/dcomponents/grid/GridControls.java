@@ -96,10 +96,11 @@ public class GridControls extends DComponent {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		
 		for (WebElement chk : chkContainer) {
-			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
+//			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
 			Checkbox checkbox = new Checkbox(driver, chk.findElement(By.cssSelector("input")));
-			statuses.put(labelFor.getText(), checkbox.isChecked());
-			log.debug("got status for " + labelFor.getText());
+//			statuses.put(labelFor.getText(), checkbox.isChecked());
+			statuses.put(chk.findElement(By.cssSelector("label")).getText(), checkbox.isChecked());
+//			log.debug("got status for " + labelFor.getText());
 
 		}
 		
@@ -111,8 +112,9 @@ public class GridControls extends DComponent {
 		List<String> labels = new ArrayList<>();
 		
 		for (WebElement chk : chkContainer) {
-			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
-			labels.add(labelFor.getText());
+//			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
+//			labels.add(labelFor.getText());
+			labels.add(chk.findElement(By.cssSelector("label")).getText());
 		}
 		return labels;
 	}
