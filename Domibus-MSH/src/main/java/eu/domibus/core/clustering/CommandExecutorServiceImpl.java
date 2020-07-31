@@ -49,7 +49,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
 
     @Override
     public void executeCommands(String serverName, Domain domain) {
-        LOG.debug("Executing comamnds for server [{}] ...", serverName);
+        LOG.debug("Executing commands for server [{}] ...", serverName);
 
         final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
         if (CollectionUtils.isEmpty(commandsByServerName)) {
