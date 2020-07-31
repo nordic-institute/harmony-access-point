@@ -467,7 +467,8 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("login with username " + username);
 		login(username, data.defaultPass());
 		
-		soft.assertEquals(new DomibusPage(driver).getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
+//		soft.assertEquals(new DomibusPage(driver).getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
+		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "User has only 2 options available in sidebar");
 		
 		// TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
 		soft.assertAll();
