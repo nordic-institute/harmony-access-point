@@ -3,6 +3,9 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.ext.services.CommandExtTask;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -16,12 +19,23 @@ import java.util.*;
 @RunWith(JMockit.class)
 public class CommandExecutorServiceImplTest {
 
-
-    @Injectable
-    private CommandService commandService;
-
     @Tested
     private CommandExecutorServiceImpl commandExecutorService;
+
+    @Injectable
+    protected CommandService commandService;
+
+    @Injectable
+    protected ServerInfoService serverInfoService;
+
+    @Injectable
+    protected List<CommandTask> commandTasks;
+
+    @Injectable
+    protected List<CommandExtTask> pluginCommands;
+
+    @Injectable
+    protected DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void testExecuteCommands(@Mocked Command command1, @Mocked Command command2) {
@@ -46,9 +60,9 @@ public class CommandExecutorServiceImplTest {
         commandExecutorService.executeCommands(server2, DomainService.DEFAULT_DOMAIN);
 
         new Verifications() {{
-            commandService.executeAndDeleteCommand(command1, DomainService.DEFAULT_DOMAIN);
+            commandExecutorService.executeAndDeleteCommand(command1, DomainService.DEFAULT_DOMAIN);
             times = 1;
-            commandService.executeAndDeleteCommand(command2, DomainService.DEFAULT_DOMAIN);
+            commandExecutorService.executeAndDeleteCommand(command2, DomainService.DEFAULT_DOMAIN);
             times = 1;
         }};
     }
