@@ -5,7 +5,6 @@ import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
@@ -21,9 +20,11 @@ public class CRLChangeListener implements DomibusPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLChangeListener.class);
 
-    @Autowired
     private CRLService crlService;
 
+    public CRLChangeListener(CRLService crlService) {
+        this.crlService = crlService;
+    }
 
     @Override
     public boolean handlesProperty(String propertyName) {
