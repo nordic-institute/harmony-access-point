@@ -46,12 +46,12 @@ public class AlertPgTest extends SeleniumTest {
 		
 		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
 		
-		soft.assertTrue(allResultInfo.size()>=1 , "At least one result is returned");
+		soft.assertTrue(allResultInfo.size() >= 1, "At least one result is returned");
 		
 		for (HashMap<String, String> currentAlert : allResultInfo) {
-			soft.assertEquals(currentAlert.get("Alert Type"), fAlert.get("Alert Type") , "Result has the same value as initial alert for: " + "Alert Type" );
-			soft.assertEquals(currentAlert.get("Alert Status"), fAlert.get("Alert Status") , "Result has the same value as initial alert for: " + "Alert Status" );
-			soft.assertEquals(currentAlert.get("Alert level"), fAlert.get("Alert level") , "Result has the same value as initial alert for: " + "Alert level" );
+			soft.assertEquals(currentAlert.get("Alert Type"), fAlert.get("Alert Type"), "Result has the same value as initial alert for: " + "Alert Type");
+			soft.assertEquals(currentAlert.get("Alert Status"), fAlert.get("Alert Status"), "Result has the same value as initial alert for: " + "Alert Status");
+			soft.assertEquals(currentAlert.get("Alert level"), fAlert.get("Alert level"), "Result has the same value as initial alert for: " + "Alert level");
 		}
 		
 		
@@ -184,10 +184,10 @@ public class AlertPgTest extends SeleniumTest {
 		}
 		String messID = ids.get(0);
 		
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.ALERTS);
+		AlertPage apage = new AlertPage(driver);
+		apage.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Navigate to Alerts page");
 		
-		AlertPage apage = new AlertPage(driver);
 		log.info("Search data using Msg_status_changed alert type");
 		apage.filters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
 		
@@ -204,11 +204,18 @@ public class AlertPgTest extends SeleniumTest {
 		apage.grid().waitForRowsToLoad();
 		
 		log.info("Validate data for given message id,status ,alert type ,alert status and level");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("MSG_STATUS_CHANGED"), "Top row contains alert type as Msg_Status_Changed");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Top row contains alert level as High");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(messID), "Top row contains alert for message status changed for :" + messID);
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains("SEND_FAILURE"), "Top row contains alert for message status as Send_failure");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains("SEND_ENQUEUED"), "Top row contains alert for message status as Send_Enqueued");
+		List<String> allInfo = apage.grid().getValuesOnColumn("Parameters");
+		
+		boolean found = false;
+		for (String info : allInfo) {
+			soft.assertTrue(info.contains(messID), "Row contains alert for message status changed for :" + messID);
+			if (!found) {
+				found = info.contains("SEND_FAILURE") && info.contains("SEND_ENQUEUED");
+			}
+		}
+		
+		soft.assertTrue(found , "Found row that alerts of message status transition");
+		
 		soft.assertAll();
 		
 	}
