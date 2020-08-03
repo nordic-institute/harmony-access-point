@@ -530,8 +530,8 @@ public class DGrid extends DComponent {
 		} catch (ParseException e) {
 			log.debug("csvDateStr = " + csvDateStr);
 			log.debug("uiDateStr = " + uiDateStr);
+			return true;
 		}
-		
 		return csvDate.equals(uiDate);
 	}
 	

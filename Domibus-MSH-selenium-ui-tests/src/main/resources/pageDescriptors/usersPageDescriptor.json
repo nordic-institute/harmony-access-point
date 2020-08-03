@@ -38,7 +38,7 @@
 	  },
 	  {
 		"name": "Expiration Date",
-		"type": "datetimen",
+		"type": "datetime",
 		"sortable": true,
 		"visibleByDefault": false
 	  }
