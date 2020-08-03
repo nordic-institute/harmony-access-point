@@ -11,7 +11,7 @@
 
     <artifactId>domibus-MSH-wildfly</artifactId>
     <packaging>war</packaging>
-    <name>Domibus MSH WildFly 18</name>
+    <name>Domibus MSH WildFly 20</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
