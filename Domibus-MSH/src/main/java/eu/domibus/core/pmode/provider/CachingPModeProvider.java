@@ -790,6 +790,12 @@ public class CachingPModeProvider extends PModeProvider {
         return result;
     }
 
+    /**
+     * Returns the initiator/responder role value of the first process found having the specified service value.
+     * @param roleType the type of the role (either "initiator" or "responder")
+     * @param serviceValue the service value to match
+     * @return the role value
+     */
     @Override
     public String getRole(String roleType, String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
@@ -816,6 +822,11 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
+    /**
+     * Returns the agreement ref of the first process found having the specified service value.
+     * @param serviceValue the service value to match
+     * @return the agreement value
+     */
     @Override
     public String getAgreementRef(String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
