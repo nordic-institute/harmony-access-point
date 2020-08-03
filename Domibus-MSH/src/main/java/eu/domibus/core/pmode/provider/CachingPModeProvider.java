@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -33,6 +32,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 
 /**
@@ -820,9 +820,7 @@ public class CachingPModeProvider extends PModeProvider {
     public String getAgreementRef(String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
             String agreementRefHandleProcess = getAgreementRefHandleProcess(found);
-            if (agreementRefHandleProcess != null) {
-                return agreementRefHandleProcess;
-            }
+            return agreementRefHandleProcess;
         }
         return null;
     }
