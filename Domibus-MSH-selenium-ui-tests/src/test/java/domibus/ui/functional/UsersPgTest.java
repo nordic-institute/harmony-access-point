@@ -64,10 +64,10 @@ public class UsersPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 		page.includeDeletedUsers();
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Selecting user " + username);
-		int index = page.grid().scrollTo("Username", username);
-		page.grid().selectRow(index);
+		page.grid().scrollToAndSelect("Username", username);
 		
 		log.info("Press Delete button");
 		page.getDeleteBtn().click();

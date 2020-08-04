@@ -41,6 +41,17 @@ public class JMSClient extends BaseRestClient {
 		return queues;
 	}
 	
+	public String getRandomQNameWithMessages() throws Exception {
+		JSONArray queues = getQueues();
+		
+		for (int i = 0; i < queues.length(); i++) {
+			if (queues.getJSONObject(i).getInt("numberOfMessages") > 0) {
+				return queues.getJSONObject(i).getString("name");
+			}
+		}
+		return null;
+	}
+	
 	public ClientResponse searchMessages(String source, String jmsType, String fromDate, String toDate, String selector) throws Exception {
 		
 		HashMap<String, String> params = new HashMap<>();

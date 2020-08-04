@@ -13,6 +13,8 @@ import utils.Generator;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
+import java.util.List;
+
 public class BaseTest {
 	
 	public static WebDriver driver;
@@ -68,5 +70,13 @@ public class BaseTest {
 			}
 		}
 	}
+
+	public void cleanMessFilters() throws Exception {
+		List<String> domains= rest.getDomainCodes();
+		for (int i = 0; i < domains.size() ; i++) {
+			rest.messFilters().saveMessageFilters(new JSONArray(), domains.get(i));
+		}
+	}
+	
 	
 }

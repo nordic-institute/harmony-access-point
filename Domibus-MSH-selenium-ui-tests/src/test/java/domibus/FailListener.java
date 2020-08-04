@@ -42,7 +42,6 @@ public class FailListener implements ITestListener {
 		logTestCounts();
 	}
 	
-	
 	@Override
 	public void onTestFailure(ITestResult result) {
 		test_count++;
