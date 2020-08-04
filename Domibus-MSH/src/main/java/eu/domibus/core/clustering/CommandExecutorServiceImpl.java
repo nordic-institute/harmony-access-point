@@ -68,6 +68,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
     @Override
     public void executeCommand(String command, Domain domain, Map<String, String> commandProperties) {
         if (skipCommandSameServer(command, domain, commandProperties)) {
+            LOG.trace("Skip the execution of command [{}] as it is executing of the same server", command);
             return;
         }
         LOG.debug("Executing command [{}] for domain [{}] having properties [{}]", command, domain, commandProperties);
