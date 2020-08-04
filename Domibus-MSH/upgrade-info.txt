@@ -1,4 +1,5 @@
 Domibus 4.2 (from 4.1.4):
+                - Change oracle database configuration property domibus.datasource.xa.property.URL to domibus.datasource.xa.property.url in domibus.properties.
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max
