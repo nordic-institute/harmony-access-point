@@ -107,4 +107,11 @@ public class PluginUsersPage extends DomibusPage {
         }
         return true;
     }
+    public void newCertUser(String user, String role) throws Exception {
+        getNewBtn().click();
+
+        PluginUserModal popup = new PluginUserModal(driver);
+        popup.fillData(user, role);
+        popup.clickOK();
+    }
 }
