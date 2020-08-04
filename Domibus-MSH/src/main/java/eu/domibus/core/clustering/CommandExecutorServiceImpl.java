@@ -59,7 +59,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
             try {
                 executeAndDeleteCommand(command, domain);
             } catch (RuntimeException e) {
-                LOG.error("Error executing command [{}]", command.getCommandName());
+                LOG.error("Error executing command [{}]", command.getCommandName(), e);
             }
 
         }
