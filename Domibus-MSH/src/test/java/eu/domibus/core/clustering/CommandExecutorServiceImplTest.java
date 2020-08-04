@@ -69,8 +69,11 @@ public class CommandExecutorServiceImplTest {
         commandExecutorService.executeCommands(server1, DomainService.DEFAULT_DOMAIN);
 
         new Verifications() {{
-            domainTaskExecutor.submit((Runnable) any, DomainService.DEFAULT_DOMAIN);
-            times = 2;
+            commandExecutorService.executeAndDeleteCommand(command1, DomainService.DEFAULT_DOMAIN);
+            times = 1;
+
+            commandExecutorService.executeAndDeleteCommand(command2, DomainService.DEFAULT_DOMAIN);
+            times = 1;
         }};
     }
 
