@@ -24,6 +24,9 @@ export class PageGridComponent {
   @Input()
   sortedColumns: { prop: string, dir: string }[] = [];
 
+  @Input()
+  rowClassFn: Function;
+
   useExternalPaging() {
     return instanceOfPageableList(this.parent) && this.parent.type != PaginationType.Client;
   }
@@ -31,4 +34,5 @@ export class PageGridComponent {
   useExternalSorting() {
     return instanceOfSortableList(this.parent);
   }
+
 }
