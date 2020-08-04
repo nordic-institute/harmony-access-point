@@ -2,6 +2,7 @@ package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.util.Map;
 /**
  * @author idragusa
  * @since 4.2
@@ -16,4 +17,5 @@ public interface CommandExecutorService {
      */
     void executeCommands(String serverName, Domain domain);
 
+    void executeCommand(String command, Domain domain, Map<String, String> commandProperties);
 }
