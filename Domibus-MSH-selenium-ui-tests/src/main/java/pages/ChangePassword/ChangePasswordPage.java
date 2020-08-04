@@ -33,6 +33,9 @@ public class ChangePasswordPage extends DomibusPage {
 	
 	@FindBy(id = "editbuttonok_id")
 	private WebElement updateButton;
+	
+	@FindBy(css = "mat-card > div:nth-child(5)")
+	private WebElement mandatoryFieldsText;
 
 	public ChangePasswordPage(WebDriver driver) {
 		super(driver);
@@ -187,6 +190,10 @@ public class ChangePasswordPage extends DomibusPage {
 		return "";
 	}
 
+	public void pressTABKey() throws Exception {
+		weToDobject(mandatoryFieldsText).click();
+		wait.forXMillis(300);
+	}
 
 }
 

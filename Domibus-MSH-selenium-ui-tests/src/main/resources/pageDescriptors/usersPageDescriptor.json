@@ -34,7 +34,7 @@
 		"name": "Deleted",
 		"type": "boolean",
 		"sortable": true,
-		"visibleByDefault": true
+		"visibleByDefault": false
 	  },
 	  {
 		"name": "Expiration Date",
