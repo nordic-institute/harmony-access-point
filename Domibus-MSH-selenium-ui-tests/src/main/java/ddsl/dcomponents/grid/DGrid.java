@@ -317,6 +317,19 @@ public class DGrid extends DComponent {
 		return values;
 	}
 	
+	public List<String> getListedValuesOnColumn(String columnName) throws Exception {
+		List<HashMap<String, String>> allInfo = getListedRowInfo();
+		List<String> values = new ArrayList<>();
+		
+		for (int i = 0; i < allInfo.size(); i++) {
+			String val = allInfo.get(i).get(columnName);
+			if (null != val) {
+				values.add(val);
+			}
+		}
+		return values;
+	}
+	
 	public void resetGridScroll() {
 		log.info("reseting grid scroll");
 		
@@ -530,8 +543,8 @@ public class DGrid extends DComponent {
 		} catch (ParseException e) {
 			log.debug("csvDateStr = " + csvDateStr);
 			log.debug("uiDateStr = " + uiDateStr);
+			return true;
 		}
-		
 		return csvDate.equals(uiDate);
 	}
 	

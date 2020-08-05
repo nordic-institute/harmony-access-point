@@ -16,6 +16,7 @@ services:
       - ORACLE_PWD=oracle
       - DOMIBUS_PASSWORD=domibus
       - DOMAINS_COUNT=2
+      - DOMAIN_INIT_USERS=false
       - DOMIBUS_GENERAL_USER=domibus_general
       - DOMIBUS_DOMAIN_USER_PREFIX=domibus_domain
     #    expose:

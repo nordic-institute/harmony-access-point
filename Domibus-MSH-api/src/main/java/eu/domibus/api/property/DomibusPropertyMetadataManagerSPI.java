@@ -253,8 +253,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL = "domibus.datasource.xa.maintenanceInterval";
     String DOMIBUS_DATASOURCE_XA_PROPERTY_USER = "domibus.datasource.xa.property.user";
     String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password"; //NOSONAR
-    String DOMIBUS_DATASOURCE_XA_PROPERTY_url = "domibus.datasource.xa.property.url";
-    String DOMIBUS_DATASOURCE_XA_PROPERTY_URL = "domibus.datasource.xa.property.URL";
+    String DOMIBUS_DATASOURCE_XA_PROPERTY_URL = "domibus.datasource.xa.property.url";
     String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
     String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";

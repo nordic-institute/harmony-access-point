@@ -8,5 +8,6 @@ export class TrustStoreEntry {
   issuer: string;
   validFrom: string;
   validUntil: string;
+  isExpired: boolean;
 }
 

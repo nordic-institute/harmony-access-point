@@ -11,6 +11,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {TrustStoreEntry} from './support/trustore.model';
 
 @Component({
   selector: 'app-truststore',
@@ -42,7 +43,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
   ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
-
         name: 'Name',
         prop: 'name'
       },
@@ -81,11 +81,13 @@ export class TruststoreComponent extends mix(BaseListComponent)
     return this.getTrustStoreEntries();
   }
 
-  getTrustStoreEntries(): void {
-    this.trustStoreService.getEntries().toPromise().then(trustStoreEntries => {
-      super.rows = trustStoreEntries;
-      super.count = trustStoreEntries ? trustStoreEntries.length : 0;
-    });
+  async getTrustStoreEntries() {
+    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries();
+
+    trustStoreEntries.forEach(el => el.isExpired = new Date(el.validUntil) < new Date());
+
+    super.rows = trustStoreEntries;
+    super.count = trustStoreEntries ? trustStoreEntries.length : 0;
   }
 
   showDetails(selectedRow: any) {
@@ -127,6 +129,12 @@ export class TruststoreComponent extends mix(BaseListComponent)
 
   get csvUrl(): string {
     return TruststoreComponent.TRUSTSTORE_CSV_URL;
+  }
+
+  getRowClass(row) {
+    return {
+      'highlighted-row': row.isExpired
+    };
   }
 
 }

@@ -17,7 +17,6 @@ import pages.jms.JMSSelect;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,17 +56,19 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			
+			log.info("Navigate to JMS Messages page");
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			
+			page.grid().waitForRowsToLoad();
 			
 			log.info("getting info for row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
@@ -94,16 +95,21 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessages() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
+			
 			log.info("getting info from row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			
@@ -131,17 +137,19 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-4", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesNoResults() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
-			log.info("setting the same from and to date");
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
 			String endDate = page.filters().getJmsToDatePicker().getSelectedDate();
 			page.filters().getJmsFromDatePicker().selectDate(endDate);
 			page.filters().getJmsSearchButton().click();
@@ -159,18 +167,18 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	public void filterMessagesEmptySearch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		page.grid().waitForRowsToLoad();
-		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 			page.grid().waitForRowsToLoad();
+			
 			log.info("perform search that results in empty grid");
 			String endDate = page.filters().getJmsToDatePicker().getSelectedDate();
 			page.filters().getJmsFromDatePicker().selectDate(endDate);
@@ -201,16 +209,19 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-22", groups = {"multiTenancy", "singleTenancy"})
 	public void clickMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
 			log.info("selecting row 0");
 			page.grid().selectRow(0);
 			
@@ -221,8 +232,6 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			soft.assertTrue(page.getMoveButton().isEnabled(), "Move button is enabled after row select");
 			soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled after row select");
 			
-		} else {
-			throw new SkipException("Not enough messages in any of the queues to run test");
 		}
 		
 		soft.assertAll();
@@ -232,16 +241,19 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void filterMessagesBySelector() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		int noOfMessages = 0;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
 			log.info("getting info from row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			
@@ -266,24 +278,34 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-6", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		page.grid().waitForRowsToLoad();
 		
-		String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
-		log.info("verifying for queue " + qName);
-		HashMap<String, String> params = new HashMap<>();
-		params.put("source", qName);
-		
-		String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
-		log.info("downloaded file " + fileName);
-		
-		page.grid().getGridCtrl().showCtrls();
-		page.grid().getGridCtrl().getAllLnk().click();
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
-		
-		log.info("checking file against info from the grid");
-		page.grid().checkCSVvsGridInfo(fileName, soft);
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
+			String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
+			log.info("verifying for queue " + qName);
+			HashMap<String, String> params = new HashMap<>();
+			params.put("source", qName);
+			
+			String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+			log.info("downloaded file " + fileName);
+			
+			page.grid().getGridCtrl().showCtrls();
+			page.grid().getGridCtrl().getAllLnk().click();
+			page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+			
+			log.info("checking file against info from the grid");
+			page.grid().checkCSVvsGridInfo(fileName, soft);
+		}
 		
 		soft.assertAll();
 	}
@@ -456,21 +478,30 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	@Test(description = "JMS-28", groups = {"multiTenancy", "singleTenancy"})
 	public void gridSorting() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
-		page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		
-		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
-		
-		DGrid grid = page.grid();
-		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
-		grid.waitForRowsToLoad();
-		
-		for (int i = 0; i < 3; i++) {
-			JSONObject colDesc = colDescs.getJSONObject(i);
-			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
-				TestUtils.testSortingForColumn(soft, grid, colDesc);
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
+			JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+			
+			DGrid grid = page.grid();
+			grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+			grid.waitForRowsToLoad();
+			
+			for (int i = 0; i < 3; i++) {
+				JSONObject colDesc = colDescs.getJSONObject(i);
+				if (grid.getColumnNames().contains(colDesc.getString("name"))) {
+					TestUtils.testSortingForColumn(soft, grid, colDesc);
+				}
 			}
 		}
 		soft.assertAll();

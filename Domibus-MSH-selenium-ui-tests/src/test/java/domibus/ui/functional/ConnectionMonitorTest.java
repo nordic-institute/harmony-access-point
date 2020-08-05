@@ -20,23 +20,6 @@ import java.util.List;
 
 public class ConnectionMonitorTest extends SeleniumTest {
 	
-	@Test
-	public void openregfa() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
-		
-		page.grid().enableMonitoringForParty("domibus-blue");
-		page.grid().isMonitoringEnabled("domibus-blue");
-		
-		
-		
-		soft.assertAll();
-	}
-	
-	
-	
-	
 	/* TS-1 - Login as super admin and open Connections Monitoring page */
 	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void openWindow() throws Exception {

@@ -90,7 +90,7 @@ public class TestUtils {
 		if (!StringUtils.equalsIgnoreCase(grid.getSortedColumnName(), columnName)) {
 			grid.sortBy(columnName);
 			Order order = grid.getSortOrder();
-			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getValuesOnColumn(columnName));
+			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getListedValuesOnColumn(columnName));
 		}
 	}
 	

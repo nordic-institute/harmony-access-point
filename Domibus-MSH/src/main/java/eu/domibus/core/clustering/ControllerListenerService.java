@@ -1,7 +1,7 @@
 package eu.domibus.core.clustering;
 
 import eu.domibus.api.cluster.Command;
-import eu.domibus.api.cluster.CommandService;
+import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -30,7 +30,7 @@ public class ControllerListenerService implements MessageListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerService.class);
 
     @Autowired
-    protected CommandService commandService;
+    protected CommandExecutorService commandExecutorService;
 
     @Autowired
     protected DomainService domainService;
@@ -63,7 +63,7 @@ public class ControllerListenerService implements MessageListener {
             return;
         }
 
-        commandService.executeCommand(command, domain, getCommandProperties(message));
+        commandExecutorService.executeCommand(command, domain, getCommandProperties(message));
     }
 
     /**
