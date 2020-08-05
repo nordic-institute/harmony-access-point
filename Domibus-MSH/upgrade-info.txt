@@ -33,7 +33,7 @@ Domibus 4.1.2 (from 4.1.1):
                     </jaxws:endpoint>
 
                     <!--Message logger configuration-->
-                    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.logging.DomibusWSPluginLoggingEventSender">
+                    <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.impl.logging.DomibusWSPluginLoggingEventSender">
                         <property name="printPayload" value="${domibus.logging.payload.print}"/>
                     </bean>
 Domibus 4.1.1 (from 4.1):
