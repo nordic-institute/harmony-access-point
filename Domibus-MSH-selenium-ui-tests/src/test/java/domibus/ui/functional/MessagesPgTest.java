@@ -320,7 +320,7 @@ public class MessagesPgTest extends SeleniumTest {
 		for (int i = 0; i < 20; i++) {
 			log.info("checking for status change");
 			HashMap<String, String> info = page.grid().getRowInfo(index);
-			System.out.println(info.get("Message Status"));
+			log.debug(info.get("Message Status"));
 			if (StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
 			|| StringUtils.equalsIgnoreCase(info.get("Message Status"), "WAITING_FOR_RETRY")) {
 				statusChanged = true;

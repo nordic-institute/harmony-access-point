@@ -69,12 +69,12 @@ public class ExcelReportReporter implements IReporter {
 			
 			//Following code gets the suite name
 			String suiteName = suite.getName();
-			System.out.println("suiteName = " + suiteName);
+			log.info("suiteName = " + suiteName);
 			
 			
 			//Getting the results for the said suite
 			Map<String, ISuiteResult> suiteResults = suite.getResults();
-			System.out.println("suiteResults = " + suiteResults);
+			log.debug("suiteResults = " + suiteResults);
 			
 			for (ISuiteResult sr : suiteResults.values()) {
 				ITestContext tc = sr.getTestContext();

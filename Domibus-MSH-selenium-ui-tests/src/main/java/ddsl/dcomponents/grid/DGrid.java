@@ -460,7 +460,6 @@ public class DGrid extends DComponent {
 			
 			log.info("checking listed data");
 			for (int i = 0; i < gridInfo.size(); i++) {
-				System.out.println("i = " + i);
 				HashMap<String, String> gridRecord = gridInfo.get(i);
 				CSVRecord record = records.get(i);
 				soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);

@@ -34,7 +34,7 @@ public class DomibusRestClient extends BaseRestClient {
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Data is not sync now ", response);
 		} else {
-			System.out.println("Data is synchronized now with response code:" + response.getStatus());
+			log.info("Data is synchronized now with response code:" + response.getStatus());
 		}
 	}
 	

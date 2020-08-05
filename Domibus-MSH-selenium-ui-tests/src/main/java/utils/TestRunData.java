@@ -98,7 +98,7 @@ public class TestRunData {
 		try {
 			return Boolean.valueOf(prop.getProperty("headless"));
 		} catch (Exception e) {
-			System.out.println("e = " + e);
+			log.debug("e = " + e);
 			return false;
 		}
 	}
@@ -107,7 +107,7 @@ public class TestRunData {
 		try {
 			return Boolean.valueOf(prop.getProperty("useProxy"));
 		} catch (Exception e) {
-			System.out.println("e = " + e);
+			log.debug("e = " + e);
 			return false;
 		}
 	}

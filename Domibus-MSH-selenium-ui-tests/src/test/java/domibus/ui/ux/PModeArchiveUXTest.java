@@ -124,7 +124,7 @@ public class PModeArchiveUXTest extends SeleniumTest {
 		String listedPmodeCurrent = pmcPage.getTextArea().getText();
 		
 		log.info("comparing all 3 pmodes");
-		System.out.println("pmode = " + pmode);
+		log.debug("pmode = " + pmode);
 		
 		soft.assertTrue(XMLUnit.compareXML(pmode, downloadedPMode).identical(), "PMode in modal and the one downloaded are the same");
 		soft.assertTrue(XMLUnit.compareXML(pmode, listedPmodeCurrent).identical(), "PMode in modal and the one in Pmode-Current page are the same");

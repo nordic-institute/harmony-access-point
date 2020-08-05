@@ -142,7 +142,7 @@ public class AuditPgUXTest extends SeleniumTest {
 		String fileName = rest.csv().downloadGrid(RestServicePaths.AUDIT_CSV, null, null);
 		
 		log.info("downloaded audit logs to file :" + fileName);
-		System.out.println(page.grid().getRowsNo());
+		log.debug(""+page.grid().getRowsNo());
 		
 		log.info("comparing any random row data from downloaded csv and grid");
 		csvCheck(fileName, page.grid(), soft);
