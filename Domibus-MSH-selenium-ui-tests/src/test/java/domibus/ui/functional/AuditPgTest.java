@@ -3,6 +3,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -398,7 +399,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 	
 	/*  AU-24 - Login as domain admin, go to page Parties and Delete parties    */
-	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -409,7 +410,7 @@ public class AuditPgTest extends SeleniumTest {
 		PModePartiesPage pPage = new PModePartiesPage(driver);
 		pPage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		
-		pPage.grid().scrollToAndSelect("Party Name", "red_gw");
+		pPage.grid().scrollToAndSelect("Party Name", "orange_gw1");
 		pPage.getDeleteButton().click();
 		pPage.getSaveButton().click();
 		new Dialog(driver).confirm();
@@ -510,7 +511,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 	
 	/*  AU-27 - Login as domain admin, go to page PMode Archive and Delete old PModes   */
-	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"})
 	public void deletePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
@@ -520,6 +521,7 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Login and navigate to pmode archive page");
 		PModeArchivePage archivePage = new PModeArchivePage(driver);
 		archivePage.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		archivePage.grid().waitForRowsToLoad();
 		
 		
 		if (archivePage.grid().getRowsNo() == 1) {
@@ -539,12 +541,14 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Click on yes button on confirmation pop up");
 		archivePage.getConfirmation().confirm();
 		
-		log.info("Success message shown : " + archivePage.getAlertArea().getAlertMessage());
+		soft.assertTrue(!archivePage.getAlertArea().isError() , "Success message is shown");
+		soft.assertEquals(archivePage.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_DELETE_SUCCESS, "Correct message is shown");
+		
 		archivePage.getSidebar().goToPage(PAGES.AUDIT);
 		
 		AuditPage auditPage = navigateToAudit();
 		
-		log.info("Set all search filters");
+		log.info("Set search filters");
 		auditPage.getFilters().setFilterData("table", "Pmode Archive");
 		
 		log.info("Click on search button");
