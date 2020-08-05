@@ -35,7 +35,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), currentMSGF.toString());
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get message filter");
+			throw new DomibusRestException("Could not get message filter", response);
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), preppedFilters.toString());
 		
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get message filter");
+			throw new DomibusRestException("Could not get message filter", response);
 		}
 		
 		JSONArray newFilters = getMessageFilters(domain);
@@ -107,7 +107,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), filters.toString());
 		
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get message filter " + response.getStatus());
+			throw new DomibusRestException("Could not get message filter ", response);
 		}
 	}
 	
@@ -135,9 +135,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.MESSAGE_FILTERS), deletedL.toString());
 		if (response.getStatus() != 200) {
-			log.debug(String.valueOf(response.getStatus()));
-			log.debug(response.getEntity(String.class));
-			throw new Exception("Could not delete message filter");
+			throw new DomibusRestException("Could not delete message filter", response);
 		}
 	}
 	
