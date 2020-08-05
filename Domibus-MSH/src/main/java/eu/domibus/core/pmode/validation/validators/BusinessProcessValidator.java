@@ -129,7 +129,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
         if (!CollectionUtils.isEmpty(allInitiatorParties)) {
             allInitiatorParties.stream()
-                    .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> validInitiatorParty.getName().equalsIgnoreCase(initiatorParty.getName())))
+                    .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> StringUtils.equalsIgnoreCase(validInitiatorParty.getName(), initiatorParty.getName())))
                     .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
         }
         validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
@@ -162,7 +162,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
         if (!CollectionUtils.isEmpty(allResponderParties)) {
             allResponderParties.stream()
-                    .filter(responderParty -> validResponderParties.stream().noneMatch(validResponderParty -> validResponderParty.getName().equalsIgnoreCase(responderParty.getName())))
+                    .filter(responderParty -> validResponderParties.stream().noneMatch(validResponderParty -> StringUtils.equalsIgnoreCase(validResponderParty.getName(), responderParty.getName())))
                     .forEach(party -> createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties"));
         }
         validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
