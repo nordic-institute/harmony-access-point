@@ -4054,9 +4054,15 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			log.error "Error: report file is directory on path:" + outputReportFilePath
 			return
 		}
-		if ( !file.exists() ) {
+        File parentDir = file.getParentFile()
+        if ( parentDir == null) {
+            log.error "Error: parent path to report file doesn't exist. Provided path was:"  + outputReportFilePath
+            return
+        }
+        parentDir.mkdirs()
+
+		if ( file.createNewFile() ) { //if file does not exist it will do nothing
 			log.warn "Warning: text report file doesn't exist, would create file with header:" + outputReportFilePath
-			file.createNewFile()
 			def header = COLUMN_LIST.join(CSV_DELIMETER)
 			file.write(header)
 		}
