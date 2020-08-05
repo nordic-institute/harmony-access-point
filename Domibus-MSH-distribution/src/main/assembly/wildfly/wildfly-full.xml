@@ -41,7 +41,7 @@
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/cargo/installs/wildfly-dist-${wildfly.version}/wildfly-${wildfly.version}</directory>
+            <directory>${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}</directory>
             <outputDirectory>domibus</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <excludes>

@@ -247,8 +247,7 @@
                                         <containerId>wildfly20x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-<!--                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip-->
-                                                https://repo1.maven.org/maven2/org/wildfly/wildfly-dist/20.0.1.Final/wildfly-dist-${wildfly.version}.zip
+                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>
@@ -272,10 +271,10 @@
                                 <configuration>
                                     <includes>
                                         <include>
-                                            ${project.basedir}/cargo/installs/wildfly-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf.bat
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf.bat
                                         </include>
                                         <include>
-                                            ${project.basedir}/cargo/installs/wildfly-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf
                                         </include>
                                     </includes>
                                     <replacements>
