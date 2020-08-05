@@ -155,6 +155,10 @@
     <span class="text-select">{{showNextAttemptInfo(row) ? (value | domibusDate: dateFormat) : ''}}</span>
   </ng-template>
 
+  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value}}</span>
+  </ng-template>
+
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button md-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)"
             (click)="downloadAction(row)" id="downloadButtonRow{{row.$$index}}_id" tooltip="Download">

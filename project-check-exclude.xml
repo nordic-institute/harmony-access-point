@@ -138,6 +138,10 @@
         <!-- Included by Domibus MSH JMS WildFly Artemis client which is used internally by Domibus to access the activeMQ broker -->
         <cve>CVE-2019-20444</cve>
         <cve>CVE-2019-20445</cve>
+        <!-- we don't use/send a ZlibEncoded byte stream to the Netty server -->
+        <cve>CVE-2020-11612</cve>
+        <!-- artemis-jms-client uses this as 2nd level dependency -->
+        <vulnerabilityName>CWE-400: Uncontrolled Resource Consumption ('Resource Exhaustion')</vulnerabilityName>
         <!-- we are not using WSO2 transport-http -->
         <vulnerabilityName>CVE-2019-10797</vulnerabilityName>
     </suppress>

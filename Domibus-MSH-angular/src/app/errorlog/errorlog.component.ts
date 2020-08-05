@@ -30,7 +30,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
   dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
 
   @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('bibi') bibi: Md2Datepicker;
+  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
 
   timestampFromMaxDate: Date = new Date();
   timestampToMinDate: Date = null;
@@ -72,6 +72,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       },
       {
         name: 'Message Id',
+        cellTemplate: this.rawTextTpl,
         prop: 'messageInErrorId',
       },
       {
@@ -80,6 +81,7 @@ export class ErrorLogComponent extends mix(BaseListComponent).with(FilterableLis
       },
       {
         name: 'Error Detail',
+        cellTemplate: this.rawTextTpl,
         width: 350
       },
       {

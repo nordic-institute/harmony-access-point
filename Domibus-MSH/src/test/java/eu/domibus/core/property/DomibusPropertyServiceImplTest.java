@@ -5,10 +5,12 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import mockit.*;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +36,9 @@ public class DomibusPropertyServiceImplTest {
 
     @Injectable
     private List<DomibusPropertyManagerExt> propertyManagers;
+
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Mocked
     @Spy
@@ -150,5 +155,18 @@ public class DomibusPropertyServiceImplTest {
         }};
 
         domibusPropertyService.setPropertyValue("non_existing_prop", "val11");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setPropertyValue_tooLong() {
+        int limit = 100;
+        String propertyToTest = DOMIBUS_UI_TITLE_NAME;
+        String longValue = StringUtils.repeat("A", limit + 1);
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+            result = limit;
+        }};
+
+        domibusPropertyService.setPropertyValue(propertyToTest, longValue);
     }
 }

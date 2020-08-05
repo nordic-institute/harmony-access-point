@@ -3,6 +3,7 @@ package eu.domibus.common.services.impl;
 import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.services.DynamicDiscoveryService;
@@ -62,6 +63,9 @@ public class DynamicDiscoveryServiceOASISTest {
     private static final String DOMAIN = "default";
 
     private static final String ADDRESS = "http://localhost:9090/anonymous/msh";
+
+    @Injectable
+    private CertificateService certificateService;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
