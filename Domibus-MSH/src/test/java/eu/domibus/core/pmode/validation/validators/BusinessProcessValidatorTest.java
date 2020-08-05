@@ -149,22 +149,36 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateResponderParties(final @Injectable ValidationIssue validationIssue,
                                               final @Injectable Process process,
-                                              final @Injectable Set<Party> validResponderParties,
-                                              final @Injectable ResponderParties responderParties,
-                                              final @Injectable List<ResponderParty> allResponderParties) {
+                                              final @Injectable PartyIdType partyIdType,
+                                              final @Injectable Party validResponderParty,
+                                              final @Injectable ResponderParties responderPartiesXml,
+                                              final @Injectable ResponderParty responderParty
+    ) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
         Set<PartyIdType> partyIdTypes = new HashSet<>();
+        partyIdTypes.add(partyIdType);
+        List<ResponderParty> allResponderParties = new ArrayList<>();
+        allResponderParties.add(responderParty);
+        Set<Party> validResponderParties = new HashSet<>();
+        validResponderParties.add(validResponderParty);
 
         new Expectations(businessProcessValidator) {{
             process.getResponderParties();
             result = validResponderParties;
 
             process.getResponderPartiesXml();
-            result = responderParties;;
+            result = responderPartiesXml;;
 
-            responderParties.getResponderParty();
+            responderPartiesXml.getResponderParty();
             result = allResponderParties;
+
+
+            responderParty.getName();
+            result = "RED_GW";
+
+            validResponderParty.getName();
+            result = "red_gw";
 
         }};
 
@@ -320,6 +334,120 @@ public class BusinessProcessValidatorTest {
 
         new FullVerifications(businessProcessValidator) {{
             businessProcessValidator.createIssue(issues, process, anyString, "Leg [%s] of process [%s] not found in business process leg configurations");
+        }};
+    }
+
+    @Test
+    public void test_validateLegConfigurationCaseInsensitive(final @Injectable ValidationIssue validationIssue,
+                                                       final @Injectable Process process,
+                                                       final @Injectable LegConfiguration legConfiguration,
+                                                       final @Injectable Legs legs,
+                                                       final @Injectable Leg leg) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        List<Leg> allLegs = new ArrayList<>();
+        allLegs.add(leg);
+        Set<LegConfiguration> validLegs = new HashSet<>();
+        validLegs.add(legConfiguration);
+
+        new Expectations(businessProcessValidator) {{
+            process.getLegs();
+            result = validLegs;
+
+            pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
+            result = legs;
+
+            legs.getLeg();
+            result = allLegs;
+
+            leg.getName();
+            result = "testServiceCase";
+
+            legConfiguration.getName();
+            result = "TESTSERVICECASE";
+        }};
+
+        //tested method
+        businessProcessValidator.validateLegConfiguration(issues, process);
+
+        new FullVerifications(businessProcessValidator) {{
+        }};
+    }
+
+    @Test
+    public void test_validateResponderPartiesCaseInsensitive(final @Injectable ValidationIssue validationIssue,
+                                                             final @Injectable Process process,
+                                                             final @Injectable Set<PartyIdType> partyIdTypes,
+                                                             final @Injectable Party validResponderParty,
+                                                             final @Injectable ResponderParties responderPartiesXml,
+                                                             final @Injectable ResponderParty responderParty
+                                                             ) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        List<ResponderParty> allResponderParties = new ArrayList<>();
+        allResponderParties.add(responderParty);
+        Set<Party> responderParties = new HashSet<>();
+        responderParties.add(validResponderParty);
+
+        new Expectations(businessProcessValidator) {{
+            process.getResponderParties();
+            result = responderParties;
+
+            process.getResponderPartiesXml();
+            result = responderPartiesXml;
+
+            responderPartiesXml.getResponderParty();
+            result = allResponderParties;
+
+            responderParty.getName();
+            result = "RED_GW";
+
+            validResponderParty.getName();
+            result = "red_gw";
+        }};
+
+        //tested method
+        businessProcessValidator.validateResponderParties(issues, process, partyIdTypes);
+
+        new FullVerifications(businessProcessValidator) {{
+        }};
+    }
+
+    @Test
+    public void test_validateInitiatorPartiesCaseInsensitive(final @Injectable ValidationIssue validationIssue,
+                                                             final @Injectable Process process,
+                                                             final @Injectable Set<PartyIdType> partyIdTypes,
+                                                             final @Injectable Party validInitiatorParty,
+                                                             final @Injectable InitiatorParties initiatorPartiesXml,
+                                                             final @Injectable InitiatorParty InitiatorParty) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(validationIssue);
+        List<InitiatorParty> allInitiatorParties= new ArrayList<>();
+        allInitiatorParties.add(InitiatorParty);
+        Set<Party> initiatorParties = new HashSet<>();
+        initiatorParties.add(validInitiatorParty);
+
+        new Expectations(businessProcessValidator) {{
+            process.getInitiatorParties();
+            result = initiatorParties;
+
+            process.getInitiatorPartiesXml();
+            result = initiatorPartiesXml;
+
+            initiatorPartiesXml.getInitiatorParty();
+            result = allInitiatorParties;
+
+            InitiatorParty.getName();
+            result = "BLUE_GW";
+
+            validInitiatorParty.getName();
+            result = "blue_gw";
+        }};
+
+        //tested method
+        businessProcessValidator.validateInitiatorParties(issues, process, partyIdTypes);
+
+        new FullVerifications(businessProcessValidator) {{
         }};
     }
 }
