@@ -190,7 +190,7 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         allLegs.stream()
-                .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equalsIgnoreCase(leg.getName())))
+                .filter(leg -> validLegs.stream().noneMatch(validLeg -> StringUtils.equalsIgnoreCase(validLeg.getName(), leg.getName())))
                 .forEach(leg -> createIssue(issues, process, leg.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
     }
 
