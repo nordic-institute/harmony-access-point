@@ -23,7 +23,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get users ");
+			throw new DomibusRestException("Could not get users ", response);
 		}
 		
 		try {
@@ -56,7 +56,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not create user");
+			throw new DomibusRestException("Could not create user", response);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not delete user");
+			throw new DomibusRestException("Could not delete user", response);
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class UsersClient extends BaseRestClient {
 			
 			ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
 			if (response.getStatus() != 200) {
-				throw new Exception("Could not UPDATE user");
+				throw new DomibusRestException("Could not UPDATE user", response);
 			}
 		} catch (Exception e) {
 			log.error("EXCEPTION: ", e);

@@ -36,7 +36,7 @@ public class JMSClient extends BaseRestClient {
 			}
 			
 		} else {
-			throw new Exception("Could not get queues");
+			throw new DomibusRestException("Could not get queues", response);
 		}
 		return queues;
 	}
@@ -84,14 +84,11 @@ public class JMSClient extends BaseRestClient {
 		}
 		ClientResponse response = requestGET(resource.path(RestServicePaths.JMS_SEARCH), params);
 		
-		int status = response.getStatus();
-		String content = response.getEntity(String.class);
-		
-		if (status == 200) {
-			return new JSONObject(sanitizeResponse(content)).getJSONArray("messages");
+		if (response.getStatus() == 200) {
+			return new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("messages");
 		} else {
-			log.debug("Got response: " + status);
-			log.debug("Got response content: " + content);
+			log.debug("Got response: " + response.getStatus());
+			log.debug("Got response content: " + response.getEntity(String.class));
 		}
 		return null;
 	}

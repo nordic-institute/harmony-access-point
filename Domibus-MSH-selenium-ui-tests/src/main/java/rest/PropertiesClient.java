@@ -18,7 +18,7 @@ public class PropertiesClient extends BaseRestClient {
 		params.put("name", propName);
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		if (clientResponse.getStatus() != 200) {
-			throw new Exception("Could not get properties ");
+			throw new DomibusRestException("Could not get properties ", clientResponse);
 		}
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("items");
 		
@@ -35,7 +35,7 @@ public class PropertiesClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get properties ");
+			throw new DomibusRestException("Could not get properties ", response);
 		}
 		return new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("items");
 	}

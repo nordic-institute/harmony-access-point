@@ -30,7 +30,7 @@ public class CSVClient extends DomibusRestClient {
 			return file.getAbsolutePath();
 		} else {
 			log.debug(clientResponse.getEntity(String.class));
-			throw new Exception("Could not download file. Request status is " + clientResponse.getStatus());
+			throw new DomibusRestException("Could not download file.", clientResponse);
 		}
 	}
 }

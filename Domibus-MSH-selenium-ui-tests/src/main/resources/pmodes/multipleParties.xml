@@ -36,7 +36,7 @@
 				<identifier partyId="domibus-reed" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
-				<identifier partyId="domibus-bloo" partyIdType="partyTypeUrn"/>
+				<identifier partyId="domibus-sdf" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="green_gw1" endpoint="http://green:9898/domibus">
 				<identifier partyId="green_gw1" partyIdType="ds"/>
