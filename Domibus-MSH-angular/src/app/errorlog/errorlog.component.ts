@@ -26,6 +26,10 @@ export class ErrorLogComponent extends mix(BaseListComponent)
   static readonly ERROR_LOG_CSV_URL: string = ErrorLogComponent.ERROR_LOG_URL + '/csv?';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
+  dateFormat: String = 'yyyy-MM-dd HH:mm:ssZ';
+
+  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
 
   timestampFromMaxDate: Date = new Date();
   timestampToMinDate: Date = null;
@@ -65,6 +69,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       },
       {
         name: 'Message Id',
+        cellTemplate: this.rawTextTpl,
         prop: 'messageInErrorId',
       },
       {
@@ -73,6 +78,7 @@ export class ErrorLogComponent extends mix(BaseListComponent)
       },
       {
         name: 'Error Detail',
+        cellTemplate: this.rawTextTpl,
         width: 350
       },
       {

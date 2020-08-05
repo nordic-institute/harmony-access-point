@@ -42,11 +42,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
-  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
-  @ViewChild('list', {static: false}) list: DatatableComponent;
+  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoTpl') public nextAttemptInfoTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoWithDateFormatTpl') public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
+  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('list') list: DatatableComponent;
+
+  columnPicker: ColumnPickerBase;
+  public rowLimiter: RowLimiterBase;
+
+  selected: any[];
 
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
@@ -106,6 +112,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.columnPicker.allColumns = [
       {
         name: 'Message Id',
+        cellTemplate: this.rawTextTpl,
         width: 275
       },
       {
@@ -145,7 +152,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
-        name: 'Conversation Id'
+        name: 'Conversation Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         name: 'Message Type',
@@ -165,16 +173,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (this.fourCornerEnabled) {
       this.columnPicker.allColumns.push(
         {
-          name: 'Original Sender'
+          name: 'Original Sender',
+          cellTemplate: this.rawTextTpl
         },
         {
-          name: 'Final Recipient'
+          name: 'Final Recipient',
+          cellTemplate: this.rawTextTpl
         });
     }
 
     this.columnPicker.allColumns.push(
       {
-        name: 'Ref To Message Id'
+        name: 'Ref To Message Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,

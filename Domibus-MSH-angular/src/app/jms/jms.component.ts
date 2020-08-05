@@ -32,8 +32,10 @@ export class JmsComponent extends mix(BaseListComponent)
   defaultQueueSet: EventEmitter<boolean>;
   queuesInfoGot: EventEmitter<boolean>;
 
-  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
-  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithJSONTpl') rowWithJSONTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
+  @ViewChild('rowActions') rowActions: TemplateRef<any>;
 
   queues: any[];
   orderedQueues: any[];
@@ -121,9 +123,9 @@ export class JmsComponent extends mix(BaseListComponent)
         width: 80
       },
       {
+        cellTemplate: this.rawTextTpl,
         name: 'Content',
         prop: 'content'
-
       },
       {
         name: 'Custom prop',
