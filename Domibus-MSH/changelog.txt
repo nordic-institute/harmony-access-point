@@ -7,7 +7,7 @@ Domibus 4.2
 - Filtered out bean scanning of web and ext sub-packages to avoid multiple bean creation.
 - Deleted msh-config.xml and moved one bean to spring-context.xml
 - Upgrade Tomcat to version 9 and dropped support for Tomcat 8
-- Upgrade Wildfly to version 18 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
+- Upgrade Wildfly to version 20 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
 - Upgrade MySQL to version 8.0 and dropped support for MySQL version 5
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
