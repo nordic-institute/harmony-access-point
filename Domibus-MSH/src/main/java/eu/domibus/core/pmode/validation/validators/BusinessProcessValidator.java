@@ -126,9 +126,10 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         List<InitiatorParty> allInitiatorParties = initiatorPartiesXml.getInitiatorParty();
-        if (!CollectionUtils.isEmpty(allInitiatorParties) && allInitiatorParties.size() != validInitiatorParties.size()) {
+
+        if (!CollectionUtils.isEmpty(allInitiatorParties)) {
             allInitiatorParties.stream()
-                    .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> StringUtils.equals(validInitiatorParty.getName(), initiatorParty.getName())))
+                    .filter(initiatorParty -> validInitiatorParties.stream().noneMatch(validInitiatorParty -> StringUtils.equalsIgnoreCase(validInitiatorParty.getName(), initiatorParty.getName())))
                     .forEach(party -> createIssue(issues, process, party.getName(), "Initiator party [%s] of process [%s] not found in business process parties"));
         }
         validateInitiatorPartyIdType(issues, process, partyIdTypes, validInitiatorParties);
@@ -158,9 +159,10 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         List<ResponderParty> allResponderParties = responderPartiesXml.getResponderParty();
-        if (!CollectionUtils.isEmpty(allResponderParties) && allResponderParties.size() != validResponderParties.size()) {
+
+        if (!CollectionUtils.isEmpty(allResponderParties)) {
             allResponderParties.stream()
-                    .filter(responderParty -> validResponderParties.stream().noneMatch(validResponderParty -> validResponderParty.getName().equals(responderParty.getName())))
+                    .filter(responderParty -> validResponderParties.stream().noneMatch(validResponderParty -> StringUtils.equalsIgnoreCase(validResponderParty.getName(), responderParty.getName())))
                     .forEach(party -> createIssue(issues, process, party.getName(), "Responder party [%s] of process [%s] not found in business process parties"));
         }
         validateResponderPartyIdType(issues, process, partyIdTypes, validResponderParties);
@@ -188,7 +190,7 @@ public class BusinessProcessValidator implements PModeValidator {
             return;
         }
         allLegs.stream()
-                .filter(leg -> validLegs.stream().noneMatch(validLeg -> validLeg.getName().equals(leg.getName())))
+                .filter(leg -> validLegs.stream().noneMatch(validLeg -> StringUtils.equalsIgnoreCase(validLeg.getName(), leg.getName())))
                 .forEach(leg -> createIssue(issues, process, leg.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
     }
 
