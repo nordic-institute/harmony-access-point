@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_PROPERTY_LENGTH_MAX;
 
 /**
  * @author Ion Perpegel
@@ -39,6 +42,9 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * We inject here all managers: one for each plugin + domibus property manager delegate( which adapts DomibusPropertyManager to DomibusPropertyManagerExt)
@@ -82,6 +88,11 @@ public class DomibusPropertyServiceImpl implements DomibusPropertyService {
 
     @Transactional(noRollbackFor = DomibusCoreException.class)
     public void setPropertyValue(String name, String value) {
+        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+        if (maxLength > 0 && value != null && value.length() > maxLength) {
+            throw new IllegalArgumentException("Invalid property value. Maximum accepted length is: " + maxLength);
+        }
+
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = currentDomain == null ? null : currentDomain.getCode();
 

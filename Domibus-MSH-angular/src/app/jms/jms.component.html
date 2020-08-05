@@ -97,6 +97,10 @@
     <span class="text-select">{{value | domibusDate: dateFormat}}</span>
   </ng-template>
 
+  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value}}</span>
+  </ng-template>
+
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button id="jmsMoveButtonRow{{row.$$index}}_id" md-icon-button color="primary" (click)="moveAction(row)"
             tooltip="Move">

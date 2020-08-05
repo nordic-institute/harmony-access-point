@@ -119,6 +119,7 @@ public class BackendFSImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+    private final String messageIdFolder = messageId;
 
     @Before
     public void setUp() throws org.apache.commons.vfs2.FileSystemException {
@@ -225,7 +226,7 @@ public class BackendFSImplTest {
             fsFilesManager.getEnsureChildFolder(incomingFolder, finalRecipientFolder);
             result = incomingFolderByRecipient;
 
-            fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageId);
+            fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageIdFolder);
             result = incomingFolderByMessageId;
 
             backendFS.getFileNameExtension(TEXT_XML);
