@@ -13,6 +13,7 @@ import utils.Generator;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
+import java.awt.dnd.DragGestureEvent;
 import java.util.List;
 
 public class BaseTest {
@@ -32,6 +33,11 @@ public class BaseTest {
 		log.info("GENERATING TEST DATA");
 		
 		String pass = data.defaultPass();
+		
+		List<String> domains = rest.getDomainCodes();
+		for (int i = 0; i < domains.size(); i++) {
+			rest.users().createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domains.get(i));
+		}
 		
 		int noOfMess = rest.messages().getListOfMessages(null).length();
 		if (noOfMess < 15) {

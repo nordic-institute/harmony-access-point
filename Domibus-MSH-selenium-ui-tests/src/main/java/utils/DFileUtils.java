@@ -61,7 +61,6 @@ public class DFileUtils {
 		}
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-		System.out.println(results.get(0));
 		String completeFilePath = path + "\\" + results.get(0);
 		Document doc = docBuilder.parse(new File(completeFilePath));
 		return doc;

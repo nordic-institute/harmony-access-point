@@ -57,7 +57,7 @@ public class MessagePenetrationTest extends RestTest {
 	
 	@Test(dataProvider = "readInvalidStrings")
 	public void testMessProperties(String evilStr) throws Exception {
-		System.out.println(evilStr);
+		log.debug(evilStr);
 		
 		SoftAssert soft = new SoftAssert();
 		
@@ -106,11 +106,11 @@ public class MessagePenetrationTest extends RestTest {
 			
 			try {
 				if (StringUtils.isEmpty(result.getErrorDetail())) {
-					System.out.println(evilStr + "\t" + result.getStacktraceMess());
+					log.debug(evilStr + "\t" + result.getStacktraceMess());
 					errRows.add(evilStr + "\t" + result.getStacktraceMess());
 				}
 			} catch (Exception e) {
-				System.out.println("result = " + result);
+				log.debug("result = " + result);
 			}
 		}
 		

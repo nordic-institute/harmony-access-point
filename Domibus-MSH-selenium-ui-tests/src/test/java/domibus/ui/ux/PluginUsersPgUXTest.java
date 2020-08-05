@@ -90,6 +90,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.refreshPage();
 		page.grid().waitForRowsToLoad();
 		
 		log.info("editing user");

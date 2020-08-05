@@ -92,7 +92,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	}
 	
 	/*JMS-3 - Filter messages using the filters provided*/
-	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "JMS-3", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessages() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -238,7 +238,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	}
 	
 	/*	JMS-27 - Check Valid expression for Selector field of Search filter */
-	@Test(description = "JMS-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "JMS-27", groups = {"multiTenancy", "singleTenancy"})
 	public void filterMessagesBySelector() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
