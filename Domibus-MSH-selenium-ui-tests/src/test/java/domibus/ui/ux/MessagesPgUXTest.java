@@ -339,8 +339,8 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		page.refreshPage();
 		page.grid().waitForRowsToLoad();
-		page.grid().getGridCtrl().showCtrls();
-		page.grid().getGridCtrl().getAllLnk().click();
+
+		page.grid().checkAllLink(soft);
 		page.grid().waitForRowsToLoad();
 
 		HashMap<String, String> fMessage = page.grid().getRowInfo("Message Id", messageID);

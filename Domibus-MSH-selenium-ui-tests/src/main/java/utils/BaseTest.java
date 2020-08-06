@@ -2,6 +2,7 @@ package utils;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
+import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,11 +10,14 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
+import pages.errorLog.ErrFilters;
+import pages.jms.JMSFilters;
 import pages.login.LoginPage;
+import pages.messages.MessagesPage;
+import pages.plugin_users.PluginUsersFilterArea;
+import pages.pmode.PartiesFilters;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
-import utils.Generator;
-import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
 import java.util.ArrayList;
@@ -269,4 +273,48 @@ public class BaseTest {
 		}
 		return domain1;
 	}
-}
+
+	// This method will fill default black listed char in all input fields of different pages
+	public  void fillBlackListedChar(PAGES page,String inputString) throws Exception {
+
+		switch (page) {
+			case MESSAGES:
+				log.debug("Enter black listed char in input fields of Message page");
+				MessagesPage mPage = new MessagesPage(driver);
+				mPage.getFilters().advancedFilterBy(inputString, "ACKNOWLEDGED", inputString, inputString,
+						inputString, "SENDING", "USER_MESSAGE", "NOTIFIED", inputString, inputString, inputString, null, null);
+				break;
+
+			case ERROR_LOG:
+				log.debug("Enter black listed char in input fields of Error log page");
+				ErrFilters eFilter = new ErrFilters(driver);
+				eFilter.advancedSearch(inputString, inputString, null, null, inputString,
+						"SENDING", "EBMS_0001", null, null);
+				break;
+
+			case PMODE_PARTIES:
+				log.debug("Enter black listed char in input fields of Pmode parties page");
+				PartiesFilters pPage = new PartiesFilters(driver);
+				pPage.filter(inputString, inputString, inputString, inputString, PartiesFilters.PROCESS_ROLE.IR);
+				break;
+
+			case JMS_MONITORING:
+				log.debug("Enter black listed char in input fields of JMS Monitoring page");
+				JMSFilters jPage = new JMSFilters(driver);
+				jPage.getJmsSelectorInput().fill(inputString);
+				jPage.getJmsTypeInput().fill(inputString);
+				jPage.getJmsSearchButton().click();
+				break;
+
+			case PLUGIN_USERS:
+				log.debug("Enter black listed char in input fields of Plugin user page");
+				PluginUsersFilterArea puPage = new PluginUsersFilterArea(driver);
+				puPage.search(null, null, inputString, inputString);
+				break;
+
+		}
+
+	}
+
+
+	}
