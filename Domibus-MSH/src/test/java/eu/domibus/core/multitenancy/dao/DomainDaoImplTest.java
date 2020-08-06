@@ -62,7 +62,7 @@ public class DomainDaoImplTest {
     @Test
     public void testValidateDomain_InvalidDomain(@Injectable Domain domain) {
 
-        final String domainCode = "domain&7";
+        final String domainCode = "Domain&7";
         List<Domain> domains = new ArrayList<>();
 
         try {
@@ -70,7 +70,7 @@ public class DomainDaoImplTest {
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            assertEquals(ex.getMessage(), "[DOM_001]:Forbidden characters like capital letters or special characters except underscore found in domain name. Invalid domain name:domain&7");
+            assertEquals(ex.getMessage(), "[DOM_001]:Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:Domain&7");
         }
     }
 

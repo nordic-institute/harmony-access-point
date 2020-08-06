@@ -106,7 +106,7 @@ public class DomainDaoImpl implements DomainDao {
         }
         if (!domainCode.matches(DOMAIN_NAME_REGEX)) {
             LOG.error("Domain name [{}] is not valid. It should start with a letter and contain only lower case letters, numbers and underscore.", domainCode);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Forbidden characters like capital letters or special characters except underscore found in domain name. Invalid domain name:" + domainCode);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:" + domainCode);
         } else {
             return true;
         }
