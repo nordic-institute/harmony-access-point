@@ -8,9 +8,12 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -208,6 +211,19 @@ public class DomibusPropertyProviderDispatcherTest {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
         }};
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setPropertyValue_tooLong() {
+        int limit = 100;
+        String propertyToTest = DOMIBUS_UI_TITLE_NAME;
+        String longValue = StringUtils.repeat("A", limit + 1);
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+            result = limit;
+        }};
+
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null,propertyToTest, longValue, false);
     }
 
 }

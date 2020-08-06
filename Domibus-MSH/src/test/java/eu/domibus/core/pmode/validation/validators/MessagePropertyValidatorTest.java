@@ -1,7 +1,7 @@
-package eu.domibus.common.validators;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.Property;

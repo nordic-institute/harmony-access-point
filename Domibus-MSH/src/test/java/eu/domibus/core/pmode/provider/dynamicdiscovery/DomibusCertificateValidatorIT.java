@@ -1,4 +1,4 @@
-package eu.domibus.common.util;
+package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.pki.CertificateService;
 import mockit.*;

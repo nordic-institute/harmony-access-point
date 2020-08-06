@@ -134,6 +134,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, Type.REGEXP, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, Type.HYPHENED_NAME, Usage.DOMAIN, true),
@@ -198,6 +199,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMAIN_TITLE, Usage.DOMAIN, false),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_BLACK_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
 
             new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),

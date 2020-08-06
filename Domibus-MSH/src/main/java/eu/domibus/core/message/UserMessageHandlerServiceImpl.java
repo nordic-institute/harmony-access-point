@@ -22,7 +22,8 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -137,6 +138,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessagingDao messagingDao;
 
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
@@ -165,6 +169,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (messageExists) {
@@ -204,6 +209,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {

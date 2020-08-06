@@ -42,17 +42,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoTpl') public nextAttemptInfoTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoWithDateFormatTpl') public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
-  @ViewChild('list') list: DatatableComponent;
-
-  columnPicker: ColumnPickerBase;
-  public rowLimiter: RowLimiterBase;
-
-  selected: any[];
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('list', {static: false}) list: DatatableComponent;
 
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;

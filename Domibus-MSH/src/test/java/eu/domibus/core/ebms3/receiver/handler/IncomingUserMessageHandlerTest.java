@@ -22,7 +22,7 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
