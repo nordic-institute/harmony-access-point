@@ -70,7 +70,12 @@ public class DynamicDiscoveryPModeProviderIT {
 
         Callable<Party> modifyConfigSynchronized = () -> {
             // Thread should start modifying the list after the getParties from the other thread
-            Thread.sleep(50);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOG.info(Thread.currentThread().getName() + " was interrupted during sleep");
+            }
             LOG.info("Start Thread updateConfigurationParty " + Thread.currentThread().getName());
             Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty(NAME, "type", "enpoint");
             LOG.info("End Thread updateConfigurationParty " + Thread.currentThread().getName());
@@ -115,7 +120,12 @@ public class DynamicDiscoveryPModeProviderIT {
             // but sleep a variable time before doing this
             int sleepTime = RandomUtils.nextInt(10, 51);
             LOG.info("Sleep first=[{}]", sleepTime);
-            Thread.sleep(sleepTime);
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOG.info( "{} was interrupted during sleep", Thread.currentThread().getName());
+            }
             LOG.info("Start Thread updateConfigurationParty " + Thread.currentThread().getName());
             Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty(partyName, partyType, partyUrl);
             LOG.info("End Thread updateConfigurationParty " + Thread.currentThread().getName());
@@ -130,7 +140,11 @@ public class DynamicDiscoveryPModeProviderIT {
         }
 
         //update here
-        List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+        try {
+            List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+        } catch (InterruptedException e) {
+            LOG.info("InterruptedException during invokeAll");
+        }
 
         //read here
         try {
