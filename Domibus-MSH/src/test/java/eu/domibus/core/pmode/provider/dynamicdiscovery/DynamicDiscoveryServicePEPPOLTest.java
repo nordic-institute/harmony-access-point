@@ -1,8 +1,10 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
@@ -48,6 +50,12 @@ public class DynamicDiscoveryServicePEPPOLTest {
     private static final String DOMAIN = "default";
 
     private static final String ADDRESS = "http://localhost:9090/anonymous/msh";
+
+    @Injectable
+    protected DomainContextProvider domainProvider;
+
+    @Injectable
+    private MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;

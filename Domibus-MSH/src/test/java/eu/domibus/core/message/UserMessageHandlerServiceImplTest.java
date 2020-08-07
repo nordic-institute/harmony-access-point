@@ -9,7 +9,8 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -181,6 +182,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     PayloadFileStorageProvider storageProvider;
 
+    @Injectable
+    MessagePropertyValidator messagePropertyValidator;
+
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
@@ -318,6 +322,7 @@ public class UserMessageHandlerServiceImplTest {
 
             Assert.assertEquals("1234" + UserMessageHandlerService.SELF_SENDING_SUFFIX, capturedId);
             userMessageHandlerService.checkCharset(messaging);
+            messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, messaging, messageFragment, anyString);
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
         }};

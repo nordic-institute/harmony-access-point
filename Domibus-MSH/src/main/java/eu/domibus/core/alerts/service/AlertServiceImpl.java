@@ -16,6 +16,7 @@ import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -133,7 +134,7 @@ public class AlertServiceImpl implements AlertService {
         alertEntity.setReportingTime(new Date());
         Map<String, String> mailModel = new HashMap<>();
         final Event next = alertEntity.getEvents().iterator().next();
-        next.getProperties().forEach((key, value) -> mailModel.put(key, value.getValue().toString()));
+        next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, alertEntity.getReportingTime().toString());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
