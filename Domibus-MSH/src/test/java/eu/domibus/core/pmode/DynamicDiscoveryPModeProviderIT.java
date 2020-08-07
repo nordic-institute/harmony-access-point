@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -54,7 +53,6 @@ public class DynamicDiscoveryPModeProviderIT {
      * }
      */
     @Test
-    @Ignore
     //TODO this test is failling when running at package level (at least eu.domibus.core) java.lang.InterruptedException
     public void concurrentAccessReadWrite() throws ExecutionException, InterruptedException {
         Callable<List<Party>> getPartiesAndDoStuff = () -> {
