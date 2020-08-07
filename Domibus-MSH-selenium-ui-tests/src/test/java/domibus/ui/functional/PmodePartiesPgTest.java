@@ -585,6 +585,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Click on Ok button");
 		modal.clickOK();
 		
+		soft.assertTrue(!pmcPage.getAlertArea().isError(), "Success message is shown");
+		soft.assertEquals(pmcPage.getAlertArea().getAlertMessage(),DMessages.PMODE_UPDATE_SUCCESS , "Correct message is shown");
+		
 		log.info("Validate non presence of red_gw");
 		soft.assertFalse(pmcPage.getTextArea().getText().contains("<initiatorParty name=\"red_gw\"/>"));
 		
