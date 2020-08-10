@@ -377,10 +377,10 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		if (columnNames.equals(fragmentMessageHeader) && columnNames.equals(sourceMessageHeader)) {
 			soft.assertTrue(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
-					"Message Fragment  & Source Message header are not shown in csv");
+					"Message Fragment  & Source Message header are shown in csv");
 		} else {
 			soft.assertFalse(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
-					"Message Fragment  & Source Message header are  shown in csv");
+					"Message Fragment  & Source Message header are  not shown in csv");
 		}
 		soft.assertAll();
 	}

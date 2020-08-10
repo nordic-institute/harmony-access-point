@@ -88,7 +88,7 @@ public class AllPgTest extends BaseTest {
             } else if (ppage.equals(PAGES.ALERTS)){
                 soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(),"Search button is not enabled");
             } else {
-                soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown ");
+                soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown");
             }
         }
         soft.assertAll();

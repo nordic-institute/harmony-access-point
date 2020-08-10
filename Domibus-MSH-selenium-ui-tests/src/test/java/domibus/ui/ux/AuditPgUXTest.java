@@ -379,9 +379,6 @@ public class AuditPgUXTest extends BaseUXTest {
         soft.assertTrue(page.grid().getCsvRecords(completeFilePath, soft).size()==page.grid().getAllRowInfo().size(), "row size of grid and downloaded csv are same");
         page.grid().checkCSVvsGridInfo(completeFilePath, soft);
         soft.assertAll();
-
-
-
     }
 
 
