@@ -1,10 +1,7 @@
 package utils;
 
-import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dobjects.DObject;
 import ddsl.enums.DRoles;
-import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,16 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
-import pages.errorLog.ErrFilters;
-import pages.errorLog.ErrorLogPage;
-import pages.jms.JMSFilters;
-import pages.jms.JMSMonitoringPage;
 import pages.login.LoginPage;
-import pages.messages.MessagesPage;
-import pages.plugin_users.PluginUsersFilterArea;
-import pages.plugin_users.PluginUsersPage;
-import pages.pmode.PModePartiesPage;
-import pages.pmode.PartiesFilters;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
 import utils.soap_client.DomibusC1;
@@ -279,7 +267,4 @@ public class BaseTest {
 		}
 		return domain1;
 	}
-
-
-
-	}
+}
