@@ -1,7 +1,9 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
@@ -9,6 +11,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -94,7 +97,6 @@ public class UserMessagePriorityServiceImplTest {
         String rule1 = "rule1";
         String rule2 = "rule2";
         String priorityValueString = "3";
-        Integer priorityValue = Integer.valueOf(priorityValueString);
 
         List<String> priorityRuleNames = Arrays.asList(rule1, rule2);
 
@@ -116,25 +118,19 @@ public class UserMessagePriorityServiceImplTest {
         String priorityValue = "3";
 
         new Expectations(userMessagePriorityService) {{
-            userMessagePriorityService.getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, rule1, "service");
-            result = servicePropertyName;
-
-            domibusPropertyProvider.getProperty(servicePropertyName);
+            userMessagePriorityService.getConfiguredServiceForRule(rule1);
             result = USER_MESSAGE_SERVICE;
 
-            userMessagePriorityService.getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, rule1, "action");
-            result = actionPropertyName;
-
-            domibusPropertyProvider.getProperty(actionPropertyName);
+            userMessagePriorityService.getConfiguredActionForRule(rule1);
             result = USER_MESSAGE_ACTION;
 
             userMessagePriorityService.matchesServiceAndAction(USER_MESSAGE_SERVICE, USER_MESSAGE_ACTION, USER_MESSAGE_SERVICE, USER_MESSAGE_ACTION);
             result = true;
 
-            userMessagePriorityService.getPriorityPropertyName(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY, rule1, "value");
-            result = priorityPropertyName;
+            domainContextProvider.getCurrentDomainSafely();
+            result = DomainService.DEFAULT_DOMAIN;
 
-            domibusPropertyProvider.getProperty(priorityPropertyName);
+            userMessagePriorityService.getConfiguredPriorityForRule(DomainService.DEFAULT_DOMAIN, rule1);
             result = priorityValue;
         }};
 
@@ -223,4 +219,54 @@ public class UserMessagePriorityServiceImplTest {
         String expected = "dispatcher.priority.medium.value";
         assertEquals(expected, userMessagePriorityService.getPriorityPropertyName("dispatcher.priority", "medium", "value"));
     }
+
+
+    @Test
+    public void getConfiguredRulesWithConcurrency(@Injectable Domain domain,
+                                                  @Injectable UserMessagePriorityConfiguration priorityConfiguration) {
+        String rule1 = "rule1";
+        List<String> priorityRuleNames = Arrays.asList(rule1);
+
+        new Expectations(userMessagePriorityService) {{
+            domibusPropertyProvider.getNestedProperties(domain, DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY);
+            result = priorityRuleNames;
+
+            userMessagePriorityService.getPriorityConfiguration(domain, rule1);
+            result = priorityConfiguration;
+
+            priorityConfiguration.getConcurrencyPropertyName();
+            result = "domibus.dispatcher.priority.rule1.concurrency";
+
+            domibusPropertyProvider.getProperty(domain, priorityConfiguration.getConcurrencyPropertyName());
+            result = "1-6";
+        }};
+
+        List<UserMessagePriorityConfiguration> configuredRulesWithConcurrency = userMessagePriorityService.getConfiguredRulesWithConcurrency(domain);
+        Assert.assertEquals(1, configuredRulesWithConcurrency.size());
+        Assert.assertEquals(priorityConfiguration, configuredRulesWithConcurrency.iterator().next());
+    }
+
+    @Test
+    public void getPriorityConfiguration(@Injectable Domain domain) {
+        String priorityRuleName = "rule1";
+        String priority = "3";
+        String concurrency = "dispatcher.rule1";
+
+        new Expectations(userMessagePriorityService) {{
+            userMessagePriorityService.getConfiguredPriorityForRule(domain, priorityRuleName);
+            result = priority;
+
+            userMessagePriorityService.getPriorityAsInteger(priority);
+            result = 3;
+
+            userMessagePriorityService.getConcurrencyPropertyName(priorityRuleName);
+            result = concurrency;
+        }};
+
+        UserMessagePriorityConfiguration priorityConfiguration = userMessagePriorityService.getPriorityConfiguration(domain, priorityRuleName);
+        assertEquals(priorityRuleName, priorityConfiguration.getRuleName());
+        assertEquals(Integer.valueOf(priority), priorityConfiguration.getPriority());
+        assertEquals(concurrency, priorityConfiguration.getConcurrencyPropertyName());
+    }
+
 }

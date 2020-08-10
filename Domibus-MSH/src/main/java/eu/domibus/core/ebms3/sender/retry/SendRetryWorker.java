@@ -4,13 +4,15 @@ package eu.domibus.core.ebms3.sender.retry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * Quartz based worker responsible for the periodical execution of {@link MessageSenderService#sendUserMessage(String, int)}
@@ -37,7 +39,11 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
         }
 
         try {
-            retryService.enqueueMessages();
+            final List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
+
+            for (final String messageId : messagesNotAlreadyQueued) {
+                retryService.enqueueMessage(messageId);
+            }
         } catch (Exception e) {
             LOG.error("Error while enqueueing messages.", e);
         }

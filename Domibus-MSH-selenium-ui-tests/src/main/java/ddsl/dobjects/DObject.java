@@ -101,6 +101,7 @@ public class DObject {
 	 * This Method is used to press Tab key
 	 */
 	public void pressTABKey() throws Exception {
+		log.info("pressing tab key");
 		try {
 			Robot robot = new Robot();
 //			Simulate a key press

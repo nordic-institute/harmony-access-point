@@ -49,6 +49,9 @@ public interface DomibusPropertyProvider {
      */
     List<String> getNestedProperties(String prefix);
 
+
+    List<String> getNestedProperties(Domain domain, String prefix);
+
     /**
      * <p>Reads a property value and parses it safely as an {@code Integer} before returning it.</p><br />
      *

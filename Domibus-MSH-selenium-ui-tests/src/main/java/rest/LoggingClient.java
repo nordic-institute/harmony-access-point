@@ -17,17 +17,11 @@ public class LoggingClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.LOGGING), params);
 		
-		int status = response.getStatus();
-		String content = sanitizeResponse(response.getEntity(String.class));
-		
-		log.debug("status: " + status);
-		log.debug("content: " + content);
-		
-		if (status != 200) {
-			throw new Exception("Did not receive success status " + status);
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Did not receive success status " , response);
 		}
 		
-		return new JSONObject(content);
+		return new JSONObject(response.getEntity(String.class));
 	}
 	
 	public JSONArray getLogLevels(String name, boolean showClasses) throws Exception {
@@ -42,17 +36,12 @@ public class LoggingClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.LOGGING), params);
 		
-		int status = response.getStatus();
-		String content = sanitizeResponse(response.getEntity(String.class));
 		
-		log.debug("status: " + status);
-		log.debug("content: " + content);
-		
-		if (status != 200) {
-			throw new Exception("Did not receive success status " + status);
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Did not receive success status ", response);
 		}
 		
-		return new JSONObject(content).getJSONArray("loggingEntries");
+		return new JSONObject(response.getEntity(String.class)).getJSONArray("loggingEntries");
 	}
 	
 	public JSONArray getLogLevels() throws Exception {
@@ -65,33 +54,21 @@ public class LoggingClient extends BaseRestClient {
 		obj.put("level", level);
 		ClientResponse response = requestPOST(resource.path(RestServicePaths.LOGGING), obj.toString());
 		
-		int status = response.getStatus();
-		String content = sanitizeResponse(response.getEntity(String.class));
-		
-		log.debug("status: " + status);
-		log.debug("content: " + content);
-		
-		if (status != 200) {
-			throw new Exception("Did not receive success status " + status);
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Did not receive success status ", response);
 		}
 		
-		return content;
+		return response.getEntity(String.class);
 	}
 	
 	public String resetLogLevel() throws Exception {
 		ClientResponse response = requestPOST(resource.path(RestServicePaths.LOGGING_RESET), new JSONObject().toString());
-		
-		int status = response.getStatus();
-		String content = sanitizeResponse(response.getEntity(String.class));
-		
-		log.debug("status: " + status);
-		log.debug("content: " + content);
-		
-		if (status != 200) {
-			throw new Exception("Did not receive success status " + status);
+
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Did not receive success status ", response);
 		}
 		
-		return content;
+		return response.getEntity(String.class);
 	}
 	
 	public ClientResponse searchLevels(HashMap<String, String> params, String domain) throws Exception {

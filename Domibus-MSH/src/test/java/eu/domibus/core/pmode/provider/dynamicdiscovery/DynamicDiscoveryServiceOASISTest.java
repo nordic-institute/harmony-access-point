@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -63,6 +64,10 @@ public class DynamicDiscoveryServiceOASISTest {
     private static final String DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
 
     private static final String DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
+
+    @Injectable
+    private CertificateService certificateService;
+
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 

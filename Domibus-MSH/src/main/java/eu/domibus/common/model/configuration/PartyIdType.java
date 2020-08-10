@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_PARTY_ID_TYPE")
+@Table(name = "TB_PM_PARTY_ID_TYPE")
 @NamedQueries(@NamedQuery(name = "PartyIdType.findByValue", query = "select p from PartyIdType p where p.value = :VALUE"))
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName(value = "Party", auditOrder = 2)

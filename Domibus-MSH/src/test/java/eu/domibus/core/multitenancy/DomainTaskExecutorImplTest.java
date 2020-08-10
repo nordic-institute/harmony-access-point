@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT;
+import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT_IN_SECONDS;
 
 /**
  * @author Cosmin Baciu
@@ -39,7 +39,7 @@ public class DomainTaskExecutorImplTest {
 
     @Test
     public void testSubmitRunnable(@Injectable Runnable submitRunnable) {
-        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, false, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, false, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);
@@ -57,7 +57,7 @@ public class DomainTaskExecutorImplTest {
             result = new InterruptedException();
         }};
 
-        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);
@@ -72,7 +72,7 @@ public class DomainTaskExecutorImplTest {
         domainTaskExecutor.submit(task, errorHandler, file);
 
         new Verifications() {{
-            domainTaskExecutor.submitRunnable(taskExecutor, (ClearDomainRunnable) any, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+            domainTaskExecutor.submitRunnable(taskExecutor, (ClearDomainRunnable) any, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         }};
     }
 }

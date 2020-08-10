@@ -27,16 +27,12 @@ public class AlertsRestClient extends BaseRestClient {
 		params.put("pageSize", "10000");
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.ALERTS_LIST), params);
-		int status = response.getStatus();
-		String content = response.getEntity(String.class);
-		log.debug("status " + status);
-//		log.debug("content " + content);
 		
-		if (status != 200) {
-			throw new Exception("Could't get alerts. Got status " + status);
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Could't get alerts. Got status ", response);
 		}
 		
-		JSONObject object = new JSONObject(sanitizeResponse(content));
+		JSONObject object = new JSONObject(sanitizeResponse(response.getEntity(String.class)));
 		
 		return object.getJSONArray("alertsEntries");
 	}

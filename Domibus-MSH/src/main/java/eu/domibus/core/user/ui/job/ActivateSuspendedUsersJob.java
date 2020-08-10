@@ -2,6 +2,7 @@ package eu.domibus.core.user.ui.job;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
@@ -9,6 +10,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 
@@ -24,6 +26,7 @@ public class ActivateSuspendedUsersJob extends DomibusQuartzJobBean {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ActivateSuspendedUsersJob.class);
 
     @Autowired
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userService;
 
     @Override

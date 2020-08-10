@@ -122,7 +122,7 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 	/**
 	 * This method ensures validation message for Confirmation if New password and Confirmation field is different but valid
 	 */
-	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-6", groups = {"multiTenancy", "singleTenancy"})
 	public void differentPasswordsValidData() throws Exception {
 		
 		SoftAssert soft = new SoftAssert();
@@ -132,12 +132,14 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		log.info("Open change password page by clicking its link");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		cpage.waitForPageTitle();
 		
 		log.info("Fill correct data in current password , valid and different data in new password and confirmation field");
 		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.getNewTestPass());
 		
 		log.info("press tab key");
-		cpage.getConfirmationField().pressTABKey();
+//		cpage.getConfirmationField().pressTABKey();
+		cpage.pressTABKey();
 		
 		log.info("Validation message appears");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.confirmationFieldLabel), "Message is displayed");
@@ -150,31 +152,31 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 	@Test(description = "CP-7", groups = {"multiTenancy", "singleTenancy"})
 	public void sameInvalidData() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		logout();
 		
 		String username = Generator.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		
-		login(username, data.defaultPass());
-		
-		DomibusPage page = new DomibusPage(driver);
 		
 		log.info("Open change password page");
-		page.getSandwichMenu().openchangePassword();
-		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		login(username, data.defaultPass()).getSandwichMenu().openchangePassword();
+		ChangePasswordPage page = new ChangePasswordPage(driver);
+		page.waitForPageTitle();
 		
 		log.info("Generate invalid password");
 		String pass = "invalid_pass";
 		
 		log.info("Fill correct data for current password and invalid but same for new password and confirmation field");
-		cpage.setPassFields(data.defaultPass(), pass, pass);
+		page.setPassFields(data.defaultPass(), pass, pass);
 		log.info("press tab ");
-		cpage.getConfirmationField().pressTABKey();
+//		page.getConfirmationField().pressTABKey();
+		page.pressTABKey();
 		
-		soft.assertTrue(!cpage.getUpdateButton().isEnabled(), "Update button is disabled");
+		soft.assertTrue(!page.getUpdateButton().isEnabled(), "Update button is disabled");
 		
 		log.info("Validation message for password policy under New password ");
-		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");
-		soft.assertTrue(cpage.getValidationMsg(cpage.newPasswordFieldLabel).contains(DMessages.PASS_POLICY_MESSAGE), "Password policy is displayed");
+		soft.assertTrue(page.isValidationMsgPresent(page.newPasswordFieldLabel), "Message is displayed");
+		soft.assertTrue(page.getValidationMsg(page.newPasswordFieldLabel).contains(DMessages.PASS_POLICY_MESSAGE), "Password policy is displayed");
 		soft.assertAll();
 	}
 	
@@ -194,7 +196,8 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		cpage.setPassFields(data.defaultPass(), "INVALID_PASS_1", "invalid_pass_2");
 		
 		log.info("press tab key");
-		cpage.getConfirmationField().pressTABKey();
+//		cpage.getConfirmationField().pressTABKey();
+		cpage.pressTABKey();
 		
 		log.info("Validation message for password policy under new password field");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");

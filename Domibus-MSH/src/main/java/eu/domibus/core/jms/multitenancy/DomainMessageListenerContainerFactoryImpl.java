@@ -28,9 +28,9 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     protected ApplicationContext applicationContext;
 
     @Override
-    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain) {
-        LOG.debug("Creating the SendMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(DISPATCH_CONTAINER, domain);
+    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain, String selector, String concurrencyPropertyName) {
+        LOG.debug("Creating the SendMessageListenerContainer for domain [{}] with selector [{}] and concurrency [{}]", domain, selector, concurrencyPropertyName);
+        return (DomainMessageListenerContainer) applicationContext.getBean(DISPATCH_CONTAINER, domain, selector, concurrencyPropertyName);
     }
 
     @Override
