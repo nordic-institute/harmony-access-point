@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.Alert.AlertPage;
 import pages.errorLog.ErrorLogPage;
 import pages.jms.JMSMonitoringPage;
 import pages.messages.MessagesPage;
@@ -73,7 +74,7 @@ public class AllPgTest extends BaseTest {
 
             if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
                     || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
-                    || ppage.equals(PAGES.ALERTS) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
+                    ||  ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
 
                 //skipping these pages as they dont have filter area available to pass forbidden char
                 continue;
@@ -84,6 +85,8 @@ public class AllPgTest extends BaseTest {
             if (ppage.equals(PAGES.PMODE_PARTIES)) {
                 //Skipping Pmode parties page as Validation is handled at backend only
                 soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "No alert message is shown");
+            } else if (ppage.equals(PAGES.ALERTS)){
+                soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(),"Search button is not enabled");
             } else {
                 soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown ");
             }
@@ -103,9 +106,8 @@ public class AllPgTest extends BaseTest {
 
             if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
                     || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
-                    || ppage.equals(PAGES.ALERTS) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
+                    || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
 
-                //skipping these pages as they dont have filter area available
                 continue;
             }
             page.getSidebar().goToPage(ppage);
@@ -126,6 +128,8 @@ public class AllPgTest extends BaseTest {
                 soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()), "Grid has diff data for both domain");
             } else if (PAGES.PLUGIN_USERS.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()), "Grid has diff data for both domain");
+            } else if (PAGES.ALERTS.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new AlertPage(driver).filters().getAlertId().getText()), "Grid has diff data for both domain");
             } else {
                 soft.assertTrue(searchData.equals(null), "something went wrong");
             }
@@ -171,6 +175,12 @@ public class AllPgTest extends BaseTest {
                 pluginUsersPage.filters().search(null, null, inputData, inputData);
                 return pluginUsersPage.filters().getUsernameInput().getText();
 
+            case ALERTS:
+                log.debug("Enter in input fields of Alert page");
+                AlertPage aPage = new AlertPage(driver);
+                aPage.filters().getAdvanceLink().click();
+                aPage.filters().getAlertId().fill(inputData);
+                return aPage.filters().alertIdValidation.getText();
         }
         return null;
     }
