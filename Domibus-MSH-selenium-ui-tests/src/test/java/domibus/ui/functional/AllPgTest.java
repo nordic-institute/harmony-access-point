@@ -12,16 +12,22 @@ import pages.errorLog.ErrorLogPage;
 import pages.jms.JMSMonitoringPage;
 import pages.messages.MessagesPage;
 import pages.plugin_users.PluginUsersPage;
+import pages.pmode.PartiesFilters;
 import pages.pmode.parties.PModePartiesPage;
 import utils.BaseTest;
 import utils.DFileUtils;
+
 import java.io.File;
 
 
+public class AllPgTest extends BaseTest {
 
-public class AllPgTest  extends BaseTest {
-
-    String blackListedString = "'\\u0022(){}[];,+=%&*#<>/\\\\";
+    private static String blackListedString = "'\\u0022(){}[];,+=%&*#<>/\\\\";
+    private static String messageStatus = "ACKNOWLEDGED";
+    private static String apRole = "SENDING";
+    private static String messageType = "USER_MESSAGE";
+    private static String notificationStatus = "NOTIFIED";
+    private static String errCode = "EBMS_0001";
 
     /*Check extension of downloaded file on all pages*/
     @Test(description = "ALLDOM-1", groups = {"multiTenancy", "singleTenancy"})
@@ -104,32 +110,69 @@ public class AllPgTest  extends BaseTest {
             }
             page.getSidebar().goToPage(ppage);
 
-            String searchData=searchSpecificPage(ppage, RandomStringUtils.random(2, true, false));
+            String searchData = searchSpecificPage(ppage, RandomStringUtils.random(2, true, false));
             page.getDomainSelector().selectOptionByIndex(1);
             page.waitForTitle();
 
             if (PAGES.MESSAGES.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new MessagesPage(driver).getFilters().getMessageIDInput().getText()),"Grid has diff data for both domain");
+                soft.assertFalse(searchData.equals(new MessagesPage(driver).getFilters().getMessageIDInput().getText()), "Grid has diff data for both domain");
 
-            }
-            else if(PAGES.ERROR_LOG.equals(ppage)){
-                soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()),"Grid has diff data for both domain");
-            }
-            else if(PAGES.PMODE_PARTIES.equals(ppage)){
-                soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()),"Grid has diff data for both domain");
+            } else if (PAGES.ERROR_LOG.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()), "Grid has diff data for both domain");
+            } else if (PAGES.PMODE_PARTIES.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()), "Grid has diff data for both domain");
 
-            }
-            else if(PAGES.JMS_MONITORING.equals(ppage)){
-                soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()),"Grid has diff data for both domain");
-            }
-            else if(PAGES.PLUGIN_USERS.equals(ppage)){
-                soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()),"Grid has diff data for both domain");
-            }
-            else{
-                soft.assertTrue(searchData.equals(null),"something went wrong");
+            } else if (PAGES.JMS_MONITORING.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()), "Grid has diff data for both domain");
+            } else if (PAGES.PLUGIN_USERS.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()), "Grid has diff data for both domain");
+            } else {
+                soft.assertTrue(searchData.equals(null), "something went wrong");
             }
         }
         soft.assertAll();
-
     }
+
+    // This method will perform search on different pages with specific data i.e forbidden char or random string in all input text field
+    public String searchSpecificPage(PAGES page, String inputData) throws Exception {
+
+        switch (page) {
+            case MESSAGES:
+                log.debug("Enter black listed char in input fields of Message page");
+                MessagesPage mPage = new MessagesPage(driver);
+                mPage.getFilters().advancedFilterBy(inputData, messageStatus, inputData, inputData,
+                        inputData, apRole, messageType, notificationStatus, inputData, inputData, inputData, null, null);
+                return mPage.getFilters().getMessageIDInput().getText();
+
+            case ERROR_LOG:
+                log.debug("Enter black listed char in input fields of Error log page");
+                ErrorLogPage errorLogPage = new ErrorLogPage(driver);
+                errorLogPage.filters().advancedSearch(inputData, inputData, null, null, inputData,
+                        apRole, errCode, null, null);
+                return errorLogPage.filters().getSignalMessIDInput().getText();
+
+            case PMODE_PARTIES:
+                log.debug("Enter in input fields of Pmode parties page");
+                pages.pmode.PModePartiesPage pModePartiesPage = new pages.pmode.PModePartiesPage(driver);
+                pModePartiesPage.filters().filter(inputData, inputData, inputData, inputData, PartiesFilters.PROCESS_ROLE.IR);
+                return pModePartiesPage.filters().getPartyIDInput().getText();
+
+            case JMS_MONITORING:
+                log.debug("Enter in input fields of JMS Monitoring page");
+                JMSMonitoringPage jmsMonitoringPage = new JMSMonitoringPage(driver);
+                jmsMonitoringPage.filters().getJmsSelectorInput().fill(inputData);
+                jmsMonitoringPage.filters().getJmsTypeInput().fill(inputData);
+                jmsMonitoringPage.filters().getJmsSearchButton().click();
+                return jmsMonitoringPage.filters().getJmsTypeInput().getText();
+
+            case PLUGIN_USERS:
+                log.debug("Enter in input fields of Plugin user page");
+                PluginUsersPage pluginUsersPage = new PluginUsersPage(driver);
+                pluginUsersPage.filters().search(null, null, inputData, inputData);
+                return pluginUsersPage.filters().getUsernameInput().getText();
+
+        }
+        return null;
+    }
+
 }

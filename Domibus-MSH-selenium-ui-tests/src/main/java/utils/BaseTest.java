@@ -280,47 +280,6 @@ public class BaseTest {
 		return domain1;
 	}
 
-	// This method will perform search on different pages with specific data
-	public String searchSpecificPage(PAGES page, String inputData) throws Exception {
-
-		switch (page) {
-			case MESSAGES:
-				log.debug("Enter black listed char in input fields of Message page");
-				MessagesPage mPage = new MessagesPage(driver);
-				mPage.getFilters().advancedFilterBy(inputData, "ACKNOWLEDGED", inputData, inputData,
-						inputData, "SENDING", "USER_MESSAGE", "NOTIFIED", inputData, inputData, inputData, null, null);
-				return mPage.getFilters().getMessageIDInput().getText();
-
-			case ERROR_LOG:
-				log.debug("Enter black listed char in input fields of Error log page");
-				ErrorLogPage errorLogPage = new ErrorLogPage(driver);
-				errorLogPage.filters().advancedSearch(inputData, inputData, null, null, inputData,
-						"SENDING", "EBMS_0001", null, null);
-				return errorLogPage.filters().getSignalMessIDInput().getText();
-
-			case PMODE_PARTIES:
-				log.debug("Enter in input fields of Pmode parties page");
-				PModePartiesPage pModePartiesPage = new PModePartiesPage(driver);
-				pModePartiesPage.filters().filter(inputData, inputData, inputData, inputData, PartiesFilters.PROCESS_ROLE.IR);
-				return pModePartiesPage.filters().getPartyIDInput().getText();
-
-			case JMS_MONITORING:
-				log.debug("Enter in input fields of JMS Monitoring page");
-				JMSMonitoringPage jmsMonitoringPage = new JMSMonitoringPage(driver);
-				jmsMonitoringPage.filters().getJmsSelectorInput().fill(inputData);
-				jmsMonitoringPage.filters().getJmsTypeInput().fill(inputData);
-				jmsMonitoringPage.filters().getJmsSearchButton().click();
-				return jmsMonitoringPage.filters().getJmsTypeInput().getText();
-
-			case PLUGIN_USERS:
-				log.debug("Enter in input fields of Plugin user page");
-				PluginUsersPage pluginUsersPage =new PluginUsersPage(driver);
-				pluginUsersPage.filters().search(null, null, inputData, inputData);
-				return pluginUsersPage.filters().getUsernameInput().getText();
-
-		}
-			return null;
-	}
 
 
 	}

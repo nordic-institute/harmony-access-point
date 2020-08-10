@@ -35,6 +35,8 @@ import java.util.List;
 public class MessagesPgUXTest extends BaseUXTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
+	private static String sourceMessageHeader = "Source Message";
+	private static String fragmentMessageHeader = "Message Fragment";
 
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
@@ -325,7 +327,7 @@ public class MessagesPgUXTest extends BaseUXTest {
 
 		soft.assertAll();
 	}
-/* This method will verify non presence of two headers Message Fragments and Source Message in csv */
+/* This method will verify non presence of two headers Message Fragments and Source Message in csv if not available as grid column */
 	@Test(description = "MSG-26", groups = {"multiTenancy", "singleTenancy"})
 	public void verifySpecificHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -373,11 +375,11 @@ public class MessagesPgUXTest extends BaseUXTest {
 		List<String> csvFileHeaders = new ArrayList<>();
 		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
 
-		if (columnNames.equals("Message Fragment") && columnNames.equals("Source Message")) {
-			soft.assertTrue(csvFileHeaders.equals("Message Fragment") && csvFileHeaders.equals("Source Message"),
+		if (columnNames.equals(fragmentMessageHeader) && columnNames.equals(sourceMessageHeader)) {
+			soft.assertTrue(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
 					"Message Fragment  & Source Message header are not shown in csv");
 		} else {
-			soft.assertFalse(csvFileHeaders.equals("Message Fragment") && csvFileHeaders.equals("Source Message"),
+			soft.assertFalse(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
 					"Message Fragment  & Source Message header are  shown in csv");
 		}
 		soft.assertAll();
