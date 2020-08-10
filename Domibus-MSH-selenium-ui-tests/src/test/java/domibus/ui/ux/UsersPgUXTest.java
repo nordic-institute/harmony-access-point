@@ -1,9 +1,14 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FileUtils;
 import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +18,16 @@ import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
+import utils.DFileUtils;
 import utils.TestUtils;
 
+import java.io.File;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -381,9 +392,49 @@ public class UsersPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
+	/* USR-38 - Verify domain column presence  and its data validity in downloaded csv */
+	@Test(description = "USR-18", groups = {"multiTenancy"})
+	public void domainColPresence() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String domain = rest.getDomainNames().get(1);
+		log.info("checking download for domain " + domain);
 
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
 
+		log.info("Customized location for download");
+		String filePath = DFileUtils.downloadFolderPath();
 
+		log.info("Clean given directory");
+		FileUtils.cleanDirectory(new File(filePath));
 
+		log.info("Click on download csv button");
+		page.grid().waitForRowsToLoad();
+		page.clickDownloadCsvButton(page.getDownloadCsvButton().element);
+
+		log.info("Wait for download to complete");
+		DWait wait = new DWait(driver);
+		wait.forXMillis(1000);
+		log.info("Check if file is downloaded at given location");
+		soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
+		String completeFilePath = filePath + File.separator + DFileUtils.getCompleteFileName(filePath);
+
+		soft.assertTrue(page.grid().getCsvHeaders(completeFilePath, soft).contains("Domain"), "CSV contains Domain header");
+
+		List<CSVRecord> records = page.grid().getCsvRecords(completeFilePath, soft);
+
+		for (CSVRecord csvRecord : records) {
+			for (Map.Entry<String, String> column : csvRecord.toMap().entrySet()) {
+				if (!column.getKey().equals("Domain")) {
+					continue;
+				} else {
+					soft.assertTrue(column.getValue().equalsIgnoreCase(rest.getDomainNames().get(0)) ||
+							column.getValue().equalsIgnoreCase(rest.getDomainNames().get(1)), "Domain value is either of domains available");
+				}
+			}
+
+		}
+		soft.assertAll();
+	}
 
 }

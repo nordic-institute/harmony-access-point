@@ -1,6 +1,8 @@
 package utils;
 
+import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dobjects.DObject;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.apache.commons.lang3.StringUtils;
@@ -11,10 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import pages.errorLog.ErrFilters;
+import pages.errorLog.ErrorLogPage;
 import pages.jms.JMSFilters;
+import pages.jms.JMSMonitoringPage;
 import pages.login.LoginPage;
 import pages.messages.MessagesPage;
 import pages.plugin_users.PluginUsersFilterArea;
+import pages.plugin_users.PluginUsersPage;
+import pages.pmode.PModePartiesPage;
 import pages.pmode.PartiesFilters;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
@@ -274,46 +280,46 @@ public class BaseTest {
 		return domain1;
 	}
 
-	// This method will fill default black listed char in all input fields of different pages
-	public  void fillBlackListedChar(PAGES page,String inputString) throws Exception {
+	// This method will perform search on different pages with specific data
+	public String searchSpecificPage(PAGES page, String inputData) throws Exception {
 
 		switch (page) {
 			case MESSAGES:
 				log.debug("Enter black listed char in input fields of Message page");
 				MessagesPage mPage = new MessagesPage(driver);
-				mPage.getFilters().advancedFilterBy(inputString, "ACKNOWLEDGED", inputString, inputString,
-						inputString, "SENDING", "USER_MESSAGE", "NOTIFIED", inputString, inputString, inputString, null, null);
-				break;
+				mPage.getFilters().advancedFilterBy(inputData, "ACKNOWLEDGED", inputData, inputData,
+						inputData, "SENDING", "USER_MESSAGE", "NOTIFIED", inputData, inputData, inputData, null, null);
+				return mPage.getFilters().getMessageIDInput().getText();
 
 			case ERROR_LOG:
 				log.debug("Enter black listed char in input fields of Error log page");
-				ErrFilters eFilter = new ErrFilters(driver);
-				eFilter.advancedSearch(inputString, inputString, null, null, inputString,
+				ErrorLogPage errorLogPage = new ErrorLogPage(driver);
+				errorLogPage.filters().advancedSearch(inputData, inputData, null, null, inputData,
 						"SENDING", "EBMS_0001", null, null);
-				break;
+				return errorLogPage.filters().getSignalMessIDInput().getText();
 
 			case PMODE_PARTIES:
-				log.debug("Enter black listed char in input fields of Pmode parties page");
-				PartiesFilters pPage = new PartiesFilters(driver);
-				pPage.filter(inputString, inputString, inputString, inputString, PartiesFilters.PROCESS_ROLE.IR);
-				break;
+				log.debug("Enter in input fields of Pmode parties page");
+				PModePartiesPage pModePartiesPage = new PModePartiesPage(driver);
+				pModePartiesPage.filters().filter(inputData, inputData, inputData, inputData, PartiesFilters.PROCESS_ROLE.IR);
+				return pModePartiesPage.filters().getPartyIDInput().getText();
 
 			case JMS_MONITORING:
-				log.debug("Enter black listed char in input fields of JMS Monitoring page");
-				JMSFilters jPage = new JMSFilters(driver);
-				jPage.getJmsSelectorInput().fill(inputString);
-				jPage.getJmsTypeInput().fill(inputString);
-				jPage.getJmsSearchButton().click();
-				break;
+				log.debug("Enter in input fields of JMS Monitoring page");
+				JMSMonitoringPage jmsMonitoringPage = new JMSMonitoringPage(driver);
+				jmsMonitoringPage.filters().getJmsSelectorInput().fill(inputData);
+				jmsMonitoringPage.filters().getJmsTypeInput().fill(inputData);
+				jmsMonitoringPage.filters().getJmsSearchButton().click();
+				return jmsMonitoringPage.filters().getJmsTypeInput().getText();
 
 			case PLUGIN_USERS:
-				log.debug("Enter black listed char in input fields of Plugin user page");
-				PluginUsersFilterArea puPage = new PluginUsersFilterArea(driver);
-				puPage.search(null, null, inputString, inputString);
-				break;
+				log.debug("Enter in input fields of Plugin user page");
+				PluginUsersPage pluginUsersPage =new PluginUsersPage(driver);
+				pluginUsersPage.filters().search(null, null, inputData, inputData);
+				return pluginUsersPage.filters().getUsernameInput().getText();
 
 		}
-
+			return null;
 	}
 
 

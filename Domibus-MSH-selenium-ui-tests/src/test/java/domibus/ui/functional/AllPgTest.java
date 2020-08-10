@@ -5,12 +5,18 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DObject;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.errorLog.ErrorLogPage;
+import pages.jms.JMSMonitoringPage;
 import pages.messages.MessagesPage;
+import pages.plugin_users.PluginUsersPage;
+import pages.pmode.parties.PModePartiesPage;
 import utils.BaseTest;
 import utils.DFileUtils;
 import java.io.File;
+
 
 
 public class AllPgTest  extends BaseTest {
@@ -60,35 +66,70 @@ public class AllPgTest  extends BaseTest {
         for (PAGES ppage : PAGES.values()) {
 
             if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
-            || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS)|| ppage.equals(PAGES.AUDIT)
-                    || ppage.equals(PAGES.ALERTS)|| ppage.equals(PAGES.TEST_SERVICE)|| ppage.equals(PAGES.LOGGING)) {
+                    || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
+                    || ppage.equals(PAGES.ALERTS) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
 
                 //skipping these pages as they dont have filter area available
                 continue;
             }
             page.getSidebar().goToPage(ppage);
-            fillBlackListedChar(ppage, blackListedString);
+            searchSpecificPage(ppage, blackListedString);
 
             if (ppage.equals(PAGES.PMODE_PARTIES)) {
                 //Skipping Pmode parties page as Validation is handled at backend only
-                soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(),"No alert message is shown");
+                soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "No alert message is shown");
             } else {
-                soft.assertTrue(page.getAlertArea().isError(),"Error for forbidden char is shown ");
+                soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown ");
             }
         }
         soft.assertAll();
     }
 
-    /* Check presence of confirmation pop up on  all pages on page navigation/new search operation when unsaved data exists */
-    @Test(description = "ALLDOM-2", groups = {"multiTenancy", "singleTenancy"})
-    public void verifyConfPopUp() throws Exception {
+    /* Verify that changing the selected domain resets all selected search filters and results */
+    @Test(description = "ALLDOM-3", groups = {"multiTenancy"})
+    public void verifyresetSearch() throws Exception {
         SoftAssert soft = new SoftAssert();
         DomibusPage page = new DomibusPage(driver);
         login(data.getAdminUser());
-        page.getSidebar().goToPage(PAGES.MESSAGES);
 
+        for (PAGES ppage : PAGES.values()) {
+            page.getDomainSelector().selectOptionByIndex(0);
 
+            if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
+                    || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
+                    || ppage.equals(PAGES.ALERTS) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
+
+                //skipping these pages as they dont have filter area available
+                continue;
+            }
+            page.getSidebar().goToPage(ppage);
+
+            String searchData=searchSpecificPage(ppage, RandomStringUtils.random(2, true, false));
+            page.getDomainSelector().selectOptionByIndex(1);
+            page.waitForTitle();
+
+            if (PAGES.MESSAGES.equals(ppage)) {
+                soft.assertFalse(searchData.equals(new MessagesPage(driver).getFilters().getMessageIDInput().getText()),"Grid has diff data for both domain");
+
+            }
+            else if(PAGES.ERROR_LOG.equals(ppage)){
+                soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()),"Grid has diff data for both domain");
+            }
+            else if(PAGES.PMODE_PARTIES.equals(ppage)){
+                soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()),"Grid has diff data for both domain");
+
+            }
+            else if(PAGES.JMS_MONITORING.equals(ppage)){
+                soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()),"Grid has diff data for both domain");
+            }
+            else if(PAGES.PLUGIN_USERS.equals(ppage)){
+                soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()),"Grid has diff data for both domain");
+            }
+            else{
+                soft.assertTrue(searchData.equals(null),"something went wrong");
+            }
+        }
+        soft.assertAll();
 
     }
-
 }

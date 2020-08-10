@@ -582,5 +582,29 @@ public class DGrid extends DComponent {
         soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
 
     }
+    //This method will return all headers present in csv
+    public List<String> getCsvHeaders(String filename, SoftAssert soft) throws Exception{
+        Reader reader = Files.newBufferedReader(Paths.get(filename));
+
+        CSVParser csvParser = new CSVParser(reader,
+                CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+                        .withTrim());
+        List<String> csvFileHeaders = new ArrayList<>();
+
+        csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+            return csvFileHeaders;
+        }
+
+    //This method will return records available in provided csv file
+    public List<CSVRecord> getCsvRecords(String filename, SoftAssert soft) throws Exception {
+
+        Reader reader = Files.newBufferedReader(Paths.get(filename));
+        CSVParser csvParser = new CSVParser(reader,
+                CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+                        .withTrim());
+
+        return csvParser.getRecords();
+
+    }
 
 }
