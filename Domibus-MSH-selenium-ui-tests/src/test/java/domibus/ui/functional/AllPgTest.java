@@ -83,11 +83,13 @@ public class AllPgTest extends BaseTest {
             searchSpecificPage(ppage, blackListedString);
 
             if (ppage.equals(PAGES.PMODE_PARTIES)) {
-                //Skipping Pmode parties page as Validation is handled at backend only
+                log.debug("No gui validation is present for Pmode parties page");
                 soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "No alert message is shown");
             } else if (ppage.equals(PAGES.ALERTS)){
+                log.debug("Search button is disabled in case of invalid data present in alert id");
                 soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(),"Search button is not enabled");
             } else {
+                log.debug("Error alert message is shown in case of forbidden char");
                 soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown");
             }
         }
@@ -121,15 +123,19 @@ public class AllPgTest extends BaseTest {
 
             } else if (PAGES.ERROR_LOG.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()), "Grid has diff data for both domain");
+
             } else if (PAGES.PMODE_PARTIES.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()), "Grid has diff data for both domain");
 
             } else if (PAGES.JMS_MONITORING.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()), "Grid has diff data for both domain");
+
             } else if (PAGES.PLUGIN_USERS.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()), "Grid has diff data for both domain");
+
             } else if (PAGES.ALERTS.equals(ppage)) {
                 soft.assertFalse(searchData.equals(new AlertPage(driver).filters().getAlertId().getText()), "Grid has diff data for both domain");
+
             } else {
                 soft.assertTrue(searchData.equals(null), "something went wrong");
             }
@@ -142,27 +148,27 @@ public class AllPgTest extends BaseTest {
 
         switch (page) {
             case MESSAGES:
-                log.debug("Enter black listed char in input fields of Message page");
+                log.debug("Enter user defined data in input fields of Message page");
                 MessagesPage mPage = new MessagesPage(driver);
                 mPage.getFilters().advancedFilterBy(inputData, messageStatus, inputData, inputData,
                         inputData, apRole, messageType, notificationStatus, inputData, inputData, inputData, null, null);
                 return mPage.getFilters().getMessageIDInput().getText();
 
             case ERROR_LOG:
-                log.debug("Enter black listed char in input fields of Error log page");
+                log.debug("Enter user defined data in input fields of Error log page");
                 ErrorLogPage errorLogPage = new ErrorLogPage(driver);
                 errorLogPage.filters().advancedSearch(inputData, inputData, null, null, inputData,
                         apRole, errCode, null, null);
                 return errorLogPage.filters().getSignalMessIDInput().getText();
 
             case PMODE_PARTIES:
-                log.debug("Enter in input fields of Pmode parties page");
+                log.debug("Enter user defined data in input fields of Pmode parties page");
                 pages.pmode.PModePartiesPage pModePartiesPage = new pages.pmode.PModePartiesPage(driver);
                 pModePartiesPage.filters().filter(inputData, inputData, inputData, inputData, PartiesFilters.PROCESS_ROLE.IR);
                 return pModePartiesPage.filters().getPartyIDInput().getText();
 
             case JMS_MONITORING:
-                log.debug("Enter in input fields of JMS Monitoring page");
+                log.debug("Enter user defined data in input fields of JMS Monitoring page");
                 JMSMonitoringPage jmsMonitoringPage = new JMSMonitoringPage(driver);
                 jmsMonitoringPage.filters().getJmsSelectorInput().fill(inputData);
                 jmsMonitoringPage.filters().getJmsTypeInput().fill(inputData);
@@ -170,13 +176,13 @@ public class AllPgTest extends BaseTest {
                 return jmsMonitoringPage.filters().getJmsTypeInput().getText();
 
             case PLUGIN_USERS:
-                log.debug("Enter in input fields of Plugin user page");
+                log.debug("Enter user defined data in fields of Plugin user page");
                 PluginUsersPage pluginUsersPage = new PluginUsersPage(driver);
                 pluginUsersPage.filters().search(null, null, inputData, inputData);
                 return pluginUsersPage.filters().getUsernameInput().getText();
 
             case ALERTS:
-                log.debug("Enter in input fields of Alert page");
+                log.debug("Enter user defined data in input fields of Alert page");
                 AlertPage aPage = new AlertPage(driver);
                 aPage.filters().getAdvanceLink().click();
                 aPage.filters().getAlertId().fill(inputData);
