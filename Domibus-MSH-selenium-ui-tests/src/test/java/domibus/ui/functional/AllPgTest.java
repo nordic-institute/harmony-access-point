@@ -75,7 +75,7 @@ public class AllPgTest extends BaseTest {
                     || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
                     || ppage.equals(PAGES.ALERTS) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
 
-                //skipping these pages as they dont have filter area available
+                //skipping these pages as they dont have filter area available to pass forbidden char
                 continue;
             }
             page.getSidebar().goToPage(ppage);
