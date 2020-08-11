@@ -353,7 +353,9 @@ public class AuditPgUXTest extends BaseUXTest {
         soft.assertAll();
     }
 
-    /* This method will verify data for action column in downloaded csv and grid on admin console */
+    /**
+     * This method will verify data for action column in downloaded csv and grid on admin console
+     * */
     @Test(description = "AU-41", groups = {"multiTenancy", "singleTenancy"})
     public void verifyActionData() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -376,7 +378,7 @@ public class AuditPgUXTest extends BaseUXTest {
         log.info("Check if file is downloaded at given location");
         soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
         String completeFilePath = filePath + File.separator + DFileUtils.getCompleteFileName(filePath);
-        soft.assertTrue(page.grid().getCsvRecords(completeFilePath, soft).size()==page.grid().getAllRowInfo().size(), "row size of grid and downloaded csv are same");
+        soft.assertTrue(page.grid().getCsvRecords(completeFilePath).size()==page.grid().getAllRowInfo().size(), "row size of grid and downloaded csv are same");
         page.grid().checkCSVvsGridInfo(completeFilePath, soft);
         soft.assertAll();
     }

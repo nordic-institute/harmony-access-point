@@ -523,8 +523,10 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 	}
 
-	/* This method will verify presence of confirmation pop up on clicking save button for Basic and Certificate
-	authentication type plugin user*/
+	/**
+	 * This method will verify presence of confirmation pop up on clicking save button for Basic and Certificate
+	 * authentication type plugin user
+	 */
 	@Test(description = "PU-35", groups = {"multiTenancy", "singleTenancy"})
 	public void verifyConfPopUp() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -566,7 +568,10 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 	}
 
-	// This method will verify addition of Plugin user with username "SUPER" and error for user with "super" as username
+	/**
+	 * PU-34 - This method will verify addition of Plugin user with username "SUPER" and error for user with "super"
+	 * as username
+	 */
 	@Test(description = "PU-34", groups = {"multiTenancy"})
 	public void addSUPERPluginUsr() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -596,6 +601,5 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 			page.grid().waitForRowsToLoad();
 			soft.assertAll();
 		}
-
 	}
 }

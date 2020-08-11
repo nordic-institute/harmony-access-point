@@ -19,7 +19,13 @@ import utils.BaseTest;
 import utils.DFileUtils;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
+/**
+ * @author Rupam
+ * @version 4.1.5
+ */
 
 public class AllPgTest extends BaseTest {
 
@@ -30,7 +36,9 @@ public class AllPgTest extends BaseTest {
     private static String notificationStatus = "NOTIFIED";
     private static String errCode = "EBMS_0001";
 
-    /*Check extension of downloaded file on all pages*/
+    /**
+     * This Test method will verify extension of downloaded csv from all pages of Admin Console
+     */
     @Test(description = "ALLDOM-1", groups = {"multiTenancy", "singleTenancy"})
     public void checkFileExtension() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -39,8 +47,9 @@ public class AllPgTest extends BaseTest {
 
         for (PAGES ppage : PAGES.values()) {
 
-            if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
-                //skipping these pages as they dont have download csv feature available
+            List<PAGES> pages = Arrays.asList(PAGES.PMODE_CURRENT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+            if (pages.contains(ppage)) {
+                log.debug("Pages not having download csv feature are skipped");
                 continue;
             }
 
@@ -63,7 +72,9 @@ public class AllPgTest extends BaseTest {
         }
     }
 
-    /*Check non acceptance of forbidden characters in input filters of all pages*/
+    /**
+     * This Test method will check error in case of presence of forbidden characters in all input fields for all pages
+     */
     @Test(description = "ALLDOM-5", groups = {"multiTenancy", "singleTenancy"})
     public void checkFilterIpData() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -71,12 +82,10 @@ public class AllPgTest extends BaseTest {
         login(data.getAdminUser());
 
         for (PAGES ppage : PAGES.values()) {
-
-            if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
-                    || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
-                    ||  ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
-
-                //skipping these pages as they dont have filter area available to pass forbidden char
+            List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
+                    , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+            if (pages.contains(ppage)) {
+                log.debug("Pages not having input field to enter forbidden char are skipped");
                 continue;
             }
             page.getSidebar().goToPage(ppage);
@@ -85,9 +94,9 @@ public class AllPgTest extends BaseTest {
             if (ppage.equals(PAGES.PMODE_PARTIES)) {
                 log.debug("No gui validation is present for Pmode parties page");
                 soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "No alert message is shown");
-            } else if (ppage.equals(PAGES.ALERTS)){
+            } else if (ppage.equals(PAGES.ALERTS)) {
                 log.debug("Search button is disabled in case of invalid data present in alert id");
-                soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(),"Search button is not enabled");
+                soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(), "Search button is not enabled");
             } else {
                 log.debug("Error alert message is shown in case of forbidden char");
                 soft.assertTrue(page.getAlertArea().isError(), "Error for forbidden char is shown");
@@ -96,7 +105,9 @@ public class AllPgTest extends BaseTest {
         soft.assertAll();
     }
 
-    /* Verify that changing the selected domain resets all selected search filters and results */
+    /**
+     * This method will verify changing the selected domain resets all selected search filters and results
+     */
     @Test(description = "ALLDOM-3", groups = {"multiTenancy"})
     public void verifyresetSearch() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -105,11 +116,13 @@ public class AllPgTest extends BaseTest {
 
         for (PAGES ppage : PAGES.values()) {
             page.getDomainSelector().selectOptionByIndex(0);
+            System.out.println(ppage);
 
-            if (ppage.equals(PAGES.MESSAGE_FILTER) || ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.PMODE_ARCHIVE)
-                    || ppage.equals(PAGES.TRUSTSTORE) || ppage.equals(PAGES.USERS) || ppage.equals(PAGES.AUDIT)
-                    || ppage.equals(PAGES.TEST_SERVICE) || ppage.equals(PAGES.LOGGING)) {
+            List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
+                    , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
 
+            if (pages.contains(ppage)) {
+                log.debug("Pages not having search filters are skipped");
                 continue;
             }
             page.getSidebar().goToPage(ppage);
@@ -117,33 +130,39 @@ public class AllPgTest extends BaseTest {
             String searchData = searchSpecificPage(ppage, RandomStringUtils.random(2, true, false));
             page.getDomainSelector().selectOptionByIndex(1);
             page.waitForTitle();
-
-            if (PAGES.MESSAGES.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new MessagesPage(driver).getFilters().getMessageIDInput().getText()), "Grid has diff data for both domain");
-
-            } else if (PAGES.ERROR_LOG.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()), "Grid has diff data for both domain");
-
-            } else if (PAGES.PMODE_PARTIES.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()), "Grid has diff data for both domain");
-
-            } else if (PAGES.JMS_MONITORING.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()), "Grid has diff data for both domain");
-
-            } else if (PAGES.PLUGIN_USERS.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()), "Grid has diff data for both domain");
-
-            } else if (PAGES.ALERTS.equals(ppage)) {
-                soft.assertFalse(searchData.equals(new AlertPage(driver).filters().getAlertId().getText()), "Grid has diff data for both domain");
-
-            } else {
-                soft.assertTrue(searchData.equals(null), "something went wrong");
+            switch (ppage) {
+                case MESSAGES:
+                    soft.assertFalse(searchData.equals(new MessagesPage(driver).getFilters().getMessageIDInput().getText()), "Grid has diff data for both domain");
+                    break;
+                case ERROR_LOG:
+                    soft.assertFalse(searchData.equals(new ErrorLogPage(driver).filters().getSignalMessIDInput().getText()), "Grid has diff data for both domain");
+                    break;
+                case PMODE_PARTIES:
+                    soft.assertFalse(searchData.equals(new PModePartiesPage(driver).filters().getPartyIDInput().getText()), "Grid has diff data for both domain");
+                    break;
+                case JMS_MONITORING:
+                    soft.assertFalse(searchData.equals(new JMSMonitoringPage(driver).filters().getJmsTypeInput().getText()), "Grid has diff data for both domain");
+                    break;
+                case PLUGIN_USERS:
+                    soft.assertFalse(searchData.equals(new PluginUsersPage(driver).filters().getUsernameInput().getText()), "Grid has diff data for both domain");
+                    break;
+                case ALERTS:
+                    soft.assertFalse(searchData.equals(new AlertPage(driver).filters().getAlertId().getText()), "Grid has diff data for both domain");
+                    break;
+                default:
+                    soft.assertTrue(searchData.equals(null), "something went wrong");
             }
         }
         soft.assertAll();
     }
 
-    // This method will perform search on different pages with specific data i.e forbidden char or random string in all input text field
+    /**
+     * This method will perform search on different pages with specific data i.e forbidden char or random string in all input text field
+     *
+     * @param page      : Page on which search is performed
+     * @param inputData : String to be passed as input data in filter
+     * @return : Specific filter data for given page
+     */
     public String searchSpecificPage(PAGES page, String inputData) throws Exception {
 
         switch (page) {

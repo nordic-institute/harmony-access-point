@@ -5,8 +5,6 @@ import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import utils.BaseUXTest;
@@ -22,9 +20,6 @@ import utils.DFileUtils;
 import utils.TestUtils;
 
 import java.io.File;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -392,7 +387,9 @@ public class UsersPgUXTest extends BaseUXTest {
 		soft.assertAll();
 	}
 
-	/* USR-38 - Verify domain column presence  and its data validity in downloaded csv */
+	/**
+	* USR-38 - This test method will verify domain column presence  and its data validity in downloaded csv
+	*/
 	@Test(description = "USR-18", groups = {"multiTenancy"})
 	public void domainColPresence() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -419,9 +416,9 @@ public class UsersPgUXTest extends BaseUXTest {
 		soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
 		String completeFilePath = filePath + File.separator + DFileUtils.getCompleteFileName(filePath);
 
-		soft.assertTrue(page.grid().getCsvHeaders(completeFilePath, soft).contains("Domain"), "CSV contains Domain header");
+		soft.assertTrue(page.grid().getCsvHeaders(completeFilePath).contains("Domain"), "CSV contains Domain header");
 
-		List<CSVRecord> records = page.grid().getCsvRecords(completeFilePath, soft);
+		List<CSVRecord> records = page.grid().getCsvRecords(completeFilePath);
 
 		for (CSVRecord csvRecord : records) {
 			for (Map.Entry<String, String> column : csvRecord.toMap().entrySet()) {
