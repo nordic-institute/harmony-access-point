@@ -1,6 +1,8 @@
 package eu.europa.esig.dss.tsl.service;
 
 import eu.domibus.core.crypto.spi.dss.DomibusTSLValidator;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.FileDocument;
@@ -10,8 +12,6 @@ import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.*;
 import eu.europa.esig.dss.utils.Utils;
 import eu.europa.esig.dss.validation.CertificateVerifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.internal.Function;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  * Extracted class from DSS adapted for Domibus.
  */
 public class DomibusTSLValidationJob {
-    private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidationJob.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTSLValidationJob.class);
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
