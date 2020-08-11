@@ -120,7 +120,9 @@ public class PluginUserModal extends EditModal {
 		return new DObject(driver, roleErrMess);
 	}
 
-	//This method will fill data for plugin user with authentication type as Certificate
+	/**
+	 * 	This method will fill data for plugin user with authentication type as Certificate
+	 */
 	public void fillData(String user, String role) throws Exception {
 		getUserNameInput().fill(user);
 		getRolesSelect().selectOptionByText(role);
