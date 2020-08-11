@@ -585,8 +585,9 @@ public class DGrid extends DComponent {
 
     /**
      * This method will return all headers present in csv
-     * @param filename : Csv file name to identify header
-     * @return : It will return all headers in list
+     *
+     * @param filename Csv file name to identify header
+     * @return It will return all headers in list
      */
     public List<String> getCsvHeaders(String filename) throws Exception {
         Reader reader = Files.newBufferedReader(Paths.get(filename));
@@ -602,8 +603,9 @@ public class DGrid extends DComponent {
 
     /**
      * This method will return records available in provided csv file
-     * @param filename : Csv file name to extract records
-     * @return : It will return available records for all rows
+     *
+     * @param filename Csv file name to extract records
+     * @return It will return available records for all rows
      */
     public List<CSVRecord> getCsvRecords(String filename) throws Exception {
 

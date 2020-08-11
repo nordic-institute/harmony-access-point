@@ -159,9 +159,10 @@ public class AllPgTest extends BaseTest {
 
     /**
      * This method will perform search on different pages with specific data i.e forbidden char or random string in all input text field
-     * @param page      : Page on which search is performed
-     * @param inputData : String to be passed as input data in filter
-     * @return : Specific filter data for given page
+     *
+     * @param page      Page on which search is performed
+     * @param inputData String to be passed as input data in filter
+     * @return Specific filter data for given page
      */
     public String searchSpecificPage(PAGES page, String inputData) throws Exception {
 
