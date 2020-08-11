@@ -1,19 +1,20 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlConstraint;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.PKIXReason;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 @Component
 public class ValidationReport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ValidationReport.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValidationReport.class);
 
     public static final String INVALID_CONSTRAINT_NAME = "INVALID_CONSTRAINT_NAME";
 
@@ -93,7 +94,7 @@ public class ValidationReport {
                     filter(xmlConstraint -> constraintInternal.getName().equals(xmlConstraint.getName().getNameId())).count();
             if (count == 0) {
                 LOG.error("Configured constraint:[{}] was not found in the report, therefore the validation is impossible", constraintInternal.getName());
-                return Lists.newArrayList(INVALID_CONSTRAINT_NAME);
+                return Arrays.asList(INVALID_CONSTRAINT_NAME);
             }
             List<String> constraintsWithWrongStatus = allConstraints.stream().
                     filter(xmlConstraint ->
@@ -113,7 +114,7 @@ public class ValidationReport {
                 return constraintsWithWrongStatus;
             }
         }
-        return Lists.newArrayList();
+        return Collections.emptyList();
     }
 
     public void checkConstraint(final List<String> constraintNames) {
