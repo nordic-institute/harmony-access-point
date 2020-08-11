@@ -26,7 +26,6 @@ import java.util.List;
  * @author Rupam
  * @version 4.1.5
  */
-
 public class AllPgTest extends BaseTest {
 
     private static String blackListedString = "'\\u0022(){}[];,+=%&*#<>/\\\\";
@@ -45,9 +44,10 @@ public class AllPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         login(data.getAdminUser());
 
+        List<PAGES> pages = Arrays.asList(PAGES.PMODE_CURRENT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+
         for (PAGES ppage : PAGES.values()) {
 
-            List<PAGES> pages = Arrays.asList(PAGES.PMODE_CURRENT, PAGES.TEST_SERVICE, PAGES.LOGGING);
             if (pages.contains(ppage)) {
                 log.debug("Pages not having download csv feature are skipped");
                 continue;
@@ -81,9 +81,11 @@ public class AllPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         login(data.getAdminUser());
 
+        List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
+                , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+
         for (PAGES ppage : PAGES.values()) {
-            List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
-                    , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+
             if (pages.contains(ppage)) {
                 log.debug("Pages not having input field to enter forbidden char are skipped");
                 continue;
@@ -114,12 +116,12 @@ public class AllPgTest extends BaseTest {
         DomibusPage page = new DomibusPage(driver);
         login(data.getAdminUser());
 
+        List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
+                , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
+
         for (PAGES ppage : PAGES.values()) {
             page.getDomainSelector().selectOptionByIndex(0);
             System.out.println(ppage);
-
-            List<PAGES> pages = Arrays.asList(PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE, PAGES.TRUSTSTORE
-                    , PAGES.USERS, PAGES.AUDIT, PAGES.TEST_SERVICE, PAGES.LOGGING);
 
             if (pages.contains(ppage)) {
                 log.debug("Pages not having search filters are skipped");
