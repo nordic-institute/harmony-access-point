@@ -4,6 +4,7 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DWait;
 import ddsl.enums.PAGES;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Catalin Comanici
@@ -348,6 +350,36 @@ public class AuditPgUXTest extends BaseUXTest {
 
         log.info("Compare headers of downaloded csv and grid");
         page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+        soft.assertAll();
+    }
+
+    /**
+     * This method will verify data for action column in downloaded csv and grid on admin console
+     * */
+    @Test(description = "AU-41", groups = {"multiTenancy", "singleTenancy"})
+    public void verifyActionData() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        AuditPage page = new AuditPage(driver);
+        DomibusPage dPage = new DomibusPage(driver);
+        page.getSidebar().goToPage(PAGES.AUDIT);
+        log.info("Customized location for download");
+        String filePath = DFileUtils.downloadFolderPath();
+
+        log.info("Clean given directory");
+        FileUtils.cleanDirectory(new File(filePath));
+
+        log.info("Click on download csv button");
+        page.grid().waitForRowsToLoad();
+        page.clickDownloadCsvButton(page.getDownloadCsvButton().element);
+
+        log.info("Wait for download to complete");
+        DWait wait = new DWait(driver);
+        wait.forXMillis(1000);
+        log.info("Check if file is downloaded at given location");
+        soft.assertTrue(DFileUtils.isFileDownloaded(filePath), "File is downloaded successfully");
+        String completeFilePath = filePath + File.separator + DFileUtils.getCompleteFileName(filePath);
+        soft.assertTrue(page.grid().getCsvRecords(completeFilePath).size()==page.grid().getAllRowInfo().size(), "row size of grid and downloaded csv are same");
+        page.grid().checkCSVvsGridInfo(completeFilePath, soft);
         soft.assertAll();
     }
 

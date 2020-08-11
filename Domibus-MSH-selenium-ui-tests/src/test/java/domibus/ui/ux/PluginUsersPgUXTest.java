@@ -1,11 +1,14 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
@@ -20,6 +23,7 @@ import utils.TestUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -252,7 +256,7 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
 //	known failure, was decided it will not be fixed
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"},enabled = false)
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");
@@ -519,5 +523,83 @@ public class PluginUsersPgUXTest extends BaseUXTest {
 
 	}
 
+	/**
+	 * This method will verify presence of confirmation pop up on clicking save button for Basic and Certificate
+	 * authentication type plugin user
+	 */
+	@Test(description = "PU-35", groups = {"multiTenancy", "singleTenancy"})
+	public void verifyConfPopUp() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = Generator.randomAlphaNumeric(5);
 
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		List<String> authType = page.filters.getAuthTypeSelect().getOptionsTexts();
+		for (String auth : authType) {
+			// check scenario for both types of plugin users
+			page.filters.getAuthTypeSelect().selectOptionByText(auth);
+			log.info("checking Cancel button state");
+			soft.assertFalse(page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+
+			if (page.filters.getAuthTypeSelect().getSelectedValue().equals("BASIC")) {
+
+				log.info("filling form for new user  for BASIC auth type" + username);
+				page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+			} else {
+				String certUserName = "CN=" + Generator.randomAlphaNumeric(1) + "," + "O=" + Generator.randomAlphaNumeric(2) +
+						"," + "C=" + RandomStringUtils.random(2, true, false) + ":" + Generator.randomNumber(2);
+
+				log.info("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
+				page.newCertUser(certUserName, DRoles.ADMIN);
+			}
+			page.grid().waitForRowsToLoad();
+			log.info("checking Cancel button state");
+			soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
+			page.getSaveBtn().click();
+			soft.assertTrue(new Dialog(driver).confirmationPopUp.isDisplayed(), "Confirmation pop up is shown");
+
+			soft.assertTrue(new DButton(driver, new Dialog(driver).yesBtn).isPresent(), "Yes button is present");
+			soft.assertTrue(new DButton(driver, new Dialog(driver).noBtn).isPresent(), "No button is present");
+			new DButton(driver, new Dialog(driver).yesBtn).click();
+			page.grid().waitForRowsToLoad();
+		}
+		soft.assertAll();
+
+	}
+
+	/**
+	 * PU-34 - This method will verify addition of Plugin user with username "SUPER" and error for user with "super"
+	 * as username
+	 */
+	@Test(description = "PU-34", groups = {"multiTenancy"})
+	public void addSUPERPluginUsr() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		List<String> usernames = Arrays.asList(new String[]{"super", "SUPER"});
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		for (String userToAdd : usernames) {
+			log.info("Username to be added" + userToAdd);
+			page.newUser(userToAdd, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+			page.getSaveBtn().click();
+			new DButton(driver, new Dialog(driver).yesBtn).click();
+
+			if (userToAdd.equals("super")) {
+				soft.assertTrue(page.getAlertArea().getAlertMessage().contains("name already exists"), "Error message is shown");
+				page.getCancelBtn().click();
+				new DButton(driver, new Dialog(driver).yesBtn).click();
+			} else {
+				soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown");
+
+				log.info("Logout and login again to confirm super user details remain same after addition of SUPER plugin user");
+				logout();
+				login(data.getAdminUser());
+			}
+			page.refreshPage();
+			page.grid().waitForRowsToLoad();
+			soft.assertAll();
+		}
+	}
 }

@@ -12,8 +12,6 @@ import org.testng.annotations.*;
 import pages.login.LoginPage;
 import rest.DomibusRestClient;
 import utils.driver.DriverManager;
-import utils.Generator;
-import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
 import java.util.ArrayList;

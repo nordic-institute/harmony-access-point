@@ -1,7 +1,12 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DWait;
+import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.io.FileUtils;
 import utils.BaseUXTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
@@ -10,10 +15,16 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
+import utils.DFileUtils;
 import utils.Generator;
 import utils.TestUtils;
 
+import java.io.File;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -24,6 +35,8 @@ import java.util.List;
 public class MessagesPgUXTest extends BaseUXTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
+	private static String sourceMessageHeader = "Source Message";
+	private static String fragmentMessageHeader = "Message Fragment";
 
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
@@ -312,6 +325,66 @@ public class MessagesPgUXTest extends BaseUXTest {
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
+		soft.assertAll();
+	}
+/**
+ * This method will verify non presence of two headers Message Fragments and Source Message in csv if not available as
+ * grid column
+ */
+	@Test(description = "MSG-26", groups = {"multiTenancy", "singleTenancy"})
+	public void verifySpecificHeaders() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+
+		String pluginUser = Generator.randomAlphaNumeric(5);
+		rest.createPluginUser(pluginUser, DRoles.ADMIN, data.getNewTestPass(), page.getDomainFromTitle());
+
+		String messageID = messageSender.sendMessage(pluginUser, data.getNewTestPass(), Generator.randomAlphaNumeric(10), Generator.randomAlphaNumeric(10));
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
+
+		page.grid().checkAllLink(soft);
+		page.grid().waitForRowsToLoad();
+
+		HashMap<String, String> fMessage = page.grid().getRowInfo("Message Id", messageID);
+
+		page.getFilters().basicFilterBy(fMessage.get("Message Id"), fMessage.get("Message Status")
+				, fMessage.get("From Party Id"), fMessage.get("To Party Id"));
+		page.grid().waitForRowsToLoad();
+
+		log.info("Clean given directory");
+		FileUtils.cleanDirectory(new File(DFileUtils.downloadFolderPath()));
+
+		log.info("Click on download csv button");
+		page.clickDownloadCsvButton(page.getDownloadCsvButton().element);
+
+		log.info("Wait for download to complete");
+		DWait wait = new DWait(driver);
+		wait.forXMillis(1000);
+
+		log.info("Check if file is downloaded at given location");
+		soft.assertTrue(DFileUtils.isFileDownloaded(DFileUtils.downloadFolderPath()), "File is downloaded successfully");
+		String completeFilePath = DFileUtils.downloadFolderPath() + File.separator + DFileUtils.getCompleteFileName(DFileUtils.downloadFolderPath());
+
+		log.info("Verify headers from Downloaded csv and Grid Headers");
+		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+
+		List<String> columnNames = page.grid().getColumnNames();
+
+		CSVParser csvParser = new CSVParser(Files.newBufferedReader(Paths.get(completeFilePath)), CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+
+		if (columnNames.equals(fragmentMessageHeader) && columnNames.equals(sourceMessageHeader)) {
+			soft.assertTrue(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
+					"Message Fragment  & Source Message header are shown in csv");
+		} else {
+			soft.assertFalse(csvFileHeaders.equals(fragmentMessageHeader) && csvFileHeaders.equals(sourceMessageHeader),
+					"Message Fragment  & Source Message header are  not shown in csv");
+		}
 		soft.assertAll();
 	}
 

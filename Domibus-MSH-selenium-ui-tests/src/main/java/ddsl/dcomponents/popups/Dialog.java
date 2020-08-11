@@ -30,7 +30,7 @@ public class Dialog extends DComponent {
 	public WebElement yesBtn;
 
 	@FindBy(id = "nobuttondialog_id")
-	private WebElement noBtn;
+	public WebElement noBtn;
 
 	@FindBy(css = "md-dialog-container h1")
 	private WebElement dialogMessage;

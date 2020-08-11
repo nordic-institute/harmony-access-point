@@ -107,4 +107,17 @@ public class PluginUsersPage extends DomibusPage {
         }
         return true;
     }
+
+    /**
+     * This method will create new plugin user with Authentication type as Certificate
+     *
+     * @param user Username of user to be added
+     * @param role Role of user to be added
+     */
+    public void newCertUser(String user, String role) throws Exception {
+        getNewBtn().click();
+        PluginUserModal popup = new PluginUserModal(driver);
+        popup.fillData(user, role);
+        popup.clickOK();
+    }
 }
