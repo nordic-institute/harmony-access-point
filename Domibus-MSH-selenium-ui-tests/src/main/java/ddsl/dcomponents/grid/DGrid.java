@@ -605,7 +605,6 @@ public class DGrid extends DComponent {
      * @param filename : Csv file name to extract records
      * @return : It will return available records for all rows
      */
-
     public List<CSVRecord> getCsvRecords(String filename) throws Exception {
 
         Reader reader = Files.newBufferedReader(Paths.get(filename));
