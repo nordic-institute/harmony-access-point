@@ -2,33 +2,51 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Thomas Dussart
  * @since 4.1
  */
+@Component("metricsHelper")
 public class MetricsHelper {
 
-    private static MetricRegistry metricRegistry;
+    private MetricRegistry metricRegistry;
 
-    private static HealthCheckRegistry healthCheckRegistry;
+    private HealthCheckRegistry healthCheckRegistry;
 
-    private MetricsHelper() {
+    private MetricRegistry metricRegistryMTAdmin;
+
+    private DomibusConfigurationService domibusConfigurationService;
+
+    private AuthUtils authUtils;
+
+    private MetricsHelper(MetricRegistry metricRegistry,
+                          HealthCheckRegistry healthCheckRegistry,
+                          MetricRegistry metricRegistryMTAdmin,
+                          DomibusConfigurationService domibusConfigurationService,
+                          AuthUtils authUtils) {
+        this.metricRegistry = metricRegistry;
+        this.healthCheckRegistry = healthCheckRegistry;
+        this.metricRegistryMTAdmin = metricRegistryMTAdmin;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.authUtils = authUtils;
     }
 
-    public static MetricRegistry getMetricRegistry() {
-        return metricRegistry;
+    public MetricRegistry getMetricRegistry() {
+
+        if (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
+            return metricRegistry;
+        }
+        return  metricRegistryMTAdmin;
     }
 
-    public static void setMetricRegistry(MetricRegistry metricRegistry) {
-        MetricsHelper.metricRegistry = metricRegistry;
+
+
+    public HealthCheckRegistry getHealthCheckRegistry() {
+        return this.healthCheckRegistry;
     }
 
-    public static HealthCheckRegistry getHealthCheckRegistry() {
-        return healthCheckRegistry;
-    }
-
-    public static void setHealthCheckRegistry(HealthCheckRegistry healthCheckRegistry) {
-        MetricsHelper.healthCheckRegistry = healthCheckRegistry;
-    }
 }

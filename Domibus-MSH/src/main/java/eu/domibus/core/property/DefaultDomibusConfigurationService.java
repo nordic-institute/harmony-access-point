@@ -1,9 +1,9 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -42,6 +42,11 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+    }
+
+    @Override
+    public boolean isSingleTenant() {
+        return !isMultiTenantAware();
     }
 
     @Override
