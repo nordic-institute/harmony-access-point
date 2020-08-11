@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
+import utils.Generator;
 import utils.driver.DriverManager;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -144,6 +146,25 @@ public class SeleniumTest extends BaseTest {
 		return new DomibusPage(driver);
 	}
 	
+	protected void selectRandomDomain() throws Exception {
+		if(!data.isMultiDomain()){
+			log.info("running in singletenancy mode, no domain to select");
+			return;
+		}
+		
+		List<String> domains = rest.getDomainCodes();
+		log.debug("got domains: " + domains);
+		
+		int index = new Random().nextInt(domains.size());
+		
+		String domain = domains.get(index);
+		log.info("will select domain " +domain);
+		
+		DomibusPage page = new DomibusPage(driver);
+		page.getDomainSelector().selectOptionByText(domain);
+		page.wait.forXMillis(500);
+		
+	}
 	
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
 		

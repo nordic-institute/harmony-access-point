@@ -7,7 +7,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UsersClient extends BaseRestClient {
@@ -35,6 +37,17 @@ public class UsersClient extends BaseRestClient {
 		return null;
 	}
 	
+	public List<String> getUsernameList(String domain) throws Exception {
+		List<String> usernameList = new ArrayList<>();
+		
+		JSONArray users = getUsers(domain);
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject  user= users.getJSONObject(i);
+			usernameList.add(user.getString("userName"));
+		}
+		return usernameList;
+	}
+	
 	public int getNoOfAdmins(String domain) throws Exception {
 		JSONArray users = getUsers(domain);
 		int adminNo = 0;
@@ -44,6 +57,19 @@ public class UsersClient extends BaseRestClient {
 			}
 		}
 		return adminNo;
+	}
+	
+	public ArrayList<String> getSuperUsernames() throws Exception {
+		JSONArray users = getUsers("default");
+		ArrayList<String> supers = new ArrayList<>();
+		
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (DRoles.SUPER.equalsIgnoreCase(user.getJSONArray("authorities").getString(0))) {
+				supers.add(user.getString("userName"));
+			}
+		}
+		return supers;
 	}
 	
 	public void createUser(String username, String role, String pass, String domain) throws Exception {

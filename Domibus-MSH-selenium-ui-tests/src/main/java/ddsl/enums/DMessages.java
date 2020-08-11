@@ -57,6 +57,9 @@ public class DMessages {
 	
 	
 	public static final String UI_REPLICATION_NOT_ENABLED = "UIReplication is disabled. No records will be count to be synced for TB_MESSAGE_UI table";
+	
+	
+	public static final String ALERT_ID_INPUT_VALIDATION_MESSAGE = "Alert Id must be 19 digits long and must not start with a 0";
 
 	
 	
