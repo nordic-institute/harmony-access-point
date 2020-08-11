@@ -121,7 +121,6 @@ public class AllPgTest extends BaseTest {
 
         for (PAGES ppage : PAGES.values()) {
             page.getDomainSelector().selectOptionByIndex(0);
-            System.out.println(ppage);
 
             if (invalidPages.contains(ppage)) {
                 log.debug("Pages not having search filters are skipped");
