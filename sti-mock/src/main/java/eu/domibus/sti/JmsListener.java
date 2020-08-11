@@ -23,15 +23,16 @@ public class JmsListener {
         this.metricRegistry = metricRegistry;
     }
 
-    @org.springframework.jms.annotation.JmsListener(containerFactory = "myFactory", destination = "${jms.destinationName}",concurrency ="${jms.listener.concurrency}" )
+    @org.springframework.jms.annotation.JmsListener(containerFactory = "${jms.connectionFactory}", destination = "${jms.destinationName}",concurrency ="${jms.listener.concurrency}" )
     public void receiveMessage(MapMessage msj) {
+        LOG.info("Receive message:[{}]", msj);
         Timer.Context timer = null;
         Counter counter=null;
         try {
             timer = metricRegistry.timer(MetricRegistry.name(SenderService.class, "receive.message.timer")).time();
             counter = metricRegistry.counter(MetricRegistry.name(SenderService.class, "receive.message.counter"));
             counter.inc();
-            LOG.debug("message receipt:[{}]", msj);
+            LOG.info("message receipt:[{}]", msj);
             senderService.reverseAndSend(msj);
         } finally {
             if (timer != null) {

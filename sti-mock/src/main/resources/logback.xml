@@ -8,9 +8,13 @@
         </layout>
     </appender>
 
- <!--   <logger name="com.mkyong" level="debug" additivity="false">
+    <!--   <logger name="com.mkyong" level="debug" additivity="false">
+           <appender-ref ref="CONSOLE"/>
+       </logger>-->
+
+    <!-- <logger name="org.springframework.jms.listener" level="debug" additivity="false">
         <appender-ref ref="CONSOLE"/>
-    </logger>-->
+    </logger> -->
 
     <root level="info">
         <appender-ref ref="CONSOLE"/>

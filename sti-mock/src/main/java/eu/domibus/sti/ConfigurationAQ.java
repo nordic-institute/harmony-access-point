@@ -9,51 +9,41 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.BackendService11;
+import eu.domibus.rest.client.ApiClient;
+import eu.domibus.rest.client.api.UsermessageApi;
+import oracle.jdbc.pool.OracleDataSource;
+import oracle.jms.AQjmsFactory;
+import oracle.jms.AQjmsQueueConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.destination.JndiDestinationResolver;
-import org.springframework.jndi.JndiObjectFactoryBean;
-import org.springframework.jndi.JndiTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import javax.jms.QueueConnectionFactory;
-import javax.naming.NamingException;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.sql.DataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-// [AQ] comment this when using AQ
-//@org.springframework.context.annotation.Configuration
+// [AQ] uncomment this when using AQ
+// @org.springframework.context.annotation.Configuration
 @EnableJms
 @EnableAsync
-public class Configuration {
+public class ConfigurationAQ {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
-
-    // Url to access to the queue o topic
-    @Value("${jms.providerUrl}")
-    private String providerUrl;
-
-    // Jms connection type.
-    @Value("${jms.connectionType}")
-    private String connectionType;
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationAQ.class);
 
     // Name of the queue o topic to extract the message
     @Value("${jms.destinationName}")
@@ -69,8 +59,6 @@ public class Configuration {
     @Value("${ws.plugin.url}")
     private String wsdlUrl;
 
-    @Value("${jms.connection.factory.jndi.name}")
-    private String connectionFactoryJndiName;
 
     @Value("${domibus.url}")
     private String domibusUrl;
@@ -81,17 +69,24 @@ public class Configuration {
     @Value("${jms.session.transacted}")
     private Boolean sessionTransacted;
 
-    private ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(200);
+    @Value("${domibus.dbUrl}")
+    private String dbUrl;
+
+    @Value("${domibus.dbUser}")
+    private String dbUser;
+
+    @Value("${domibus.dbPasswd}")
+    private String dbPasswd;
 
     @Bean
-    public DefaultJmsListenerContainerFactory myFactory() {
-        LOG.info("Initiating jms listener factory");
+    public DefaultJmsListenerContainerFactory myFactoryAQ() {
+        LOG.info("Initiating jms listener factory AQ");
+
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory());
-        factory.setDestinationResolver(jmsDestinationResolver());
         factory.setConcurrency(concurrentConsumers);
-        factory.setTaskExecutor(executor);
-        if (sessionTransacted) {
+
+        if(sessionTransacted) {
             LOG.info("Configuring DefaultJmsListenerContainerFactory: myFactory with session transacted");
             factory.setSessionTransacted(true);
             factory.setSessionAcknowledgeMode(0);
@@ -101,45 +96,26 @@ public class Configuration {
     }
 
     @Bean
-    public JndiTemplate provider() {
-        LOG.info("Configuring provider to:[{}]", providerUrl);
-        Properties env = new Properties();
-        env.put("java.naming.factory.initial", "weblogic.jndi.WLInitialContextFactory");
-        env.put("java.naming.provider.url", providerUrl);
-        return new JndiTemplate(env);
-    }
-
-    @Bean(name = "cachedConnectionFactory")
-    public QueueConnectionFactory cachedConnectionFactory(@Qualifier("connectionFactory") QueueConnectionFactory connectionFactory) {
-        CachingConnectionFactory factory = new CachingConnectionFactory(connectionFactory);
-        factory.setSessionCacheSize(cacheSize);
-        return factory;
-    }
-
-    @Bean(name = "connectionFactory")
-    public QueueConnectionFactory connectionFactory() {
+    public ConnectionFactory connectionFactory() {
         try {
-            return (QueueConnectionFactory) provider().lookup(connectionFactoryJndiName);
-        } catch (NamingException e) {
-            LOG.error("Impossible to get connection factory:[{}]", connectionFactoryJndiName, e);
-            throw new IllegalStateException("Impossible to get connection factory");
+            return AQjmsFactory.getConnectionFactory(dataSource());
+        } catch (JMSException | SQLException e) {
+            LOG.error("Impossible to get connection factory: ", e);
         }
+        return null;
     }
 
     @Bean
-    public JndiDestinationResolver jmsDestinationResolver() {
-        JndiDestinationResolver destResolver = new JndiDestinationResolver();
-        destResolver.setJndiTemplate(provider());
-        return destResolver;
+    DataSource dataSource() throws SQLException {
+        OracleDataSource dataSource = new OracleDataSource();
+        dataSource.setUser(dbUser);
+        dataSource.setPassword(dbPasswd);
+        dataSource.setURL(dbUrl);
+        dataSource.setImplicitCachingEnabled(true);
+        dataSource.setFastConnectionFailoverEnabled(true);
+        return dataSource;
     }
 
-    @Bean
-    public JndiObjectFactoryBean inQueueDestination() {
-        JndiObjectFactoryBean dest = new JndiObjectFactoryBean();
-        dest.setJndiTemplate(provider());
-        dest.setJndiName(jmsInDestination);
-        return dest;
-    }
 
     @Bean("stiUUIDGenerator")
     public NoArgGenerator createUUIDGenerator() {
@@ -148,27 +124,25 @@ public class Configuration {
     }
 
     @Bean
-    public JmsListener jmsListener(SenderService senderService) {
-        return new JmsListener(senderService, metricRegistry());
+    public JmsListener jmsListener() {
+        return new JmsListener(senderService(), metricRegistry());
     }
 
     @Bean
-    public JmsTemplate inQueueJmsTemplate(@Qualifier("cachedConnectionFactory") QueueConnectionFactory connectionFactory) {
-        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+    public JmsTemplate inQueueJmsTemplate() {
         LOG.info("Configuring jms template for");
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
         jmsTemplate.setDefaultDestinationName(jmsInDestination);
-        jmsTemplate.setDestinationResolver(jmsDestinationResolver());
         jmsTemplate.setReceiveTimeout(5000);
-
         return jmsTemplate;
     }
 
-   /* @Bean
+    @Bean
     public BackendInterface backendInterface() {
         BackendService11 backendService = null;
         try {
             backendService = new BackendService11(new URL(wsdlUrl), new QName("http://org.ecodex.backend/1_1/", "BackendService_1_1"));
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | WebServiceException e) {
             LOG.error("Could not instantiate backendService, sending message with ws plugin won't work.", e);
             return null;
         }
@@ -182,11 +156,19 @@ public class Configuration {
 
         return backendPort;
 
-    }*/
+    }
 
     @Bean
-    public SenderService senderService(JmsTemplate inQueueJmsTemplate) {
-        return new SenderService(inQueueJmsTemplate, metricRegistry(), createUUIDGenerator());
+    public UsermessageApi usermessageApi() {
+        ApiClient apiClient = new ApiClient();
+        apiClient.setBasePath(domibusUrl);
+
+        return new UsermessageApi(apiClient);
+    }
+
+    @Bean
+    public SenderService senderService() {
+        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry(), usermessageApi(), createUUIDGenerator());
     }
 
     @Bean
