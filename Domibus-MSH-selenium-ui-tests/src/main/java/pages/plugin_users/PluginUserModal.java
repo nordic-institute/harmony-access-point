@@ -121,7 +121,7 @@ public class PluginUserModal extends EditModal {
 	}
 
 	/**
-	 * 	This method will fill data for plugin user with authentication type as Certificate
+	 * This method will fill data for plugin user with authentication type as Certificate
 	 * @param user :Username of user to be added
 	 * @param role :Role of user to be added
 	 */
