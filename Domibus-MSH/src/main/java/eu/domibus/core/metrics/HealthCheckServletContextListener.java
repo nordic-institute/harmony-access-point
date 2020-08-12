@@ -5,6 +5,7 @@ import com.codahale.metrics.servlets.HealthCheckServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
 /**
@@ -13,17 +14,21 @@ import javax.servlet.ServletContextEvent;
  */
 public class HealthCheckServletContextListener extends HealthCheckServlet.ContextListener {
 
+    private ServletContext servletContext;
+
     @Autowired
-    MetricsHelper metricsHelper;
+    private HealthCheckRegistry healthCheckRegistry;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        this.servletContext = sce.getServletContext();
         super.contextInitialized(sce);
-        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,  sce.getServletContext());
+
     }
 
     @Override
     protected HealthCheckRegistry getHealthCheckRegistry() {
-        return metricsHelper.getHealthCheckRegistry();
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        return healthCheckRegistry;
     }
 }

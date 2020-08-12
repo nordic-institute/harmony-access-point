@@ -6,6 +6,7 @@ import com.codahale.metrics.servlets.MetricsServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
 /**
@@ -14,18 +15,21 @@ import javax.servlet.ServletContextEvent;
  */
 public class MetricsServletContextListener extends MetricsServlet.ContextListener {
 
+    private ServletContext servletContext;
+
     @Autowired
-    MetricsHelper metricsHelper;
+    private MetricRegistry metricRegistry;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        this.servletContext = sce.getServletContext();
         super.contextInitialized(sce);
-        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,  sce.getServletContext());
     }
 
 
     @Override
     protected MetricRegistry getMetricRegistry() {
-        return metricsHelper.getMetricRegistry();
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, servletContext);
+        return metricRegistry;
     }
 }

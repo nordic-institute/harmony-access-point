@@ -36,7 +36,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
                          HttpServletResponse resp) throws IOException {
         boolean showJMSCount = metricsHelper.showJMSCounts();
 
-        //create a copy of existing for metric registry
+        //create a copy of existing metric registry - for output
         MetricRegistry metricRegistry = new MetricRegistry();
         for (Map.Entry<String, Metric> entry : registry.getMetrics().entrySet()) {
             if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
