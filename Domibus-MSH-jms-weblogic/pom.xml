@@ -50,9 +50,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <scope>provided</scope>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -65,12 +68,12 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>spring-beans</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
+            <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -78,22 +81,6 @@
             <artifactId>weblogic.server.merged</artifactId>
             <version>12.1.2-0-0</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.weblogic</groupId>
-            <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
-            <version>12.1.2-0-0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.weblogic</groupId>
-            <artifactId>wlthint3client</artifactId>
-            <version>12.1.1</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
