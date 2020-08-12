@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @since 4.2
+ * @author Catalin Enache
+ */
 public class DomibusAdminServlet extends AdminServlet {
 
     private transient MetricsServlet domibusMetricsServlet;

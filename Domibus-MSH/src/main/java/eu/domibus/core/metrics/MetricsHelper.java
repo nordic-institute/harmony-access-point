@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author Thomas Dussart
+ * @author Catalin Enache
  * @since 4.1
  */
 @Component("metricsHelper")
