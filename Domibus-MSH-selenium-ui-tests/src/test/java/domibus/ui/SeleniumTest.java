@@ -146,10 +146,10 @@ public class SeleniumTest extends BaseTest {
 		return new DomibusPage(driver);
 	}
 	
-	protected void selectRandomDomain() throws Exception {
+	protected String selectRandomDomain() throws Exception {
 		if(!data.isMultiDomain()){
 			log.info("running in singletenancy mode, no domain to select");
-			return;
+			return null;
 		}
 		
 		List<String> domains = rest.getDomainCodes();
@@ -164,6 +164,7 @@ public class SeleniumTest extends BaseTest {
 		page.getDomainSelector().selectOptionByText(domain);
 		page.wait.forXMillis(500);
 		
+		return domain;
 	}
 	
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {

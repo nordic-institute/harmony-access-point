@@ -33,6 +33,11 @@ public class PluginUserModal extends EditModal {
 	private WebElement okBtn;
 	@FindBy(css = "#editbuttoncancel_id")
 	private WebElement cancelBtn;
+	
+	@FindBy(css = "editbasicpluginuser-form popup-edit-footer > div.required-fields")
+	private WebElement requiredFieldsText;
+	
+	
 	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
 	private WebElement usernameErrMess;
 	@FindBy(css = "editbasicpluginuser-form form #originalUser_id + span.help-block>div")
@@ -107,5 +112,8 @@ public class PluginUserModal extends EditModal {
 		return new DObject(driver, roleErrMess);
 	}
 
+	public void changeFocus() throws Exception {
+		weToDobject(requiredFieldsText).click();
+	}
 
 }

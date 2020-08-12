@@ -54,7 +54,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 		List<String> options = page.grid().getValuesOnColumn("Party");
 		log.info("checking available parties");
-		soft.assertTrue(options.contains("domibus-blue") && options.contains("domibus-red"), "Partiespresent");
+		soft.assertTrue(options.contains("domibus-blue") && options.contains("domibus-red"), "Parties are present");
 
 		soft.assertAll();
 	}

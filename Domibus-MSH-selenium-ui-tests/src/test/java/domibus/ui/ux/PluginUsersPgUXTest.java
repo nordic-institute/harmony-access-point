@@ -196,15 +196,15 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-//		pum.getPasswordInput().click();
-//		pum.getPasswordInput().pressTABKey();
-//		errMess = pum.getPassErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
-//
-//		pum.getConfirmationInput().click();
-//		pum.getConfirmationInput().pressTABKey();
-//		errMess = pum.getConfirmationErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+		pum.getPasswordInput().click();
+		pum.changeFocus();
+		errMess = pum.getPassErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+
+		pum.getConfirmationInput().click();
+		pum.changeFocus();
+		errMess = pum.getConfirmationErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill("test");
@@ -214,11 +214,14 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill(data.defaultPass());
-		pum.getPasswordInput().pressTABKey();
+		pum.changeFocus();
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 		pum.getPasswordInput().click();
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match.");
+		
+		pum.getRolesSelect().expand();
+		pum.getRolesSelect().contract();
 		
 		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty.");
 		pum.getRolesSelect().selectOptionByIndex(0);

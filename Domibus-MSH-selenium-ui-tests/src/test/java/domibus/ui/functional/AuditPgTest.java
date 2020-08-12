@@ -7,8 +7,10 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
@@ -20,10 +22,8 @@ import pages.pmode.parties.PartyModal;
 import utils.Generator;
 import utils.TestUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.awt.print.Pageable;
+import java.util.*;
 
 
 public class AuditPgTest extends SeleniumTest {
@@ -238,7 +238,7 @@ public class AuditPgTest extends SeleniumTest {
 			
 			int currentIndex = msgf.getInt("index");
 			int newIndex = msgfs.length() - currentIndex - 1;
-			msgf.put("index", newIndex );
+			msgf.put("index", newIndex);
 			
 			ids.add(msgf.getInt("entityId"));
 			
@@ -267,7 +267,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 		
 	}
-
+	
 	
 	/*  AU-19 - Check action on Text update on Pmode -current page  */
 	@Test(description = "AU-19", groups = {"multiTenancy", "singleTenancy"})
@@ -541,7 +541,7 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Click on yes button on confirmation pop up");
 		archivePage.getConfirmation().confirm();
 		
-		soft.assertTrue(!archivePage.getAlertArea().isError() , "Success message is shown");
+		soft.assertTrue(!archivePage.getAlertArea().isError(), "Success message is shown");
 		soft.assertEquals(archivePage.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_DELETE_SUCCESS, "Correct message is shown");
 		
 		archivePage.getSidebar().goToPage(PAGES.AUDIT);
@@ -702,5 +702,243 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	/*  AU-18 - Check action on Delete on Message Filter    */
+	@Test(description = "AU-18", groups = {"multiTenancy", "singleTenancy"})
+	public void msgFilterDeletion() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		String domain = selectRandomDomain();
+		
+		String rndStr = Generator.randomAlphaNumeric(5);
+		log.info("Create one message filter");
+		
+		int messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, domain);
+		log.info("Created filter with id " + messageFilterID);
+		rest.messFilters().deleteMessageFilter("action" + rndStr, domain);
+		
+		
+		log.info("Navigate to Audit page");
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		
+		log.info("Set all search filter");
+		page.getFilters().getTableFilter().selectOptionByText("Message filter");
+		page.getFilters().getActionFilter().selectOptionByText("Deleted");
+		
+		log.info("Click on search button");
+		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+		
+		log.info("Validate presence of log on Audit page");
+		soft.assertTrue(page.grid().scrollTo("Id", String.valueOf(messageFilterID)) > -1, "Delete event identified");
+		
+		soft.assertAll();
+	}
+	
+	/* AU-8 Verify data after changing domain*/
+	@Test(description = "AU-8", groups = {"multiTenancy"})
+	public void changeDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		
+		log.info("Check total number of records for default domain");
+		int defaultDomainGridCount = page.grid().getPagination().getTotalItems();
+		
+		log.info("Extract row info ");
+		List<HashMap<String, String>> defaultDomainData = page.grid().getListedRowInfo();
+		
+		log.info("Change domain");
+		page.getDomainSelector().selectOptionByIndex(1);
+		page.grid().waitForRowsToLoad();
+		
+		log.info("Extract total number of items for second domain");
+		int secondGridCount = page.grid().getPagination().getTotalItems();
+		
+		log.info("Extract  row infos");
+		List<HashMap<String, String>> secDomainData = page.grid().getListedRowInfo();
+		
+		
+		log.info("Verify grid row data for both domains");
+		if (defaultDomainGridCount == 0 && secondGridCount == 0) {
+			log.info("Both domains have no data on this page");
+			throw new SkipException("No data to verify");
+		} else if (defaultDomainGridCount != secondGridCount) {
+			log.info("Both domains have different number of data");
+		} else if (defaultDomainData == secDomainData) {
+			log.info("Both domains have same number of data but all are different");
+			
+			boolean same = true;
+			
+			for (int i = 0; i < defaultDomainData.size(); i++) {
+				if (!TestUtils.areMapsEqual(defaultDomainData.get(i), secDomainData.get(i))) {
+					same = false;
+					break;
+				}
+			}
+			
+			soft.assertFalse(!same, "Lists are not the same");
+			
+		} else {
+			log.info("Something went wrong on this page");
+		}
+		
+		soft.assertAll();
+		
+	}
+	
+	/* Verify data and page number after changing domain from second page of default domain*/
+	@Test(description = "AU-10", groups = {"multiTenancy"})
+	public void changeDomainFromSecPage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		
+		log.info("Extract total number of items for default domain");
+		int defaultGridRowCount = page.grid().getPagination().getTotalItems();
+		
+		log.info("Check if pagination is present");
+		if (!page.grid().getPagination().isPaginationPresent()) {
+			log.info("Default domain grid has data less than 10 so no pagination exists");
+		} else {
+			log.info("Navigate to page 2");
+			page.grid().getPagination().goToPage(2);
+			soft.assertTrue(page.grid().getPagination().getActivePage() == 2, "User is on second page of Default domain");
+			
+			log.info("Change domain");
+			page.getDomainSelector().selectOptionByIndex(1);
+			log.info("Extract total number of items for second domain");
+			int secondGridRowCount = page.grid().getPagination().getTotalItems();
+			
+			log.info("Check if pagination is present");
+			if (page.grid().getPagination().isPaginationPresent()) {
+				log.info("Pagination is present for second domain");
+				if (page.grid().getPagination().getActivePage() == 1) {
+					log.info("Active page is " + page.grid().getPagination().getActivePage());
+				}
+			}
+			log.info("Check if both domains have different number of data");
+			soft.assertTrue(defaultGridRowCount != secondGridRowCount, " Both domains have different number of records");
+		}
+		soft.assertAll();
+	}
+	
+	/* AU-12 Check log presence on jms message deletion event*/
+	@Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
+	public void deleteJMSMessage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		selectRandomDomain();
+		
+		String queue = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(queue)) {
+			throw new SkipException("No queue has messages");
+		}
+		
+		String messageId = rest.jms().getQueueMessages(queue).getJSONObject(0).getString("id");
+		rest.jms().deleteMessages(queue, messageId);
+		
+		AuditPage page = new AuditPage(driver);
+		log.info("Navigate to Audit page");
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
+		
+		page.filters().getTableFilter().selectOptionByText("Jms message");
+		page.filters().getActionFilter().selectOptionByText("Deleted");
+		page.filters().clickSearch();
+		page.grid().waitForRowsToLoad();
+		
+		
+		HashMap<String, String> info = page.grid().getRowInfo("Id", messageId);
+		
+		log.info("Verify first row Action column data as Deleted");
+		soft.assertEquals(info.get("Action"), "Deleted", "Row contains Deleted action");
+		
+		log.info("Verify first row Table column data as Jms Message");
+		soft.assertEquals(info.get("Table"), "Jms message", "Table is Jms message");
+		
+		log.info("Verify first row ID column data as ID shown for Message on Jms monitoring page");
+		soft.assertEquals(info.get("Id"), messageId, "Row contains jms message id");
+		
+		soft.assertAll();
+		
+		
+	}
+	
+	
+	/* AU-13 Check log presence on Message resend  event*/
+	@Test(description = "AU-13", groups = {"multiTenancy", "singleTenancy"})
+	public void msgResendLog() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		List<String> statuses = Arrays.asList(new String[]{"SEND_ENQUEUED", "SEND_FAILURE"});
+		String domain = selectRandomDomain();
+		
+		String messId = null;
+		
+		JSONArray messages = rest.messages().getListOfMessages(domain);
+		for (int i = 0; i < messages.length(); i++) {
+			JSONObject mess = messages.getJSONObject(i);
+			if( statuses.contains(mess.getString("messageStatus"))){
+				messId = mess.getString("messageId");
+				rest.messages().resendMessage(messId, domain);
+				break;
+			}
+		}
+		
+		
+		AuditPage page = new AuditPage(driver);
+		log.info("Navigate to Audit page");
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		
+		log.info("Wait for grid row to load");
+		page.grid().waitForRowsToLoad();
+		
+		page.filters().getTableFilter().selectOptionByText("Message");
+		page.filters().getActionFilter().selectOptionByText("Resent");
+		page.filters().clickSearch();
+		page.grid().waitForRowsToLoad();
+		
+		HashMap<String, String> info = page.grid().getRowInfo("Id", messId);
+		
+		log.info("Check ID as message id , Action as resent Table as Message and User as Super(for multitenancy) or Admin(for Singletenancy) log on audit page");
+		soft.assertEquals(info.get("Id"), messId, "Row info contains message id");
+		soft.assertEquals(info.get("Action"), "Resent", "Row info contain Resent action");
+		soft.assertEquals(info.get("Table"), "Message", "Row info contains Message table name");
+		
+		
+		soft.assertAll();
+	}
+	
+	/* AU-21 Check log presence on Download event on Pmode Current page*/
+	@Test(description = "AU-21", groups = {"multiTenancy", "singleTenancy"})
+	public void currentPmodeDownloadLog() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String domain = selectRandomDomain();
+	
+		int pmodeID = rest.pmode().getLatestPModeID(domain);
+		rest.pmode().downloadPmode(domain, pmodeID);
+		
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.grid().waitForRowsToLoad();
+		
+		page.filters().getTableFilter().selectOptionByText("Pmode");
+		page.filters().getActionFilter().selectOptionByText("Downloaded");
+		page.filters().clickSearch();
+		page.grid().waitForRowsToLoad();
+		
+		HashMap<String, String> info = page.grid().getRowInfo("Id", String.valueOf(pmodeID));
+		
+		log.info("Verify value for column table, action and user on audit page for first row");
+		soft.assertEquals(info.get("Table"), "Pmode", "verify table name as pmode");
+		soft.assertEquals(info.get("Action"), "Downloaded", "verify action name as downloaded");
+		soft.assertEquals(info.get("Id"), String.valueOf(pmodeID), "verify id is correct");
+		
+		soft.assertAll();
+		
+	}
 	
 }
