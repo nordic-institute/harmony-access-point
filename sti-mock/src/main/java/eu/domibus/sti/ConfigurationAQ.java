@@ -13,7 +13,6 @@ import eu.domibus.rest.client.ApiClient;
 import eu.domibus.rest.client.api.UsermessageApi;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.jms.AQjmsFactory;
-import oracle.jms.AQjmsQueueConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 // [AQ] uncomment this when using AQ
-// @org.springframework.context.annotation.Configuration
+//@org.springframework.context.annotation.Configuration
 @EnableJms
 @EnableAsync
 public class ConfigurationAQ {
@@ -168,7 +167,7 @@ public class ConfigurationAQ {
 
     @Bean
     public SenderService senderService() {
-        return new SenderService(inQueueJmsTemplate(), backendInterface(), metricRegistry(), usermessageApi(), createUUIDGenerator());
+        return new SenderService(inQueueJmsTemplate(), metricRegistry(), createUUIDGenerator());
     }
 
     @Bean

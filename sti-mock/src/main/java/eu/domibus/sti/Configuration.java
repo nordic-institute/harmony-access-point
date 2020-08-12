@@ -40,7 +40,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 // [AQ] comment this when using AQ
-//@org.springframework.context.annotation.Configuration
+@org.springframework.context.annotation.Configuration
 @EnableJms
 @EnableAsync
 public class Configuration {
