@@ -64,25 +64,22 @@ public class CommonConfigurationManager {
         final String alertEmailSender = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
         final String alertEmailReceiver = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
 
-        boolean misConfigured = false;
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         if (StringUtils.isEmpty(alertEmailReceiver) || StringUtils.isEmpty(alertEmailSender)) {
-            misConfigured = true;
+            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in the domain [{}].",
+                    DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, currentDomain);
+            throw new IllegalArgumentException("Empty sender/receiver email address configured for the alert module.");
         } else {
             List<String> emailsToValidate = new ArrayList<>(Arrays.asList(alertEmailSender));
             emailsToValidate.addAll(Arrays.asList(alertEmailReceiver.split(";")));
             for (String email : emailsToValidate) {
-                misConfigured = !isValidEmail(email);
-                if (misConfigured) {
-                    break;
+                if (!isValidEmail(email)) {
+                    LOG.error("Alert module can not send email, Invalid sender/receiver email address: [{}] configured in the domain: [{}].", email, currentDomain);
+                    throw new IllegalArgumentException("Invalid sender/receiver email address configured for the alert module: " + email);
                 }
             }
         }
-        if (misConfigured) {
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in the domain [{}].",
-                    DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, currentDomain);
-            throw new IllegalArgumentException("Invalid email address configured for the alert module.");
-        }
+
         return new CommonConfiguration(alertLifeTimeInDays, alertEmailSender, alertEmailReceiver);
     }
 
