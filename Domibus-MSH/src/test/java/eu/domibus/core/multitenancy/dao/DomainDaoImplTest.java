@@ -36,8 +36,8 @@ public class DomainDaoImplTest {
 
     @Test
     public void findAll() {
-        File f1 = new File("Zdomain-domibus.properties");
-        File f2 = new File("Adomain-domibus.properties");
+        File f1 = new File("zdomain-domibus.properties");
+        File f2 = new File("adomain-domibus.properties");
 
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
@@ -45,7 +45,7 @@ public class DomainDaoImplTest {
             domibusConfigurationService.getConfigLocation();
             result = ".";
             domibusPropertyProvider.getProperty((Domain) any, anyString);
-            returns("ZZZdomain", "AAAdomain");
+            returns("zzzdomain", "aaadomain");
         }};
         new Expectations(FileUtils.class) {{
             FileUtils.listFiles((File) any, (String[]) any, false);
@@ -62,7 +62,7 @@ public class DomainDaoImplTest {
     @Test
     public void testValidateDomain_InvalidDomain(@Injectable Domain domain) {
 
-        final String domainCode = "DomainA&7";
+        final String domainCode = "Domain&7";
         List<Domain> domains = new ArrayList<>();
 
         try {
@@ -70,7 +70,7 @@ public class DomainDaoImplTest {
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            assertEquals(ex.getMessage(), "[DOM_001]:Invalid domain name:domaina&7");
+            assertEquals(ex.getMessage(), "[DOM_001]:Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:Domain&7");
         }
     }
 
@@ -78,7 +78,7 @@ public class DomainDaoImplTest {
     public void testValidateDomain_DuplicateDomain(@Injectable Domain domain) {
 
         final String domainCode1 = "domaina";
-        final String domainCode = "DomainA";
+        final String domainCode = "domaina";
         List<Domain> domains = new ArrayList<>();
         Domain domain1 = new Domain(domainCode1, null);
         domains.add(domain1);
@@ -97,5 +97,21 @@ public class DomainDaoImplTest {
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
        assertTrue(domainDao.isValidDomain(domains, domainCode));
+    }
+
+
+    @Test
+    public void testValidateDomainStartsWithNumber() {
+
+        final String domainCode = "1domain22";
+        List<Domain> domains = new ArrayList<>();
+
+        try {
+            domainDao.isValidDomain(domains, domainCode);
+            Assert.fail();
+        } catch (DomibusCoreException ex) {
+            assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
+            assertEquals(ex.getMessage(), "[DOM_001]:Domain name should not start with a number. Invalid domain name:1domain22");
+        }
     }
 }

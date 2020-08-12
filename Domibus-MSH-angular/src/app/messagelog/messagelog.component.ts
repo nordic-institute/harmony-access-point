@@ -45,6 +45,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('list', {static: false}) list: DatatableComponent;
 
@@ -106,6 +107,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.columnPicker.allColumns = [
       {
         name: 'Message Id',
+        cellTemplate: this.rawTextTpl,
         width: 275
       },
       {
@@ -145,7 +147,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
-        name: 'Conversation Id'
+        name: 'Conversation Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         name: 'Message Type',
@@ -165,16 +168,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (this.fourCornerEnabled) {
       this.columnPicker.allColumns.push(
         {
-          name: 'Original Sender'
+          name: 'Original Sender',
+          cellTemplate: this.rawTextTpl
         },
         {
-          name: 'Final Recipient'
+          name: 'Final Recipient',
+          cellTemplate: this.rawTextTpl
         });
     }
 
     this.columnPicker.allColumns.push(
       {
-        name: 'Ref To Message Id'
+        name: 'Ref To Message Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,

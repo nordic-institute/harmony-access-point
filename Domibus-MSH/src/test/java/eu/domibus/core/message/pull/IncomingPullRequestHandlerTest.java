@@ -13,7 +13,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
