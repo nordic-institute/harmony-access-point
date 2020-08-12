@@ -4,6 +4,17 @@ Domibus 4.1.5
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager
+- Domibus: print payload=false doesn't strip payload for retrieveMessage operation
+- User field data gets overwritten on Audit page in case of Message resend event
+- Proxy does not work when password is encrypted
+- Issue on MySQL script: Columns from TB_CERTIFICATE and TB_SEND_ATTEMPT tables are TIMESTAMP instead of DATETIME
+- Domibus 4.1.2 and 4.1.3 does not use BouncyCastle provider in WebLogic
+- Domibus prints the message id in the logs after message is not being used
+- Domibus sends password expired alerts for plugin users despite password expiration is disabled
+- Multiple clients concurrently requesting messages from the Default WS Plugin leads to duplicate messages
+- Domibus does not log hibernate messages on Weblogic and Wildfly server if Hibernate loggers are set to 'debug' or 'trace' level
+- Quartz triggers sometimes gets blocked
+- Add a maxSize limit when setting property values at runtime
 Domibus 4.1.3
 - Fixed the issue regarding duplicate retrieval of messages by multiple concurrent clients
 Domibus 4.1.3
