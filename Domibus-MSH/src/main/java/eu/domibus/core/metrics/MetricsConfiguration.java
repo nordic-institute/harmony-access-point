@@ -34,6 +34,7 @@ public class MetricsConfiguration {
     protected static final Logger LOG = LoggerFactory.getLogger(MetricsConfiguration.class);
 
     protected static final Marker STATISTIC_MARKER = MarkerFactory.getMarker("STATISTIC");
+    public static final String JMS_QUEUES = "jmsQueues";
 
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
@@ -45,26 +46,14 @@ public class MetricsConfiguration {
                                          JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor,
                                          DomibusConfigurationService domibusConfigurationService) {
 
-        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, healthCheckRegistry, jmsManager, authUtils, domainTaskExecutor, true);
+        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, healthCheckRegistry, jmsManager, authUtils, domainTaskExecutor);
         addMetricsToLogs(domibusPropertyProvider, metricRegistry);
-//        MetricsHelper.setHealthCheckRegistry(healthCheckRegistry);
-//        MetricsHelper.setMetricRegistry(metricRegistry);
-        return metricRegistry;
-    }
-
-    @Bean
-    public MetricRegistry metricRegistryMTAdmin(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry,
-                                         JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor,
-                                         DomibusConfigurationService domibusConfigurationService) {
-        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, healthCheckRegistry, jmsManager, authUtils, domainTaskExecutor, false);
-//        MetricsHelper.setHealthCheckRegistry(healthCheckRegistry);
-//        MetricsHelper.setMetricRegistry(metricRegistry);
         return metricRegistry;
     }
 
 
     protected MetricRegistry createMetricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry, JMSManager jmsManager,
-                                                  AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, boolean showJMSCounts) {
+                                                  AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
         MetricRegistry metricRegistry = new MetricRegistry();
         boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
 
@@ -91,10 +80,10 @@ public class MetricsConfiguration {
         }
 
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
-        if (monitorJMSQueues && showJMSCounts) {
+        if (monitorJMSQueues) {
             long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
             boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
-            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
+            metricRegistry.register(JMS_QUEUES, new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
                     refreshPeriod, showDLQOnly));
         }
 

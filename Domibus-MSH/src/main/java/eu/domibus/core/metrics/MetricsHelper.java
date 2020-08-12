@@ -17,36 +17,29 @@ public class MetricsHelper {
 
     private HealthCheckRegistry healthCheckRegistry;
 
-    private MetricRegistry metricRegistryMTAdmin;
-
     private DomibusConfigurationService domibusConfigurationService;
 
     private AuthUtils authUtils;
 
     private MetricsHelper(MetricRegistry metricRegistry,
                           HealthCheckRegistry healthCheckRegistry,
-                          MetricRegistry metricRegistryMTAdmin,
                           DomibusConfigurationService domibusConfigurationService,
                           AuthUtils authUtils) {
         this.metricRegistry = metricRegistry;
         this.healthCheckRegistry = healthCheckRegistry;
-        this.metricRegistryMTAdmin = metricRegistryMTAdmin;
         this.domibusConfigurationService = domibusConfigurationService;
         this.authUtils = authUtils;
     }
 
     public MetricRegistry getMetricRegistry() {
-
-        if (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
-            return metricRegistry;
-        }
-        return  metricRegistryMTAdmin;
+        return this.metricRegistry;
     }
-
-
 
     public HealthCheckRegistry getHealthCheckRegistry() {
         return this.healthCheckRegistry;
     }
 
+    public boolean showJMSCounts() {
+        return (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin()));
+    }
 }
