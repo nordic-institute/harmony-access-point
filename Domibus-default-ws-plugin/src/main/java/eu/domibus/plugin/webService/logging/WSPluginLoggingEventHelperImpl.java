@@ -1,11 +1,11 @@
 package eu.domibus.plugin.webService.logging;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @Service
 public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
 
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";

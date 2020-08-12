@@ -21,14 +21,10 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -36,7 +32,6 @@
             <artifactId>cxf-rt-ws-security</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
