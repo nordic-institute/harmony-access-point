@@ -1,7 +1,9 @@
 package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
@@ -11,13 +13,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.mail.internet.InternetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
 public class CommonConfigurationManagerTest {
@@ -105,13 +105,14 @@ public class CommonConfigurationManagerTest {
         List<String> emailsToValidate = new ArrayList<>();
         emailsToValidate.add(sender);
         emailsToValidate.add(receiver);
+        DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.EMAIL.getValidator();
         new Expectations(configurationManager) {{
 
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
             result = sender;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
             result = receiver;
-            configurationManager.isValidEmail(sender);
+            validator.isValid(sender);
             result = false;
         }};
         try {
@@ -120,12 +121,5 @@ public class CommonConfigurationManagerTest {
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals(ex.getMessage(), "Invalid sender/receiver email address configured for the alert module: abc.def@mail#g.c");
         }
-    }
-
-    @Test
-    public void isValidEmail(@Injectable InternetAddress address) {
-
-        final String email = "abc.def@gmail.com";
-        assertTrue(configurationManager.isValidEmail(email));
     }
 }
