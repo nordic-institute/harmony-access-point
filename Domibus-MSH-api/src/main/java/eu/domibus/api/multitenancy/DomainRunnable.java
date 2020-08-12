@@ -1,7 +1,7 @@
 package eu.domibus.api.multitenancy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
  * Wrapper for the Runnable class to be executed. Sets first the domain on the thread before execution.
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DomainRunnable implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainRunnable.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRunnable.class);
 
     protected DomainContextProvider domainContextProvider;
     protected Runnable runnable;

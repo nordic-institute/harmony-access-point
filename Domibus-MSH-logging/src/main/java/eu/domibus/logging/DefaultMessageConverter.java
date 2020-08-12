@@ -2,8 +2,6 @@ package eu.domibus.logging;
 
 import eu.domibus.logging.api.MessageCode;
 import eu.domibus.logging.api.MessageConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -15,7 +13,7 @@ import java.util.Arrays;
  */
 public class DefaultMessageConverter implements MessageConverter {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DefaultMessageConverter.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultMessageConverter.class);
 
     @Override
     public String getMessage(Marker marker, MessageCode messageCode, Object... args) {
