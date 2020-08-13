@@ -138,12 +138,12 @@ public class AuthUtilsImpl implements AuthUtils {
     protected boolean checkAdminRights(AuthRole authRole) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getAuthorities() == null) {
-            LOG.debug("authentication == null or authentication.getAuthorities() is null, returning false");
+            LOG.debug("No authentication found or the authenticated user has no authorities");
             return false;
         }
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (authorities.contains(new SimpleGrantedAuthority(authRole.name()))) {
-            LOG.debug("{} found among authentication.getAuthorities(), returning true ", authRole.name());
+            LOG.debug("authenticated user=[{}] has required authority=[{}]", authentication.getName(), authRole.name());
             return true;
         }
         return false;
