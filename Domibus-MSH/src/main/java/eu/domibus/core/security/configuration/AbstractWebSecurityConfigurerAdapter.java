@@ -1,6 +1,5 @@
 package eu.domibus.core.security.configuration;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.web.filter.SetDomainFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,6 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     @Autowired
     Http403ForbiddenEntryPoint http403ForbiddenEntryPoint;
-
-    @Autowired
-    DomibusConfigurationService domibusConfigurationService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -130,7 +126,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/logging/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_CSV_MAX_ROWS).authenticated()
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
-                .antMatchers("/metrics/**").hasAnyAuthority(domibusConfigurationService.isMultiTenantAware() ? new String[] {AuthRole.ROLE_AP_ADMIN.name(), AuthRole.ROLE_ADMIN.name()} : new String[] {AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name()})
+                .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
                 .and()
                 .exceptionHandling().and()
