@@ -24,6 +24,7 @@ import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import javax.jms.Connection;
@@ -103,6 +104,7 @@ public class ConfigurationAQ {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory());
         factory.setConcurrency(concurrentConsumers);
+        factory.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
 
         if(sessionTransacted) {
             LOG.info("Configuring DefaultJmsListenerContainerFactory: myFactory with session transacted");
