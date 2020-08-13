@@ -4,6 +4,8 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -20,6 +22,8 @@ import java.util.Map;
  * @since 4.2
  */
 public class DomibusMetricsServlet extends MetricsServlet {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMetricsServlet.class);
 
     @Autowired
     MetricsHelper metricsHelper;
@@ -42,6 +46,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
                 continue;
             }
             metricRegistry.register(entry.getKey(), entry.getValue());
+            LOG.debug("Register metric name=[{}] value=[{}]", entry.getKey(), entry.getValue());
         }
 
         resp.setContentType("application/json");
