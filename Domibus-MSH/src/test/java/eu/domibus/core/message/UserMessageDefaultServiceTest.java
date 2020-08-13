@@ -35,7 +35,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -601,13 +600,12 @@ public class UserMessageDefaultServiceTest {
             routingService.getNotificationListener(backend);
             result = notificationListener1;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
         userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+            notificationListener1.deleteMessageCallback(messageId);
         }};
     }
 
@@ -636,34 +634,9 @@ public class UserMessageDefaultServiceTest {
             routingService.getNotificationListener(anyString);
             times = 0;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+            notificationListener1.deleteMessageCallback(messageId);
             times = 0;
 
-        }};
-    }
-
-    @Test
-    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
-                                                                       @Injectable UserMessageLog userMessageLog,
-                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
-        final String messageId = "1";
-        final String backendQueue = "myPluginQueue";
-
-        new Expectations(userMessageDefaultService) {{
-            notificationListener.getBackendNotificationQueue();
-            result = backendNotificationQueue;
-
-            backendNotificationQueue.getQueueName();
-            result = backendQueue;
-
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
-
-        new Verifications() {{
-            jmsManager.consumeMessage(backendQueue, messageId);
-            notificationListener.deleteMessageCallback(messageId);
         }};
     }
 
