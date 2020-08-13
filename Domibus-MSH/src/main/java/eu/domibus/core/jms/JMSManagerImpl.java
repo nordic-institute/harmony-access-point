@@ -3,17 +3,23 @@ package eu.domibus.core.jms;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +91,9 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private DomainService domainService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public SortedMap<String, JMSDestination> getDestinations() {
@@ -365,5 +374,75 @@ public class JMSManagerImpl implements JMSManager {
             return StringUtils.indexOfAny(jmsQueueInternalName, queuesToCheck.stream().toArray(String[]::new)) >= 0;
         }
         return false;
+    }
+
+    public Collection<String> listPendingMessages(String queueName) {
+        LOG.debug("Listing pending messages for queue [{}]", queueName);
+
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+
+        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        LOG.info("Authorized as " + (originalUser == null ? "super user" : originalUser));
+
+        /* if originalUser is null, all messages are returned */
+        return getQueueElements(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);
+    }
+
+    private Collection<String> getQueueElements(String queueName, final NotificationType notificationType, final String finalRecipient) {
+        final Collection<String> result = browseQueue(queueName, notificationType, finalRecipient);
+        return result;
+    }
+
+    protected Collection<String> browseQueue(String queueName, final NotificationType notificationType, final String finalRecipient) {
+        final Collection<String> result = new ArrayList<>();
+        final int intMaxPendingMessagesRetrieveCount = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT);
+        LOG.debug("Using maxPendingMessagesRetrieveCount [{}] limit", intMaxPendingMessagesRetrieveCount);
+
+        String selector = MessageConstants.NOTIFICATION_TYPE + "='" + notificationType.name() + "'";
+
+        if (finalRecipient != null) {
+            selector += " and " + MessageConstants.FINAL_RECIPIENT + "='" + finalRecipient + "'";
+        }
+        selector = getDomainSelector(selector);
+
+        List<JmsMessage> messages = browseClusterMessages(queueName, selector);
+        LOG.info("[{}] messages selected from queue [{}] with selector [{}]", (messages != null ? messages.size() : 0), queueName, selector);
+
+        int countOfMessagesIncluded = 0;
+        for (JmsMessage message : messages) {
+            String messageId = message.getCustomStringProperty(MessageConstants.MESSAGE_ID);
+            result.add(messageId);
+            countOfMessagesIncluded++;
+            LOG.debug("Added MessageId [" + messageId + "]");
+            if ((intMaxPendingMessagesRetrieveCount != 0) && (countOfMessagesIncluded >= intMaxPendingMessagesRetrieveCount)) {
+                LOG.info("Limit of pending messages to return has been reached [" + countOfMessagesIncluded + "]");
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void removeFromPending(String queueName, String messageId) throws MessageNotFoundException {
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+
+        //add messageId to MDC map
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
+
+        JmsMessage message = consumeMessage(queueName, messageId);
+        if (message == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageId);
+            throw new MessageNotFoundException("No message with id [" + messageId + "] pending for download");
+        }
+        LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
+
     }
 }

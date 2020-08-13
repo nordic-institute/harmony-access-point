@@ -58,7 +58,9 @@ public interface NotificationListener {
      * @param messageId The message id
      * @param notificationType Notification type
      * @param properties Properties map specific to each notification type
+     * @deprecated This method should not be used anymore. Domibus notifies directly the connector using the lifecycle methods eg messageSendSuccess, messageSendFailed, etc
      */
+    @Deprecated
     default void notify(final String messageId, final NotificationType notificationType, final Map<String, Object> properties) {
     }
 }

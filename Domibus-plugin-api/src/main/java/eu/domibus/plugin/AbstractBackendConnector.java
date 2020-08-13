@@ -97,7 +97,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
 
-            lister.removeFromPending(messageId);
+            removeFromPending(messageId);
+
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;
@@ -105,6 +106,14 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
         }
+    }
+
+    protected void removeFromPending(String messageId) throws MessageNotFoundException {
+        if (lister == null) {
+            LOG.debug("No pending message removed: messageLister is not configured for plugin [{}]", getName());
+            return;
+        }
+        lister.removeFromPending(messageId);
     }
 
     @Override
@@ -117,6 +126,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public Collection<String> listPendingMessages() {
+        if (lister == null) {
+            throw new UnsupportedOperationException("MessageLister is not defined for plugin [" + getName() + "]");
+        }
         return lister.listPendingMessages();
     }
 

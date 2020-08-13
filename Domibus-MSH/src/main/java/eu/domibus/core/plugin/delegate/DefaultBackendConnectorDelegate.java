@@ -1,6 +1,5 @@
 package eu.domibus.core.plugin.delegate;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.*;
 import eu.domibus.logging.DomibusLogger;
@@ -35,6 +34,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         backendConnector.messageReceiveFailed(event);
     }
 
+    @Override
     public void deliverMessage(BackendConnector backendConnector, DeliverMessageEvent event) {
         if (classUtil.isMethodDefined(backendConnector, "deliverMessage", new Class[]{DeliverMessageEvent.class})) {
             LOG.trace("Calling deliverMessage method");
@@ -45,6 +45,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         }
     }
 
+    @Override
     public void messageSendFailed(BackendConnector backendConnector, MessageSendFailedEvent event) {
         if (classUtil.isMethodDefined(backendConnector, "messageSendFailed", new Class[]{MessageSendFailedEvent.class})) {
             LOG.trace("Calling messageSendFailed method");
@@ -56,6 +57,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     }
 
+    @Override
     public void messageSendSuccess(BackendConnector backendConnector, MessageSendSuccessEvent event) {
         if (classUtil.isMethodDefined(backendConnector, "messageSendSuccess", new Class[]{MessageSendSuccessEvent.class})) {
             LOG.trace("Calling messageSendSuccess method");

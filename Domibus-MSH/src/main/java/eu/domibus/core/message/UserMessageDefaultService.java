@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
@@ -30,6 +29,7 @@ import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -37,7 +37,6 @@ import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -51,7 +50,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
@@ -105,6 +103,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private BackendNotificationService backendNotificationService;
+
+    @Autowired
+    protected RoutingService routingService;
 
     @Autowired
     private JMSManager jmsManager;
@@ -539,7 +540,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected void deleteMessagePluginCallback(String messageId, UserMessageLog userMessageLog) {
-        if (backendNotificationService.getNotificationListenerServices() == null) {
+        if (routingService.getNotificationListeners() == null) {
             LOG.debug("No notification listeners found");
             return;
         }
@@ -555,27 +556,10 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("Could not find backend for message with id [{}]", messageId);
             return;
         }
-        NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
+        NotificationListener notificationListener = routingService.getNotificationListener(backend);
         if (notificationListener == null) {
             LOG.warn("Could not find notification listener for backend [{}]", backend);
             return;
-        }
-        deleteMessagePluginCallback(messageId, notificationListener);
-    }
-
-    protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {
-        try {
-            Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
-            if (backendNotificationQueue != null) {
-                String queueName = backendNotificationQueue.getQueueName();
-                JmsMessage message = jmsManager.consumeMessage(queueName, messageId);
-                if (message != null) {
-                    LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
-                }
-            }
-        } catch (JMSException jmsEx) {
-            LOG.error("Error trying to get the queue name", jmsEx);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
         }
         notificationListener.deleteMessageCallback(messageId);
     }

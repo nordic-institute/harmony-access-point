@@ -23,6 +23,7 @@ import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
@@ -94,6 +95,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private BackendNotificationService backendNotificationService;
+
+    @Injectable
+    protected RoutingService routingService;
 
     @Injectable
     private JMSManager jmsManager;
@@ -588,13 +592,13 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.getBackend();
             result = backend;
 
-            backendNotificationService.getNotificationListener(backend);
+            routingService.getNotificationListener(backend);
             result = notificationListener1;
 
             userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
@@ -615,7 +619,7 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.isTestMessage();
@@ -629,7 +633,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getBackend();
             times = 0;
 
-            backendNotificationService.getNotificationListener(anyString);
+            routingService.getNotificationListener(anyString);
             times = 0;
 
             userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
@@ -678,7 +682,7 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = null;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
@@ -710,7 +714,7 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = null;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
