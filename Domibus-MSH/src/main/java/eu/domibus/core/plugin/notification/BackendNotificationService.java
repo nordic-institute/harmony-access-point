@@ -9,6 +9,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
@@ -51,7 +52,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
@@ -139,6 +143,9 @@ public class BackendNotificationService {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
@@ -148,6 +155,9 @@ public class BackendNotificationService {
     @PostConstruct
     public void init() {
         Map<String, NotificationListener> notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
+
+        //Setting authentication to have user details in audit logs when create message filters
+        authUtils.setAuthenticationToSecurityContext("domibus", "domibus");
         if (notificationListenerBeanMap.isEmpty()) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         } else {
