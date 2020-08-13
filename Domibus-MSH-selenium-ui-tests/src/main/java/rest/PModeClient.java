@@ -27,9 +27,7 @@ public class PModeClient extends BaseRestClient {
 		fields.put("description", Generator.randomAlphaNumeric(10));
 		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
 		if (response.getStatus() != 200) {
-			log.debug(String.valueOf(response.getStatus()));
-			log.debug(response.getEntity(String.class));
-			throw new Exception("Could not upload PMODE file!!!");
+			throw new DomibusRestException("Could not upload PMODE file!!!", response);
 		}
 	}
 	

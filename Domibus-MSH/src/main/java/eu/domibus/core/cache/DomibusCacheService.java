@@ -14,6 +14,7 @@ public interface DomibusCacheService {
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
     String DISPATCH_CLIENT = "dispatchClient";
+    String CRL_BY_CERT = "crlByCert";
 
     void clearCache(String refreshCacheName);
 

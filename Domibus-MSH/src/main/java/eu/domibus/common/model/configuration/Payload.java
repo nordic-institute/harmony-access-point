@@ -34,7 +34,7 @@ import java.math.BigInteger;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_PAYLOAD")
+@Table(name = "TB_PM_PAYLOAD")
 public class Payload extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

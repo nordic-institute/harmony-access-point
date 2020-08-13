@@ -19,7 +19,7 @@ import static eu.domibus.common.model.configuration.Process.*;
         "legsXml"
 })
 @Entity
-@Table(name = "TB_PROCESS")
+@Table(name = "TB_PM_PROCESS")
 @NamedQueries({
         @NamedQuery(name = RETRIEVE_PULL_PROCESS_FROM_MESSAGE_CONTEXT, query = "SELECT p FROM Process as p left join p.legs as l left join p.initiatorParties init left join p.responderParties resp  where p.mepBinding.value=:mepBinding and l.name=:leg and init.name=:initiatorName and resp.name=:responderName"),
         @NamedQuery(name = FIND_PULL_PROCESS_TO_INITIATE, query = "SELECT p FROM Process as p join p.initiatorParties as resp WHERE p.mepBinding.value=:mepBinding and resp in(:initiator)"),
@@ -67,16 +67,16 @@ public class Process extends AbstractBaseEntity {
     protected String bindingXml;
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "TB_JOIN_PROCESS_INIT_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
+    @JoinTable(name = "TB_PM_JOIN_PROCESS_INIT_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
     protected Set<Party> initiatorParties;
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "TB_JOIN_PROCESS_RESP_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
+    @JoinTable(name = "TB_PM_JOIN_PROCESS_RESP_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
     private Set<Party> responderParties;
 
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "TB_JOIN_PROCESS_LEG", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "LEG_FK"))
+    @JoinTable(name = "TB_PM_JOIN_PROCESS_LEG", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "LEG_FK"))
     private Set<LegConfiguration> legs;
     @XmlTransient
     @ManyToOne(cascade = CascadeType.ALL)

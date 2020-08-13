@@ -185,6 +185,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     PayloadFileStorageProvider storageProvider;
 
+    @Injectable
+    MessagePropertyValidator messagePropertyValidator;
+
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
@@ -322,6 +325,7 @@ public class UserMessageHandlerServiceImplTest {
 
             Assert.assertEquals("1234" + UserMessageHandlerService.SELF_SENDING_SUFFIX, capturedId);
             userMessageHandlerService.checkCharset(messaging);
+            messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, messaging, messageFragment, anyString);
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
         }};

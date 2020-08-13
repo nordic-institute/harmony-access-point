@@ -5,6 +5,8 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -26,22 +28,20 @@ public class JMSMessPgTest extends SeleniumTest {
 	public void deleteJMSMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		page.grid().waitForRowsToLoad();
-		page.filters().getJmsSearchButton().isEnabled();
-		
-		
-		int noOfMessages = -1;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
 			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
 			
 			log.info("deleting first message listed");
+			
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 			page.grid().selectRow(0);
 			page.getDeleteButton().click();
@@ -72,28 +72,30 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	//	This cannot run reliable because messages are pulled from the queues as the tests run
 	/*JMS-8 - Move message*/
-	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.JMS_MONITORING);
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		
-		log.info("checking no of messages");
-		page.grid().waitForRowsToLoad();
-		int noOfMessInDQL = page.grid().getPagination().getTotalItems();
-		
-		int noOfMessages;
-		try {
-			noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessagesNotDLQ();
-		} catch (Exception e) {
-			throw new SkipException(e.getMessage());
-		}
-		page.grid().waitForRowsToLoad();
-		
-		String queuename = page.filters().getJmsQueueSelect().getSelectedValue();
-		
-		if (noOfMessages > 0) {
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		} else {
+			log.info("Navigate to JMS Messages page");
+			
+			JMSMonitoringPage page = new JMSMonitoringPage(driver);
+			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			page.grid().waitForRowsToLoad();
+			int noOfMessInDQL = page.grid().getPagination().getTotalItems();
+			
+			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+			page.grid().waitForRowsToLoad();
+			
+			
+			String queuename = page.filters().getJmsQueueSelect().getSelectedValue();
+			
+			
 			log.info("moving the first message");
 			page.grid().selectRow(0);
 			page.getMoveButton().click();
@@ -144,8 +146,6 @@ public class JMSMessPgTest extends SeleniumTest {
 			int index = page.grid().scrollTo("ID", rowInfo.get("ID"));
 			log.info("checking the moved message is present in the grid");
 			soft.assertTrue(index > -1, "DQL queue contains the new message");
-		} else {
-			throw new SkipException("Not enough messages in any of the queues to run test");
 		}
 		
 		soft.assertAll();
@@ -184,4 +184,45 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+	
+	private String getQWithMessages() throws Exception {
+
+//		destination = queues.getJSONObject(i).getString("name");
+		
+		String source = null;
+		
+		JSONArray queues = rest.jms().getQueues();
+		for (int i = 0; i < queues.length(); i++) {
+			if (queues.getJSONObject(i).getString("name").contains("DLQ")) {
+				continue;
+			} else if (queues.getJSONObject(i).getInt("numberOfMessages") > 0) {
+				source = queues.getJSONObject(i).getString("name");
+			}
+		}
+		
+		if (null == source) {
+			throw new SkipException("No messages found to move");
+		}
+		
+		return source;
+	}
+	
+	private String getDLQName() throws Exception {
+		
+		String destination = null;
+		
+		JSONArray queues = rest.jms().getQueues();
+		for (int i = 0; i < queues.length(); i++) {
+			if (queues.getJSONObject(i).getString("name").contains("DLQ")) {
+				destination = queues.getJSONObject(i).getString("name");
+			}
+		}
+		
+		if (null == destination) {
+			throw new SkipException("Could not find DLQ Q");
+		}
+		return destination;
+	}
+	
+	
 }

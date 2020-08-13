@@ -317,6 +317,19 @@ public class DGrid extends DComponent {
 		return values;
 	}
 	
+	public List<String> getListedValuesOnColumn(String columnName) throws Exception {
+		List<HashMap<String, String>> allInfo = getListedRowInfo();
+		List<String> values = new ArrayList<>();
+		
+		for (int i = 0; i < allInfo.size(); i++) {
+			String val = allInfo.get(i).get(columnName);
+			if (null != val) {
+				values.add(val);
+			}
+		}
+		return values;
+	}
+	
 	public void resetGridScroll() {
 		log.info("reseting grid scroll");
 		
@@ -368,20 +381,7 @@ public class DGrid extends DComponent {
 		getGridCtrl().hideCtrls();
 		soft.assertTrue(!getGridCtrl().areCheckboxesVisible(), "Hide Columns hides checkboxes");
 	}
-	
-//	public void checkModifyVisibleColumns(SoftAssert soft, List<String> chkOptions) throws Exception {
-//		//-----------Show - Modify - Hide
-//		for (String colName : chkOptions) {
-//			log.info("checking checkbox for " + colName);
-//			getGridCtrl().showCtrls();
-//			getGridCtrl().checkBoxWithLabel(colName);
-//			soft.assertTrue(columnsVsCheckboxes());
-//
-//			getGridCtrl().uncheckBoxWithLabel(colName);
-//			soft.assertTrue(columnsVsCheckboxes());
-//		}
-//	}
-	
+
 	public void checkModifyVisibleColumns(SoftAssert soft) throws Exception {
 		
 		List<String> chkOptions = getGridCtrl().getAllCheckboxLabels();
@@ -446,23 +446,25 @@ public class DGrid extends DComponent {
 	}
 	
 	public void checkCSVvsGridInfo(String filename, SoftAssert soft) throws Exception {
-		log.info("Checking csv file vs grid content");
 		
-		Reader reader = Files.newBufferedReader(Paths.get(filename));
-		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
-				.withTrim());
-		List<CSVRecord> records = csvParser.getRecords();
-		List<HashMap<String, String>> gridInfo = getAllRowInfo();
+			log.info("Checking csv file vs grid content");
+			
+			Reader reader = Files.newBufferedReader(Paths.get(filename));
+			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+					.withTrim());
+			List<CSVRecord> records = csvParser.getRecords();
+			List<HashMap<String, String>> gridInfo = getAllRowInfo();
+			
+			log.info("comparing number of items (" + gridInfo.size() + " vs " + records.size() + ")");
+			soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
+			
+			log.info("checking listed data");
+			for (int i = 0; i < gridInfo.size(); i++) {
+				HashMap<String, String> gridRecord = gridInfo.get(i);
+				CSVRecord record = records.get(i);
+				soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+			}
 		
-		log.info("comparing number of items (" + gridInfo.size() + " vs " + records.size() + ")");
-		soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
-		
-		log.info("checking listed data");
-		for (int i = 0; i < gridInfo.size(); i++) {
-			HashMap<String, String> gridRecord = gridInfo.get(i);
-			CSVRecord record = records.get(i);
-			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
-		}
 	}
 	
 	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
@@ -487,7 +489,7 @@ public class DGrid extends DComponent {
 		
 	}
 	
-	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws ParseException {
+	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws Exception {
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;
@@ -521,7 +523,7 @@ public class DGrid extends DComponent {
 		return true;
 	}
 	
-	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws ParseException {
+	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws Exception {
 		Date csvDate = null;
 		Date uiDate = null;
 		
@@ -535,13 +537,13 @@ public class DGrid extends DComponent {
 		
 		
 		try {
-			csvDate = TestRunData.CSV_DATE_FORMAT.parse(csvDateStr);
+			csvDate = TestRunData.CSV_DATE_FORMAT2.parse(csvDateStr);
 			uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
 		} catch (ParseException e) {
 			log.debug("csvDateStr = " + csvDateStr);
 			log.debug("uiDateStr = " + uiDateStr);
+			return true;
 		}
-		
 		return csvDate.equals(uiDate);
 	}
 	
@@ -589,25 +591,6 @@ public class DGrid extends DComponent {
 			
 		}
 		throw new Exception("Sort order cannot be determined");
-	}
-	
-	public void checkCSVvsGridDataForSpecificRow(String filename, SoftAssert soft, int i) throws Exception {
-		log.info("Checking csv file vs grid content for specific row");
-		
-		Reader reader = Files.newBufferedReader(Paths.get(filename));
-		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
-				.withTrim());
-		List<CSVRecord> records = csvParser.getRecords();
-		HashMap<String, String> gridInfo = getRowInfo(i);
-		
-		
-		log.info("checking listed data for  data row" + i);
-		HashMap<String, String> gridRecord = gridInfo;
-		CSVRecord record = records.get(i);
-		
-		log.debug(String.format("Comparing grid record %s with CSV record %s", gridInfo, record.toMap().toString()));
-		
-		soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
 	}
 	
 	public String getRowSpecificColumnVal(int rowNumber, String columnName) throws Exception {

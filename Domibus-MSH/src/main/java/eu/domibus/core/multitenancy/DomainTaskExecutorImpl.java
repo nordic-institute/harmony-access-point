@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.concurrent.*;
@@ -21,7 +19,7 @@ import java.util.concurrent.*;
 public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
-    public static final long DEFAULT_WAIT_TIMEOUT = 5000L;
+    public static final long DEFAULT_WAIT_TIMEOUT_IN_SECONDS = 60L;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -39,7 +37,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
-            return utrFuture.get(5000L, TimeUnit.SECONDS);
+            return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new DomainTaskException("Could not execute task", e);
         }
@@ -49,7 +47,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task) {
         LOG.trace("Submitting task");
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
 
@@ -61,12 +59,12 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(setLockOnFileRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
 
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
     public void submit(Runnable task, Domain domain) {
-        submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override

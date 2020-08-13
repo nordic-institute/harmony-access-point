@@ -1,4 +1,5 @@
 Domibus 4.2 (from 4.1.4):
+                - Change oracle database configuration property domibus.datasource.xa.property.URL to domibus.datasource.xa.property.url in domibus.properties.
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max
@@ -12,8 +13,9 @@ Domibus 4.2 (from 4.1.4):
                 - Wildfly standalone-full.xml - search for
                     <managed-executor-service name="quartzExecutorService" jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService" context-service="default" hung-task-threshold="0" long-running-tasks="true" core-threads="5" max-threads="25" keepalive-time="5000"/>
                     and replace 'core-threads="5" max-threads="25"' with 'core-threads="50" max-threads="200"'
-Domibus 4.1.4 (from 4.1.3)
+Domibus 4.1.5 (from 4.1.3)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - In case of Dynamic Discovery where the trust for SMP certificate is established only by issuer certificate, now the whole chain must be imported in to the truststore
 Domibus 4.1.3 (from 4.1.2):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
                 - [Tomcat only]

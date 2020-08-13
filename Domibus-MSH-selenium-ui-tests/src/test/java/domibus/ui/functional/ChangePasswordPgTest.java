@@ -43,7 +43,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 	/**
 	 * This method will change password and allow to login successfully with new credentials
 	 */
-	@Test(description = "CP-9", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-9", groups = {"multiTenancy", "singleTenancy"})
 	public void changePassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -51,6 +51,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		
 		log.info("Login into application with Admin credentials");
 		DomibusPage page = login(username, data.defaultPass());
+		page.waitForPageToLoad();
 		
 		log.info("Validate change password link presence");
 		soft.assertTrue(page.getSandwichMenu().isChangePassLnkPresent(), "Change Password link is available");
@@ -58,6 +59,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		log.info("Open Change password page ");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		cpage.waitForPageTitle();
 		
 		log.info("Fill correct data in current password , Valid and same data in new password and confirmation field");
 		cpage.setPassFields(data.defaultPass(), data.getNewTestPass(), data.getNewTestPass());
@@ -66,7 +68,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		cpage.getUpdateButton().click();
 		
 		log.info("wait for Message page title");
-		page.waitForPageToLoad();
+		page.waitForPageTitle();
 		
 		log.info("logout from application");
 		logout();
@@ -83,7 +85,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 	/**
 	 * This method will throw error in new password is among previous 5 passwords.
 	 */
-	@Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "CP-10", groups = {"multiTenancy", "singleTenancy"})
 	public void newPasswordAmongLast5() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -96,6 +98,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		log.info("Open change password page");
 		page.getSandwichMenu().openchangePassword();
 		ChangePasswordPage cpage = new ChangePasswordPage(driver);
+		cpage.waitForPageTitle();
 		
 		log.info("Fill correct and valid data in all fields");
 		cpage.setPassFields(data.defaultPass(), data.getNewTestPass(), data.getNewTestPass());
@@ -104,7 +107,7 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		cpage.getUpdateButton().click();
 		
 		log.info("Wait for Message page title");
-		page.waitForPageToLoad();
+		page.waitForPageTitle();
 		
 		log.info("logout from application");
 		logout();
@@ -118,13 +121,13 @@ public class ChangePasswordPgTest extends SeleniumTest {
 		page.getSandwichMenu().openchangePassword();
 		
 		log.info("Fill correct data in current password , same in new password and confirmation field");
-		cpage.setPassFields(data.getNewTestPass(), data.getNewTestPass(), data.getNewTestPass());
+		cpage.setPassFields(data.getNewTestPass(), data.defaultPass(), data.defaultPass());
 		
 		log.info("Click on update button");
 		cpage.getUpdateButton().click();
 		
 		log.info("Error message shown:" + page.getAlertArea().getAlertMessage());
-		soft.assertTrue(!page.getAlertArea().getAlertMessage().isEmpty(), "Message is not displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.CHANGEPASSWORD_LAST_FIVE, username), "Correct error message is displayed");
 		soft.assertAll();
 	}
 }

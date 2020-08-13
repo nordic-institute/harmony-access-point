@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_ROLE")
+@Table(name = "TB_PM_ROLE")
 @NamedQueries({
         @NamedQuery(name = "Role.findByValue", query = "select role from Role role where role.value=:VALUE"),
         @NamedQuery(name = "Role.findByName", query = "select role from Role role where role.name=:NAME")

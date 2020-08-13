@@ -34,7 +34,13 @@
 		"name": "Deleted",
 		"type": "boolean",
 		"sortable": true,
-		"visibleByDefault": true
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Expiration Date",
+		"type": "datetime",
+		"sortable": true,
+		"visibleByDefault": false
 	  }
 	],
 	"pagination": {

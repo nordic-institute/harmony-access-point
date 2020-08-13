@@ -39,7 +39,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_SERVICE_NOT_FOUND("BUS-028", "Message service not found for value [{}]"),
     BUS_MESSAGE_SERVICE_INVALID_URI("BUS-029", "Message service [{}] is not a valid URI [CORE]"),
     BUS_LEG_NAME_FOUND("BUS-030", "Leg name found [{}] for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
-    BUS_LEG_NAME_NOT_FOUND("BUS-031", "Leg name not found found for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
+    BUS_LEG_NAME_NOT_FOUND("BUS-031", "Leg name not found for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
     BUS_MESSAGE_SEND_INITIATION("BUS-032", "Preparing to send message from [{}] to [{}]"),
     BUS_MESSAGE_SEND_SUCCESS("BUS-033", "Message sent successfully from [{}] to [{}]"),
     BUS_MESSAGE_SEND_FAILURE("BUS-034", "Message sending from [{}] to [{}] failed"),
@@ -85,6 +85,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_RECEIVER_PARTY_ID_NOT_FOUND("BUS-074", "Receiver Party id not found for value [{}]"),
     BUS_PROPERTY_DUPLICATE("BUS-075", "Duplicate Message Property found for property name [{}]"),
     BUS_PAYLOAD_INVALID_SIZE("BUS-076", "Payload size is greater than maximum size [{}] defined in payload profile [{}]"),
+    BUS_MESSAGE_PROPERTY_SIZE_EXCEEDED("BUS-073", "Message property [{}] exceeds [{}] characters limit"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

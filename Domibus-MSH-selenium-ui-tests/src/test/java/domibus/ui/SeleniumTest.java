@@ -19,6 +19,7 @@ import pages.login.LoginPage;
 import utils.driver.DriverManager;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,7 @@ public class SeleniumTest extends BaseTest {
 //		makeLoggerLog();
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
+		cleanMessFilters();
 		generateTestData();
 	}
 	
@@ -68,8 +70,10 @@ public class SeleniumTest extends BaseTest {
 	}
 	
 	@BeforeMethod(alwaysRun = true)
-	protected void logSeparator() throws Exception {
+	protected void logSeparator(Method method) throws Exception {
+		
 		log.info("--------------------------- Running test number: " + methodCount);
+		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());
 		methodCount++;
 		login(data.getAdminUser());
 	}

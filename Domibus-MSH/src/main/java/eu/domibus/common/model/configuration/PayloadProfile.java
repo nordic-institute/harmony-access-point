@@ -14,7 +14,7 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "attachment")
 @Entity
-@Table(name = "TB_PAYLOAD_PROFILE")
+@Table(name = "TB_PM_PAYLOAD_PROFILE")
 public class PayloadProfile extends AbstractBaseEntity {
 
     @XmlElement(required = true, name = "attachment")
@@ -31,7 +31,7 @@ public class PayloadProfile extends AbstractBaseEntity {
 
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "TB_JOIN_PAYLOAD_PROFILE", joinColumns = @JoinColumn(name = "FK_PAYLOAD"), inverseJoinColumns = @JoinColumn(name = "FK_PROFILE"))
+    @JoinTable(name = "TB_PM_JOIN_PAYLOAD_PROFILE", joinColumns = @JoinColumn(name = "FK_PAYLOAD"), inverseJoinColumns = @JoinColumn(name = "FK_PROFILE"))
     private Set<Payload> payloads;
 
     @Override

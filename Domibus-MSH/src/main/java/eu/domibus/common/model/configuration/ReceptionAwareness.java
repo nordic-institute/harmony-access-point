@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_RECEPTION_AWARENESS")
+@Table(name = "TB_PM_RECEPTION_AWARENESS")
 public class ReceptionAwareness extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

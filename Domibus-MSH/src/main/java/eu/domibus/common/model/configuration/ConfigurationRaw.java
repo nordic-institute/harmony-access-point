@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "TB_CONFIGURATION_RAW")
+@Table(name = "TB_PM_CONFIGURATION_RAW")
 @NamedQueries({
         @NamedQuery(name = "ConfigurationRaw.getById",
                 query = "select conf from ConfigurationRaw conf WHERE conf.entityId = :CONF_ID"),

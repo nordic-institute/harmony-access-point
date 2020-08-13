@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_ERROR_HANDLING")
+@Table(name = "TB_PM_ERROR_HANDLING")
 public class ErrorHandling extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

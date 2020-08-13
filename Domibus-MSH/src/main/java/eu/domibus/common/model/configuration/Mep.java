@@ -14,7 +14,7 @@ import java.math.BigInteger;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_MEP")
+@Table(name = "TB_PM_MEP")
 public class Mep extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)
