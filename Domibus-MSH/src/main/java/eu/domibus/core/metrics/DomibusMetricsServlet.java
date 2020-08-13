@@ -46,7 +46,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
                 continue;
             }
             metricRegistry.register(entry.getKey(), entry.getValue());
-            LOG.debug("Register metric name=[{}] value=[{}]", entry.getKey(), entry.getValue());
+            LOG.debug("printing metric name=[{}] value=[{}]", entry.getKey(), entry.getValue());
         }
 
         resp.setContentType("application/json");
