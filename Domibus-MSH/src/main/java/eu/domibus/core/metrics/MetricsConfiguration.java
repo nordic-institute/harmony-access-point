@@ -9,7 +9,6 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -42,17 +41,16 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry,
-                                         JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor,
-                                         DomibusConfigurationService domibusConfigurationService) {
+    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider,
+                                         JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
 
-        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, healthCheckRegistry, jmsManager, authUtils, domainTaskExecutor);
+        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, jmsManager, authUtils, domainTaskExecutor);
         addMetricsToLogs(domibusPropertyProvider, metricRegistry);
         return metricRegistry;
     }
 
 
-    protected MetricRegistry createMetricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry, JMSManager jmsManager,
+    protected MetricRegistry createMetricRegistry(DomibusPropertyProvider domibusPropertyProvider, JMSManager jmsManager,
                                                   AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
         MetricRegistry metricRegistry = new MetricRegistry();
         boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
@@ -90,7 +88,7 @@ public class MetricsConfiguration {
         return metricRegistry;
     }
 
-    private void addMetricsToLogs(DomibusPropertyProvider domibusPropertyProvider, MetricRegistry metricRegistry) {
+    protected void addMetricsToLogs(DomibusPropertyProvider domibusPropertyProvider, MetricRegistry metricRegistry) {
         Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE);
         if (sl4jReporterEnabled) {
             Integer periodProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER);
