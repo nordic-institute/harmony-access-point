@@ -119,6 +119,22 @@
             <artifactId>java-uuid-generator</artifactId>
             <version>${java-uuid-generator.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.oracle/aqapi -->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>aqapi</artifactId>
+            <version>12.2.0.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc8 -->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>12.2.0.1</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
