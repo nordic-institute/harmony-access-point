@@ -127,6 +127,9 @@
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
+        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <activation.version>1.1</activation.version>
+        <jsr181-api.version>1.0-MR1</jsr181-api.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -451,6 +454,16 @@
                 <groupId>javax.xml.ws</groupId>
                 <artifactId>jaxws-api</artifactId>
                 <version>${jaxws-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jws</groupId>
+                <artifactId>jsr181-api</artifactId>
+                <version>${jsr181-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
@@ -886,7 +899,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${maven-dependency-plugin.version}</version>
                     <executions>
                         <execution>
                             <phase>generate-sources</phase>
