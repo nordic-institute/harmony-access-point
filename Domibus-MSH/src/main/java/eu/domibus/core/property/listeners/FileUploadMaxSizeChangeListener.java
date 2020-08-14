@@ -11,10 +11,10 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 
 /**
+ * Handles the change of domibus.file.upload.maxSize property
+ *
  * @author Ion Perpegel
  * @since 4.2
- * <p>
- * Handles the change of domibus.file.upload.maxSize property
  */
 @Service
 public class FileUploadMaxSizeChangeListener implements DomibusPropertyChangeListener {
