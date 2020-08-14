@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
@@ -33,6 +34,10 @@ public class NotificationListenerService implements NotificationListener {
 
     //the following fields are provided by the plugin
     protected Queue backendNotificationQueue;
+    /**
+     * Used to override the queue name. For WebLogic and WildFly, set the queue JNDI name as the queue name
+     */
+    protected String queueName;
     protected BackendConnector.Mode mode;
     protected BackendConnector backendConnector;
     protected List<NotificationType> requiredNotifications;
@@ -82,7 +87,15 @@ public class NotificationListenerService implements NotificationListener {
 
     @Override
     public String getQueueName() throws JMSException {
+        if (StringUtils.isNoneEmpty(queueName)) {
+            LOG.trace("Using custom queue name [{}]", queueName);
+            return queueName;
+        }
         return backendNotificationQueue.getQueueName();
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     @Override

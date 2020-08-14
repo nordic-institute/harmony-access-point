@@ -13,8 +13,9 @@ import java.util.List;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
+ * @deprecated use {@link eu.domibus.plugin.NotificationListenerService} and set the JNDI name as the queue name
  */
-
 public class WeblogicNotificationListenerService extends NotificationListenerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WeblogicNotificationListenerService.class);
