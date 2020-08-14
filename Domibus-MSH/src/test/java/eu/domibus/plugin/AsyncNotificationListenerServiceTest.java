@@ -79,31 +79,5 @@ public class AsyncNotificationListenerServiceTest {
         }};
     }
 
-    @Test
-    public void configureJmsListeners(@Injectable JmsListenerEndpointRegistrar registrar,
-                                      @Injectable Queue queue) throws JMSException {
-        String backendName = "mybackend";
-        String queueName = "myQueue";
 
-        new Expectations() {{
-            notificationListenerService.getBackendName();
-            result = backendName;
-
-            notificationListenerService.getBackendNotificationQueue();
-            result = queue;
-
-            queue.getQueueName();
-            result = queueName;
-        }};
-
-        objNotificationListenerService.configureJmsListeners(registrar);
-
-        new Verifications() {{
-            SimpleJmsListenerEndpoint endpoint = null;
-            registrar.registerEndpoint(endpoint = withCapture(), internalJmsListenerContainerFactory);
-
-            assertEquals(backendName, endpoint.getId());
-            assertTrue(objNotificationListenerService == endpoint.getMessageListener());
-        }};
-    }
 }

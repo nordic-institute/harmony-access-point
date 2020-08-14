@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin;
 
 import eu.domibus.plugin.BackendConnector;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.2
  */
+@Service
 public class BackendConnectorProvider {
 
     protected List<BackendConnector<?, ?>> backendConnectors;

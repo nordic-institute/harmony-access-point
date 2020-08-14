@@ -22,10 +22,8 @@
     <amq:queue id="fsPluginSendQueue"
                physicalName="${fsplugin.send.queue}"/>
 
-    <bean id="backendFSPlugin"
-          class="eu.domibus.plugin.fs.BackendFSImpl">
+    <bean id="backendFSPlugin" class="eu.domibus.plugin.fs.BackendFSImpl">
         <constructor-arg value="backendFSPlugin"/>
-        <property name="lister" ref="fsPluginNotificationListenerService"/>
     </bean>
 
     <bean id="fsPluginNotificationListenerService"
