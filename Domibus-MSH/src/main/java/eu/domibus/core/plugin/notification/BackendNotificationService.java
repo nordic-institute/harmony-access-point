@@ -9,6 +9,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
@@ -156,8 +157,6 @@ public class BackendNotificationService {
     public void init() {
         Map<String, NotificationListener> notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
 
-        //Setting authentication to have user details in audit logs when create message filters
-        authUtils.setAuthenticationToSecurityContext("domibus", "domibus");
         if (notificationListenerBeanMap.isEmpty()) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         } else {
@@ -186,6 +185,9 @@ public class BackendNotificationService {
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
+
+        //Setting security context authentication to have user details in audit logs when create message filters
+        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
 
         List<String> pluginToAdd = notificationListenerServices
                 .stream()
