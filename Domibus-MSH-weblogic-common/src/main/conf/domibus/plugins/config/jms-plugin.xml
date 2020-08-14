@@ -19,10 +19,10 @@
     </bean>
 
     <bean id="jmsNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
+          class="eu.domibus.plugin.NotificationListenerService"
           c:queue-ref="notifyBackendJmsQueue" c:mode="PUSH"
           p:backendConnector-ref="backendJms">
-        <property name="queueJndi" value="${jmsplugin.queue.notification}"/>
+        <property name="queueName" value="${jmsplugin.queue.notification}"/>
     </bean>
 
     <bean id="jndiDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">

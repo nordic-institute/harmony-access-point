@@ -36,10 +36,10 @@
     </bean>
 
     <bean id="fsPluginNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
+          class="eu.domibus.plugin.NotificationListenerService"
           c:queue-ref="notifyBackendFSQueue" c:mode="PUSH"
           p:backendConnector-ref="backendFSPlugin">
-        <property name="queueJndi" value="jms/domibus.notification.filesystem"/>
+        <property name="queueName" value="jms/domibus.notification.filesystem"/>
     </bean>
 
 </beans>

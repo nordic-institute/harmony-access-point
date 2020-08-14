@@ -23,7 +23,6 @@
     <bean id="backendWebservice"
           class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl">
         <constructor-arg value="backendWebservice"/>
-        <property name="lister" ref="webserviceNotificationListenerService"/>
     </bean>
 
     <util:list id="requiredNotificationsList" value-type="eu.domibus.common.NotificationType">
