@@ -67,7 +67,6 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                 .authorizeRequests()
                 .antMatchers("/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .and()
-
                 .sessionManagement()
                 .maximumSessions(10)
                 .maxSessionsPreventsLogin(false)

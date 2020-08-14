@@ -1,10 +1,10 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -137,8 +137,13 @@ public class AuthUtilsImpl implements AuthUtils {
 
     protected boolean checkAdminRights(AuthRole authRole) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities() == null) {
+            LOG.debug("No authentication found or the authenticated user has no authorities");
+            return false;
+        }
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (authorities.contains(new SimpleGrantedAuthority(authRole.name()))) {
+            LOG.debug("User=[{}] has Admin or Super Admin rights ([{}])", authentication.getName(), authRole.name());
             return true;
         }
         return false;
