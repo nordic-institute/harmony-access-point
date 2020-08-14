@@ -61,8 +61,6 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
         SimpleJmsListenerEndpoint endpoint = createJMSListener(notificationListenerService);
         registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
         LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", notificationListenerService.getBackendName());
-
-
     }
 
     protected SimpleJmsListenerEndpoint createJMSListener(NotificationListenerService notificationListenerService) {
@@ -75,7 +73,7 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
             throw new ConfigurationException("No notification queue found for " + notificationListenerService.getBackendName());
         }
         try {
-            endpoint.setDestination(getQueueName(pushQueue));
+            endpoint.setDestination(notificationListenerService.getQueueName());
         } catch (final JMSException e) {
             LOG.error("Problem with predefined queue.", e);
         }
@@ -83,9 +81,5 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
         endpoint.setMessageListener(asyncNotificationListenerService);
 
         return endpoint;
-    }
-
-    protected String getQueueName(Queue queue) throws JMSException {
-        return queue.getQueueName();
     }
 }

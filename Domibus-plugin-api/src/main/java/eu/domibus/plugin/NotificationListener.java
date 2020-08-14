@@ -3,6 +3,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.NotificationType;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ public interface NotificationListener {
      * @return
      */
     Queue getBackendNotificationQueue();
+
+    String getQueueName() throws JMSException;
 
     /**
      * Get the plugin mode. See also {@link eu.domibus.plugin.BackendConnector.Mode}

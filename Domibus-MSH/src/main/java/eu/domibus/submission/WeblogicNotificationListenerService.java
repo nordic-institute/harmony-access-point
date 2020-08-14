@@ -19,7 +19,7 @@ public class WeblogicNotificationListenerService extends NotificationListenerSer
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WeblogicNotificationListenerService.class);
 
-     private String queueJndi;
+    private String queueJndi;
 
     public WeblogicNotificationListenerService(final Queue queue, final BackendConnector.Mode mode) {
         super(queue, mode);
@@ -29,10 +29,9 @@ public class WeblogicNotificationListenerService extends NotificationListenerSer
         super(queue, mode, requiredNotifications);
     }
 
-    protected String getQueueName(Queue queue) throws JMSException {
-        String queueName = queueJndi;
-        LOG.info("getQueueName for [" + queue.getQueueName() + "] = " + queueName);
-        return queueName;
+    @Override
+    public String getQueueName() throws JMSException {
+        return queueJndi;
     }
 
     public String getQueueJndi() {

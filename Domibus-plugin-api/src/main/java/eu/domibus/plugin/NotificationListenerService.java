@@ -80,8 +80,9 @@ public class NotificationListenerService implements NotificationListener {
         return backendNotificationQueue;
     }
 
-    protected String getQueueName(Queue queue) throws JMSException {
-        return queue.getQueueName();
+    @Override
+    public String getQueueName() throws JMSException {
+        return backendNotificationQueue.getQueueName();
     }
 
     @Override
