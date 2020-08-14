@@ -143,7 +143,7 @@ public class AuthUtilsImpl implements AuthUtils {
         }
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (authorities.contains(new SimpleGrantedAuthority(authRole.name()))) {
-            LOG.debug("authenticated user=[{}] has required authority=[{}]", authentication.getName(), authRole.name());
+            LOG.debug("User=[{}] has Admin or Super Admin rights ([{}])", authentication.getName(), authRole.name());
             return true;
         }
         return false;
