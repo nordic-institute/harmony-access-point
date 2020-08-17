@@ -21,7 +21,9 @@ import java.util.List;
  *
  * @author Cosmin Baciu
  * @since 4.2
+ * @deprecated Use {@link JMSAsyncNotificationListener}
  */
+@Deprecated
 public class NotificationListenerService implements NotificationListener, MessageLister {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotificationListenerService.class);
@@ -69,7 +71,7 @@ public class NotificationListenerService implements NotificationListener, Messag
             return;
         }
 
-        queueMessageLister = queueMessageListerObjectProvider.getObject(mode, backendNotificationQueue, getBackendName());
+        queueMessageLister = queueMessageListerObjectProvider.getObject(backendNotificationQueue, getBackendName());
     }
 
     public void setBackendConnector(final BackendConnector backendConnector) {

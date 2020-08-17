@@ -26,4 +26,8 @@ public class BackendConnectorProvider {
         }
         return null;
     }
+
+    public List<BackendConnector<?, ?>> getBackendConnectors() {
+        return backendConnectors;
+    }
 }

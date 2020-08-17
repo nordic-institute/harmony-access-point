@@ -4,16 +4,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.config.JmsListenerContainerFactory;
-
-import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -41,8 +38,8 @@ public class AsyncNotificationListenerServiceConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public AsyncNotificationListenerService createAsyncNotificationListenerService(NotificationListenerService notificationListenerService) {
-        AsyncNotificationListenerService notificationListenerServiceImpl = new AsyncNotificationListenerService(domainContextProvider, notificationListenerService, pluginEventNotifierProvider, authUtils);
+    public AsyncNotificationListenerService createAsyncNotificationListenerService(AsyncNotificationListener asyncNotificationListener) {
+        AsyncNotificationListenerService notificationListenerServiceImpl = new AsyncNotificationListenerService(domainContextProvider, asyncNotificationListener, pluginEventNotifierProvider, authUtils);
         return notificationListenerServiceImpl;
     }
 }

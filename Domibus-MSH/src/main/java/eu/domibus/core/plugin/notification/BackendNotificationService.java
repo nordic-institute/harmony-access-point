@@ -10,6 +10,8 @@ import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfigurati
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -25,6 +27,7 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.PluginEventNotifier;
 import eu.domibus.plugin.PluginEventNotifierProvider;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +99,12 @@ public class BackendNotificationService {
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
 
+    @Autowired
+    protected BackendConnectorDelegate backendConnectorDelegate;
+
+    @Autowired
+    protected BackendConnectorService backendConnectorService;
+
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
@@ -130,6 +139,26 @@ public class BackendNotificationService {
         }
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
+    }
+
+    public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
+        if (userMessageLog == null) {
+            LOG.warn("Could not find message with id [{}]", messageId);
+            return;
+        }
+        if (userMessageLog.isTestMessage()) {
+            return;
+        }
+        String backend = userMessageLog.getBackend();
+        if (StringUtils.isEmpty(backend)) {
+            LOG.warn("Could not find backend for message with id [{}]", messageId);
+            return;
+        }
+
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
+
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
@@ -195,16 +224,16 @@ public class BackendNotificationService {
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
-        NotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        if (notificationListener == null) {
-            LOG.warn("No notification listeners found for backend [{}]", backendName);
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
+        if (backendConnector == null) {
+            LOG.warn("No backend connector found for backend [{}]", backendName);
             return;
         }
 
-        List<NotificationType> requiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
+        List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, notificationListener.getMode());
+            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, backendConnector.getMode());
             return;
         }
 
@@ -215,24 +244,48 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
-        if (backendNotificationQueue != null) {
-            LOG.debug("Notifying plugin [{}] using queue", notificationListener.getBackendName());
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
+        if (shouldNotifyAsync(notificationListener)) {
+            notifyAsync(notificationListener, messageId, notificationType, properties);
             return;
         }
-        LOG.debug("Notifying plugin [{}] using callback", notificationListener.getBackendName());
+
+        notifySync(backendConnector, notificationListener, messageId, notificationType, properties);
+    }
+
+    protected boolean shouldNotifyAsync(AsyncNotificationListener asyncNotificationListener) {
+        return asyncNotificationListener != null && asyncNotificationListener.getBackendNotificationQueue() != null;
+    }
+
+    protected void notifyAsync(AsyncNotificationListener asyncNotificationListener, String messageId, NotificationType notificationType, Map<String, Object> properties) {
+        Queue backendNotificationQueue = asyncNotificationListener.getBackendNotificationQueue();
+        if (backendNotificationQueue == null) {
+            LOG.debug("Could not async notify for connector [{}]", asyncNotificationListener.getBackendConnector().getName());
+            return;
+        }
+        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationListener.getBackendConnector().getName());
+        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+    }
+
+    protected void notifySync(BackendConnector<?, ?> backendConnector,
+                              AsyncNotificationListener asyncNotificationListener,
+                              String messageId,
+                              NotificationType notificationType,
+                              Map<String, Object> properties) {
+        LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
         PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
         if (pluginEventNotifier == null) {
             LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
             return;
         }
 
-        final BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
         pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
 
         //for backward compatibility
-        notificationListener.notify(messageId, notificationType, properties);
+        if (asyncNotificationListener != null && asyncNotificationListener instanceof NotificationListener) {
+            NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
+            notificationListener.notify(messageId, notificationType, properties);
+        }
     }
 
     public void notifyOfSendFailure(UserMessageLog userMessageLog) {

@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -44,18 +45,18 @@ public class AsyncNotificationListenerServiceInitializerTest {
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
     @Injectable
-    List<NotificationListenerService> notificationListenerServices;
+    List<JMSAsyncNotificationListener> notificationListenerServices;
 
     @Test
     public void configureJmsListeners(@Injectable JmsListenerEndpointRegistrar registrar,
                                       @Injectable Queue queue,
-                                      @Injectable NotificationListenerService notificationListenerService1) throws JMSException {
+                                      @Injectable AsyncNotificationListener notificationListenerService1) throws JMSException {
         String backendName = "mybackend";
         String queueName = "myQueue";
 
-        List<NotificationListenerService> notificationListenerServices = new ArrayList<>();
+        List<AsyncNotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListenerService1);
-        asyncNotificationListenerServiceInitializer.notificationListenerServices = notificationListenerServices;
+        asyncNotificationListenerServiceInitializer.asyncNotificationListeners = notificationListenerServices;
 
         new Expectations(asyncNotificationListenerServiceInitializer) {{
             asyncNotificationListenerServiceInitializer.initializeAsyncNotificationListerService(registrar, (NotificationListenerService) any);

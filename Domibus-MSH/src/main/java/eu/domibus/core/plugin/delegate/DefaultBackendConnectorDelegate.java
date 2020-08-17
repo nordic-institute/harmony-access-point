@@ -2,23 +2,40 @@ package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.*;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Cosmin Baciu
  * @since 3.2.2
  */
-@Component
+@Service
 public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultBackendConnectorDelegate.class);
 
-    @Autowired
-    ClassUtil classUtil;
+
+    protected ClassUtil classUtil;
+    protected RoutingService routingService;
+    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorHelper backendConnectorHelper;
+
+    public DefaultBackendConnectorDelegate(ClassUtil classUtil,
+                                           RoutingService routingService,
+                                           BackendConnectorProvider backendConnectorProvider,
+                                           BackendConnectorHelper backendConnectorHelper) {
+        this.classUtil = classUtil;
+        this.routingService = routingService;
+        this.backendConnectorProvider = backendConnectorProvider;
+        this.backendConnectorHelper = backendConnectorHelper;
+    }
 
     @Override
     public void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event) {
@@ -67,4 +84,45 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
             backendConnector.messageSendSuccess(event.getMessageId());
         }
     }
+
+    @Override
+    public void messageDeletedEvent(String backend, MessageDeletedEvent event) {
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backend);
+        if (backendConnector == null) {
+            LOG.warn("Could not find connector for backend [{}]", backend);
+            return;
+        }
+        backendConnector.messageDeletedEvent(event);
+
+        //for backward compatibility purposes
+        callNotificationListerForMessageDeletedEvent(backendConnector, event);
+    }
+
+    /**
+     * Call the NotificationLister if needed to maintain the backward compatibility
+     *
+     * @param backendConnector The backend connector associated with the NotificationListener
+     * @param event            the message deleted event details
+     */
+    protected void callNotificationListerForMessageDeletedEvent(BackendConnector<?, ?> backendConnector, MessageDeletedEvent event) {
+        if (!shouldCallNotificationListerForMessageDeletedEvent(backendConnector)) {
+            return;
+        }
+        AsyncNotificationListener asyncNotificationListener = routingService.getNotificationListener(backendConnector.getName());
+        if (asyncNotificationListener == null && asyncNotificationListener instanceof NotificationListener) {
+            NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
+            LOG.debug("Calling NotificationListener for message deletion callback for connector [{}]", backendConnector.getName());
+            notificationListener.deleteMessageCallback(event.getMessageId());
+        }
+    }
+
+    protected boolean shouldCallNotificationListerForMessageDeletedEvent(BackendConnector<?, ?> backendConnector) {
+        if (backendConnectorHelper.isListerAnInstanceOfNotificationListener(backendConnector)) {
+            LOG.debug("No need to call the notification listener for connector [{}]; already called by AbstractBackendConnector", backendConnector.getName());
+            return false;
+        }
+        LOG.debug("MessageLister is not an instance of NotificationListener. We need to call the notification listener for connector [{}]", backendConnector.getName());
+        return true;
+    }
+
 }

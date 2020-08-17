@@ -1,8 +1,10 @@
 package eu.domibus.plugin;
 
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,16 +27,16 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationListenerServiceInitializer.class);
 
-    protected List<NotificationListenerService> notificationListenerServices;
+    protected List<AsyncNotificationListener> asyncNotificationListeners;
     protected JmsListenerContainerFactory jmsListenerContainerFactory;
     protected ObjectProvider<AsyncNotificationListenerService> asyncNotificationListenerProvider;
 
 
     public AsyncNotificationListenerServiceInitializer(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
                                                        ObjectProvider<AsyncNotificationListenerService> asyncNotificationListenerProvider,
-                                                       @Autowired(required = false) List<NotificationListenerService> notificationListenerServices) {
+                                                       @Autowired(required = false) List<AsyncNotificationListener> asyncNotificationListeners) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
-        this.notificationListenerServices = notificationListenerServices;
+        this.asyncNotificationListeners = asyncNotificationListeners;
         this.asyncNotificationListenerProvider = asyncNotificationListenerProvider;
     }
 
@@ -42,42 +44,49 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
         LOG.info("Initializing services of type AsyncNotificationListenerService");
 
-        for (NotificationListenerService notificationListenerService : notificationListenerServices) {
+        for (AsyncNotificationListener notificationListenerService : asyncNotificationListeners) {
             initializeAsyncNotificationListerService(registrar, notificationListenerService);
         }
     }
 
     protected void initializeAsyncNotificationListerService(JmsListenerEndpointRegistrar registrar,
-                                                            NotificationListenerService notificationListenerService) {
-        if (notificationListenerService.getMode() == BackendConnector.Mode.PULL) {
-            LOG.info("No async notification listener is created for plugin [{}]: plugin type is PULL", notificationListenerService.getBackendName());
-            return;
-        }
-        if (notificationListenerService.getBackendNotificationQueue() == null) {
-            LOG.info("No notification queue configured for plugin [{}]. No async notification listener is created", notificationListenerService.getBackendName());
+                                                            AsyncNotificationListener asyncNotificationListener) {
+        BackendConnector backendConnector = asyncNotificationListener.getBackendConnector();
+        if(backendConnector == null) {
+            LOG.error("No connector configured for async notification listener");
             return;
         }
 
-        SimpleJmsListenerEndpoint endpoint = createJMSListener(notificationListenerService);
+        if (backendConnector.getMode() == BackendConnector.Mode.PULL) {
+            LOG.info("No async notification listener is created for plugin [{}]: plugin type is PULL", backendConnector.getName());
+            return;
+        }
+        if (asyncNotificationListener.getBackendNotificationQueue() == null) {
+            LOG.info("No notification queue configured for plugin [{}]. No async notification listener is created", backendConnector.getName());
+            return;
+        }
+
+        SimpleJmsListenerEndpoint endpoint = createJMSListener(asyncNotificationListener);
         registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
-        LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", notificationListenerService.getBackendName());
+        LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());
     }
 
-    protected SimpleJmsListenerEndpoint createJMSListener(NotificationListenerService notificationListenerService) {
-        LOG.debug("Configuring JmsListener for plugin [{}] for mode [{}]", notificationListenerService.getBackendName(), notificationListenerService.getMode());
+    protected SimpleJmsListenerEndpoint createJMSListener(AsyncNotificationListener asyncNotificationListener) {
+        BackendConnector backendConnector = asyncNotificationListener.getBackendConnector();
+        LOG.debug("Configuring JmsListener for plugin [{}] for mode [{}]", backendConnector.getName(), backendConnector.getMode());
 
         final SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-        endpoint.setId(notificationListenerService.getBackendName());
-        final Queue pushQueue = notificationListenerService.getBackendNotificationQueue();
+        endpoint.setId(backendConnector.getName());
+        final Queue pushQueue = asyncNotificationListener.getBackendNotificationQueue();
         if (pushQueue == null) {
-            throw new ConfigurationException("No notification queue found for " + notificationListenerService.getBackendName());
+            throw new ConfigurationException("No notification queue found for " + backendConnector.getName());
         }
         try {
-            endpoint.setDestination(notificationListenerService.getQueueName());
+            endpoint.setDestination(asyncNotificationListener.getQueueName());
         } catch (final JMSException e) {
             LOG.error("Problem with predefined queue.", e);
         }
-        AsyncNotificationListenerService asyncNotificationListenerService = asyncNotificationListenerProvider.getObject(notificationListenerService);
+        AsyncNotificationListenerService asyncNotificationListenerService = asyncNotificationListenerProvider.getObject(asyncNotificationListener);
         endpoint.setMessageListener(asyncNotificationListenerService);
 
         return endpoint;

@@ -10,7 +10,7 @@
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
                             http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
-     <jee:jndi-lookup id="notifyBackendWebServiceQueue"
+     <jee:jndi-lookup id="notifyBackendWebServiceQueue" expected-type="javax.jms.Queue"
                      jndi-name="jms/domibus.notification.webservice"
                      cache="true"
                      resource-ref="true"
@@ -23,9 +23,9 @@
     </bean>
 
     <bean id="webserviceNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendWebservice">
+          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+          c:queue-ref="notifyBackendWebServiceQueue"
+          c:backendConnector-ref="backendWebservice">
         <property name="queueName" value="jms/domibus.notification.webservice"/>
     </bean>
 

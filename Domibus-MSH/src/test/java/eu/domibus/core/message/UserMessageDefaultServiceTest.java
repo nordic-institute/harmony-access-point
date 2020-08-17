@@ -28,7 +28,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -572,17 +571,17 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, userMessageLog);
+            backendNotificationService.notifyMessageDeleted((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 
-    @Test
+    /*@Test
     public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
                                                 @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
@@ -602,13 +601,13 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
 
         new Verifications() {{
             notificationListener1.deleteMessageCallback(messageId);
         }};
-    }
-
+    }*/
+/*
     @Test
     public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
                                                           @Injectable UserMessageLog userMessageLog) {
@@ -638,7 +637,7 @@ public class UserMessageDefaultServiceTest {
             times = 0;
 
         }};
-    }
+    }*/
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
@@ -654,9 +653,6 @@ public class UserMessageDefaultServiceTest {
 
             messaging.getUserMessage();
             result = userMessage;
-
-            routingService.getNotificationListeners();
-            result = null;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
@@ -686,9 +682,6 @@ public class UserMessageDefaultServiceTest {
 
             messaging.getUserMessage();
             result = userMessage;
-
-            routingService.getNotificationListeners();
-            result = null;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;

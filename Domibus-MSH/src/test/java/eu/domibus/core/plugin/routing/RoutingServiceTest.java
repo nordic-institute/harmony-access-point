@@ -12,6 +12,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -237,10 +238,10 @@ public class RoutingServiceTest {
         List<NotificationListener> notificationListeners = new ArrayList<>();
         notificationListeners.add(notificationListener1);
         notificationListeners.add(notificationListener2);
-        routingService.notificationListeners = notificationListeners;
+        routingService.asyncNotificationListeners = notificationListeners;
 
-        NotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        assertEquals(backendName, notificationListener.getBackendName());
+        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
+        assertEquals(backendName, notificationListener.getBackendConnector().getName());
 
     }
 
@@ -250,9 +251,9 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         final String backendName = "customPlugin";
 
-        routingService.notificationListeners = new ArrayList<>();
+        routingService.asyncNotificationListeners = new ArrayList<>();
 
-        NotificationListener notificationListener = routingService.getNotificationListener(backendName);
+        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
         assertNull(notificationListener);
 
     }
@@ -575,7 +576,7 @@ public class RoutingServiceTest {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListener);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
 
 
         new Expectations(routingService) {{
@@ -618,7 +619,7 @@ public class RoutingServiceTest {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListener);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
 
 
         new Expectations(routingService) {{
@@ -681,7 +682,7 @@ public class RoutingServiceTest {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListener);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
 
         new Expectations(routingService) {{
             domibusConfigurationService.isMultiTenantAware();
@@ -725,7 +726,7 @@ public class RoutingServiceTest {
 
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListener);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
 
 
         new Expectations(routingService) {{
@@ -762,7 +763,7 @@ public class RoutingServiceTest {
         notificationListenerPluginsList.add(WS_PLUGIN.getPluginName());
         notificationListenerPluginsList.add(JMS_PLUGIN.getPluginName());
         backendFilterPluginList.add(WS_PLUGIN.getPluginName());
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
 
         new Expectations(routingService) {{
             backendFilterEntity.getBackendName();
@@ -787,7 +788,7 @@ public class RoutingServiceTest {
             result = backendFilterEntities;
         }};
 
-        List<String> pluginToAdd = routingService.notificationListeners
+        List<String> pluginToAdd = routingService.asyncNotificationListeners
                 .stream()
                 .map(NotificationListener::getBackendName)
                 .collect(Collectors.toList());
@@ -870,7 +871,7 @@ public class RoutingServiceTest {
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(default1);
         notificationListenerServices.add(default2);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
         routingService.backendFilterDao = backendFilterDao;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
@@ -916,7 +917,7 @@ public class RoutingServiceTest {
         List<NotificationListener> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(default1);
         notificationListenerServices.add(default2);
-        routingService.notificationListeners = notificationListenerServices;
+        routingService.asyncNotificationListeners = notificationListenerServices;
         routingService.backendFilterDao = backendFilterDao;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();

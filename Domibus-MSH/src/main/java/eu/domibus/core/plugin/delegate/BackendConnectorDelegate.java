@@ -19,4 +19,6 @@ public interface BackendConnectorDelegate {
 
     void messageSendSuccess(BackendConnector backendConnector, MessageSendSuccessEvent event);
 
+    void messageDeletedEvent(String backendName, MessageDeletedEvent event);
+
 }

@@ -7,6 +7,7 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,6 +19,17 @@ import java.util.List;
  * @author Cosmin Baciu
  */
 public interface BackendConnector<U, T> {
+
+    List<NotificationType> DEFAULT_PULL_NOTIFICATIONS = Arrays.asList(
+            NotificationType.MESSAGE_RECEIVED,
+            NotificationType.MESSAGE_SEND_FAILURE,
+            NotificationType.MESSAGE_RECEIVED_FAILURE);
+    List<NotificationType> DEFAULT_PUSH_NOTIFICATIONS = Arrays.asList(
+            NotificationType.MESSAGE_RECEIVED,
+            NotificationType.MESSAGE_SEND_FAILURE,
+            NotificationType.MESSAGE_RECEIVED_FAILURE,
+            NotificationType.MESSAGE_SEND_SUCCESS,
+            NotificationType.MESSAGE_STATUS_CHANGE);
 
 
     /**
@@ -120,6 +132,32 @@ public interface BackendConnector<U, T> {
      * @return the name of the plugin
      */
     String getName();
+
+    /**
+     * Get the plugin mode. See also {@link eu.domibus.plugin.BackendConnector.Mode}
+     *
+     * @return the plugin mode
+     */
+    default BackendConnector.Mode getMode() {
+        return Mode.PUSH;
+    }
+
+    /**
+     * Configured notifications sent to the plugin, depending on their MODE (PULL or PUSH)
+     *
+     * @return the plugin notifications
+     */
+    default List<NotificationType> getRequiredNotificationTypeList() {
+        return DEFAULT_PUSH_NOTIFICATIONS;
+    }
+
+    /**
+     * Custom action to be performed by the plugins when a message is being deleted
+     *
+     * @param event The message delete event details eg message id
+     */
+    default void messageDeletedEvent(MessageDeletedEvent event) {
+    }
 
     /**
      * This method gets called when an incoming message is rejected by the MSH

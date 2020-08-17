@@ -40,7 +40,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -528,7 +527,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
-        deleteMessagePluginCallback(messageId, userMessageLog);
+        backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
@@ -537,31 +536,6 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
 
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
-    }
-
-    protected void deleteMessagePluginCallback(String messageId, UserMessageLog userMessageLog) {
-        if (routingService.getNotificationListeners() == null) {
-            LOG.debug("No notification listeners found");
-            return;
-        }
-        if (userMessageLog == null) {
-            LOG.warn("Could not find message with id [{}]", messageId);
-            return;
-        }
-        if (userMessageLog.isTestMessage()) {
-            return;
-        }
-        String backend = userMessageLog.getBackend();
-        if (StringUtils.isEmpty(backend)) {
-            LOG.warn("Could not find backend for message with id [{}]", messageId);
-            return;
-        }
-        NotificationListener notificationListener = routingService.getNotificationListener(backend);
-        if (notificationListener == null) {
-            LOG.warn("Could not find notification listener for backend [{}]", backend);
-            return;
-        }
-        notificationListener.deleteMessageCallback(messageId);
     }
 
     @Override

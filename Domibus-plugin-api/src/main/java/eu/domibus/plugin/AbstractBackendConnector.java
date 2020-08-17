@@ -45,7 +45,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Autowired
     protected MessageExtService messageExtService;
 
-    private MessageLister lister;
+    protected MessageLister lister;
+
+    //for backward compatibility purposes
+    protected NotificationListener notificationListener;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -53,6 +56,15 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     public void setLister(final MessageLister lister) {
         this.lister = lister;
+
+        //for backward compatibility purposes
+        if (lister instanceof NotificationListener) {
+            notificationListener = (NotificationListener) lister;
+        }
+    }
+
+    public MessageLister getLister() {
+        return lister;
     }
 
     @Override
@@ -197,7 +209,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         //this method should be implemented by the plugins needed to be notified about payload processed events
     }
 
-
     @Override
     public String getName() {
         return name;
@@ -205,5 +216,36 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     protected String trim(String messageId) {
         return StringUtils.stripToEmpty(StringUtils.trimToEmpty(messageId));
+    }
+
+    @Override
+    public Mode getMode() {
+        //for backward compatibility purposes
+        if (notificationListener != null) {
+            Mode mode = notificationListener.getMode();
+            LOG.debug("Using plugin mode [{}] from the NotificationListenerService", mode);
+            return mode;
+        }
+        return BackendConnector.super.getMode();
+    }
+
+    @Override
+    public List<NotificationType> getRequiredNotificationTypeList() {
+        //for backward compatibility purposes
+        if (notificationListener != null) {
+            List<NotificationType> requiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
+            LOG.debug("Using required notifications [{}] from the NotificationListenerService", requiredNotificationTypeList);
+            return requiredNotificationTypeList;
+        }
+        return BackendConnector.super.getRequiredNotificationTypeList();
+    }
+
+    @Override
+    public void messageDeletedEvent(MessageDeletedEvent event) {
+        //for backward compatibility purposes
+        if (notificationListener != null) {
+            LOG.debug("Calling deleteMessageCallback from the NotificationListenerService for message id [{}]", event.getMessageId());
+            notificationListener.deleteMessageCallback(event.getMessageId());
+        }
     }
 }

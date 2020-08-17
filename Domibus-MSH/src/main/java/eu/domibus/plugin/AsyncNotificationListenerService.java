@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
@@ -30,15 +31,15 @@ public class AsyncNotificationListenerService implements MessageListener {
 
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
-    protected NotificationListenerService notificationListenerService;
+    protected AsyncNotificationListener asyncNotificationListener;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
     public AsyncNotificationListenerService(DomainContextProvider domainContextProvider,
-                                            NotificationListenerService notificationListenerService,
+                                            AsyncNotificationListener asyncNotificationListener,
                                             PluginEventNotifierProvider pluginEventNotifierProvider,
                                             AuthUtils authUtils) {
         this.domainContextProvider = domainContextProvider;
-        this.notificationListenerService = notificationListenerService;
+        this.asyncNotificationListener = asyncNotificationListener;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
         this.authUtils = authUtils;
     }
@@ -68,7 +69,7 @@ public class AsyncNotificationListenerService implements MessageListener {
                 return;
             }
             Map<String, Object> messageProperties = getMessageProperties(message);
-            pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(asyncNotificationListener.getBackendConnector(), messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());

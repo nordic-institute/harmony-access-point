@@ -9,12 +9,14 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,10 @@ public class RoutingService {
     protected BackendFilterDao backendFilterDao;
 
     @Autowired(required = false)
-    protected List<NotificationListener> notificationListeners;
+    protected List<AsyncNotificationListener> asyncNotificationListeners;
+
+    @Autowired
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     protected DomainCoreConverter coreConverter;
@@ -71,7 +76,7 @@ public class RoutingService {
 
     @PostConstruct
     public void init() {
-        if (CollectionUtils.isEmpty(notificationListeners)) {
+        if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         }
 
@@ -93,17 +98,24 @@ public class RoutingService {
         }
     }
 
-    public NotificationListener getNotificationListener(String backendName) {
-        for (final NotificationListener notificationListenerService : notificationListeners) {
-            if (notificationListenerService.getBackendName().equalsIgnoreCase(backendName)) {
-                return notificationListenerService;
+    public AsyncNotificationListener getNotificationListener(String backendName) {
+        for (final AsyncNotificationListener asyncNotificationListener : asyncNotificationListeners) {
+            if (matches(asyncNotificationListener, backendName)) {
+                return asyncNotificationListener;
             }
         }
         return null;
     }
 
-    public List<NotificationListener> getNotificationListeners() {
-        return notificationListeners;
+    protected boolean matches(AsyncNotificationListener asyncNotificationListener, String backendName) {
+        if (asyncNotificationListener.getBackendConnector() == null) {
+            LOG.debug("Could not match connector for backend name [{}]: no configured connector", backendName);
+            return false;
+        }
+        if (StringUtils.equalsAnyIgnoreCase(asyncNotificationListener.getBackendConnector().getName(), backendName)) {
+            return true;
+        }
+        return false;
     }
 
     protected List<BackendFilter> getBackendFiltersWithCache() {
@@ -131,9 +143,9 @@ public class RoutingService {
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
 
-        List<String> pluginToAdd = notificationListeners
+        List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
-                .map(NotificationListener::getBackendName)
+                .map(BackendConnector::getName)
                 .collect(Collectors.toList());
 
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
@@ -206,6 +218,7 @@ public class RoutingService {
 
         invalidateBackendFiltersCache();
     }
+
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
         LOG.debug("Getting the backend filter for message [" + userMessage.getMessageInfo().getMessageId() + "]");
         for (final BackendFilter filter : backendFilters) {

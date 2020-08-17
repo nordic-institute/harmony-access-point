@@ -20,6 +20,7 @@
 
     <jee:jndi-lookup id="notifyBackendFSQueue"
                      jndi-name="jms/domibus.notification.filesystem"
+                     expected-type="javax.jms.Queue"
                      cache="true"
                      resource-ref="true"
                      lookup-on-startup="true">
@@ -36,9 +37,9 @@
     </bean>
 
     <bean id="fsPluginNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendFSQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendFSPlugin">
+          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+          c:queue-ref="notifyBackendFSQueue"
+          c:backendConnector-ref="backendFSPlugin">
         <property name="queueName" value="jms/domibus.notification.filesystem"/>
     </bean>
 
