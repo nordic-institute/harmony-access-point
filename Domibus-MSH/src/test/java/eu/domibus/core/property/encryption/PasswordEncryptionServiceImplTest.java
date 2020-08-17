@@ -9,6 +9,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -21,13 +22,15 @@ import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu
@@ -332,11 +335,15 @@ public class PasswordEncryptionServiceImplTest {
 
             passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
             result = fileLines;
+
+            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, fileLines);
+            result = true;
         }};
 
         passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            configurationFile.toString();
             backupService.backupFile(configurationFile);
             Files.write(configurationFile.toPath(), fileLines);
         }};
@@ -439,4 +446,76 @@ public class PasswordEncryptionServiceImplTest {
         assertTrue(passwordEncryptionService.arePropertiesMatching(propertyName, passwordEncryptionResult));
     }
 
+    @Test
+    public void arePropertiesNewlyEncrypted_NoChange() throws IOException {
+        final List<String> replacedLines = Arrays.asList(new String[]{
+                "#-----------------",
+                "#domibus.deployment.clustered=false",
+                "blue_gw.domibus.security.key.private.alias=blue_gw",
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
+        });
+        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+        testConfigurationFile.deleteOnExit();
+        FileUtils.writeLines(testConfigurationFile, replacedLines);
+
+        assertFalse("No lines replaced, expect false.",passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
+    }
+
+    @Test
+    public void arePropertiesNewlyEncrypted_LinesChanged() throws IOException {
+        final List<String> originalLines = Arrays.asList(new String[]{
+                "#-----------------",
+                "#domibus.deployment.clustered=false",
+                "blue_gw.domibus.security.key.private.alias=blue_gw",
+                "blue_gw.domibus.security.key.private.password=test123"
+        });
+        final List<String> replacedLines = Arrays.asList(new String[]{
+                "#-----------------",
+                "#domibus.deployment.clustered=false",
+                "blue_gw.domibus.security.key.private.alias=blue_gw",
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
+        });
+
+        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+        testConfigurationFile.deleteOnExit();
+        FileUtils.writeLines(testConfigurationFile, originalLines);
+
+        assertTrue("Lines changed, expect true.", passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
+    }
+
+    @Test(expected = DomibusEncryptionException.class)
+    public void arePropertiesNewlyEncrypted_ConfigFileCannotBeRead() throws IOException {
+        final List<String> replacedLines = Arrays.asList(new String[]{
+                "#-----------------",
+                "#domibus.deployment.clustered=false",
+                "blue_gw.domibus.security.key.private.alias=blue_gw",
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
+        });
+
+        try{
+            passwordEncryptionService.arePropertiesNewlyEncrypted(new File ("./src/test/resources/config/fileDoesNotExist.properties"), replacedLines);
+            assert false;
+        }
+        catch (DomibusEncryptionException e){
+            assertTrue("Expect DomibusEncryptionException due to file not present.", e.getMessage().contains("Could not read configuration file"));
+            throw e;
+        }
+    }
+
+    @Test
+    public void arePropertiesNewlyEncrypted_ReplacedLinesEmpty() throws IOException {
+        final List<String> originalLines = Arrays.asList(new String[]{
+                "#-----------------",
+                "#domibus.deployment.clustered=false",
+                "blue_gw.domibus.security.key.private.alias=blue_gw",
+                "blue_gw.domibus.security.key.private.password=test123"
+        });
+        final List<String> replacedLines = new ArrayList<>();
+
+        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+        testConfigurationFile.deleteOnExit();
+        FileUtils.writeLines(testConfigurationFile, originalLines);
+
+        assertFalse("Replaced lines empty, expect to consider as no change = false",passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
+    }
 }
