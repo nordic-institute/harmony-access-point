@@ -13,8 +13,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

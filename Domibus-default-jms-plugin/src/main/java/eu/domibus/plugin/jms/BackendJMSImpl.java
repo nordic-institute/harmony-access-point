@@ -208,7 +208,6 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         try {
             Submission submission = messageRetriever.downloadMessage(messageId);
             MapMessage result = getMessageRetrievalTransformer().transformFromSubmission(submission, target);
-
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return result;
         } catch (Exception ex) {
