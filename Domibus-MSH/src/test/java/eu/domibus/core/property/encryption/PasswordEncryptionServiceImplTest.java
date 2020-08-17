@@ -350,6 +350,35 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    public void replacePropertiesInFile_NoPropertiesEncrypted(@Injectable PasswordEncryptionContext passwordEncryptionContext,
+                                        @Injectable PasswordEncryptionResult passwordEncryptionResult,
+                                        @Injectable File configurationFile,
+                                        @Injectable List<String> fileLines){
+        List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
+        encryptedProperties.add(passwordEncryptionResult);
+
+        new Expectations(passwordEncryptionService) {{
+            passwordEncryptionContext.getConfigurationFile();
+            result = configurationFile;
+
+            passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
+            result = fileLines;
+
+            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, fileLines);
+            result = false;
+
+            configurationFile.toString();
+            result="DomibusPropertiesFileName";
+        }};
+
+        passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
+
+        new FullVerifications() {{
+
+        }};
+    }
+
+    @Test
     public void replaceLine() {
         String line = "myProperty=myValue";
         String encryptedValue = "myEncryptedValue";
