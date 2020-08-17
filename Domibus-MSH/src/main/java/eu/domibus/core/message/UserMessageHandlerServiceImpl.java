@@ -22,7 +22,8 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -139,6 +140,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessagingDao messagingDao;
 
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -148,7 +151,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
+
         return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
     }
 
@@ -168,6 +173,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (messageExists) {
@@ -199,6 +205,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
     protected void handleIncomingMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
         soapUtil.logMessage(request);
+
         if (selfSending) {
                 /* we add a defined suffix in order to assure DB integrity - messageId uniqueness
                 basically we are generating another messageId for Signal Message on receiver side
@@ -208,6 +215,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         checkCharset(messaging);
+        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {
@@ -330,10 +338,13 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
         UserMessage userMessage = messaging.getUserMessage();
+
         if (messageFragmentType != null) {
             handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
         }
+
         handlePayloads(request, userMessage);
+
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
         return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);

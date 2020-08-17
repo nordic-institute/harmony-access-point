@@ -2438,7 +2438,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 // Handling domibus properties at runtime
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null,message="successfully"){
 		def authenticationUser = authUser
         def authenticationPwd = authPwd
 
@@ -2458,8 +2458,12 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 							"--data-binary", "$propNewValue"]
             def commandResult = runCommandInShell(commandString, log)
 
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-			log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			if(message.equals("successfully")){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
+				log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			}else{
+				assert(commandResult[0].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: string $message not found in returned value.";
+			}
 
         } finally {
             resetAuthTokens(log)
@@ -2715,11 +2719,11 @@ static def String pathToLogFiles(side, log, context) {
 								"--data-binary", formatJsonForCurl(curlParams, log),
 								"-v"]
                 commandResult = runCommandInShell(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
-                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
+                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in value \"$userAC\".";
             }
         } finally {
-            resetAuthTokens(log)
+            resetAuthTokens(log);
         }
     }
 
@@ -2740,8 +2744,8 @@ static def String pathToLogFiles(side, log, context) {
 			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
 			commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
-			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
+			assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
+			log.info "  curlBlackList_GET  [][]  Forbidden character detected in value \"$data\".";
 		} finally {
             resetAuthTokens(log)
         }
@@ -2765,8 +2769,8 @@ static def String pathToLogFiles(side, log, context) {
 		} finally {
             resetAuthTokens(log)
         }
-        assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
-        log.info "  curlBlackList_POST  [][]  Forbidden character detected in property value \"$userLogin\".";
+        assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
+        log.info "  curlBlackList_POST  [][]  Forbidden character detected in value \"$userLogin\".";
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -4054,9 +4058,15 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			log.error "Error: report file is directory on path:" + outputReportFilePath
 			return
 		}
-		if ( !file.exists() ) {
+        File parentDir = file.getParentFile()
+        if ( parentDir == null) {
+            log.error "Error: parent path to report file doesn't exist. Provided path was:"  + outputReportFilePath
+            return
+        }
+        parentDir.mkdirs()
+
+		if ( file.createNewFile() ) { //if file does not exist it will do nothing
 			log.warn "Warning: text report file doesn't exist, would create file with header:" + outputReportFilePath
-			file.createNewFile()
 			def header = COLUMN_LIST.join(CSV_DELIMETER)
 			file.write(header)
 		}

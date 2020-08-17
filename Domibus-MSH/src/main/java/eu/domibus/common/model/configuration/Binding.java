@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_MEP_BINDING")
+@Table(name = "TB_PM_MEP_BINDING")
 public class Binding extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

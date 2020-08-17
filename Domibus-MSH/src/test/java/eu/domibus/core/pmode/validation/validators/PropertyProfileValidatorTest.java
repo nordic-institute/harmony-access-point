@@ -1,4 +1,4 @@
-package eu.domibus.core.pmode.validation;
+package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -10,6 +10,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;

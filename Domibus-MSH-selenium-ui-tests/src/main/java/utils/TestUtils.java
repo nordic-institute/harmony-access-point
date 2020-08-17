@@ -90,7 +90,7 @@ public class TestUtils {
 		if (!StringUtils.equalsIgnoreCase(grid.getSortedColumnName(), columnName)) {
 			grid.sortBy(columnName);
 			Order order = grid.getSortOrder();
-			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getValuesOnColumn(columnName));
+			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getListedValuesOnColumn(columnName));
 		}
 	}
 	
@@ -203,7 +203,7 @@ public class TestUtils {
 			String fileName = ze.getName();
 			File newFile = new File(destDir + File.separator + fileName);
 			
-			System.out.println("Unzipping to " + newFile.getAbsolutePath());
+			log.info("Unzipping to " + newFile.getAbsolutePath());
 			//create directories for sub directories in zip
 			new File(newFile.getParent()).mkdirs();
 			FileOutputStream fos = new FileOutputStream(newFile);

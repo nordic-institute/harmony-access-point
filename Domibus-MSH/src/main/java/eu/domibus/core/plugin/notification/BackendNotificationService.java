@@ -9,6 +9,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
@@ -144,6 +146,9 @@ public class BackendNotificationService {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     //TODO move this into a dedicate provider(a different spring bean class)
     private Map<String, IRoutingCriteria> criteriaMap;
 
@@ -181,6 +186,9 @@ public class BackendNotificationService {
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
+
+        //Setting security context authentication to have user details in audit logs when create message filters
+        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
 
         List<String> pluginToAdd = notificationListenerServices
                 .stream()

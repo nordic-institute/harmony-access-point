@@ -42,7 +42,7 @@
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
-        <createTable tableName="TB_ACTION">
+        <createTable tableName="TB_PM_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ACTION"/>
             </column>
@@ -82,7 +82,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_AGREEMENT">
+        <createTable tableName="TB_PM_AGREEMENT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_AGREEMENT"/>
             </column>
@@ -234,7 +234,7 @@
             <column name="PRIORITY" type="INT"/>
         </createTable>
 
-        <createTable tableName="TB_BUSINESS_PROCESS">
+        <createTable tableName="TB_PM_BUSINESS_PROCESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_BUSINESS_PROCESS"/>
             </column>
@@ -317,7 +317,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_CONFIGURATION">
+        <createTable tableName="TB_PM_CONFIGURATION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_CONFIGURATION"/>
             </column>
@@ -333,7 +333,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_CONFIGURATION_AUD">
+        <createTable tableName="TB_PM_CONFIGURATION_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_AUD"/>
             </column>
@@ -347,7 +347,7 @@
             <column name="NAME_MOD" type="BOOLEAN"/>
         </createTable>
 
-        <createTable tableName="TB_CONFIGURATION_RAW">
+        <createTable tableName="TB_PM_CONFIGURATION_RAW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_CONFIGURATION_RAW"/>
             </column>
@@ -364,7 +364,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_CONFIGURATION_RAW_AUD">
+        <createTable tableName="TB_PM_CONFIGURATION_RAW_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_RAW_AUD"/>
             </column>
@@ -425,7 +425,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_ERROR_HANDLING">
+        <createTable tableName="TB_PM_ERROR_HANDLING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_HANDLING"/>
             </column>
@@ -525,7 +525,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_JOIN_PAYLOAD_PROFILE">
+        <createTable tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
             <column name="FK_PAYLOAD" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -542,7 +542,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_JOIN_PROCESS_INIT_PARTY">
+        <createTable tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -559,7 +559,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_JOIN_PROCESS_LEG">
+        <createTable tableName="TB_PM_JOIN_PROCESS_LEG">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -576,7 +576,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_JOIN_PROCESS_RESP_PARTY">
+        <createTable tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -593,7 +593,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_JOIN_PROPERTY_SET">
+        <createTable tableName="TB_PM_JOIN_PROPERTY_SET">
             <column name="PROPERTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -610,7 +610,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_LEG">
+        <createTable tableName="TB_PM_LEG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_LEG"/>
             </column>
@@ -637,7 +637,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_LEG_TB_MPC">
+        <createTable tableName="TB_PM_LEG_MPC">
             <column name="LEGCONFIGURATION_ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
             </column>
@@ -657,7 +657,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_MEP">
+        <createTable tableName="TB_PM_MEP">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MEP"/>
             </column>
@@ -675,7 +675,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_MEP_BINDING">
+        <createTable tableName="TB_PM_MEP_BINDING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MEP_BINDING"/>
             </column>
@@ -845,7 +845,7 @@
             <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
         </createTable>
 
-        <createTable tableName="TB_MESSAGE_PROPERTY">
+        <createTable tableName="TB_PM_MESSAGE_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_PROPERTY"/>
             </column>
@@ -864,7 +864,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_MESSAGE_PROPERTY_SET">
+        <createTable tableName="TB_PM_MESSAGE_PROPERTY_SET">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_PROPERTY_SET"/>
             </column>
@@ -967,7 +967,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_MPC">
+        <createTable tableName="TB_PM_MPC">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MPC"/>
             </column>
@@ -988,7 +988,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY">
+        <createTable tableName="TB_PM_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY"/>
             </column>
@@ -1007,7 +1007,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY_AUD">
+        <createTable tableName="TB_PM_PARTY_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_AUD"/>
             </column>
@@ -1043,7 +1043,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY_IDENTIFIER">
+        <createTable tableName="TB_PM_PARTY_IDENTIFIER">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_IDENTIFIER"/>
             </column>
@@ -1060,7 +1060,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY_IDENTIFIER_AUD">
+        <createTable tableName="TB_PM_PARTY_IDENTIFIER_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_IDENTIFIER_AUD"/>
             </column>
@@ -1071,7 +1071,7 @@
             <column name="FK_PARTY" type="BIGINT"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY_ID_TYPE">
+        <createTable tableName="TB_PM_PARTY_ID_TYPE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID_TYPE"/>
             </column>
@@ -1088,7 +1088,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PARTY_ID_TYPE_AUD">
+        <createTable tableName="TB_PM_PARTY_ID_TYPE_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_ID_TYPE_AUD"/>
             </column>
@@ -1133,7 +1133,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PAYLOAD">
+        <createTable tableName="TB_PM_PAYLOAD">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PAYLOAD"/>
             </column>
@@ -1155,7 +1155,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PAYLOAD_PROFILE">
+        <createTable tableName="TB_PM_PAYLOAD_PROFILE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PAYLOAD_PROFILE"/>
             </column>
@@ -1193,7 +1193,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_PROCESS">
+        <createTable tableName="TB_PM_PROCESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PROCESS"/>
             </column>
@@ -1288,7 +1288,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_RECEPTION_AWARENESS">
+        <createTable tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RECEPTION_AWARENESS"/>
             </column>
@@ -1308,7 +1308,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_RELIABILITY">
+        <createTable tableName="TB_PM_RELIABILITY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_RELIABILITY"/>
             </column>
@@ -1355,7 +1355,7 @@
             <column name="USER_NAME" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="TB_ROLE">
+        <createTable tableName="TB_PM_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ROLE"/>
             </column>
@@ -1404,7 +1404,7 @@
             <column name="NAME_MOD" type="BOOLEAN"/>
         </createTable>
 
-        <createTable tableName="TB_SECURITY">
+        <createTable tableName="TB_PM_SECURITY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SECURITY"/>
             </column>
@@ -1449,7 +1449,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
-        <createTable tableName="TB_SERVICE">
+        <createTable tableName="TB_PM_SERVICE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SERVICE"/>
             </column>
@@ -1485,7 +1485,7 @@
         </createTable>
 
         <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode"
-                     tableName="TB_SPLITTING">
+                     tableName="TB_PM_SPLITTING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_SPLITTING"/>
             </column>
@@ -1678,7 +1678,7 @@
                              tableName="TB_CERTIFICATE"/>
 
         <addUniqueConstraint columnNames="PARTYMPCMAP_ID_PK" constraintName="UK_7H5NW411791GF4LG1YH6SI1WD"
-                             tableName="TB_LEG_TB_MPC"/>
+                             tableName="TB_PM_LEG_MPC"/>
 
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"
                              tableName="TB_MESSAGE_INFO"/>
@@ -1704,11 +1704,11 @@
             <column name="MESSAGE_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_13K2EPTP1EJP5OTHY1NJRG3P8" tableName="TB_LEG">
+        <createIndex indexName="FK_13K2EPTP1EJP5OTHY1NJRG3P8" tableName="TB_PM_LEG">
             <column name="FK_RELIABILITY"/>
         </createIndex>
 
-        <createIndex indexName="FK_277J83LGSQ3NMWYHSW637YND8" tableName="TB_MEP_BINDING">
+        <createIndex indexName="FK_277J83LGSQ3NMWYHSW637YND8" tableName="TB_PM_MEP_BINDING">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1716,15 +1716,15 @@
             <column name="MESSAGEPROPERTIES_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_2SW6KNALOR7RPR04YE0O2R9AP" tableName="TB_ROLE">
+        <createIndex indexName="FK_2SW6KNALOR7RPR04YE0O2R9AP" tableName="TB_PM_ROLE">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_3EMT6XAGLH7676LPCKIY6R1VB" tableName="TB_PROCESS">
+        <createIndex indexName="FK_3EMT6XAGLH7676LPCKIY6R1VB" tableName="TB_PM_PROCESS">
             <column name="FK_RESPONDER_ROLE"/>
         </createIndex>
 
-        <createIndex indexName="FK_3SGAXWFR5KOE3OLDBBD62SIWQ" tableName="TB_RECEPTION_AWARENESS">
+        <createIndex indexName="FK_3SGAXWFR5KOE3OLDBBD62SIWQ" tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1736,19 +1736,19 @@
             <column name="SIGNAL_MESSAGE_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" tableName="TB_CONFIGURATION">
+        <createIndex indexName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" tableName="TB_PM_CONFIGURATION">
             <column name="FK_BUSINESSPROCESSES"/>
         </createIndex>
 
-        <createIndex indexName="FK_6HLDNNQKMH6LUI555T4N9FJIV" tableName="TB_ACTION">
+        <createIndex indexName="FK_6HLDNNQKMH6LUI555T4N9FJIV" tableName="TB_PM_ACTION">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_70M9KQPQAB3RGK90WSUV9VN64" tableName="TB_AGREEMENT">
+        <createIndex indexName="FK_70M9KQPQAB3RGK90WSUV9VN64" tableName="TB_PM_AGREEMENT">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_7P1G7SQVLI1SJ6K7VPHJO9IRC" tableName="TB_PROCESS">
+        <createIndex indexName="FK_7P1G7SQVLI1SJ6K7VPHJO9IRC" tableName="TB_PM_PROCESS">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1756,23 +1756,23 @@
             <column name="RECEIPT_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_8Q319STWM1NOIJPB3JFL8JRI8" tableName="TB_MPC">
+        <createIndex indexName="FK_8Q319STWM1NOIJPB3JFL8JRI8" tableName="TB_PM_MPC">
             <column name="FK_CONFIGURATION"/>
         </createIndex>
 
-        <createIndex indexName="FK_9HPMOEWLITIVCL8RW1JOCCUAU" tableName="TB_LEG">
+        <createIndex indexName="FK_9HPMOEWLITIVCL8RW1JOCCUAU" tableName="TB_PM_LEG">
             <column name="FK_SECURITY"/>
         </createIndex>
 
-        <createIndex indexName="FK_ADVGUDIX024IRQPUGE4DL9IQF" tableName="TB_PARTY_ID_TYPE">
+        <createIndex indexName="FK_ADVGUDIX024IRQPUGE4DL9IQF" tableName="TB_PM_PARTY_ID_TYPE">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_AM7BWSM92SE3NVCLBEIEP5VWG" tableName="TB_LEG">
+        <createIndex indexName="FK_AM7BWSM92SE3NVCLBEIEP5VWG" tableName="TB_PM_LEG">
             <column name="FK_PAYLOAD_PROFILE"/>
         </createIndex>
 
-        <createIndex indexName="FK_ASJDL57BUDMUWMJ3611969JPP" tableName="TB_JOIN_PROCESS_INIT_PARTY">
+        <createIndex indexName="FK_ASJDL57BUDMUWMJ3611969JPP" tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
             <column name="PARTY_FK"/>
         </createIndex>
 
@@ -1792,15 +1792,15 @@
             <column name="MESSAGEINFO_ID_PK"/>
         </createIndex>
 
-        <createIndex indexName="FK_CLOYY9K391VHSUP85IWR8IXIV" tableName="TB_PARTY">
+        <createIndex indexName="FK_CLOYY9K391VHSUP85IWR8IXIV" tableName="TB_PM_PARTY">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_CONFIGURATION_AUD_REV" tableName="TB_CONFIGURATION_AUD">
+        <createIndex indexName="FK_CONFIGURATION_AUD_REV" tableName="TB_PM_CONFIGURATION_AUD">
             <column name="REV"/>
         </createIndex>
 
-        <createIndex indexName="FK_CONFIGURATION_RAW_AUD" tableName="TB_CONFIGURATION_RAW_AUD">
+        <createIndex indexName="FK_CONFIGURATION_RAW_AUD" tableName="TB_PM_CONFIGURATION_RAW_AUD">
             <column name="REV"/>
         </createIndex>
 
@@ -1808,31 +1808,31 @@
             <column name="PARTPROPERTIES_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" tableName="TB_PAYLOAD">
+        <createIndex indexName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" tableName="TB_PM_PAYLOAD">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_DESR6XTDP1LP41D5VENLHF4BC" tableName="TB_PARTY_IDENTIFIER">
+        <createIndex indexName="FK_DESR6XTDP1LP41D5VENLHF4BC" tableName="TB_PM_PARTY_IDENTIFIER">
             <column name="FK_PARTY"/>
         </createIndex>
 
-        <createIndex indexName="FK_DGTGTG41YRFEBYYSMKYI1GCAA" tableName="TB_LEG">
+        <createIndex indexName="FK_DGTGTG41YRFEBYYSMKYI1GCAA" tableName="TB_PM_LEG">
             <column name="FK_ACTION"/>
         </createIndex>
 
-        <createIndex indexName="FK_E7EHGHIFRNS83W6V3TPS7VPII" tableName="TB_PARTY_IDENTIFIER">
+        <createIndex indexName="FK_E7EHGHIFRNS83W6V3TPS7VPII" tableName="TB_PM_PARTY_IDENTIFIER">
             <column name="FK_PARTY_ID_TYPE"/>
         </createIndex>
 
-        <createIndex indexName="FK_EIY3F9AHX0KDX4WXOI6PRYTN9" tableName="TB_MESSAGE_PROPERTY_SET">
+        <createIndex indexName="FK_EIY3F9AHX0KDX4WXOI6PRYTN9" tableName="TB_PM_MESSAGE_PROPERTY_SET">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_EKK8PN89Y50G22KD3GPJA7J39" tableName="TB_JOIN_PROPERTY_SET">
+        <createIndex indexName="FK_EKK8PN89Y50G22KD3GPJA7J39" tableName="TB_PM_JOIN_PROPERTY_SET">
             <column name="PROPERTY_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_EPMXKH8U7JNW5PBYJ47SIRMLH" tableName="TB_MEP">
+        <createIndex indexName="FK_EPMXKH8U7JNW5PBYJ47SIRMLH" tableName="TB_PM_MEP">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1840,23 +1840,23 @@
             <column name="FROM_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_FPXBDC63GIFACRD4QB6AFRQYW" tableName="TB_JOIN_PROCESS_LEG">
+        <createIndex indexName="FK_FPXBDC63GIFACRD4QB6AFRQYW" tableName="TB_PM_JOIN_PROCESS_LEG">
             <column name="PROCESS_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_FWRQ81CCTU2NH0QEPRMPVKER9" tableName="TB_SECURITY">
+        <createIndex indexName="FK_FWRQ81CCTU2NH0QEPRMPVKER9" tableName="TB_PM_SECURITY">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_G20EOW5F2CKE3AVSRG6QPKUXV" tableName="TB_JOIN_PAYLOAD_PROFILE">
+        <createIndex indexName="FK_G20EOW5F2CKE3AVSRG6QPKUXV" tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
             <column name="FK_PROFILE"/>
         </createIndex>
 
-        <createIndex indexName="FK_GH98Q07KCJL7WDAON9GGIFQUX" tableName="TB_JOIN_PROCESS_LEG">
+        <createIndex indexName="FK_GH98Q07KCJL7WDAON9GGIFQUX" tableName="TB_PM_JOIN_PROCESS_LEG">
             <column name="LEG_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_HLB2Y2PRPM52SSYNN22H3SWSR" tableName="TB_JOIN_PROCESS_RESP_PARTY">
+        <createIndex indexName="FK_HLB2Y2PRPM52SSYNN22H3SWSR" tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
             <column name="PROCESS_FK"/>
         </createIndex>
 
@@ -1864,47 +1864,47 @@
             <column name="FK_BACKEND_FILTER"/>
         </createIndex>
 
-        <createIndex indexName="FK_J0Y3FCEDIQX5BUT8JBSCY59KW" tableName="TB_LEG">
+        <createIndex indexName="FK_J0Y3FCEDIQX5BUT8JBSCY59KW" tableName="TB_PM_LEG">
             <column name="FK_ERROR_HANDLING"/>
         </createIndex>
 
-        <createIndex indexName="FK_J7LAB5N5SUKLCLDQHXN8JL2JO" tableName="TB_PROCESS">
+        <createIndex indexName="FK_J7LAB5N5SUKLCLDQHXN8JL2JO" tableName="TB_PM_PROCESS">
             <column name="FK_MEP"/>
         </createIndex>
 
-        <createIndex indexName="FK_KJANLCDEAP7NIRDIGR7RT7P4V" tableName="TB_PROCESS">
+        <createIndex indexName="FK_KJANLCDEAP7NIRDIGR7RT7P4V" tableName="TB_PM_PROCESS">
             <column name="FK_AGREEMENT"/>
         </createIndex>
 
-        <createIndex indexName="FK_KKHXS36RW15AYGPN00NVVGYXG" tableName="TB_SERVICE">
+        <createIndex indexName="FK_KKHXS36RW15AYGPN00NVVGYXG" tableName="TB_PM_SERVICE">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_KV2C5K41APDLVC6I18AR57ABE" tableName="TB_LEG">
+        <createIndex indexName="FK_KV2C5K41APDLVC6I18AR57ABE" tableName="TB_PM_LEG">
             <column name="FK_SERVICE"/>
         </createIndex>
 
-        <createIndex indexName="FK_KYN19SWM143M96IN317SR97H2" tableName="TB_JOIN_PROCESS_RESP_PARTY">
+        <createIndex indexName="FK_KYN19SWM143M96IN317SR97H2" tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
             <column name="PARTY_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_L1MMHS1TBT8PW7VX5TEUYTJVJ" tableName="TB_ERROR_HANDLING">
+        <createIndex indexName="FK_L1MMHS1TBT8PW7VX5TEUYTJVJ" tableName="TB_PM_ERROR_HANDLING">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_LE4RXNKI51EAK6XETC7FQ8SRI" tableName="TB_LEG">
+        <createIndex indexName="FK_LE4RXNKI51EAK6XETC7FQ8SRI" tableName="TB_PM_LEG">
             <column name="FK_PROPERTY_SET"/>
         </createIndex>
 
-        <createIndex indexName="FK_LEG_SPLT" tableName="TB_LEG">
+        <createIndex indexName="FK_LEG_SPLT" tableName="TB_PM_LEG">
             <column name="FK_SPLITTING"/>
         </createIndex>
 
-        <createIndex indexName="FK_LNNPLHIAWXX7WLT43YE3PEJ00" tableName="TB_RELIABILITY">
+        <createIndex indexName="FK_LNNPLHIAWXX7WLT43YE3PEJ00" tableName="TB_PM_RELIABILITY">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_LYNOM7RXKC0T1XFL0NOWXPEUJ" tableName="TB_PAYLOAD_PROFILE">
+        <createIndex indexName="FK_LYNOM7RXKC0T1XFL0NOWXPEUJ" tableName="TB_PM_PAYLOAD_PROFILE">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1916,7 +1916,7 @@
             <column name="FK_MESSAGE_HEADER_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_MK54XE43F3HOKH7FJL3W66EFK" tableName="TB_JOIN_PROPERTY_SET">
+        <createIndex indexName="FK_MK54XE43F3HOKH7FJL3W66EFK" tableName="TB_PM_JOIN_PROPERTY_SET">
             <column name="SET_FK"/>
         </createIndex>
 
@@ -1924,27 +1924,27 @@
             <column name="FK_MSG_ACKNOWLEDGE"/>
         </createIndex>
 
-        <createIndex indexName="FK_ORDDLTV2G3LQ79EU48C2MC2FY" tableName="TB_LEG_TB_MPC">
+        <createIndex indexName="FK_ORDDLTV2G3LQ79EU48C2MC2FY" tableName="TB_PM_LEG_MPC">
             <column name="PARTYMPCMAP_KEY"/>
         </createIndex>
 
-        <createIndex indexName="FK_OT8JFKOTD6QU7JRDAPTROHBN8" tableName="TB_JOIN_PROCESS_INIT_PARTY">
+        <createIndex indexName="FK_OT8JFKOTD6QU7JRDAPTROHBN8" tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
             <column name="PROCESS_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_PARTY_AUD_REV" tableName="TB_PARTY_AUD">
+        <createIndex indexName="FK_PARTY_AUD_REV" tableName="TB_PM_PARTY_AUD">
             <column name="REV"/>
         </createIndex>
 
-        <createIndex indexName="FK_PARTY_IDENTIFIER_AUD_REV" tableName="TB_PARTY_IDENTIFIER_AUD">
+        <createIndex indexName="FK_PARTY_IDENTIFIER_AUD_REV" tableName="TB_PM_PARTY_IDENTIFIER_AUD">
             <column name="REV"/>
         </createIndex>
 
-        <createIndex indexName="FK_PARTY_ID_TYPE_AUD_REV" tableName="TB_PARTY_ID_TYPE_AUD">
+        <createIndex indexName="FK_PARTY_ID_TYPE_AUD_REV" tableName="TB_PM_PARTY_ID_TYPE_AUD">
             <column name="REV"/>
         </createIndex>
 
-        <createIndex indexName="FK_PPVXYURCVFY71FVEJW9BOSGHW" tableName="TB_LEG">
+        <createIndex indexName="FK_PPVXYURCVFY71FVEJW9BOSGHW" tableName="TB_PM_LEG">
             <column name="FK_MPC"/>
         </createIndex>
 
@@ -1952,19 +1952,19 @@
             <column name="SIGNALMESSAGE_ID"/>
         </createIndex>
 
-        <createIndex indexName="FK_Q0L3EJ6RUQCFUTRU2SECURQ9L" tableName="TB_JOIN_PAYLOAD_PROFILE">
+        <createIndex indexName="FK_Q0L3EJ6RUQCFUTRU2SECURQ9L" tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
             <column name="FK_PAYLOAD"/>
         </createIndex>
 
-        <createIndex indexName="FK_Q1JFSXFOJ3NL7HII3CO7BU0FR" tableName="TB_PROCESS">
+        <createIndex indexName="FK_Q1JFSXFOJ3NL7HII3CO7BU0FR" tableName="TB_PM_PROCESS">
             <column name="FK_INITIATOR_ROLE"/>
         </createIndex>
 
-        <createIndex indexName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" tableName="TB_CONFIGURATION">
+        <createIndex indexName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" tableName="TB_PM_CONFIGURATION">
             <column name="FK_PARTY"/>
         </createIndex>
 
-        <createIndex indexName="FK_R2SWPQOF7636VVEQT0DXL89DP" tableName="TB_LEG">
+        <createIndex indexName="FK_R2SWPQOF7636VVEQT0DXL89DP" tableName="TB_PM_LEG">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
@@ -1972,11 +1972,11 @@
             <column name="REV"/>
         </createIndex>
 
-        <createIndex indexName="FK_RJ8H1B65VNJJGYFCJNVSWKGUH" tableName="TB_MESSAGE_PROPERTY">
+        <createIndex indexName="FK_RJ8H1B65VNJJGYFCJNVSWKGUH" tableName="TB_PM_MESSAGE_PROPERTY">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_RLBJSTVO4GPDCP6YSV9MOFQXJ" tableName="TB_LEG">
+        <createIndex indexName="FK_RLBJSTVO4GPDCP6YSV9MOFQXJ" tableName="TB_PM_LEG">
             <column name="FK_RECEPTION_AWARENESS"/>
         </createIndex>
 
@@ -1988,11 +1988,11 @@
             <column name="SIGNALMESSAGE_ID_FK"/>
         </createIndex>
 
-        <createIndex indexName="FK_SPLT_BP" tableName="TB_SPLITTING">
+        <createIndex indexName="FK_SPLT_BP" tableName="TB_PM_SPLITTING">
             <column name="FK_BUSINESSPROCESS"/>
         </createIndex>
 
-        <createIndex indexName="FK_TP11D8FG7CV1FWF5XKVWQPP34" tableName="TB_PROCESS">
+        <createIndex indexName="FK_TP11D8FG7CV1FWF5XKVWQPP34" tableName="TB_PM_PROCESS">
             <column name="FK_MEP_BINDING"/>
         </createIndex>
 
@@ -2163,35 +2163,35 @@
     <!-- foreign keys -->
     <changeSet author="Catalin Enache" id="1564477107969-234">
         <comment>create foreign keys</comment>
-        <addForeignKeyConstraint baseColumnNames="FK_RELIABILITY" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_RELIABILITY" baseTableName="TB_PM_LEG"
                                  constraintName="FK_13K2EPTP1EJP5OTHY1NJRG3P8" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_RELIABILITY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_RELIABILITY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MEP_BINDING"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP_BINDING"
                                  constraintName="FK_277J83LGSQ3NMWYHSW637YND8" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
                                  constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ROLE"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ROLE"
                                  constraintName="FK_2SW6KNALOR7RPR04YE0O2R9AP" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_RESPONDER_ROLE" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_RESPONDER_ROLE" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_3EMT6XAGLH7676LPCKIY6R1VB" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_ROLE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_RECEPTION_AWARENESS"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RECEPTION_AWARENESS"
                                  constraintName="FK_3SGAXWFR5KOE3OLDBBD62SIWQ" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
                                  constraintName="FK_433RGM5A446T59Q6JKB885L3X" deferrable="false"
@@ -2203,64 +2203,64 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_CONFIGURATION"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_PM_CONFIGURATION"
                                  constraintName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ACTION"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ACTION"
                                  constraintName="FK_6HLDNNQKMH6LUI555T4N9FJIV" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_AGREEMENT"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_AGREEMENT"
                                  constraintName="FK_70M9KQPQAB3RGK90WSUV9VN64" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_ID_PK" baseTableName="TB_LEG_TB_MPC"
+        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_ID_PK" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_7H5NW411791GF4LG1YH6SI1WD" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MPC"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_7P1G7SQVLI1SJ6K7VPHJO9IRC" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
                                  constraintName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_MPC"
+        <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_PM_MPC"
                                  constraintName="FK_8Q319STWM1NOIJPB3JFL8JRI8" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_CONFIGURATION"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_CONFIGURATION"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_SECURITY" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_SECURITY" baseTableName="TB_PM_LEG"
                                  constraintName="FK_9HPMOEWLITIVCL8RW1JOCCUAU" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SECURITY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SECURITY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY_ID_TYPE"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY_ID_TYPE"
                                  constraintName="FK_ADVGUDIX024IRQPUGE4DL9IQF" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_ALERT"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD_PROFILE" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD_PROFILE" baseTableName="TB_PM_LEG"
                                  constraintName="FK_AM7BWSM92SE3NVCLBEIEP5VWG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD_PROFILE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
 
-        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
                                  constraintName="FK_ASJDL57BUDMUWMJ3611969JPP" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
                                  constraintName="FK_AUTH_ENTRY_AUD_REV" deferrable="false" initiallyDeferred="false"
@@ -2287,17 +2287,17 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PARTY"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY"
                                  constraintName="FK_CLOYY9K391VHSUP85IWR8IXIV" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CONFIGURATION_AUD"
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_AUD"
                                  constraintName="FK_CONFIGURATION_AUD_REV" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CONFIGURATION_RAW_AUD"
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_RAW_AUD"
                                  constraintName="FK_CONFIGURATION_RAW_AUD" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
@@ -2307,40 +2307,40 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PAYLOAD"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD"
                                  constraintName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PARTY_IDENTIFIER"
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_PARTY_IDENTIFIER"
                                  constraintName="FK_DESR6XTDP1LP41D5VENLHF4BC" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_ACTION" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_ACTION" baseTableName="TB_PM_LEG"
                                  constraintName="FK_DGTGTG41YRFEBYYSMKYI1GCAA" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_ACTION"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ACTION"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PARTY_ID_TYPE" baseTableName="TB_PARTY_IDENTIFIER"
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY_ID_TYPE" baseTableName="TB_PM_PARTY_IDENTIFIER"
                                  constraintName="FK_E7EHGHIFRNS83W6V3TPS7VPII" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY_ID_TYPE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY_ID_TYPE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MESSAGE_PROPERTY_SET"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY_SET"
                                  constraintName="FK_EIY3F9AHX0KDX4WXOI6PRYTN9" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_JOIN_PROPERTY_SET"
+        <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
                                  constraintName="FK_EKK8PN89Y50G22KD3GPJA7J39" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY_SET"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MEP"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP"
                                  constraintName="FK_EPMXKH8U7JNW5PBYJ47SIRMLH" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -2356,126 +2356,126 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_LEG"
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
                                  constraintName="FK_FPXBDC63GIFACRD4QB6AFRQYW" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_SECURITY"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SECURITY"
                                  constraintName="FK_FWRQ81CCTU2NH0QEPRMPVKER9" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PROFILE" baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+        <addForeignKeyConstraint baseColumnNames="FK_PROFILE" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
                                  constraintName="FK_G20EOW5F2CKE3AVSRG6QPKUXV" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD"/>
 
-        <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_JOIN_PROCESS_LEG"
+        <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
                                  constraintName="FK_GH98Q07KCJL7WDAON9GGIFQUX" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_LEG"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
 
-        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
                                  constraintName="FK_HLB2Y2PRPM52SSYNN22H3SWSR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BACKEND_FILTER" baseTableName="TB_ROUTING_CRITERIA"
                                  constraintName="FK_I7GEI6BDR2CDN61HDOPLXBU7P" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_BACKEND_FILTER"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_ERROR_HANDLING" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_ERROR_HANDLING" baseTableName="TB_PM_LEG"
                                  constraintName="FK_J0Y3FCEDIQX5BUT8JBSCY59KW" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_ERROR_HANDLING"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ERROR_HANDLING"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_MEP" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_MEP" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_J7LAB5N5SUKLCLDQHXN8JL2JO" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MEP"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_AGREEMENT" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_AGREEMENT" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_KJANLCDEAP7NIRDIGR7RT7P4V" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_AGREEMENT"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_AGREEMENT"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_SERVICE"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SERVICE"
                                  constraintName="FK_KKHXS36RW15AYGPN00NVVGYXG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_SERVICE" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_SERVICE" baseTableName="TB_PM_LEG"
                                  constraintName="FK_KV2C5K41APDLVC6I18AR57ABE" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SERVICE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SERVICE"/>
 
-        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_JOIN_PROCESS_RESP_PARTY"
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
                                  constraintName="FK_KYN19SWM143M96IN317SR97H2" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_ERROR_HANDLING"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ERROR_HANDLING"
                                  constraintName="FK_L1MMHS1TBT8PW7VX5TEUYTJVJ" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PROPERTY_SET" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_PROPERTY_SET" baseTableName="TB_PM_LEG"
                                  constraintName="FK_LE4RXNKI51EAK6XETC7FQ8SRI" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY_SET"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_RELIABILITY"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RELIABILITY"
                                  constraintName="FK_LNNPLHIAWXX7WLT43YE3PEJ00" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PAYLOAD_PROFILE"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD_PROFILE"
                                  constraintName="FK_LYNOM7RXKC0T1XFL0NOWXPEUJ" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
 
-        <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_JOIN_PROPERTY_SET"
+        <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
                                  constraintName="FK_MK54XE43F3HOKH7FJL3W66EFK" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_PROPERTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
 
-        <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_LEG_TB_MPC"
+        <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_NYLCXSY1F9CN3TDSKH97H8PT1" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_LEG"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
 
-        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_KEY" baseTableName="TB_LEG_TB_MPC"
+        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_KEY" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_ORDDLTV2G3LQ79EU48C2MC2FY" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
-        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_JOIN_PROCESS_INIT_PARTY"
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
                                  constraintName="FK_OT8JFKOTD6QU7JRDAPTROHBN8" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_IDENTIFIER_AUD"
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_IDENTIFIER_AUD"
                                  constraintName="FK_PARTY_IDENTIFIER_AUD_REV" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PARTY_ID_TYPE_AUD"
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_ID_TYPE_AUD"
                                  constraintName="FK_PARTY_ID_TYPE_AUD_REV" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
@@ -2485,50 +2485,50 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_MPC" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_MPC" baseTableName="TB_PM_LEG"
                                  constraintName="FK_PPVXYURCVFY71FVEJW9BOSGHW" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MPC"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
 
         <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
                                  constraintName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_JOIN_PAYLOAD_PROFILE"
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
                                  constraintName="FK_Q0L3EJ6RUQCFUTRU2SECURQ9L" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PAYLOAD_PROFILE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_INITIATOR_ROLE" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_INITIATOR_ROLE" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_Q1JFSXFOJ3NL7HII3CO7BU0FR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_ROLE"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_CONFIGURATION"
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_CONFIGURATION"
                                  constraintName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_PARTY"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_LEG"
                                  constraintName="FK_R2SWPQOF7636VVEQT0DXL89DP" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
                                  constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_MESSAGE_PROPERTY"
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY"
                                  constraintName="FK_RJ8H1B65VNJJGYFCJNVSWKGUH" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_BUSINESS_PROCESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_RECEPTION_AWARENESS" baseTableName="TB_LEG"
+        <addForeignKeyConstraint baseColumnNames="FK_RECEPTION_AWARENESS" baseTableName="TB_PM_LEG"
                                  constraintName="FK_RLBJSTVO4GPDCP6YSV9MOFQXJ" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEPTION_AWARENESS"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_RECEPTION_AWARENESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_ROUTING_CRITERIA_AUD"
                                  constraintName="FK_ROUTING_CRITERIA_AUD_REV" deferrable="false"
@@ -2540,10 +2540,10 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PROCESS"
+        <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_TP11D8FG7CV1FWF5XKVWQPP34" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MEP_BINDING"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP_BINDING"/>
 
         <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
                                  constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" deferrable="false"
@@ -2584,9 +2584,9 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_LEG" constraintName="UK_LEG_SPLT"
+        <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_PM_LEG" constraintName="UK_LEG_SPLT"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SPLITTING"/>
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SPLITTING"/>
     </changeSet>
 
     <!-- views -->

@@ -102,7 +102,7 @@
 								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
-								<propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
+								<propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
 								<runBrowser>firefox</runBrowser>
 							</environmentVariables>
 							<properties>

@@ -11,6 +11,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
+
 /**
  * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
  *
@@ -52,6 +54,11 @@ public class DomibusPropertyProviderDispatcher {
     }
 
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+        if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
+            throw new IllegalArgumentException("Invalid property value. Maximum accepted length is: " + maxLength);
+        }
+
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);

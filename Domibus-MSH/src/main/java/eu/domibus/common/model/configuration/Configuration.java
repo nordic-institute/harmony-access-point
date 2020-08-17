@@ -18,7 +18,7 @@ import java.util.Set;
 
 })
 @Entity
-@Table(name = "TB_CONFIGURATION")
+@Table(name = "TB_PM_CONFIGURATION")
 @XmlRootElement(name = "configuration")
 @NamedQueries({@NamedQuery(name = "Configuration.count", query = "SELECT COUNT(c.entityId) FROM Configuration c"), @NamedQuery(name = "Configuration.getConfiguration", query = "select conf from Configuration conf")})
 @Audited(withModifiedFlag = false)

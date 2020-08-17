@@ -34,6 +34,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<Object>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
 
   queues: any[];
   orderedQueues: any[];
@@ -121,9 +122,9 @@ export class JmsComponent extends mix(BaseListComponent)
         width: 80
       },
       {
+        cellTemplate: this.rawTextTpl,
         name: 'Content',
         prop: 'content'
-
       },
       {
         name: 'Custom prop',

@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
@@ -28,7 +29,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -140,6 +141,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -422,6 +426,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             payloadProfileValidator.validate(message, pModeKey);
             propertyProfileValidator.validate(message, pModeKey);
+            messagePropertyValidator.validate(message, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSplitAndJoin(splitAndJoin);

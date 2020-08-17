@@ -19,8 +19,8 @@ export class TrustStoreService {
 
   }
 
-  getEntries(): Observable<TrustStoreEntry[]> {
-    return this.http.get<TrustStoreEntry[]>(this.url + '/list')
+  getEntries(): Promise<TrustStoreEntry[]> {
+    return this.http.get<TrustStoreEntry[]>(this.url + '/list').toPromise();
   }
 
   uploadTrustStore(file, password): Observable<string> {

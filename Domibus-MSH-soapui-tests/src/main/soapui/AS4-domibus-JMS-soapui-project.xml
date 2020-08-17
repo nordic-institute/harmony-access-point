@@ -95,7 +95,7 @@
       </xsd:complexType>
       <xsd:complexType name="Property">
         <xsd:simpleContent>
-          <xsd:extension base="tns:max255-non-empty-string">
+          <xsd:extension base="tns:max1024-non-empty-string">
             <xsd:attribute name="name" type="tns:max255-non-empty-string" use="required"/>
             <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
           </xsd:extension>
@@ -127,6 +127,12 @@
         <xsd:restriction base="xsd:string">
           <xsd:minLength value="1"/>
           <xsd:maxLength value="255"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="max1024-non-empty-string">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="1024"/>
         </xsd:restriction>
       </xsd:simpleType>
     </xsd:schema>
@@ -2294,8 +2300,8 @@ byte[] payload = pay1.getBytes()
 messageMap.setBytes("payload_1", payload)
 domUtils.sendMessageAndClean(messageMap)
 domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="39615366-5442-40e3-aee5-eda2b70134f4"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS028-1-")
 test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS028-2-")
+test.verifyMessagePresence(0,0,"-DomJMS028-1-")
 test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS028-1-")
 test.cleanDBMessageID("-DomJMS028-2-")

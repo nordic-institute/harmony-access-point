@@ -55,21 +55,15 @@ public class RetryDefaultService implements RetryService {
     @Autowired
     UpdateRetryLoggingService updateRetryLoggingService;
 
-    @Override
-    public void enqueueMessages() {
-        final List<String> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
-
-        for (final String messageId : messagesNotAlreadyQueued) {
-            enqueueMessage(messageId);
-        }
-    }
 
     /**
      * Tries to enqueue a message to be retried. Sets the message id on the MDC context and cleans it afterwards
      *
      * @param messageId The message id to be enqueued for retrial
      */
-    protected void enqueueMessage(String messageId) {
+    @Override
+    @Transactional
+    public void enqueueMessage(String messageId) {
         try {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             doEnqueueMessage(messageId);
@@ -108,8 +102,8 @@ public class RetryDefaultService implements RetryService {
         userMessageService.scheduleSending(userMessage, userMessageLog);
     }
 
-
-    protected List<String> getMessagesNotAlreadyScheduled() {
+    @Override
+    public List<String> getMessagesNotAlreadyScheduled() {
         List<String> result = new ArrayList<>();
 
         final List<String> messageIdsToSend = userMessageLogDao.findRetryMessages();

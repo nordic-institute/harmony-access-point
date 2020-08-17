@@ -22,6 +22,7 @@ import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPassw
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
@@ -130,6 +131,9 @@ public class DomibusPropertiesChangeListenersTest {
     AlertPluginPasswordImminentExpirationConfigurationChangeListener alertPluginPasswordImminentExpirationConfigurationChangeListener;
 
     @Tested
+    CRLChangeListener crlChangeListener;
+
+    @Tested
     @Injectable
     CorePropertyMetadataManagerImpl corePropertyMetadataManager;
 
@@ -223,6 +227,9 @@ public class DomibusPropertiesChangeListenersTest {
     @Injectable
     PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
+    @Injectable
+    CRLService crlService;
+
     @Test
     public void testPropertyChangeListeners() throws Exception {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
@@ -238,6 +245,7 @@ public class DomibusPropertiesChangeListenersTest {
                 proxyChangeListener,
                 pullConfigurationChangeListener,
                 storageChangeListener,
+                crlChangeListener,
 
                 alertActiveChangeListener,
                 alertConsoleAccountDisabledConfigurationChangeListener,
@@ -299,6 +307,7 @@ public class DomibusPropertiesChangeListenersTest {
             pluginPasswordExpiredAlertConfigurationManager.reset();
             consolePasswordImminentExpirationAlertConfigurationManager.reset();
             pluginPasswordImminentExpirationAlertConfigurationManager.reset();
+            crlService.resetCacheCrlProtocols();
         }};
     }
 

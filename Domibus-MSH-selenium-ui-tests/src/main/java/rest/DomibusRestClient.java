@@ -32,9 +32,9 @@ public class DomibusRestClient extends BaseRestClient {
 	public void syncRecord() throws Exception {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
 		if (response.getStatus() != 200) {
-			throw new Exception("Data is not sync now ");
+			throw new DomibusRestException("Data is not sync now ", response);
 		} else {
-			System.out.println("Data is synchronized now with response code:" + response.getStatus());
+			log.info("Data is synchronized now with response code:" + response.getStatus());
 		}
 	}
 	
@@ -94,6 +94,10 @@ public class DomibusRestClient extends BaseRestClient {
 	
 	public LoggingClient logging() {
 		return new LoggingClient(username, password);
+	}
+	
+	public UIReplicationClient uiReplication() {
+		return new UIReplicationClient(username, password);
 	}
 	
 	

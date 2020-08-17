@@ -50,8 +50,8 @@ public class SandwichMenu extends DComponent {
 
 		weToDButton(expandButton).click();
 		wait.forElementToBeVisible(menuContainer);
+		
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-
 	}
 
 
