@@ -10,6 +10,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
@@ -118,6 +120,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     MessageExchangeService messageExchangeService;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Tested
     BackendNotificationService backendNotificationService = new BackendNotificationService();
@@ -1265,6 +1270,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.createBackendFilters();
 
         new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
             backendFilterDao.create(backendFilterEntities);
             times = 1;
         }};
@@ -1313,6 +1319,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.createBackendFilters();
 
         new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
             backendFilterDao.create(backendFilterEntities);
             times = 1;
         }};
