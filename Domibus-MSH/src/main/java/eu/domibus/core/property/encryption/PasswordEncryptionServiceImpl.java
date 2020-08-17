@@ -273,7 +273,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             if(configurationFile != null ){
                 List<String> originalLines = Files.readAllLines(configurationFile.toPath());
                 arePropertiesNewlyEncrypted = !CollectionUtils.containsAll(originalLines, replacedLines);
-                LOG.debug("After password encyrption do original and replaced properties match?:"+(arePropertiesNewlyEncrypted?"no":"yes"));
+                LOG.debug("Are properties newly encrypted?:"+arePropertiesNewlyEncrypted);
             }
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not read configuration file [%s]", configurationFile), e);
