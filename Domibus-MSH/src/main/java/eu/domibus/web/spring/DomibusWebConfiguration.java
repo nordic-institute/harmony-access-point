@@ -33,9 +33,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @ComponentScan(basePackages = "eu.domibus.web")
 public class DomibusWebConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
@@ -86,14 +83,6 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
         CustomMappingJackson2HttpMessageConverter bean = new CustomMappingJackson2HttpMessageConverter();
         bean.setJsonPrefix(")]}',\n");
         return bean;
-    }
-
-    @Bean
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        int size = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
-        resolver.setMaxUploadSize(size);
-        return resolver;
     }
 
     @Bean
