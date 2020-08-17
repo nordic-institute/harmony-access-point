@@ -24,26 +24,19 @@ public class AsyncNotificationListenerServiceConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationListenerServiceConfiguration.class);
 
-    protected List<NotificationListenerService> notificationListenerServices;
     protected JmsListenerContainerFactory jmsListenerContainerFactory;
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
-    protected ObjectProvider<AsyncNotificationListenerService> myPrototypeProvider;
-
 
     public AsyncNotificationListenerServiceConfiguration(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
                                                          AuthUtils authUtils,
                                                          DomainContextProvider domainContextProvider,
-                                                         PluginEventNotifierProvider pluginEventNotifierProvider,
-                                                         ObjectProvider<AsyncNotificationListenerService> myPrototypeProvider,
-                                                         @Autowired(required = false) List<NotificationListenerService> notificationListenerServices) {
+                                                         PluginEventNotifierProvider pluginEventNotifierProvider) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
         this.authUtils = authUtils;
         this.domainContextProvider = domainContextProvider;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
-        this.myPrototypeProvider = myPrototypeProvider;
-        this.notificationListenerServices = notificationListenerServices;
     }
 
     @Bean

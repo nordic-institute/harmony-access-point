@@ -2,18 +2,18 @@
 package eu.domibus.plugin;
 
 import eu.domibus.common.NotificationType;
-import eu.domibus.ext.exceptions.JmsExtException;
-import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageNotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,15 +22,14 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class NotificationListenerService implements NotificationListener {
+public class NotificationListenerService implements NotificationListener, MessageLister {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotificationListenerService.class);
 
-    /**
-     * Field injection used so to that the user is not obliged to inject it manually
-     */
     @Autowired
-    protected JMSExtService jmsExtService;
+    protected ObjectProvider<QueueMessageLister> queueMessageListerObjectProvider;
+
+    protected QueueMessageLister queueMessageLister;
 
     //the following fields are provided by the plugin
     protected Queue backendNotificationQueue;
@@ -61,6 +60,16 @@ public class NotificationListenerService implements NotificationListener {
         this.backendNotificationQueue = queue;
         this.mode = mode;
         this.requiredNotifications = requiredNotifications;
+    }
+
+    @PostConstruct
+    public void init() {
+        if (mode == BackendConnector.Mode.PUSH) {
+            LOG.debug("Plugin [{}] type is PUSH. No queue message  lister is needed", getBackendName());
+            return;
+        }
+
+        queueMessageLister = queueMessageListerObjectProvider.getObject(mode, backendNotificationQueue, getBackendName());
     }
 
     public void setBackendConnector(final BackendConnector backendConnector) {
@@ -110,27 +119,27 @@ public class NotificationListenerService implements NotificationListener {
 
     @Override
     public void deleteMessageCallback(String messageId) {
-        if (getMode() == BackendConnector.Mode.PUSH) {
+        try {
+            removeFromPending(messageId);
+        } catch (MessageNotFoundException e) {
+            LOG.debug("No message with id [{}] to remove from the pending list", messageId, e);
+        }
+    }
+
+    @Override
+    public Collection<String> listPendingMessages() {
+        if (mode == BackendConnector.Mode.PUSH) {
+            throw new UnsupportedOperationException("listPendingMessages method is only available for clients using Mode.PULL");
+        }
+        return queueMessageLister.listPendingMessages();
+    }
+
+    @Override
+    public void removeFromPending(String messageId) throws MessageNotFoundException {
+        if (mode == BackendConnector.Mode.PUSH) {
             LOG.debug("Plugin [{}] type is PUSH. No message is needed to be deleted", getBackendName());
             return;
         }
-        if (getBackendNotificationQueue() == null) {
-            LOG.debug("No notification queue configured for plugin [{}]. No message is needed to be deleted", getBackendName());
-            return;
-        }
-        String queueName;
-        try {
-            Queue backendNotificationQueue = getBackendNotificationQueue();
-            queueName = backendNotificationQueue.getQueueName();
-        } catch (JMSException jmsEx) {
-            LOG.error("Error trying to get the queue name", jmsEx);
-            throw new JmsExtException("Could not get the queue name", jmsEx);
-        }
-        try {
-            jmsExtService.removeFromPending(queueName, messageId);
-            LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
-        } catch (MessageNotFoundException e) {
-            LOG.warn("Could not remove message id [{}] from pending: no message found", messageId);
-        }
+        queueMessageLister.removeFromPending(messageId);
     }
 }
