@@ -8,6 +8,10 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 @Configuration
 public class PropertyListenersConfiguration {
 
@@ -24,6 +28,5 @@ public class PropertyListenersConfiguration {
         resolver.setMaxUploadSize(size);
         return resolver;
     }
-
 
 }
