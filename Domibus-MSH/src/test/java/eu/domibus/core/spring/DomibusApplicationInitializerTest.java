@@ -1,7 +1,7 @@
 package eu.domibus.core.spring;
 
-import com.codahale.metrics.servlets.AdminServlet;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
+import eu.domibus.core.metrics.DomibusAdminServlet;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
@@ -152,7 +152,7 @@ public class DomibusApplicationInitializerTest {
     public void configureMetrics(@Mocked ServletContext servletContext,
                                  @Injectable ServletRegistration.Dynamic servlet) {
         new Expectations() {{
-            servletContext.addServlet("metrics", AdminServlet.class);
+            servletContext.addServlet("metrics", DomibusAdminServlet.class);
             result = servlet;
         }};
 

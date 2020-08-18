@@ -1,34 +1,27 @@
 package eu.domibus.core.metrics;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Thomas Dussart
+ * @author Catalin Enache
  * @since 4.1
  */
+@Component
 public class MetricsHelper {
 
-    private static MetricRegistry metricRegistry;
+    private DomibusConfigurationService domibusConfigurationService;
 
-    private static HealthCheckRegistry healthCheckRegistry;
+    private AuthUtils authUtils;
 
-    private MetricsHelper() {
+    private MetricsHelper(DomibusConfigurationService domibusConfigurationService, AuthUtils authUtils) {
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.authUtils = authUtils;
     }
 
-    public static MetricRegistry getMetricRegistry() {
-        return metricRegistry;
-    }
-
-    public static void setMetricRegistry(MetricRegistry metricRegistry) {
-        MetricsHelper.metricRegistry = metricRegistry;
-    }
-
-    public static HealthCheckRegistry getHealthCheckRegistry() {
-        return healthCheckRegistry;
-    }
-
-    public static void setHealthCheckRegistry(HealthCheckRegistry healthCheckRegistry) {
-        MetricsHelper.healthCheckRegistry = healthCheckRegistry;
+    public boolean showJMSCounts() {
+        return (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin()));
     }
 }

@@ -26,6 +26,7 @@ public class MetricsAspect {
 
     @Autowired
     private MetricRegistry metricRegistry;
+
     @Around("@annotation(timer)")
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
         com.codahale.metrics.Timer.Context context = null;
