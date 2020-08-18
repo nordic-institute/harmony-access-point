@@ -11,10 +11,7 @@
                             http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
      <jee:jndi-lookup id="notifyBackendWebServiceQueue" expected-type="javax.jms.Queue"
-                     jndi-name="jms/domibus.notification.webservice"
-                     cache="true"
-                     resource-ref="true"
-                     lookup-on-startup="true">
+                     jndi-name="jms/domibus.notification.webservice">
     </jee:jndi-lookup>
 
     <bean id="backendWebservice"

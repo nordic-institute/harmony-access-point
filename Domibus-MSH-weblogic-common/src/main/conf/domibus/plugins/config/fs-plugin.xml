@@ -20,15 +20,14 @@
 
     <jee:jndi-lookup id="notifyBackendFSQueue"
                      jndi-name="jms/domibus.notification.filesystem"
-                     expected-type="javax.jms.Queue"
-                     cache="true"
-                     resource-ref="true"
-                     lookup-on-startup="true">
+                     expected-type="javax.jms.Queue">
+    </jee:jndi-lookup>
+    <jee:jndi-lookup id="fsPluginSendQueue"
+                     jndi-name="${fsplugin.send.queue}"
+                     expected-type="javax.jms.Queue">
     </jee:jndi-lookup>
 
-    <bean id="fsPluginSendQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="${fsplugin.send.queue}"/>
-    </bean>
+
 
     <bean id="backendFSPlugin"
           class="eu.domibus.plugin.fs.BackendFSImpl">

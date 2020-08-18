@@ -20,9 +20,9 @@
     </bean>
 
     <bean id="jmsNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendJmsQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendJms"/>
+          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+          c:queue-ref="notifyBackendJmsQueue"
+          c:backendConnector-ref="backendJms"/>
 
     <bean id="backendJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">

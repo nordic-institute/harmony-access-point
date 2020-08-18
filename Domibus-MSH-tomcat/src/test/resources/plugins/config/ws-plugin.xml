@@ -33,9 +33,9 @@
 
 
     <bean id="webserviceNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendWebservice">
+          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+          c:queue-ref="notifyBackendWebServiceQueue"
+          c:backendConnector-ref="backendWebservice">
         <constructor-arg ref="requiredNotificationsList"/>
     </bean>
 

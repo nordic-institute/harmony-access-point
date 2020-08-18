@@ -2,10 +2,12 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:c="http://www.springframework.org/schema/c"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
@@ -15,13 +17,14 @@
     <context:property-placeholder properties-ref="fsPluginProperties" ignore-resource-not-found="true"
                                   ignore-unresolvable="true" />
 
-    <bean id="notifyBackendFSQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="jms/domibus.notification.filesystem" />
-    </bean>
-
-    <bean id="fsPluginSendQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="${fsplugin.send.queue}"/>
-    </bean>
+    <jee:jndi-lookup id="notifyBackendFSQueue"
+                     jndi-name="jms/domibus.notification.filesystem"
+                     expected-type="javax.jms.Queue">
+    </jee:jndi-lookup>
+    <jee:jndi-lookup id="fsPluginSendQueue"
+                     jndi-name="${fsplugin.send.queue}"
+                     expected-type="javax.jms.Queue">
+    </jee:jndi-lookup>
 
     <bean id="backendFSPlugin"
           class="eu.domibus.plugin.fs.BackendFSImpl">
@@ -29,9 +32,9 @@
     </bean>
 
     <bean id="fsPluginNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendFSQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendFSPlugin">
+          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+          c:queue-ref="notifyBackendFSQueue"
+          c:backendConnector-ref="backendFSPlugin">
         <property name="queueName" value="jms/domibus.notification.filesystem"/>
     </bean>
 
