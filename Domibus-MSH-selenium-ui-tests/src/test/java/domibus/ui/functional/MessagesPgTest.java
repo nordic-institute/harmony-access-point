@@ -16,7 +16,7 @@ import pages.messages.MessageDetailsModal;
 import pages.messages.MessageFilters;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
-import utils.Generator;
+import utils.Gen;
 import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
@@ -343,7 +343,7 @@ public class MessagesPgTest extends SeleniumTest {
 		String domain = rest.getDomainCodeForName(domainName);
 		log.info(String.format("Domain name = %s", domainName));
 		
-		String userDomain = Generator.randomAlphaNumeric(10);
+		String userDomain = Gen.randomAlphaNumeric(10);
 		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created plugin user " + userDomain);
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
@@ -351,14 +351,14 @@ public class MessagesPgTest extends SeleniumTest {
 		log.info("sent message with id " + messageIDDomain);
 		
 		log.info("Switching to default domain");
-		String userDefault = Generator.randomAlphaNumeric(10);
+		String userDefault = Gen.randomAlphaNumeric(10);
 		rest.pluginUsers().createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(), null);
 		log.info("created plugin user " + userDefault);
 		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 		String messageIDDefault = messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
 		log.info("sent message with id " + messageIDDefault);
 		
-		String userAdmin = Generator.randomAlphaNumeric(10);
+		String userAdmin = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created admin with username " + userAdmin);
 		

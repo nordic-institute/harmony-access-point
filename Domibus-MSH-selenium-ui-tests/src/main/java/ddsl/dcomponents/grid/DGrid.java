@@ -16,7 +16,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 import utils.Order;
 import utils.TestRunData;
 
@@ -37,7 +37,9 @@ public class DGrid extends DComponent {
 	protected List<WebElement> gridHeaders;
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
 	protected List<WebElement> gridRows;
+	
 	protected By cellSelector = By.tagName("datatable-body-cell");
+	
 	@FindBy(id = "saveascsvbutton_id")
 	protected WebElement downloadCSVButton;
 	@FindBy(tagName = "datatable-progress")
@@ -388,7 +390,7 @@ public class DGrid extends DComponent {
 		
 		//-----------Show - Modify - Hide
 		for (int i = 0; i < 3; i++) {
-			String colName = chkOptions.get(Generator.randomNumber(chkOptions.size()-1));
+			String colName = chkOptions.get(Gen.randomNumber(chkOptions.size()-1));
 			log.info("checking checkbox for " + colName);
 			getGridCtrl().showCtrls();
 			getGridCtrl().checkBoxWithLabel(colName);

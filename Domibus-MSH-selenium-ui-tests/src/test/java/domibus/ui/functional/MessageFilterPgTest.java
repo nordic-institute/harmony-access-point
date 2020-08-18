@@ -15,7 +15,7 @@ import pages.msgFilter.MessageFilterGrid;
 import pages.msgFilter.MessageFilterModal;
 import pages.msgFilter.MessageFilterPage;
 import rest.RestServicePaths;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/* Create new filter and press Cancel */
 	@Test(description = "MSGF-3", groups = {"multiTenancy", "singleTenancy"})
 	public void newFilterCancel() throws Exception {
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 		
 		MessageFilterPage page = navigateToPage();
@@ -85,7 +85,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	/*User creates new filter and presses Save*/
 	@Test(description = "MSGF-4", groups = {"multiTenancy", "singleTenancy"})
 	public void newFilterSave() throws Exception {
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		SoftAssert soft = new SoftAssert();
 		
 		MessageFilterPage page = navigateToPage();
@@ -118,7 +118,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
-			String actionName = Generator.randomAlphaNumeric(5);
+			String actionName = Gen.randomAlphaNumeric(5);
 			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
@@ -201,7 +201,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters");
 		for (int i = 0; i < 5; i++) {
-			String actionName = Generator.randomAlphaNumeric(5);
+			String actionName = Gen.randomAlphaNumeric(5);
 			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
@@ -234,7 +234,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
-			String actionName = Generator.randomAlphaNumeric(5);
+			String actionName = Gen.randomAlphaNumeric(5);
 			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
@@ -314,7 +314,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
-			String actionName = Generator.randomAlphaNumeric(5);
+			String actionName = Gen.randomAlphaNumeric(5);
 			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
@@ -360,7 +360,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
 		log.info("Create a filter to edit");
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		
 		SoftAssert soft = new SoftAssert();
@@ -400,8 +400,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("create a filter to edit");
-		String actionName = Generator.randomAlphaNumeric(5);
-		String newActionValue = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
+		String newActionValue = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		
 		MessageFilterPage page = navigateToPage();
@@ -438,7 +438,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Create a filter to delete");
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		
 		MessageFilterPage page = navigateToPage();
@@ -477,7 +477,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Create a filter to edit");
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		
 		
@@ -512,7 +512,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	public void newFilterAndChangeDomains() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		
 		MessageFilterPage page = navigateToPage();
 		
@@ -552,8 +552,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Create a filter to edit");
-		String actionName = Generator.randomAlphaNumeric(5);
-		String anotherActionName = Generator.randomAlphaNumeric(5) + "mod";
+		String actionName = Gen.randomAlphaNumeric(5);
+		String anotherActionName = Gen.randomAlphaNumeric(5) + "mod";
 		rest.messFilters().createMessageFilter(actionName, null);
 		log.debug("filter with action " + actionName + " created");
 		String domainName = rest.getNonDefaultDomain();
@@ -665,7 +665,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		log.info("Create a filter to edit");
 		SoftAssert soft = new SoftAssert();
 		
-		String actionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		
 		MessageFilterPage page = navigateToPage();
@@ -699,7 +699,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		List<String> actionNames = new ArrayList<>();
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
-			String actionName = Generator.randomAlphaNumeric(5);
+			String actionName = Gen.randomAlphaNumeric(5);
 			rest.messFilters().createMessageFilter(actionName, null);
 			actionNames.add(actionName);
 		}
@@ -790,7 +790,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		log.info("creating filter");
-		String generatedStr = Generator.randomAlphaNumeric(5) + ":" + Generator.randomAlphaNumeric(5);
+		String generatedStr = Gen.randomAlphaNumeric(5) + ":" + Gen.randomAlphaNumeric(5);
 		modal.getPluginSelect().selectOptionByIndex(0);
 		modal.getFromInput().fill(generatedStr);
 		modal.getToInput().fill(generatedStr);
@@ -841,8 +841,8 @@ public class MessageFilterPgTest extends SeleniumTest {
 		
 		log.info("Create 2 filters to edit");
 		
-		String actionName = Generator.randomAlphaNumeric(5);
-		String anotherActionName = Generator.randomAlphaNumeric(5);
+		String actionName = Gen.randomAlphaNumeric(5);
+		String anotherActionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, null);
 		rest.messFilters().createMessageFilter(anotherActionName, null);
 		

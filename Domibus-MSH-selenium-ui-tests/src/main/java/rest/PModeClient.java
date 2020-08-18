@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import org.json.JSONArray;
 import org.json.JSONException;
-import utils.Generator;
+import utils.Gen;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ public class PModeClient extends BaseRestClient {
 		switchDomain(domain);
 		
 		HashMap<String, String> fields = new HashMap<>();
-		fields.put("description", Generator.randomAlphaNumeric(10));
+		fields.put("description", Gen.randomAlphaNumeric(10));
 		ClientResponse response = requestPOSTFile(resource.path(RestServicePaths.PMODE), pmodeFilePath, fields);
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not upload PMODE file!!!", response);

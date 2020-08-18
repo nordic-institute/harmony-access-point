@@ -135,6 +135,7 @@ public class Select extends DComponent {
 		for (int i = 0; i < options.size(); i++) {
 			texts.add(options.get(i).getText());
 		}
+		contract();
 		return texts;
 	}
 	

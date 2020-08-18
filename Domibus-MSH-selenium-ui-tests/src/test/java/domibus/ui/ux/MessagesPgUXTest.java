@@ -10,10 +10,9 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -279,7 +278,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		grid.waitForRowsToLoad();
 
 		for (int i = 0; i < 3; i++) {
-			int index = Generator.randomNumber(colDescs.length() - 1);
+			int index = Gen.randomNumber(colDescs.length() - 1);
 
 //			this code is here because of bug EDELIVERY-6734
 			if(index == 17){

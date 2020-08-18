@@ -14,7 +14,7 @@ import org.testng.asserts.SoftAssert;
 import pages.plugin_users.CertPluginUserModal;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	@Test(description = "PU-3", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserCancel() throws Exception {
 		
-		String username = Generator.randomAlphaNumeric(9);
+		String username = Gen.randomAlphaNumeric(9);
 		log.info("creating user " + username);
 		SoftAssert soft = new SoftAssert();
 		
@@ -69,7 +69,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	@Test(description = "PU-5", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSave() throws Exception {
 		
-		String username = Generator.randomAlphaNumeric(9);
+		String username = Gen.randomAlphaNumeric(9);
 		log.info("creating user " + username);
 		
 		SoftAssert soft = new SoftAssert();
@@ -295,7 +295,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/*PU-13 - Create a certificate plugin userand press save*/
 	@Test(description = "PU-13", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserSave() throws Exception {
-		String id = Generator.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		String certId = "CN=puser,O=eDelivery,C=BE:" + id;
 		log.info("creating plugin user with certificate " + certId);
 		
@@ -329,7 +329,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/*PU-14 - Create a certificate plugin userand press cancel*/
 	@Test(description = "PU-14", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserCancel() throws Exception {
-		String id = Generator.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		String certId = "CN=puser,O=eDelivery,C=BE:" + id;
 		log.info("creating plugin user with certificate " + certId);
 		
@@ -452,7 +452,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/* PU-31 - Check duplicate user addition with same certificate id  */
 	@Test(description = "PU-31", groups = {"multiTenancy", "singleTenancy"})
 	public void certificatePluginUserDuplicateSameDomain() throws Exception {
-		String id = Generator.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		String certId = "CN=puser,O=eDelivery,C=BE:" + id;
 		log.info("testing for certificate id " + certId);
 		
@@ -497,7 +497,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	
 	@Test(description = "*****", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicatePluginUsersSameDomain() throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 		
 		SoftAssert soft = new SoftAssert();
@@ -523,7 +523,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	public void domainVisibility() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		
 		String domainName = rest.getNonDefaultDomain();
 		String domainCode = rest.getDomainCodeForName(domainName);
@@ -551,7 +551,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSaveMultipleSaves() throws Exception {
 		
-		String username = Generator.randomAlphaNumeric(9);
+		String username = Gen.randomAlphaNumeric(9);
 		log.info("creating user " + username);
 		
 		SoftAssert soft = new SoftAssert();

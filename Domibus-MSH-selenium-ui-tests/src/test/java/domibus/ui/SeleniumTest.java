@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
-import utils.Generator;
 import utils.driver.DriverManager;
 
 import java.lang.reflect.Field;

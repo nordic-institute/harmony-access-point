@@ -14,7 +14,7 @@ import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
 import rest.RestServicePaths;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.*;
 
@@ -366,7 +366,7 @@ public class AlertPgTest extends SeleniumTest {
 	@Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUserLoginFailure() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String user = Generator.randomAlphaNumeric(10);
+		String user = Gen.randomAlphaNumeric(10);
 		log.info("Create plugin user");
 		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		if (!data.isMultiDomain()) {
@@ -414,7 +414,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void pluginUserDisabled() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String user = Generator.randomAlphaNumeric(10);
+		String user = Gen.randomAlphaNumeric(10);
 		log.info("Create plugin users");
 		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		
@@ -487,7 +487,7 @@ public class AlertPgTest extends SeleniumTest {
 		int rowCount = page.grid().getRowsNo();
 		
 		for (int i = 0; i < 3; i++) {
-			validateDomainAlertInfo(page.grid().getRowInfo(Generator.randomNumber(rowCount)), userList, messageList, pluginuserList, soft);
+			validateDomainAlertInfo(page.grid().getRowInfo(Gen.randomNumber(rowCount)), userList, messageList, pluginuserList, soft);
 		}
 		
 		soft.assertAll();
@@ -521,7 +521,7 @@ public class AlertPgTest extends SeleniumTest {
 			JSONArray messageList = rest.messages().getListOfMessages(domain);
 			JSONArray pluginsuerList = rest.pluginUsers().getPluginUsers(domain, "BASIC");
 			
-			validateDomainAlertInfo(page.grid().getRowInfo(Generator.randomNumber(rowCount)), userList, messageList, pluginsuerList, soft);
+			validateDomainAlertInfo(page.grid().getRowInfo(Gen.randomNumber(rowCount)), userList, messageList, pluginsuerList, soft);
 		}
 		soft.assertAll();
 	}
@@ -669,7 +669,7 @@ public class AlertPgTest extends SeleniumTest {
 			log.info("will run for domain " + domain);
 		}
 		
-		String user = Generator.randomAlphaNumeric(5);
+		String user = Gen.randomAlphaNumeric(5);
 		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created user " + user);
 		
@@ -696,7 +696,7 @@ public class AlertPgTest extends SeleniumTest {
 			JSONArray pluginuserList = rest.pluginUsers().getPluginUsers(domain, "BASIC");
 			
 			for (int i = 0; i < 2; i++) {
-				validateDomainAlertInfo(page.grid().getRowInfo(Generator.randomNumber(rowCount)), userList, messageList, pluginuserList, soft);
+				validateDomainAlertInfo(page.grid().getRowInfo(Gen.randomNumber(rowCount)), userList, messageList, pluginuserList, soft);
 			}
 		}
 		
@@ -723,7 +723,7 @@ public class AlertPgTest extends SeleniumTest {
 		AlertPage page = new AlertPage(driver);
 		AlertFilters aFilter = new AlertFilters(driver);
 		
-		String user = Generator.randomAlphaNumeric(3);
+		String user = Gen.randomAlphaNumeric(3);
 		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created user " + user);
 		

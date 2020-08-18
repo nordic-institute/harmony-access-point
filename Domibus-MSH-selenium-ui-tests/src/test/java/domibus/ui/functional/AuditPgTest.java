@@ -19,10 +19,9 @@ import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
-import java.awt.print.Pageable;
 import java.util.*;
 
 
@@ -56,7 +55,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Generate Random string for Username");
-		String user = Generator.randomAlphaNumeric(10);
+		String user = Gen.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
 		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		
@@ -84,7 +83,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String user = Generator.randomAlphaNumeric(10);
+		String user = Gen.randomAlphaNumeric(10);
 		log.info("Create user with rest service");
 		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), null);
 		
@@ -148,7 +147,7 @@ public class AuditPgTest extends SeleniumTest {
 	@Test(description = "AU-15", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterCreation() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		log.info("Create one message filter " + rndStr);
 		
@@ -335,7 +334,7 @@ public class AuditPgTest extends SeleniumTest {
 		
 		log.info("Upload pmode");
 		rest.pmode().uploadPMode("pmodes/pmode-red.xml", null);
-		String newPartyName = Generator.randomAlphaNumeric(5);
+		String newPartyName = Gen.randomAlphaNumeric(5);
 		
 		log.info("login into application and navigate to Pmode parties page");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
@@ -566,7 +565,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void createUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Create user with rest call");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		
 		AuditPage auditPage = navigateToAudit();
@@ -595,7 +594,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		log.info("Login into application with Admin credentials and navigate to Audit page");
 		log.info("Create user with rest call");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		HashMap<String, String> params = new HashMap<>();
 		params.put("password", data.getNewTestPass());
@@ -624,7 +623,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void deleteUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Create user with rest call");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		rest.users().deleteUser(username, null);
 		
@@ -652,7 +651,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void createPluginUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Create user with rest call");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		
 		AuditPage auditPage = navigateToAudit();
@@ -679,7 +678,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void deletePluginUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Create user with rest call");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		
 		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		rest.pluginUsers().deletePluginUser(username, null);
@@ -709,7 +708,7 @@ public class AuditPgTest extends SeleniumTest {
 		
 		String domain = selectRandomDomain();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		log.info("Create one message filter");
 		
 		int messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, domain);

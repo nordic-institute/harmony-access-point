@@ -12,7 +12,7 @@ import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
 import pages.pmode.parties.modal.PPartyModal;
-import utils.Generator;
+import utils.Gen;
 import utils.PModeXMLUtils;
 
 import java.io.File;
@@ -159,7 +159,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 			log.info("Upload pmode");
 			rest.pmode().uploadPMode("pmodes/pmode-red.xml", null);
 		}
-		String newPatyName = Generator.randomAlphaNumeric(5);
+		String newPatyName = Gen.randomAlphaNumeric(5);
 		
 		log.info("login into application and navigate to Pmode parties page");
 		PModePartiesPage page = navigateToPage();
@@ -204,7 +204,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		PModePartiesPage page = navigateToPage();
 		
 		int index = page.grid().scrollTo(partyName, currentParty);
-		String newPartyName = Generator.randomAlphaNumeric(5);
+		String newPartyName = Gen.randomAlphaNumeric(5);
 		int toEditIndex = 0;
 		if (toEditIndex == index) {
 			toEditIndex = 1;
@@ -246,7 +246,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		
-		String newPartyName = Generator.randomAlphaNumeric(5);
+		String newPartyName = Gen.randomAlphaNumeric(5);
 		
 		PModePartiesPage page = navigateToPage();
 		log.info("select row 0");
@@ -399,7 +399,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getNewButton().click();
 		
 		log.info("Generate random New Party Name");
-		String newPatyName = Generator.randomAlphaNumeric(5);
+		String newPatyName = Gen.randomAlphaNumeric(5);
 		PartyModal modal = new PartyModal(driver);
 		
 		log.info("Fill New Party Form");

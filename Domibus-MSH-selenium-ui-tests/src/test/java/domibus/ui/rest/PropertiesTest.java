@@ -7,7 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.HashMap;
 
@@ -40,7 +40,7 @@ public class PropertiesTest extends RestTest {
 		
 		String name = prop.getString("name");
 		String value = prop.optString("value");
-		String newValue = Generator.randomAlphaNumeric(20);
+		String newValue = Gen.randomAlphaNumeric(20);
 		
 		ClientResponse response = rest.properties().updateDomibusProperty(name, newValue);
 		soft.assertTrue(response.getStatus() == 200, "Updated successfully");
