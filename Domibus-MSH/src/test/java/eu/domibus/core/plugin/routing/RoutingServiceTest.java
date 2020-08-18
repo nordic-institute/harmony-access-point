@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -67,6 +68,9 @@ public class RoutingServiceTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

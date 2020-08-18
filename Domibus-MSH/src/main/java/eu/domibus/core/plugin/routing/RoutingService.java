@@ -7,6 +7,8 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -69,6 +71,9 @@ public class RoutingService {
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     protected Map<String, IRoutingCriteria> criteriaMap;
     protected final Object backendFiltersCacheLock = new Object();
@@ -142,6 +147,9 @@ public class RoutingService {
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
+
+        //Setting security context authentication to have user details in audit logs when create message filters
+        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
 
         List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
