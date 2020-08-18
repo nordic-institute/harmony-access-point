@@ -6,6 +6,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.ObjectProvider;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
@@ -23,14 +24,16 @@ public class NotificationListenerServiceTest {
     @Injectable
     protected JMSExtService jmsExtService;
 
+    @Injectable
+    ObjectProvider<QueueMessageLister> queueMessageListerObjectProvider;
 
     @Test
     public void testConstructor(@Injectable Queue queue, @Injectable final BackendConnector.Mode mode) {
-        NotificationListenerService nls;
-        List<NotificationType> rn = new ArrayList<>();
-        rn.add(NotificationType.MESSAGE_RECEIVED);
-        rn.add(NotificationType.MESSAGE_SEND_FAILURE);
-        nls = new NotificationListenerService(null, BackendConnector.Mode.PUSH, rn);
+        List<NotificationType> notificationTypes = new ArrayList<>();
+        notificationTypes.add(NotificationType.MESSAGE_RECEIVED);
+        notificationTypes.add(NotificationType.MESSAGE_SEND_FAILURE);
+
+        NotificationListenerService nls = new NotificationListenerService(null, BackendConnector.Mode.PUSH, notificationTypes);
         Assert.assertTrue(nls.getRequiredNotificationTypeList().size() == 2);
         Assert.assertTrue(nls.getRequiredNotificationTypeList().contains(NotificationType.MESSAGE_RECEIVED));
         Assert.assertTrue(nls.getRequiredNotificationTypeList().contains(NotificationType.MESSAGE_SEND_FAILURE));

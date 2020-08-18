@@ -9,8 +9,10 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationListener;
 import mockit.Expectations;
@@ -223,25 +225,22 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testGetNotificationListener(@Injectable final NotificationListener notificationListener1,
-                                            @Injectable final NotificationListener notificationListener2) {
+    public void testGetNotificationListener(@Injectable final AsyncNotificationListener notificationListener1,
+                                            @Injectable final AsyncNotificationListener notificationListener2) {
         final String backendName = "customPlugin";
         RoutingService routingService = new RoutingService();
-        new Expectations() {{
-            notificationListener1.getBackendName();
-            result = "anotherPlugin";
-
-            notificationListener2.getBackendName();
-            result = backendName;
+        new Expectations(routingService) {{
+            routingService.matches(notificationListener1, backendName);
+            result = true;
         }};
 
-        List<NotificationListener> notificationListeners = new ArrayList<>();
+        List<AsyncNotificationListener> notificationListeners = new ArrayList<>();
         notificationListeners.add(notificationListener1);
         notificationListeners.add(notificationListener2);
         routingService.asyncNotificationListeners = notificationListeners;
 
         AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        assertEquals(backendName, notificationListener.getBackendConnector().getName());
+        assertEquals(notificationListener1, notificationListener);
 
     }
 
@@ -564,7 +563,8 @@ public class RoutingServiceTest {
     @Test
     public void testInitWithOutEmptyBackendFilter(@Injectable CriteriaFactory criteriaFactory,
                                                   @Injectable IRoutingCriteria iRoutingCriteria,
-                                                  @Injectable NotificationListener notificationListener) {
+                                                  @Injectable BackendConnector backendConnector,
+                                                  @Injectable BackendConnectorProvider backendConnectorProvider) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -573,13 +573,15 @@ public class RoutingServiceTest {
         routingService.domibusConfigurationService = domibusConfigurationService;
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener);
-        routingService.asyncNotificationListeners = notificationListenerServices;
-
+        List<BackendConnector> backendConnectors = new ArrayList<>();
+        backendConnectors.add(backendConnector);
 
         new Expectations(routingService) {{
+            backendConnectorProvider.getBackendConnectors();
+            result = backendConnectors;
+
             domibusConfigurationService.isMultiTenantAware();
             result = false;
 
@@ -603,7 +605,8 @@ public class RoutingServiceTest {
     public void testInitWithBackendFilterInMultitenancyEnv(@Injectable CriteriaFactory routingCriteriaFactory,
                                                            @Injectable Domain domain,
                                                            @Injectable IRoutingCriteria iRoutingCriteria,
-                                                           @Injectable NotificationListener notificationListener) {
+                                                           @Injectable BackendConnectorProvider backendConnectorProvider,
+                                                           @Injectable BackendConnector backendConnector) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -616,13 +619,15 @@ public class RoutingServiceTest {
         routingService.domibusConfigurationService = domibusConfigurationService;
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener);
-        routingService.asyncNotificationListeners = notificationListenerServices;
-
+        List<BackendConnector> backendConnectors = new ArrayList<>();
+        backendConnectors.add(backendConnector);
 
         new Expectations(routingService) {{
+            backendConnectorProvider.getBackendConnectors();
+            result = backendConnectors;
+
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
@@ -646,11 +651,12 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testInit_noNotificationListenerBeanMap(@Injectable List<NotificationListener> notificationListener,
+    public void testInit_noNotificationListenerBeanMap(@Injectable BackendConnectorProvider backendConnectorProvider,
                                                        @Injectable CriteriaFactory routingCriteriaFactory,
                                                        @Injectable BackendFilterEntity backendFilterEntity) {
 
         RoutingService routingService = new RoutingService();
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
         new Expectations(routingService) {{
         }};
@@ -666,7 +672,8 @@ public class RoutingServiceTest {
     public void testInitMultiAware(@Injectable CriteriaFactory routingCriteriaFactory,
                                    @Injectable Domain domain,
                                    @Injectable IRoutingCriteria iRoutingCriteria,
-                                   @Injectable NotificationListener notificationListener) {
+                                   @Injectable BackendConnector backendConnector,
+                                   @Injectable BackendConnectorProvider backendConnectorProvider) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -679,12 +686,16 @@ public class RoutingServiceTest {
         routingService.domibusConfigurationService = domibusConfigurationService;
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener);
-        routingService.asyncNotificationListeners = notificationListenerServices;
+        List<BackendConnector> backendConnectors = new ArrayList<>();
+        backendConnectors.add(backendConnector);
+
 
         new Expectations(routingService) {{
+            backendConnectorProvider.getBackendConnectors();
+            result = backendConnectors;
+
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
@@ -710,7 +721,8 @@ public class RoutingServiceTest {
     public void testInit_NonMultiTenancy(@Injectable CriteriaFactory routingCriteriaFactory,
                                          @Injectable Domain domain,
                                          @Injectable IRoutingCriteria iRoutingCriteria,
-                                         @Injectable NotificationListener notificationListener) {
+                                         @Injectable BackendConnector backendConnector,
+                                         @Injectable BackendConnectorProvider backendConnectorProvider) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -723,13 +735,15 @@ public class RoutingServiceTest {
         routingService.domibusConfigurationService = domibusConfigurationService;
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener);
-        routingService.asyncNotificationListeners = notificationListenerServices;
-
+        List<BackendConnector> backendConnectors = new ArrayList<>();
+        backendConnectors.add(backendConnector);
 
         new Expectations(routingService) {{
+            backendConnectorProvider.getBackendConnectors();
+            result = backendConnectors;
+
             domibusConfigurationService.isMultiTenantAware();
             result = false;
 
@@ -750,54 +764,21 @@ public class RoutingServiceTest {
 
     @Test
     public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
-                                                                    @Injectable NotificationListener notificationListener) {
+                                                                    @Injectable AsyncNotificationListener notificationListener,
+                                                                    @Injectable BackendConnector backendConnector) {
+        List<AsyncNotificationListener> notificationListenerServices = new ArrayList<>();
+        notificationListenerServices.add(notificationListener);
+
+        List<String> notificationListenerPluginsList = new ArrayList<>();
+        notificationListenerPluginsList.add(WS_PLUGIN.getPluginName());
+        notificationListenerPluginsList.add(JMS_PLUGIN.getPluginName());
+
 
         RoutingService routingService = new RoutingService();
 
-        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        List<String> notificationListenerPluginsList = new ArrayList<>();
-        List<String> backendFilterPluginList = new ArrayList<>();
-        backendFilterEntities.add(backendFilterEntity);
-        notificationListenerServices.add(notificationListener);
-        notificationListenerPluginsList.add(WS_PLUGIN.getPluginName());
-        notificationListenerPluginsList.add(JMS_PLUGIN.getPluginName());
-        backendFilterPluginList.add(WS_PLUGIN.getPluginName());
-        routingService.asyncNotificationListeners = notificationListenerServices;
 
-        new Expectations(routingService) {{
-            backendFilterEntity.getBackendName();
-            result = WS_PLUGIN.getPluginName();
-
-            notificationListener.getBackendName();
-            result = JMS_PLUGIN.getPluginName();
-
-            notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
-            result = notificationListenerPluginsList;
-
-            backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
-            result = backendFilterPluginList;
-
-            notificationListenerPluginsList.removeAll(backendFilterPluginList);
-            times = 1;
-
-            routingService.getMaxIndex(backendFilterEntities);
-            result = 1;
-
-            routingService.createBackendFilterEntities(notificationListenerPluginsList, 2);
-            result = backendFilterEntities;
-        }};
-
-        List<String> pluginToAdd = routingService.asyncNotificationListeners
-                .stream()
-                .map(NotificationListener::getBackendName)
-                .collect(Collectors.toList());
-
-        pluginToAdd.removeAll(backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
-
-        List<BackendFilterEntity> missingBackendFilters = routingService.createBackendFilterEntities(pluginToAdd, routingService.getMaxIndex(backendFilterEntities) + 1);
-
-        assertEquals(backendFilterEntities, missingBackendFilters);
+        List<BackendFilterEntity> backendFilterEntities = routingService.createBackendFilterEntities(notificationListenerPluginsList, 1);
+        assertEquals(backendFilterEntities.size(), 2);
 
         new FullVerifications() {
         };
@@ -863,34 +844,36 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFilters_emptyDbEntities(@Injectable NotificationListener default1,
-                                                     @Injectable NotificationListener default2,
-                                                     @Injectable List<BackendFilterEntity> backendFilterEntities) {
+    public void createBackendFilters_emptyDbEntities(@Injectable List<BackendFilterEntity> backendFilterEntities,
+                                                     @Injectable BackendConnectorProvider backendConnectorProvider,
+                                                     @Injectable BackendConnector backendConnector,
+                                                     @Injectable BackendFilterEntity dbBackendFilterEntity) {
         RoutingService routingService = new RoutingService();
-
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(default1);
-        notificationListenerServices.add(default2);
-        routingService.asyncNotificationListeners = notificationListenerServices;
         routingService.backendFilterDao = backendFilterDao;
+        routingService.backendConnectorProvider = backendConnectorProvider;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
-        List<List<String>> pluginLists = new ArrayList<>();
+        entitiesInDb.add(dbBackendFilterEntity);
+
+        List<List<String>> pluginsToAdd = new ArrayList<>();
 
         new Expectations(routingService) {{
             backendFilterDao.findAll();
             result = entitiesInDb;
 
-            default1.getBackendName();
+            dbBackendFilterEntity.getBackendName();
             result = FS_PLUGIN.getPluginName();
 
-            default2.getBackendName();
+            backendConnectorProvider.getBackendConnectors();
+            result  = backendConnector;
+
+            backendConnector.getName();
             result = JMS_PLUGIN.getPluginName();
 
             routingService.getMaxIndex(entitiesInDb);
-            result = MAX_INDEX;
+            result = 1;
 
-            routingService.createBackendFilterEntities(withCapture(pluginLists), MAX_INDEX + 1);
+            routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 2);
             result = backendFilterEntities;
         }};
 
@@ -901,58 +884,9 @@ public class RoutingServiceTest {
             times = 1;
         }};
 
-        assertThat(pluginLists.size(), is(1));
-        assertThat(pluginLists.get(0), CoreMatchers.hasItems(
-                JMS_PLUGIN.getPluginName(),
-                FS_PLUGIN.getPluginName()));
-    }
-
-    @Test
-    public void createBackendFilters(@Injectable NotificationListener default1,
-                                     @Injectable NotificationListener default2,
-                                     @Injectable BackendFilterEntity backendFilterEntity,
-                                     @Injectable List<BackendFilterEntity> backendFilterEntities) {
-        RoutingService routingService = new RoutingService();
-
-        List<NotificationListener> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(default1);
-        notificationListenerServices.add(default2);
-        routingService.asyncNotificationListeners = notificationListenerServices;
-        routingService.backendFilterDao = backendFilterDao;
-
-        List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
-        entitiesInDb.add(backendFilterEntity);
-        List<List<String>> pluginLists = new ArrayList<>();
-
-        new Expectations(routingService) {{
-            backendFilterDao.findAll();
-            result = entitiesInDb;
-
-            backendFilterEntity.getBackendName();
-            result = FS_PLUGIN.getPluginName();
-
-            default1.getBackendName();
-            result = FS_PLUGIN.getPluginName();
-
-            default2.getBackendName();
-            result = JMS_PLUGIN.getPluginName();
-
-            routingService.getMaxIndex(entitiesInDb);
-            result = MAX_INDEX;
-
-            routingService.createBackendFilterEntities(withCapture(pluginLists), MAX_INDEX + 1);
-            result = backendFilterEntities;
-        }};
-
-        routingService.createBackendFilters();
-
-        new FullVerifications() {{
-            backendFilterDao.create(backendFilterEntities);
-            times = 1;
-        }};
-
-        assertThat(pluginLists.size(), is(1));
-        assertThat(pluginLists.get(0), CoreMatchers.hasItems(JMS_PLUGIN.getPluginName()));
+        assertThat(pluginsToAdd.size(), is(1));
+        assertThat(pluginsToAdd.get(0), CoreMatchers.hasItems(
+                JMS_PLUGIN.getPluginName()));
     }
 
     @Test

@@ -150,7 +150,8 @@ public class RoutingService {
 
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
-        backendFilterDao.create(createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1));
+        List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+        backendFilterDao.create(backendFilterEntities);
     }
 
     protected int getMaxIndex(List<BackendFilterEntity> backendFilterEntitiesInDB) {
