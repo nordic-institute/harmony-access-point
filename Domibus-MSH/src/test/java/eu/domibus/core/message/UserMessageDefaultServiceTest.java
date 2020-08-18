@@ -667,6 +667,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 
@@ -696,6 +697,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 

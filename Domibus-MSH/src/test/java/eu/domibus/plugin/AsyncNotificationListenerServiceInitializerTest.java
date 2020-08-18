@@ -45,7 +45,7 @@ public class AsyncNotificationListenerServiceInitializerTest {
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
     @Injectable
-    List<JMSAsyncNotificationListener> notificationListenerServices;
+    List<AsyncNotificationListener> notificationListenerServices;
 
     @Test
     public void configureJmsListeners(@Injectable JmsListenerEndpointRegistrar registrar,

@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -12,16 +13,10 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.config.JmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerEndpointRegistrar;
-import org.springframework.jms.config.SimpleJmsListenerEndpoint;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.Queue;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Arun Venugopal
@@ -33,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class AsyncNotificationListenerServiceTest {
 
     @Tested
-    AsyncNotificationListenerService objNotificationListenerService;
+    AsyncNotificationListenerService asyncNotificationListenerService;
 
     @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
@@ -45,7 +40,7 @@ public class AsyncNotificationListenerServiceTest {
     protected DomainContextProvider domainContextProvider;
 
     @Injectable
-    protected NotificationListenerService notificationListenerService;
+    protected AsyncNotificationListener notificationListenerService;
 
     @Injectable
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
@@ -58,7 +53,7 @@ public class AsyncNotificationListenerServiceTest {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
 
-        new Expectations(objNotificationListenerService) {{
+        new Expectations(asyncNotificationListenerService) {{
             message.getStringProperty(MessageConstants.MESSAGE_ID);
             result = messageId;
 
@@ -68,11 +63,11 @@ public class AsyncNotificationListenerServiceTest {
             pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
             result = pluginEventNotifier;
 
-            objNotificationListenerService.getMessageProperties(message);
+            asyncNotificationListenerService.getMessageProperties(message);
             result = messageProperties;
         }};
 
-        objNotificationListenerService.onMessage(message);
+        asyncNotificationListenerService.onMessage(message);
 
         new Verifications() {{
             pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);

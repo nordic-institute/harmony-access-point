@@ -14,6 +14,8 @@ import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfigurati
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -22,9 +24,8 @@ import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.PluginEventNotifier;
 import eu.domibus.plugin.PluginEventNotifierProvider;
+import eu.domibus.plugin.notification.AsyncNotificationListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -117,6 +118,12 @@ public class BackendNotificationServiceTest {
     @Injectable
     BackendConnectorProvider backendConnectorProvider;
 
+    @Injectable
+    BackendConnectorDelegate backendConnectorDelegate;
+
+    @Injectable
+    BackendConnectorService backendConnectorService;
+
     @Test
     public void testValidateAndNotify_propertyNull(@Injectable final UserMessage userMessage) {
         String backendName = "backendName";
@@ -182,14 +189,25 @@ public class BackendNotificationServiceTest {
     @Test
     public void testNotifyWithNoConfiguredNotificationListener(
             @Injectable final NotificationType notificationType,
-            @Injectable final Queue queue) {
-        final String backendName = "customPlugin";
+            @Injectable final BackendConnector backendConnector) {
+        List<NotificationType> requiredNotifications = new ArrayList<>();
+        requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
+
+
         new Expectations(backendNotificationService) {{
-            routingService.getNotificationListener(backendName);
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = requiredNotifications;
+
+            routingService.getNotificationListener(BACKEND_NAME);
             result = null;
+
+            backendNotificationService.notifySync(backendConnector, null, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify("messageId", backendName, notificationType, null);
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -197,92 +215,86 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify(
-            @Injectable final NotificationListener notificationListener,
+            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final BackendConnector backendConnector,
             @Injectable final Queue queue) {
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
         requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
 
         new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = requiredNotifications;
+
             routingService.getNotificationListener(BACKEND_NAME);
             result = notificationListener;
 
-            notificationListener.getBackendName();
-            result = BACKEND_NAME;
+            routingService.getNotificationListener(BACKEND_NAME);
+            result = notificationListener;
 
-            notificationListener.getRequiredNotificationTypeList();
-            result = requiredNotifications;
+            backendNotificationService.shouldNotifyAsync(notificationListener);
+            result = true;
 
-            notificationListener.getBackendNotificationQueue();
-            result = queue;
+            backendNotificationService.notifyAsync(notificationListener, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
         backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {{
-            JmsMessage jmsMessage;
-            jmsManager.sendMessageToQueue(jmsMessage = withCapture(), queue);
-            times = 1;
 
-            assertEquals(MESSAGE_ID, jmsMessage.getProperty(MessageConstants.MESSAGE_ID));
-            assertEquals(NotificationType.MESSAGE_RECEIVED.name(), jmsMessage.getProperty(MessageConstants.NOTIFICATION_TYPE));
         }};
     }
 
     @Test
-    public void notify_propertiesNotNull_backendNotificationQueueNull(
-            @Injectable final NotificationListener notificationListener,
-            @Injectable PluginEventNotifier pluginEventNotifier,
-            @Injectable final BackendConnector<?, ?> backendConnector) {
+    public void notifySync_propertiesNotNull(
+            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final BackendConnector backendConnector) {
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
-        final NotificationType notificationType = MESSAGE_RECEIVED;
-        requiredNotifications.add(notificationType);
+        requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
 
         new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = requiredNotifications;
+
             routingService.getNotificationListener(BACKEND_NAME);
             result = notificationListener;
 
-            notificationListener.getBackendName();
-            result = BACKEND_NAME;
+            routingService.getNotificationListener(BACKEND_NAME);
+            result = notificationListener;
 
-            notificationListener.getRequiredNotificationTypeList();
-            result = requiredNotifications;
+            backendNotificationService.shouldNotifyAsync(notificationListener);
+            result = false;
 
-            notificationListener.getBackendNotificationQueue();
-            result = null;
-
-            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
-            result = pluginEventNotifier;
-
-            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-            result = backendConnector;
+            backendNotificationService.notifySync(backendConnector, notificationListener, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        HashMap<String, Object> properties = new HashMap<>();
-        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, properties);
+        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(backendConnector, MESSAGE_ID, properties);
 
-            notificationListener.notify(MESSAGE_ID, notificationType, properties);
-            times = 1;
         }};
     }
 
     @Test
     public void notify_NoNotification(
-            @Injectable final NotificationListener notificationListener,
-            @Injectable final Queue queue) {
+            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final BackendConnector backendConnector) {
 
         new Expectations(backendNotificationService) {{
-            routingService.getNotificationListener(BACKEND_NAME);
-            result = notificationListener;
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
 
-            notificationListener.getRequiredNotificationTypeList();
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = null;
 
-            notificationListener.getMode();
+            backendConnector.getMode();
             result = BackendConnector.Mode.PUSH;
 
         }};
@@ -295,21 +307,24 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify_NotificationNotMatchType(
-            @Injectable final NotificationListener notificationListener,
-            @Injectable final Queue queue) {
+            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final Queue queue,
+            @Injectable BackendConnector backendConnector
+    ) {
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
         requiredNotifications.add(MESSAGE_STATUS_CHANGE);
 
         new Expectations(backendNotificationService) {{
-            routingService.getNotificationListener(BACKEND_NAME);
-            result = notificationListener;
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
 
-            notificationListener.getRequiredNotificationTypeList();
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
-            notificationListener.getMode();
+            backendConnector.getMode();
             result = BackendConnector.Mode.PUSH;
+
 
         }};
 
