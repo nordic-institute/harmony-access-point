@@ -267,16 +267,20 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     }
 
-    protected boolean arePropertiesNewlyEncrypted(File configurationFile, List<String> replacedLines){
+    protected boolean arePropertiesNewlyEncrypted(File configurationFile, List<String> replacedLines) {
         boolean arePropertiesNewlyEncrypted = false;
+
+        if (configurationFile == null) {
+            LOG.debug("Configuration file should not be null!");
+            return false;
+        }
+
         try {
-            if(configurationFile != null ){
-                List<String> originalLines = Files.readAllLines(configurationFile.toPath());
-                arePropertiesNewlyEncrypted = !CollectionUtils.containsAll(originalLines, replacedLines);
-                LOG.debug("Are properties newly encrypted?:"+arePropertiesNewlyEncrypted);
-            }
+            List<String> originalLines = Files.readAllLines(configurationFile.toPath());
+            arePropertiesNewlyEncrypted = !CollectionUtils.containsAll(originalLines, replacedLines);
+            LOG.debug("Are properties newly encrypted?:" + arePropertiesNewlyEncrypted);
         } catch (IOException e) {
-            throw new DomibusEncryptionException(String.format("Could not read configuration file [%s]", configurationFile), e);
+            throw new DomibusEncryptionException("Could not read configuration file " + configurationFile, e);
         }
         return arePropertiesNewlyEncrypted;
     }
