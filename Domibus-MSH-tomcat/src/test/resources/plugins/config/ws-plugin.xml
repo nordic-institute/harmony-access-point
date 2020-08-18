@@ -20,16 +20,17 @@
                physicalName="domibus.notification.webservice"/>
 
 
-    <bean id="backendWebservice"
-          class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl">
-        <constructor-arg value="backendWebservice"/>
-    </bean>
-
     <util:list id="requiredNotificationsList" value-type="eu.domibus.common.NotificationType">
         <value>MESSAGE_RECEIVED</value>
         <value>MESSAGE_SEND_FAILURE</value>
         <value>MESSAGE_STATUS_CHANGE</value>
     </util:list>
+
+    <bean id="backendWebservice"
+          class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl"
+          p:requiredNotifications-ref="requiredNotificationsList">
+        <constructor-arg value="backendWebservice"/>
+    </bean>
 
 
     <bean id="webserviceNotificationListenerService"

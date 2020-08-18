@@ -38,7 +38,7 @@ public class BackendConnectorService {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
             return notificationListener.getRequiredNotificationTypeList();
         }
-        return backendConnector.getRequiredNotificationTypeList();
+        return backendConnector.getRequiredNotifications();
     }
 
 

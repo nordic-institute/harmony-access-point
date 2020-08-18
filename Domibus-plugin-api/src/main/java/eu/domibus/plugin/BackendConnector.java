@@ -147,7 +147,7 @@ public interface BackendConnector<U, T> {
      *
      * @return the plugin notifications
      */
-    default List<NotificationType> getRequiredNotificationTypeList() {
+    default List<NotificationType> getRequiredNotifications() {
         return DEFAULT_PUSH_NOTIFICATIONS;
     }
 

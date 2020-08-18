@@ -31,7 +31,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendConnector.class);
 
-    private final String name;
+    protected final String name;
+    protected BackendConnector.Mode mode;
+    protected List<NotificationType> requiredNotifications;
 
     @Autowired
     protected MessageRetriever messageRetriever;
@@ -218,26 +220,46 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return StringUtils.stripToEmpty(StringUtils.trimToEmpty(messageId));
     }
 
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     @Override
     public Mode getMode() {
         //for backward compatibility purposes
         if (notificationListener != null) {
-            Mode mode = notificationListener.getMode();
-            LOG.debug("Using plugin mode [{}] from the NotificationListenerService", mode);
+            Mode listenerMode = notificationListener.getMode();
+            LOG.trace("Using plugin mode [{}] from the NotificationListenerService", listenerMode);
+            return listenerMode;
+        }
+        if(mode != null) {
+            LOG.trace("Using configured plugin mode [{}]", mode);
             return mode;
         }
-        return BackendConnector.super.getMode();
+        Mode mode = BackendConnector.super.getMode();
+        LOG.trace("Using default plugin mode [{}]", mode);
+        return mode;
+    }
+
+    public void setRequiredNotifications(List<NotificationType> requiredNotifications) {
+        this.requiredNotifications = requiredNotifications;
     }
 
     @Override
-    public List<NotificationType> getRequiredNotificationTypeList() {
+    public List<NotificationType> getRequiredNotifications() {
         //for backward compatibility purposes
         if (notificationListener != null) {
-            List<NotificationType> requiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
-            LOG.debug("Using required notifications [{}] from the NotificationListenerService", requiredNotificationTypeList);
-            return requiredNotificationTypeList;
+            List<NotificationType> listenerRequiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
+            LOG.trace("Using notifications [{}] from the NotificationListenerService", listenerRequiredNotificationTypeList);
+            return listenerRequiredNotificationTypeList;
         }
-        return BackendConnector.super.getRequiredNotificationTypeList();
+        if(requiredNotifications != null) {
+            LOG.trace("Using notifications [{}] from the plugin", requiredNotifications);
+            return requiredNotifications;
+        }
+        List<NotificationType> defaultNotifications = BackendConnector.super.getRequiredNotifications();
+        LOG.trace("Using default notifications [{}]", defaultNotifications);
+        return defaultNotifications;
     }
 
     @Override

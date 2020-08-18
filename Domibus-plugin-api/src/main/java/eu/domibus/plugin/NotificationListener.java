@@ -41,7 +41,7 @@ public interface NotificationListener extends AsyncNotificationListener {
      * Configured notifications sent to the plugin, depending on their MODE (PULL or PUSH)
      *
      * @return the plugin notifications
-     * @deprecated Use {@link BackendConnector#getRequiredNotificationTypeList()}
+     * @deprecated Use {@link BackendConnector#getRequiredNotifications()}
      */
     @Deprecated
     List<NotificationType> getRequiredNotificationTypeList();
