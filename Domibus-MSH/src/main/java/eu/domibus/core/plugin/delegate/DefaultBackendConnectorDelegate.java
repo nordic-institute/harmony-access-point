@@ -109,7 +109,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
             return;
         }
         AsyncNotificationListener asyncNotificationListener = routingService.getNotificationListener(backendConnector.getName());
-        if (asyncNotificationListener == null && asyncNotificationListener instanceof NotificationListener) {
+        if (asyncNotificationListener != null && asyncNotificationListener instanceof NotificationListener) {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
             LOG.debug("Calling NotificationListener for message deletion callback for connector [{}]", backendConnector.getName());
             notificationListener.deleteMessageCallback(event.getMessageId());
