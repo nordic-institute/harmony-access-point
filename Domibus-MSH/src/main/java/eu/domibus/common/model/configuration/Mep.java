@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.*;
-import java.math.BigInteger;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -72,7 +71,7 @@ public class Mep extends AbstractBaseEntity {
      * Gets the value of the legs property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getLegs() {
 
@@ -84,7 +83,7 @@ public class Mep extends AbstractBaseEntity {
      * Sets the value of the legs property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setLegs(final int value) {
         this.legs = value;
