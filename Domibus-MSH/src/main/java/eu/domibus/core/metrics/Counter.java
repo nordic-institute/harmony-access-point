@@ -23,5 +23,5 @@ public @interface Counter {
     /**
      * @return the counter class.
      */
-    Class<?> clazz() ;
+    Class<?> clazz() default Void.class;
 }

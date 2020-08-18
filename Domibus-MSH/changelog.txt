@@ -1,5 +1,5 @@
 Domibus 4.2
-- Added DomibusWorkManager within Weblogic.xml to avoid using default work manager.
+- Added DomibusWorkManager within weblogic.xml to avoid using default work manager.
 - Removed password column from both Users and Plugin Users components/lists( as their values were obscured anyway)
 - Added Parties functionality to External REST API calls
 - Added new component/page in admin console to monitor test connections; integrated the former test component as details page

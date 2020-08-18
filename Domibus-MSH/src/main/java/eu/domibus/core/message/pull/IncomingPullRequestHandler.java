@@ -37,8 +37,8 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
     private AuthorizationService authorizationService;
 
     @Override
-    @Timer(clazz =IncomingPullRequestHandler.class,value ="INCOMING_PULL_REQUEST")
-    @Counter(clazz =IncomingPullRequestHandler.class,value ="INCOMING_PULL_REQUEST")
+    @Timer(value = "INCOMING_PULL_REQUEST")
+    @Counter(value = "INCOMING_PULL_REQUEST")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) throws EbMS3Exception {
         authorizationService.authorizePullRequest(request, messaging.getSignalMessage().getPullRequest());
         LOG.trace("before pull request.");

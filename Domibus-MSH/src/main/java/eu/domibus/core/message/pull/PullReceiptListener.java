@@ -70,8 +70,8 @@ public class PullReceiptListener implements MessageListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Timer(clazz = PullReceiptListener.class,value ="OUTGOING_PULL_RECEIPT")
-    @Counter(clazz = PullReceiptListener.class,value ="OUTGOING_PULL_RECEIPT")
+    @Timer(value = "OUTGOING_PULL_RECEIPT")
+    @Counter(value = "OUTGOING_PULL_RECEIPT")
     public void onMessage(final Message message) {
         try {
             LOG.clearCustomKeys();

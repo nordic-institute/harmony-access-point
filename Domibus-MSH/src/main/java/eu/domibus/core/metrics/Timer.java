@@ -23,6 +23,6 @@ public @interface Timer {
     /**
      * @return the timer class.
      */
-    Class<?> clazz();
+    Class<?> clazz() default Void.class;
 }
 

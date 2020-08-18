@@ -41,8 +41,8 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
-    @Timer(clazz = MSHWebservice.class, value = "INCOMING_USER_MESSAGE")
-    @Counter(clazz = MSHWebservice.class, value = "INCOMING_USER_MESSAGE")
+    @Timer(value = "INCOMING_USER_MESSAGE")
+    @Counter(value = "INCOMING_USER_MESSAGE")
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
