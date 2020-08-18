@@ -13,7 +13,6 @@ import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import java.io.IOException;
@@ -253,4 +252,13 @@ public class FSFilesManager {
         }
     }
 
+    public boolean fileExists(FileObject rootDir, String fileName) throws FileSystemException {
+        FileObject file = rootDir.resolveFile(fileName, NameScope.CHILD);
+        return file.exists();
+    }
+
+    public void deleteFileByName(FileObject rootDir, String fileName) throws FileSystemException {
+        FileObject file = rootDir.resolveFile(fileName, NameScope.CHILD);
+        deleteFile(file);
+    }
 }
