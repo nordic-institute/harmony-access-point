@@ -1,7 +1,5 @@
 package domibus.ui;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.enums.DRoles;
 import domibus.BaseTest;
@@ -18,7 +16,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.asserts.SoftAssert;
 import rest.utilPojo.Param;
-import utils.Generator;
+import utils.Gen;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -51,8 +49,8 @@ public class RestTest extends BaseTest {
 				for (int i = noOfMess; i < 15; i++) {
 					messageSender.sendMessage(pluginUsername
 							, data.defaultPass()
-							, Generator.randomAlphaNumeric(20)
-							, Generator.randomAlphaNumeric(20));
+							, Gen.randomAlphaNumeric(20)
+							, Gen.randomAlphaNumeric(20));
 				}
 			}
 			
