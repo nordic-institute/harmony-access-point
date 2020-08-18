@@ -33,6 +33,11 @@
             <artifactId>domibus-MSH-weblogic-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <!-- End Domibus modules -->
         <dependency>
             <groupId>org.springframework</groupId>
