@@ -25,6 +25,9 @@ public class NotificationListenerServiceTest {
     protected JMSExtService jmsExtService;
 
     @Injectable
+    protected BackendConnector backendConnector;
+
+    @Injectable
     ObjectProvider<QueueMessageLister> queueMessageListerObjectProvider;
 
     @Test
