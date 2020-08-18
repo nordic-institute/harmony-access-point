@@ -45,7 +45,7 @@ public class UIReplicationConfigurationTest {
         }};
 
 
-        uiReplicationConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver,null);
+        uiReplicationConfiguration.uiReplicationJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver,null);
 
         new Verifications() {{
             MessageConverter messageConverter = null;

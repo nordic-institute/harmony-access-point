@@ -437,9 +437,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
-        com.codahale.metrics.Timer.Context messageSendSuccess = metricRegistry.timer(MetricRegistry.name(InternalJMSManagerWeblogic.class, "sendMessage_with_destination")).time();
         sendMessage(message, destination, jmsSender);
-        messageSendSuccess.stop();
     }
 
     @Override

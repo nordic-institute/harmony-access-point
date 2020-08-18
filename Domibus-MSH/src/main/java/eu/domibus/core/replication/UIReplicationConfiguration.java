@@ -28,12 +28,12 @@ public class UIReplicationConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(UIReplicationConfiguration.class);
 
     @Bean("uiReplicationJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                               PlatformTransactionManager transactionManager,
-                                                                               DomibusPropertyProvider domibusPropertyProvider,
-                                                                               @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
-                                                                               Optional<JndiDestinationResolver> internalDestinationResolver,
-                                                                               @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
+    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+                                                                                       PlatformTransactionManager transactionManager,
+                                                                                       DomibusPropertyProvider domibusPropertyProvider,
+                                                                                       @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
+                                                                                       Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                                                       @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
