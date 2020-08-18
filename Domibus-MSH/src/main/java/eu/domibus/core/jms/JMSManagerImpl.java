@@ -376,6 +376,7 @@ public class JMSManagerImpl implements JMSManager {
         return false;
     }
 
+    @Override
     public Collection<String> listPendingMessages(String queueName) {
         LOG.debug("Listing pending messages for queue [{}]", queueName);
 

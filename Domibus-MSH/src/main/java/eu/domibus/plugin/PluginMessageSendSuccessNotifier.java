@@ -27,7 +27,7 @@ public class PluginMessageSendSuccessNotifier implements PluginEventNotifier {
 
     @Override
     public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, Object> properties) {
-        MessageSendSuccessEvent messageSendFailedEvent = new MessageSendSuccessEvent(messageId);
-        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendFailedEvent);
+        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent(messageId);
+        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendSuccessEvent);
     }
 }

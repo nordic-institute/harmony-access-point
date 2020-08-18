@@ -18,7 +18,7 @@ import java.util.Collection;
  * @since 4.0
  */
 @Service
-public class JMExtServiceDelegate implements JMSExtService {
+public class JMSExtServiceDelegate implements JMSExtService {
 
     @Autowired
     protected JMSManager jmsManager;

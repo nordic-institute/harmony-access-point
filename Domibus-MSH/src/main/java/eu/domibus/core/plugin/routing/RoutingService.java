@@ -85,7 +85,7 @@ public class RoutingService {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         }
 
-        if (!domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusConfigurationService.isSingleTenant()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
             createBackendFilters();
         } else {
@@ -103,6 +103,12 @@ public class RoutingService {
         }
     }
 
+    public void invalidateBackendFiltersCache() {
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        LOG.debug("Invalidating the backend filter cache for domain [{}]", currentDomain);
+        backendFiltersCache.remove(currentDomain);
+    }
+
     public AsyncNotificationListener getNotificationListener(String backendName) {
         for (final AsyncNotificationListener asyncNotificationListener : asyncNotificationListeners) {
             if (matches(asyncNotificationListener, backendName)) {
@@ -117,7 +123,7 @@ public class RoutingService {
             LOG.debug("Could not match connector for backend name [{}]: no configured connector", backendName);
             return false;
         }
-        if (StringUtils.equalsAnyIgnoreCase(asyncNotificationListener.getBackendConnector().getName(), backendName)) {
+        if (StringUtils.equalsIgnoreCase(asyncNotificationListener.getBackendConnector().getName(), backendName)) {
             return true;
         }
         return false;
@@ -289,11 +295,7 @@ public class RoutingService {
         return true;
     }
 
-    public void invalidateBackendFiltersCache() {
-        Domain currentDomain = domainContextProvider.getCurrentDomain();
-        LOG.debug("Invalidating the backend filter cache for domain [{}]", currentDomain);
-        backendFiltersCache.remove(currentDomain);
-    }
+
 }
 
 

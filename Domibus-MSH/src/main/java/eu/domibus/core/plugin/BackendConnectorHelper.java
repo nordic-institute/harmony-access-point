@@ -27,7 +27,7 @@ public class BackendConnectorHelper {
         }
         AbstractBackendConnector abstractBackendConnector = (AbstractBackendConnector) backendConnector;
         boolean isAsyncNotificationListener = abstractBackendConnector.getLister() instanceof AsyncNotificationListener;
-        LOG.trace("MessageLister is not an instance of AsyncNotificationListener for connector [{}]", backendConnector.getName());
+        LOG.trace("MessageLister is an instance of AsyncNotificationListener for connector [{}]: [{}]?", backendConnector.getName(), isAsyncNotificationListener);
         return isAsyncNotificationListener;
     }
 }
