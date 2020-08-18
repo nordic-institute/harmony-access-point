@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
@@ -855,6 +856,7 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
+        routingService.authUtils = authUtils;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
         entitiesInDb.add(dbBackendFilterEntity);
@@ -884,6 +886,8 @@ public class RoutingServiceTest {
         routingService.createBackendFilters();
 
         new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
+
             backendFilterDao.create(backendFilterEntities);
             times = 1;
         }};
