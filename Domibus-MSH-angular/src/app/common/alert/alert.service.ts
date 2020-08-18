@@ -82,7 +82,7 @@ export class AlertService {
       const err = body.error || JSON.stringify(body);
       errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
     } else {
-      errMsg = error.message ? error.message : error.toString();
+      errMsg = error.message ? this.escapeHtml(error.message) : error.toString();
     }
     console.error(errMsg);
     return Promise.reject({reason: errMsg, handled: true});
@@ -104,15 +104,25 @@ export class AlertService {
     return result;
   }
 
+  escapeHtml(unsafe: string): string {
+    if (!unsafe) return '';
+    if (!unsafe.replace) unsafe = unsafe.toString();
+    return unsafe.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   private formatError(error: Response | string | any, message: string = null): string {
-    let errMsg: string = typeof error === 'string' ? error : error.message;
+    let errMsg: string = typeof error === 'string' ? error : error.message ? this.escapeHtml(error.message) : null;
 
     if (!errMsg) {
       try {
         if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8') {
           if (error.json) {
             if (error.json().hasOwnProperty('message')) {
-              errMsg = error.json().message;
+              errMsg = this.escapeHtml(error.json().message);
             } else {
               errMsg = error.json().toString();
             }

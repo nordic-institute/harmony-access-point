@@ -363,7 +363,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
   resendDialog () {
     this.dialog.open(MessagelogDialogComponent).afterClosed()
       .subscribe(result => {
-        if (result == 'Resend') {
+        if (result == 'Resend' && this.selected[0]) {
           this.resend(this.selected[0].messageId);
           this.selected = [];
           this.messageResent.subscribe(() => {
@@ -384,7 +384,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
+      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
     });
   }
 
