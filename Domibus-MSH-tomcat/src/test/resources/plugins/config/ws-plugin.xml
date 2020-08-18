@@ -37,7 +37,6 @@
           class="eu.domibus.plugin.JMSAsyncNotificationListener"
           c:queue-ref="notifyBackendWebServiceQueue"
           c:backendConnector-ref="backendWebservice">
-        <constructor-arg ref="requiredNotificationsList"/>
     </bean>
 
     <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
