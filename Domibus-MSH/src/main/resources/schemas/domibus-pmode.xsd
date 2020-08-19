@@ -12,9 +12,9 @@
                             <xs:element maxOccurs="unbounded" name="mpc">
                                 <xs:complexType>
                                     <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
-                                    <xs:attribute name="retention_downloaded" type="xs:integer"
+                                    <xs:attribute name="retention_downloaded" type="xs:int"
                                                   use="required"/>
-                                    <xs:attribute name="retention_undownloaded" type="xs:integer"
+                                    <xs:attribute name="retention_undownloaded" type="xs:int"
                                                   use="required"/>
                                     <xs:attribute name="default" type="xs:boolean" use="required"/>
                                     <xs:attribute name="enabled" type="xs:boolean" use="required"/>
@@ -124,7 +124,7 @@
                                                 <xs:attribute name="value" type="xs:anyURI"
                                                               use="required"/>
                                                 <xs:attribute default="1" name="legs"
-                                                              type="xs:integer"/>
+                                                              type="xs:int"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element maxOccurs="unbounded" name="binding">
@@ -186,7 +186,7 @@
                                                 <xs:attribute name="inBody" type="xs:string"/>
                                                 <xs:attribute name="schemaFile" form="unqualified"
                                                               type="xs:anyURI"/>
-                                                <xs:attribute name="maxSize" type="xs:integer"/>
+                                                <xs:attribute name="maxSize" type="xs:int"/>
                                                 <xs:attribute name="required" type="xs:boolean"
                                                               use="required"/>
                                             </xs:complexType>
@@ -334,13 +334,13 @@
                                                 <!-- The name of the splitting configuration -->
                                                 <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
                                                 <!-- The maximum size of the fragments (in MB) -->
-                                                <xs:attribute name="fragmentSize" type="xs:integer" use="required"/>
+                                                <xs:attribute name="fragmentSize" type="xs:int" use="required"/>
                                                 <!-- If true, indicates that the message must be compressed before splitting -->
                                                 <xs:attribute name="compression" type="xs:boolean" use="required"/>
                                                 <!-- Indicates which compression algorithm to use. Fixed value “br” indicating the use of Brotli compression. -->
                                                 <xs:attribute name="compressionAlgorithm" type="max255-non-empty-string" use="optional"/>
                                                 <!-- Specifies the maximum time to expect and process additional fragments after the first fragment is received (in hours) -->
-                                                <xs:attribute name="joinInterval" type="xs:integer" use="required"/>
+                                                <xs:attribute name="joinInterval" type="xs:int" use="required"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
