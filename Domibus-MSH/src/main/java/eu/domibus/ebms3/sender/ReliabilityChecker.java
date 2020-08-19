@@ -255,7 +255,6 @@ public class ReliabilityChecker {
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
         exceptionToHandle.setRefToMessageId(messageId);
         exceptionToHandle.setMshRole(MSHRole.SENDING);
-        LOG.error("Error sending message with ID [" + messageId + "]", exceptionToHandle);
         this.errorLogDao.create(new ErrorLogEntry(exceptionToHandle));
         // The backends are notified that an error occurred in the UpdateRetryLoggingService
     }
