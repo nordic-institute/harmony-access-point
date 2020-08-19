@@ -108,7 +108,7 @@ public class AlertServiceImpl implements AlertService {
         alert.setCreationTime(new Date());
         alert.setAlertLevel(alertLevel);
         alertDao.create(alert);
-        LOG.info("New alert saved:\n[{}]\n", alert);
+        LOG.info("New alert saved: [{}]", alert);
         return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
     }
 
@@ -260,7 +260,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     private void convertAndEnqueue(Alert alert) {
-        LOG.debug("Preparing alert\n[{}]\nfor retry", alert);
+        LOG.debug("Preparing alert for retry [{}]", alert);
         final eu.domibus.core.alerts.model.service.Alert convert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
         enqueueAlert(convert);
     }

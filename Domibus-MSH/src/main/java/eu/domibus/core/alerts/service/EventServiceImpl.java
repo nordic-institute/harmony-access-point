@@ -174,7 +174,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = domainConverter.convert(event, eu.domibus.core.alerts.model.persist.Event.class);
-        LOG.debug("Converting jms event\n[{}] to persistent event\n[{}]", event, eventEntity);
+        LOG.debug("Converting jms event [{}] to persistent event [{}]", event, eventEntity);
         eventEntity.enrichProperties();
         eventDao.create(eventEntity);
         event.setEntityId(eventEntity.getEntityId());
