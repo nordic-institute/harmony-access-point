@@ -265,6 +265,13 @@ public class DomibusApplicationInitializerTest {
         String domibusConfigLocation = "/home/domibus";
 
         MapPropertySource domibusConfigLocationSource = domibusApplicationInitializer.createDomibusConfigLocationSource(domibusConfigLocation);
-        Assert.assertEquals(domibusConfigLocationSource.getName(), "domibusConfigLocationSource");
+        Assert.assertEquals("domibusConfigLocationSource", domibusConfigLocationSource.getName());
+    }
+
+    @Test
+    public void createUpdatedDomibusPropertiesSource() {
+        MapPropertySource propertySource = domibusApplicationInitializer.createUpdatedDomibusPropertiesSource();
+        Assert.assertEquals(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, propertySource.getName());
+
     }
 }
