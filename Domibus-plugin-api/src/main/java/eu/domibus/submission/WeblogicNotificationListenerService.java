@@ -5,6 +5,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.NotificationListenerService;
 
 import javax.jms.JMSException;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
- * @deprecated use {@link eu.domibus.plugin.JMSAsyncNotificationListener} and set the JNDI name as the queue name
+ * @deprecated use {@link PluginAsyncNotificationConfiguration} and set the JNDI name as the queue name
  */
 public class WeblogicNotificationListenerService extends NotificationListenerService {
 

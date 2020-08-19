@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Cosmin Baciu
  * @since 4.2
- * @deprecated Use {@link JMSAsyncNotificationListener}
+ * @deprecated Use {@link PluginAsyncNotificationConfiguration}
  */
 @Deprecated
 public class NotificationListenerService implements NotificationListener, MessageLister {

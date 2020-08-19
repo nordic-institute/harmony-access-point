@@ -1,10 +1,13 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
+import eu.domibus.core.plugin.notification.PluginAsyncNotificationListener;
+import eu.domibus.core.plugin.notification.PluginEventNotifier;
+import eu.domibus.core.plugin.notification.PluginEventNotifierProvider;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -25,10 +28,10 @@ import java.util.Map;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class AsyncNotificationListenerServiceTest {
+public class PluginAsyncNotificationListenerTest {
 
     @Tested
-    AsyncNotificationListenerService asyncNotificationListenerService;
+    PluginAsyncNotificationListener pluginAsyncNotificationListener;
 
     @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
@@ -40,7 +43,7 @@ public class AsyncNotificationListenerServiceTest {
     protected DomainContextProvider domainContextProvider;
 
     @Injectable
-    protected AsyncNotificationListener notificationListenerService;
+    protected AsyncNotificationConfiguration notificationListenerService;
 
     @Injectable
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
@@ -53,7 +56,7 @@ public class AsyncNotificationListenerServiceTest {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
 
-        new Expectations(asyncNotificationListenerService) {{
+        new Expectations(pluginAsyncNotificationListener) {{
             message.getStringProperty(MessageConstants.MESSAGE_ID);
             result = messageId;
 
@@ -63,11 +66,11 @@ public class AsyncNotificationListenerServiceTest {
             pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
             result = pluginEventNotifier;
 
-            asyncNotificationListenerService.getMessageProperties(message);
+            pluginAsyncNotificationListener.getMessageProperties(message);
             result = messageProperties;
         }};
 
-        asyncNotificationListenerService.onMessage(message);
+        pluginAsyncNotificationListener.onMessage(message);
 
         new Verifications() {{
             pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);

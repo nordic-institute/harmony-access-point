@@ -1,8 +1,12 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.core.plugin.notification.PluginAsyncNotificationJMSConfigurer;
+import eu.domibus.core.plugin.notification.PluginAsyncNotificationListener;
+import eu.domibus.core.plugin.notification.PluginEventNotifierProvider;
+import eu.domibus.plugin.NotificationListenerService;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -24,13 +28,13 @@ import java.util.List;
  * @since
  */
 @RunWith(JMockit.class)
-public class AsyncNotificationListenerServiceInitializerTest {
+public class PluginAsyncNotificationJMSConfigurerTest {
 
     @Tested
-    AsyncNotificationListenerServiceInitializer asyncNotificationListenerServiceInitializer;
+    PluginAsyncNotificationJMSConfigurer pluginAsyncNotificationJMSConfigurer;
 
     @Injectable
-    ObjectProvider<AsyncNotificationListenerService> asyncNotificationListenerProvider;
+    ObjectProvider<PluginAsyncNotificationListener> asyncNotificationListenerProvider;
 
     @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
@@ -45,27 +49,27 @@ public class AsyncNotificationListenerServiceInitializerTest {
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
     @Injectable
-    List<AsyncNotificationListener> notificationListenerServices;
+    List<AsyncNotificationConfiguration> notificationListenerServices;
 
     @Test
     public void configureJmsListeners(@Injectable JmsListenerEndpointRegistrar registrar,
                                       @Injectable Queue queue,
-                                      @Injectable AsyncNotificationListener notificationListenerService1) throws JMSException {
+                                      @Injectable AsyncNotificationConfiguration notificationListenerService1) throws JMSException {
         String backendName = "mybackend";
         String queueName = "myQueue";
 
-        List<AsyncNotificationListener> notificationListenerServices = new ArrayList<>();
+        List<AsyncNotificationConfiguration> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListenerService1);
-        asyncNotificationListenerServiceInitializer.asyncNotificationListeners = notificationListenerServices;
+        pluginAsyncNotificationJMSConfigurer.asyncNotificationConfigurations = notificationListenerServices;
 
-        new Expectations(asyncNotificationListenerServiceInitializer) {{
-            asyncNotificationListenerServiceInitializer.initializeAsyncNotificationListerService(registrar, (NotificationListenerService) any);
+        new Expectations(pluginAsyncNotificationJMSConfigurer) {{
+            pluginAsyncNotificationJMSConfigurer.initializeAsyncNotificationLister(registrar, (NotificationListenerService) any);
         }};
 
-        asyncNotificationListenerServiceInitializer.configureJmsListeners(registrar);
+        pluginAsyncNotificationJMSConfigurer.configureJmsListeners(registrar);
 
         new Verifications() {{
-            asyncNotificationListenerServiceInitializer.initializeAsyncNotificationListerService(registrar, notificationListenerService1);
+            pluginAsyncNotificationJMSConfigurer.initializeAsyncNotificationLister(registrar, notificationListenerService1);
         }};
     }
 

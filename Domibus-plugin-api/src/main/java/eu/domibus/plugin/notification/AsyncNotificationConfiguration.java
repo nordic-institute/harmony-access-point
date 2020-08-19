@@ -11,7 +11,7 @@ import javax.jms.Queue;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public interface AsyncNotificationListener {
+public interface AsyncNotificationConfiguration {
 
     /**
      * The connector which will receive async notifications via the configured JMS queue

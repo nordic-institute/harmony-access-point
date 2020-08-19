@@ -385,7 +385,8 @@ public class JMSManagerImpl implements JMSManager {
         }
 
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        LOG.info("Authorized as " + (originalUser == null ? "super user" : originalUser));
+        LOG.info("Authorized as [{}]", originalUser == null ? "super user" : originalUser);
+
 
         /* if originalUser is null, all messages are returned */
         return getQueueElements(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);

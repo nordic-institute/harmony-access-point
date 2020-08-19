@@ -19,8 +19,8 @@
         <property name="messageRetrievalTransformer" ref="jmsMessageTransformer"/>
     </bean>
 
-    <bean id="jmsNotificationListenerService"
-          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+    <bean id="jmsAsyncPluginConfiguration"
+          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendJmsQueue"
           c:backendConnector-ref="backendJms"/>
 

@@ -1,10 +1,10 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,20 +23,20 @@ import java.util.List;
  * @since 4.2
  */
 @Service
-public class AsyncNotificationListenerServiceInitializer implements JmsListenerConfigurer {
+public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigurer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationListenerServiceInitializer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationJMSConfigurer.class);
 
-    protected List<AsyncNotificationListener> asyncNotificationListeners;
+    protected List<AsyncNotificationConfiguration> asyncNotificationConfigurations;
     protected JmsListenerContainerFactory jmsListenerContainerFactory;
-    protected ObjectProvider<AsyncNotificationListenerService> asyncNotificationListenerProvider;
+    protected ObjectProvider<PluginAsyncNotificationListener> asyncNotificationListenerProvider;
 
 
-    public AsyncNotificationListenerServiceInitializer(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
-                                                       ObjectProvider<AsyncNotificationListenerService> asyncNotificationListenerProvider,
-                                                       @Autowired(required = false) List<AsyncNotificationListener> asyncNotificationListeners) {
+    public PluginAsyncNotificationJMSConfigurer(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
+                                                ObjectProvider<PluginAsyncNotificationListener> asyncNotificationListenerProvider,
+                                                @Autowired(required = false) List<AsyncNotificationConfiguration> asyncNotificationConfigurations) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
-        this.asyncNotificationListeners = asyncNotificationListeners;
+        this.asyncNotificationConfigurations = asyncNotificationConfigurations;
         this.asyncNotificationListenerProvider = asyncNotificationListenerProvider;
     }
 
@@ -44,13 +44,13 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
         LOG.info("Initializing services of type AsyncNotificationListenerService");
 
-        for (AsyncNotificationListener notificationListenerService : asyncNotificationListeners) {
-            initializeAsyncNotificationListerService(registrar, notificationListenerService);
+        for (AsyncNotificationConfiguration asyncNotificationConfiguration : asyncNotificationConfigurations) {
+            initializeAsyncNotificationLister(registrar, asyncNotificationConfiguration);
         }
     }
 
-    protected void initializeAsyncNotificationListerService(JmsListenerEndpointRegistrar registrar,
-                                                            AsyncNotificationListener asyncNotificationListener) {
+    protected void initializeAsyncNotificationLister(JmsListenerEndpointRegistrar registrar,
+                                                     AsyncNotificationConfiguration asyncNotificationListener) {
         BackendConnector backendConnector = asyncNotificationListener.getBackendConnector();
         if(backendConnector == null) {
             LOG.error("No connector configured for async notification listener");
@@ -71,7 +71,7 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
         LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());
     }
 
-    protected SimpleJmsListenerEndpoint createJMSListener(AsyncNotificationListener asyncNotificationListener) {
+    protected SimpleJmsListenerEndpoint createJMSListener(AsyncNotificationConfiguration asyncNotificationListener) {
         BackendConnector backendConnector = asyncNotificationListener.getBackendConnector();
         LOG.debug("Configuring JmsListener for plugin [{}] for mode [{}]", backendConnector.getName(), backendConnector.getMode());
 
@@ -86,8 +86,8 @@ public class AsyncNotificationListenerServiceInitializer implements JmsListenerC
         } catch (final JMSException e) {
             LOG.error("Problem with predefined queue.", e);
         }
-        AsyncNotificationListenerService asyncNotificationListenerService = asyncNotificationListenerProvider.getObject(asyncNotificationListener);
-        endpoint.setMessageListener(asyncNotificationListenerService);
+        PluginAsyncNotificationListener pluginAsyncNotificationListener = asyncNotificationListenerProvider.getObject(asyncNotificationListener);
+        endpoint.setMessageListener(pluginAsyncNotificationListener);
 
         return endpoint;
     }

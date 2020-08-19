@@ -2,27 +2,27 @@ package eu.domibus.plugin;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
 
 /**
- * Class responsible for holding the configuration for an {@link AsyncNotificationListener}
+ * Class responsible for holding the configuration for an {@link AsyncNotificationConfiguration}
  *
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class JMSAsyncNotificationListener implements AsyncNotificationListener {
+public class PluginAsyncNotificationConfiguration implements AsyncNotificationConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSAsyncNotificationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationConfiguration.class);
 
     protected BackendConnector backendConnector;
     protected Queue queue;
     protected String queueName;
 
-    public JMSAsyncNotificationListener(BackendConnector backendConnector, Queue queue) {
+    public PluginAsyncNotificationConfiguration(BackendConnector backendConnector, Queue queue) {
         this.backendConnector = backendConnector;
         this.queue = queue;
     }

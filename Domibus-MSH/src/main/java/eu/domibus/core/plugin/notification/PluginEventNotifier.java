@@ -1,6 +1,7 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.common.NotificationType;
+import eu.domibus.plugin.BackendConnector;
 
 import java.util.Map;
 

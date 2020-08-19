@@ -11,13 +11,13 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class NotifyPluginMessageCreator {
+public class NotifyPluginJMSMessageCreator {
 
     private final String messageId;
     private NotificationType notificationType;
     private Map<String, Object> properties;
 
-    public NotifyPluginMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, Object> properties) {
+    public NotifyPluginJMSMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, Object> properties) {
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;

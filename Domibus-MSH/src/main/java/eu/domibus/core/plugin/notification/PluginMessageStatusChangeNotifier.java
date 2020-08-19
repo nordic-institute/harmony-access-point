@@ -1,10 +1,11 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 

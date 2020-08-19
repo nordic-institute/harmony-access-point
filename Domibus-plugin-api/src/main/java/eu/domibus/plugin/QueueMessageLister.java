@@ -12,7 +12,7 @@ import javax.jms.Queue;
 import java.util.Collection;
 
 /**
- * JMS Queue MessageLister implementation. An instance should be created for each plugin of type PULL which uses a MessageLister to list messages from a JMS queue.
+ * JMS Queue {@link MessageLister} implementation. An instance should be created for each plugin of type PULL which uses a {@link MessageLister} to list messages from a JMS queue.
  *
  * @author Cosmin Baciu
  * @since 4.2

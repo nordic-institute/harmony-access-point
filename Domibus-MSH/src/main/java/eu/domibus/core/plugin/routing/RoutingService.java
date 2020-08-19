@@ -18,7 +18,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +47,6 @@ public class RoutingService {
 
     @Autowired
     protected BackendFilterDao backendFilterDao;
-
-    @Autowired(required = false)
-    protected List<AsyncNotificationListener> asyncNotificationListeners;
 
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
@@ -107,26 +104,6 @@ public class RoutingService {
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         LOG.debug("Invalidating the backend filter cache for domain [{}]", currentDomain);
         backendFiltersCache.remove(currentDomain);
-    }
-
-    public AsyncNotificationListener getNotificationListener(String backendName) {
-        for (final AsyncNotificationListener asyncNotificationListener : asyncNotificationListeners) {
-            if (matches(asyncNotificationListener, backendName)) {
-                return asyncNotificationListener;
-            }
-        }
-        return null;
-    }
-
-    protected boolean matches(AsyncNotificationListener asyncNotificationListener, String backendName) {
-        if (asyncNotificationListener.getBackendConnector() == null) {
-            LOG.debug("Could not match connector for backend name [{}]: no configured connector", backendName);
-            return false;
-        }
-        if (StringUtils.equalsIgnoreCase(asyncNotificationListener.getBackendConnector().getName(), backendName)) {
-            return true;
-        }
-        return false;
     }
 
     protected List<BackendFilter> getBackendFiltersWithCache() {

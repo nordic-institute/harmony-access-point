@@ -2,14 +2,14 @@ package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.*;
-import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,18 +23,18 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
 
     protected ClassUtil classUtil;
-    protected RoutingService routingService;
+    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
     protected BackendConnectorProvider backendConnectorProvider;
-    protected BackendConnectorHelper backendConnectorHelper;
+    protected BackendConnectorService backendConnectorService;
 
     public DefaultBackendConnectorDelegate(ClassUtil classUtil,
-                                           RoutingService routingService,
+                                           AsyncNotificationConfigurationService asyncNotificationConfigurationService,
                                            BackendConnectorProvider backendConnectorProvider,
-                                           BackendConnectorHelper backendConnectorHelper) {
+                                           BackendConnectorService backendConnectorService) {
         this.classUtil = classUtil;
-        this.routingService = routingService;
+        this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
         this.backendConnectorProvider = backendConnectorProvider;
-        this.backendConnectorHelper = backendConnectorHelper;
+        this.backendConnectorService = backendConnectorService;
     }
 
     @Override
@@ -108,16 +108,16 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         if (!shouldCallNotificationListerForMessageDeletedEvent(backendConnector)) {
             return;
         }
-        AsyncNotificationListener asyncNotificationListener = routingService.getNotificationListener(backendConnector.getName());
-        if (asyncNotificationListener != null && asyncNotificationListener instanceof NotificationListener) {
-            NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
+        AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendConnector.getName());
+        if (backendConnectorService.isInstanceOfAsyncNotificationConfiguration(asyncNotificationConfiguration)) {
+            NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             LOG.debug("Calling NotificationListener for message deletion callback for connector [{}]", backendConnector.getName());
             notificationListener.deleteMessageCallback(event.getMessageId());
         }
     }
 
     protected boolean shouldCallNotificationListerForMessageDeletedEvent(BackendConnector<?, ?> backendConnector) {
-        if (backendConnectorHelper.isListerAnInstanceOfNotificationListener(backendConnector)) {
+        if (backendConnectorService.isListerAnInstanceOfAsyncPluginConfiguration(backendConnector)) {
             LOG.debug("No need to call the notification listener for connector [{}]; already called by AbstractBackendConnector", backendConnector.getName());
             return false;
         }

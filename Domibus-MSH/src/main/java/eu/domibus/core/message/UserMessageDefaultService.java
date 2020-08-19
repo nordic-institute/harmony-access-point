@@ -29,7 +29,6 @@ import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -102,9 +101,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private BackendNotificationService backendNotificationService;
-
-    @Autowired
-    protected RoutingService routingService;
 
     @Autowired
     private JMSManager jmsManager;

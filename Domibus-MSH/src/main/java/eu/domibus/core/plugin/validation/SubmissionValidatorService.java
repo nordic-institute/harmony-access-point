@@ -6,6 +6,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class SubmissionValidatorService {
         this.submissionAS4Transformer = submissionAS4Transformer;
     }
 
-    public void validateSubmission(UserMessage userMessage, String backendName, NotificationType notificationType) {
+    public void validateSubmission(UserMessage userMessage, String backendName, NotificationType notificationType) throws SubmissionValidationException {
         if (NotificationType.MESSAGE_RECEIVED != notificationType) {
             LOG.debug("Validation is not configured to be done for notification of type [{}]", notificationType);
             return;

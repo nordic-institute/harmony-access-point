@@ -25,9 +25,7 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.PluginEventNotifier;
-import eu.domibus.plugin.PluginEventNotifierProvider;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,38 +52,41 @@ public class BackendNotificationService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
 
     @Autowired
-    JMSManager jmsManager;
+    protected JMSManager jmsManager;
 
     @Autowired
-    private RoutingService routingService;
+    protected RoutingService routingService;
 
     @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
+
+    @Autowired
+    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
     @Qualifier("unknownReceiverQueue")
     protected Queue unknownReceiverQueue;
 
     @Autowired
-    private MessagingDao messagingDao;
+    protected MessagingDao messagingDao;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private EventService eventService;
+    protected EventService eventService;
 
     @Autowired
-    private MessagingConfigurationManager messagingConfigurationManager;
+    protected MessagingConfigurationManager messagingConfigurationManager;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    private UserMessageHandlerService userMessageHandlerService;
+    protected UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -244,31 +245,27 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        if (shouldNotifyAsync(notificationListener)) {
-            notifyAsync(notificationListener, messageId, notificationType, properties);
+        AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
+        if (shouldNotifyAsync(asyncNotificationConfiguration)) {
+            notifyAsync(asyncNotificationConfiguration, messageId, notificationType, properties);
             return;
         }
 
-        notifySync(backendConnector, notificationListener, messageId, notificationType, properties);
+        notifySync(backendConnector, asyncNotificationConfiguration, messageId, notificationType, properties);
     }
 
-    protected boolean shouldNotifyAsync(AsyncNotificationListener asyncNotificationListener) {
-        return asyncNotificationListener != null && asyncNotificationListener.getBackendNotificationQueue() != null;
+    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
+        return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(AsyncNotificationListener asyncNotificationListener, String messageId, NotificationType notificationType, Map<String, Object> properties) {
-        Queue backendNotificationQueue = asyncNotificationListener.getBackendNotificationQueue();
-        if (backendNotificationQueue == null) {
-            LOG.debug("Could not async notify for connector [{}]", asyncNotificationListener.getBackendConnector().getName());
-            return;
-        }
-        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationListener.getBackendConnector().getName());
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, String messageId, NotificationType notificationType, Map<String, Object> properties) {
+        Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
+        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
         jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
     }
 
     protected void notifySync(BackendConnector<?, ?> backendConnector,
-                              AsyncNotificationListener asyncNotificationListener,
+                              AsyncNotificationConfiguration asyncNotificationConfiguration,
                               String messageId,
                               NotificationType notificationType,
                               Map<String, Object> properties) {
@@ -282,8 +279,8 @@ public class BackendNotificationService {
         pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
 
         //for backward compatibility
-        if (asyncNotificationListener != null && asyncNotificationListener instanceof NotificationListener) {
-            NotificationListener notificationListener = (NotificationListener) asyncNotificationListener;
+        if (backendConnectorService.isInstanceOfAsyncNotificationConfiguration(asyncNotificationConfiguration)) {
+            NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             notificationListener.notify(messageId, notificationType, properties);
         }
     }

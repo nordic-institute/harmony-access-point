@@ -1,4 +1,4 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResultImpl;
@@ -8,6 +8,7 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

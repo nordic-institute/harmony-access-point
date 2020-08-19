@@ -10,6 +10,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Cosmin Baciu
+ * @since 4.2
+ */
 @Aspect
 @Component
 public class JMSExtServiceDelegateInterceptor extends ServiceInterceptor {

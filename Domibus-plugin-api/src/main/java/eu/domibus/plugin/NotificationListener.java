@@ -3,7 +3,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.NotificationType;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -14,16 +14,16 @@ import java.util.Map;
  *
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
- * @deprecated Use {@link AsyncNotificationListener}
+ * @deprecated Use {@link AsyncNotificationConfiguration}
  */
 @Deprecated
-public interface NotificationListener extends AsyncNotificationListener {
+public interface NotificationListener extends AsyncNotificationConfiguration {
 
     /**
      * Get the plugin name
      *
      * @return the plugin name
-     * @deprecated Use {@link AsyncNotificationListener#getBackendConnector()}
+     * @deprecated Use {@link AsyncNotificationConfiguration#getBackendConnector()}
      */
     @Deprecated
     String getBackendName();

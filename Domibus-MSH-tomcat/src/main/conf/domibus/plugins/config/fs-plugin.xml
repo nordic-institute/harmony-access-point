@@ -25,8 +25,8 @@
         <constructor-arg value="backendFSPlugin"/>
     </bean>
 
-    <bean id="fsPluginNotificationListenerService"
-          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+    <bean id="fsPluginAsyncPluginConfiguration"
+          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendFSQueue"
           c:backendConnector-ref="backendFSPlugin"/>
 

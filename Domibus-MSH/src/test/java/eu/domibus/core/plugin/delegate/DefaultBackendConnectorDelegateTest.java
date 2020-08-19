@@ -2,8 +2,8 @@ package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.plugin.BackendConnector;
 import mockit.Injectable;
@@ -32,7 +32,7 @@ public class DefaultBackendConnectorDelegateTest {
     protected BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
-    protected BackendConnectorHelper backendConnectorHelper;
+    protected BackendConnectorService backendConnectorService;
 
     @Tested
     DefaultBackendConnectorDelegate defaultBackendConnectorDelegate;

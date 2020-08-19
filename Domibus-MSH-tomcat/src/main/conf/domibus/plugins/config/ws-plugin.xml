@@ -24,8 +24,8 @@
         <constructor-arg value="backendWebservice"/>
     </bean>
 
-    <bean id="webserviceNotificationListenerService"
-          class="eu.domibus.plugin.JMSAsyncNotificationListener"
+    <bean id="webserviceAsyncPluginConfiguration"
+          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendWebServiceQueue"
           c:backendConnector-ref="backendWebservice"/>
 

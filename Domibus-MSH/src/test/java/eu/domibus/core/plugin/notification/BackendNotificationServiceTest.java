@@ -24,8 +24,7 @@ import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.PluginEventNotifierProvider;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -75,6 +74,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     RoutingService routingService;
+
+    @Injectable
+    AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
     @Injectable
     UserMessageLogDao userMessageLogDao;
@@ -201,7 +203,7 @@ public class BackendNotificationServiceTest {
             backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
-            routingService.getNotificationListener(BACKEND_NAME);
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = null;
 
             backendNotificationService.notifySync(backendConnector, null, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
@@ -215,7 +217,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify(
-            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final AsyncNotificationConfiguration notificationListener,
             @Injectable final BackendConnector backendConnector,
             @Injectable final Queue queue) {
 
@@ -229,10 +231,10 @@ public class BackendNotificationServiceTest {
             backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
-            routingService.getNotificationListener(BACKEND_NAME);
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
-            routingService.getNotificationListener(BACKEND_NAME);
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
             backendNotificationService.shouldNotifyAsync(notificationListener);
@@ -250,7 +252,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifySync_propertiesNotNull(
-            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final AsyncNotificationConfiguration notificationListener,
             @Injectable final BackendConnector backendConnector) {
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
@@ -263,10 +265,10 @@ public class BackendNotificationServiceTest {
             backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
-            routingService.getNotificationListener(BACKEND_NAME);
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
-            routingService.getNotificationListener(BACKEND_NAME);
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
             backendNotificationService.shouldNotifyAsync(notificationListener);
@@ -284,7 +286,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify_NoNotification(
-            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final AsyncNotificationConfiguration notificationListener,
             @Injectable final BackendConnector backendConnector) {
 
         new Expectations(backendNotificationService) {{
@@ -307,7 +309,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify_NotificationNotMatchType(
-            @Injectable final AsyncNotificationListener notificationListener,
+            @Injectable final AsyncNotificationConfiguration notificationListener,
             @Injectable final Queue queue,
             @Injectable BackendConnector backendConnector
     ) {

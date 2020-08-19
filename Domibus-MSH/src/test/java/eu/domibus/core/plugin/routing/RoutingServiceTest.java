@@ -16,7 +16,7 @@ import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -30,7 +30,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static eu.domibus.core.plugin.notification.BackendPluginEnum.*;
 import static java.util.Arrays.asList;
@@ -229,38 +228,7 @@ public class RoutingServiceTest {
         }};
     }
 
-    @Test
-    public void testGetNotificationListener(@Injectable final AsyncNotificationListener notificationListener1,
-                                            @Injectable final AsyncNotificationListener notificationListener2) {
-        final String backendName = "customPlugin";
-        RoutingService routingService = new RoutingService();
-        new Expectations(routingService) {{
-            routingService.matches(notificationListener1, backendName);
-            result = true;
-        }};
 
-        List<AsyncNotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
-        notificationListeners.add(notificationListener2);
-        routingService.asyncNotificationListeners = notificationListeners;
-
-        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        assertEquals(notificationListener1, notificationListener);
-
-    }
-
-    @Test
-    public void testGetNotificationListener_empty(@Injectable final NotificationListener notificationListener1,
-                                                  @Injectable final NotificationListener notificationListener2) {
-        RoutingService routingService = new RoutingService();
-        final String backendName = "customPlugin";
-
-        routingService.asyncNotificationListeners = new ArrayList<>();
-
-        AsyncNotificationListener notificationListener = routingService.getNotificationListener(backendName);
-        assertNull(notificationListener);
-
-    }
 
     @Test
     public void testIsBackendFilterMatchingANDOperationWithFromAndActionMatching(@Injectable final BackendFilter filter,
@@ -769,9 +737,9 @@ public class RoutingServiceTest {
 
     @Test
     public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
-                                                                    @Injectable AsyncNotificationListener notificationListener,
+                                                                    @Injectable AsyncNotificationConfiguration notificationListener,
                                                                     @Injectable BackendConnector backendConnector) {
-        List<AsyncNotificationListener> notificationListenerServices = new ArrayList<>();
+        List<AsyncNotificationConfiguration> notificationListenerServices = new ArrayList<>();
         notificationListenerServices.add(notificationListener);
 
         List<String> notificationListenerPluginsList = new ArrayList<>();

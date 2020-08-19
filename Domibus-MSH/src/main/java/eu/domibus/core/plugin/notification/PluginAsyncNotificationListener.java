@@ -1,5 +1,5 @@
 
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -11,7 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.notification.AsyncNotificationListener;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
@@ -22,24 +22,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * JMS listener responsible for sending async notifications to plugins
+ *
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
-public class AsyncNotificationListenerService implements MessageListener {
+public class PluginAsyncNotificationListener implements MessageListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationListenerService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListener.class);
 
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
-    protected AsyncNotificationListener asyncNotificationListener;
+    protected AsyncNotificationConfiguration asyncNotificationConfiguration;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
-    public AsyncNotificationListenerService(DomainContextProvider domainContextProvider,
-                                            AsyncNotificationListener asyncNotificationListener,
-                                            PluginEventNotifierProvider pluginEventNotifierProvider,
-                                            AuthUtils authUtils) {
+    public PluginAsyncNotificationListener(DomainContextProvider domainContextProvider,
+                                           AsyncNotificationConfiguration asyncNotificationConfiguration,
+                                           PluginEventNotifierProvider pluginEventNotifierProvider,
+                                           AuthUtils authUtils) {
         this.domainContextProvider = domainContextProvider;
-        this.asyncNotificationListener = asyncNotificationListener;
+        this.asyncNotificationConfiguration = asyncNotificationConfiguration;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
         this.authUtils = authUtils;
     }
@@ -61,7 +63,7 @@ public class AsyncNotificationListenerService implements MessageListener {
 
             final NotificationType notificationType = NotificationType.valueOf(message.getStringProperty(MessageConstants.NOTIFICATION_TYPE));
 
-            LOG.info("Received message with messageId [" + messageId + "] and notification type [" + notificationType + "]");
+            LOG.info("Received message with messageId [{}] and notification type [{}]", messageId, notificationType);
 
             PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
             if (pluginEventNotifier == null) {
@@ -69,7 +71,7 @@ public class AsyncNotificationListenerService implements MessageListener {
                 return;
             }
             Map<String, Object> messageProperties = getMessageProperties(message);
-            pluginEventNotifier.notifyPlugin(asyncNotificationListener.getBackendConnector(), messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());

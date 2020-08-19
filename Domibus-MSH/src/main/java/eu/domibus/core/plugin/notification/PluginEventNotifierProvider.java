@@ -1,4 +1,4 @@
-package eu.domibus.plugin;
+package eu.domibus.core.plugin.notification;
 
 import eu.domibus.common.NotificationType;
 import org.springframework.stereotype.Service;
