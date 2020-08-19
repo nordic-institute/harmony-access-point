@@ -21,6 +21,7 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
@@ -83,6 +84,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     private BackendNotificationService backendNotificationService;
+
+    @Autowired
+    protected RoutingService routingService;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -182,7 +186,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             // ping messages are only stored and not notified to the plugins
             persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, null);
         } else {
-            final BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
+            final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(messaging.getUserMessage());
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
             persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, backendName);
@@ -217,7 +221,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 // ping messages are only stored and not notified to the plugins
                 persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null, null);
             } else {
-                final BackendFilter matchingBackendFilter = backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
+                final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(messaging.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
                 MessageFragmentType messageFragmentType = messageUtil.getMessageFragment(request);

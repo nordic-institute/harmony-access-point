@@ -8,7 +8,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
-    <jee:jndi-lookup id="notifyBackendJmsQueue"
+    <jee:jndi-lookup id="notifyBackendJmsQueue" expected-type="javax.jms.Queue"
                      jndi-name="${jmsplugin.queue.notification}">
     </jee:jndi-lookup>
 
@@ -18,11 +18,11 @@
         <property name="messageRetrievalTransformer" ref="jmsMessageTransformer"/>
     </bean>
 
-    <bean id="jmsNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
-          c:queue-ref="notifyBackendJmsQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendJms">
-        <property name="queueJndi" value="${jmsplugin.queue.notification}"/>
+    <bean id="jmsAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendJmsQueue"
+          c:backendConnector-ref="backendJms">
+        <property name="queueName" value="${jmsplugin.queue.notification}"/>
     </bean>
 
     <bean id="jndiDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">
