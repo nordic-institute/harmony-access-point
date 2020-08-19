@@ -392,7 +392,7 @@ public class JMSManagerImpl implements JMSManager {
         return getQueueElements(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);
     }
 
-    private Collection<String> getQueueElements(String queueName, final NotificationType notificationType, final String finalRecipient) {
+    protected Collection<String> getQueueElements(String queueName, final NotificationType notificationType, final String finalRecipient) {
         final Collection<String> result = browseQueue(queueName, notificationType, finalRecipient);
         return result;
     }

@@ -219,6 +219,7 @@ public class RoutingService {
                 return filter;
             }
         }
+        LOG.trace("No filter matched for message [{}]", userMessage.getMessageInfo().getMessageId());
         return null;
     }
 

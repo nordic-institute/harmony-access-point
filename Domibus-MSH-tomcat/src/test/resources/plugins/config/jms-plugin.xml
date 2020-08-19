@@ -20,7 +20,7 @@
     </bean>
 
     <bean id="jmsAsyncPluginConfiguration"
-          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendJmsQueue"
           c:backendConnector-ref="backendJms"/>
 

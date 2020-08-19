@@ -1,8 +1,8 @@
-package eu.domibus.plugin;
+package eu.domibus.plugin.notification;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
+import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.jms.JMSException;

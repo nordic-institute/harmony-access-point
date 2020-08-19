@@ -26,7 +26,7 @@
     </bean>
 
     <bean id="fsPluginAsyncPluginConfiguration"
-          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendFSQueue"
           c:backendConnector-ref="backendFSPlugin"/>
 

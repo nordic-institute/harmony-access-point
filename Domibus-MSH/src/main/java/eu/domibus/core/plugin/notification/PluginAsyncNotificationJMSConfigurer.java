@@ -50,8 +50,8 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
     }
 
     protected void initializeAsyncNotificationLister(JmsListenerEndpointRegistrar registrar,
-                                                     AsyncNotificationConfiguration asyncNotificationListener) {
-        BackendConnector backendConnector = asyncNotificationListener.getBackendConnector();
+                                                     AsyncNotificationConfiguration asyncNotificationConfiguration) {
+        BackendConnector backendConnector = asyncNotificationConfiguration.getBackendConnector();
         if(backendConnector == null) {
             LOG.error("No connector configured for async notification listener");
             return;
@@ -61,12 +61,12 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
             LOG.info("No async notification listener is created for plugin [{}]: plugin type is PULL", backendConnector.getName());
             return;
         }
-        if (asyncNotificationListener.getBackendNotificationQueue() == null) {
+        if (asyncNotificationConfiguration.getBackendNotificationQueue() == null) {
             LOG.info("No notification queue configured for plugin [{}]. No async notification listener is created", backendConnector.getName());
             return;
         }
 
-        SimpleJmsListenerEndpoint endpoint = createJMSListener(asyncNotificationListener);
+        SimpleJmsListenerEndpoint endpoint = createJMSListener(asyncNotificationConfiguration);
         if(endpoint != null) {
             registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
             LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());

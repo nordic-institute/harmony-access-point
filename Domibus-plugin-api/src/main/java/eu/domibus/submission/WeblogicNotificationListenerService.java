@@ -5,7 +5,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.PluginAsyncNotificationConfiguration;
+import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.NotificationListenerService;
 
 import javax.jms.JMSException;

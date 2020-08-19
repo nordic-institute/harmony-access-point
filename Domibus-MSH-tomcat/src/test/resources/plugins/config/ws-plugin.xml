@@ -34,7 +34,7 @@
 
 
     <bean id="webserviceAsyncPluginConfiguration"
-          class="eu.domibus.plugin.PluginAsyncNotificationConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
           c:queue-ref="notifyBackendWebServiceQueue"
           c:backendConnector-ref="backendWebservice">
     </bean>

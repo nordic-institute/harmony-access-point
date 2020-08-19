@@ -5,6 +5,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
+import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class NotificationListenerService implements NotificationListener, Messag
 
     @Override
     public String getQueueName() throws JMSException {
-        if (StringUtils.isNoneEmpty(queueName)) {
+        if (StringUtils.isNotBlank(queueName)) {
             LOG.trace("Using custom queue name [{}]", queueName);
             return queueName;
         }

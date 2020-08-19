@@ -668,6 +668,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
             backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
@@ -698,6 +699,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
             backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 

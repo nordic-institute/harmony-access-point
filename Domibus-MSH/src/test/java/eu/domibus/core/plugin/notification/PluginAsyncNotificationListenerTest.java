@@ -74,6 +74,7 @@ public class PluginAsyncNotificationListenerTest {
 
         new Verifications() {{
             pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);
+            times = 1;
         }};
     }
 
