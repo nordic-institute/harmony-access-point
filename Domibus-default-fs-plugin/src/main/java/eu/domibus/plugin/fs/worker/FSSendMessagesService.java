@@ -35,6 +35,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -274,7 +275,11 @@ public class FSSendMessagesService {
         List<FileObject> filteredFiles = new LinkedList<>();
 
         // locked file names
-        List<String> lockedFileNames = fsFileNameHelper.filterLockedFileNames(files);
+        List<String> lockedFileNames = Arrays.stream(files)
+                .map(f -> f.getName().getBaseName())
+                .filter(fname -> fsFileNameHelper.isLockFile(fname))
+                .map(fname -> fsFileNameHelper.stripLockSuffix(fname))
+                .collect(Collectors.toList());
 
         for (FileObject file : files) {
             String baseName = file.getName().getBaseName();

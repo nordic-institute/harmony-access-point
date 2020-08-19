@@ -9,7 +9,9 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for the purge of orphan/zombie lock files
@@ -46,23 +48,28 @@ public class FSPurgeLocksService {
 
     protected void purge(String domain) {
         FileObject[] files = null;
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
-            files = fsFilesManager.findAllDescendantFiles(rootDir);
+        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
+             FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
+
+            files = fsFilesManager.findAllDescendantFiles(targetFolder);
             LOG.debug("Found files [{}]", files);
 
-            List<String> lockedFileNames = fsFileNameHelper.filterLockedFileNames(files);
-            LOG.debug("Found locked file names [{}]", lockedFileNames);
+            List<FileObject> lockFiles = Arrays.stream(files)
+                    .filter(file -> fsFileNameHelper.isLockFile(file.getName().getBaseName()))
+                    .collect(Collectors.toList());
+            LOG.debug("Found locked file names [{}]", lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
 
-            for (String lockedFileName : lockedFileNames) {
-                if (!fsFilesManager.fileExists(rootDir, lockedFileName)) {
-                    LOG.debug("File [{}] does not exists so delete the corresponding lock file.", lockedFileName);
-                    fsFilesManager.deleteFileByName(rootDir, fsFileNameHelper.getLockFileName(lockedFileName));
+            for (FileObject lockFile : lockFiles) {
+                String dataFile = fsFileNameHelper.stripLockSuffix(targetFolder.getName().getRelativeName(lockFile.getName()));
+                if (!fsFilesManager.fileExists(targetFolder, dataFile)) {
+                    LOG.debug("File [{}] does not exists so delete the corresponding lock file.", dataFile);
+                    fsFilesManager.deleteFile(lockFile);
                 }
             }
         } catch (FileSystemException ex) {
             LOG.error("Error purging orphan lock files", ex);
         } catch (FSSetUpException ex) {
-            LOG.error("Error setting up folders for domain: " + domain, ex);
+            LOG.error("Error setting up folders for domain [{}]", domain, ex);
         } finally {
             if (files != null) {
                 fsFilesManager.closeAll(files);

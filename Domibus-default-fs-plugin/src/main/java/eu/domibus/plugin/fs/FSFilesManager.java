@@ -253,12 +253,12 @@ public class FSFilesManager {
     }
 
     public boolean fileExists(FileObject rootDir, String fileName) throws FileSystemException {
-        FileObject file = rootDir.resolveFile(fileName, NameScope.CHILD);
+        FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT);
         return file.exists();
     }
 
-    public void deleteFileByName(FileObject rootDir, String fileName) throws FileSystemException {
-        FileObject file = rootDir.resolveFile(fileName, NameScope.CHILD);
-        deleteFile(file);
-    }
+//    public void deleteFileByName(FileObject rootDir, String fileName) throws FileSystemException {
+//        FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT);
+//        deleteFile(file);
+//    }
 }

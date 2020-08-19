@@ -169,13 +169,10 @@ public class FSFileNameHelper {
         return deriveDirectoryLocation(fileURI, FSFilesManager.FAILED_FOLDER);
     }
 
-    public List<String> filterLockedFileNames(FileObject[] files) {
-        List<String> lockedFileNames = Arrays.stream(files)
-                .map(f -> f.getName().getBaseName())
-                .filter(fname -> isLockFile(fname))
-                .map(fname -> stripLockSuffix(fname))
+    public List<FileObject> filterLockedFiles(FileObject[] files) {
+        return Arrays.stream(files)
+                .filter(file -> isLockFile(file.getName().getBaseName()))
                 .collect(Collectors.toList());
-        return lockedFileNames;
     }
 
     protected String deriveDirectoryLocation(String fileURI, String destFolder) {

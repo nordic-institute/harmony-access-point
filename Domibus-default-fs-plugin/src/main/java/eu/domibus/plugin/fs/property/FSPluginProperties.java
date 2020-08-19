@@ -149,6 +149,14 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
+     * @return The cron expression that defines the frequency of the received messages purge job
+     */
+    public String getLockPurgeWorkerCronExpression(String domain) {
+        // TODO
+        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION, null);
+    }
+
+    /**
      * @param domain The domain property qualifier
      * @return The time interval (seconds) to purge failed messages
      */

@@ -118,4 +118,27 @@ public class FSWorkersConfiguration {
         obj.setStartDelay(20000);
         return obj;
     }
+
+    @Bean
+    public JobDetailFactoryBean fsPluginPurgeLocksWorkerJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(FSPurgeLocksWorker.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            return null; // this job only works for a domain
+        }
+        String domainCode = domain.getCode();
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
+        obj.setCronExpression(fsPluginProperties.getLockPurgeWorkerCronExpression(domainCode));
+        obj.setStartDelay(20000);
+        return obj;
+    }
 }

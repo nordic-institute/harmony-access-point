@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Quartz based worker responsible for the periodical execution of the FSPurgeLocksService.
@@ -14,11 +15,8 @@ import org.quartz.JobExecutionContext;
 @DisallowConcurrentExecution
 public class FSPurgeLocksWorker extends DomibusQuartzJobExtBean {
 
-    private FSPurgeLocksService fsPurgeLocksService;
-
-    public FSPurgeLocksWorker(FSPurgeLocksService fsPurgeLocksService) {
-        this.fsPurgeLocksService = fsPurgeLocksService;
-    }
+    @Autowired
+    protected FSPurgeLocksService fsPurgeLocksService;
 
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) {
