@@ -290,7 +290,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     /**
-     * Get the value from the system environment properties;
+     * First try to get the value from the collection of property values updated at runtime;
+     * if not found, get the value from the system environment properties;
      * if not found, get the value from the system properties;
      * if not found, get the value from Domibus properties;
      * if still not found, look inside the Domibus default properties.
