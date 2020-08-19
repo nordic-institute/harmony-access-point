@@ -25,6 +25,21 @@
         <!-- Domibus modules -->
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-MSH</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-jms-weblogic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-taskexecutor-weblogic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-ext-model</artifactId>
             <version>${project.version}</version>
         </dependency>
