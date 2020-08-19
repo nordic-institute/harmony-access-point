@@ -244,7 +244,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final File configurationFile = passwordEncryptionContext.getConfigurationFile();
 
         LOG.debug("Replacing configured properties in file [{}] with encrypted values", configurationFile);
-        final List<String> fileLines = getReplacedLines(encryptedProperties, configurationFile);
+        final List<String> replacedLines = getReplacedLines(encryptedProperties, configurationFile);
+
+        if (!arePropertiesNewlyEncrypted(configurationFile, replacedLines)) {
+            LOG.debug("No new properties encrypted in file [{}]", configurationFile);
+            return;
+        }
 
         try {
             backupService.backupFile(configurationFile);
@@ -252,13 +257,32 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             throw new DomibusEncryptionException(String.format("Could not back up [%s]", configurationFile), e);
         }
 
-        LOG.debug("Writing encrypted values");
+        LOG.info("Writing encrypted values in file [{}]", configurationFile);
 
         try {
-            Files.write(configurationFile.toPath(), fileLines);
+            Files.write(configurationFile.toPath(), replacedLines);
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not write encrypted values to file [%s] ", configurationFile), e);
         }
+
+    }
+
+    protected boolean arePropertiesNewlyEncrypted(File configurationFile, List<String> replacedLines) {
+        boolean arePropertiesNewlyEncrypted = false;
+
+        if (configurationFile == null) {
+            LOG.debug("Configuration file should not be null!");
+            return false;
+        }
+
+        try {
+            List<String> originalLines = Files.readAllLines(configurationFile.toPath());
+            arePropertiesNewlyEncrypted = !CollectionUtils.containsAll(originalLines, replacedLines);
+            LOG.debug("Are properties newly encrypted?:" + arePropertiesNewlyEncrypted);
+        } catch (IOException e) {
+            throw new DomibusEncryptionException("Could not read configuration file " + configurationFile, e);
+        }
+        return arePropertiesNewlyEncrypted;
     }
 
     protected List<String> getReplacedLines(List<PasswordEncryptionResult> encryptedProperties, File configurationFile) {

@@ -20,16 +20,14 @@
                physicalName="domibus.notification.webservice"/>
 
 
-    <bean id="backendWebservice"
-          class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl">
+    <bean id="backendWebservice" class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl">
         <constructor-arg value="backendWebservice"/>
-        <property name="lister" ref="webserviceNotificationListenerService"/>
     </bean>
 
-    <bean id="webserviceNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendWebservice"/>
+    <bean id="webserviceAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendWebServiceQueue"
+          c:backendConnector-ref="backendWebservice"/>
 
     <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
 
