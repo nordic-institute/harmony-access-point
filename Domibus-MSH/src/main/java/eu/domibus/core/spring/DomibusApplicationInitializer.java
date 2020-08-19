@@ -142,6 +142,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
+
+        DomibusPropertiesPropertySource updatedDomibusProperties = createUpdatedDomibusPropertiesSource();
+        propertySources.addFirst(updatedDomibusProperties);
     }
 
     public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
@@ -155,6 +158,11 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         Map domibusConfigLocationMap = new HashMap();
         domibusConfigLocationMap.put(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
         return new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap);
+    }
+
+    protected DomibusPropertiesPropertySource createUpdatedDomibusPropertiesSource() {
+        Properties properties = new Properties();
+        return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, properties);
     }
 
 

@@ -284,6 +284,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         MutablePropertySources propertySources = environment.getPropertySources();
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
     /**

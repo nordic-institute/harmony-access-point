@@ -14,6 +14,7 @@ import java.util.Properties;
 public class DomibusPropertiesPropertySource extends PropertiesPropertySource {
 
     public static final String NAME = "domibusProperties";
+    public static final String UPDATED_PROPERTIES_NAME = "updatedDomibusProperties";
 
     public DomibusPropertiesPropertySource(String name, Properties source) {
         super(name, source);
