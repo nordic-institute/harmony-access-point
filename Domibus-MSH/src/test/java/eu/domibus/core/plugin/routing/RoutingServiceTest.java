@@ -555,8 +555,8 @@ public class RoutingServiceTest {
             backendConnectorProvider.getBackendConnectors();
             result = backendConnectors;
 
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
+            domibusConfigurationService.isSingleTenant();
+            result = true;
 
             criteriaFactory.getName();
             result = "Name criteriaFactory";
@@ -601,8 +601,8 @@ public class RoutingServiceTest {
             backendConnectorProvider.getBackendConnectors();
             result = backendConnectors;
 
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
+            domibusConfigurationService.isSingleTenant();
+            result = false;
 
             domainService.getDomains();
             result = domains;
@@ -669,8 +669,8 @@ public class RoutingServiceTest {
             backendConnectorProvider.getBackendConnectors();
             result = backendConnectors;
 
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
+            domibusConfigurationService.isSingleTenant();
+            result = false;
 
             domainService.getDomains();
             result = Collections.singletonList(domain);
@@ -717,8 +717,8 @@ public class RoutingServiceTest {
             backendConnectorProvider.getBackendConnectors();
             result = backendConnectors;
 
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
+            domibusConfigurationService.isSingleTenant();
+            result = true;
 
             routingCriteriaFactory.getName();
             result = "routingCriteriaFactory";

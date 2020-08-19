@@ -4,6 +4,7 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.plugin.BackendConnector;
 import mockit.Injectable;
@@ -33,6 +34,9 @@ public class DefaultBackendConnectorDelegateTest {
 
     @Injectable
     protected BackendConnectorService backendConnectorService;
+
+    @Injectable
+    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
     @Tested
     DefaultBackendConnectorDelegate defaultBackendConnectorDelegate;
