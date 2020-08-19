@@ -33,7 +33,7 @@ public class PluginMessageReceivedFailureNotifierTest {
 
     @Test
     public void canHandle() {
-        assertTrue(pluginMessageReceivedFailureNotifier.canHandle(NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE));
+        assertTrue(pluginMessageReceivedFailureNotifier.canHandle(NotificationType.MESSAGE_RECEIVED_FAILURE));
     }
 
     @Test
