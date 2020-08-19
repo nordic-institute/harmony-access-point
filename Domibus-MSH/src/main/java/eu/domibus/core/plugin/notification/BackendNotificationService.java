@@ -148,6 +148,7 @@ public class BackendNotificationService {
             return;
         }
         if (userMessageLog.isTestMessage()) {
+            LOG.debug("Message [{}] is of type test: no notification for message deleted", messageId);
             return;
         }
         String backend = userMessageLog.getBackend();
@@ -279,7 +280,7 @@ public class BackendNotificationService {
         pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
 
         //for backward compatibility
-        if (backendConnectorService.isInstanceOfAsyncNotificationConfiguration(asyncNotificationConfiguration)) {
+        if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             notificationListener.notify(messageId, notificationType, properties);
         }

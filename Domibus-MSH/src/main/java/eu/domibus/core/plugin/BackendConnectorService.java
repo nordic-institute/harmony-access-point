@@ -32,7 +32,7 @@ public class BackendConnectorService {
     public List<NotificationType> getRequiredNotificationTypeList(BackendConnector<?, ?> backendConnector) {
         //for backward compatibility purposes
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendConnector.getName());
-        if (isInstanceOfAsyncNotificationConfiguration(asyncNotificationConfiguration)) {
+        if (isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
             LOG.debug("Using notification types from the NotificationListener for connector [{}]", backendConnector.getName());
             NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             return notificationListener.getRequiredNotificationTypeList();
@@ -40,7 +40,7 @@ public class BackendConnectorService {
         return backendConnector.getRequiredNotifications();
     }
 
-    public boolean isInstanceOfAsyncNotificationConfiguration(AsyncNotificationConfiguration asyncNotificationConfiguration) {
+    public boolean isInstanceOfNotificationListener(AsyncNotificationConfiguration asyncNotificationConfiguration) {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration instanceof NotificationListener;
     }
 

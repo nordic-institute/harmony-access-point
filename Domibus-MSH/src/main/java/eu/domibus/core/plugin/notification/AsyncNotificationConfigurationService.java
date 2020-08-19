@@ -27,6 +27,7 @@ public class AsyncNotificationConfigurationService {
                 return asyncNotificationConfiguration;
             }
         }
+        LOG.trace("Not async configuration found for connector [{}]", backendName);
         return null;
     }
 

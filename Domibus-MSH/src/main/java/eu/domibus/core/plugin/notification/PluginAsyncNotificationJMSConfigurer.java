@@ -67,8 +67,10 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
         }
 
         SimpleJmsListenerEndpoint endpoint = createJMSListener(asyncNotificationListener);
-        registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
-        LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());
+        if(endpoint != null) {
+            registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
+            LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());
+        }
     }
 
     protected SimpleJmsListenerEndpoint createJMSListener(AsyncNotificationConfiguration asyncNotificationListener) {
@@ -85,6 +87,7 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
             endpoint.setDestination(asyncNotificationListener.getQueueName());
         } catch (final JMSException e) {
             LOG.error("Problem with predefined queue.", e);
+            return null;
         }
         PluginAsyncNotificationListener pluginAsyncNotificationListener = asyncNotificationListenerProvider.getObject(asyncNotificationListener);
         endpoint.setMessageListener(pluginAsyncNotificationListener);
