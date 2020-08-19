@@ -145,20 +145,23 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, response, pModeKey);
         } catch (final SOAPFaultException soapFEx) {
+            getLog().error("A SOAP fault occurred when sending message with ID [{}]", messageId, soapFEx);
+
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
-            } else {
-                getLog().warn("Error for message with ID [" + messageId + "]", soapFEx);
             }
             attempt.setError(soapFEx.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (final EbMS3Exception e) {
+            getLog().error("EbMS3 exception occurred when sending message with ID [{}]", messageId, e);
+
             reliabilityChecker.handleEbms3Exception(e, messageId);
             attempt.setError(e.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
-            getLog().error("Error sending message [{}]", messageId, t);
+            getLog().error("Error occurred when sending message with ID [{}]", messageId, t);
+
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
