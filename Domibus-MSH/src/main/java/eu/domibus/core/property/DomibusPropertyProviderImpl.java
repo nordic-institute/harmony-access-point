@@ -284,10 +284,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         MutablePropertySources propertySources = environment.getPropertySources();
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
     /**
-     * Get the value from the system environment properties;
+     * First try to get the value from the collection of property values updated at runtime;
+     * if not found, get the value from the system environment properties;
      * if not found, get the value from the system properties;
      * if not found, get the value from Domibus properties;
      * if still not found, look inside the Domibus default properties.
