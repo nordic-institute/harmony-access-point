@@ -156,7 +156,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         LOG.debug("[{}]: Searching for {} users with password change date between [{}]->[{}]", eventType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), from, to);
 
         List<UserEntityBase> eligibleUsers = getUserDao().findWithPasswordChangedBetween(from, to, usersWithDefaultPassword);
-        LOG.debug("[{}]: Found [{}] eligible {} users", eventType, (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY), eligibleUsers.size());
+        LOG.debug("[{}]: Found [{}] eligible {} users", eventType, eligibleUsers.size(), (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY));
 
         eligibleUsers.forEach(user -> {
             eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration);
