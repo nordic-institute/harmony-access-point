@@ -23,7 +23,7 @@ public class FSFileNameHelper {
     protected static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
     protected static final Pattern PROCESSED_FILE_PATTERN = Pattern.compile(
             NAME_SEPARATOR + UUID_PATTERN + "@.", Pattern.CASE_INSENSITIVE);
-    protected static final String LOCK_SUFFIX = ".lock";
+    public static final String LOCK_SUFFIX = ".lock";
 
     protected List<String> stateSuffixes;
 

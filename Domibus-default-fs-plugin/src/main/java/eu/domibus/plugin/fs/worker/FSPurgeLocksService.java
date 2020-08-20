@@ -41,12 +41,12 @@ public class FSPurgeLocksService {
         List<String> domains = multiTenancyService.getDomainsToProcess();
         for (String domain : domains) {
             if (multiTenancyService.verifyDomainExists(domain)) {
-                purge(domain);
+                purgeForDomain(domain);
             }
         }
     }
 
-    protected void purge(String domain) {
+    protected void purgeForDomain(String domain) {
         FileObject[] files = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
