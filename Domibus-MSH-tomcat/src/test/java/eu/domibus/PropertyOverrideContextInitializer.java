@@ -29,13 +29,16 @@ public class PropertyOverrideContextInitializer implements ApplicationContextIni
         configureLogging(domibusConfigLocation);
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = null;
+        DomibusPropertiesPropertySource updatedPropertiesPropertySource = null;
         try {
             domibusPropertiesPropertySource = new DomibusApplicationInitializer().createDomibusPropertiesPropertySource(domibusConfigLocation);
+            updatedPropertiesPropertySource = new DomibusApplicationInitializer().createUpdatedDomibusPropertiesSource();
         } catch (IOException e) {
             e.printStackTrace();
         }
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
         propertySources.addLast(domibusPropertiesPropertySource);
+        propertySources.addFirst(updatedPropertiesPropertySource);
     }
 
     protected void configureLogging(String domibusConfigLocation) {

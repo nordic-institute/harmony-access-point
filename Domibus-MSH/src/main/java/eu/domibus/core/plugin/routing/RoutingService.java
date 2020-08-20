@@ -1,72 +1,198 @@
 package eu.domibus.core.plugin.routing;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.NotificationListener;
+import eu.domibus.plugin.BackendConnector;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.Arrays.stream;
+import static java.util.Comparator.comparing;
 
 /**
  * @author Christian Walczac
+ * @author Cosmin Baciu
  */
 @Service
 public class RoutingService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RoutingService.class);
 
     @Autowired
-    private BackendFilterDao backendFilterDao;
+    protected BackendFilterDao backendFilterDao;
 
     @Autowired
-    private List<NotificationListener> notificationListeners;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    private DomainCoreConverter coreConverter;
+    protected DomainCoreConverter coreConverter;
 
     @Autowired
-    protected BackendNotificationService backendNotificationService;
+    protected DomibusConfigurationService domibusConfigurationService;
 
-    /**
-     * Returns the configured backend filters present in the classpath
-     *
-     * @return The configured backend filters
-     */
-    @Cacheable(value = "backendFilterCache")
-    public List<BackendFilter> getBackendFilters() {
-        return getBackendFiltersUncached();
-    }
+    @Autowired
+    protected DomainService domainService;
 
-    public List<BackendFilter> getBackendFiltersUncached() {
-        final List<BackendFilterEntity> filters = new ArrayList<>(backendFilterDao.findAll());
-        final List<NotificationListener> backendsTemp = new ArrayList<>(notificationListeners);
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
 
-        for (BackendFilterEntity filter : filters) {
-            for (final NotificationListener backend : backendsTemp) {
-                if (filter.getBackendName().equalsIgnoreCase(backend.getBackendName())) {
-                    backendsTemp.remove(backend);
-                    break;
-                }
+    @Autowired
+    protected List<CriteriaFactory> routingCriteriaFactories;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected AuthUtils authUtils;
+
+    protected Map<String, IRoutingCriteria> criteriaMap;
+    protected final Object backendFiltersCacheLock = new Object();
+    protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
+
+    @PostConstruct
+    public void init() {
+        if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
+            throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
+        }
+
+        if (domibusConfigurationService.isSingleTenant()) {
+            LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
+            createBackendFilters();
+        } else {
+            // Get All Domains
+            final List<Domain> domains = domainService.getDomains();
+            LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
+            for (Domain domain : domains) {
+                domainTaskExecutor.submit(this::createBackendFilters, domain);
             }
         }
 
-        for (final NotificationListener backend : backendsTemp) {
-            final BackendFilterEntity filter = new BackendFilterEntity();
-            filter.setBackendName(backend.getBackendName());
-            filters.add(filter);
+        criteriaMap = new HashMap<>();
+        for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
+            criteriaMap.put(routingCriteriaFactory.getName(), routingCriteriaFactory.getInstance());
         }
-        return coreConverter.convert(filters, BackendFilter.class);
+    }
+
+    public void invalidateBackendFiltersCache() {
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        LOG.debug("Invalidating the backend filter cache for domain [{}]", currentDomain);
+        backendFiltersCache.remove(currentDomain);
+    }
+
+    protected List<BackendFilter> getBackendFiltersWithCache() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+        LOG.trace("Get backend filters with cache for domain [{}]", currentDomain);
+        List<BackendFilter> backendFilters = backendFiltersCache.get(currentDomain);
+
+        if (backendFilters == null) {
+            synchronized (backendFiltersCacheLock) {
+                // retrieve again from map, otherwise it is null even for the second thread(because the variable has method scope)
+                backendFilters = backendFiltersCache.get(currentDomain);
+                if (backendFilters == null) {
+                    LOG.debug("Initializing backendFilterCache for domain [{}]", currentDomain);
+                    backendFilters = getBackendFiltersUncached();
+                    backendFiltersCache.put(currentDomain, backendFilters);
+                }
+            }
+        }
+        return backendFilters;
+    }
+
+    /**
+     * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
+     */
+    protected void createBackendFilters() {
+        List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
+
+        //Setting security context authentication to have user details in audit logs when create message filters
+        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
+
+        List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
+                .stream()
+                .map(BackendConnector::getName)
+                .collect(Collectors.toList());
+
+        pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
+
+        List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+        backendFilterDao.create(backendFilterEntities);
+    }
+
+    protected int getMaxIndex(List<BackendFilterEntity> backendFilterEntitiesInDB) {
+        if (CollectionUtils.isEmpty(backendFilterEntitiesInDB)) {
+            return 0;
+        }
+        return backendFilterEntitiesInDB
+                .stream()
+                .map(BackendFilterEntity::getIndex)
+                .max(Integer::compareTo)
+                .orElse(0);
+    }
+
+    /**
+     * Assigning priorities to the default plugin, which doesn't have any priority set by User
+     *
+     * @return backendFilters
+     */
+    protected List<BackendFilterEntity> createBackendFilterEntities(List<String> pluginList, int priority) {
+        if (CollectionUtils.isEmpty(pluginList)) {
+            return new ArrayList<>();
+        }
+
+        List<String> defaultPluginOrderList = stream(BackendPluginEnum.values())
+                .sorted(comparing(BackendPluginEnum::getPriority))
+                .map(BackendPluginEnum::getPluginName)
+                .collect(Collectors.toList());
+        // If plugin not part of the list of default plugin, it will be put in highest priority by default
+        pluginList.sort(comparing(defaultPluginOrderList::indexOf));
+        LOG.debug("Assigning lower priorities (over [{}]) to the backend plugins which don't have any existing priority", priority);
+
+        List<BackendFilterEntity> backendFilters = new ArrayList<>();
+        for (String pluginName : pluginList) {
+            LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
+            BackendFilterEntity filterEntity = new BackendFilterEntity();
+            filterEntity.setBackendName(pluginName);
+            filterEntity.setIndex(priority++);
+            backendFilters.add(filterEntity);
+        }
+        return backendFilters;
+    }
+
+    public List<BackendFilter> getBackendFiltersUncached() {
+        List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
+        return coreConverter.convert(backendFilterEntities, BackendFilter.class);
+    }
+
+    public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
+        List<BackendFilter> backendFilters = getBackendFiltersWithCache();
+        return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
+
     }
 
     @CacheEvict(value = "backendFilterCache", allEntries = true)
@@ -81,7 +207,34 @@ public class RoutingService {
         updateFilterIndices(backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 
-        backendNotificationService.invalidateBackendFiltersCache();
+        invalidateBackendFiltersCache();
+    }
+
+    protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
+        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageInfo().getMessageId() + "]");
+        for (final BackendFilter filter : backendFilters) {
+            final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
+            if (backendFilterMatching) {
+                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageInfo().getMessageId());
+                return filter;
+            }
+        }
+        LOG.trace("No filter matched for message [{}]", userMessage.getMessageInfo().getMessageId());
+        return null;
+    }
+
+    protected boolean isBackendFilterMatching(BackendFilter filter, Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
+        if (filter.getRoutingCriterias() != null) {
+            for (final RoutingCriteria routingCriteriaEntity : filter.getRoutingCriterias()) {
+                final IRoutingCriteria criteria = criteriaMap.get(StringUtils.upperCase(routingCriteriaEntity.getName()));
+                boolean matches = criteria.matches(userMessage, routingCriteriaEntity.getExpression());
+                //if at least one criteria does not match it means the filter is not matching
+                if (!matches) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void updateFilterIndices(List<BackendFilterEntity> filters) {
@@ -118,4 +271,8 @@ public class RoutingService {
         LOG.trace("Filter criteria have the same properties and values, hence true for comparing [{}] and [{}]", c1, c2);
         return true;
     }
+
+
 }
+
+

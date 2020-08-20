@@ -61,6 +61,11 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
     }
 
     @Override
+    public void hasUserOrAdminRole() {
+        authUtils.hasUserOrAdminRole();
+    }
+
+    @Override
     public String getAuthenticatedUser() {
         return authUtils.getAuthenticatedUser();
     }

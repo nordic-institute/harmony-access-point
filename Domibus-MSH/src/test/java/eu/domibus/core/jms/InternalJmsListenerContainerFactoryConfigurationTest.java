@@ -45,7 +45,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver);
 
         new Verifications() {{
             MessageConverter messageConverter = null;

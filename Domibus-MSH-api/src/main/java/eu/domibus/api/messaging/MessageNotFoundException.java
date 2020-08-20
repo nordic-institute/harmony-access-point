@@ -1,8 +1,5 @@
 package eu.domibus.api.messaging;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
-
 /**
  * @author Ion Perpegel
  * @since 4.2

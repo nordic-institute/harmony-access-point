@@ -78,7 +78,7 @@ public class DomibusTSLValidator implements Callable<TSLValidationResult> {
         result.setSubIndication(simpleReport.getSubIndication(simpleReport.getFirstSignatureId()));
 
         if (!isValid) {
-            LOG.info("The TSL signature is not valid : \n{}", reports.getXmlSimpleReport());
+            LOG.info("The TSL signature is not valid : {}", reports.getXmlSimpleReport());
         }
 
         return result;

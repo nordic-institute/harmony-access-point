@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.core.property.DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -201,7 +203,8 @@ public class DomibusApplicationInitializerTest {
                                          @Injectable ConfigurableEnvironment configurableEnvironment,
                                          @Injectable MutablePropertySources propertySources,
                                          @Injectable MapPropertySource domibusConfigLocationSource,
-                                         @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) throws IOException {
+                                         @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource,
+                                         @Injectable DomibusPropertiesPropertySource updatedDomibusPropertiesPropertySource) throws IOException {
         String domibusConfigLocation = "/home/domibus";
 
         new Expectations(domibusApplicationInitializer) {{
@@ -214,20 +217,25 @@ public class DomibusApplicationInitializerTest {
             domibusApplicationInitializer.createDomibusConfigLocationSource(domibusConfigLocation);
             result = domibusConfigLocationSource;
 
+            domibusApplicationInitializer.createUpdatedDomibusPropertiesSource();
+            result = updatedDomibusPropertiesPropertySource;
+
+            updatedDomibusPropertiesPropertySource.getName();
+            result = UPDATED_PROPERTIES_NAME;
+
             domibusApplicationInitializer.createDomibusPropertiesPropertySource(domibusConfigLocation);
             result = domibusPropertiesPropertySource;
         }};
 
-
         domibusApplicationInitializer.configurePropertySources(rootContext, domibusConfigLocation);
 
-        new Verifications() {{
-            propertySources.addFirst(domibusConfigLocationSource);
+        new FullVerificationsInOrder() {{
+            propertySources.addFirst(updatedDomibusPropertiesPropertySource);
             times = 1;
-
+            propertySources.addAfter(UPDATED_PROPERTIES_NAME, domibusConfigLocationSource);
+            times = 1;
             propertySources.addLast(domibusPropertiesPropertySource);
             times = 1;
-
         }};
     }
 
@@ -265,6 +273,45 @@ public class DomibusApplicationInitializerTest {
         String domibusConfigLocation = "/home/domibus";
 
         MapPropertySource domibusConfigLocationSource = domibusApplicationInitializer.createDomibusConfigLocationSource(domibusConfigLocation);
-        Assert.assertEquals(domibusConfigLocationSource.getName(), "domibusConfigLocationSource");
+        Assert.assertEquals("domibusConfigLocationSource", domibusConfigLocationSource.getName());
     }
+
+    @Test
+    public void createUpdatedDomibusPropertiesSource() {
+        MapPropertySource propertySource = domibusApplicationInitializer.createUpdatedDomibusPropertiesSource();
+        Assert.assertEquals(UPDATED_PROPERTIES_NAME, propertySource.getName());
+    }
+
+    @Test
+    public void testOrderOfPropertySources(@Injectable AnnotationConfigWebApplicationContext rootContext,
+                                           @Injectable ConfigurableEnvironment configurableEnvironment,
+                                           @Injectable MapPropertySource domibusConfigLocationSource,
+                                           @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) throws IOException {
+        String domibusConfigLocation = "/home/domibus";
+        MutablePropertySources propertySources = new MutablePropertySources();
+        DomibusPropertiesPropertySource updatedDomibusPropertiesPropertySource = new DomibusPropertiesPropertySource(UPDATED_PROPERTIES_NAME, new Properties());
+        new Expectations(domibusApplicationInitializer) {{
+            rootContext.getEnvironment();
+            result = configurableEnvironment;
+
+            configurableEnvironment.getPropertySources();
+            result = propertySources;
+
+            domibusApplicationInitializer.createDomibusConfigLocationSource(domibusConfigLocation);
+            result = domibusConfigLocationSource;
+
+            domibusApplicationInitializer.createDomibusPropertiesPropertySource(domibusConfigLocation);
+            result = domibusPropertiesPropertySource;
+
+            domibusApplicationInitializer.createUpdatedDomibusPropertiesSource();
+            result = updatedDomibusPropertiesPropertySource;
+        }};
+
+        domibusApplicationInitializer.configurePropertySources(rootContext, domibusConfigLocation);
+
+        Assert.assertEquals(0, propertySources.precedenceOf(updatedDomibusPropertiesPropertySource));
+        Assert.assertEquals(1, propertySources.precedenceOf(domibusConfigLocationSource));
+        Assert.assertEquals(propertySources.size() - 1, propertySources.precedenceOf(domibusPropertiesPropertySource));
+    }
+
 }

@@ -12,28 +12,27 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-
 public class ChangePasswordPage extends DomibusPage {
 
 	public final String newPasswordFieldLabel = "New Password";
 	public final String currentPasswordFieldLabel = "Current Password";
 	public final String confirmationFieldLabel = "Confirmation";
-	
+
 	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
 	protected WebElement fieldHeader;
-	
+
 	@FindBy(id = "currentPassword_id")
 	private WebElement currentPassField;
-	
+
 	@FindBy(id = "newPassword_id")
 	private WebElement newPassField;
-	
+
 	@FindBy(id = "confirmation_id")
 	private WebElement confirmationField;
-	
+
 	@FindBy(id = "editbuttonok_id")
 	private WebElement updateButton;
-	
+
 	@FindBy(css = "mat-card > div:nth-child(5)")
 	private WebElement mandatoryFieldsText;
 
@@ -47,7 +46,7 @@ public class ChangePasswordPage extends DomibusPage {
 	public void waitForPageTitle(){
 		wait.forElementToBeVisible(fieldHeader);
 	}
-	
+
 	public DInput getCPassField() {
 		return new DInput(driver, currentPassField);
 	}
@@ -76,7 +75,7 @@ public class ChangePasswordPage extends DomibusPage {
 		log.debug("Verifying Field Header...");
 		String rawTitle = getPageNameObj().getText();
 		boolean toReturn = StringUtils.equalsIgnoreCase(rawTitle, "Change Password");
-		log.debug("Opened Page is  : " + toReturn);
+		log.debug("Opened Page is [{}]", toReturn);
 		return toReturn;
 	}
 
@@ -90,11 +89,11 @@ public class ChangePasswordPage extends DomibusPage {
 		wait.forElementToBeVisible(newPassField);
 		wait.forElementToBeVisible(confirmationField);
 		if (!currentPassField.isEnabled()) {
-			log.debug("Could not find current password  input");
+			log.debug("Could not find current password input");
 			return false;
 		}
 		if (!newPassField.isEnabled()) {
-			log.debug("Could not find new password  input");
+			log.debug("Could not find new password input");
 			return false;
 		}
 		if (!confirmationField.isEnabled()) {
@@ -166,7 +165,7 @@ public class ChangePasswordPage extends DomibusPage {
 			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
 			wait.forElementToBe(elm);
 			if (elm.isDisplayed()) {
-				log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
+				log.info("Validation message under field [{}] [{}]", fieldName, elm.getText().trim());
 				return true;
 			}
 		} catch (Exception e) {
@@ -183,7 +182,7 @@ public class ChangePasswordPage extends DomibusPage {
 	public String getValidationMsg(String fieldName) throws Exception {
 		if (isValidationMsgPresent(fieldName)) {
 			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
-			log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
+			log.info("Validation message under field [{}] [{}]", fieldName, elm.getText().trim());
 			return weToDobject(elm).getText();
 		}
 		log.info("message is not displayed");
@@ -194,6 +193,4 @@ public class ChangePasswordPage extends DomibusPage {
 		weToDobject(mandatoryFieldsText).click();
 		wait.forXMillis(300);
 	}
-
 }
-
