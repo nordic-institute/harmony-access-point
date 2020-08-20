@@ -3,6 +3,10 @@ package eu.domibus.common.services.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.dao.AuditDao;
 import eu.domibus.common.model.audit.Audit;
@@ -45,6 +49,15 @@ public class AuditServiceImplTest {
 
     @InjectMocks
     private AuditServiceImpl auditService;
+
+    @Mock
+    private DomainService domainService;
+
+    @Mock
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Mock
+    private DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void listAuditTarget() throws Exception {
@@ -146,8 +159,12 @@ public class AuditServiceImplTest {
 
     @Test
     public void addJmsMessageDeletedAudit() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(true);
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue", anyString());
+        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue", "domain1");
         ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
         verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
         JmsMessageAudit value = jmsMessageAuditCaptor.getValue();
@@ -160,8 +177,12 @@ public class AuditServiceImplTest {
 
     @Test
     public void addJmsMessageMovedAudit() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(true);
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue", anyString());
+        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue", "domain1");
         ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
         verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
         JmsMessageAudit value = jmsMessageAuditCaptor.getValue();

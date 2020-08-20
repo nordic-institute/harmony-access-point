@@ -253,7 +253,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        List<org.apache.commons.lang3.tuple.Pair<String, String>> jmsMessageDomains =
+        List<Pair<String, String>> jmsMessageDomains =
                 Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
                         retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
 
@@ -265,7 +265,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        List<org.apache.commons.lang3.tuple.Pair<String, String>> jmsMessageDomains =
+        List<Pair<String, String>> jmsMessageDomains =
                 Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
                         retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
 
