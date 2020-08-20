@@ -41,6 +41,11 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
+    public boolean isSingleTenant() {
+        return !isMultiTenantAware();
+    }
+
+    @Override
     public boolean isClusterDeployment() {
         return domibusPropertyProvider.getBooleanProperty(CLUSTER_DEPLOYMENT);
     }

@@ -177,9 +177,9 @@ public class JMSManagerImplTest {
 
         new Verifications() {{
             internalJmsManager.deleteMessages(source, messageIds);
-            auditService.addJmsMessageDeletedAudit("1", source);
+            auditService.addJmsMessageDeletedAudit("1", source, anyString);
             times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
+            auditService.addJmsMessageDeletedAudit("2", source, anyString);
             times = 1;
         }};
     }
@@ -194,9 +194,9 @@ public class JMSManagerImplTest {
 
         new Verifications() {{
             internalJmsManager.moveMessages(source, destination, messageIds);
-            auditService.addJmsMessageMovedAudit("1", source, destination);
+            auditService.addJmsMessageMovedAudit("1", source, destination, anyString);
             times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
+            auditService.addJmsMessageMovedAudit("2", source, destination, anyString);
             times = 1;
         }};
     }

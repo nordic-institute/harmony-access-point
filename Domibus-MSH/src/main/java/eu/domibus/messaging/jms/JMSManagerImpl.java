@@ -16,6 +16,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
@@ -252,16 +253,36 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
+        List<org.apache.commons.lang3.tuple.Pair<String, String>> jmsMessageDomains =
+                Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
+                        retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+
         internalJmsManager.deleteMessages(source, messageIds);
         LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
+        jmsMessageDomains.forEach(jmsMessageIdDomainPair -> auditService.addJmsMessageDeletedAudit(jmsMessageIdDomainPair.getLeft(),
+                source, jmsMessageIdDomainPair.getRight()));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
+        List<org.apache.commons.lang3.tuple.Pair<String, String>> jmsMessageDomains =
+                Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
+                        retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+
         internalJmsManager.moveMessages(source, destination, messageIds);
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
+        jmsMessageDomains.forEach(jmsMessageIdDomainPair -> auditService.addJmsMessageMovedAudit(jmsMessageIdDomainPair.getLeft(),
+                source, destination, jmsMessageIdDomainPair.getRight()));
+    }
+
+    protected String retrieveDomainFromJMSMessage(String source, String jmsMessageId) {
+        if (domibusConfigurationService.isSingleTenant()) {
+            LOG.debug("JMS message doesn't have a domain property");
+            return null;
+        }
+        //retrieve the domain
+        JmsMessage jmsMessage = this.getMessage(source, jmsMessageId);
+        return jmsMessage.getProperty(MessageConstants.DOMAIN);
     }
 
     @Override

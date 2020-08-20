@@ -147,7 +147,7 @@ public class AuditServiceImplTest {
     @Test
     public void addJmsMessageDeletedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue");
+        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue", anyString());
         ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
         verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
         JmsMessageAudit value = jmsMessageAuditCaptor.getValue();
@@ -161,7 +161,7 @@ public class AuditServiceImplTest {
     @Test
     public void addJmsMessageMovedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue");
+        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue", anyString());
         ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
         verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
         JmsMessageAudit value = jmsMessageAuditCaptor.getValue();
