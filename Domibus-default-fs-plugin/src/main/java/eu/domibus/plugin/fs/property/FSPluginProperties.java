@@ -149,11 +149,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
-     * @return The cron expression that defines the frequency of the received messages purge job
+     * @return The cron expression that defines the frequency of the orphan lock files purge job
      */
-    public String getLockPurgeWorkerCronExpression(String domain) {
-        // TODO
-        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION, null);
+    public String getLocksPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, LOCKS_PURGE_WORKER_CRONEXPRESSION, null);
     }
 
     /**

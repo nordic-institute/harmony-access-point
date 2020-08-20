@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
@@ -137,7 +136,7 @@ public class FSWorkersConfiguration {
         String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getLockPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression(domainCode));
         obj.setStartDelay(20000);
         return obj;
     }
