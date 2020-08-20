@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.property.listeners;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
@@ -20,6 +21,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 
@@ -35,8 +38,7 @@ public class FSPluginPropertiesChangeListenerIT {
 
         @Bean
         public FSPluginProperties pluginProperties() {
-            FSPluginProperties fsPluginProperties = new FSPluginProperties();
-            return fsPluginProperties;
+            return new FSPluginProperties();
         }
 
         @Bean
@@ -105,6 +107,75 @@ public class FSPluginPropertiesChangeListenerIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
+        @Bean
+        public DomibusPropertyExtService domibusPropertyExtService() {
+            return new DomibusPropertyExtService() {
+                @Override
+                public String getProperty(String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public String getProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public Integer getIntegerProperty(String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public Set<String> filterPropertiesName(Predicate<String> predicate) {
+                    return null;
+                }
+
+                @Override
+                public List<String> getNestedProperties(String prefix) {
+                    return null;
+                }
+
+                @Override
+                public String getDomainProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
+
+                }
+
+                @Override
+                public void setProperty(String propertyName, String propertyValue) {
+
+                }
+
+                @Override
+                public boolean containsDomainPropertyKey(DomainDTO domain, String propertyName) {
+                    return false;
+                }
+
+                @Override
+                public boolean containsPropertyKey(String propertyName) {
+                    return false;
+                }
+
+                @Override
+                public String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
+                    return null;
+                }
+
+                @Override
+                public String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public String getResolvedProperty(String propertyName) {
+                    return null;
+                }
+            };
+        }
     }
 
     @Autowired
@@ -129,13 +200,13 @@ public class FSPluginPropertiesChangeListenerIT {
     private TriggerChangeListener triggerChangeListener;
 
     @Test
-    public void testDomainPropertiesChangeListener() throws Exception {
+    public void testDomainPropertiesChangeListener() {
         boolean handlesOrder = domainPropertiesChangeListener.handlesProperty("fsplugin.order");
-        Assert.assertEquals(true, handlesOrder);
+        Assert.assertTrue(handlesOrder);
         boolean handlesPattern = domainPropertiesChangeListener.handlesProperty("fsplugin.messages.expression");
-        Assert.assertEquals(true, handlesPattern);
+        Assert.assertTrue(handlesPattern);
         boolean notHandled = domainPropertiesChangeListener.handlesProperty("fsplugin.messages.expression.not.handled");
-        Assert.assertEquals(false, notHandled);
+        Assert.assertFalse(notHandled);
 
         final List<String> oldDomains = fSPluginProperties.getDomains();
 
@@ -143,11 +214,11 @@ public class FSPluginPropertiesChangeListenerIT {
         domainPropertiesChangeListener.propertyValueChanged("default", "fsplugin.messages.expression", "bdx:noprocess#TC1Leg1");
 
         final List<String> newDomains = fSPluginProperties.getDomains();
-        Assert.assertTrue(newDomains != oldDomains);
+        Assert.assertNotSame(newDomains, oldDomains);
     }
 
     @Test
-    public void testTriggerChangeListener() throws Exception {
+    public void testTriggerChangeListener() {
         boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(PROPERTY_PREFIX + SEND_WORKER_INTERVAL);
         Assert.assertTrue(handlesWorkerInterval);
 
@@ -166,7 +237,7 @@ public class FSPluginPropertiesChangeListenerIT {
     }
 
     @Test
-    public void testOutQueueConcurrencyChangeListener() throws Exception {
+    public void testOutQueueConcurrencyChangeListener() {
         boolean handlesProperty = outQueueConcurrencyChangeListener.handlesProperty(OUT_QUEUE_CONCURRENCY);
         Assert.assertTrue(handlesProperty);
 

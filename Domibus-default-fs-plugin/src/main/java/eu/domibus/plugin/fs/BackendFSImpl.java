@@ -7,10 +7,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.AbstractBackendConnector;
-import eu.domibus.plugin.fs.ebms3.Property;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
@@ -135,8 +133,9 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void deliverMessage(String messageId) {
-        LOG.debug("Delivering File System Message [{}]", messageId);
+    public void deliverMessage(DeliverMessageEvent event) {
+        String messageId = event.getMessageId();
+        LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getFinalRecipient());
         FSMessage fsMessage;
 
         // Browse message
@@ -148,13 +147,14 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
 
         //extract final recipient
-        final String finalRecipient = getFinalRecipient(fsMessage.getMetadata());
+        final String finalRecipient = event.getFinalRecipient();
         if (StringUtils.isBlank(finalRecipient)) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED);
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
         final String messageIdFolder = sanitizeFileName(messageId);
+
 
         String fsPluginDomain = fsDomainService.getFSPluginDomain(fsMessage);
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
@@ -335,13 +335,13 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
     @Override
-    public void messageSendSuccess(String messageId) {
+    public void messageSendSuccess(MessageSendSuccessEvent event) {
         // Implemented in messageStatusChanged to avoid event collision and use improved API
         // Probably, the AbstractBackendConnector should not throw the UnsupportedOperationException
     }
 
     @Override
-    public void messageSendFailed(String messageId) {
+    public void messageSendFailed(MessageSendFailedEvent event) {
         // Implemented in messageStatusChanged to avoid event collision and use improved API
         // Probably, the AbstractBackendConnector should implement a default no-op
     }
@@ -359,7 +359,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
 
-    protected String getErrorMessage(String messageId) throws IOException {
+    protected String getErrorMessage(String messageId) {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId);
         String content;
         if (!errors.isEmpty()) {
@@ -489,24 +489,6 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         } catch (FSSetUpException ex) {
             LOG.error("Error setting up folders for domain [" + domain + "]", ex);
         }
-    }
-
-    /**
-     * extracts finalRecipient from message properties
-     *
-     * @param userMessage Object which contains finalRecipient info
-     * @return finalRecipient String
-     * @see UserMessage
-     */
-    protected String getFinalRecipient(final UserMessage userMessage) {
-        String finalRecipient = null;
-        for (final Property p : userMessage.getMessageProperties().getProperty()) {
-            if (p.getName() != null && p.getName().equals(MessageConstants.FINAL_RECIPIENT)) {
-                finalRecipient = p.getValue();
-                break;
-            }
-        }
-        return finalRecipient;
     }
 
     /**
