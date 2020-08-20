@@ -52,6 +52,8 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String LOCKS_PURGE_WORKER_CRONEXPRESSION = "messages.locks.purge.worker.cronExpression";
 
+    protected static final String LOCKS_PURGE_EXPIRED = "messages.locks.purge.expired";
+
     protected static final String USER = "messages.user";
 
     protected static final String PAYLOAD_ID = "messages.payload.id";

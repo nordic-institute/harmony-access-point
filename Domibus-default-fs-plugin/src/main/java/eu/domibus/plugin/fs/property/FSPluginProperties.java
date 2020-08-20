@@ -175,6 +175,15 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     /**
      * @param domain The domain property qualifier
+     * @return The time interval (seconds) to purge orphan lock files
+     */
+    public Integer getLocksPurgeExpired(String domain) {
+        String value = getDomainProperty(domain, LOCKS_PURGE_EXPIRED, "600");
+        return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+    }
+
+    /**
+     * @param domain The domain property qualifier
      * @return the user used to access the location specified by the property
      */
     public String getUser(String domain) {

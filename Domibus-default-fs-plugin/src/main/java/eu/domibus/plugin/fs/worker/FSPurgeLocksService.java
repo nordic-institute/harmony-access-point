@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,13 @@ public class FSPurgeLocksService {
 
     private FSFileNameHelper fsFileNameHelper;
 
-    public FSPurgeLocksService(FSDomainService multiTenancyService, FSFilesManager fsFilesManager, FSFileNameHelper fsFileNameHelper) {
+    private FSPluginProperties fsPluginProperties;
+
+    public FSPurgeLocksService(FSDomainService multiTenancyService, FSFilesManager fsFilesManager, FSFileNameHelper fsFileNameHelper, FSPluginProperties fsPluginProperties) {
         this.multiTenancyService = multiTenancyService;
         this.fsFilesManager = fsFilesManager;
         this.fsFileNameHelper = fsFileNameHelper;
+        this.fsPluginProperties = fsPluginProperties;
     }
 
     public void purge() {
@@ -47,6 +51,8 @@ public class FSPurgeLocksService {
     }
 
     protected void purgeForDomain(String domain) {
+        Integer expirationLimit = fsPluginProperties.getLocksPurgeExpired(domain);
+
         FileObject[] files = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
@@ -56,6 +62,7 @@ public class FSPurgeLocksService {
 
             List<FileObject> lockFiles = Arrays.stream(files)
                     .filter(file -> fsFileNameHelper.isLockFile(file.getName().getBaseName()))
+                    .filter(file -> fsFilesManager.isFileOlderThan(file, expirationLimit))
                     .collect(Collectors.toList());
             LOG.debug("Found locked file names [{}]", lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
 

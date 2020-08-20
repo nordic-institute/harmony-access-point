@@ -1,4 +1,5 @@
 Domibus 4.2
+- Added a job in FS Plugin that cleans orphaned lock files
 - Removed password column from both Users and Plugin Users components/lists( as their values were obscured anyway)
 - Added Parties functionality to External REST API calls
 - Added new component/page in admin console to monitor test connections; integrated the former test component as details page

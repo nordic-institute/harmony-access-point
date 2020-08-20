@@ -253,12 +253,26 @@ public class FSFilesManager {
     }
 
     public boolean fileExists(FileObject rootDir, String fileName) throws FileSystemException {
+        //the data files can be located in folders along with their metadata so we search deep
         FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT);
         return file.exists();
     }
 
-//    public void deleteFileByName(FileObject rootDir, String fileName) throws FileSystemException {
-//        FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT);
-//        deleteFile(file);
-//    }
+    public boolean isFileOlderThan(FileObject file, Integer expirationLimit) {
+        if (expirationLimit == null) {
+            return false;
+        }
+
+        long currentMillis = System.currentTimeMillis();
+        long modifiedMillis = 0;
+        try {
+            modifiedMillis = file.getContent().getLastModifiedTime();
+        } catch (FileSystemException ex) {
+            LOG.error("Error reading last modified time.", ex);
+            return false;
+        }
+        long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;
+
+        return fileAgeSeconds > expirationLimit;
+    }
 }

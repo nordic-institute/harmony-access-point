@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
@@ -16,7 +17,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static eu.domibus.plugin.fs.FSFileNameHelper.LOCK_SUFFIX;
@@ -39,6 +39,9 @@ public class FSPurgeLocksServiceTest {
 
     @Injectable
     private FSFileNameHelper fsFileNameHelper;
+
+    @Injectable
+    private FSPluginProperties fsPluginProperties;
 
     private FileObject rootDir;
     private FileObject outFolder;
@@ -94,8 +97,14 @@ public class FSPurgeLocksServiceTest {
 
     @Test
     public void testPurgeForDomain() throws FileSystemException, FSSetUpException {
+        Integer expiredLimit = 600;
+        String domain = FSSendMessagesService.DEFAULT_DOMAIN;
+
         new Expectations(1, instance) {{
-            fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
+            fsPluginProperties.getLocksPurgeExpired(domain);
+            result = expiredLimit;
+
+            fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
@@ -107,13 +116,16 @@ public class FSPurgeLocksServiceTest {
             fsFileNameHelper.isLockFile(lockFileName);
             result = true;
 
+            fsFilesManager.isFileOlderThan(lockFile, expiredLimit);
+            result = true;
+
             fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile.getName()));
             result = dataFileName;
         }};
 
-        instance.purgeForDomain(FSSendMessagesService.DEFAULT_DOMAIN);
+        instance.purgeForDomain(domain);
 
-        new VerificationsInOrder(1) {{
+        new Verifications(1) {{
             fsFilesManager.deleteFile(lockFile);
         }};
     }
