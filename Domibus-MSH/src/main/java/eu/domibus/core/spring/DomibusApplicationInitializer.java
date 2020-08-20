@@ -160,7 +160,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         return new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap);
     }
 
-    protected DomibusPropertiesPropertySource createUpdatedDomibusPropertiesSource() {
+    public DomibusPropertiesPropertySource createUpdatedDomibusPropertiesSource() {
         Properties properties = new Properties();
         return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, properties);
     }
