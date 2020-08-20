@@ -137,14 +137,14 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
 
+        DomibusPropertiesPropertySource updatedDomibusProperties = createUpdatedDomibusPropertiesSource();
+        propertySources.addFirst(updatedDomibusProperties);
+
         MapPropertySource domibusConfigLocationSource = createDomibusConfigLocationSource(domibusConfigLocation);
-        propertySources.addFirst(domibusConfigLocationSource);
+        propertySources.addAfter(updatedDomibusProperties.getName(), domibusConfigLocationSource);
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
-
-        DomibusPropertiesPropertySource updatedDomibusProperties = createUpdatedDomibusPropertiesSource();
-        propertySources.addFirst(updatedDomibusProperties);
     }
 
     public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
@@ -164,6 +164,5 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         Properties properties = new Properties();
         return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, properties);
     }
-
 
 }
