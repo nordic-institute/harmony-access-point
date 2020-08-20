@@ -67,9 +67,9 @@ public class FSPurgeLocksService {
             LOG.debug("Found locked file names [{}]", lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
 
             for (FileObject lockFile : lockFiles) {
-                String dataFile = fsFileNameHelper.stripLockSuffix(targetFolder.getName().getRelativeName(lockFile.getName()));
-                if (!fsFilesManager.fileExists(targetFolder, dataFile)) {
-                    LOG.debug("File [{}] does not exists so delete the corresponding lock file.", dataFile);
+                String dataFileName = fsFileNameHelper.stripLockSuffix(targetFolder.getName().getRelativeName(lockFile.getName()));
+                if (!fsFilesManager.fileExists(targetFolder, dataFileName)) {
+                    LOG.debug("File [{}] does not exists so delete the corresponding lock file.", dataFileName);
                     fsFilesManager.deleteFile(lockFile);
                 }
             }

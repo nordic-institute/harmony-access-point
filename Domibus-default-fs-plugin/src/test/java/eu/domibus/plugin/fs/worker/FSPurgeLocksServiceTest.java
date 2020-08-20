@@ -4,7 +4,10 @@ import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -45,9 +48,9 @@ public class FSPurgeLocksServiceTest {
 
     private FileObject rootDir;
     private FileObject outFolder;
-    private FileObject lockFile;
-    private String dataFileName = "invoice.pdf";
-    private String lockFileName = "invoice.pdf" + LOCK_SUFFIX;
+    private FileObject lockFile1;
+    private String dataFileName1 = "invoice.pdf";
+    private String lockFileName1 = "invoice.pdf" + LOCK_SUFFIX;
 
     @Before
     public void setUp() throws IOException {
@@ -60,8 +63,8 @@ public class FSPurgeLocksServiceTest {
         outFolder = rootDir.resolveFile(FSFilesManager.OUTGOING_FOLDER);
         outFolder.createFolder();
 
-        lockFile = outFolder.resolveFile(lockFileName);
-        lockFile.createFile();
+        lockFile1 = outFolder.resolveFile(lockFileName1);
+        lockFile1.createFile();
     }
 
     @After
@@ -96,7 +99,7 @@ public class FSPurgeLocksServiceTest {
     }
 
     @Test
-    public void testPurgeForDomain() throws FileSystemException, FSSetUpException {
+    public void testPurgeForDomain_OldAndOrphan() throws FileSystemException, FSSetUpException {
         Integer expiredLimit = 600;
         String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
@@ -111,22 +114,137 @@ public class FSPurgeLocksServiceTest {
             result = outFolder;
 
             fsFilesManager.findAllDescendantFiles(outFolder);
-            result = new FileObject[]{lockFile};
+            result = new FileObject[]{lockFile1};
 
-            fsFileNameHelper.isLockFile(lockFileName);
+            fsFileNameHelper.isLockFile(lockFileName1);
             result = true;
 
-            fsFilesManager.isFileOlderThan(lockFile, expiredLimit);
+            fsFilesManager.isFileOlderThan(lockFile1, expiredLimit);
             result = true;
 
-            fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile.getName()));
-            result = dataFileName;
+            fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile1.getName()));
+            result = dataFileName1;
+
+            fsFilesManager.fileExists(outFolder, dataFileName1);
+            result = false;
         }};
 
         instance.purgeForDomain(domain);
 
         new Verifications(1) {{
-            fsFilesManager.deleteFile(lockFile);
+            fsFilesManager.deleteFile(lockFile1);
+        }};
+    }
+
+    @Test
+    public void testPurgeForDomain_OldAndNotOrphan() throws FileSystemException, FSSetUpException {
+        Integer expiredLimit = 600;
+        String domain = FSSendMessagesService.DEFAULT_DOMAIN;
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getLocksPurgeExpired(domain);
+            result = expiredLimit;
+
+            fsFilesManager.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            result = outFolder;
+
+            fsFilesManager.findAllDescendantFiles(outFolder);
+            result = new FileObject[]{lockFile1};
+
+            fsFileNameHelper.isLockFile(lockFileName1);
+            result = true;
+
+            fsFilesManager.isFileOlderThan(lockFile1, expiredLimit);
+            result = true;
+
+            fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile1.getName()));
+            result = dataFileName1;
+
+            fsFilesManager.fileExists(outFolder, dataFileName1);
+            result = true;
+        }};
+
+        instance.purgeForDomain(domain);
+
+        new Verifications() {{
+            fsFilesManager.deleteFile(lockFile1);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testPurgeForDomain_NotOld() throws FileSystemException, FSSetUpException {
+        Integer expiredLimit = 600;
+        String domain = FSSendMessagesService.DEFAULT_DOMAIN;
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getLocksPurgeExpired(domain);
+            result = expiredLimit;
+
+            fsFilesManager.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            result = outFolder;
+
+            fsFilesManager.findAllDescendantFiles(outFolder);
+            result = new FileObject[]{lockFile1};
+
+            fsFileNameHelper.isLockFile(lockFileName1);
+            result = true;
+
+            fsFilesManager.isFileOlderThan(lockFile1, expiredLimit);
+            result = false;
+        }};
+
+        instance.purgeForDomain(domain);
+
+        new Verifications() {{
+            fsFilesManager.deleteFile(lockFile1);
+            times = 0;
+            fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile1.getName()));
+            times = 0;
+            fsFilesManager.fileExists(outFolder, dataFileName1);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testPurgeForDomain_NotLock() throws FileSystemException, FSSetUpException {
+        Integer expiredLimit = 600;
+        String domain = FSSendMessagesService.DEFAULT_DOMAIN;
+
+        new Expectations(1, instance) {{
+            fsPluginProperties.getLocksPurgeExpired(domain);
+            result = expiredLimit;
+
+            fsFilesManager.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
+            result = outFolder;
+
+            fsFilesManager.findAllDescendantFiles(outFolder);
+            result = new FileObject[]{lockFile1};
+
+            fsFileNameHelper.isLockFile(lockFileName1);
+            result = false;
+        }};
+
+        instance.purgeForDomain(domain);
+
+        new Verifications() {{
+            fsFilesManager.isFileOlderThan(lockFile1, expiredLimit);
+            times = 0;
+            fsFilesManager.deleteFile(lockFile1);
+            times = 0;
+            fsFileNameHelper.stripLockSuffix(outFolder.getName().getRelativeName(lockFile1.getName()));
+            times = 0;
+            fsFilesManager.fileExists(outFolder, dataFileName1);
+            times = 0;
         }};
     }
 
@@ -140,7 +258,7 @@ public class FSPurgeLocksServiceTest {
         instance.purgeForDomain("DOMAIN1");
 
         new Verifications() {{
-            fsFilesManager.deleteFile(withAny(lockFile));
+            fsFilesManager.deleteFile(withAny(lockFile1));
             maxTimes = 0;
         }};
     }
