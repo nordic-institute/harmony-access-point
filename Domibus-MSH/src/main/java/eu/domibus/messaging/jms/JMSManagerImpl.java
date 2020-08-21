@@ -282,7 +282,7 @@ public class JMSManagerImpl implements JMSManager {
             return null;
         }
         //retrieve the domain
-        JmsMessage jmsMessage = this.getMessage(source, jmsMessageId);
+        JmsMessage jmsMessage = getMessage(source, jmsMessageId);
         return jmsMessage.getProperty(MessageConstants.DOMAIN);
     }
 
