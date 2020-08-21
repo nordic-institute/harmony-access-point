@@ -91,6 +91,12 @@ public class DomibusPropertyMetadata {
      */
     private boolean storedGlobally = true;
 
+    public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, false);
+        res.setModule(Module.UNKNOWN);
+        return res;
+    }
+
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return getGlobalProperty(name, Type.STRING);
     }
@@ -327,6 +333,7 @@ public class DomibusPropertyMetadata {
         public static final int SUPER = 4;
         public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+        public static final int ANY = GLOBAL | DOMAIN | SUPER;
     }
 
     /**
