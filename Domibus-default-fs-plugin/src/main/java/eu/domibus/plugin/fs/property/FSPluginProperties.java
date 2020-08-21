@@ -12,6 +12,7 @@ import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -112,7 +113,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Integer getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
-        return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+        return NumberUtils.toInt(value);
     }
 
     /**
@@ -123,7 +124,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Long getPayloadsScheduleThresholdMB(String domain) {
         String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "1000");
-        return Long.parseLong(value);
+        return NumberUtils.toLong(value);
     }
 
     /**
@@ -161,7 +162,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Integer getFailedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
-        return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+        return NumberUtils.toInt(value);
     }
 
     /**
@@ -170,7 +171,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Integer getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
-        return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+        return NumberUtils.toInt(value);
     }
 
     /**
@@ -179,7 +180,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Integer getLocksPurgeExpired(String domain) {
         String value = getDomainProperty(domain, LOCKS_PURGE_EXPIRED, "600");
-        return StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : null;
+        return NumberUtils.toInt(value);
     }
 
     /**
