@@ -258,8 +258,9 @@ public class FSFilesManager {
         return file.exists();
     }
 
-    public boolean isFileOlderThan(FileObject file, Integer expirationLimit) {
-        if (expirationLimit == null) {
+    public boolean isFileOlderThan(FileObject file, Integer ageInSeconds) {
+        if (ageInSeconds == null) {
+            LOG.debug("Expiration limit is null");
             return false;
         }
 
@@ -273,6 +274,6 @@ public class FSFilesManager {
         }
         long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;
 
-        return fileAgeSeconds > expirationLimit;
+        return fileAgeSeconds > ageInSeconds;
     }
 }
