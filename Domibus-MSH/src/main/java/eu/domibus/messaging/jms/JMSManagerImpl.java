@@ -253,9 +253,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        List<Pair<String, String>> jmsMessageDomains =
-                Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
-                        retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+        List<Pair<String, String>> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
 
         internalJmsManager.deleteMessages(source, messageIds);
         LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
@@ -265,14 +263,17 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        List<Pair<String, String>> jmsMessageDomains =
-                Arrays.asList(messageIds).stream().map(jmsMessageId -> Pair.of(jmsMessageId,
-                        retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+        List<Pair<String, String>> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
 
         internalJmsManager.moveMessages(source, destination, messageIds);
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
         jmsMessageDomains.forEach(jmsMessageIdDomainPair -> auditService.addJmsMessageMovedAudit(jmsMessageIdDomainPair.getLeft(),
                 source, destination, jmsMessageIdDomainPair.getRight()));
+    }
+
+    protected List<Pair<String, String>> getJMSMessageDomain(String source, String[] messageIds) {
+        return Arrays.stream(messageIds).map(jmsMessageId -> Pair.of(jmsMessageId,
+                retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
     }
 
     protected String retrieveDomainFromJMSMessage(String source, String jmsMessageId) {
