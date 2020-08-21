@@ -16,7 +16,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
@@ -253,26 +252,26 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
-        List<Pair<String, String>> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
 
         internalJmsManager.deleteMessages(source, messageIds);
         LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
-        jmsMessageDomains.forEach(jmsMessageIdDomainPair -> auditService.addJmsMessageDeletedAudit(jmsMessageIdDomainPair.getLeft(),
-                source, jmsMessageIdDomainPair.getRight()));
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageDeletedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, jmsMessageDomainDTO.getDomainCode()));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        List<Pair<String, String>> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
 
         internalJmsManager.moveMessages(source, destination, messageIds);
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        jmsMessageDomains.forEach(jmsMessageIdDomainPair -> auditService.addJmsMessageMovedAudit(jmsMessageIdDomainPair.getLeft(),
-                source, destination, jmsMessageIdDomainPair.getRight()));
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
-    protected List<Pair<String, String>> getJMSMessageDomain(String source, String[] messageIds) {
-        return Arrays.stream(messageIds).map(jmsMessageId -> Pair.of(jmsMessageId,
+    protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {
+        return Arrays.stream(messageIds).map(jmsMessageId -> new JMSMessageDomainDTO(jmsMessageId,
                 retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
     }
 

@@ -14,7 +14,6 @@ import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -175,9 +174,9 @@ public class JMSManagerImplTest {
         final String source = "myqueue";
         final String[] messageIds = new String[]{"1", "2"};
 
-        List<Pair<String, String>> jmsMessageIDDomains = new ArrayList<>();
-        jmsMessageIDDomains.add(Pair.of("1", "domain1"));
-        jmsMessageIDDomains.add(Pair.of("2", "domain2"));
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
         new Expectations(jmsManager) {{
             jmsManager.getJMSMessageDomain(source, messageIds);
@@ -202,9 +201,9 @@ public class JMSManagerImplTest {
         final String source = "myqueue";
         final String destination = "destinationQueue";
         final String[] messageIds = new String[]{"1", "2"};
-        List<Pair<String, String>> jmsMessageIDDomains = new ArrayList<>();
-        jmsMessageIDDomains.add(Pair.of("1", "domain1"));
-        jmsMessageIDDomains.add(Pair.of("2", "domain2"));
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
         new Expectations(jmsManager) {{
             jmsManager.getJMSMessageDomain(source, messageIds);
