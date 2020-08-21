@@ -3,11 +3,11 @@
     <form name="loginForm" #loginForm="ngForm" (ngSubmit)="login()">
       <mat-form-field>
         <input matInput placeholder="Username" name="username" [(ngModel)]="model.username" #username="ngModel"
-               required id="username_id">
+               required id="username_id" autocomplete="username">
       </mat-form-field>
       <mat-form-field>
         <input type="password" matInput placeholder="Password" name="password" [(ngModel)]="model.password"
-               #password="ngModel" required id="password_id">
+               #password="ngModel" required id="password_id" autocomplete="current-password">
       </mat-form-field>
       <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid" id="loginbutton_id"
               button-click-behaviour>

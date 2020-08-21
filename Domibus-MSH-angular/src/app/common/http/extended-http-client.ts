@@ -7,6 +7,8 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/observable/throw';
 import {HttpEventService} from './http.event.service';
 import {catchError} from 'rxjs/operators';
+import {throwError} from 'rxjs';
+import {Server} from '../../security/Server';
 
 @Injectable()
 export class ExtendedHttpInterceptor implements HttpInterceptor {
@@ -20,11 +22,11 @@ export class ExtendedHttpInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if ((error.status === 403)) {
-          console.log('ExtendedHttpClient: received 403');
+        if (error.status === Server.HTTP_FORBIDDEN) {
+          console.log(`ExtendedHttpClient: received ${Server.HTTP_FORBIDDEN}`);
           this.httpEventService.requestForbiddenEvent(error);
         }
-        return Observable.throw(error);
+        return throwError(error);
       })
     );
   }
