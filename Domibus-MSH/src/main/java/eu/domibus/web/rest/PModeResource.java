@@ -69,7 +69,7 @@ public class PModeResource extends BaseResource {
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
             @PathVariable(value = "id") int id,
-            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit) {
+            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit,@DefaultValue("false") @QueryParam("archive") boolean archive) {
 
         final byte[] rawConfiguration = pModeProvider.getPModeFile(id);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
@@ -81,6 +81,9 @@ public class PModeResource extends BaseResource {
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         } else if (!noAudit) {
+            if(archive){
+            auditService.addPModeArchiveDownloadedAudit(Integer.toString(id));
+            }
             auditService.addPModeDownloadedAudit(Integer.toString(id));
         }
 

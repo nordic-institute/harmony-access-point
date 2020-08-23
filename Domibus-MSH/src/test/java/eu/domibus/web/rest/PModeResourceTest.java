@@ -2,10 +2,10 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.util.MultiPartFileUtil;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.messaging.XmlProcessingException;
@@ -70,7 +70,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.OK);
@@ -86,7 +86,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.NO_CONTENT);
@@ -100,7 +100,7 @@ public class PModeResourceTest {
             pModeProvider.getPModeFile(0);
             result = byteA;
         }};
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
@@ -110,7 +110,7 @@ public class PModeResourceTest {
 
         }};
 
-        responseEntity = pModeResource.downloadPmode(0, false);
+        responseEntity = pModeResource.downloadPmode(0, false, false);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
@@ -121,6 +121,26 @@ public class PModeResourceTest {
         }};
     }
 
+    @Test
+    public void testDownloadPModesArchive() {
+        // Given
+        final byte[] byteA = new byte[]{1, 0, 1};
+        new Expectations() {{
+            pModeProvider.getPModeFile(0);
+            result = byteA;
+        }};
+
+        ResponseEntity<? extends Resource>  responseEntity = pModeResource.downloadPmode(0, false, true);
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+
+        new Verifications() {{
+            // add audit must be called
+            auditService.addPModeDownloadedAudit("0");
+            times = 1;
+            auditService.addPModeArchiveDownloadedAudit("0");
+            times = 1;
+        }};
+    }
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
