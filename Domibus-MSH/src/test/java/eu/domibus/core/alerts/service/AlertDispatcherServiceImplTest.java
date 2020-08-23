@@ -26,7 +26,9 @@ public class AlertDispatcherServiceImplTest {
 
     @Test
     public void dispatch(@Mocked final Alert alert) {
-        new Expectations(){{
+        new Expectations(alertDispatcherService){{
+            alertDispatcherService.findAlert(anyLong);
+            result = alert;
         }};
         alertDispatcherService.dispatch(alert);
 
@@ -45,6 +47,8 @@ public class AlertDispatcherServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void dispatchWithError(@Mocked final Alert alert,@Mocked final MailModel mailModelForAlert) {
         new Expectations(){{
+            alertDispatcherService.findAlert(anyLong);
+            result = alert;
             alertMethodFactory.getAlertMethod().sendAlert(alert);
             result = new RuntimeException("Error sending alert");
         }};
@@ -59,6 +63,22 @@ public class AlertDispatcherServiceImplTest {
 
             alert.setAlertStatus(AlertStatus.SUCCESS);times=0;
             alertService.handleAlertStatus(alert);times=1;
+        }};
+    }
+
+    @Test
+    public void dispatchMissingAlert(@Mocked final Alert alert) {
+        new Expectations() {{
+            alert.getAttempts();
+            result = 0;
+            alert.getMaxAttempts();
+            result = 5;
+        }};
+        alertDispatcherService.dispatch(alert);
+
+        new Verifications() {{
+            alertService.enqueueAlert(alert); times = 1;
+            alertService.handleAlertStatus(alert); times = 0;
         }};
     }
 }
