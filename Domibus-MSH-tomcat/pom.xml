@@ -157,7 +157,6 @@
         <dependency>
             <groupId>javax.xml.soap</groupId>
             <artifactId>javax.xml.soap-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -182,7 +181,6 @@
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>javax.activation-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -244,7 +242,6 @@
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
