@@ -111,6 +111,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
             new DomibusPropertyMetadataDTO(SENT_PURGE_EXPIRED, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(FAILED_PURGE_EXPIRED, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(RECEIVED_PURGE_EXPIRED, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(LOCKS_PURGE_EXPIRED, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(PAYLOAD_ID, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Type.CONCURRENCY, Module.FS_PLUGIN, Usage.DOMAIN, true),
     }).peek(el -> el.setStoredGlobally(false)).collect(Collectors.toMap(x -> x.getName(), x -> x));
