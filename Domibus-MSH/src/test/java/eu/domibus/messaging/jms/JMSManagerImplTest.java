@@ -229,7 +229,7 @@ public class JMSManagerImplTest {
         final String jmsMessageID = "jmsMessageID";
 
         new Expectations(jmsManager) {{
-            domibusConfigurationService.isSingleTenant();
+            domibusConfigurationService.isSingleTenantAware();
             result = false;
 
             jmsManager.getMessage(sourceQueue, jmsMessageID);

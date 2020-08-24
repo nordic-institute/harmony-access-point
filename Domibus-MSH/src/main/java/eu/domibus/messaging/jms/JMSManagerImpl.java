@@ -276,7 +276,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected String retrieveDomainFromJMSMessage(String source, String jmsMessageId) {
-        if (domibusConfigurationService.isSingleTenant()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.trace("JMS message [{}] doesn't have a domain property", jmsMessageId);
             return null;
         }

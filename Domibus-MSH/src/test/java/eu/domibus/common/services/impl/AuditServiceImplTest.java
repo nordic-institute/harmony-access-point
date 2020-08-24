@@ -217,7 +217,7 @@ public class AuditServiceImplTest {
         Domain domain = new Domain();
         domain.setCode("domain1");
         when(domainService.getDomain("domain1")).thenReturn(domain);
-        when(domibusConfigurationService.isSingleTenant()).thenReturn(true);
+        when(domibusConfigurationService.isSingleTenantAware()).thenReturn(true);
         when(authUtils.getAuthenticatedUser()).thenReturn("super");
 
         auditService.handleSaveJMSMessage("JMSMessageID", "fromQueue", ModificationType.DEL, "domain1");

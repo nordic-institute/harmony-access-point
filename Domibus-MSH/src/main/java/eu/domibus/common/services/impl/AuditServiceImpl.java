@@ -184,7 +184,7 @@ public class AuditServiceImpl implements AuditService {
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
         Domain domain = domainService.getDomain(domainCode);
         final String userName = authUtils.getAuthenticatedUser();
-        if (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && domain == null)) {
+        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && domain == null)) {
             LOG.debug("Audit for JMS Message=[{}] {} will be saved on default domain", messageId, modificationType == ModificationType.DEL ? "deleted" : "moved");
             saveJmsMessage(messageId, fromQueue, null, modificationType, userName);
             return;
