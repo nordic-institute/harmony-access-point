@@ -134,9 +134,6 @@ public class PModeResourceTest {
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
-            // add audit must be called
-            auditService.addPModeDownloadedAudit(0);
-            times = 1;
             auditService.addPModeArchiveDownloadedAudit(0);
             times = 1;
         }};

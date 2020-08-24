@@ -83,8 +83,9 @@ public class PModeResource extends BaseResource {
         } else if (!noAudit) {
             if (archiveAudit) {
                 auditService.addPModeArchiveDownloadedAudit(id);
+            } else {
+                auditService.addPModeDownloadedAudit(id);
             }
-            auditService.addPModeDownloadedAudit(id);
         }
 
         return ResponseEntity.status(status)
