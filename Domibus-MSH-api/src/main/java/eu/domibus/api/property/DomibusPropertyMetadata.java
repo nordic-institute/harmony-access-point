@@ -92,7 +92,7 @@ public class DomibusPropertyMetadata {
     private boolean storedGlobally = true;
 
     public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
-        DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, false);
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
         res.setModule(Module.UNKNOWN);
         return res;
     }
