@@ -62,7 +62,7 @@ public class FSPurgeLocksService {
              FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             files = fsFilesManager.findAllDescendantFiles(targetFolder);
-            LOG.debug("Found files [{}]", files);
+            LOG.debug("Found [{}] lock files to process.", files.length);
 
             List<FileObject> lockFiles = Arrays.stream(files)
                     .filter(file -> fsFileNameHelper.isLockFile(file.getName().getBaseName()))
