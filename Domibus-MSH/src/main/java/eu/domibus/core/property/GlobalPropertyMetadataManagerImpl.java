@@ -72,7 +72,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             }
 
             // if still not found, initialize metadata on-the-fly
-            LOG.info("Creating on-the-fly metadata for unknown property: [{}]", propertyName);
+            LOG.warn("Cannot find property metadata for property [{}]. Creating on-the-fly metadata for it.", propertyName);
             DomibusPropertyMetadata newProp = DomibusPropertyMetadata.getOnTheFlyProperty(propertyName);
             return clonePropertyMetadata(propertyName, newProp);
         }
