@@ -9,22 +9,21 @@ import java.util.Date;
 
 
 /**
- * Entity used to track actions on the Pmode download actions
+ * Entity used to track actions on the Pmode Archive download actions
  *
- * @author Joze Rihtarsic
- * @since 4.0
- * <p>
+ * @author Soumya Chandran
+ * @since 4.2
  */
 @Entity
-@DiscriminatorValue("Pmode")
-@RevisionLogicalName("Pmode")
-public class PModeAudit extends AbstractGenericAudit {
+@DiscriminatorValue("Pmode Archive")
+@RevisionLogicalName("Pmode Archive")
+public class PModeArchiveAudit extends AbstractGenericAudit {
 
 
-    public PModeAudit() {
+    public PModeArchiveAudit() {
     }
 
-    public PModeAudit(
+    public PModeArchiveAudit(
             final long id,
             final String userName,
             final Date revisionDate,

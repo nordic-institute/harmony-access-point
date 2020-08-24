@@ -5,12 +5,9 @@ import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.util.AnnotationsUtil;
-import eu.domibus.core.audit.model.Audit;
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeAudit;
+import eu.domibus.core.audit.model.*;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.util.AnnotationsUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -133,12 +130,25 @@ public class AuditServiceImplTest {
     @Test
     public void addPModeDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addPModeDownloadedAudit("resendMessageId");
+        auditService.addPModeDownloadedAudit(1);
         ArgumentCaptor<PModeAudit> messageAuditCaptor = ArgumentCaptor.forClass(PModeAudit.class);
         verify(auditDao, times(1)).savePModeAudit(messageAuditCaptor.capture());
         PModeAudit value = messageAuditCaptor.getValue();
-        assertEquals("resendMessageId", value.getId());
+        assertEquals("1", value.getId());
         assertEquals("thomas", value.getUserName());
+        assertEquals(ModificationType.DOWNLOADED, value.getModificationType());
+        assertNotNull(value.getRevisionDate());
+    }
+
+    @Test
+    public void addPModeArchiveDownloadedAudit() {
+        when(authUtils.getAuthenticatedUser()).thenReturn("admin");
+        auditService.addPModeArchiveDownloadedAudit(1);
+        ArgumentCaptor<PModeArchiveAudit> messageAuditCaptor = ArgumentCaptor.forClass(PModeArchiveAudit.class);
+        verify(auditDao, times(1)).savePModeArchiveAudit(messageAuditCaptor.capture());
+        PModeArchiveAudit value = messageAuditCaptor.getValue();
+        assertEquals("1", value.getId());
+        assertEquals("admin", value.getUserName());
         assertEquals(ModificationType.DOWNLOADED, value.getModificationType());
         assertNotNull(value.getRevisionDate());
     }

@@ -68,18 +68,27 @@ public interface AuditService {
     /**
      * Add download audit for a pmode.
      *
-     * @param messageId the id of the message.
+     * @param entityId the id of the downloaded pmode.
      */
-    void addPModeDownloadedAudit(String messageId);
+    void addPModeDownloadedAudit(long entityId);
+
+    /**
+     * Add download audit for a pmode Archive
+     *
+     * @param entityId the id of the downloaded pmode archive.
+     */
+    void addPModeArchiveDownloadedAudit(long entityId);
 
     /**
      * Add message resent audit for a message.
+     *
      * @param messageId the id of the message.
      */
     void addMessageResentAudit(String messageId);
 
     /**
      * Add message deleted audit for a jms message.
+     *
      * @param messageId the id of the message.
      * @param fromQueue the queue from which the message was deleted.
      */
@@ -89,9 +98,10 @@ public interface AuditService {
 
     /**
      * Add message moved audit for a message.
+     *
      * @param messageId the id of the message.
      * @param fromQueue the queue from which the message was moved.
-     * @param toQueue the queue to which the message was moved.
+     * @param toQueue   the queue to which the message was moved.
      */
     void addJmsMessageMovedAudit(
             String messageId,

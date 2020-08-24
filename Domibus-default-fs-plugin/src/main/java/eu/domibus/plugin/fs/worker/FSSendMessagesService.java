@@ -15,9 +15,9 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -118,7 +118,7 @@ public class FSSendMessagesService {
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-            FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
+             FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("Found descendant files [{}] for output folder [{}]", contentFiles, outgoingFolder.getName().getPath());
@@ -271,7 +271,6 @@ public class FSSendMessagesService {
         return sb;
     }
 
-
     protected List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
@@ -301,7 +300,6 @@ public class FSSendMessagesService {
 
         return filteredFiles;
     }
-
 
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
         String filePath = fileObject.getName().getPath();
