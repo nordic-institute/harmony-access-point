@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * @author Joze Rihtarsic
  * @since 4.0
- *
+ * <p>
  * Entity used to track actions on the Pmode download actions
  */
 @Entity
@@ -24,10 +24,10 @@ public class PModeAudit extends AbstractGenericAudit {
     }
 
     public PModeAudit(
-            final String id,
+            final long id,
             final String userName,
             final Date revisionDate,
             final ModificationType modificationType) {
-        super(id, userName, revisionDate, modificationType);
+        super(String.valueOf(id), userName, revisionDate, modificationType);
     }
 }

@@ -68,16 +68,16 @@ public interface AuditService {
     /**
      * Add download audit for a pmode.
      *
-     * @param id the id of the downloaded pmode.
+     * @param entityId the id of the downloaded pmode.
      */
-    void addPModeDownloadedAudit(String id);
+    void addPModeDownloadedAudit(long entityId);
 
     /**
      * Add download audit for a pmode Archive
      *
-     * @param id the id of the downloaded pmode archive.
+     * @param entityId the id of the downloaded pmode archive.
      */
-    void addPModeArchiveDownloadedAudit(String id);
+    void addPModeArchiveDownloadedAudit(long entityId);
 
     /**
      * Add message resent audit for a message.

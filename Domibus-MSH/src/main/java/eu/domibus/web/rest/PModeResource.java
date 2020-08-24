@@ -82,9 +82,9 @@ public class PModeResource extends BaseResource {
             status = HttpStatus.NO_CONTENT;
         } else if (!noAudit) {
             if (archiveAudit) {
-                auditService.addPModeArchiveDownloadedAudit(Integer.toString(id));
+                auditService.addPModeArchiveDownloadedAudit(id);
             }
-            auditService.addPModeDownloadedAudit(Integer.toString(id));
+            auditService.addPModeDownloadedAudit(id);
         }
 
         return ResponseEntity.status(status)

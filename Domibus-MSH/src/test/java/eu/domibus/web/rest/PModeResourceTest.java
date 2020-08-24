@@ -105,7 +105,7 @@ public class PModeResourceTest {
 
         new Verifications() {{
             // add audit must be called
-            auditService.addPModeDownloadedAudit("0");
+            auditService.addPModeDownloadedAudit(0);
             times = 0;
 
         }};
@@ -115,7 +115,7 @@ public class PModeResourceTest {
 
         new Verifications() {{
             // add audit must be called
-            auditService.addPModeDownloadedAudit("0");
+            auditService.addPModeDownloadedAudit(0);
             times = 1;
 
         }};
@@ -130,17 +130,18 @@ public class PModeResourceTest {
             result = byteA;
         }};
 
-        ResponseEntity<? extends Resource>  responseEntity = pModeResource.downloadPmode(0, false, true);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, false, true);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
             // add audit must be called
-            auditService.addPModeDownloadedAudit("0");
+            auditService.addPModeDownloadedAudit(0);
             times = 1;
-            auditService.addPModeArchiveDownloadedAudit("0");
+            auditService.addPModeArchiveDownloadedAudit(0);
             times = 1;
         }};
     }
+
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals(httpStatus, responseEntity.getStatusCode());

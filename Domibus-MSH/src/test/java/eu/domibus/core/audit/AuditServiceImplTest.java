@@ -130,11 +130,11 @@ public class AuditServiceImplTest {
     @Test
     public void addPModeDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addPModeDownloadedAudit("id");
+        auditService.addPModeDownloadedAudit(1);
         ArgumentCaptor<PModeAudit> messageAuditCaptor = ArgumentCaptor.forClass(PModeAudit.class);
         verify(auditDao, times(1)).savePModeAudit(messageAuditCaptor.capture());
         PModeAudit value = messageAuditCaptor.getValue();
-        assertEquals("id", value.getId());
+        assertEquals("1", value.getId());
         assertEquals("thomas", value.getUserName());
         assertEquals(ModificationType.DOWNLOADED, value.getModificationType());
         assertNotNull(value.getRevisionDate());
@@ -143,11 +143,11 @@ public class AuditServiceImplTest {
     @Test
     public void addPModeArchiveDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("admin");
-        auditService.addPModeArchiveDownloadedAudit("id");
+        auditService.addPModeArchiveDownloadedAudit(1);
         ArgumentCaptor<PModeArchiveAudit> messageAuditCaptor = ArgumentCaptor.forClass(PModeArchiveAudit.class);
         verify(auditDao, times(1)).savePModeArchiveAudit(messageAuditCaptor.capture());
         PModeArchiveAudit value = messageAuditCaptor.getValue();
-        assertEquals("id", value.getId());
+        assertEquals("1", value.getId());
         assertEquals("admin", value.getUserName());
         assertEquals(ModificationType.DOWNLOADED, value.getModificationType());
         assertNotNull(value.getRevisionDate());
