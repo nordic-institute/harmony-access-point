@@ -3,10 +3,13 @@ package eu.domibus.common.services.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.dao.AuditDao;
 import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.audit.JmsMessageAudit;
 import eu.domibus.common.model.audit.MessageAudit;
 import eu.domibus.common.model.audit.PModeAudit;
 import eu.domibus.common.model.common.ModificationType;
@@ -43,8 +46,18 @@ public class AuditServiceImplTest {
     @Mock
     private AuthUtils authUtils;
 
+    @Spy
     @InjectMocks
     private AuditServiceImpl auditService;
+
+    @Mock
+    private DomainService domainService;
+
+    @Mock
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Mock
+    private DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void listAuditTarget() throws Exception {
@@ -146,30 +159,79 @@ public class AuditServiceImplTest {
 
     @Test
     public void addJmsMessageDeletedAudit() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(true);
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue");
-        ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
-        verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
-        JmsMessageAudit value = jmsMessageAuditCaptor.getValue();
-        assertEquals("resendMessageId", value.getId());
-        assertEquals("thomas", value.getUserName());
-        assertEquals(ModificationType.DEL, value.getModificationType());
-        assertEquals("fromQueue", value.getFromQueue());
-        assertNull(value.getToQueue());
+
+        auditService.addJmsMessageDeletedAudit("resendMessageId", "fromQueue", "domain1");
+        ArgumentCaptor<ModificationType> modificationTypeArgumentCaptor = ArgumentCaptor.forClass(ModificationType.class);
+        ArgumentCaptor<String> messageIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(auditService, times(1)).handleSaveJMSMessage(messageIdArgumentCaptor.capture(), anyString(), modificationTypeArgumentCaptor.capture(), anyString());
+
+        ModificationType modificationType = modificationTypeArgumentCaptor.getValue();
+        String messageId = messageIdArgumentCaptor.getValue();
+        assertEquals("resendMessageId", messageId);
+        assertEquals(ModificationType.DEL, modificationType);
     }
 
     @Test
     public void addJmsMessageMovedAudit() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(true);
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue");
-        ArgumentCaptor<JmsMessageAudit> jmsMessageAuditCaptor = ArgumentCaptor.forClass(JmsMessageAudit.class);
-        verify(auditDao, times(1)).saveJmsMessageAudit(jmsMessageAuditCaptor.capture());
-        JmsMessageAudit value = jmsMessageAuditCaptor.getValue();
-        assertEquals("resendMessageId", value.getId());
-        assertEquals("thomas", value.getUserName());
-        assertEquals(ModificationType.MOVED, value.getModificationType());
-        assertEquals("fromQueue", value.getFromQueue());
-        assertEquals("toQueue", value.getToQueue());
+
+        auditService.addJmsMessageMovedAudit("resendMessageId", "fromQueue", "toQueue", "domain1");
+
+        ArgumentCaptor<ModificationType> modificationTypeArgumentCaptor = ArgumentCaptor.forClass(ModificationType.class);
+        ArgumentCaptor<String> messageIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(auditService, times(1)).handleSaveJMSMessage(messageIdArgumentCaptor.capture(), anyString(), modificationTypeArgumentCaptor.capture(), anyString());
+        ModificationType modificationType = modificationTypeArgumentCaptor.getValue();
+        String messageId = messageIdArgumentCaptor.getValue();
+        assertEquals("resendMessageId", messageId);
+        assertEquals(ModificationType.MOVED, modificationType);
+    }
+
+    @Test
+    public void handleSaveJMSMessage_MT() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isMultiTenantAware()).thenReturn(true);
+        when(authUtils.getAuthenticatedUser()).thenReturn("super");
+
+        auditService.handleSaveJMSMessage("JMSMessageID", "fromQueue", ModificationType.DEL, "domain1");
+
+        ArgumentCaptor<Domain> domainArgumentCaptor = ArgumentCaptor.forClass(Domain.class);
+        verify(domainTaskExecutor, times(1)).submit(any(Runnable.class), domainArgumentCaptor.capture());
+        Domain domain1 = domainArgumentCaptor.getValue();
+        assertEquals(domain, domain1);
+    }
+
+    @Test
+    public void handleSaveJMSMessage_ST() {
+        Domain domain = new Domain();
+        domain.setCode("domain1");
+        when(domainService.getDomain("domain1")).thenReturn(domain);
+        when(domibusConfigurationService.isSingleTenantAware()).thenReturn(true);
+        when(authUtils.getAuthenticatedUser()).thenReturn("super");
+
+        auditService.handleSaveJMSMessage("JMSMessageID", "fromQueue", ModificationType.DEL, "domain1");
+
+        ArgumentCaptor<String> jmsMessageIDCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<ModificationType> modificationTypeArgumentCaptor = ArgumentCaptor.forClass(ModificationType.class);
+        ArgumentCaptor<String> userNameStringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(auditService, times(1)).saveJmsMessage(jmsMessageIDCaptor.capture(), anyString(), anyString(), modificationTypeArgumentCaptor.capture(), userNameStringArgumentCaptor.capture());
+        String jmsMessageId = jmsMessageIDCaptor.getValue();
+        ModificationType modificationType = modificationTypeArgumentCaptor.getValue();
+        String userName = userNameStringArgumentCaptor.getValue();
+        assertEquals("JMSMessageID", jmsMessageId);
+        assertEquals(ModificationType.DEL, modificationType);
+        assertEquals("super", userName);
     }
 
 }

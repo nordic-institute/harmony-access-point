@@ -252,16 +252,37 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+
         internalJmsManager.deleteMessages(source, messageIds);
         LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageDeletedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, jmsMessageDomainDTO.getDomainCode()));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+
         internalJmsManager.moveMessages(source, destination, messageIds);
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, destination, jmsMessageDomainDTO.getDomainCode()));
+    }
+
+    protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {
+        return Arrays.stream(messageIds).map(jmsMessageId -> new JMSMessageDomainDTO(jmsMessageId,
+                retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+    }
+
+    protected String retrieveDomainFromJMSMessage(String source, String jmsMessageId) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            LOG.trace("JMS message [{}] doesn't have a domain property", jmsMessageId);
+            return null;
+        }
+        //retrieve the domain
+        JmsMessage jmsMessage = getMessage(source, jmsMessageId);
+        return jmsMessage.getProperty(MessageConstants.DOMAIN);
     }
 
     @Override

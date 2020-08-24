@@ -11,6 +11,7 @@ import eu.domibus.common.services.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -109,7 +110,7 @@ public class JMSManagerImplTest {
         final List<InternalJmsMessage> internalJmsMessage = new ArrayList<>();
 
         new Expectations() {{
-            internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, (String)any);
+            internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, (String) any);
             result = internalJmsMessage;
         }};
 
@@ -171,16 +172,27 @@ public class JMSManagerImplTest {
     @Test
     public void testDeleteMessages() throws Exception {
         final String source = "myqueue";
-        final String[] messageIds = new String[] {"1", "2"};
+        final String[] messageIds = new String[]{"1", "2"};
+
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
+
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
+        }};
 
         jmsManager.deleteMessages(source, messageIds);
 
-        new Verifications() {{
+        new FullVerifications(jmsManager) {{
             internalJmsManager.deleteMessages(source, messageIds);
-            auditService.addJmsMessageDeletedAudit("1", source);
-            times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
-            times = 1;
+            String actualDomain;
+            auditService.addJmsMessageDeletedAudit("1", source, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageDeletedAudit("2", source, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
         }};
     }
 
@@ -188,16 +200,48 @@ public class JMSManagerImplTest {
     public void testMoveMessages(@Injectable final Queue queue) throws Exception {
         final String source = "myqueue";
         final String destination = "destinationQueue";
-        final String[] messageIds = new String[] {"1", "2"};
+        final String[] messageIds = new String[]{"1", "2"};
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
+
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
+        }};
 
         jmsManager.moveMessages(source, destination, messageIds);
 
-        new Verifications() {{
+        new FullVerifications(jmsManager) {{
             internalJmsManager.moveMessages(source, destination, messageIds);
-            auditService.addJmsMessageMovedAudit("1", source, destination);
-            times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
-            times = 1;
+            String actualDomain;
+            auditService.addJmsMessageMovedAudit("1", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageMovedAudit("2", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
+        }};
+    }
+
+    @Test
+    public void test_retrieveDomainFromJMSMessage(final @Mocked JmsMessage jmsMessage) {
+        final String sourceQueue = "fromQueue";
+        final String jmsMessageID = "jmsMessageID";
+
+        new Expectations(jmsManager) {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
+
+            jmsManager.getMessage(sourceQueue, jmsMessageID);
+            result = jmsMessage;
+
+            jmsMessage.getProperty(MessageConstants.DOMAIN);
+            result = "domain1";
+        }};
+
+        jmsManager.retrieveDomainFromJMSMessage(sourceQueue, jmsMessageID);
+
+        new FullVerifications(jmsManager) {{
         }};
     }
 
@@ -217,7 +261,7 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals(selector, jmsManager.getDomainSelector(selector));
 
-        new FullVerifications(){{
+        new FullVerifications() {{
 
         }};
     }
@@ -241,7 +285,8 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals(selector + " AND DOMAIN ='digit'", jmsManager.getDomainSelector(selector));
 
-        new FullVerifications(){{}};
+        new FullVerifications() {{
+        }};
     }
 
     @Test
@@ -260,7 +305,8 @@ public class JMSManagerImplTest {
 
         Assert.assertEquals("DOMAIN ='digit1'", jmsManager.getDomainSelector(null));
 
-        new FullVerifications(){{}};
+        new FullVerifications() {{
+        }};
     }
 
     @Test
@@ -351,19 +397,19 @@ public class JMSManagerImplTest {
     @Test
     public void sortQueuesInClusterTest() {
         Map<String, JMSDestination> queues = new HashMap();
-        queues.put("cluster2@queueX", new JMSDestination(){{
+        queues.put("cluster2@queueX", new JMSDestination() {{
             setName("cluster2@queueX");
         }});
-        queues.put("cluster2@queueY", new JMSDestination(){{
+        queues.put("cluster2@queueY", new JMSDestination() {{
             setName("cluster2@queueY");
         }});
-        queues.put("cluster1@queueX", new JMSDestination(){{
+        queues.put("cluster1@queueX", new JMSDestination() {{
             setName("cluster1@queueX");
         }});
-        queues.put("cluster1@queueY", new JMSDestination(){{
+        queues.put("cluster1@queueY", new JMSDestination() {{
             setName("cluster1@queueY");
         }});
-        queues.put("queueXY", new JMSDestination(){{
+        queues.put("queueXY", new JMSDestination() {{
             setName("queueXY");
         }});
         JMSDestination[] sortedValues = jmsManager.sortQueues(queues).values().toArray(new JMSDestination[0]);
@@ -373,4 +419,6 @@ public class JMSManagerImplTest {
         Assert.assertEquals("cluster1@queueY", sortedValues[3].getName());
         Assert.assertEquals("cluster2@queueY", sortedValues[4].getName());
     }
+
+
 }
