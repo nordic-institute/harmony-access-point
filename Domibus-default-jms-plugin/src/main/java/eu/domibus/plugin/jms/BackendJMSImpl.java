@@ -1,8 +1,6 @@
 package eu.domibus.plugin.jms;
 
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.DomainContextExtService;
@@ -149,8 +147,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
-    public void deliverMessage(final String messageId) {
-        LOG.debug("Delivering message [{}]", messageId);
+    public void deliverMessage(final DeliverMessageEvent event) {
+        String messageId = event.getMessageId();
+        LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getFinalRecipient());
 
         final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
@@ -168,17 +167,17 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
-    public void messageSendFailed(final String messageId) {
-        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
+    public void messageSendFailed(final MessageSendFailedEvent event) {
+        List<ErrorResult> errors = super.getErrorsForMessage(event.getMessageId());
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errors.get(errors.size() - 1), null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
+        sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
-    public void messageSendSuccess(String messageId) {
+    public void messageSendSuccess(MessageSendSuccessEvent event) {
         LOG.debug("Handling messageSendSuccess");
-        final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(messageId, NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
-        sendJmsMessage(jmsMessageDTO, messageId, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
+        final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
+        sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
