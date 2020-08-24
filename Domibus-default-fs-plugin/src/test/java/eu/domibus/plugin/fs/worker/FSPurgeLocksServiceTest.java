@@ -251,6 +251,8 @@ public class FSPurgeLocksServiceTest {
     @Test
     public void testPurgeForDOmain_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
         new Expectations(1, instance) {{
+            fsPluginProperties.getLocksPurgeExpired("DOMAIN1");
+            result = 100;
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");
         }};
