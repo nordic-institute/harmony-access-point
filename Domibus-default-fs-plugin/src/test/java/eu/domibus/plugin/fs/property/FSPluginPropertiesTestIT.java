@@ -1,10 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +15,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.mockito.Mockito.when;
 
@@ -51,8 +51,7 @@ public class FSPluginPropertiesTestIT {
 
         @Bean
         public FSPluginProperties pluginProperties() {
-            FSPluginProperties fsPluginProperties = new FSPluginProperties();
-            return fsPluginProperties;
+            return new FSPluginProperties();
         }
 
         @Bean
@@ -86,6 +85,76 @@ public class FSPluginPropertiesTestIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
+        
+        @Bean
+        public DomibusPropertyExtService domibusPropertyExtService() {
+            return new DomibusPropertyExtService() {
+                @Override
+                public String getProperty(String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public String getProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public Integer getIntegerProperty(String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public Set<String> filterPropertiesName(Predicate<String> predicate) {
+                    return null;
+                }
+
+                @Override
+                public List<String> getNestedProperties(String prefix) {
+                    return null;
+                }
+
+                @Override
+                public String getDomainProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
+
+                }
+
+                @Override
+                public void setProperty(String propertyName, String propertyValue) {
+
+                }
+
+                @Override
+                public boolean containsDomainPropertyKey(DomainDTO domain, String propertyName) {
+                    return false;
+                }
+
+                @Override
+                public boolean containsPropertyKey(String propertyName) {
+                    return false;
+                }
+
+                @Override
+                public String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
+                    return null;
+                }
+
+                @Override
+                public String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
+                    return null;
+                }
+
+                @Override
+                public String getResolvedProperty(String propertyName) {
+                    return null;
+                }
+            };
+        }
 
         @Bean
         public DomainContextExtService domainContextExtService() {
@@ -115,102 +184,102 @@ public class FSPluginPropertiesTestIT {
     }
 
     @Test
-    public void testGetLocation() throws Exception {
+    public void testGetLocation() {
         Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(null));
     }
 
     @Test
-    public void testGetLocation_Domain1() throws Exception {
+    public void testGetLocation_Domain1() {
         Assert.assertEquals(DOMAIN1_LOCATION, fSPluginProperties.getLocation(DOMAIN1));
     }
 
     @Test
-    public void testGetLocation_NonExistentDomain() throws Exception {
+    public void testGetLocation_NonExistentDomain() {
         Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(NONEXISTENT_DOMAIN));
     }
 
     @Test
-    public void testGetSentAction() throws Exception {
+    public void testGetSentAction() {
         Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction(null));
     }
 
     @Test
-    public void testGetSentPurgeWorkerCronExpression() throws Exception {
+    public void testGetSentPurgeWorkerCronExpression() {
         Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getSentPurgeWorkerCronExpression(null));
     }
 
     @Test
-    public void testGetSentPurgeExpired() throws Exception {
+    public void testGetSentPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired(null));
     }
 
     @Test
-    public void testGetFailedAction() throws Exception {
+    public void testGetFailedAction() {
         Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction(null));
     }
 
     @Test
-    public void testGetFailedPurgeWorkerCronExpression() throws Exception {
+    public void testGetFailedPurgeWorkerCronExpression() {
         Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getFailedPurgeWorkerCronExpression(null));
     }
 
     @Test
-    public void testGetFailedPurgeExpired() throws Exception {
-        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired(null));
+    public void testGetFailedPurgeExpired() {
+        Assert.assertNull(fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
-    public void testGetReceivedPurgeExpired() throws Exception {
+    public void testGetReceivedPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test
-    public void testGetUser() throws Exception {
+    public void testGetUser() {
         Assert.assertEquals("user1", fSPluginProperties.getUser(DOMAIN1));
     }
 
     @Test
-    public void testGetPassword() throws Exception {
+    public void testGetPassword() {
         Assert.assertEquals("pass1", fSPluginProperties.getPassword(DOMAIN1));
     }
 
     @Test
-    public void testGetUser_NotSecured() throws Exception {
+    public void testGetUser_NotSecured() {
         Assert.assertEquals("", fSPluginProperties.getUser(DOMAIN2));
     }
 
     @Test
-    public void testGetPayloadId_Domain() throws Exception {
+    public void testGetPayloadId_Domain() {
         Assert.assertEquals("cid:attachment", fSPluginProperties.getPayloadId(DOMAIN1));
     }
 
     @Test
-    public void testGetPayloadId_DomainMissing() throws Exception {
+    public void testGetPayloadId_DomainMissing() {
         Assert.assertEquals("cid:message", fSPluginProperties.getPayloadId(DOMAIN2));
     }
 
     @Test
-    public void testGetPayloadId_NullDomain() throws Exception {
+    public void testGetPayloadId_NullDomain() {
         Assert.assertEquals("cid:message", fSPluginProperties.getPayloadId(null));
     }
 
     @Test
-    public void testGetPassword_NotSecured() throws Exception {
+    public void testGetPassword_NotSecured() {
         Assert.assertEquals("", fSPluginProperties.getPassword(DOMAIN2));
     }
 
     @Test
-    public void testGetExpression_Domain1() throws Exception {
+    public void testGetExpression_Domain1() {
         Assert.assertEquals("bdx:noprocess#TC1Leg1", fSPluginProperties.getExpression(DOMAIN1));
     }
 
     @Test
-    public void testGetExpression_Domain2() throws Exception {
+    public void testGetExpression_Domain2() {
         Assert.assertEquals("bdx:noprocess#TC2Leg1", fSPluginProperties.getExpression(DOMAIN2));
     }
 
     @Test
-    public void testGetDomains_Ordered() throws Exception {
+    public void testGetDomains_Ordered() {
         Assert.assertEquals(DOMAIN1, fSPluginProperties.getDomains().get(0));
         Assert.assertEquals(DOMAIN2, fSPluginProperties.getDomains().get(1));
         Assert.assertEquals(ODR, fSPluginProperties.getDomains().get(2));
@@ -218,7 +287,7 @@ public class FSPluginPropertiesTestIT {
     }
 
     @Test
-    public void testGetDomains_UnOrdered() throws Exception {
+    public void testGetDomains_UnOrdered() {
         int unorderedA = fSPluginProperties.getDomains().indexOf(UNORDEREDA);
         int unorderedB = fSPluginProperties.getDomains().indexOf(UNORDEREDB);
 
