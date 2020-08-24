@@ -9,10 +9,11 @@ import java.util.Date;
 
 
 /**
+ * Entity used to track actions on the Pmode download actions
+ *
  * @author Joze Rihtarsic
  * @since 4.0
  * <p>
- * Entity used to track actions on the Pmode download actions
  */
 @Entity
 @DiscriminatorValue("Pmode")
