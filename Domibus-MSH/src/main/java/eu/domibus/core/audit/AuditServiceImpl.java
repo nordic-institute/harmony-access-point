@@ -109,9 +109,9 @@ public class AuditServiceImpl implements AuditService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void addPModeDownloadedAudit(final String messageId) {
+    public void addPModeDownloadedAudit(final String id) {
         auditDao.savePModeAudit(
-                new PModeAudit(messageId,
+                new PModeAudit(id,
                         authUtils.getAuthenticatedUser(),
                         new Date(),
                         ModificationType.DOWNLOADED));
@@ -122,9 +122,9 @@ public class AuditServiceImpl implements AuditService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void addPModeArchiveDownloadedAudit(final String messageId) {
+    public void addPModeArchiveDownloadedAudit(final String id) {
         auditDao.savePModeArchiveAudit(
-                new PModeArchiveAudit(messageId,
+                new PModeArchiveAudit(id,
                         authUtils.getAuthenticatedUser(),
                         new Date(),
                         ModificationType.DOWNLOADED));
