@@ -52,7 +52,7 @@ public class FSPurgeLocksService {
 
     protected void purgeForDomain(String domain) {
         Integer expirationLimit = fsPluginProperties.getLocksPurgeExpired(domain);
-        if(expirationLimit == 0) {
+        if (expirationLimit == 0) {
             LOG.debug("Exiting purge lock files for domain [{}] as the expiration limit is set to 0.", domain);
             return;
         }
@@ -62,13 +62,13 @@ public class FSPurgeLocksService {
              FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             files = fsFilesManager.findAllDescendantFiles(targetFolder);
-            LOG.debug("Found [{}] lock files to process.", files.length);
+            LOG.trace("Found [{}] files: [{}]", files.length, (Object) files);
 
             List<FileObject> lockFiles = Arrays.stream(files)
                     .filter(file -> fsFileNameHelper.isLockFile(file.getName().getBaseName()))
                     .filter(file -> fsFilesManager.isFileOlderThan(file, expirationLimit))
                     .collect(Collectors.toList());
-            LOG.debug("Found locked file names [{}]", lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
+            LOG.debug("Found [{}] locked file names: [{}]", lockFiles.size(), (Object) lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
 
             for (FileObject lockFile : lockFiles) {
                 String dataFileName = fsFileNameHelper.stripLockSuffix(targetFolder.getName().getRelativeName(lockFile.getName()));
