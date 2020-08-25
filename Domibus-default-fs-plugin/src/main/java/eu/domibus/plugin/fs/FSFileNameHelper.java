@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs;
 import eu.domibus.common.MessageStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -180,4 +181,11 @@ public class FSFileNameHelper {
         return matcher.replaceFirst("/" + destFolder + "/");
     }
 
+    public String getRelativeName(FileObject rootFolder, FileObject f) {
+        try {
+            return rootFolder.getName().getRelativeName(f.getName());
+        } catch (FileSystemException e) {
+            return null;
+        }
+    }
 }
