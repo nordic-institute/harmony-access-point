@@ -1029,6 +1029,16 @@
                 <groupId>eu.europa.ec.digit.commons</groupId>
                 <artifactId>commons-test</artifactId>
                 <version>${commons-test.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                </exclusions>
                 <scope>test</scope>
             </dependency>
             <dependency>
