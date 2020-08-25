@@ -4,7 +4,7 @@
         <exclude-subsystems>
             <subsystem name="webservices" />
             <subsystem name="jaxrs" />
-            <subsystem name="resteasy" />
+<!--            <subsystem name="resteasy" />-->
             <subsystem name="jsf"/>
         </exclude-subsystems>
 
@@ -27,11 +27,11 @@
         </resources>
 
         <exclusions>
-            <module name="org.bouncycastle" />
-            <module name="org.apache.cxf" />
-            <module name="org.apache.cxf.impl" />
+<!--            <module name="org.bouncycastle" />-->
+<!--            <module name="org.apache.cxf" />-->
+<!--            <module name="org.apache.cxf.impl" />-->
             <module name="org.slf4j" />
-            <module name="org.slf4j.impl" />
+<!--            <module name="org.slf4j.impl" />-->
             <module name="org.apache.log4j" />
             <module name="org.apache.commons.logging"/>
             <module name="org.jboss.logging"/>
