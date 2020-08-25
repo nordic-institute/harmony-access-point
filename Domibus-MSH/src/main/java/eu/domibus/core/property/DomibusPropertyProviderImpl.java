@@ -109,7 +109,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * <p>
      * Eg. Given domain code = digit and queue prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
      *
-     * @param domain The domain for which the property
+     * @param domain         The domain for which the property
      * @param propertyPrefix
      * @return
      */
@@ -125,12 +125,18 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param prefix The initial property prefix
      * @return The computed property prefix
      */
-    protected String getPropertyPrefix(String prefix) {
+    protected String getPropertyPrefix(Domain domain, String prefix) {
         String propertyPrefix = prefix;
 
         if (domibusConfigurationService.isMultiTenantAware()) {
-            LOG.trace("Multi tenancy mode: getting prefix taking into account the current domain");
-            Domain currentDomain = domainContextProvider.getCurrentDomain();
+            Domain currentDomain = domain;
+
+            if (currentDomain == null) {
+                currentDomain = domainContextProvider.getCurrentDomain();
+                LOG.trace("Using current domain [{}]", currentDomain);
+            }
+
+            LOG.trace("Multi tenancy mode: getting prefix taking into account domain [{}]", domain);
             propertyPrefix = computePropertyPrefix(currentDomain, prefix);
         }
         propertyPrefix = propertyPrefix + ".";
@@ -138,8 +144,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
-    public List<String> getNestedProperties(String prefix) {
-        String propertyPrefix = getPropertyPrefix(prefix);
+    public List<String> getNestedProperties(Domain domain, String prefix) {
+        String propertyPrefix = getPropertyPrefix(domain, prefix);
         LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
         List<String> result = new ArrayList<>();
@@ -158,6 +164,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
         LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, propertyPrefix);
         return firstLevelProperties;
+    }
+
+    @Override
+    public List<String> getNestedProperties(String prefix) {
+        return getNestedProperties(null, prefix);
     }
 
     @Override
@@ -209,7 +220,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //multi-tenancy mode
-        //domain or super property or a combination of 2 ( but not 3)
+        //domain or super property or a combination of 2 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
@@ -273,10 +284,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         MutablePropertySources propertySources = environment.getPropertySources();
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
     /**
-     * Get the value from the system environment properties;
+     * First try to get the value from the collection of property values updated at runtime;
+     * if not found, get the value from the system environment properties;
      * if not found, get the value from the system properties;
      * if not found, get the value from Domibus properties;
      * if still not found, look inside the Domibus default properties.

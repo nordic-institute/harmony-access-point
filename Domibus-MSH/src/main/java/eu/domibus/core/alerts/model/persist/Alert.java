@@ -6,6 +6,8 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -166,18 +168,18 @@ public class Alert extends AbstractBaseEntity{
 
     @Override
     public String toString() {
-        return "Alert{" +
-                "processed=" + processed +
-                ", processedTime=" + processedTime +
-                ", alertType=" + alertType +
-                ", reportingTime=" + reportingTime +
-                ", nextAttempt=" + nextAttempt +
-                ", attempts=" + attempts +
-                ", maxAttempts=" + maxAttempts +
-                ", reportingTimeFailure=" + reportingTimeFailure +
-                ", alertStatus=" + alertStatus +
-                ", alertLevel=" + alertLevel +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("entityId", getEntityId())
+                .append("processed", processed)
+                .append("processedTime", processedTime)
+                .append("alertType", alertType)
+                .append("reportingTime", reportingTime)
+                .append("attempts", attempts)
+                .append("maxAttempts", maxAttempts)
+                .append("reportingTimeFailure", reportingTimeFailure)
+                .append("alertStatus", alertStatus)
+                .append("alertLevel", alertLevel)
+                .toString();
     }
 
     @Override

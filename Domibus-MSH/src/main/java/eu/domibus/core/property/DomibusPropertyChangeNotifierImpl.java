@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @since 4.1.1
  */
 @Service
-public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier, PluginPropertyChangeNotifier {
+public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
 

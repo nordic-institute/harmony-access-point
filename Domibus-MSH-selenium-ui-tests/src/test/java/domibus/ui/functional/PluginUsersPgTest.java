@@ -573,6 +573,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 				page.saveBtn.click();
 				new Dialog(driver).yesBtn.click();
 			} catch (Exception e) {
+				break;
 			}
 		}
 		

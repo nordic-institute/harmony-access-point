@@ -2,8 +2,7 @@ package eu.domibus.api.property;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DomibusPropertyMetadataTest {
 
@@ -34,7 +33,6 @@ public class DomibusPropertyMetadataTest {
 
     @Test
     public void isSuper() {
-
         DomibusPropertyMetadata domain_and_super = new DomibusPropertyMetadata("porp3", DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
         assertFalse(domain_and_super.isGlobal());
         assertTrue(domain_and_super.isDomain());
@@ -52,5 +50,13 @@ public class DomibusPropertyMetadataTest {
         assertFalse(domain_and_super.isGlobal());
         assertTrue(domain_and_super.isDomain());
         assertTrue(domain_and_super.isSuper());
+    }
+
+    @Test
+    public void getOnTheFlyProperty() {
+        DomibusPropertyMetadata res = DomibusPropertyMetadata.getOnTheFlyProperty("propName");
+
+        assertEquals("UNKNOWN", res.getModule());
+        assertEquals(DomibusPropertyMetadata.Usage.ANY, res.getUsage());
     }
 }

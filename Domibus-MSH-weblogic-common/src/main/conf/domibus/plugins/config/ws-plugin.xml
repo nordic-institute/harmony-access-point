@@ -10,24 +10,20 @@
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
                             http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
-     <jee:jndi-lookup id="notifyBackendWebServiceQueue"
-                     jndi-name="jms/domibus.notification.webservice"
-                     cache="true"
-                     resource-ref="true"
-                     lookup-on-startup="true">
+     <jee:jndi-lookup id="notifyBackendWebServiceQueue" expected-type="javax.jms.Queue"
+                     jndi-name="jms/domibus.notification.webservice">
     </jee:jndi-lookup>
 
     <bean id="backendWebservice"
           class="eu.domibus.plugin.webService.impl.BackendWebServiceImpl">
         <constructor-arg value="backendWebservice"/>
-        <property name="lister" ref="webserviceNotificationListenerService"/>
     </bean>
 
-    <bean id="webserviceNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
-          c:queue-ref="notifyBackendWebServiceQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendWebservice">
-        <property name="queueJndi" value="jms/domibus.notification.webservice"/>
+    <bean id="webserviceAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendWebServiceQueue"
+          c:backendConnector-ref="backendWebservice">
+        <property name="queueName" value="jms/domibus.notification.webservice"/>
     </bean>
 
     <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">

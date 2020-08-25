@@ -8,9 +8,12 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -44,7 +47,7 @@ public class DomibusPropertyProviderDispatcherTest {
     private Domain domain = new Domain("domain1", "Domain 1");
 
     @Test()
-    public void getInternalOrExternalPproperty_internal() {
+    public void getInternalOrExternalProperty_internal() {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -66,7 +69,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void getInternalOrExternalPproperty_external(@Mocked DomibusPropertyManagerExt manager) {
+    public void getInternalOrExternalProperty_external(@Mocked DomibusPropertyManagerExt manager) {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -89,7 +92,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void getInternalOrExternalPproperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    public void getInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -108,7 +111,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void setInternalOrExternalPproperty_internal() {
+    public void setInternalOrExternalProperty_internal() {
         String currentValue = "currentVal";
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -129,7 +132,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test()
-    public void setInternalOrExternalPproperty_external(@Mocked DomibusPropertyManagerExt manager) {
+    public void setInternalOrExternalProperty_external(@Mocked DomibusPropertyManagerExt manager) {
 
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -150,7 +153,7 @@ public class DomibusPropertyProviderDispatcherTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void setInternalOrExternalPproperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    public void setInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
 
         new Expectations(domibusPropertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -208,6 +211,19 @@ public class DomibusPropertyProviderDispatcherTest {
             Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
         }};
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setPropertyValue_tooLong() {
+        int limit = 100;
+        String propertyToTest = DOMIBUS_UI_TITLE_NAME;
+        String longValue = StringUtils.repeat("A", limit + 1);
+        new Expectations() {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+            result = limit;
+        }};
+
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null,propertyToTest, longValue, false);
     }
 
 }

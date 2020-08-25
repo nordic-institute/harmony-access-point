@@ -26,7 +26,7 @@ import java.io.File;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Service(value = "splitAndJoinListener")
+@Service
 public class SplitAndJoinListener implements MessageListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinListener.class);
 
@@ -80,9 +80,7 @@ public class SplitAndJoinListener implements MessageListener {
                             final File sourceMessageFile = splitAndJoinService.rejoinMessageFragments(groupId);
                             userMessageService.scheduleSourceMessageRejoin(groupId, sourceMessageFile.getAbsolutePath(), backendName);
                         },
-                        () -> {
-                            splitAndJoinService.splitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0004.getCode().getErrorCode().getErrorCodeName(), "Error while rejoining the message fragments for group [" + groupId + "]");
-                        },
+                        () -> splitAndJoinService.splitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0004.getCode().getErrorCode().getErrorCodeName(), "Error while rejoining the message fragments for group [" + groupId + "]"),
                         currentDomain);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
@@ -93,12 +91,8 @@ public class SplitAndJoinListener implements MessageListener {
                 final String backendName = message.getStringProperty(UserMessageService.MSG_BACKEND_NAME);
                 final Domain currentDomain = domainContextProvider.getCurrentDomain();
                 domainTaskExecutor.submitLongRunningTask(
-                        () -> {
-                            splitAndJoinService.rejoinSourceMessage(groupId, sourceMessageFile, backendName);
-                        },
-                        () -> {
-                            splitAndJoinService.splitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0004.getCode().getErrorCode().getErrorCodeName(), "Error while rejoining the SourceMessage for group [" + groupId + "]");
-                        },
+                        () -> splitAndJoinService.rejoinSourceMessage(groupId, sourceMessageFile, backendName),
+                        () -> splitAndJoinService.splitAndJoinReceiveFailed(groupId, groupId, ErrorCode.EbMS3ErrorCode.EBMS_0004.getCode().getErrorCode().getErrorCodeName(), "Error while rejoining the SourceMessage for group [" + groupId + "]"),
                         currentDomain);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)) {
                 final String sourceMessageId = message.getStringProperty(UserMessageService.MSG_SOURCE_MESSAGE_ID);

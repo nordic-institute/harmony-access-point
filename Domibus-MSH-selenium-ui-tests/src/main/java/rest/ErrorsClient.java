@@ -23,7 +23,7 @@ public class ErrorsClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.ERRORS), params);
 		if (response.getStatus() != 200) {
-			throw new Exception("Error getting errors " + response.getStatus());
+			throw new DomibusRestException("Error getting errors ", response);
 		}
 		
 		return new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("errorLogEntries");

@@ -170,21 +170,4 @@ public class RetryDefaultServiceTest {
         }};
     }
 
-    @Test
-    public void enqueueMessages() {
-        new Expectations(retryService) {{
-            retryService.getMessagesNotAlreadyScheduled();
-            result = QUEUED_MESSAGEIDS;
-
-            retryService.enqueueMessage(anyString);
-        }};
-
-        retryService.enqueueMessages();
-
-        new FullVerifications() {{
-            retryService.enqueueMessage(MESSAGE_ID_1);
-            retryService.enqueueMessage(MESSAGE_ID_2);
-            retryService.enqueueMessage(MESSAGE_ID_3);
-        }};
-    }
 }

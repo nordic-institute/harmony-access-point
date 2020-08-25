@@ -20,26 +20,23 @@
 
     <jee:jndi-lookup id="notifyBackendFSQueue"
                      jndi-name="jms/domibus.notification.filesystem"
-                     cache="true"
-                     resource-ref="true"
-                     lookup-on-startup="true">
+                     expected-type="javax.jms.Queue">
     </jee:jndi-lookup>
-
-    <bean id="fsPluginSendQueue" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="${fsplugin.send.queue}"/>
-    </bean>
+    <jee:jndi-lookup id="fsPluginSendQueue"
+                     jndi-name="${fsplugin.send.queue}"
+                     expected-type="javax.jms.Queue">
+    </jee:jndi-lookup>
 
     <bean id="backendFSPlugin"
           class="eu.domibus.plugin.fs.BackendFSImpl">
         <constructor-arg value="backendFSPlugin"/>
-        <property name="lister" ref="fsPluginNotificationListenerService"/>
     </bean>
 
-    <bean id="fsPluginNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
-          c:queue-ref="notifyBackendFSQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendFSPlugin">
-        <property name="queueJndi" value="jms/domibus.notification.filesystem"/>
+    <bean id="fsPluginAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendFSQueue"
+          c:backendConnector-ref="backendFSPlugin">
+        <property name="queueName" value="jms/domibus.notification.filesystem"/>
     </bean>
 
 </beans>

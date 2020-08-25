@@ -1,9 +1,9 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -42,6 +42,11 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+    }
+
+    @Override
+    public boolean isSingleTenant() {
+        return !isMultiTenantAware();
     }
 
     @Override
@@ -96,11 +101,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     public String getConfigurationFileName(Domain domain) {
         String propertyFileName = null;
         if (DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            final String configurationFile = getConfigLocation() + File.separator + getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+            String defaultDomainConfigFile = getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+            final String configurationFile = getConfigLocation() + File.separator + defaultDomainConfigFile;
             LOG.debug("Checking if file [{}] exists", configurationFile);
             if (new File(configurationFile).exists()) {
-                LOG.debug("Using property file [{}]", configurationFile);
-                propertyFileName = configurationFile;
+                LOG.debug("File [{}] exists. Using property file [{}]", configurationFile, defaultDomainConfigFile);
+                propertyFileName = defaultDomainConfigFile;
             } else {
                 LOG.debug("File [{}] does not exists, using [{}]", configurationFile, DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE);
                 propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;

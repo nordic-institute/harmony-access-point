@@ -19,7 +19,6 @@
         <com.smartbear.soapui.version>5.1.2</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
         <org.codehaus.groovy.eclipse-batch.version>2.4.3-01</org.codehaus.groovy.eclipse-batch.version>
-        <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.apache.activemq.client-all.version>5.15.13</org.apache.activemq.client-all.version>
 
 
@@ -33,6 +32,9 @@
         <sonar.jacoco.remoteAddress.blue>${jacocoRemoteAddressBlue}</sonar.jacoco.remoteAddress.blue>
         <sonar.jacoco.remotePort.red>${jacocoRemotePortRed}</sonar.jacoco.remotePort.red>
         <sonar.jacoco.remoteAddress.red>${jacocoRemoteAddressRed}</sonar.jacoco.remoteAddress.red>
+		
+		<!-- Added default dummy value for allJMSDomainsProperties -->
+		<allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
     </properties>
 
     <pluginRepositories>
@@ -54,15 +56,6 @@
             <groupId>com.smartbear.soapui</groupId>
             <artifactId>soapui</artifactId>
             <version>${com.smartbear.soapui.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <!-- library needed for report generation -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${org.apache.poi.version}</version>
             <scope>provided</scope>
         </dependency>
 

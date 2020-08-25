@@ -1,6 +1,5 @@
 package eu.domibus.core.rest.validators;
 
-import com.google.common.base.Strings;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,8 +14,10 @@ import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_BLACK_LIST;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_WHITE_LIST;
@@ -50,14 +51,14 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
         if (whitelist == null) {
             String propValue = domibusPropertyProvider.getProperty(WHITELIST_PROPERTY);
             LOG.debug("Read the whitelist property: [{}]", propValue);
-            if (!Strings.isNullOrEmpty(propValue)) {
+            if (StringUtils.isNotEmpty(propValue)) {
                 whitelist = propValue;
             }
         }
         if (blacklist == null) {
             String propValue = domibusPropertyProvider.getProperty(BLACKLIST_PROPERTY);
             LOG.debug("Read the blacklist property: [{}]", propValue);
-            if (!Strings.isNullOrEmpty(propValue)) {
+            if (StringUtils.isNotEmpty(propValue)) {
                 blacklist = new HashSet<>(Arrays.asList(ArrayUtils.toObject(propValue.toCharArray())));
             }
         }
@@ -92,10 +93,34 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
     }
 
     public void validate(T value) {
-        if (!isValid(value)) {
+        validate(value, null);
+    }
+
+    public void validate(T value, String additionalWhitelist) {
+        // create a "custom whitelist" instance to be able to include additional whitelisted characters
+        // while validating against the default blacklist/whitelist configuration
+        CustomWhiteListed customWhitelist = createCustomWhitelist(additionalWhitelist);
+        if (!isValid(value, customWhitelist)) {
             LOG.debug("Value [{}] is not valid; Throwing exception.", value);
             throw new ValidationException(getErrorMessage());
         }
+    }
+
+    protected CustomWhiteListed createCustomWhitelist(CharSequence whitelistedCharacters) {
+        if (StringUtils.isEmpty(whitelistedCharacters)) {
+            return null;
+        }
+        return new CustomWhiteListed() {
+            @Override
+            public String permitted() {
+                return whitelistedCharacters.toString();
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return CustomWhiteListed.class;
+            }
+        };
     }
 
     public abstract String getErrorMessage();
@@ -112,7 +137,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
 
     public boolean isValidValue(String value, CustomWhiteListed customAnnotation) {
         boolean res = isWhiteListValid(value, customAnnotation) && isBlackListValid(value, customAnnotation);
-        LOG.debug("Validated value [{}] and the outcome is [{}]", value, res);
+        LOG.trace("Validated value [{}] and the outcome is [{}]", value, res);
         return res;
     }
 
@@ -128,26 +153,58 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             LOG.trace("Whitelist is empty, exiting");
             return true;
         }
-        if (Strings.isNullOrEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             LOG.trace("Value is empty, exiting");
             return true;
         }
 
-        boolean valid = value.matches(whitelist);
-        final String additionalPermitted = customAnnotation != null ? customAnnotation.permitted() : null;
-        if (!valid && StringUtils.isNotEmpty(additionalPermitted)) {
-            Optional<Character> forbiddenChar = value.chars().mapToObj(valueChar -> (char) valueChar)
-                    .map(valueChar -> valueChar.toString())
-                    .filter(valueLetter -> !valueLetter.matches(whitelist) && !additionalPermitted.contains(valueLetter))
-                    .map(valueLetter -> valueLetter.charAt(0))
-                    .findFirst();
-            valid = !forbiddenChar.isPresent();
-            if (!valid) {
-                LOG.debug("Forbidden char: [{}]", forbiddenChar.get());
-            }
+        if (value.matches(whitelist)) {
+            LOG.trace("Value [{}] matches the whitelist", value);
+            return true;
         }
-        LOG.trace("Validated value [{}] for whitelist and the outcome is [{}]", value, valid);
-        return valid;
+
+        final String additionalWhitelistCharacters = customAnnotation != null ? customAnnotation.permitted() : null;
+        List<Character> forbiddenChars = findNonMatchingCharacters(value, Pattern.compile(whitelist), additionalWhitelistCharacters);
+        if (CollectionUtils.isEmpty(forbiddenChars)) {
+            LOG.trace("Value [{}] does not match the global whitelist, but matches the additional permitted list: [{}]", value, additionalWhitelistCharacters);
+            return true;
+        }
+
+        LOG.debug("Forbidden chars: [{}]", forbiddenChars);
+        return false;
+    }
+
+    protected List<Character> findNonMatchingCharacters(String inputValue, Pattern whitelistPattern, String whitelistCharacters) {
+        final List<Character> inputCharacterList = inputValue
+                .chars().mapToObj(valueChar -> (char) valueChar)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(inputCharacterList)) {
+            return null;
+        }
+
+        final List<Character> forbiddenChars = findNonMatchingCharacters(inputCharacterList, whitelistPattern);
+        if (CollectionUtils.isEmpty(forbiddenChars)) {
+            return null;
+        }
+
+        return findNonMatchingCharacters(forbiddenChars, whitelistCharacters);
+    }
+
+    protected List<Character> findNonMatchingCharacters(List<Character> inputCharacterList, Pattern whitelistPattern) {
+        return inputCharacterList.stream()
+                .filter(valueChar -> !whitelistPattern.matcher(valueChar.toString()).matches())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    protected List<Character> findNonMatchingCharacters(List<Character> inputCharacterList, String whitelistCharacters) {
+        if (StringUtils.isEmpty(whitelistCharacters)) {
+            return inputCharacterList;
+        }
+        return inputCharacterList.stream()
+                .filter(valueChar -> !whitelistCharacters.contains(valueChar.toString()))
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public boolean isBlackListValid(String value, CustomWhiteListed customAnnotation) {
@@ -156,7 +213,7 @@ public abstract class BaseBlacklistValidator<A extends Annotation, T> implements
             LOG.trace("Blacklist is empty, exiting");
             return true;
         }
-        if (Strings.isNullOrEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             LOG.trace("Value is empty, exiting");
             return true;
         }

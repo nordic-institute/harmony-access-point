@@ -1,11 +1,11 @@
 package eu.domibus.core.spring;
 
-import com.codahale.metrics.servlets.AdminServlet;
 import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
+import eu.domibus.core.metrics.DomibusAdminServlet;
 import eu.domibus.core.metrics.HealthCheckServletContextListener;
 import eu.domibus.core.metrics.MetricsServletContextListener;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
@@ -97,7 +97,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         servletContext.addListener(new MetricsServletContextListener());
         servletContext.addListener(new HealthCheckServletContextListener());
 
-        ServletRegistration.Dynamic servlet = servletContext.addServlet("metrics", AdminServlet.class);
+        ServletRegistration.Dynamic servlet = servletContext.addServlet("metrics", DomibusAdminServlet.class);
         servlet.addMapping("/metrics/*");
     }
 
@@ -137,8 +137,11 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
 
+        DomibusPropertiesPropertySource updatedDomibusProperties = createUpdatedDomibusPropertiesSource();
+        propertySources.addFirst(updatedDomibusProperties);
+
         MapPropertySource domibusConfigLocationSource = createDomibusConfigLocationSource(domibusConfigLocation);
-        propertySources.addFirst(domibusConfigLocationSource);
+        propertySources.addAfter(updatedDomibusProperties.getName(), domibusConfigLocationSource);
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
@@ -157,5 +160,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         return new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap);
     }
 
+    public DomibusPropertiesPropertySource createUpdatedDomibusPropertiesSource() {
+        Properties properties = new Properties();
+        return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, properties);
+    }
 
 }

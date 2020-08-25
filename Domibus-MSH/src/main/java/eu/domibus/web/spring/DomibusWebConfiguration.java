@@ -1,25 +1,20 @@
 package eu.domibus.web.spring;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.rest.spring.DomibusExtWebConfiguration;
 import eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter;
 import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import eu.domibus.web.security.AuthenticatedPrincipalInterceptor;
 import eu.domibus.web.security.DefaultPasswordInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 
 /**
  * @author Cosmin Baciu, Ion Perpegel
@@ -31,10 +26,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Configuration("domibusWebConfiguration")
 @Import(DomibusExtWebConfiguration.class)
 @ComponentScan(basePackages = "eu.domibus.web")
+@ImportResource("classpath*:config/*-domibusServlet.xml")
 public class DomibusWebConfiguration implements WebMvcConfigurer {
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -86,14 +79,6 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
         CustomMappingJackson2HttpMessageConverter bean = new CustomMappingJackson2HttpMessageConverter();
         bean.setJsonPrefix(")]}',\n");
         return bean;
-    }
-
-    @Bean
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        int size = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
-        resolver.setMaxUploadSize(size);
-        return resolver;
     }
 
     @Bean

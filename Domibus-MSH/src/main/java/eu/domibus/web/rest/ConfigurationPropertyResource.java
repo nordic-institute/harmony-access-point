@@ -1,18 +1,17 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
-import eu.domibus.core.rest.validators.DomibusPropertyBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.DomibusPropertyRO;
-import eu.domibus.web.rest.ro.DomibusPropertyTypeRO;
-import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
-import eu.domibus.web.rest.ro.PropertyResponseRO;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +37,19 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     private DomainCoreConverter domainConverter;
 
+    private ErrorHandlerService errorHandlerService;
+
     public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
-                                         DomainCoreConverter domainConverter) {
+                                         DomainCoreConverter domainConverter,
+                                         ErrorHandlerService errorHandlerService) {
         this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
         this.domainConverter = domainConverter;
+        this.errorHandlerService = errorHandlerService;
+    }
+
+    @ExceptionHandler({DomibusPropertyException.class})
+    public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping
@@ -66,15 +74,16 @@ public class ConfigurationPropertyResource extends BaseResource {
     /**
      * Sets the specified value for the specified property name
      * We skip the default blacklist validator because some properties have values that ae normally in the black-list
-     * @param propertyName the name of the property
-     * @param isDomain tells if it is set in a domain context
+     *
+     * @param propertyName  the name of the property
+     * @param isDomain      tells if it is set in a domain context
      * @param propertyValue the value of the property
      */
     @PutMapping(path = "/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName,
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
-                            @Valid @RequestBody String propertyValue) {
+                            @Valid @RequestBody(required = false) String propertyValue) {
 
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);

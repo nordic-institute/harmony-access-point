@@ -89,7 +89,7 @@ public class MessageClient extends BaseRestClient {
 	public JSONArray getListOfMessages(String domain) throws Exception {
 		ClientResponse clientResponse = callGetListOfMessages(domain);
 		if (clientResponse.getStatus() != 200) {
-			throw new Exception("Could not get messages");
+			throw new DomibusRestException("Could not get messages", clientResponse);
 		}
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
 	}

@@ -48,7 +48,7 @@ export class UserService {
       const usersWithoutDomain = users.filter(user => !user.deleted && !user.domain);
       if (usersWithoutDomain.length > 0) {
         const userNames = usersWithoutDomain.map(u => u.userName).join(', ');
-        this.alertService.error(`The following users are not configured correctly for multiteancy: ${userNames}`);
+        this.alertService.error(`The following users are not configured correctly for multitenancy: ${userNames}`);
       }
     }
   }

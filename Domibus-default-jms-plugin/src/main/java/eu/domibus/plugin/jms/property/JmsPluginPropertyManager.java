@@ -57,10 +57,10 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     private List<DomibusPropertyMetadataDTO> writableProperties = Arrays.asList(
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_ID, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_TYPE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_ROLE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_ROLE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_ID, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_TYPE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_ROLE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_ROLE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + AGREEMENT_REF, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE_TYPE, Module.JMS_PLUGIN, Usage.DOMAIN, true),

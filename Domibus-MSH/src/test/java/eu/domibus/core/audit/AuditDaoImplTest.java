@@ -1,10 +1,7 @@
 package eu.domibus.core.audit;
 
 import com.google.common.collect.Sets;
-import eu.domibus.core.audit.model.Audit;
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeAudit;
+import eu.domibus.core.audit.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hibernate.internal.SessionFactoryImpl;
@@ -175,6 +172,15 @@ public class AuditDaoImplTest {
         auditDao.savePModeAudit(pModeAudit);
         new Verifications() {{
             entityManager.persist(pModeAudit);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void savePModeArchiveAudit(@Injectable PModeArchiveAudit pModeArchiveAudit) {
+        auditDao.savePModeArchiveAudit(pModeArchiveAudit);
+        new Verifications() {{
+            entityManager.persist(pModeArchiveAudit);
             times = 1;
         }};
     }

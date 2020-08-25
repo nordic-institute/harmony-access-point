@@ -29,6 +29,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
             {PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
             {PROPERTY_PREFIX + FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
             {PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
+            {PROPERTY_PREFIX + LOCKS_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeLocksWorkerJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override

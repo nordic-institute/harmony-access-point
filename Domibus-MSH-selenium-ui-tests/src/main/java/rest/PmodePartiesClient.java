@@ -31,7 +31,7 @@ public class PmodePartiesClient extends BaseRestClient {
 		ClientResponse updatePartiesResp = jsonPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 		
 		if (updatePartiesResp.getStatus() != 200) {
-			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus());
+			throw new DomibusRestException("delete party failed!!", updatePartiesResp);
 		}
 	}
 	
@@ -47,7 +47,7 @@ public class PmodePartiesClient extends BaseRestClient {
 		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.GET_PARTIES), params);
 		
 		if (getPartiesResp.getStatus() != 200) {
-			throw new Exception("delete party failed with status " + getPartiesResp.getStatus());
+			throw new DomibusRestException("delete party failed!!", getPartiesResp);
 		}
 		return new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
 	}
@@ -67,7 +67,7 @@ public class PmodePartiesClient extends BaseRestClient {
 		ClientResponse updatePartiesResp = jsonPUT(resource.path(RestServicePaths.UPDATE_PARTIES), parties.toString());
 		
 		if (updatePartiesResp.getStatus() != 200) {
-			throw new Exception("delete party failed with status " + updatePartiesResp.getStatus());
+			throw new DomibusRestException("delete party failed!!" , updatePartiesResp);
 		}
 	}
 	

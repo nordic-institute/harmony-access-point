@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-import java.math.BigInteger;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -15,7 +14,7 @@ import java.math.BigInteger;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_MPC")
+@Table(name = "TB_PM_MPC")
 @NamedQueries({@NamedQuery(name = "Mpc.countForQualifiedName", query = "select count(mpc) from Mpc mpc where mpc.qualifiedName=:QUALIFIED_NAME"),
         @NamedQuery(name = "Mpc.findByName", query = "select mpc from Mpc mpc where mpc.name=:NAME"),
         @NamedQuery(name = "Mpc.findByQualifiedName", query = "select mpc from Mpc mpc where mpc.qualifiedName=:QUALIFIED_NAME"),
@@ -92,7 +91,7 @@ public class Mpc extends AbstractBaseEntity {
      * Gets the value of the retentionDownloaded property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getRetentionDownloaded() {
         return this.retentionDownloaded;
@@ -102,7 +101,7 @@ public class Mpc extends AbstractBaseEntity {
      * Sets the value of the retentionDownloaded property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setRetentionDownloaded(final int value) {
         this.retentionDownloaded = value;
@@ -112,7 +111,7 @@ public class Mpc extends AbstractBaseEntity {
      * Gets the value of the retentionUndownloaded property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getRetentionUndownloaded() {
         return this.retentionUndownloaded;
@@ -122,7 +121,7 @@ public class Mpc extends AbstractBaseEntity {
      * Sets the value of the retentionUndownloaded property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setRetentionUndownloaded(final int value) {
         this.retentionUndownloaded = value;

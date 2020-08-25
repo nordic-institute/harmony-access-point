@@ -91,6 +91,12 @@ public class DomibusPropertyMetadata {
      */
     private boolean storedGlobally = true;
 
+    public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
+        res.setModule(Module.UNKNOWN);
+        return res;
+    }
+
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
         return getGlobalProperty(name, Type.STRING);
     }
@@ -327,6 +333,7 @@ public class DomibusPropertyMetadata {
         public static final int SUPER = 4;
         public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
+        public static final int ANY = GLOBAL | DOMAIN | SUPER;
     }
 
     /**
@@ -337,17 +344,18 @@ public class DomibusPropertyMetadata {
         NUMERIC("^(-?[1-9]\\d*|0)$"),
         BOOLEAN("^(true|false)$"),
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
-        EMAIL("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,}$"),
+        EMAIL("^(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,})[\\s\\;]*)*$"),
         CRON(new CronValidator()),
 
         // added so that the default black-list validation is skipped and the type validation is properly done
         PASSWORD(".*"),
         REGEXP(".*"),
-        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]+$"),
-        CLASS("^[a-zA-Z0-9_\\.]+$"),
-        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]+$"),
-        HYPHENED_NAME("^[a-zA-Z0-9_\\-]+$"),
-        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]+$"),
+        URI("^[ a-zA-Z0-9._%+\\-:/\\\\?=&\\+~\\!@#$%\\^\\&\\(\\)_\\[\\]{}\\;\\'\\,`]*$"),
+        CLASS("^[a-zA-Z0-9_\\.]*$"),
+        JNDI("^[a-zA-Z0-9_!\\.\\/\\:]*$"),
+        HYPHENED_NAME("^[a-zA-Z0-9_\\-]*$"),
+        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]*$"),
+        FREE_TEXT("^[\\x20-\\x7D]*$"),
 
         // no type validation for String except for the default black-list validation
         STRING();

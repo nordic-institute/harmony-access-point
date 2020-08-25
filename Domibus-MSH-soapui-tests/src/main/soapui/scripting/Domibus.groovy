@@ -31,8 +31,8 @@ class Domibus{
     def allDomainsProperties = null;
     def allDomains = null;
 
-    // sleepDelay value is increased from 2000 to 6000 because of pull request take longer ...
-    def sleepDelay = 6000
+    // sleepDelay value is increased to 10 s because of execution in Docker containers
+    def sleepDelay = 10_000
 
     def dbConnections = [:]
     def blueDomainID = null //"C2Default"
@@ -403,18 +403,13 @@ def findNumberOfDomain(String inputSite) {
         def messageIDCheck = "= '${messageID}'" //default comparison method use equal operator
         if (messgaeIDStartWithProvidedValue) messageIDCheck = "like '${messageID}%'" //if cleanDBMessageIDStartsWith method was called change method for comparison
 
-        def select_ID_PK = "select ID_PK from TB_MESSAGE_INFO where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries bellow
+        def select_ID_PK = "select ID_PK from TB_MESSAGE_INFO where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries below
         def sqlQueriesList = [
-            "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_RAWENVELOPE_LOG where SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + "))",
-			"delete from TB_RAWENVELOPE_LOG where MESSAGE_ID ${messageIDCheck}",
-            "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
-			"delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
-            "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PROPERTY where PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
+            "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + ")) or MESSAGE_ID ${messageIDCheck}",
+            "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ") or messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
+            "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PARTY_ID where FROM_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PARTY_ID where TO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
+            "delete from TB_PARTY_ID where FROM_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or TO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_MESSAGING where (SIGNAL_MESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))) OR (USER_MESSAGE_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_ERROR where SIGNALMESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")",
@@ -473,6 +468,7 @@ def findNumberOfDomain(String inputSite) {
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         // Verification of message existence
+		// TODO: change this to wait in loop
         def verifyMessagePresence(int presence1, int presence2, String IDMes = null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"verifyMessagePresence\".", log)
         def messageID = null;
@@ -1090,7 +1086,7 @@ def findNumberOfDomain(String inputSite) {
         def testFile = new File(pathToPropertyFile)
         if (!testFile.exists()) {
             testRunner.fail("File [${pathToPropertyFile}] does not exist. Can't change value.")
-            return null
+            return
         } else log.info "  changeDomibusProperties  [][]  File [${pathToPropertyFile}] exists."
 
         // Create backup file if already not created
@@ -1115,13 +1111,11 @@ def findNumberOfDomain(String inputSite) {
             testFile.eachLine{
                 line, n ->
                 n++
-                if(line =~ /^\s*$ { propertyToChangeName }
-                   = /) {
+                if(line =~ /^\s*${propertyToChangeName}=/) {
                     log.info "  changeDomibusProperties  [][]  In line $n searched property was found. Line value is: $line"
                     found++
                 }
-                if(line =~ ~/#+\s*$ { propertyToChangeName }
-                   = .*/) {
+                if(line =~ ~/#+\s*${propertyToChangeName}=.*/) {
                     log.info "  changeDomibusProperties  [][]  In line $n commented searched property was found. Line value is: $line"
                     foundInCommentedRow++
                 }
@@ -1129,7 +1123,7 @@ def findNumberOfDomain(String inputSite) {
 
             if (found > 1) {
                 testRunner.fail("The search string ($propertyToChangeName=) was found ${found} times in file [${pathToPropertyFile}]. Expect only one assigment - check if configuration file is not corrupted.")
-                return null
+                return
             }
             // If property is present in file change it value
             if(found)
@@ -1139,7 +1133,7 @@ def findNumberOfDomain(String inputSite) {
             fileContent = fileContent.replaceFirst(/(?m)^#+\s*($ { propertyToChangeName }
                                                                = )(.*)/) { all, paramName, value -> "${paramName}${newValueToAssign}" } else {
                 testRunner.fail("The search string ($propertyToChangeName) was not found in file [${pathToPropertyFile}]. No changes would be applied - properties file restored.")
-                return null
+                return
             }
             log.info "  changeDomibusProperties  [][]  In [${pathToPropertyFile}] file property ${propertyToChangeName} was changed to value ${newValueToAssign}"
         } //loop end
@@ -1160,7 +1154,7 @@ def findNumberOfDomain(String inputSite) {
         def backupFileHandler = new File(backupFile)
         if (!backupFileHandler.exists()) {
             testRunner.fail("CRITICAL ERROR: File [${backupFile}] does not exist.")
-            return null
+            return
         } else {
             log.info "  restoreDomibusPropertiesFromBackup  [][]  Restore properties file from existing backup"
             copyFile(backupFile, pathToPropertyFile, log)
@@ -1168,7 +1162,7 @@ def findNumberOfDomain(String inputSite) {
                 log.info "  restoreDomibusPropertiesFromBackup  [][]  Successufuly restory configuration from backup file and backup file was removed"
             } else {
                 testRunner.fail "Not able to delete configuration backup file"
-                return null
+                return
             }
         }
     }
@@ -1319,7 +1313,7 @@ def findNumberOfDomain(String inputSite) {
         def authenticationPwd=authPwd;
         def roleAC=null;
         def userDeleted=false;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1505,7 +1499,7 @@ def findNumberOfDomain(String inputSite) {
         def entityId=null;
 		def active=null;
 		def suspended=null;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1567,7 +1561,7 @@ def findNumberOfDomain(String inputSite) {
         def entityId=null;
 		def active=null;
 		def suspended=null;
-        def i=0;
+        int i=0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1621,7 +1615,7 @@ def findNumberOfDomain(String inputSite) {
 //---------------------------------------------------------------------------------------------------------------------------------
     static def userExists(usersMap, String targetedUser, log, boolean plugin = false) {
         debugLog("  ====  Calling \"userExists\".", log)
-        def i = 0;
+        int i = 0;
         def userFound = false;
         if (plugin) {
             debugLog("  userExists  [][]  Checking if plugin user \"$targetedUser\" exists.", log)
@@ -1712,7 +1706,7 @@ static def ifWindowsEscapeJsonString(json) {
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
 		def userStatus = null;
-		def i = 0;
+		int i = 0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1744,7 +1738,7 @@ static def ifWindowsEscapeJsonString(json) {
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
 		def userStatus = null;
-		def i = 0;
+		int i = 0;
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
@@ -1783,7 +1777,13 @@ static def ifWindowsEscapeJsonString(json) {
 
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
-        commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagefilters -b "+context.expand( '${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET ";
+        commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-X", "GET",
+						"-v"]
+		
         commandResult = runCommandInShell(commandString, log)
         assert(commandResult[0].contains("messageFilterEntries") || commandResult[1].contains("successfully")),"Error:getMessageFilter: Error while trying to retrieve filters."
         return commandResult[0].substring(5)
@@ -1792,17 +1792,19 @@ static def ifWindowsEscapeJsonString(json) {
     static def formatFilters(filtersMap, String filterChoice, context, log, String extraCriteria = null) {
         debugLog("  ====  Calling \"formatFilters\".", log)
         log.info "  formatFilters  [][]  Analysing backends filters order ..."
-        def swapBck = null;
-        def i = 0;
-        assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details.";
+        def swapBck = null
+        def i = 0
+		
+        assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details."
         debugLog("  formatFilters  [][]  FILTERS:" + filtersMap, log)
 
         // Single backend: no action needed
         if (filtersMap.messageFilterEntries.size() == 1) {
-            return "ok";
+            return "ok"
         }
-        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log);
-		debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log);
+        debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log)
+		debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log)
+		
         while (i < filtersMap.messageFilterEntries.size()) {
             assert(filtersMap.messageFilterEntries[i] != null),"Error:formatFilters: Error while parsing filter details.";
             if (filtersMap.messageFilterEntries[i].backendName.toLowerCase() == filterChoice.toLowerCase()) {
@@ -1812,15 +1814,19 @@ static def ifWindowsEscapeJsonString(json) {
                         return "correct";
                     }
                     debugLog("  formatFilters  [][]  switch $i element", log)
-                    swapBck = filtersMap.messageFilterEntries[0];
-                    filtersMap.messageFilterEntries[0] = filtersMap.messageFilterEntries[i];
-                    filtersMap.messageFilterEntries[i] = swapBck;
-                    return filtersMap;
+                    swapBck = filtersMap.messageFilterEntries[0]
+                    filtersMap.messageFilterEntries[0] = filtersMap.messageFilterEntries[i]
+                    filtersMap.messageFilterEntries[i] = swapBck
+					// swap entityId 
+					def tmpEntryId = filtersMap.messageFilterEntries[i].entityId
+					filtersMap.messageFilterEntries[i].entityId = filtersMap.messageFilterEntries[0].entityId
+					filtersMap.messageFilterEntries[0].entityId = tmpEntryId
+                    return filtersMap.messageFilterEntries
                 }
             }
-            i++;
+            i++
         }
-        return "ko";
+        return "ko"
     }
 //---------------------------------------------------------------------------------------------------------------------------------
         static def setMessageFilters(String side, String filterChoice, context, log, domainValue="Default", String authUser=null, authPwd=null, String extraCriteria=null){
@@ -1852,10 +1858,24 @@ static def ifWindowsEscapeJsonString(json) {
                 if (filtersMap.equals("correct")) {
                     log.info "  setMessageFilters  [][]  The requested backend is already selected: Nothing to do.";
                 } else {
+					log.info "Received filtersMap: " + filtersMap
+
+					
                     curlParams = JsonOutput.toJson(filtersMap).toString()
-                    commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagefilters -b " + context.expand('${projectDir}') + File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd) + "\" -X PUT -d " + formatJsonForCurl(curlParams, log)
+					log.info "-------------------------------------------------------------"
+					log.info "Received filtersMap after formatting: " +formatJsonForCurl(curlParams, log)					
+                    
+					commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-X", "PUT",
+						"--data", formatJsonForCurl(curlParams, log),
+						"-v"]
+						
+						log.info "commandString: " + commandString 
                     commandResult = runCommandInShell(commandString, log)
-                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus.";
+                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:setMessageFilter: Error while trying to connect to domibus. CommandResult[0]:" +commandResult[0] + "| commandResult[1]:" + commandResult[1];
                     log.info "  setMessageFilters  [][]  Message filters update done successfully for Domibus: \"" + side + "\".";
                 }
             }
@@ -1994,7 +2014,7 @@ static def ifWindowsEscapeJsonString(json) {
         // Return multitenancy mode
         static def getMultitenancyFromSide(String side, context, log) {
         debugLog("  ====  Calling \"getMultitenancyFromSide\".", log)
-        def mode = 0;
+        int mode = 0;
         switch (side.toUpperCase()) {
         case "C2":
         case "BLUE":
@@ -2208,135 +2228,6 @@ def String jmsPropertiesPrefix(inputName) {
 		}	
 	return domId
 }	
-/*
-def InitialContext getInitialContext(String providerUrl, String userName, String password) throws Exception {
-        InitialContext ic = null;
-        if (providerUrl != null) {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put(Context.PROVIDER_URL, providerUrl);
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
-            if (userName != null) {
-                env.put(Context.SECURITY_PRINCIPAL, userName);
-            }
-            if (password != null) {
-                env.put(Context.SECURITY_CREDENTIALS, password);
-            }
-            ic = new InitialContext(env);
-        } else {
-            ic = new InitialContext();
-        }
-        return ic;
-    }
-*/
-def connectToWeblogic(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE) {
-
-    /*
-    def MapMessage messageMap = null
-	try {
-	jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD);
-
-	QueueConnectionFactory cf = jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI);
-	QueueConnection qc = cf.createQueueConnection();
-	QueueSession session = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-
-	Queue queue = jmsConnectionHandler.lookup(QUEUE);
-	jmsSender =  session.createSender(queue);
-
-	messageMap = session.createMapMessage();
-	} catch (Exception ex) {
-		log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
-				"PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
-				"CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
-		assert 0,"Exception occurred when trying to connect: " + ex;
-	}
-	return messageMap
-
-     */
-}
-def connectToActiveMQ(String FACTORY_URL, String USER, String PASSWORD, String QUEUE) {
-	/*def MapMessage messageMap = null
-	try {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
-		jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD) //username and password of the default JMS broker
-		QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE)
-		Destination destination = session.createQueue(QUEUE)
-		jmsSender = (MessageProducer) session.createProducer(destination)
-		jmsSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
-		messageMap = session.createMapMessage()
-		} catch (Exception ex) {
-			log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Tomcat deployment failed. " +
-					"FACTORY_URL: $FACTORY_URL | USER: $USER | PASSWORD: $PASSWORD | " +
-					"QUEUE: $QUEUE"
-			assert 0,"Exception occurred when trying to connect: " + ex;
-		}
-	return messageMap
-
-	 */
-}
-
-def jmsConnectionHandlerInitializeC2() {
-	jmsConnectionHandlerInitialize("C2")
-}
-
-def jmsConnectionHandlerInitializeC3() {
-	jmsConnectionHandlerInitialize("C3")
-}
-
-def jmsConnectionHandlerInitialize(String inputName) {
-	/*def MapMessage messageMap = null
-	
-	log.info "Starting JMS message sending"   
-	String domId = jmsPropertiesPrefix(inputName)
-	log.info "Gather properties for ${domId}"
-
-    def jmsServer = context.expand("\${#Project#jmsServer}").toLowerCase()
-    switch (jmsServer) {
-    		case "weblogic":
-				log.info ("JmsServer Weblogic. Reading connection details.");
-				String PROVIDER_URL = context.expand("\${#Project#${domId}WeblogicJmsUrl}")  
-				String USER = context.expand("\${#Project#${domId}WeblogicJmsUser}")
-				String PASSWORD = context.expand("\${#Project#${domId}WeblogicJmsPassword}")
-				String CONNECTION_FACTORY_JNDI = context.expand("\${#Project#${domId}WeblogicJmsFactoryJndi}")
-				String QUEUE = context.expand("\${#Project#${domId}WeblogicJmsQueue}")
-
-				messageMap = connectToWeblogic(PROVIDER_URL, USER, PASSWORD, CONNECTION_FACTORY_JNDI, QUEUE)
-        		break
-        		
-        	case "tomcat":
-				log.info ("JmsServer Tomcat. Reading connection details.")
-				String FACTORY_URL = context.expand("\${#Project#${domId}ActiveMqUrlAddress}")  
-				String USER = context.expand("\${#Project#${domId}ActiveMQBrokerUser}")
-				String PASSWORD = context.expand("\${#Project#${domId}ActiveMQBrokerPassword}")
-				String QUEUE = context.expand("\${#Project#${domId}ActiveMQInQueue}")
-									
-				messageMap = connectToActiveMQ(FACTORY_URL, USER, PASSWORD, QUEUE)
-        		break
-		
-        	default:  
-        		log.error("Incorrect or not supported jms server type, jmsServer=${jmsServer}"); 
-        		assert 0, "Properties value error, check jmsServer value."
-        		break
-			
-    }
-	return messageMap
-
-	 */
-}
-
-def sendMessageAndClean(messageMap) {	
-/*
-	log.info "sending message"
-	try {
-		jmsSender.send(messageMap);
-		jmsConnectionHandler.close();
-	} catch (Exception ex) {
-		log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
-		assert 0,"Exception occurred when trying to connect: " + ex;
-	}	
-	log.info "message sent"
-
- */
-}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // Support fast failure approche and cancel execution when one of the smoke tests fail.
@@ -2542,7 +2433,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 // Handling domibus properties at runtime
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null,message="successfully"){
 		def authenticationUser = authUser
         def authenticationPwd = authPwd
 
@@ -2562,8 +2453,12 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 							"--data-binary", "$propNewValue"]
             def commandResult = runCommandInShell(commandString, log)
 
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-			log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			if(message.equals("successfully")){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
+				log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			}else{
+				assert(commandResult[0].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: string $message not found in returned value.";
+			}
 
         } finally {
             resetAuthTokens(log)
@@ -2576,7 +2471,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         def authenticationPwd = authPwd;
 		def jsonSlurper = new JsonSlurper()
 		def propMetadata=null;
-		def usersMap=null;
+		def propMap=null;
 		def i=0;
 		def propValue=null;
 
@@ -2586,27 +2481,19 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?name=$propName&pageSize=10",
+			def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/$propName",
 							"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 							"-H",  "Content-Type: text/xml",
 							"-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 							"-v"]
             def commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getPropertyAtRuntime: Error while trying to connect to domibus.";
+			assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:getPropertyAtRuntime: Error while fetching property of $propName.";
 			propMetadata=commandResult[0].substring(5);
-			debugLog("  getPropertyAtRuntime  [][]  Property serach result: $propMetadata", log);
-			usersMap = jsonSlurper.parseText(propMetadata);
-			assert(usersMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null value found.";
-			assert(usersMap.items != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value.";
-
-            while ( (i < usersMap.items.size()) && (propValue == null) ) {
-                assert(usersMap.items[i] != null),"Error:getPropertyAtRuntime: Error while parsing the list of returned properties.";
-                debugLog("  getPropertyAtRuntime  [][]  Iteration $i: comparing --$propName--and--" + usersMap.items[i].name + "--.", log)
-                if (usersMap.items[i].name == propName) {
-					propValue = usersMap.items[i].value;
-                }
-                i++;
-            }
+			debugLog("  getPropertyAtRuntime  [][]  Property get result: $propMetadata", log);
+			propMap = jsonSlurper.parseText(propMetadata);
+			assert(propMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null result found.";
+			propValue=propMap.value;
+			
             assert(propValue!=null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\""
 			log.info "  getPropertyAtRuntime  [][]  Property \"$propName\" value = \"$propValue\"."
 
@@ -2716,7 +2603,7 @@ static def String pathToLogFiles(side, log, context) {
 		def testFile = new File(pathToLogFile)
 		if (!testFile.exists()) {
 					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
-					return null
+					return
 		} else debugLog("  checkLogFile  [][]  File [${pathToLogFile}] exists.", log)
 
 		def lineCount = 0
@@ -2747,7 +2634,7 @@ static def String pathToLogFiles(side, log, context) {
 				def testFile = new File(pathToLogFile)
 				if (!testFile.exists()) {
 					testRunner.fail("File [${pathToLogFile}] does not exist. Can't check logs.")
-					return null
+					return
 				} else log.debug "  checkLogFile  [][]  File [${pathToLogFile}] exists."
 
 			  //def skipNumberOfLines = 0
@@ -2827,11 +2714,11 @@ static def String pathToLogFiles(side, log, context) {
 								"--data-binary", formatJsonForCurl(curlParams, log),
 								"-v"]
                 commandResult = runCommandInShell(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
-                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
+                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in value \"$userAC\".";
             }
         } finally {
-            resetAuthTokens(log)
+            resetAuthTokens(log);
         }
     }
 
@@ -2852,8 +2739,8 @@ static def String pathToLogFiles(side, log, context) {
 			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
 			commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
-			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
+			assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
+			log.info "  curlBlackList_GET  [][]  Forbidden character detected in value \"$data\".";
 		} finally {
             resetAuthTokens(log)
         }
@@ -2861,7 +2748,7 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST POST request to test blacklisted characters
-	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_USER, passwordLogin = DEFAULT_USER_PWD) {
+	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_ADMIN_USER, passwordLogin = DEFAULT_ADMIN_USER_PWD) {
         debugLog("  ====  Calling \"curlBlackList_POST\".", log)
         def commandString = null;
         def commandResult = null;
@@ -2877,8 +2764,8 @@ static def String pathToLogFiles(side, log, context) {
 		} finally {
             resetAuthTokens(log)
         }
-        assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
-        log.info "  curlBlackList_POST  [][]  Forbidden character detected in property value \"$userLogin\".";
+        assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
+        log.info "  curlBlackList_POST  [][]  Forbidden character detected in value \"$userLogin\".";
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2947,6 +2834,7 @@ static def String pathToLogFiles(side, log, context) {
 						"-H",  "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
 						"--data-binary", json,
+						"-X", "GET",
 						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
 
 			commandResult = runCommandInShell(commandString, log);
@@ -4165,9 +4053,15 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			log.error "Error: report file is directory on path:" + outputReportFilePath
 			return
 		}
-		if ( !file.exists() ) {
+        File parentDir = file.getParentFile()
+        if ( parentDir == null) {
+            log.error "Error: parent path to report file doesn't exist. Provided path was:"  + outputReportFilePath
+            return
+        }
+        parentDir.mkdirs()
+
+		if ( file.createNewFile() ) { //if file does not exist it will do nothing
 			log.warn "Warning: text report file doesn't exist, would create file with header:" + outputReportFilePath
-			file.createNewFile()
 			def header = COLUMN_LIST.join(CSV_DELIMETER)
 			file.write(header)
 		}

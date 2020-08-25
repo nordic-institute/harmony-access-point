@@ -281,5 +281,6 @@ public class DomibusPropertyMetadataDTO {
         public static final String HYPHENED_NAME = "HYPHENED_NAME";
         public static final String COMMA_SEPARATED_LIST = "COMMA_SEPARATED_LIST";
         public static final String JNDI = "JNDI";
+        public static final String FREE_TEXT = "FREE_TEXT";
     }
 }

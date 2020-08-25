@@ -64,6 +64,7 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-amqp-protocol</artifactId>
             <version>${artemis.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>

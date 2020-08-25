@@ -26,7 +26,7 @@ public class ConnectionMonitoringClient extends BaseRestClient {
 		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.CON_MON_PARTIES), params);
 		
 		if (getPartiesResp.getStatus() != 200) {
-			throw new Exception("get connection monitoring parties failed with status " + getPartiesResp.getStatus());
+			throw new DomibusRestException("get connection monitoring parties failed", getPartiesResp);
 		}
 		
 		JSONArray parties = new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
@@ -42,7 +42,7 @@ public class ConnectionMonitoringClient extends BaseRestClient {
 		ClientResponse getPartiesResp = requestGET(resource.path(RestServicePaths.CON_MON_PARTIES_DETAILS), params);
 		
 		if (getPartiesResp.getStatus() != 200) {
-			throw new Exception("get connection monitoring parties details failed with status " + getPartiesResp.getStatus());
+			throw new DomibusRestException("get connection monitoring parties details failed", getPartiesResp);
 		}
 		JSONObject raw = new JSONObject(sanitizeResponse(getPartiesResp.getEntity(String.class)));
 		return raw.getJSONObject(partyID);
@@ -61,7 +61,7 @@ public class ConnectionMonitoringClient extends BaseRestClient {
 		ClientResponse getPartiesResp = textPUT(resource.path(RestServicePaths.DOMIBUS_PROPERTIES).path(propName), monitoredParties + "," + partyID);
 		
 		if (getPartiesResp.getStatus() != 200) {
-			throw new Exception("Enable monitoring for party " + partyID + " failed with status " + getPartiesResp.getStatus());
+			throw new DomibusRestException("Enable monitoring for party " + partyID + " failed", getPartiesResp);
 		}
 		return getMonitoredPartiesStr(domain).contains(partyID);
 	}
@@ -80,7 +80,7 @@ public class ConnectionMonitoringClient extends BaseRestClient {
 		ClientResponse getPartiesResp = textPUT(resource.path(RestServicePaths.DOMIBUS_PROPERTIES).path(propName), monitoredParties);
 		
 		if (getPartiesResp.getStatus() != 200) {
-			throw new Exception("Enable monitoring for party " + partyID + " failed with status " + getPartiesResp.getStatus());
+			throw new DomibusRestException("Enable monitoring for party " + partyID + " failed", getPartiesResp);
 		}
 		return !getMonitoredPartiesStr(domain).contains(partyID);
 	}
@@ -93,18 +93,11 @@ public class ConnectionMonitoringClient extends BaseRestClient {
 		params.put("showDomain", "true");
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		
-		int status = response.getStatus();
-		String entity = response.getEntity(String.class);
-		
-		log.debug("status = " + status);
-		log.debug("content = " + entity);
-		
-		
-		if (status != 200) {
-			throw new Exception("Could not get monitored parties " + status);
+		if (response.getStatus() != 200) {
+			throw new DomibusRestException("Could not get monitored parties", response);
 		}
 		
-		JSONObject prop = new JSONObject(sanitizeResponse(entity)).getJSONArray("items").getJSONObject(0);
+		JSONObject prop = new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("items").getJSONObject(0);
 		String value = prop.optString("value");
 		return value;
 	}

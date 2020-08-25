@@ -1,4 +1,5 @@
 Domibus 4.2
+- Added a job in FS Plugin that cleans orphaned lock files
 - Removed password column from both Users and Plugin Users components/lists( as their values were obscured anyway)
 - Added Parties functionality to External REST API calls
 - Added new component/page in admin console to monitor test connections; integrated the former test component as details page
@@ -7,7 +8,7 @@ Domibus 4.2
 - Filtered out bean scanning of web and ext sub-packages to avoid multiple bean creation.
 - Deleted msh-config.xml and moved one bean to spring-context.xml
 - Upgrade Tomcat to version 9 and dropped support for Tomcat 8
-- Upgrade Wildfly to version 18 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
+- Upgrade Wildfly to version 20 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
 - Upgrade MySQL to version 8.0 and dropped support for MySQL version 5
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
@@ -21,7 +22,13 @@ Domibus 4.2
 - Perform party roles validation
 - Plugins are able now to define Ehcache config files which will be loaded into Domibus Ehcache Manager:
  *-plugin-default-ehcache.xml (classpath jar file) and external *-plugin-ehcache.xml into /plugins/config folder
-Domibus 4.1.4
+- Domibus internal tables storing PMode information have been renamed to start with prefix TB_PM_*
+Domibus 4.1.5
+- AS4 String message properties has been increased from 255 characters to 1024
+- Synchronization of Certificate verification security level of the SMP certificate in dynamic discovery for Peppol and Oasis.
+- Added manual runtime registration for the BouncyCastle provider
+- Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
+- Remove unnecessary jmx looping when looking up destination in weblogic jms manager
 - Added manual runtime registration for the BouncyCastle provider
 - Added JMS message property 'finalRecipientType' in the JMS Plugin, which is required to send JMS message in Dynamic discovery for SMP lookup.
 - Remove unnecessary jmx looping when looking up destination in weblogic jms manager

@@ -1,28 +1,19 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.plugin.routing.CriteriaFactory;
-import eu.domibus.core.plugin.routing.IRoutingCriteria;
+import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
+import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -34,22 +25,20 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.validation.SubmissionValidator;
-import eu.domibus.plugin.validation.SubmissionValidatorList;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
@@ -63,189 +52,60 @@ public class BackendNotificationService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
 
     @Autowired
-    JMSManager jmsManager;
+    protected JMSManager jmsManager;
 
     @Autowired
-    private BackendFilterDao backendFilterDao;
+    protected RoutingService routingService;
 
     @Autowired
-    private RoutingService routingService;
+    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
     @Autowired
-    private UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    protected SubmissionAS4Transformer submissionAS4Transformer;
-
-    @Autowired
-    protected SubmissionValidatorListProvider submissionValidatorListProvider;
-
-    protected List<NotificationListener> notificationListenerServices;
-
-    @Autowired
-    protected List<CriteriaFactory> routingCriteriaFactories;
+    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
     @Qualifier("unknownReceiverQueue")
-    private Queue unknownReceiverQueue;
+    protected Queue unknownReceiverQueue;
 
     @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
-    private ApplicationContext applicationContext;
+    protected MessagingDao messagingDao;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter coreConverter;
+    protected EventService eventService;
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
-    private MessagingConfigurationManager messagingConfigurationManager;
+    protected MessagingConfigurationManager messagingConfigurationManager;
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    private UserMessageHandlerService userMessageHandlerService;
+    protected UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected List<BackendConnector> backendConnectors;
+    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected UserMessageService userMessageService;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
     @Autowired
-    protected DomainService domainService;
+    protected SubmissionValidatorService submissionValidatorService;
 
     @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
+    protected BackendConnectorProvider backendConnectorProvider;
 
-    //TODO move this into a dedicate provider(a different spring bean class)
-    private Map<String, IRoutingCriteria> criteriaMap;
+    @Autowired
+    protected BackendConnectorDelegate backendConnectorDelegate;
 
-    protected Object backendFiltersCacheLock = new Object();
-    protected volatile List<BackendFilter> backendFiltersCache;
+    @Autowired
+    protected BackendConnectorService backendConnectorService;
 
-    @PostConstruct
-    public void init() {
-        Map notificationListenerBeanMap = applicationContext.getBeansOfType(NotificationListener.class);
-        if (notificationListenerBeanMap.isEmpty()) {
-            throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
-        } else {
-
-            notificationListenerServices = new ArrayList<NotificationListener>(notificationListenerBeanMap.values());
-            if (!domibusConfigurationService.isMultiTenantAware()) {
-                LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-                createBackendFilters();
-            } else {
-                // Get All Domains
-                final List<Domain> domains = domainService.getDomains();
-                LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
-                for (Domain domain : domains) {
-                    domainTaskExecutor.submit(() -> createBackendFilters(), domain);
-                }
-            }
-        }
-        criteriaMap = new HashMap<>();
-        for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
-            criteriaMap.put(routingCriteriaFactory.getName(), routingCriteriaFactory.getInstance());
-        }
-    }
-
-    /**
-     * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
-     */
-    protected void createBackendFilters() {
-        List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-
-        if (backendFilterEntities.isEmpty()) {
-            LOG.info("No Plugins details available in database!");
-            createBackendFiltersWithDefaultPriority();
-        } else {
-            createBackendFiltersBasedOnExistingUserPriority(backendFilterEntities);
-        }
-    }
-
-    /**
-     * Create Backend Filters of plugins in DB by checking the existing User Priority
-     *
-     * @param backendFilterEntities
-     */
-    protected void createBackendFiltersBasedOnExistingUserPriority(List<BackendFilterEntity> backendFilterEntities) {
-
-        LOG.debug("Some Backend Plugins are available in database with user priority. So Creating backend filters for the other plugins by giving more priorities to the existing plugins.");
-
-        List<String> notificationListenerPluginsList = notificationListenerServices.stream().map(NotificationListener::getBackendName).collect(Collectors.toList());
-        LOG.debug("Total number of plugins configured in the application: [{}]", notificationListenerPluginsList.size());
-
-        List<String> backendFilterPluginList = backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
-        LOG.debug("Number of Backend Plugins with user priority: [{}]", backendFilterPluginList.size());
-
-        notificationListenerPluginsList.removeAll(backendFilterPluginList);
-        LOG.debug("Number of Backend Plugins without user priority: [{}]", notificationListenerPluginsList.size());
-
-        BackendFilterEntity backendFilterEntity = backendFilterEntities.stream().max(Comparator.comparing(BackendFilterEntity::getIndex)).orElseThrow(NoSuchElementException::new);
-        LOG.debug("Lowest user defined priority of the existing Backend Plugins in the database: [{}]", backendFilterEntity.getIndex());
-
-        if (!notificationListenerPluginsList.isEmpty()) {
-            List<BackendFilterEntity> backendFilters = assignPriorityToPlugins(notificationListenerPluginsList, backendFilterEntity.getIndex());
-            backendFilterDao.create(backendFilters);
-        }
-    }
-
-    /**
-     * Assigning priorities to the default plugin, which doesn't have any priority set by User
-     *
-     * @param pluginList
-     * @param priority
-     * @return backendFilters
-     */
-    protected List<BackendFilterEntity> assignPriorityToPlugins(List<String> pluginList, int priority) {
-
-        List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        List<String> defaultPluginOrderList = Arrays.asList(BackendPluginEnum.WS_PLUGIN.getPluginName(), BackendPluginEnum.JMS_PLUGIN.getPluginName(), BackendPluginEnum.FS_PLUGIN.getPluginName());
-        pluginList.sort(Comparator.comparing(defaultPluginOrderList::indexOf));
-        LOG.debug("Assigning lower priorities to the backend plugins which doesn't have any existing priority set by User.");
-
-        for (String pluginName : pluginList) {
-            BackendFilterEntity filterEntity = new BackendFilterEntity();
-            filterEntity.setBackendName(pluginName);
-            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(pluginName);
-            if (backEndPluginEnum != null)
-                filterEntity.setIndex(++priority);
-            LOG.debug("Assigning priority [{}] to the backend plugin [{}].", priority, pluginName);
-            backendFilters.add(filterEntity);
-        }
-        return backendFilters;
-    }
-
-    /**
-     * create BackendFilters With Priorities in the order of WS, JMS and FS when No Plugins priorities already set by User.
-     */
-    protected void createBackendFiltersWithDefaultPriority() {
-        List<BackendFilterEntity> backendFilters = new ArrayList<>();
-        LOG.debug("Creating Plugin backend filters in the default order of WS_PLUGIN, JMS_PLUGIN and FS_PLUGIN, because no other priorities are already set by User");
-        for (NotificationListener notificationListener : notificationListenerServices) {
-            BackendFilterEntity backendFilterEntity = new BackendFilterEntity();
-            LOG.debug("Loading Plugin with BackendName [{}] to database.", notificationListener.getBackendName());
-            backendFilterEntity.setBackendName(notificationListener.getBackendName());
-            BackendPluginEnum backEndPluginEnum = BackendPluginEnum.getBackendPluginEnum(notificationListener.getBackendName());
-            backendFilterEntity.setIndex(backEndPluginEnum.getPriority());
-            backendFilters.add(backendFilterEntity);
-        }
-        backendFilterDao.create(backendFilters);
-    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
@@ -279,7 +139,28 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
-        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<String, Object>());
+        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
+    }
+
+    public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
+        if (userMessageLog == null) {
+            LOG.warn("Could not find message with id [{}]", messageId);
+            return;
+        }
+        if (userMessageLog.isTestMessage()) {
+            LOG.debug("Message [{}] is of type test: no notification for message deleted", messageId);
+            return;
+        }
+        String backend = userMessageLog.getBackend();
+        if (StringUtils.isEmpty(backend)) {
+            LOG.warn("Could not find backend for message with id [{}]", messageId);
+            return;
+        }
+
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
+
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
@@ -288,7 +169,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
         payloadSubmittedEvent.setFileName(originalFilename);
@@ -303,7 +184,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final BackendConnector backendConnector = getBackendConnector(backendName);
+        final BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
         PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
         payloadProcessedEvent.setCid(partInfo.getHref());
         payloadProcessedEvent.setFileName(originalFilename);
@@ -312,14 +193,9 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
-    public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
-        List<BackendFilter> backendFilters = getBackendFiltersWithCache();
-        return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
-    }
-
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
         if (matchingBackendFilter == null) {
-            LOG.error("No backend responsible for message [" + userMessage.getMessageInfo().getMessageId() + "] found. Sending notification to [" + unknownReceiverQueue + "]");
+            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageInfo().getMessageId(), unknownReceiverQueue);
             String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
             jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getMessageInfo().getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
@@ -330,115 +206,14 @@ public class BackendNotificationService {
     }
 
     protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
-        final BackendFilter matchingBackendFilter = getMatchingBackendFilter(userMessage);
+        final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
-    }
-
-    protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageInfo().getMessageId() + "]");
-        for (final BackendFilter filter : backendFilters) {
-            final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
-            if (backendFilterMatching) {
-                LOG.debug("Filter [" + filter + "] matched for message [" + userMessage.getMessageInfo().getMessageId() + "]");
-                return filter;
-            }
-        }
-        return null;
-    }
-
-    protected boolean isBackendFilterMatching(BackendFilter filter, Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        if (filter.getRoutingCriterias() != null) {
-            for (final RoutingCriteria routingCriteriaEntity : filter.getRoutingCriterias()) {
-                final IRoutingCriteria criteria = criteriaMap.get(StringUtils.upperCase(routingCriteriaEntity.getName()));
-                boolean matches = criteria.matches(userMessage, routingCriteriaEntity.getExpression());
-                //if at least one criteria does not match it means the filter is not matching
-                if (!matches) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public void invalidateBackendFiltersCache() {
-        LOG.debug("Invalidating the backend filter cache");
-
-        this.backendFiltersCache = null;
-    }
-
-    protected List<BackendFilter> getBackendFiltersWithCache() {
-        if (backendFiltersCache == null) {
-            synchronized (backendFiltersCacheLock) {
-                LOG.debug("Initializing backendFilterCache");
-                if (backendFiltersCache == null) {
-                    List<BackendFilter> backendFilters = getBackendFilters();
-                    backendFiltersCache = backendFilters;
-                }
-            }
-        }
-        return backendFiltersCache;
-    }
-
-    protected List<BackendFilter> getBackendFilters() {
-        List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-
-        if (!backendFilterEntities.isEmpty()) {
-            return coreConverter.convert(backendFilterEntities, BackendFilter.class);
-        }
-
-        List<BackendFilter> backendFilters = routingService.getBackendFilters();
-        if (backendFilters.isEmpty()) {
-            LOG.error("There are no backend plugins deployed on this server");
-        }
-        if (backendFilters.size() > 1) { //There is more than one unconfigured backend available. For security reasons we cannot send the message just to the first one
-            LOG.error("There are multiple unconfigured backend plugins available. Please set up the configuration using the \"Message filter\" pannel of the administrative GUI.");
-            backendFilters.clear(); // empty the list so its handled in the desired way.
-        }
-        //If there is only one backend deployed we send it to that as this is most likely the intent
-        return backendFilters;
-    }
-
-    public void validateSubmission(UserMessage userMessage, String backendName, NotificationType notificationType) {
-        if (NotificationType.MESSAGE_RECEIVED != notificationType) {
-            LOG.debug("Validation is not configured to be done for notification of type [" + notificationType + "]");
-            return;
-        }
-
-        SubmissionValidatorList submissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList(backendName);
-        if (submissionValidatorList == null) {
-            LOG.debug("No submission validators found for backend [" + backendName + "]");
-            return;
-        }
-        LOG.info("Performing submission validation for backend [" + backendName + "]");
-        Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage);
-        List<SubmissionValidator> submissionValidators = submissionValidatorList.getSubmissionValidators();
-        for (SubmissionValidator submissionValidator : submissionValidators) {
-            submissionValidator.validate(submission);
-        }
-    }
-
-    public NotificationListener getNotificationListener(String backendName) {
-        for (final NotificationListener notificationListenerService : notificationListenerServices) {
-            if (notificationListenerService.getBackendName().equalsIgnoreCase(backendName)) {
-                return notificationListenerService;
-            }
-        }
-        return null;
-    }
-
-    public BackendConnector getBackendConnector(String backendName) {
-        for (final BackendConnector backendConnector : backendConnectors) {
-            if (backendConnector.getName().equalsIgnoreCase(backendName)) {
-                return backendConnector;
-            }
-        }
-        return null;
     }
 
     protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, Object> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
-        validateSubmission(userMessage, backendName, notificationType);
+        submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
         String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
         if (properties != null) {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
@@ -451,16 +226,16 @@ public class BackendNotificationService {
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
-        NotificationListener notificationListener = getNotificationListener(backendName);
-        if (notificationListener == null) {
-            LOG.warn("No notification listeners found for backend [" + backendName + "]");
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
+        if (backendConnector == null) {
+            LOG.warn("No backend connector found for backend [{}]", backendName);
             return;
         }
 
-        List<NotificationType> requiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
+        List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, notificationListener.getMode());
+            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, backendConnector.getMode());
             return;
         }
 
@@ -471,12 +246,42 @@ public class BackendNotificationService {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
         }
 
-        Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
-        if (backendNotificationQueue != null) {
-            LOG.debug("Notifying plugin [{}] using queue", backendName);
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
-        } else {
-            LOG.debug("Notifying plugin [{}] using callback", backendName);
+        AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
+        if (shouldNotifyAsync(asyncNotificationConfiguration)) {
+            notifyAsync(asyncNotificationConfiguration, messageId, notificationType, properties);
+            return;
+        }
+
+        notifySync(backendConnector, asyncNotificationConfiguration, messageId, notificationType, properties);
+    }
+
+    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
+        return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
+    }
+
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, String messageId, NotificationType notificationType, Map<String, Object> properties) {
+        Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
+        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
+        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+    }
+
+    protected void notifySync(BackendConnector<?, ?> backendConnector,
+                              AsyncNotificationConfiguration asyncNotificationConfiguration,
+                              String messageId,
+                              NotificationType notificationType,
+                              Map<String, Object> properties) {
+        LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
+        PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
+        if (pluginEventNotifier == null) {
+            LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
+            return;
+        }
+
+        pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
+
+        //for backward compatibility
+        if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
+            NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             notificationListener.notify(messageId, notificationType, properties);
         }
     }
@@ -488,7 +293,7 @@ public class BackendNotificationService {
         final String messageId = userMessageLog.getMessageId();
         final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if (userMessageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
         }
 
@@ -504,7 +309,7 @@ public class BackendNotificationService {
         }
         String messageId = userMessageLog.getMessageId();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
-        if (userMessageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
         }
 
@@ -547,7 +352,7 @@ public class BackendNotificationService {
 
         final Map<String, Object> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
-        if (messageLog.getMessageFragment()) {
+        if (BooleanUtils.isTrue(messageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
         }
 
@@ -562,7 +367,6 @@ public class BackendNotificationService {
         properties.put(MessageConstants.STATUS_TO, newStatus.toString());
         properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
 
-
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());
 
@@ -571,10 +375,6 @@ public class BackendNotificationService {
             properties.put(MessageConstants.ACTION, userMessage.getCollaborationInfo().getAction());
         }
         return properties;
-    }
-
-    public List<NotificationListener> getNotificationListenerServices() {
-        return notificationListenerServices;
     }
 
     protected boolean isPluginNotificationDisabled() {

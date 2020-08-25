@@ -1,9 +1,6 @@
 package eu.domibus.core.audit;
 
-import eu.domibus.core.audit.model.Audit;
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeAudit;
+import eu.domibus.core.audit.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +29,8 @@ public interface AuditDao {
     void saveMessageAudit(MessageAudit messageAudit);
 
     void savePModeAudit(PModeAudit pmodeAudit);
+
+    void savePModeArchiveAudit(PModeArchiveAudit pmodeArchiveAudit);
 
     void saveJmsMessageAudit(JmsMessageAudit jmsMessageAudit);
 }

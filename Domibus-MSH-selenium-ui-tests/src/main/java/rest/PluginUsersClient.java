@@ -20,7 +20,7 @@ public class PluginUsersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not create plugin user");
+			throw new DomibusRestException("Could not create plugin user", response);
 		}
 	}
 	
@@ -30,7 +30,7 @@ public class PluginUsersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not create plugin user");
+			throw new DomibusRestException("Could not create plugin user", response);
 		}
 	}
 	
@@ -57,7 +57,7 @@ public class PluginUsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not delete plugin user");
+			throw new DomibusRestException("Could not delete plugin user", response);
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class PluginUsersClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get users ");
+			throw new DomibusRestException("Could not get users ", response);
 		}
 		
 		try {

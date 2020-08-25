@@ -27,4 +27,9 @@ public interface CRLService {
      * @return true if the pki is revoked
      */
     boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL);
+
+    /**
+     * Reset cache and Crl Protocols
+     */
+    void resetCacheCrlProtocols();
 }

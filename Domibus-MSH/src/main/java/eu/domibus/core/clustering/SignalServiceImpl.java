@@ -3,12 +3,12 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -94,9 +94,10 @@ public class SignalServiceImpl implements SignalService {
         sendMessage(commandProperties);
     }
 
-    protected void sendMessage(Map<String, Object> commandProperties){
+    @Override
+    public void sendMessage(Map<String, Object> commandProperties) {
         if (!domibusConfigurationService.isClusterDeployment()) {
-            LOG.debug("not cluster deployment: no need to {}", commandProperties.get(Command.COMMAND));
+            LOG.debug("No cluster deployment: no need to signal command [{}]", commandProperties.get(Command.COMMAND));
             return;
         }
 

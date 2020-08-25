@@ -16,6 +16,7 @@ import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -102,14 +103,12 @@ public class AlertServiceImpl implements AlertService {
         alert.addEvent(eventEntity);
         alert.setAlertType(alertType);
         alert.setAttempts(0);
-        final String alertRetryMaxAttemptPropertyName = DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-
-        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(alertRetryMaxAttemptPropertyName));
+        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
         alert.setAlertLevel(alertLevel);
-        LOG.info("Saving new alert:\n[{}]\n", alert);
         alertDao.create(alert);
+        LOG.info("New alert saved: [{}]", alert);
         return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
     }
 
@@ -135,7 +134,7 @@ public class AlertServiceImpl implements AlertService {
         alertEntity.setReportingTime(new Date());
         Map<String, String> mailModel = new HashMap<>();
         final Event next = alertEntity.getEvents().iterator().next();
-        next.getProperties().forEach((key, value) -> mailModel.put(key, value.getValue().toString()));
+        next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, alertEntity.getReportingTime().toString());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
@@ -176,8 +175,7 @@ public class AlertServiceImpl implements AlertService {
         LOG.debug("Alert[{}]: send unsuccessfully", alert.getEntityId());
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
-            final String alertRetryTimePropertyName = DOMIBUS_ALERT_RETRY_TIME;
-            final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(alertRetryTimePropertyName);
+            final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             alertEntity.setNextAttempt(nextAttempt);
             alertEntity.setAttempts(attempts);
@@ -262,7 +260,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     private void convertAndEnqueue(Alert alert) {
-        LOG.debug("Preparing alert\n[{}]\nfor retry", alert);
+        LOG.debug("Preparing alert for retry [{}]", alert);
         final eu.domibus.core.alerts.model.service.Alert convert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
         enqueueAlert(convert);
     }
@@ -276,9 +274,9 @@ public class AlertServiceImpl implements AlertService {
         LOG.info("Deleting alerts: {}", alerts);
 
         alerts.stream()
-            .map(alert -> readAlert(alert))
-            .filter(Objects::nonNull)
-            .forEach(alert -> deleteAlert(alert));
+                .map(alert -> readAlert(alert))
+                .filter(Objects::nonNull)
+                .forEach(alert -> deleteAlert(alert));
     }
 
     private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {

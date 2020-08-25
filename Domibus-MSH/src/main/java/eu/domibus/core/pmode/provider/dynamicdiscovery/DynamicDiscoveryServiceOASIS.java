@@ -1,15 +1,16 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscoveryBuilder;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.impl.DefaultURLFetcher;
@@ -25,8 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyStore;
 import java.util.regex.Matcher;
@@ -68,6 +67,9 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
+    protected CertificateService certificateService;
+
+    @Autowired
     DomibusProxyService domibusProxyService;
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
@@ -103,14 +105,17 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             return new EndpointInfo(endpoint.getAddress(), endpoint.getCertificate());
 
         } catch (TechnicalException exc) {
-            throw new ConfigurationException("Could not fetch metadata from SMP", exc);
+            String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
+            // log error, because cause in ConfigurationException is consumed..
+            LOG.error(msg, exc);
+            throw new ConfigurationException(msg, exc);
         }
     }
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (smlInfo == null) {
-            throw new ConfigurationException("SML Zone missing. Please configure it.");
+            throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
@@ -118,15 +123,16 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
 
-        LOG.debug("Load trustore for the smpClient");
+        LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
+            DomibusCertificateValidator domibusSMPCertificateValidator = new DomibusCertificateValidator(certificateService, trustStore, certRegex);
 
             DynamicDiscoveryBuilder dynamicDiscoveryBuilder = DynamicDiscoveryBuilder.newInstance();
             dynamicDiscoveryBuilder
                     .locator(new DefaultBDXRLocator(smlInfo))
-                    .reader(new DefaultBDXRReader(new DefaultSignatureValidator(trustStore, certRegex)));
+                    .reader(new DefaultBDXRReader(new DefaultSignatureValidator(domibusSMPCertificateValidator)));
 
             if (defaultProxy != null) {
                 dynamicDiscoveryBuilder

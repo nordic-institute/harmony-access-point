@@ -8,10 +8,8 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
-import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
@@ -23,10 +21,14 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -90,6 +92,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Injectable
     BackendNotificationService backendNotificationService;
+
+    @Injectable
+    RoutingService routingService;
 
     @Injectable
     protected NonRepudiationService nonRepudiationService;
@@ -181,6 +186,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     PayloadFileStorageProvider storageProvider;
 
+    @Injectable
+    MessagePropertyValidator messagePropertyValidator;
+
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
@@ -261,7 +269,7 @@ public class UserMessageHandlerServiceImplTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(messaging.getUserMessage());
             result = matchingBackendFilter;
 
             userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage);
@@ -297,7 +305,7 @@ public class UserMessageHandlerServiceImplTest {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations(userMessageHandlerService) {{
-            backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(messaging.getUserMessage());
             result = matchingBackendFilter;
 
             messaging.getUserMessage().getMessageInfo().getMessageId();
@@ -318,6 +326,7 @@ public class UserMessageHandlerServiceImplTest {
 
             Assert.assertEquals("1234" + UserMessageHandlerService.SELF_SENDING_SUFFIX, capturedId);
             userMessageHandlerService.checkCharset(messaging);
+            messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, messaging, messageFragment, anyString);
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
         }};
@@ -1010,7 +1019,7 @@ public class UserMessageHandlerServiceImplTest {
         String backendName = "mybackend";
 
         new Expectations(userMessageHandlerService) {{
-            backendNotificationService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(messaging.getUserMessage());
             result = backendFilter;
 
             backendFilter.getBackendName();

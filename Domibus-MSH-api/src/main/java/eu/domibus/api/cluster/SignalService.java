@@ -2,6 +2,8 @@ package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.util.Map;
+
 /**
  * Interface for signal commands into a cluster configuration
  *
@@ -40,4 +42,5 @@ public interface SignalService {
      */
     void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue);
 
+    void sendMessage(Map<String, Object> commandProperties);
 }

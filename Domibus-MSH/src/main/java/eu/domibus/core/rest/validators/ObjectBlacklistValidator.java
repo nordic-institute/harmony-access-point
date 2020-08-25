@@ -6,6 +6,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -26,6 +28,7 @@ import java.util.Map;
  * @since 4.1
  */
 @Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, Object> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
