@@ -278,7 +278,8 @@ public class FSSendMessagesService {
         List<String> lockedFileNames = Arrays.stream(files)
                 .filter(f -> fsFileNameHelper.isLockFile(f.getName().getBaseName()))
                 .map(f -> fsFileNameHelper.getRelativeName(rootFolder, f))
-                .map(fname -> fsFileNameHelper.stripLockSuffix(fname))
+                .filter(Optional::isPresent)
+                .map(fname -> fsFileNameHelper.stripLockSuffix(fname.get()))
                 .collect(Collectors.toList());
 
         for (FileObject file : files) {
@@ -300,12 +301,13 @@ public class FSSendMessagesService {
         return filteredFiles;
     }
 
-    private boolean isMetadata(String baseName) {
+    protected boolean isMetadata(String baseName) {
         return StringUtils.equals(baseName, METADATA_FILE_NAME);
     }
 
-    private boolean isLocked(List<String> lockedFileNames, String fileName) {
-        return lockedFileNames.stream().anyMatch(fname -> fname.equals(fileName));
+    protected boolean isLocked(List<String> lockedFileNames, Optional<String> fileName) {
+        return fileName.isPresent()
+                && lockedFileNames.stream().anyMatch(fname -> fname.equals(fileName.get()));
     }
 
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
