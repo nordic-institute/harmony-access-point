@@ -140,7 +140,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         if (certs.length == 1) {
             return certs[0];
         }
-        Certificate certificate = pkiExtService.extractLeafCertificateFromChain(Arrays.asList(certs));
+        Certificate certificate = pkiExtService.extractLeafCertificateFromChain(new ArrayList<>(Arrays.asList(certs)));
         if (certificate == null) {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
         }
