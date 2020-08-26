@@ -57,6 +57,8 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
+    void deleteMessages(List<String> messageIds);
+
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *

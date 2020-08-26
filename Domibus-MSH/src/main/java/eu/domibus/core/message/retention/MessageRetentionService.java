@@ -16,7 +16,9 @@ public interface MessageRetentionService {
      */
     void deleteExpiredMessages();
 
-    void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit);
+    void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit);
 
     void scheduleDeleteMessages(List<String> messageIds);
+
+    void scheduleDeleteMessages(List<String> messageIds, int maxBatch);
 }

@@ -62,6 +62,7 @@ public abstract class PModeProvider {
 
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
+    public static final int MAX_RETENTION_DELETE_BATCH = 1000;
 
     protected static final String OPTIONAL_AND_EMPTY = "OAE";
 
@@ -418,6 +419,12 @@ public abstract class PModeProvider {
     public abstract int getRetentionUndownloadedByMpcName(String mpcName);
 
     public abstract int getRetentionUndownloadedByMpcURI(final String mpcURI);
+
+    public abstract int getRetentionSentByMpcURI(final String mpcURI);
+
+    public abstract boolean isDeleteMessageMetadataByMpcURI(final String mpcURI);
+
+    public abstract int getRetentionMaxBatchByMpcURI(final String mpcURI);
 
     public abstract Role getBusinessProcessRole(String roleValue) throws EbMS3Exception;
 

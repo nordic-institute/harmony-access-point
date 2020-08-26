@@ -528,6 +528,43 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getRetentionSentByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                return mpc1.getRetentionSent();
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Assuming message retention of -1 for sent messages.", mpcURI);
+
+        return -1;
+    }
+
+    @Override
+    public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                return mpc1.isDeleteMessageMetadata();
+            }
+        }
+        LOG.error("No MPC with name: [{}] found. Assuming delete message metadata is false.", mpcURI);
+        return false;
+    }
+
+    @Override
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                return mpc1.getMaxBatchDelete();
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Assuming message retention batch of [{}].", mpcURI, MAX_RETENTION_DELETE_BATCH);
+
+        return MAX_RETENTION_DELETE_BATCH;
+    }
+
+    @Override
     public List<String> getMpcList() {
         final List<String> result = new ArrayList<>();
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {

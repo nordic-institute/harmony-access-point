@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.List;
 
 /**
  * Listeners that deletes messages by their identifiers.
@@ -45,17 +46,22 @@ public class RetentionListener implements MessageListener {
         }
 
         try {
-            String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.debug("Processing retention message [{}]", messageId);
-
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            LOG.debug("Processing message [{}] for domain [{}]", messageId, domainCode);
+            LOG.debug("Processing JMS message for domain [{}]", domainCode);
             domainContextProvider.setCurrentDomain(domainCode);
 
-            userMessageDefaultService.deleteMessage(messageId);
+            String deleteType = message.getStringProperty(MessageConstants.DELETE_TYPE);
+            if(DeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(deleteType) ) {
+                String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+                userMessageDefaultService.deleteMessage(messageId);
+            } else {
+                List<String> messageIds = (List<String>)message.getObjectProperty(MessageConstants.MESSAGE_IDS);
+                userMessageDefaultService.deleteMessages(messageIds);
+            }
+
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
         }
     }
+
 }

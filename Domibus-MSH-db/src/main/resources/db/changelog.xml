@@ -977,6 +977,9 @@
             <column name="QUALIFIED_NAME" type="VARCHAR(255)"/>
             <column name="RETENTION_DOWNLOADED" type="INT"/>
             <column name="RETENTION_UNDOWNLOADED" type="INT"/>
+            <column name="RETENTION_SENT" type="INT" defaultValueNumeric="-1"/>
+            <column name="DELETE_MESSAGE_METADATA" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="MAX_BATCH_DELETE" type="INT" defaultValueNumeric="1000"/>
             <column name="FK_CONFIGURATION" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>

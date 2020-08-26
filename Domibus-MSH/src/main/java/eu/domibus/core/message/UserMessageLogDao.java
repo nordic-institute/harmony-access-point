@@ -131,6 +131,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
+    public List<String> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+    }
+
     private List<String> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
         TypedQuery<String> query = em.createNamedQuery(queryName, String.class);
         query.setParameter("DATE", startDate);

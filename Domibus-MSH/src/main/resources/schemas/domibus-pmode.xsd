@@ -20,6 +20,12 @@
                                     <xs:attribute name="enabled" type="xs:boolean" use="required"/>
                                     <xs:attribute name="qualifiedName" type="max255-non-empty-string"
                                                   use="required"/>
+                                    <xs:attribute name="retention_sent" type="xs:int"
+                                                  use="optional" default="-1"/>
+                                    <xs:attribute name="delete_message_metadata" type="xs:boolean"
+                                                  use="optional" default="false"/>
+                                    <xs:attribute name="max_batch_delete" type="xs:int"
+                                                  use="optional" default="1000"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

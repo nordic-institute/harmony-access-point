@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -55,6 +56,18 @@ public class MessageRetentionServiceTest {
     @Tested
     MessageRetentionDefaultService messageRetentionService;
 
+
+    @Test
+    public void mytest() {
+        final String mpc1 = "mpc1";
+
+        String t = "DELETE_MESSAGE_ID_SINGLE";
+
+        if(DeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(t))
+            System.out.println("egale");
+        else
+            System.out.println("nope");
+    }
     @Test
     public void testDeleteExpiredMessages() {
         final String mpc1 = "mpc1";
@@ -70,12 +83,16 @@ public class MessageRetentionServiceTest {
 
             messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
             result = 20;
+
+            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
+            result = 30;
+
         }};
 
         messageRetentionService.deleteExpiredMessages();
 
         new Verifications() {{
-            messageRetentionService.deleteExpiredMessages(mpc1, 10, 20);
+            messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
         }};
     }
 
@@ -91,7 +108,7 @@ public class MessageRetentionServiceTest {
             messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
         }};
 
-        messageRetentionService.deleteExpiredMessages(mpc1, 10, 20);
+        messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
 
         //the verifications are done in the Expectations block
 
