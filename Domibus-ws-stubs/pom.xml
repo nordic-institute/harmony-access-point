@@ -14,6 +14,8 @@
     <name>Domibus MSH Default WS Plugin Stubs</name>
 
     <dependencies>
+
+        <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -27,8 +29,13 @@
 
         <!-- these dependencies are not included in jdk11 -->
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -36,7 +43,6 @@
             <artifactId>jaxws-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

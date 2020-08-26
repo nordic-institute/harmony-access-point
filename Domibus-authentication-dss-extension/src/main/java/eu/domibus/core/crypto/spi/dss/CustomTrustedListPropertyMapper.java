@@ -2,11 +2,11 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.OtherTrustedList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ import java.util.Map;
 @Component
 public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTrustedList> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
 
     private static final String CUSTOM_TRUSTED_LIST_URL_PROPERTY = "domibus.authentication.dss.custom.trusted.list.url";
 
