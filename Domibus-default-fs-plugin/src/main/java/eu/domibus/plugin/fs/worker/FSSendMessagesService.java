@@ -274,15 +274,15 @@ public class FSSendMessagesService {
     protected List<FileObject> filterProcessableFiles(FileObject rootFolder, FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
-        // lock file names
-        List<String> lockFileNames = Arrays.stream(files)
+
+        List<String> lockedFileNames = Arrays.stream(files)
                 .filter(f -> fsFileNameHelper.isLockFile(f.getName().getBaseName()))
                 .map(f -> fsFileNameHelper.getRelativeName(rootFolder, f))
                 .map(fname -> fsFileNameHelper.stripLockSuffix(fname))
                 .collect(Collectors.toList());
 
         for (FileObject file : files) {
-            String fileName = fsFileNameHelper.getRelativeName(rootFolder, file);
+            String fileName = file.getName().getBaseName();
 
             if (!isMetadata(fileName)
                     && !fsFileNameHelper.isAnyState(fileName)
@@ -290,7 +290,7 @@ public class FSSendMessagesService {
                     // exclude lock files:
                     && !fsFileNameHelper.isLockFile(fileName)
                     // exclude locked files:
-                    && !isLocked(lockFileNames, fileName)
+                    && !isLocked(lockedFileNames, fsFileNameHelper.getRelativeName(rootFolder, file))
                     // exclude files that are (or could be) in use by other processes:
                     && canReadFileSafely(file, domain)) {
                 filteredFiles.add(file);
@@ -304,8 +304,8 @@ public class FSSendMessagesService {
         return StringUtils.equals(baseName, METADATA_FILE_NAME);
     }
 
-    private boolean isLocked(List<String> lockFileNames, String baseName) {
-        return lockFileNames.stream().anyMatch(fname -> fname.equals(baseName));
+    private boolean isLocked(List<String> lockedFileNames, String fileName) {
+        return lockedFileNames.stream().anyMatch(fname -> fname.equals(fileName));
     }
 
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
