@@ -121,7 +121,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         addRoleToUser(user.getAuthorities(), existing);
     }
 
-    private boolean sameRoles(eu.domibus.api.user.User user, User existing) {
+    protected boolean sameRoles(eu.domibus.api.user.User user, User existing) {
         String newRoles = user.getAuthorities().toString();
         String existingRoles = existing.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()).toString();
         return newRoles.equals(existingRoles);
