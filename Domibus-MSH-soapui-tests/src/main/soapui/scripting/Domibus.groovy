@@ -281,8 +281,6 @@ def findNumberOfDomain(String inputSite) {
                 assert 0,"SQLException occured: " + ex;
             }
         }
-
-		dbConnections[targetDomainID].commit();
 		
         // Maybe this part is not needed as connection would be always close in class destructor
         if (connectionOpenedInsideMethod) {
