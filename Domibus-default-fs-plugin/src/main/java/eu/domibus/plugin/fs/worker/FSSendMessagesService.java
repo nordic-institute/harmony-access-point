@@ -274,7 +274,6 @@ public class FSSendMessagesService {
     protected List<FileObject> filterProcessableFiles(FileObject rootFolder, FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
-
         List<String> lockedFileNames = Arrays.stream(files)
                 .filter(f -> fsFileNameHelper.isLockFile(f.getName().getBaseName()))
                 .map(f -> fsFileNameHelper.getRelativeName(rootFolder, f))
