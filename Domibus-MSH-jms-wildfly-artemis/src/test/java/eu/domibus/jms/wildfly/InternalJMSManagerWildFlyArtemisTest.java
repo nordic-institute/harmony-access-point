@@ -102,11 +102,11 @@ public class InternalJMSManagerWildFlyArtemisTest {
                 mapMessage.getPropertyNames();
                 result = new Vector(allPropertyNames).elements();
 
-                mapMessage.getObjectProperty("JMSProp1");
+                mapMessage.getStringProperty("JMSProp1");
                 result = "JMSValue1";
 
-                mapMessage.getObjectProperty("totalNumberOfPayloads");
-                result = 5;
+                mapMessage.getStringProperty("totalNumberOfPayloads");
+                result = "5";
 
                 mapMessage.getMapNames();
                 result = new Vector(mapNames).elements();
