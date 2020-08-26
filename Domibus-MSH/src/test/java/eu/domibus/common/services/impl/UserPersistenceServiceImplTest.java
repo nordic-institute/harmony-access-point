@@ -272,7 +272,6 @@ public class UserPersistenceServiceImplTest {
         userPersistenceService.updateRolesIfNecessary(user, existing);
 
         new FullVerifications() {{
-            existing.clearRoles(); times = 0;
         }};
     }
 
