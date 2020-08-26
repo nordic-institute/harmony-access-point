@@ -523,7 +523,7 @@ public class PasswordEncryptionServiceImplTest {
 
         try{
             passwordEncryptionService.arePropertiesNewlyEncrypted(new File ("./src/test/resources/config/fileDoesNotExist.properties"), replacedLines);
-            assert false;
+            fail("Expected DomibusEncryptionException due to file not present.");
         }
         catch (DomibusEncryptionException e){
             assertTrue("Expect DomibusEncryptionException due to file not present.", e.getMessage().contains("Could not read configuration file"));
