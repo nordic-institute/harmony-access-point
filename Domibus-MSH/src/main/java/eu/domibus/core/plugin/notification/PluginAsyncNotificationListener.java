@@ -70,7 +70,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
                 LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
                 return;
             }
-            Map<String, Object> messageProperties = getMessageProperties(message);
+            Map<String, String> messageProperties = getMessageProperties(message);
             pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
@@ -81,12 +81,12 @@ public class PluginAsyncNotificationListener implements MessageListener {
         }
     }
 
-    protected Map<String, Object> getMessageProperties(Message message) throws JMSException {
-        Map<String, Object> properties = new HashMap<>();
+    protected Map<String, String> getMessageProperties(Message message) throws JMSException {
+        Map<String, String> properties = new HashMap<>();
         Enumeration propertyNames = message.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = (String) propertyNames.nextElement();
-            properties.put(propertyName, message.getObjectProperty(propertyName));
+            properties.put(propertyName, message.getStringProperty(propertyName));
         }
         return properties;
     }

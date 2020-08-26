@@ -19,11 +19,11 @@ public class JMSMessageBuilderTest {
         JmsMessage message = JMSMessageBuilder
                 .create()
                 .property("stringProp", "myString")
-                .property("integerProp", 100)
-                .property("longProp", 200L)
+                .property("integerProp", "100")
+                .property("longProp", "200")
                 .build();
         assertEquals(message.getProperty("stringProp"), "myString");
-        assertEquals(message.getProperty("integerProp"), Integer.valueOf(100));
-        assertEquals(message.getProperty("longProp"), Long.valueOf(200L));
+        assertEquals(Integer.parseInt(message.getProperty("integerProp")), 100);
+        assertEquals(Long.parseLong(message.getProperty("longProp")), 200L);
     }
 }

@@ -122,10 +122,10 @@ public class InternalJMSManagerWildFlyArtemisTest {
         assertEquals(internalJmsMessage.getTimestamp(), jmsTimestamp);
         assertEquals(internalJmsMessage.getId(), jmsId1);
 
-        Map<String, Object> properties = internalJmsMessage.getProperties();
+        Map<String, String> properties = internalJmsMessage.getProperties();
         assertEquals(properties.size(), 2);
         assertEquals(properties.get("JMSProp1"), "JMSValue1");
-        assertEquals(properties.get("totalNumberOfPayloads"), 5);
+        assertEquals(properties.get("totalNumberOfPayloads"), "5");
         assertEquals(properties.get("payload_1"), null);
     }
 

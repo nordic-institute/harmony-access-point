@@ -39,6 +39,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
@@ -112,7 +113,7 @@ public class BackendNotificationService {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        final Map<String, Object> properties = new HashMap<>();
+        final Map<String, String> properties = new HashMap<>();
         if (errorResult.getErrorCode() != null) {
             properties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
         }
@@ -193,7 +194,7 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
-    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
+    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageInfo().getMessageId(), unknownReceiverQueue);
             String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -205,12 +206,12 @@ public class BackendNotificationService {
         validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
     }
 
-    protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, Object> properties) {
+    protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
     }
 
-    protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, Object> properties) {
+    protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
         submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
@@ -225,7 +226,7 @@ public class BackendNotificationService {
         notify(messageId, backendName, notificationType, null);
     }
 
-    protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, Object> properties) {
+    protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, String> properties) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
         if (backendConnector == null) {
             LOG.warn("No backend connector found for backend [{}]", backendName);
@@ -259,7 +260,7 @@ public class BackendNotificationService {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, String messageId, NotificationType notificationType, Map<String, Object> properties) {
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, String messageId, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
         jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
@@ -269,7 +270,7 @@ public class BackendNotificationService {
                               AsyncNotificationConfiguration asyncNotificationConfiguration,
                               String messageId,
                               NotificationType notificationType,
-                              Map<String, Object> properties) {
+                              Map<String, String> properties) {
         LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
         PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
         if (pluginEventNotifier == null) {
@@ -282,7 +283,10 @@ public class BackendNotificationService {
         //for backward compatibility
         if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
-            notificationListener.notify(messageId, notificationType, properties);
+            Map<String,Object> newProperties = properties.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
+
+            notificationListener.notify(messageId, notificationType, newProperties);
         }
     }
 
@@ -350,7 +354,7 @@ public class BackendNotificationService {
             userMessage = messagingDao.findUserMessageByMessageId(messageId);
         }
 
-        final Map<String, Object> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
+        final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
         if (BooleanUtils.isTrue(messageLog.getMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
@@ -359,13 +363,13 @@ public class BackendNotificationService {
         notify(messageLog.getMessageId(), messageLog.getBackend(), notificationType, messageProperties);
     }
 
-    protected Map<String, Object> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
-        Map<String, Object> properties = new HashMap<>();
+    protected Map<String, String> getMessageProperties(MessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
+        Map<String, String> properties = new HashMap<>();
         if (messageLog.getMessageStatus() != null) {
             properties.put(MessageConstants.STATUS_FROM, messageLog.getMessageStatus().toString());
         }
         properties.put(MessageConstants.STATUS_TO, newStatus.toString());
-        properties.put(MessageConstants.CHANGE_TIMESTAMP, changeTimestamp.getTime());
+        properties.put(MessageConstants.CHANGE_TIMESTAMP, String.valueOf(changeTimestamp.getTime()));
 
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", messageLog.getMessageId());

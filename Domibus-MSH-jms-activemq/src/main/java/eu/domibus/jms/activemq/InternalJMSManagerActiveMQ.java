@@ -273,7 +273,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         String jmsMessageId = getCompositeValue(data, "JMSMessageID");
         result.setId(jmsMessageId);
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         Integer priority = getCompositeValue(data, JMS_PRIORITY);
         result.setPriority(priority);
@@ -299,7 +299,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
                 for (CompositeDataSupport compositeDataSupport : values) {
                     String key = (String) compositeDataSupport.get("key");
                     Object value = compositeDataSupport.get("value");
-                    properties.put(key, value);
+                    properties.put(key, String.valueOf(value));
                 }
             }
         }
@@ -386,11 +386,11 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         result.setPriority(textMessage.getJMSPriority());
         Enumeration propertyNames = textMessage.getPropertyNames();
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
             Object objectProperty = textMessage.getObjectProperty(name);
-            properties.put(name, objectProperty);
+            properties.put(name, String.valueOf(objectProperty));
         }
         result.setProperties(properties);
         return result;

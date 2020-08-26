@@ -39,7 +39,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties) {
+    public void createClusterCommand(String command, String domain, String server, Map<String, String> commandProperties) {
         LOG.debug("Creating command [{}] for domain [{}] and server [{}]", command, domain, server);
         CommandEntity commandEntity = new CommandEntity();
         commandEntity.setCommandName(command);
@@ -81,14 +81,14 @@ public class CommandServiceImpl implements CommandService {
      * @param messageProperties
      * @return
      */
-    protected Map<String, String> getCommandProperties(Map<String, Object> messageProperties) {
+    protected Map<String, String> getCommandProperties(Map<String, String> messageProperties) {
         HashMap<String, String> properties = new HashMap<>();
 
         if (MapUtils.isEmpty(messageProperties)) {
             LOG.trace("Provided message properties is empty");
             return properties;
         }
-        for (Map.Entry<String, Object> entry : messageProperties.entrySet()) {
+        for (Map.Entry<String, String> entry : messageProperties.entrySet()) {
             if (!Command.COMMAND.equalsIgnoreCase(entry.getKey()) && !MessageConstants.DOMAIN.equalsIgnoreCase(entry.getKey())
                     && messageProperties.get(entry.getKey()) instanceof String) {
                 properties.put(entry.getKey(), (String) messageProperties.get(entry.getKey()));

@@ -31,7 +31,7 @@ public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, Object> properties) {
+    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, String> properties) {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         event.setMessageId(messageId);
 
@@ -40,7 +40,7 @@ public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
             event.setFromStatus(MessageStatus.valueOf(fromStatus));
         }
         event.setToStatus(MessageStatus.valueOf((String) properties.get(MessageConstants.STATUS_TO)));
-        event.setChangeTimestamp(new Timestamp((Long) properties.get(MessageConstants.CHANGE_TIMESTAMP)));
+        event.setChangeTimestamp(new Timestamp( Long.parseLong(properties.get(MessageConstants.CHANGE_TIMESTAMP)) ));
         event.addProperty("service", properties.get(MessageConstants.SERVICE));
         event.addProperty("serviceType", properties.get(MessageConstants.SERVICE_TYPE));
         event.addProperty("action", properties.get(MessageConstants.ACTION));
