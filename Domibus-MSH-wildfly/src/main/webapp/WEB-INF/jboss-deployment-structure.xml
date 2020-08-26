@@ -4,7 +4,6 @@
         <exclude-subsystems>
             <subsystem name="webservices" />
             <subsystem name="jaxrs" />
-<!--            <subsystem name="resteasy" />-->
             <subsystem name="jsf"/>
         </exclude-subsystems>
 
@@ -12,7 +11,6 @@
             <module name="org.apache.activemq.artemis"/>
             <module name="javax.xml.ws.api"/>
             <module name="javax.jms.api"/>
-<!--            <module name="com.sun.xml.messaging.saaj"/>-->
             <system export="true">
                 <paths>
                     <path name="com/sun/org/apache/xerces/internal/jaxp/datatype"/>
@@ -27,11 +25,7 @@
         </resources>
 
         <exclusions>
-<!--            <module name="org.bouncycastle" />-->
-<!--            <module name="org.apache.cxf" />-->
-<!--            <module name="org.apache.cxf.impl" />-->
             <module name="org.slf4j" />
-<!--            <module name="org.slf4j.impl" />-->
             <module name="org.apache.log4j" />
             <module name="org.apache.commons.logging"/>
             <module name="org.jboss.logging"/>
