@@ -282,6 +282,8 @@ def findNumberOfDomain(String inputSite) {
             }
         }
 
+		dbConnections[targetDomainID].commit();
+		
         // Maybe this part is not needed as connection would be always close in class destructor
         if (connectionOpenedInsideMethod) {
             debugLog("  executeListOfSqlQueries  [][]  Connection to DB opened during method execution - close opened connection", log)
@@ -550,6 +552,8 @@ def findNumberOfDomain(String inputSite) {
         def waitForStatus(String SMSH=null, String RMSH=null, String IDMes=null, String bonusTimeForSender=null, String bonusTimeForReceiver=null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
         def MAX_WAIT_TIME=100_000; // Maximum time to wait to check the message status.
+		def RECEIVER_MAX_WAIT_TIME=60_000;
+		def RECEIVER_MAX_WAIT_TIME_EXTENDED=120_000;
         def STEP_WAIT_TIME=2_000; // Time to wait before re-checking the message status.
         def messageID = null;
         def numberAttempts = 0;
@@ -614,12 +618,12 @@ def findNumberOfDomain(String inputSite) {
         }
         if (bonusTimeForReceiver) {
             if (bonusTimeForReceiver.isInteger()) MAX_WAIT_TIME = (bonusTimeForReceiver as Integer) * 1000
-            else MAX_WAIT_TIME = 120_000
+            else MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME_EXTENDED;
 
             log.info "  waitForStatus  [][]  Waiting time for Receiver extended to ${MAX_WAIT_TIME/1000} seconds"
 
         } else {
-            MAX_WAIT_TIME = 50_000
+            MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME;
         }
         messageStatus = "INIT"
         if (RMSH) {
