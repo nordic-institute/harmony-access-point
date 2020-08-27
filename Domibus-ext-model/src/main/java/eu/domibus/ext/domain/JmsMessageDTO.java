@@ -56,6 +56,7 @@ public class JmsMessageDTO {
     }
 
     public void setProperty(String name, Object value) {
+        validateValueType(name, value);
         properties.put(name, value);
     }
 
@@ -64,6 +65,9 @@ public class JmsMessageDTO {
     }
 
     public void setProperties(Map<String, Object> properties) {
+        properties.forEach( (name, value) -> {
+            validateValueType(name, value);
+        });
         this.properties = properties;
     }
 
@@ -88,5 +92,10 @@ public class JmsMessageDTO {
                 .append("timestamp", timestamp)
                 .append("properties", properties)
                 .toString();
+    }
+    public void validateValueType (String name, Object value){
+        if (value != null && !(value instanceof String)) {
+            throw new IllegalArgumentException("Unsupported value type ["+ value.getClass()+"]: for JMS key: ["+name+"]. Only String values are allowed!");
+        }
     }
 }
