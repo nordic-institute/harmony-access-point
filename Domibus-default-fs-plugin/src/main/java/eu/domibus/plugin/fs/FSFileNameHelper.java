@@ -1,10 +1,8 @@
 package eu.domibus.plugin.fs;
 
-import com.sun.javafx.tools.packager.Log;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
