@@ -36,6 +36,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
     @Override
     public JmsMessageDTO jmsMessageToJmsMessageDTO(JmsMessage jmsMessage) {
         if ( jmsMessage == null ) {
+            LOG.trace("Convert 'null' JmsMessage parameter to 'null' JmsMessageDTO!");
             return null;
         }
         JmsMessageDTO jmsMessageDTO = delegate.jmsMessageToJmsMessageDTO(jmsMessage);
@@ -46,6 +47,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
     @Override
     public JmsMessage jmsMessageDTOToJmsMessage(JmsMessageDTO jmsMessageDTO) {
         if ( jmsMessageDTO == null ) {
+            LOG.trace("Convert 'null' JmsMessageDTO parameter to 'null' JmsMessage!");
             return null;
         }
 
@@ -58,7 +60,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
 
         LOG.debug("JmsMessageDTO convertDTO: [{}]", properties.getClass());
         Map<String,String> newProperties = properties.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String)e.getValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
         return newProperties;
     }
     protected Map<String, Object> convert(Map<String, String> properties) {

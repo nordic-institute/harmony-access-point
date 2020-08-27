@@ -2,9 +2,11 @@ package eu.domibus.ext.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -56,7 +58,10 @@ public class JmsMessageDTO {
     }
 
     public void setProperty(String name, Object value) {
-        validateValueType(name, value);
+
+        if (!isValueStringType(value)){
+            throw new IllegalArgumentException("Unsupported value type: ["+ value.getClass()+"] for JMS property name: ["+name+"]. Only String values are allowed!");
+        }
         properties.put(name, value);
     }
 
@@ -65,9 +70,22 @@ public class JmsMessageDTO {
     }
 
     public void setProperties(Map<String, Object> properties) {
-        properties.forEach( (name, value) -> {
-            validateValueType(name, value);
-        });
+
+        // get invalid properties
+        Map<String, Object> invalidProperties = properties.entrySet().stream()
+                .filter(e -> !isValueStringType(e.getValue())).
+                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue ));
+
+        if (!invalidProperties.isEmpty()) {
+            StringWriter sw = new StringWriter();
+            invalidProperties.forEach((name, value) ->{
+                    sw.append("Unsupported value type: ["+ value.getClass()+"] for JMS property name: ["+name+"].\n");
+            });
+            sw.append("Only String values are allowed!");
+
+            throw new IllegalArgumentException(sw.toString());
+        }
+
         this.properties = properties;
     }
 
@@ -93,9 +111,8 @@ public class JmsMessageDTO {
                 .append("properties", properties)
                 .toString();
     }
-    public void validateValueType (String name, Object value){
-        if (value != null && !(value instanceof String)) {
-            throw new IllegalArgumentException("Unsupported value type ["+ value.getClass()+"]: for JMS key: ["+name+"]. Only String values are allowed!");
-        }
+
+    protected boolean isValueStringType(Object value) {
+        return value == null || value instanceof String;
     }
 }

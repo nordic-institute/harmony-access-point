@@ -389,8 +389,8 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
-            Object objectProperty = textMessage.getObjectProperty(name);
-            properties.put(name, String.valueOf(objectProperty));
+            String value = textMessage.getStringProperty(name);
+            properties.put(name, value);
         }
         result.setProperties(properties);
         return result;
