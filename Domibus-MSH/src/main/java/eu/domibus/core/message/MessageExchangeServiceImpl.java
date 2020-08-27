@@ -44,10 +44,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
@@ -189,7 +189,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
         validPullProcesses.forEach(pullProcess ->
-                pullProcess.getLegs().stream().forEach(legConfiguration ->
+                pullProcess.getLegs().stream().filter(distinctByKey(LegConfiguration::getDefaultMpc)).
+                        forEach(legConfiguration ->
                         preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
     }
 
@@ -235,6 +236,12 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
 
         }
+    }
+
+    protected <T> Predicate<T> distinctByKey(
+            Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> mcpMap = new ConcurrentHashMap<>();
+        return t -> mcpMap.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     private boolean pause(Integer maxPullRequestNumber) {
