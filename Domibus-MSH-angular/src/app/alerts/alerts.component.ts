@@ -186,7 +186,7 @@ export class AlertsComponent extends mix(BaseListComponent).with(FilterableListM
 
     if (this.dynamicFilters.length > 0) {
       for (let filter of this.dynamicFilters) {
-        searchParams.append('parameters', filter);
+        searchParams.append('parameters', filter || ''); // do not merge this in 4.2, this code doesn't apply there anymore
       }
     }
 
