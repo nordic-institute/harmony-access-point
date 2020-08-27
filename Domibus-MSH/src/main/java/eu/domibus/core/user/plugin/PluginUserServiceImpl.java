@@ -161,7 +161,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
 
         Streams.concat(addedUsers.stream(), updatedUsers.stream())
-                .filter(user -> user.getAuthRoles().contains(AuthRole.ROLE_USER.name()))
+                .filter(user -> StringUtils.equals(user.getAuthRoles(), AuthRole.ROLE_USER.name()))
                 .filter(user -> StringUtils.isEmpty(user.getOriginalUser()))
                 .findFirst()
                 .ifPresent(user -> {
