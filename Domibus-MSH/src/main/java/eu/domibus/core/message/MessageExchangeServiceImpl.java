@@ -240,8 +240,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     protected <T> Predicate<T> distinctByKey(
             Function<? super T, ?> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+        Map<Object, Boolean> mcpMap = new ConcurrentHashMap<>();
+        return t -> mcpMap.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     private boolean pause(Integer maxPullRequestNumber) {
