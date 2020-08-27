@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
@@ -14,25 +15,20 @@ import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
-import eu.domibus.core.message.pull.ProcessValidator;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.core.message.pull.MpcService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.pull.PullContext;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -261,29 +260,29 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public String retrieveReadyToPullUserMessageId(final String mpc, final Party initiator) {
-        String partyId = getPartyId(mpc, initiator);
-
-        if (partyId == null) {
-            LOG.warn("No identifier found for party:[{}]", initiator.getName());
-            return null;
+        Set<String> partyIds = getPartyIds(mpc, initiator);
+        for (String partyId : partyIds) {
+            String pullMessageId = pullMessageService.getPullMessageId(partyId, mpc);
+            if (pullMessageId != null) {
+                return pullMessageId;
+            }
         }
-        return pullMessageService.getPullMessageId(partyId, mpc);
+        return null;
     }
 
-    protected String getPartyId(String mpc, Party initiator) {
-        String partyId = null;
+    protected Set<String> getPartyIds(String mpc, Party initiator) {
         if (initiator != null && initiator.getIdentifiers() != null) {
-            Optional<Identifier> optionalParty = initiator.getIdentifiers().stream().findFirst();
-            partyId = optionalParty.isPresent() ? optionalParty.get().getPartyId() : null;
+            return initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
         }
-        if (partyId == null && pullMessageService.allowDynamicInitiatorInPullProcess()) {
+        if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
             LOG.debug("Extract partyId from mpc [{}]", mpc);
-            partyId = mpcService.extractInitiator(mpc);
+            return Sets.newHashSet(mpcService.extractInitiator(mpc));
         }
-        return partyId;
+        return Sets.newHashSet();
     }
 
     /**
+     * µ
      * {@inheritDoc}
      */
     @Override

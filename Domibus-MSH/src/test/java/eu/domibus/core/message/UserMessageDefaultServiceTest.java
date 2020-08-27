@@ -15,7 +15,6 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -373,8 +372,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
 
-            PartyExtractor partyExtractor = null;
-            pullMessageService.addPullMessageLock(withAny(partyExtractor), userMessage, userMessageLog);
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             times = 1;
         }};
     }

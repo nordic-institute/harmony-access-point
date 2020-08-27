@@ -1,11 +1,11 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.ebms3.common.model.UserMessage;
 
 public interface PullMessageService {
 
@@ -24,21 +24,20 @@ public interface PullMessageService {
      * When a message arrives in the system, if it is configured to be pulled, some extra information needed for finding
      * the message later will be extracted and saved in a different place where the message lock will be facilitated.
      *
-     * @param partyIdExtractor interface allowing to retrieve the initiator information from different context.
-     * @param userMessage      the user message.
-     * @param messageLog       the message log.
+     * @param userMessage the user message.
+     * @param messageLog  the message log.
      */
-    void addPullMessageLock(PartyIdExtractor partyIdExtractor, UserMessage userMessage, MessageLog messageLog);
+    void addPullMessageLock(UserMessage userMessage, MessageLog messageLog);
 
     /**
      * When a message arrives in the system, if it is configured to be pulled, some extra information needed for finding
      * the message later will be extracted and saved in a different place where the message lock will be facilitated.
-     *
-     * @param partyIdExtractor interface allowing to retrieve the initiator information from different context.
+     * @param partyIdentifier the party indentifier contained in the message.
      * @param pModeKey      the pModeKey.
      * @param messageLog       the message log.
      */
-    void addPullMessageLock(final PartyIdExtractor partyIdExtractor, final String pModeKey, final MessageLog messageLog);
+    void addPullMessageLock(String partyIdentifier, final String pModeKey, final MessageLog messageLog);
+
     /**
      * When a message has been successfully delivered or marked a failed, its lock counter part item should be removed from
      * the  locking system.
