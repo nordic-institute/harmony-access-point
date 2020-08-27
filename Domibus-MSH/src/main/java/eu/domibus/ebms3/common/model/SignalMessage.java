@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
 import org.w3c.dom.Element;
 
 import javax.persistence.*;
@@ -51,6 +52,10 @@ public class SignalMessage extends AbstractBaseEntity {
     @Transient
     //According to how we read the spec those attributes serve no purpose in the AS4 profile, therefore they are discarded
     protected List<Object> any; //NOSONAR
+
+    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @XmlTransient
+    private RawEnvelopeLog rawEnvelopeLog;
 
     /**
      * Gets the value of the messageInfo property.

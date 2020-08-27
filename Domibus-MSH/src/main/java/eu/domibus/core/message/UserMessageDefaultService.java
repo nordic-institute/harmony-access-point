@@ -535,6 +535,7 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
+    // TODO IOANA - handle migration of FK cascade constraints in changelog.xml
     @Override
     public void deleteMessages(List<String> messageIds) {
         LOG.debug("Deleting messages [{}]", messageIds);

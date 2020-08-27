@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -51,14 +52,19 @@ public class RetentionListener implements MessageListener {
             domainContextProvider.setCurrentDomain(domainCode);
 
             String deleteType = message.getStringProperty(MessageConstants.DELETE_TYPE);
-            if(DeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(deleteType) ) {
+            if (StringUtils.equals(DeleteType.DELETE_MESSAGE_ID_SINGLE.name(), deleteType)) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
                 userMessageDefaultService.deleteMessage(messageId);
-            } else {
-                List<String> messageIds = (List<String>)message.getObjectProperty(MessageConstants.MESSAGE_IDS);
-                userMessageDefaultService.deleteMessages(messageIds);
+                return;
             }
 
+            if (StringUtils.equals(DeleteType.DELETE_MESSAGE_ID_MULTI.name(), deleteType)) {
+                List<String> messageIds = (List<String>) message.getObjectProperty(MessageConstants.MESSAGE_IDS);
+                userMessageDefaultService.deleteMessages(messageIds);
+                return;
+            }
+
+            LOG.warn("Unknown message type [{}], JMS message will be ignored.", deleteType);
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
         }

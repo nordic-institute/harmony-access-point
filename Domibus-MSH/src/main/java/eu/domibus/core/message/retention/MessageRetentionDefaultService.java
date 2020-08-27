@@ -131,7 +131,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     public void scheduleDeleteMessages(List<String> messageIds, String mpc) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        LOG.debug("Delete messges, isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
+        LOG.debug("Delete messages, isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
         if (isDeleteMessageMetadata) { // schedule delete in batch
             final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc);
             scheduleDeleteMessages(messageIds, maxBatch);
@@ -151,7 +151,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Scheduling delete messages [{}]", messageIds);
         messageIds.forEach(messageId -> {
             JmsMessage message = JMSMessageBuilder.create()
-                    .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_SINGLE)
+                    .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_SINGLE.name())
                     .property(MessageConstants.MESSAGE_ID, messageId)
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
@@ -167,11 +167,15 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
 
         while (messageIds.size() > 0) {
-            List<String> messageIdsBatch = messageIds.stream().limit(maxBatch).collect(Collectors.toList());
+            int currentBatch = messageIds.size();
+            if(currentBatch > maxBatch) {
+                currentBatch = maxBatch;
+            }
+            List<String> messageIdsBatch = messageIds.stream().limit(currentBatch).collect(Collectors.toList());
             messageIds.forEach(messageId -> messageIdsBatch.remove(messageId));
             LOG.debug("Scheduling delete [{}] messages [{}]", messageIdsBatch.size(), messageIdsBatch);
             JmsMessage message = JMSMessageBuilder.create()
-                    .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_MULTI)
+                    .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_MULTI.name())
                     .property(MessageConstants.MESSAGE_IDS, messageIds)
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);

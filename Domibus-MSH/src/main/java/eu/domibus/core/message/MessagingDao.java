@@ -18,9 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -98,6 +96,18 @@ public class MessagingDao extends BasicDao<Messaging> {
         clearFileSystemPayloads(userMessage);
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void clearMessage(String messageId) {
+        LOG.debug("Start clearing the message [{}]", messageId);
+
+        final StoredProcedureQuery storedProcedureQuery = em.createStoredProcedureQuery("DeleteOldMessages");
+        storedProcedureQuery.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);
+        storedProcedureQuery.setParameter(1,  messageId);
+        storedProcedureQuery.execute();
+        LOG.debug("End clearing the message [{}]", messageId);
     }
 
     /**
