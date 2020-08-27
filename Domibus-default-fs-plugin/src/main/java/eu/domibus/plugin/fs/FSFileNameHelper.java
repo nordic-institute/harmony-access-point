@@ -1,11 +1,15 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,6 +20,8 @@ import java.util.stream.Collectors;
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
 public class FSFileNameHelper {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFileNameHelper.class);
 
     public static final String NAME_SEPARATOR = "_";
     public static final String EXTENSION_SEPARATOR = ".";
@@ -180,4 +186,12 @@ public class FSFileNameHelper {
         return matcher.replaceFirst("/" + destFolder + "/");
     }
 
+    public Optional<String> getRelativeName(FileObject rootFolder, FileObject f) {
+        try {
+            return Optional.of(rootFolder.getName().getRelativeName(f.getName()));
+        } catch (FileSystemException e) {
+            LOG.debug("Exception while trying to get the relative name of [{}] relative to [{}]", f.getName(), rootFolder.getName());
+            return Optional.empty();
+        }
+    }
 }
