@@ -46,7 +46,7 @@ public class JmsMessageCreator implements MessageCreator {
         if (!customProperties.isEmpty()) {
             for (String pName : customProperties.keySet()) {
                 String pValue = customProperties.get(pName);
-                result.setObjectProperty(pName, pValue);
+                result.setStringProperty(pName, pValue);
             }
         }
         return result;
@@ -63,7 +63,7 @@ public class JmsMessageCreator implements MessageCreator {
         if (!customProperties.isEmpty()) {
             for (String pName : customProperties.keySet()) {
                 String pValue = customProperties.get(pName);
-                result.setObjectProperty(pName, pValue);
+                result.setStringProperty(pName, pValue);
             }
         }
         return result;

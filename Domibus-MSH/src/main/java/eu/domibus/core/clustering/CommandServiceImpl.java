@@ -89,8 +89,7 @@ public class CommandServiceImpl implements CommandService {
             return properties;
         }
         for (Map.Entry<String, String> entry : messageProperties.entrySet()) {
-            if (!Command.COMMAND.equalsIgnoreCase(entry.getKey()) && !MessageConstants.DOMAIN.equalsIgnoreCase(entry.getKey())
-                    && messageProperties.get(entry.getKey()) instanceof String) {
+            if (!Command.COMMAND.equalsIgnoreCase(entry.getKey()) && !MessageConstants.DOMAIN.equalsIgnoreCase(entry.getKey())) {
                 properties.put(entry.getKey(), (String) messageProperties.get(entry.getKey()));
             }
         }
