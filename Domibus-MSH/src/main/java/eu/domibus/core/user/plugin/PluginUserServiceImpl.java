@@ -1,5 +1,6 @@
 package eu.domibus.core.user.plugin;
 
+import com.google.common.collect.Streams;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
@@ -82,7 +83,7 @@ public class PluginUserServiceImpl implements PluginUserService {
 
         final Domain currentDomain = domainProvider.getCurrentDomain();
 
-        checkUsers(addedUsers);
+        checkUsers(addedUsers, updatedUsers);
 
         addedUsers.forEach(u -> insertNewUser(u, currentDomain));
 
@@ -139,8 +140,9 @@ public class PluginUserServiceImpl implements PluginUserService {
      * get all users from general schema and validate new users against existing names
      *
      * @param addedUsers
+     * @param updatedUsers
      */
-    private void checkUsers(List<AuthenticationEntity> addedUsers) {
+    protected void checkUsers(List<AuthenticationEntity> addedUsers, List<AuthenticationEntity> updatedUsers) throws UserManagementException {
         // check duplicates with other plugin users
         for (AuthenticationEntity user : addedUsers) {
             if (!StringUtils.isEmpty(user.getUserName())) {
@@ -157,6 +159,15 @@ public class PluginUserServiceImpl implements PluginUserService {
         for (UserBase user : addedUsers) {
             userSecurityPolicyManager.validateUniqueUser(user);
         }
+
+        Streams.concat(addedUsers.stream(), updatedUsers.stream())
+                .filter(user -> user.getAuthRoles().contains(AuthRole.ROLE_USER.name()))
+                .filter(user -> StringUtils.isEmpty(user.getOriginalUser()))
+                .findFirst()
+                .ifPresent(user -> {
+                    throw new UserManagementException("Cannot add or update the user " + user.getUserName()
+                            + " having the " + AuthRole.ROLE_USER.name() + " role without providing the original sender value.");
+                });
     }
 
     protected Map<String, Object> createFilterMap(AuthType authType, AuthRole authRole, String originalUser, String userName) {
