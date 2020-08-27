@@ -2,15 +2,16 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeAudit;
-import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
-import eu.domibus.core.util.AnnotationsUtil;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
+import eu.domibus.core.audit.model.JmsMessageAudit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeArchiveAudit;
+import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.util.AnnotationsUtil;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -108,9 +109,22 @@ public class AuditServiceImpl implements AuditService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void addPModeDownloadedAudit(final String messageId) {
+    public void addPModeDownloadedAudit(final long entityId) {
         auditDao.savePModeAudit(
-                new PModeAudit(messageId,
+                new PModeAudit(entityId,
+                        authUtils.getAuthenticatedUser(),
+                        new Date(),
+                        ModificationType.DOWNLOADED));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void addPModeArchiveDownloadedAudit(final long entityId) {
+        auditDao.savePModeArchiveAudit(
+                new PModeArchiveAudit(entityId,
                         authUtils.getAuthenticatedUser(),
                         new Date(),
                         ModificationType.DOWNLOADED));

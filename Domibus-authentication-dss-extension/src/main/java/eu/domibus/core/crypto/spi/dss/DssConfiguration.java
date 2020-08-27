@@ -1,8 +1,9 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.*;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
@@ -18,8 +19,6 @@ import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -45,6 +44,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +61,7 @@ import java.util.List;
 @PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/extensions/config/authentication-dss-extension.properties")
 public class DssConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DssConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
 
     private static final String NONE = "NONE";
 
@@ -359,7 +359,7 @@ public class DssConfiguration {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
             } else {
                 LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[{}] to change that behavior", DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT);
-                return Lists.newArrayList();
+                return Collections.emptyList();
             }
         }
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {

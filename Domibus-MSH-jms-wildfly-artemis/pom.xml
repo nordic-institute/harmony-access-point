@@ -56,24 +56,6 @@
         <!-- Start Artemis provided dependencies -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-artemis-native</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-amqp-protocol</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-cli</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-commons</artifactId>
             <version>${artemis.version}</version>
             <scope>provided</scope>
@@ -84,97 +66,19 @@
             <version>${artemis.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-dto</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-hornetq-protocol</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-hqclient-protocol</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jdbc-store</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jms-client</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jms-server</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-journal</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-ra</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-selector</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-server</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-service-extensions</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-stomp-protocol</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-tools</artifactId>
-            <version>${artemis.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- End Artemis provided dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <artifactId>spring-beans</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -188,39 +92,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
-
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-client</artifactId>
-            <version>4.0.2</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-remote-naming</artifactId>
             <version>2.0.5.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.xnio</groupId>
-            <artifactId>xnio-nio</artifactId>
-            <version>3.4.3.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.xnio</groupId>
-            <artifactId>xnio-api</artifactId>
-            <version>3.4.6.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -233,12 +113,6 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- End Test dependencies -->
     </dependencies>
 </project>

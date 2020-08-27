@@ -249,7 +249,7 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
    * @param id The id of the selected entry on the DB
    */
   download(row) {
-    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
+    this.http.get(PModeArchiveComponent.PMODE_URL + '/' + row.id + '?archiveAudit=true', {observe: 'response', responseType: 'text'}).subscribe(res => {
       const uploadDateStr = DateFormatService.format(new Date(row.configurationDate));
       this.downloadFile(res.body, this.currentDomain.name, uploadDateStr);
     }, err => {

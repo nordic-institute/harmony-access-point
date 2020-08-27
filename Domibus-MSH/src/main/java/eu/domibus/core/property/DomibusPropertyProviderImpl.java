@@ -220,7 +220,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //multi-tenancy mode
-        //domain or super property or a combination of 2 ( but not 3)
+        //domain or super property or a combination of 2 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {

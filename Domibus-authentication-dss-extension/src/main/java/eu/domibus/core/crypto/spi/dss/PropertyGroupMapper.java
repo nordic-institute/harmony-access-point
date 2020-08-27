@@ -1,13 +1,12 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.regex.Pattern;
 
 public abstract class PropertyGroupMapper<E> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PropertyGroupMapper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyGroupMapper.class);
 
     private final DomibusPropertyExtService domibusPropertyExtService;
 
@@ -52,7 +51,7 @@ public abstract class PropertyGroupMapper<E> {
         List<E> elements = new ArrayList<>();
         for (int count = 0; count < 100; count++) {
             Map<String, ImmutablePair<String, String>> keyValues = new HashMap<>();
-            for (String propertyName : Lists.newArrayList(propertyNames)) {
+            for (String propertyName : propertyNames) {
                 final String format = propertyName + "[%s]";
                 final String propertyKey = String.format(format, count);
                 if (!propertyKeyExists(propertyKey)) {
