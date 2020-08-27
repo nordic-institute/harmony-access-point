@@ -64,8 +64,7 @@
                                                                 name="partyIdType">
                                                         <xs:complexType>
                                                             <xs:attribute id="partyIdType" name="name"
-                                                                          type="max255-non-empty-string"
-                                                                          use="required"/>
+                                                                          type="max255-non-empty-string" use="required"/>
                                                             <xs:attribute name="value" type="xs:anyURI"
                                                                           use="required"/>
                                                         </xs:complexType>
@@ -89,8 +88,7 @@
                                                         <xs:complexType>
                                                             <xs:attribute name="partyId" type="max255-non-empty-string"
                                                                           use="required"/>
-                                                            <xs:attribute name="partyIdType"
-                                                                          type="max255-non-empty-string"
+                                                            <xs:attribute name="partyIdType" type="max255-non-empty-string"
                                                                           use="optional"/>
                                                         </xs:complexType>
                                                     </xs:element>
@@ -232,13 +230,11 @@
                                                 <xs:sequence>
                                                     <xs:element maxOccurs="unbounded" name="attachment">
                                                         <xs:complexType>
-                                                            <xs:attribute name="name" type="max255-non-empty-string"
-                                                                          use="required"/>
+                                                            <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
                                                         </xs:complexType>
                                                     </xs:element>
                                                 </xs:sequence>
-                                                <xs:attribute name="name" type="max255-non-empty-string"
-                                                              use="required"/>
+                                                <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
                                                 <xs:attribute name="maxSize" type="xs:long" use="required"/>
                                             </xs:complexType>
                                             <xs:unique name="uniqueAttachment">
@@ -404,15 +400,13 @@
                                         <xs:element maxOccurs="unbounded" name="splitting">
                                             <xs:complexType>
                                                 <!-- The name of the splitting configuration -->
-                                                <xs:attribute name="name" type="max255-non-empty-string"
-                                                              use="required"/>
+                                                <xs:attribute name="name" type="max255-non-empty-string" use="required"/>
                                                 <!-- The maximum size of the fragments (in MB) -->
                                                 <xs:attribute name="fragmentSize" type="xs:int" use="required"/>
                                                 <!-- If true, indicates that the message must be compressed before splitting -->
                                                 <xs:attribute name="compression" type="xs:boolean" use="required"/>
                                                 <!-- Indicates which compression algorithm to use. Fixed value “br” indicating the use of Brotli compression. -->
-                                                <xs:attribute name="compressionAlgorithm" type="max255-non-empty-string"
-                                                              use="optional"/>
+                                                <xs:attribute name="compressionAlgorithm" type="max255-non-empty-string" use="optional"/>
                                                 <!-- Specifies the maximum time to expect and process additional fragments after the first fragment is received (in hours) -->
                                                 <xs:attribute name="joinInterval" type="xs:int" use="required"/>
                                             </xs:complexType>
@@ -451,8 +445,7 @@
                                                         name="compressPayloads"
                                                         type="xs:boolean"
                                                         use="required"/>
-                                                <xs:attribute name="splitting" type="max255-non-empty-string"
-                                                              use="optional"/>
+                                                <xs:attribute name="splitting" type="max255-non-empty-string" use="optional"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
