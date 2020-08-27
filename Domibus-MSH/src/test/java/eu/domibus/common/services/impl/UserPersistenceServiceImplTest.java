@@ -1,6 +1,5 @@
 package eu.domibus.common.services.impl;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,18 +10,24 @@ import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
 import eu.domibus.common.dao.security.UserDao;
 import eu.domibus.common.dao.security.UserRoleDao;
 import eu.domibus.common.model.security.User;
+import eu.domibus.common.model.security.UserRole;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.security.ConsoleUserSecurityPolicyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -255,6 +260,61 @@ public class UserPersistenceServiceImplTest {
             times = 1;
         }};
 
+    }
+
+    @Test
+    public void testUpdateRolesWithSameRole(@Mocked eu.domibus.api.user.User user, @Mocked User existing) {
+        new Expectations(userPersistenceService) {{
+            userPersistenceService.sameRoles(user, existing); result = true;
+            user.getUserName(); result = "Testuser";
+        }};
+
+        userPersistenceService.updateRolesIfNecessary(user, existing);
+
+        new FullVerifications() {{
+        }};
+    }
+
+    @Test
+    public void testUpdateRolesWithDifferentRole(@Mocked eu.domibus.api.user.User user, @Mocked User existing) {
+        List<String> testRoles = Arrays.asList("ROLE_USER");
+        new Expectations(userPersistenceService) {{
+            userPersistenceService.sameRoles(user, existing); result = false;
+            user.getAuthorities(); result = testRoles;
+        }};
+
+        userPersistenceService.updateRolesIfNecessary(user, existing);
+
+        new FullVerifications(userPersistenceService) {{
+            existing.clearRoles(); times = 1;
+            userPersistenceService.addRoleToUser(testRoles, existing); times = 1;
+        }};
+    }
+
+    @Test
+    public void testSameRoles(@Mocked eu.domibus.api.user.User user, @Mocked User existing) {
+        List<String> testRoles = Arrays.asList("ROLE_USER");
+        List<UserRole> testUserRoles = Arrays.asList(new UserRole("ROLE_USER"));
+        new Expectations() {{
+            user.getAuthorities(); result = testRoles;
+            existing.getRoles(); result = testUserRoles;
+        }};
+
+        boolean same = userPersistenceService.sameRoles(user, existing);
+        Assert.assertTrue(same);
+    }
+
+    @Test
+    public void testSameRolesWhenDifferent(@Mocked eu.domibus.api.user.User user, @Mocked User existing) {
+        List<String> testRoles = Arrays.asList("ROLE_ADMIN");
+        List<UserRole> testUserRoles = Arrays.asList(new UserRole("ROLE_USER"));
+        new Expectations() {{
+            user.getAuthorities(); result = testRoles;
+            existing.getRoles(); result = testUserRoles;
+        }};
+
+        boolean same = userPersistenceService.sameRoles(user, existing);
+        Assert.assertFalse(same);
     }
 
 }

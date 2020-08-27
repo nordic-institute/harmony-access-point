@@ -99,8 +99,8 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
             }
 
             existing.setEmail(user.getEmail());
-            existing.clearRoles();
-            addRoleToUser(user.getAuthorities(), existing);
+
+            updateRolesIfNecessary(user, existing);
 
             userDao.update(existing);
 
@@ -108,6 +108,23 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
                 userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
             }
         }
+    }
+
+    protected void updateRolesIfNecessary(eu.domibus.api.user.User user, User existing) {
+        if (sameRoles(user, existing)) {
+            LOG.trace("Role didn't change for user [{}], no updates needed.", user.getUserName());
+            return;
+        }
+
+        //roles have changed so update
+        existing.clearRoles();
+        addRoleToUser(user.getAuthorities(), existing);
+    }
+
+    protected boolean sameRoles(eu.domibus.api.user.User user, User existing) {
+        String newRoles = user.getAuthorities().toString();
+        String existingRoles = existing.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()).toString();
+        return newRoles.equals(existingRoles);
     }
 
     protected void changePassword(User user, String currentPassword, String newPassword) {
