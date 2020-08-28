@@ -172,11 +172,11 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 currentBatch = maxBatch;
             }
             List<String> messageIdsBatch = messageIds.stream().limit(currentBatch).collect(Collectors.toList());
-            messageIds.forEach(messageId -> messageIdsBatch.remove(messageId));
+            messageIdsBatch.forEach(messageId -> messageIds.remove(messageId));
             LOG.debug("Scheduling delete [{}] messages [{}]", messageIdsBatch.size(), messageIdsBatch);
             JmsMessage message = JMSMessageBuilder.create()
                     .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_MULTI.name())
-                    .property(MessageConstants.MESSAGE_IDS, messageIds)
+                    .property(MessageConstants.MESSAGE_IDS, messageIdsBatch)
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         }
