@@ -33,10 +33,13 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
 
     @Test
     public void internalJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
-                                                 @Injectable PlatformTransactionManager transactionManager,
-                                                 @Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                                 @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
-                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver) {
+                                                    @Injectable PlatformTransactionManager transactionManager,
+                                                    @Injectable DomibusPropertyProvider domibusPropertyProvider,
+                                                    @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
+                                                    @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                    @Injectable SchedulingTaskExecutor schedulingTaskExecutor  )
+
+    {
 
         String concurrency = "2-3";
 
@@ -46,7 +49,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver,schedulingTaskExecutor);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver, schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;
