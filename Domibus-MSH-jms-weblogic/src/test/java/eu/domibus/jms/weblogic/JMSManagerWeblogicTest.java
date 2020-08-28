@@ -1,14 +1,12 @@
 package eu.domibus.jms.weblogic;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.CommandService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
-import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
@@ -30,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.jms.weblogic.InternalJMSManagerWeblogic.PROPERTY_JNDI_NAME;
 import static org.junit.Assert.*;
 
 /**
@@ -74,9 +71,6 @@ public class JMSManagerWeblogicTest {
 
     @Injectable
     private JmsDestinationCache jmsDestinationCache;
-
-    @Injectable
-    private MetricRegistry metricRegistry;
 
     @Test
     public void testGetQueueName() throws Exception {
