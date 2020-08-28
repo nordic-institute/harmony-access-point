@@ -283,4 +283,25 @@ public class UploadPModeIT extends AbstractIT {
         }
     }
 
+    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error for duplicate entities.
+     */
+    @Test
+    public void testUploadPmodeDuplicateEntities() throws IOException {
+        String pmodeName = "domibus-pmode-duplicate-entities-validation-blue.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-duplicate-entities-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate unique value [defaultMpc] declared for identity constraint of element \"mpcs\"."));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC] declared for identity constraint of element \"mpcs\"."));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("Duplicate unique value [defaultInitiatorRole] declared for identity constraint of element \"roles\"."));
+            assertTrue(ex.getIssues().get(3).getMessage().contains("Duplicate unique value [partyTypeUrn] declared for identity constraint of element \"partyIdTypes\"."));
+            assertTrue(ex.getIssues().get(4).getMessage().contains("Duplicate unique value [urn:oasis:names:tc:ebcore:partyid-type:unregistered] declared for identity constraint of element \"partyIdTypes\"."));
+            assertTrue(ex.getIssues().get(5).getMessage().contains("Duplicate unique value [red_gw] declared for identity constraint of element \"parties\"."));
+            assertTrue(ex.getIssues().get(6).getMessage().contains("Duplicate unique value [oneway] declared for identity constraint of element \"meps\"."));
+        }
+    }
 }

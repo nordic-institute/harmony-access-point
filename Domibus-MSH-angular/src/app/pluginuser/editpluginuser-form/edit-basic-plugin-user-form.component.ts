@@ -33,4 +33,8 @@ export class EditBasicPluginUserFormComponent extends EditPluginUserFormBaseComp
     setTimeout(() => this.user_name.nativeElement.focus(), 1000);
   }
 
+  isRoleUserSelected(role): boolean {
+    return SecurityService.ROLE_USER === role.value;
+  }
+
 }

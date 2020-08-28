@@ -23,6 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -769,6 +770,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
      * @param customMessageId ID of the message present in the custom properties.
      * @return
      */
+    @Transactional
     @Override
     public InternalJmsMessage consumeMessage(String source, String customMessageId) {
 

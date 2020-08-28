@@ -1,12 +1,5 @@
 package eu.domibus.api.party;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.persistence.Column;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-
 public class PartyIdType {
 
     protected String name;

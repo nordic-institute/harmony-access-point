@@ -36,8 +36,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
                                                  @Injectable PlatformTransactionManager transactionManager,
                                                  @Injectable DomibusPropertyProvider domibusPropertyProvider,
                                                  @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
-                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
-                                                @Injectable SchedulingTaskExecutor schedulingTaskExecutor) {
+                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver) {
 
         String concurrency = "2-3";
 
@@ -47,7 +46,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider,jackson2MessageConverter, internalDestinationResolver,schedulingTaskExecutor);
+        internalJmsListenerContainerFactoryConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver,schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;

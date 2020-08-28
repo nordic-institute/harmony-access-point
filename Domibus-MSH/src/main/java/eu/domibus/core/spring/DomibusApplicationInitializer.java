@@ -137,8 +137,11 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
 
+        DomibusPropertiesPropertySource updatedDomibusProperties = createUpdatedDomibusPropertiesSource();
+        propertySources.addFirst(updatedDomibusProperties);
+
         MapPropertySource domibusConfigLocationSource = createDomibusConfigLocationSource(domibusConfigLocation);
-        propertySources.addFirst(domibusConfigLocationSource);
+        propertySources.addAfter(updatedDomibusProperties.getName(), domibusConfigLocationSource);
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
@@ -157,5 +160,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         return new MapPropertySource("domibusConfigLocationSource", domibusConfigLocationMap);
     }
 
+    public DomibusPropertiesPropertySource createUpdatedDomibusPropertiesSource() {
+        Properties properties = new Properties();
+        return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME, properties);
+    }
 
 }

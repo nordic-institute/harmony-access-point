@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
@@ -115,6 +114,29 @@ public class FSWorkersConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeReceivedWorkerJob().getObject());
         obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression(domainCode));
+        obj.setStartDelay(20000);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean fsPluginPurgeLocksWorkerJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(FSPurgeLocksWorker.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            return null; // this job only works for a domain
+        }
+        String domainCode = domain.getCode();
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
+        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression(domainCode));
         obj.setStartDelay(20000);
         return obj;
     }

@@ -111,6 +111,12 @@ public class FSPurgeReceivedServiceTest {
 
             fsPluginProperties.getReceivedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
             result = 20;
+
+            fsFilesManager.isFileOlderThan(recentFile, 20);
+            result = false;
+
+            fsFilesManager.isFileOlderThan(oldFile, 20);
+            result = true;
         }};
 
         instance.purgeMessages();

@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.*;
-import java.math.BigInteger;
 
 
 /**
@@ -144,7 +143,7 @@ public class Payload extends AbstractBaseEntity {
      * Gets the value of the maxSize property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getMaxSize() {
         return this.maxSize;
@@ -154,7 +153,7 @@ public class Payload extends AbstractBaseEntity {
      * Sets the value of the maxSize property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setMaxSize(final int value) {
         this.maxSize = value;

@@ -15,15 +15,14 @@
 
     <bean id="backendJms" class="eu.domibus.plugin.jms.BackendJMSImpl">
         <constructor-arg value="Jms"/>
-        <property name="lister" ref="jmsNotificationListenerService"/>
         <property name="messageSubmissionTransformer" ref="jmsMessageTransformer"/>
         <property name="messageRetrievalTransformer"  ref="jmsMessageTransformer"/>
     </bean>
 
-    <bean id="jmsNotificationListenerService"
-          class="eu.domibus.plugin.NotificationListenerService"
-          c:queue-ref="notifyBackendJmsQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendJms"/>
+    <bean id="jmsAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendJmsQueue"
+          c:backendConnector-ref="backendJms"/>
 
     <bean id="backendJmsListenerContainerFactory"
           class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">

@@ -15,9 +15,9 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -36,7 +36,6 @@ import java.nio.channels.FileLock;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -118,12 +117,12 @@ public class FSSendMessagesService {
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-            FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
+             FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
 
             contentFiles = fsFilesManager.findAllDescendantFiles(outgoingFolder);
             LOG.trace("Found descendant files [{}] for output folder [{}]", contentFiles, outgoingFolder.getName().getPath());
 
-            List<FileObject> processableFiles = filterProcessableFiles(contentFiles, domain);
+            List<FileObject> processableFiles = filterProcessableFiles(outgoingFolder, contentFiles, domain);
             LOG.debug("Processable files [{}]", processableFiles);
 
             //we send the thread context manually since it will be lost in threads created by parallel stream
@@ -271,30 +270,28 @@ public class FSSendMessagesService {
         return sb;
     }
 
-
-    protected List<FileObject> filterProcessableFiles(FileObject[] files, String domain) {
+    protected List<FileObject> filterProcessableFiles(FileObject rootFolder, FileObject[] files, String domain) {
         List<FileObject> filteredFiles = new LinkedList<>();
 
-        // locked file names
         List<String> lockedFileNames = Arrays.stream(files)
-                .map(f -> f.getName().getBaseName())
-                .filter(fname -> fsFileNameHelper.isLockFile(fname))
-                .map(fname -> fsFileNameHelper.stripLockSuffix(fname))
+                .filter(f -> fsFileNameHelper.isLockFile(f.getName().getBaseName()))
+                .map(f -> fsFileNameHelper.getRelativeName(rootFolder, f))
+                .filter(Optional::isPresent)
+                .map(fname -> fsFileNameHelper.stripLockSuffix(fname.get()))
                 .collect(Collectors.toList());
 
         for (FileObject file : files) {
-            String baseName = file.getName().getBaseName();
+            String fileName = file.getName().getBaseName();
 
-            if (!StringUtils.equals(baseName, METADATA_FILE_NAME)
-                    && !fsFileNameHelper.isAnyState(baseName)
-                    && !fsFileNameHelper.isProcessed(baseName)
+            if (!isMetadata(fileName)
+                    && !fsFileNameHelper.isAnyState(fileName)
+                    && !fsFileNameHelper.isProcessed(fileName)
                     // exclude lock files:
-                    && !fsFileNameHelper.isLockFile(baseName)
+                    && !fsFileNameHelper.isLockFile(fileName)
                     // exclude locked files:
-                    && !lockedFileNames.stream().anyMatch(fname -> fname.equals(baseName))
+                    && !isLocked(lockedFileNames, fsFileNameHelper.getRelativeName(rootFolder, file))
                     // exclude files that are (or could be) in use by other processes:
                     && canReadFileSafely(file, domain)) {
-
                 filteredFiles.add(file);
             }
         }
@@ -302,6 +299,14 @@ public class FSSendMessagesService {
         return filteredFiles;
     }
 
+    protected boolean isMetadata(String baseName) {
+        return StringUtils.equals(baseName, METADATA_FILE_NAME);
+    }
+
+    protected boolean isLocked(List<String> lockedFileNames, Optional<String> fileName) {
+        return fileName.isPresent()
+                && lockedFileNames.stream().anyMatch(fname -> fname.equals(fileName.get()));
+    }
 
     protected boolean canReadFileSafely(FileObject fileObject, String domain) {
         String filePath = fileObject.getName().getPath();

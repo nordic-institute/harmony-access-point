@@ -2,8 +2,8 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -92,10 +91,16 @@ public class FSPurgeFailedServiceTest {
             result = failedFolder;
 
             fsFilesManager.findAllDescendantFiles(failedFolder);
-            result = new FileObject[]{ recentFile, oldFile };
+            result = new FileObject[]{recentFile, oldFile};
 
             fsPluginProperties.getFailedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
             result = 20;
+
+            fsFilesManager.isFileOlderThan(recentFile, 20);
+            result = false;
+
+            fsFilesManager.isFileOlderThan(oldFile, 20);
+            result = true;
         }};
 
         instance.purgeMessages();

@@ -23,18 +23,17 @@ import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -94,6 +93,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private BackendNotificationService backendNotificationService;
+
+    @Injectable
+    protected RoutingService routingService;
 
     @Injectable
     private JMSManager jmsManager;
@@ -569,17 +571,17 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, userMessageLog);
+            backendNotificationService.notifyMessageDeleted((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 
-    @Test
+    /*@Test
     public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
                                                 @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
@@ -588,25 +590,24 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.getBackend();
             result = backend;
 
-            backendNotificationService.getNotificationListener(backend);
+            routingService.getNotificationListener(backend);
             result = notificationListener1;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+            notificationListener1.deleteMessageCallback(messageId);
         }};
-    }
-
+    }*/
+/*
     @Test
     public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
                                                           @Injectable UserMessageLog userMessageLog) {
@@ -615,7 +616,7 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.isTestMessage();
@@ -629,39 +630,14 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getBackend();
             times = 0;
 
-            backendNotificationService.getNotificationListener(anyString);
+            routingService.getNotificationListener(anyString);
             times = 0;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+            notificationListener1.deleteMessageCallback(messageId);
             times = 0;
 
         }};
-    }
-
-    @Test
-    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
-                                                                       @Injectable UserMessageLog userMessageLog,
-                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
-        final String messageId = "1";
-        final String backendQueue = "myPluginQueue";
-
-        new Expectations(userMessageDefaultService) {{
-            notificationListener.getBackendNotificationQueue();
-            result = backendNotificationQueue;
-
-            backendNotificationQueue.getQueueName();
-            result = backendQueue;
-
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
-
-        new Verifications() {{
-            jmsManager.consumeMessage(backendQueue, messageId);
-            notificationListener.deleteMessageCallback(messageId);
-        }};
-    }
+    }*/
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
@@ -678,9 +654,6 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
-            result = null;
-
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -694,6 +667,8 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
@@ -710,9 +685,6 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
-            result = null;
-
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -726,6 +698,8 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
