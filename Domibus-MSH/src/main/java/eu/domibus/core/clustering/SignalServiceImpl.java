@@ -45,7 +45,7 @@ public class SignalServiceImpl implements SignalService {
     @Override
     public void signalTrustStoreUpdate(Domain domain) {
 
-        Map<String, Object> commandProperties = new HashMap<>();
+        Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_TRUSTSTORE);
         commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
 
@@ -55,7 +55,7 @@ public class SignalServiceImpl implements SignalService {
     @Override
     public void signalPModeUpdate() {
 
-        Map<String, Object> commandProperties = new HashMap<>();
+        Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_PMODE);
         commandProperties.put(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
 
@@ -65,7 +65,7 @@ public class SignalServiceImpl implements SignalService {
     @Override
     public void signalLoggingSetLevel(String name, String level) {
 
-        Map<String, Object> commandProperties = new HashMap<>();
+        Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.LOGGING_SET_LEVEL);
         commandProperties.put(CommandProperty.LOG_NAME, name);
         commandProperties.put(CommandProperty.LOG_LEVEL, level);
@@ -76,7 +76,7 @@ public class SignalServiceImpl implements SignalService {
     @Override
     public void signalLoggingReset() {
 
-        Map<String, Object> commandProperties = new HashMap<>();
+        Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.LOGGING_RESET);
 
         sendMessage(commandProperties);
@@ -85,7 +85,7 @@ public class SignalServiceImpl implements SignalService {
     @Override
     public void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue) {
         LOG.debug("Signaling [{}] property change on [{}] domain", propertyName, domainCode);
-        Map<String, Object> commandProperties = new HashMap<>();
+        Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.DOMIBUS_PROPERTY_CHANGE);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
         commandProperties.put(CommandProperty.PROPERTY_NAME, propertyName);
@@ -95,7 +95,7 @@ public class SignalServiceImpl implements SignalService {
     }
 
     @Override
-    public void sendMessage(Map<String, Object> commandProperties) {
+    public void sendMessage(Map<String, String> commandProperties) {
         if (!domibusConfigurationService.isClusterDeployment()) {
             LOG.debug("No cluster deployment: no need to signal command [{}]", commandProperties.get(Command.COMMAND));
             return;

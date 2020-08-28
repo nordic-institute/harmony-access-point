@@ -52,7 +52,7 @@ public class PluginAsyncNotificationListenerTest {
     @Test
     public void onMessage(@Injectable Message message,
                           @Injectable PluginEventNotifier pluginEventNotifier,
-                          @Injectable Map<String, Object> messageProperties) throws JMSException {
+                          @Injectable Map<String, String> messageProperties) throws JMSException {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
 

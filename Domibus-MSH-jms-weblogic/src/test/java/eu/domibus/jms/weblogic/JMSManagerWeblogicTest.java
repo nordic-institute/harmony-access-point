@@ -300,7 +300,7 @@ public class JMSManagerWeblogicTest {
         assertEquals(internalJmsMessage.getContent(), "mycontent");
         assertEquals(internalJmsMessage.getType(), "myJMSType");
 
-        Map<String, Object> properties = internalJmsMessage.getProperties();
+        Map<String, String> properties = internalJmsMessage.getProperties();
         assertEquals(properties.get("JMSType"), "myJMSType");
         assertEquals(properties.get("originalQueue"), "DomibusErrorNotifyProducerQueue");
     }

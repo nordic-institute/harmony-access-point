@@ -71,7 +71,7 @@ public class JMSMessageCreatorTest {
         new Verifications() {{
             result.setText("mycontent");
             result.setJMSType("mytype");
-            result.setObjectProperty("key1", "value1");
+            result.setStringProperty("key1", "value1");
         }};
     }
 }

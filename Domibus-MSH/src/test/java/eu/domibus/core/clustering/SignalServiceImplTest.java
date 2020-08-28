@@ -51,7 +51,7 @@ public class SignalServiceImplTest {
         signalService.signalTrustStoreUpdate(domain);
 
         new Verifications() {{
-            Map<String, Object> commandPropertiesActual;
+            Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
             Assert.assertNotNull(commandPropertiesActual);
             Assert.assertEquals(Command.RELOAD_TRUSTSTORE, commandPropertiesActual.get(Command.COMMAND));
@@ -70,7 +70,7 @@ public class SignalServiceImplTest {
         signalService.signalPModeUpdate();
 
         new Verifications() {{
-            Map<String, Object> commandPropertiesActual;
+            Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
             Assert.assertNotNull(commandPropertiesActual);
             Assert.assertEquals(Command.RELOAD_PMODE, commandPropertiesActual.get(Command.COMMAND));
@@ -92,7 +92,7 @@ public class SignalServiceImplTest {
         signalService.signalLoggingSetLevel(name, level);
 
         new Verifications() {{
-            Map<String, Object> commandPropertiesActual;
+            Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
             Assert.assertNotNull(commandPropertiesActual);
             Assert.assertEquals(Command.LOGGING_SET_LEVEL, commandPropertiesActual.get(Command.COMMAND));
@@ -112,7 +112,7 @@ public class SignalServiceImplTest {
         signalService.signalLoggingReset();
 
         new Verifications() {{
-            Map<String, Object> commandPropertiesActual;
+            Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
             Assert.assertNotNull(commandPropertiesActual);
             Assert.assertEquals(Command.LOGGING_RESET, commandPropertiesActual.get(Command.COMMAND));
@@ -121,7 +121,7 @@ public class SignalServiceImplTest {
 
 
     @Test
-    public void testSendMessage_NoException_MessageSent(final @Mocked JMSMessageBuilder jmsMessageBuilder, final @Mocked JmsMessage jmsMessage, final @Mocked Map<String, Object> commandProperties) {
+    public void testSendMessage_NoException_MessageSent(final @Mocked JMSMessageBuilder jmsMessageBuilder, final @Mocked JmsMessage jmsMessage, final @Mocked Map<String, String> commandProperties) {
 
         new Expectations(signalService) {{
             domibusConfigurationService.isClusterDeployment();

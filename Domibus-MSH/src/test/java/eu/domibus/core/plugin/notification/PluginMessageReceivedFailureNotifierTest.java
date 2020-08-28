@@ -39,7 +39,7 @@ public class PluginMessageReceivedFailureNotifierTest {
     @Test
     public void notifyPlugin(@Injectable BackendConnector backendConnector) {
         String messageId = "123";
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         String service = "myservice";
         String endpoint = "myendpoint";
