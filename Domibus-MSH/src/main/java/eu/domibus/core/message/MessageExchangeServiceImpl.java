@@ -271,7 +271,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     }
 
     protected Set<String> getPartyIds(String mpc, Party initiator) {
-        if (initiator != null && initiator.getIdentifiers() != null) {
+        if (initiator != null && CollectionUtils.isNotEmpty(initiator.getIdentifiers())) {
             return initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
         }
         if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
