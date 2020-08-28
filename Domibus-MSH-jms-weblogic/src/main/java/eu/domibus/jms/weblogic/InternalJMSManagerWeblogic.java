@@ -1,6 +1,5 @@
 package eu.domibus.jms.weblogic;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -126,9 +125,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private JmsDestinationCache jmsDestinationCache;
-
-    @Autowired
-    private MetricRegistry metricRegistry;
 
     /**
      * {@inheritDoc}
