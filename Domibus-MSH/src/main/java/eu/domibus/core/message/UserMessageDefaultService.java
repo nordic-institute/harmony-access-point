@@ -454,7 +454,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(MessageConstants.RETRY_COUNT, retryCount)
+                .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");

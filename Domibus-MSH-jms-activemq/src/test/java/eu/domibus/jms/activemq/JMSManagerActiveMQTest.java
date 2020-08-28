@@ -305,12 +305,12 @@ public class JMSManagerActiveMQTest {
         assertEquals(jmsId1, internalJmsMessage.getId());
         assertEquals(textMessage, internalJmsMessage.getContent());
 
-        Map<String, Object> properties = internalJmsMessage.getProperties();
+        Map<String, String> properties = internalJmsMessage.getProperties();
         assertEquals(4, properties.size());
         assertEquals("value1", properties.get("key1"));
         assertEquals("value2", properties.get("key2"));
         assertEquals("JMSValue1", properties.get("JMSProp1"));
-        assertEquals(5, properties.get("intKey"));
+        assertEquals("5", properties.get("intKey"));
     }
 
     @Test

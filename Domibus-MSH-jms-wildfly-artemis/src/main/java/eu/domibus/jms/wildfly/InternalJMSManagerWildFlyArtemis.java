@@ -430,10 +430,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setPriority(jmsPriority);
         Enumeration propertyNames = textMessage.getPropertyNames();
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
-            Object objectProperty = textMessage.getObjectProperty(name);
+            String objectProperty = textMessage.getStringProperty(name);
             properties.put(name, objectProperty);
         }
         properties.put(JMS_PRIORITY, String.valueOf(jmsPriority));
@@ -452,11 +452,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setPriority(mapMessage.getJMSPriority());
         result.setId(mapMessage.getJMSMessageID());
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         Enumeration<String> propertyNames = mapMessage.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String mapKey = propertyNames.nextElement();
-            properties.put(mapKey, mapMessage.getObjectProperty(mapKey));
+            properties.put(mapKey, mapMessage.getStringProperty(mapKey));
         }
         result.setProperties(properties);
         return result;

@@ -55,7 +55,7 @@ public class CommandExtServiceDelegateTest {
             properties.put(Command.COMMAND, commandName);
             properties.put(MessageConstants.DOMAIN, domain);
 
-            Map<String, Object> commandProperties = null;
+            Map<String, String> commandProperties = null;
             signalService.sendMessage(commandProperties = withCapture());
 
             assertEquals(commandName, commandProperties.get(Command.COMMAND));

@@ -54,7 +54,7 @@ public class JMSMessageMapperTest {
         internalJmsMessage.setContent("mycontent");
         Date date = new Date();
         internalJmsMessage.setTimestamp(date);
-        Map<String, Object> messageProperties = new HashMap<>();
+        Map<String, String> messageProperties = new HashMap<>();
         messageProperties.put("mykey", "myvalue");
         internalJmsMessage.setProperties(messageProperties);
 
@@ -75,7 +75,7 @@ public class JMSMessageMapperTest {
         jmsMessage.setContent("mycontent");
         Date date = new Date();
         jmsMessage.setTimestamp(date);
-        Map<String, Object> messageProperties = new HashMap<>();
+        Map<String, String> messageProperties = new HashMap<>();
         messageProperties.put("mykey", "myvalue");
         jmsMessage.setProperties(messageProperties);
 
