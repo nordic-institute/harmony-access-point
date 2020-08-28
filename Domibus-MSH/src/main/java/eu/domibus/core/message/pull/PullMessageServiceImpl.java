@@ -203,7 +203,7 @@ public class PullMessageServiceImpl implements PullMessageService {
      */
     @Override
     @Transactional
-    public void addPullMessageLock(String partyIdentifier, final String pModeKey,
+    public void addPullMessageLock(final String partyIdentifier, final String pModeKey,
                                    final MessageLog messageLog) {
         MessagingLock messagingLock = prepareMessagingLock(partyIdentifier, pModeKey, messageLog);
         messagingLockDao.save(messagingLock);

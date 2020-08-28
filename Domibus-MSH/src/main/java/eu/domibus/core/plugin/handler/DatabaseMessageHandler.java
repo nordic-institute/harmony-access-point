@@ -316,7 +316,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -335,7 +335,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
             userMessageService.scheduleSending(userMessage, userMessageLog);
@@ -461,7 +461,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
