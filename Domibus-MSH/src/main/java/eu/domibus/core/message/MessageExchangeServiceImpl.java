@@ -272,10 +272,12 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     protected Set<String> getPartyIds(String mpc, Party initiator) {
         if (initiator != null && CollectionUtils.isNotEmpty(initiator.getIdentifiers())) {
-            return initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
+            Set<String> collect = initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
+            LOG.trace("Retrieving party id(s), initiator list with size:[{}] found",collect.size());
+            return collect;
         }
         if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
-            LOG.debug("Extract partyId from mpc [{}]", mpc);
+            LOG.debug("Pmode initiator list is empty, extracting partyId from mpc [{}]", mpc);
             return Sets.newHashSet(mpcService.extractInitiator(mpc));
         }
         return Sets.newHashSet();
