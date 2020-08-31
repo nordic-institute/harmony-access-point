@@ -1,4 +1,4 @@
-package eu.domibus.messaging.jms;
+package eu.domibus.core.jms;
 
 
 /**

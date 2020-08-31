@@ -14,7 +14,6 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.messaging.jms.JMSMessageDomainDTO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
