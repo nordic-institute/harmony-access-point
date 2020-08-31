@@ -55,7 +55,7 @@
     </bean>
 
     <bean id="domibusJMSPlugin-Caching-ConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
-        <property name="sessionCacheSize" value="${jmsplugin.queue.in.session.cache.size}"/>
+        <property name="sessionCacheSize" value="${jmsplugin.jms.connectionFactory.session.cache.size}"/>
         <property name="targetConnectionFactory" ref="domibusJMSPlugin-ConnectionFactory"/>
     </bean>
 
