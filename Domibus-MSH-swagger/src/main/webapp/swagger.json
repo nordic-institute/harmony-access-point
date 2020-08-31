@@ -595,25 +595,15 @@
         "byteArray" : {
           "type" : "array",
           "items" : {
-            "type" : "string",
-            "format" : "byte"
+            "type": "string",
+            "format": "byte"
           }
         },
-        "description" : {
-          "type" : "string"
+        "description": {
+          "type": "string"
         },
-        "inputStream" : {
-          "$ref" : "#/definitions/InputStream"
-        },
-        "url": {
-          "type": "string",
-          "format": "url"
-        },
-        "file": {
-          "type": "file"
-        },
-        "open": {
-          "type": "boolean"
+        "inputStream": {
+          "$ref": "#/definitions/InputStream"
         },
         "readable": {
           "type": "boolean"
@@ -624,6 +614,16 @@
         },
         "filename": {
           "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "url"
+        },
+        "file": {
+          "type": "file"
+        },
+        "open": {
+          "type": "boolean"
         }
       }
     },
@@ -867,9 +867,10 @@
           "type" : "string"
         },
         "identifiers" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/PartyIdentifierDTO"
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/PartyIdentifierDTO"
           }
         },
         "processesWithPartyAsInitiator" : {
