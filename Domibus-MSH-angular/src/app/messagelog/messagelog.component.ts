@@ -250,16 +250,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  resendDialog() {
-    this.dialogsService.openResendDialog().then(resend => {
-      if (resend) {
-        this.resend(this.selected[0].messageId);
-        super.selected = [];
-        this.messageResent.subscribe(() => {
-          this.page();
-        });
-      }
-    });
+  resendDialog () {
+    this.dialog.open(MessagelogDialogComponent).afterClosed()
+      .subscribe(result => {
+        if (result == 'Resend' && this.selected[0]) {
+          this.resend(this.selected[0].messageId);
+          this.selected = [];
+          this.messageResent.subscribe(() => {
+            this.page(0, this.rowLimiter.pageSize);
+          });
+        }
+      });
   }
 
   resend(messageId: string) {
@@ -273,7 +274,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
+      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
     });
   }
 

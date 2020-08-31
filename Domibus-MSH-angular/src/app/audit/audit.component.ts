@@ -28,6 +28,7 @@ export class AuditComponent extends mix(BaseListComponent)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl'), {static: false}) public rawTextTpl: TemplateRef<any>;
 
 // --- Search components binding ---
   existingAuditTargets = [];
@@ -136,6 +137,7 @@ export class AuditComponent extends mix(BaseListComponent)
       {
         name: 'Id',
         prop: 'id',
+        cellTemplate: this.rawTextTpl,
         width: 300,
         sortable: false
       }
