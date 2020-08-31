@@ -168,6 +168,13 @@ public class CachingPModeProvider extends PModeProvider {
         );
     }
 
+    /**
+     * Invokes the {@link #matchAgreement(Process, String)}. If no match is found, adds the error details to a map for the given process.
+     *
+     * @param process
+     * @param agreementName
+     * @param processMismatchErrors
+     */
     protected boolean matchAgreement(Process process, String agreementName, Map<Process, String> processMismatchErrors) {
         if (matchAgreement(process, agreementName)) {
             LOG.debug("Agreement: {} matched for Process: {}", agreementName, process.getName());
@@ -201,6 +208,13 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
+    /**
+     * Invokes the {@link #matchInitiator(Process, ProcessTypePartyExtractor)}. If no match is found, adds the error details to a map for the given process.
+     *
+     * @param process
+     * @param processTypePartyExtractor
+     * @param processMismatchErrors
+     */
     protected boolean matchInitiator(Process process, ProcessTypePartyExtractor processTypePartyExtractor, Map<Process, String> processMismatchErrors) {
         if (matchInitiator(process, processTypePartyExtractor)) {
             LOG.debug("Initiator: {} matched for Process: {}", processTypePartyExtractor.getSenderParty(), process.getName());
@@ -232,6 +246,13 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
+    /**
+     * Invokes the {@link #matchResponder(Process, ProcessTypePartyExtractor)}. If no match is found, adds the error details to a map for the given process.
+     *
+     * @param process
+     * @param processTypePartyExtractor
+     * @param processMismatchErrors
+     */
     protected boolean matchResponder(Process process, ProcessTypePartyExtractor processTypePartyExtractor, Map<Process, String> processMismatchErrors) {
         if (matchResponder(process, processTypePartyExtractor)) {
             LOG.debug("Responder: {} matched for Process: {}", processTypePartyExtractor.getReceiverParty(), process.getName());
@@ -281,51 +302,19 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    protected boolean candidateMatches(List<Process> filteredProcesses, LegConfiguration candidate, String service, String action, String mpc) {
-        if (StringUtils.equalsIgnoreCase(candidate.getService().getName(), service)
-                && StringUtils.equalsIgnoreCase(candidate.getAction().getName(), action)
-                && StringUtils.equalsIgnoreCase(candidate.getDefaultMpc().getQualifiedName(), mpc)) {
-            return true;
-        }
-        return false;
-    }
 
+    /**
+     * From the list of processes in the pmode {@link Configuration}, filters the list of {@link Process} matching the input parameters
+     * and then filters the list of {@link LegConfiguration} matching the input parameters.<br/>
+     * If several candidate leg configurations match, returns only the first leg configuration that matches.<br/>
+     * Meant for use with PUSH message exchange patterns as filtering with MEP and MPC are not considered.<br/>
+     * If no processes or legs match, throws {@link EbMS3Exception} with details of all mismatches across processes and legs<br/>
+     */
     @Override
-    //FIXME: only works for the first leg, as sender=initiator
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
                               final String service, final String action, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
 
         final List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
-
-        /*//TODO Refactor the nested for loop and conditions
-        for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
-            final ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
-            for (final Party party : process.getInitiatorParties()) {
-                if (StringUtils.equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
-                    for (final Party responder : process.getResponderParties()) {
-                        if (StringUtils.equalsIgnoreCase(responder.getName(), processTypePartyExtractor.getReceiverParty())) {
-                            if (matchAgreement(process, agreementName) &&
-                                    matchRole(process.getInitiatorRole(), initiatorRole) &&
-                                    matchRole(process.getResponderRole(), responderRole)) {
-                                LOG.debug("Add candidate legs [{}] for process [{}]", process.getLegs(), process);
-                                candidateLegs.addAll(process.getLegs());
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
-
-        /*List<Process> filteredProcesses = processes.parallelStream()
-                .filter(process -> matchAgreement(process, agreementName, processMismatchErrors))
-                .filter(process -> matchInitiatorRole(process, initiatorRole, processMismatchErrors))
-                .filter(process -> matchResponderRole(process, responderRole, processMismatchErrors))
-                .filter(process -> {
-                    ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
-                    return (matchInitiator(process, processTypePartyExtractor, processMismatchErrors) && matchResponder(process, processTypePartyExtractor, processMismatchErrors));
-                })
-                .collect(Collectors.toList());*/
-
         Map<Process, String> processMismatchErrors = new HashMap<>();
         processes.stream().forEach(process -> {
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
@@ -341,11 +330,12 @@ public class CachingPModeProvider extends PModeProvider {
         final String strFilteredProcesses = filteredProcesses.stream().map(Process::getName).collect(Collectors.joining(","));
         LOG.info("Filtered processes: [{}]", strFilteredProcesses); //TODO change to debug
 
-        final StringBuilder strProcessMismatchErrorDetails = new StringBuilder("Process mismatch details:\n")
+        StringBuilder strProcessMismatchErrorDetails = new StringBuilder("Process mismatch details:\n")
                 .append(processMismatchErrors.values().stream().collect(Collectors.joining("\n")));
 
         if (filteredProcesses.isEmpty()) {
             String errorDetail = "None of the Processes matched with message metadata. " + strProcessMismatchErrorDetails.toString();
+            LOG.error(errorDetail);
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
         }
@@ -357,16 +347,11 @@ public class CachingPModeProvider extends PModeProvider {
             if (!processMismatchErrors.isEmpty()) {
                 errorDetail.append("Other ").append(strProcessMismatchErrorDetails).toString();
             }
+            LOG.error(errorDetail.toString());
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail.toString(), null, null);
         }
 
-        /*
-        for (final LegConfiguration candidate : candidateLegs) {
-            if (StringUtils.equalsIgnoreCase(candidate.getService().getName(), service) && StringUtils.equalsIgnoreCase(candidate.getAction().getName(), action)) {
-                return candidate.getName();
-            }
-        }*/
         Map<LegConfiguration, String> legMismatchErrors = new HashMap<>();
         candidateLegs.stream().forEach(candidateLeg -> {
             matchService(candidateLeg, service, legMismatchErrors);
@@ -382,26 +367,25 @@ public class CachingPModeProvider extends PModeProvider {
             return filteredCandidateLegs.get(0).getName();
         }
 
-        final StringBuilder strLegMismatchErrorDetails = new StringBuilder(" From among matched Processes:[").append(strFilteredProcesses).append("], Leg mismatch details:\n")
+        final StringBuilder strLegMismatchErrorDetails = new StringBuilder("From among matched Processes:[").append(strFilteredProcesses).append("], Leg mismatch details:\n")
                 .append(legMismatchErrors.values().stream().collect(Collectors.joining("\n")));
         if (!processMismatchErrors.isEmpty()) {
             strLegMismatchErrorDetails.append(".\nOther ").append(strProcessMismatchErrorDetails);
         }
+        LOG.error(strLegMismatchErrorDetails.toString());
         LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, strLegMismatchErrorDetails.toString(), null, null);
     }
 
-    private boolean matchAction(LegConfiguration candidateLeg, String action, Map<LegConfiguration, String> legMismatchErrors) {
-        if (StringUtils.equalsIgnoreCase(candidateLeg.getService().getName(), action)) {
-            LOG.debug("Action: {} matched for Leg: {}", action, candidateLeg.getName());
-            return true;
-        } else {
-            buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Action:[" + action + "] does not match");
-            return false;
-        }
-    }
-
-    private boolean matchService(LegConfiguration candidateLeg, String service, Map<LegConfiguration, String> legMismatchErrors) {
+    /**
+     * Checks if a candidate {@link LegConfiguration} matches a given Service name.
+     * If no match is found, adds the error details to a map for the given {@link LegConfiguration}.
+     *
+     * @param candidateLeg
+     * @param service
+     * @param legMismatchErrors
+     */
+    protected boolean matchService(LegConfiguration candidateLeg, String service, Map<LegConfiguration, String> legMismatchErrors) {
         if (StringUtils.equalsIgnoreCase(candidateLeg.getService().getName(), service)) {
             LOG.debug("Service: {} matched for Leg: {}", service, candidateLeg.getName());
             return true;
@@ -411,8 +395,27 @@ public class CachingPModeProvider extends PModeProvider {
         }
     }
 
-    private void buildErrorDetailForLegMismatch(LegConfiguration candidateLeg, Map<LegConfiguration, String> legMismatchErrors, String newError) {
-        if (legMismatchErrors.get(candidateLeg) == null) {
+    /**
+     * Checks if a candidate {@link LegConfiguration} matches a given Action name.
+     * If no match is found, adds the error details to a map for the given {@link LegConfiguration}.
+     *
+     * @param candidateLeg
+     * @param action
+     * @param legMismatchErrors
+     * @return
+     */
+    protected boolean matchAction(LegConfiguration candidateLeg, String action, Map<LegConfiguration, String> legMismatchErrors) {
+        if (StringUtils.equalsIgnoreCase(candidateLeg.getAction().getName(), action)) {
+            LOG.debug("Action: {} matched for Leg: {}", action, candidateLeg.getName());
+            return true;
+        } else {
+            buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Action:[" + action + "] does not match");
+            return false;
+        }
+    }
+
+    protected void buildErrorDetailForLegMismatch(LegConfiguration candidateLeg, Map<LegConfiguration, String> legMismatchErrors, String newError) {
+        if (!legMismatchErrors.containsKey(candidateLeg)) {
             legMismatchErrors.put(candidateLeg, "For Leg:[" + candidateLeg.getName() + "]");
         }
         legMismatchErrors.put(candidateLeg, legMismatchErrors.get(candidateLeg).concat(", ").concat(newError));
@@ -420,7 +423,7 @@ public class CachingPModeProvider extends PModeProvider {
 
 
     protected void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
-        if (processMismatchErrors.get(process) == null) {
+        if (!processMismatchErrors.containsKey(process)) {
             processMismatchErrors.put(process, "For Process:[" + process.getName() + "]");
         }
         processMismatchErrors.put(process, processMismatchErrors.get(process).concat(", ").concat(newError));
@@ -443,7 +446,15 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private boolean matchInitiatorRole(Process process, Role initiatorRole, Map<Process, String> processMismatchErrors) {
+    /**
+     * Invokes {@link #matchRole(Role, Role)} to check if a candidate {@link Process} has the same InitiatorRole as a given {@link Role}.
+     * If no match is found, adds the error details to a map for the given Process.
+     *
+     * @param process
+     * @param initiatorRole
+     * @param processMismatchErrors
+     */
+    protected boolean matchInitiatorRole(Process process, Role initiatorRole, Map<Process, String> processMismatchErrors) {
         if (matchRole(process.getInitiatorRole(), initiatorRole)) {
             LOG.debug("InitiatorRole: {} matched for Process: {}", initiatorRole, process.getName());
             return true;
@@ -453,6 +464,14 @@ public class CachingPModeProvider extends PModeProvider {
         }
     }
 
+    /**
+     * Invokes {@link #matchRole(Role, Role)} to check if a candidate {@link Process} has the same ResponderRole as a given {@link Role}.
+     * If no match is found, adds the error details to a map for the given Process.
+     *
+     * @param process
+     * @param responderRole
+     * @param processMismatchErrors
+     */
     protected boolean matchResponderRole(Process process, Role responderRole, Map<Process, String> processMismatchErrors) {
         if (matchRole(process.getResponderRole(), responderRole)) {
             LOG.debug("ResponderRole: {} matched for Process: {}", responderRole, process.getName());
@@ -876,7 +895,7 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
+    protected List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
         if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                 && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
             return handleProcessParties(process);

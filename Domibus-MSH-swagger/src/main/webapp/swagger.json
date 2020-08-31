@@ -605,25 +605,25 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "readable" : {
-          "type" : "boolean"
+        "url": {
+          "type": "string",
+          "format": "url"
         },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
+        "file": {
+          "type": "file"
         },
-        "filename" : {
-          "type" : "string"
+        "open": {
+          "type": "boolean"
         },
-        "url" : {
-          "type" : "string",
-          "format" : "url"
+        "readable": {
+          "type": "boolean"
         },
-        "file" : {
-          "type" : "file"
+        "uri": {
+          "type": "string",
+          "format": "uri"
         },
-        "open" : {
-          "type" : "boolean"
+        "filename": {
+          "type": "string"
         }
       }
     },
@@ -868,7 +868,6 @@
         },
         "identifiers" : {
           "type" : "array",
-          "uniqueItems" : true,
           "items" : {
             "$ref" : "#/definitions/PartyIdentifierDTO"
           }
