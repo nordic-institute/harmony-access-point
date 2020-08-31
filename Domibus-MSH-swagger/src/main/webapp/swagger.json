@@ -592,38 +592,38 @@
     "ByteArrayResource" : {
       "type" : "object",
       "properties" : {
-        "byteArray": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "byte"
+        "byteArray" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "format" : "byte"
           }
         },
-        "description": {
-          "type": "string"
+        "description" : {
+          "type" : "string"
         },
-        "inputStream": {
-          "$ref": "#/definitions/InputStream"
+        "inputStream" : {
+          "$ref" : "#/definitions/InputStream"
         },
-        "readable": {
-          "type": "boolean"
+        "readable" : {
+          "type" : "boolean"
         },
-        "uri": {
-          "type": "string",
-          "format": "uri"
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
         },
-        "filename": {
-          "type": "string"
+        "filename" : {
+          "type" : "string"
         },
-        "url": {
-          "type": "string",
-          "format": "url"
+        "url" : {
+          "type" : "string",
+          "format" : "url"
         },
-        "file": {
-          "type": "file"
+        "file" : {
+          "type" : "file"
         },
-        "open": {
-          "type": "boolean"
+        "open" : {
+          "type" : "boolean"
         }
       }
     },
@@ -867,10 +867,10 @@
           "type" : "string"
         },
         "identifiers" : {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/definitions/PartyIdentifierDTO"
+          "type" : "array",
+          "uniqueItems" : true,
+          "items" : {
+            "$ref" : "#/definitions/PartyIdentifierDTO"
           }
         },
         "processesWithPartyAsInitiator" : {
