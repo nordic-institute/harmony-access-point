@@ -250,17 +250,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  resendDialog () {
-    this.dialog.open(MessagelogDialogComponent).afterClosed()
-      .subscribe(result => {
-        if (result == 'Resend' && this.selected[0]) {
-          this.resend(this.selected[0].messageId);
-          this.selected = [];
-          this.messageResent.subscribe(() => {
-            this.page(0, this.rowLimiter.pageSize);
-          });
-        }
-      });
+  resendDialog() {
+    this.dialogsService.openResendDialog().then(resend => {
+      if (resend && this.selected[0]) {
+        this.resend(this.selected[0].messageId);
+        super.selected = [];
+        this.messageResent.subscribe(() => {
+          this.page();
+        });
+      }
+    });
   }
 
   resend(messageId: string) {
