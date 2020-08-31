@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Thomas Dussart
- * @since 4.1
+ * @since 4.2
  *
  * Metric annotation to add a counter. It will count the parallel
  * executions of a given method.
