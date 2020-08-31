@@ -22,7 +22,6 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
@@ -227,7 +226,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
                 Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
                 LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty), userMessage, userMessageLog);
+                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
                 LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
             }
