@@ -592,9 +592,9 @@
     "ByteArrayResource" : {
       "type" : "object",
       "properties" : {
-        "byteArray" : {
-          "type" : "array",
-          "items" : {
+        "byteArray": {
+          "type": "array",
+          "items": {
             "type": "string",
             "format": "byte"
           }
