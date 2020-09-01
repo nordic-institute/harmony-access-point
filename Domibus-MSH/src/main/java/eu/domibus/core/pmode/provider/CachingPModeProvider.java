@@ -313,7 +313,7 @@ public class CachingPModeProvider extends PModeProvider {
         Map<Process, String> processMismatchErrors = new HashMap<>();
         Map<LegConfiguration, String> legMismatchErrors = new HashMap<>();
 
-        final List<Process> matchingProcesses = filterMatchingProcesses(agreementName, senderParty, receiverParty, initiatorRole, responderRole, processMismatchErrors);
+        final List<Process> matchingProcesses = filterMatchingProcesses(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processMismatchErrors, legMismatchErrors);
         if (matchingProcesses.isEmpty()) {
             String errorDetail = "None of the Processes matched with message metadata. Process mismatch details:\n" + getMismatchErrorDetails(processMismatchErrors.values());
             LOG.error(errorDetail);
@@ -321,7 +321,7 @@ public class CachingPModeProvider extends PModeProvider {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
         }
 
-        final Set<LegConfiguration> matchingLegs = filterMatchingLegConfigurations(matchingProcesses, service, action, legMismatchErrors);
+        final Set<LegConfiguration> matchingLegs = filterMatchingLegConfigurations(matchingProcesses, legMismatchErrors);
         if (matchingLegs.isEmpty()) {
             StringBuilder buildErrorDetail = new StringBuilder("No matching Legs found among matched Processes:[").append(listProcessNames(matchingProcesses)).append("]. Leg mismatch details:")
                     .append("\n").append(getMismatchErrorDetails(legMismatchErrors.values()));
@@ -339,11 +339,12 @@ public class CachingPModeProvider extends PModeProvider {
         return selectedLeg.map(LegConfiguration::getName).orElse(null);
     }
 
-    protected List<Process> filterMatchingProcesses(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
+    protected List<Process> filterMatchingProcesses(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, Map<Process, String> processMismatchErrors, Map<LegConfiguration, String> legMismatchErrors) {
         Objects.requireNonNull(processMismatchErrors);
+        Objects.requireNonNull(legMismatchErrors);
 
         List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
-        candidateProcesses.forEach(process -> buildProcessMismatchDetails(process, agreementName, senderParty, receiverParty, initiatorRole, responderRole, processMismatchErrors));
+        candidateProcesses.forEach(process -> buildProcessAndLegMismatchDetails(process, agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processMismatchErrors, legMismatchErrors));
         candidateProcesses.removeAll(new ArrayList<>(processMismatchErrors.keySet()));
         if (LOG.isDebugEnabled()) {
             LOG.debug("Names of matched processes:[{}]", listProcessNames(candidateProcesses));
@@ -351,13 +352,16 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateProcesses;
     }
 
-    protected void buildProcessMismatchDetails(Process process, String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
+    protected void buildProcessAndLegMismatchDetails(Process process, String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, Map<Process, String> processMismatchErrors, Map<LegConfiguration, String> legMismatchErrors) {
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
         matchAgreement(process, agreementName, processMismatchErrors);
         matchInitiatorRole(process, initiatorRole, processMismatchErrors);
         matchResponderRole(process, responderRole, processMismatchErrors);
         matchInitiator(process, processTypePartyExtractor, processMismatchErrors);
         matchResponder(process, processTypePartyExtractor, processMismatchErrors);
+        if(!processMismatchErrors.containsKey(process)){
+            process.getLegs().forEach(candidateLeg -> buildLegMismatchDetails(candidateLeg, service, action, legMismatchErrors));
+        }
     }
 
     protected void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
@@ -371,14 +375,11 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateProcesses.stream().map(Process::getName).collect(Collectors.joining(","));
     }
 
-    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, String service, String action, Map<LegConfiguration, String> legMismatchErrors) {
+    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, Map<LegConfiguration, String> legMismatchErrors) {
         Objects.requireNonNull(matchingProcessesList);
         Objects.requireNonNull(legMismatchErrors);
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
-        matchingProcessesList.forEach(matchedProcess -> {
-            matchedProcess.getLegs().forEach(candidateLeg -> buildLegMismatchDetails(candidateLeg, service, action, legMismatchErrors));
-            candidateLegs.addAll(matchedProcess.getLegs());
-        });
+        matchingProcessesList.stream().map(Process::getLegs).forEach(candidateLegs::addAll);
         candidateLegs.removeAll(legMismatchErrors.keySet());
 
         if (LOG.isDebugEnabled()) {
