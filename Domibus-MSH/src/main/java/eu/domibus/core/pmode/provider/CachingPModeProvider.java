@@ -344,24 +344,22 @@ public class CachingPModeProvider extends PModeProvider {
         Objects.requireNonNull(legMismatchErrors);
 
         List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
-        candidateProcesses.forEach(process -> buildProcessAndLegMismatchDetails(process, agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processMismatchErrors, legMismatchErrors));
+        for (Process process : candidateProcesses) {
+            ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
+            matchAgreement(process, agreementName, processMismatchErrors);
+            matchInitiatorRole(process, initiatorRole, processMismatchErrors);
+            matchResponderRole(process, responderRole, processMismatchErrors);
+            matchInitiator(process, processTypePartyExtractor, processMismatchErrors);
+            matchResponder(process, processTypePartyExtractor, processMismatchErrors);
+            if (!processMismatchErrors.containsKey(process)) {
+                process.getLegs().forEach(candidateLeg -> buildLegMismatchDetails(candidateLeg, service, action, legMismatchErrors));
+            }
+        }
         candidateProcesses.removeAll(new ArrayList<>(processMismatchErrors.keySet()));
         if (LOG.isDebugEnabled()) {
             LOG.debug("Names of matched processes:[{}]", listProcessNames(candidateProcesses));
         }
         return candidateProcesses;
-    }
-
-    protected void buildProcessAndLegMismatchDetails(Process process, String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, Map<Process, String> processMismatchErrors, Map<LegConfiguration, String> legMismatchErrors) {
-        ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
-        matchAgreement(process, agreementName, processMismatchErrors);
-        matchInitiatorRole(process, initiatorRole, processMismatchErrors);
-        matchResponderRole(process, responderRole, processMismatchErrors);
-        matchInitiator(process, processTypePartyExtractor, processMismatchErrors);
-        matchResponder(process, processTypePartyExtractor, processMismatchErrors);
-        if(!processMismatchErrors.containsKey(process)){
-            process.getLegs().forEach(candidateLeg -> buildLegMismatchDetails(candidateLeg, service, action, legMismatchErrors));
-        }
     }
 
     protected void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
