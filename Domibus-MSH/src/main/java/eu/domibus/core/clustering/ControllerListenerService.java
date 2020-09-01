@@ -2,7 +2,6 @@ package eu.domibus.core.clustering;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandExecutorService;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
