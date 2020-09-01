@@ -860,7 +860,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameMissingInitiatorRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+    public void testfindLegNameMissingInitiatorRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         final Role notMyInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
