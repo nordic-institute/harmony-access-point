@@ -177,12 +177,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchAgreement(Process process, String agreementName, Map<Process, String> processMismatchErrors) {
         if (matchAgreement(process, agreementName)) {
-            LOG.debug("Agreement: {} matched for Process: {}", agreementName, process.getName());
+            LOG.debug("Agreement:[{}] matched for Process:[{}]", agreementName, process.getName());
             return true;
-        } else {
-            buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Agreement:[" + agreementName + "] does not match");
-            return false;
         }
+        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Agreement:[" + agreementName + "] does not match");
+        return false;
     }
 
     /**
@@ -217,13 +216,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchInitiator(Process process, ProcessTypePartyExtractor processTypePartyExtractor, Map<Process, String> processMismatchErrors) {
         if (matchInitiator(process, processTypePartyExtractor)) {
-            LOG.debug("Initiator: {} matched for Process: {}", processTypePartyExtractor.getSenderParty(), process.getName());
+            LOG.debug("Initiator:[{}] matched for Process:[{}]", processTypePartyExtractor.getSenderParty(), process.getName());
             return true;
-        } else {
-            buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Initiator:[" + processTypePartyExtractor.getSenderParty() + "] does not match");
-            return false;
         }
-
+        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Initiator:[" + processTypePartyExtractor.getSenderParty() + "] does not match");
+        return false;
     }
 
     /**
@@ -255,12 +252,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchResponder(Process process, ProcessTypePartyExtractor processTypePartyExtractor, Map<Process, String> processMismatchErrors) {
         if (matchResponder(process, processTypePartyExtractor)) {
-            LOG.debug("Responder: {} matched for Process: {}", processTypePartyExtractor.getReceiverParty(), process.getName());
+            LOG.debug("Responder:[{}] matched for Process:[{}]", processTypePartyExtractor.getReceiverParty(), process.getName());
             return true;
-        } else {
-            buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Responder:[" + processTypePartyExtractor.getReceiverParty() + "] does not match");
-            return false;
         }
+        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Responder:[" + processTypePartyExtractor.getReceiverParty() + "] does not match");
+        return false;
     }
 
     @Override
@@ -328,7 +324,7 @@ public class CachingPModeProvider extends PModeProvider {
         final List<Process> filteredProcesses = new ArrayList<>(processes);
         filteredProcesses.removeAll(processMismatchErrors.keySet().stream().collect(Collectors.toList()));
         final String strFilteredProcesses = filteredProcesses.stream().map(Process::getName).collect(Collectors.joining(","));
-        LOG.info("Filtered processes: [{}]", strFilteredProcesses); //TODO change to debug
+        LOG.debug("Filtered processes: [{}]", strFilteredProcesses);
 
         StringBuilder strProcessMismatchErrorDetails = new StringBuilder("Process mismatch details:\n")
                 .append(processMismatchErrors.values().stream().collect(Collectors.joining("\n")));
@@ -360,7 +356,7 @@ public class CachingPModeProvider extends PModeProvider {
         final List<LegConfiguration> filteredCandidateLegs = new ArrayList<>(candidateLegs);
         filteredCandidateLegs.removeAll(legMismatchErrors.keySet().stream().collect(Collectors.toList()));
         final String strFilteredLegs = filteredCandidateLegs.stream().map(LegConfiguration::getName).collect(Collectors.joining(","));
-        LOG.info("Filtered legs: [{}]", strFilteredLegs); //TODO change to debug
+        LOG.debug("Filtered legs: [{}]", strFilteredLegs);
 
         //return first matched Leg name.
         if (!filteredCandidateLegs.isEmpty()) {
@@ -387,12 +383,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchService(LegConfiguration candidateLeg, String service, Map<LegConfiguration, String> legMismatchErrors) {
         if (StringUtils.equalsIgnoreCase(candidateLeg.getService().getName(), service)) {
-            LOG.debug("Service: {} matched for Leg: {}", service, candidateLeg.getName());
+            LOG.debug("Service:[{}] matched for Leg:[{}]", service, candidateLeg.getName());
             return true;
-        } else {
-            buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Service:[" + service + "] does not match");
-            return false;
         }
+        buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Service:[" + service + "] does not match");
+        return false;
     }
 
     /**
@@ -406,12 +401,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchAction(LegConfiguration candidateLeg, String action, Map<LegConfiguration, String> legMismatchErrors) {
         if (StringUtils.equalsIgnoreCase(candidateLeg.getAction().getName(), action)) {
-            LOG.debug("Action: {} matched for Leg: {}", action, candidateLeg.getName());
+            LOG.debug("Action:[{}] matched for Leg:[{}]", action, candidateLeg.getName());
             return true;
-        } else {
-            buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Action:[" + action + "] does not match");
-            return false;
         }
+        buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Action:[" + action + "] does not match");
+        return false;
     }
 
     protected void buildErrorDetailForLegMismatch(LegConfiguration candidateLeg, Map<LegConfiguration, String> legMismatchErrors, String newError) {
@@ -456,12 +450,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchInitiatorRole(Process process, Role initiatorRole, Map<Process, String> processMismatchErrors) {
         if (matchRole(process.getInitiatorRole(), initiatorRole)) {
-            LOG.debug("InitiatorRole: {} matched for Process: {}", initiatorRole, process.getName());
+            LOG.debug("InitiatorRole:[{}] matched for Process:[{}]", initiatorRole, process.getName());
             return true;
-        } else {
-            buildErrorDetailForProcessMismatch(process, processMismatchErrors, "InitiatorRole:[" + initiatorRole + "] does not match");
-            return false;
         }
+        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "InitiatorRole:[" + initiatorRole + "] does not match");
+        return false;
     }
 
     /**
@@ -474,12 +467,11 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchResponderRole(Process process, Role responderRole, Map<Process, String> processMismatchErrors) {
         if (matchRole(process.getResponderRole(), responderRole)) {
-            LOG.debug("ResponderRole: {} matched for Process: {}", responderRole, process.getName());
+            LOG.debug("ResponderRole:[{}] matched for Process:[{}]", responderRole, process.getName());
             return true;
-        } else {
-            buildErrorDetailForProcessMismatch(process, processMismatchErrors, "ResponderRole:[" + responderRole + "] does not match");
-            return false;
         }
+        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "ResponderRole:[" + responderRole + "] does not match");
+        return false;
     }
 
     @Override
