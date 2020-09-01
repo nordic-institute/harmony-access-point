@@ -1,10 +1,9 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -33,6 +32,7 @@ import javax.jms.Session;
 import java.text.MessageFormat;
 import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
@@ -61,6 +61,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Autowired
     protected JMSMessageTransformer jmsMessageTransformer;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
 
@@ -95,9 +98,11 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Transactional
-    @Timer(clazz = BackendJMSImpl.class, value = "receiveMessage")
-    @Counter(clazz = BackendJMSImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
+        //TODO please remove the following metrics and replace by annotations when jira EDELIVERY-7008 is solved.
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(BackendJMSImpl.class, "receiveMessage", "_timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(BackendJMSImpl.class, "receiveMessage", "_counter"));
+        methodCounter.inc();
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
@@ -135,6 +140,9 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
         } catch (Exception e) {
             LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
+        } finally {
+            methodTimer.stop();
+            methodCounter.dec();
         }
     }
 
@@ -152,15 +160,21 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     @Override
-    @Timer(clazz = BackendJMSImpl.class, value = "deliverMessage")
-    @Counter(clazz = BackendJMSImpl.class, value = "deliverMessage")
     public void deliverMessage(final DeliverMessageEvent event) {
-        String messageId = event.getMessageId();
-        LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getFinalRecipient());
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(BackendJMSImpl.class, "deliverMessage", "_timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(BackendJMSImpl.class, "deliverMessage", "_counter"));
+        methodCounter.inc();
+        try {
+            String messageId = event.getMessageId();
+            LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getFinalRecipient());
 
-        final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
-        LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+            final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+            LOG.info("Sending message to queue [{}]", queueValue);
+            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+        } finally {
+            methodTimer.stop();
+            methodCounter.dec();
+        }
     }
 
     @Override
