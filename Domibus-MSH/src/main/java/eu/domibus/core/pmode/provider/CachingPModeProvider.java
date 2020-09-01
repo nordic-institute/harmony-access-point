@@ -339,7 +339,7 @@ public class CachingPModeProvider extends PModeProvider {
         return selectedLeg.map(LegConfiguration::getName).orElse(null);
     }
 
-    private List<Process> filterMatchingProcesses(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
+    protected List<Process> filterMatchingProcesses(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
         Objects.requireNonNull(processMismatchErrors);
 
         List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
@@ -351,7 +351,7 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateProcesses;
     }
 
-    private void buildProcessMismatchDetails(Process process, String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
+    protected void buildProcessMismatchDetails(Process process, String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, Map<Process, String> processMismatchErrors) {
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
         matchAgreement(process, agreementName, processMismatchErrors);
         matchInitiatorRole(process, initiatorRole, processMismatchErrors);
@@ -360,18 +360,18 @@ public class CachingPModeProvider extends PModeProvider {
         matchResponder(process, processTypePartyExtractor, processMismatchErrors);
     }
 
-    private void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
+    protected void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
         if (!processMismatchErrors.containsKey(process)) {
             processMismatchErrors.put(process, "For Process:[" + process.getName() + "]");
         }
         processMismatchErrors.put(process, processMismatchErrors.get(process).concat(", ").concat(newError));
     }
 
-    private String listProcessNames(List<Process> candidateProcesses) {
+    protected String listProcessNames(List<Process> candidateProcesses) {
         return candidateProcesses.stream().map(Process::getName).collect(Collectors.joining(","));
     }
 
-    private Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, String service, String action, Map<LegConfiguration, String> legMismatchErrors) {
+    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, String service, String action, Map<LegConfiguration, String> legMismatchErrors) {
         Objects.requireNonNull(matchingProcessesList);
         Objects.requireNonNull(legMismatchErrors);
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
@@ -387,16 +387,16 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateLegs;
     }
 
-    private void buildLegMismatchDetails(LegConfiguration candidateLeg, String service, String action, Map<LegConfiguration, String> legMismatchErrors) {
+    protected void buildLegMismatchDetails(LegConfiguration candidateLeg, String service, String action, Map<LegConfiguration, String> legMismatchErrors) {
         matchService(candidateLeg, service, legMismatchErrors);
         matchAction(candidateLeg, action, legMismatchErrors);
     }
 
-    private String getMismatchErrorDetails(Collection<String> mismatchDetails) {
+    protected String getMismatchErrorDetails(Collection<String> mismatchDetails) {
         return String.join("\n", mismatchDetails);
     }
 
-    private String listLegNames(Set<LegConfiguration> candidateLegs) {
+    protected String listLegNames(Set<LegConfiguration> candidateLegs) {
         return candidateLegs.stream().map(LegConfiguration::getName).collect(Collectors.joining(","));
     }
 
