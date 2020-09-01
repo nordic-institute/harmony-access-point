@@ -4,6 +4,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,6 +25,7 @@ public class DomibusStatusService {
     private boolean cxfInitiated;
 
     @Autowired
+    @Qualifier("busCore")
     private Bus bus;
 
     public boolean isNotReady() {

@@ -13,16 +13,19 @@ import org.apache.neethi.AssertionBuilderFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.builders.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.wss4j.common.WSS4JConstants;
-import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.policy.SPConstants;
 import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 
 import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.wss4j.dom.WSConstants.*;
 
 
 /**
@@ -36,30 +39,30 @@ import java.util.Map;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Service("algorithmSuiteLoader")
 public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuiteLoader.class);
 
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";
 
-    public static final String MGF1_KEY_TRANSPORT_ALGORITHM = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
     public static final String AES128_GCM_ALGORITHM = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
     public static final String BASIC_128_GCM_SHA_256 = "Basic128GCMSha256";
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256 = "Basic128GCMSha256MgfSha256";
 
-    protected Bus bus;
+    protected Bus busCore;
 
-    public DomibusAlgorithmSuiteLoader(final Bus bus) {
-        this.bus = bus;
+    public DomibusAlgorithmSuiteLoader(final @Qualifier("busCore") Bus bus) {
+        this.busCore = bus;
     }
 
     @PostConstruct
     public void load() {
-        if (this.bus == null) {
+        if (this.busCore == null) {
             LOG.warn("cxf bus is null");
             return;
         }
-        bus.setExtension(this, AlgorithmSuiteLoader.class);
+        busCore.setExtension(this, AlgorithmSuiteLoader.class);
         registerBuilders();
     }
 
@@ -68,15 +71,16 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
      *
      */
     protected void registerBuilders() {
-        final AssertionBuilderRegistry reg = bus.getExtension(AssertionBuilderRegistry.class);
+        final AssertionBuilderRegistry reg = busCore.getExtension(AssertionBuilderRegistry.class);
         if (reg != null) {
-            final Map<QName, Assertion> assertions = new HashMap<QName, Assertion>();
+            final Map<QName, Assertion> assertions = new HashMap<>();
             QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);
             assertions.put(qName, new PrimitiveAssertion(qName));
             qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
             assertions.put(qName, new PrimitiveAssertion(qName));
 
             reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
+                @Override
                 public Assertion build(final Element element, final AssertionBuilderFactory fact) {
                     if (XMLPrimitiveAssertionBuilder.isOptional(element)
                             || XMLPrimitiveAssertionBuilder.isIgnorable(element)) {
@@ -125,7 +129,7 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                             128, 128, 128, 256, 1024, 4096
                     )
             );
-            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256).setMGFAlgo(WSConstants.MGF_SHA256);
+            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256).setMGFAlgo(MGF_SHA256);
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256).setEncryptionDigest(SPConstants.SHA256);
         }
 

@@ -12,6 +12,7 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,12 +24,6 @@ import javax.xml.ws.Endpoint;
  */
 @Configuration
 public class LocalEndpointConfiguration {
-
-    @Autowired
-    protected Bus bus;
-
-    @Autowired
-    protected MSHSourceMessageWebservice mshWebserviceSerializer;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -46,7 +41,7 @@ public class LocalEndpointConfiguration {
     protected DomainService domainService;
 
     @Bean(name = "localMSH")
-    public Endpoint createMSHEndpoint() {
+    public Endpoint createMSHEndpoint(@Qualifier("busCore") Bus bus, MSHSourceMessageWebservice mshWebserviceSerializer) {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
