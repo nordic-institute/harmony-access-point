@@ -115,12 +115,12 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
         } catch (final SOAPFaultException soapFEx) {
+            LOG.error("A SOAP fault occurred when handling receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
-            } else {
-                LOG.warn("Error for message with ID [{}]", messageId, soapFEx);
             }
         } catch (final EbMS3Exception e) {
+            LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
             reliabilityService.handleReliability(messageId, sentMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);

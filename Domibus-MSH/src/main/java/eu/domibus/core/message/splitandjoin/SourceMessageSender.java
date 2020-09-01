@@ -124,20 +124,20 @@ public class SourceMessageSender implements MessageSender {
             mshDispatcher.dispatchLocal(userMessage, soapMessage, legConfiguration);
             reliabilityCheck = ReliabilityChecker.CheckResult.OK;
         } catch (final SOAPFaultException soapFEx) {
+            LOG.error("A SOAP fault occurred when sending source message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
-            } else {
-                LOG.warn("Error for message with ID [" + messageId + "]", soapFEx);
             }
             attemptError = soapFEx.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
         } catch (final EbMS3Exception e) {
+            LOG.error("EbMS3 exception occurred when sending source message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
-            LOG.error("Error sending message [{}]", messageId, t);
+            LOG.error("Error occurred when sending source message with ID [{}]", messageId, t);
             attemptError = t.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
             throw t;

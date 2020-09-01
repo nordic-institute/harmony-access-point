@@ -132,15 +132,15 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, legConfiguration, pullReceiptMatcher);
         } catch (final SOAPFaultException soapFEx) {
+            LOG.error("A SOAP fault occurred when handling pull receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
-            } else {
-                LOG.warn("[PULL_RECEIPT]:Error for message with ID [{}]",messageId, soapFEx);
             }
         } catch (final EbMS3Exception e) {
+            LOG.error("EbMS3 exception occurred when handling pull receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } catch (ReliabilityException r) {
-            LOG.warn(r.getMessage(), r);
+            LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
         } finally {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);

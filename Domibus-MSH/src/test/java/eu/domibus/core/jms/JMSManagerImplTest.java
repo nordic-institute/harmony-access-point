@@ -27,7 +27,6 @@ import javax.jms.Queue;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Cosmin Baciu
@@ -179,67 +178,33 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testDeleteMessages_ok() {
+    public void testDeleteMessages() throws Exception {
         final String source = "myqueue";
         final String[] messageIds = new String[]{"1", "2"};
 
-        new Expectations() {{
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
+
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
             internalJmsManager.deleteMessages(source, messageIds);
             result = 2;
-            times = 1;
+
         }};
 
         jmsManager.deleteMessages(source, messageIds);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageDeletedAudit("1", source);
-            times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testDeleteMessages_warning() {
-        final String source = "myqueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations() {{
+        new FullVerifications(jmsManager) {{
             internalJmsManager.deleteMessages(source, messageIds);
-            result = 1;
-            times = 1;
+            String actualDomain;
+            auditService.addJmsMessageDeletedAudit("1", source, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageDeletedAudit("2", source, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
         }};
-
-        jmsManager.deleteMessages(source, messageIds);
-
-        new FullVerifications() {{
-            auditService.addJmsMessageDeletedAudit("1", source);
-            times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testDeleteMessages_error() {
-        final String source = "myqueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations() {{
-            internalJmsManager.deleteMessages(source, messageIds);
-            result = 0;
-            times = 1;
-        }};
-
-        try {
-            jmsManager.deleteMessages(source, messageIds);
-            fail();
-        } catch (IllegalStateException e) {
-            //do nothing
-        }
-
-        new FullVerifications() {
-        };
     }
 
     @Test
@@ -247,62 +212,51 @@ public class JMSManagerImplTest {
         final String source = "myqueue";
         final String destination = "destinationQueue";
         final String[] messageIds = new String[]{"1", "2"};
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
-        new Expectations() {{
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
             internalJmsManager.moveMessages(source, destination, messageIds);
             result = 2;
+
         }};
 
         jmsManager.moveMessages(source, destination, messageIds);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageMovedAudit("1", source, destination);
-            times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
-            times = 1;
+        new FullVerifications(jmsManager) {{
+            internalJmsManager.moveMessages(source, destination, messageIds);
+            String actualDomain;
+            auditService.addJmsMessageMovedAudit("1", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageMovedAudit("2", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
         }};
     }
 
     @Test
-    public void testMoveMessages_warning(@Injectable final Queue queue) {
-        final String source = "myqueue";
-        final String destination = "destinationQueue";
-        final String[] messageIds = new String[]{"1", "2"};
+    public void test_retrieveDomainFromJMSMessage(final @Mocked JmsMessage jmsMessage) {
+        final String sourceQueue = "fromQueue";
+        final String jmsMessageID = "jmsMessageID";
 
-        new Expectations() {{
-            internalJmsManager.moveMessages(source, destination, messageIds);
-            result = 1;
+        new Expectations(jmsManager) {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
+
+            jmsManager.getMessage(sourceQueue, jmsMessageID);
+            result = jmsMessage;
+
+            jmsMessage.getProperty(MessageConstants.DOMAIN);
+            result = "domain1";
         }};
 
-        jmsManager.moveMessages(source, destination, messageIds);
+        jmsManager.retrieveDomainFromJMSMessage(sourceQueue, jmsMessageID);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageMovedAudit("1", source, destination);
-            times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
-            times = 1;
+        new FullVerifications(jmsManager) {{
         }};
-    }
-
-    @Test
-    public void testMoveMessages_error(@Injectable final Queue queue) {
-        final String source = "myqueue";
-        final String destination = "destinationQueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations() {{
-            internalJmsManager.moveMessages(source, destination, messageIds);
-            result = 0;
-        }};
-
-        try {
-            jmsManager.moveMessages(source, destination, messageIds);
-            fail();
-        } catch (IllegalStateException e) {
-            //Do nothing
-        }
-        new FullVerifications() {
-        };
     }
 
     @Test
