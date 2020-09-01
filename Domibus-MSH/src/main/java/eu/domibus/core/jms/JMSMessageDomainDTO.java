@@ -5,7 +5,7 @@ package eu.domibus.core.jms;
  * DTO to store a pair of jmsMessageID and domain code
  *
  * @author Catalin Enache
- * @since 4.2
+ * @since 4.1.5
  */
 public class JMSMessageDomainDTO {
 
