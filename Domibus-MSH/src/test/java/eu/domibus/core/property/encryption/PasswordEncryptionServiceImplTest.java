@@ -510,8 +510,8 @@ public class PasswordEncryptionServiceImplTest {
         assertTrue("Lines changed, expect true.", passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
     }
 
-    @Test(expected = DomibusEncryptionException.class)
-    public void arePropertiesNewlyEncrypted_ConfigFileCannotBeRead() throws IOException {
+    @Test
+    public void arePropertiesNewlyEncrypted_ConfigFileCannotBeRead() {
         final List<String> replacedLines = Arrays.asList(new String[]{
                 "#-----------------",
                 "#domibus.deployment.clustered=false",
@@ -525,7 +525,6 @@ public class PasswordEncryptionServiceImplTest {
         }
         catch (DomibusEncryptionException e){
             assertTrue("Expect DomibusEncryptionException due to file not present.", e.getMessage().contains("Could not read configuration file"));
-            throw e;
         }
     }
 
