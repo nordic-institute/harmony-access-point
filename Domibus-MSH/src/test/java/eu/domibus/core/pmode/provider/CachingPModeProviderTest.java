@@ -840,7 +840,7 @@ public class CachingPModeProviderTest {
     final ProcessTypePartyExtractor pullProcessPartyExtractor = new PullProcessPartyExtractor(senderParty, receiverParty);
 
     @Test
-    public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         final String expectedLegName = "pushNoSecnoSecAction";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
 
@@ -849,34 +849,17 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-            minTimes = 0;
             result = true;
 
             processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
             result = pushProcessPartyExtractor;
 
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pushProcessPartyExtractor;
-
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pushProcessPartyExtractor;
-
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pullProcessPartyExtractor;
         }};
-        try {
-            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
-            assertEquals(expectedLegName, legName);
-        } catch (EbMS3Exception ex) {
-            fail("Exception was not expected");
-        }
+        String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+        assertEquals(expectedLegName, legName);
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindLegNameMissingInitiatorRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         final Role notMyInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
@@ -887,27 +870,25 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-            minTimes = 0;
             result = true;
 
             processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
             result = pushProcessPartyExtractor;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
             result = true;
         }};
+
         try {
-            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole);
-            fail("Should not get here");
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole);
+            fail("Expected EbMS3Exception to be thrown with InitiatorRole mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
             assertTrue("Expected error message to contain Role details.", StringUtils.contains(ex.getErrorDetail(), "InitiatorRole:[" + notMyInitiatorRole.toString() + "] does not match"));
-            throw ex;
         }
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindLegNameMismatchResponderRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         final Role notMyResponderRole = new Role("defaultResponderRole", "notMyResponder");
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
@@ -918,27 +899,24 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-            minTimes = 0;
             result = true;
 
             processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
             result = pushProcessPartyExtractor;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
             result = true;
         }};
         try {
-            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, notMyResponderRole);
-            fail("Should not get here");
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, notMyResponderRole);
+            fail("Expected EbMS3Exception to be thrown with ResponderRole mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
             assertTrue("Expected error message to contain Role details.", StringUtils.contains(ex.getErrorDetail(), "ResponderRole:[" + notMyResponderRole.toString() + "] does not match"));
-            throw ex;
         }
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindLegNameMismatchInitiatorResponder() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -950,30 +928,27 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-            minTimes = 0;
             result = true;
 
             processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), incorrectSender, incorrectReceiver);
-            minTimes = 0;
             result = new PushProcessPartyExtractor(incorrectSender, incorrectReceiver);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
             result = true;
         }};
         try {
-            String legName = cachingPModeProvider.findLegName(agreement, incorrectSender, incorrectReceiver, service, action, initiatorRole, responderRole);
-            fail("Should not get here");
+            cachingPModeProvider.findLegName(agreement, incorrectSender, incorrectReceiver, service, action, initiatorRole, responderRole);
+            fail("Expected EbMS3Exception to be thrown with Initiator and Responder mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
             assertTrue("Expected error message to contain Sender details.", StringUtils.contains(ex.getErrorDetail(), "Initiator:[" + incorrectSender + "] does not match"));
             assertTrue("Expected error message to contain Receiver details.", StringUtils.contains(ex.getErrorDetail(), "Responder:[" + incorrectReceiver + "] does not match"));
-            throw ex;
         }
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindLegNameEmptyLegCandidate() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
-        String expectedErrorMsgStart = "No Candidates for Legs found among the matching Processes:";
+        String expectedErrorMsgStart = "No matching Legs found among matched Processes:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         configuration.getBusinessProcesses().getLegConfigurations().clear();
         configuration.getBusinessProcesses().getProcesses().stream().forEach(process1 -> process1.getLegs().clear());
@@ -984,63 +959,46 @@ public class CachingPModeProviderTest {
                 result = configuration.getBusinessProcesses();
 
                 domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-                minTimes = 0;
                 result = true;
 
                 processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), senderParty, receiverParty);
-                minTimes = 0;
                 result = pushProcessPartyExtractor;
             }
         };
 
         try {
-            String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
-            fail("Should not get here");
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+            fail("Expected EbMS3Exception to be thrown with Leg mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
-            throw ex;
         }
     }
 
-    @Test(expected = EbMS3Exception.class)
+    @Test
     public void testfindLegNameServiceActionMismatch() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         final String service = "MismatchService";
         final String action = "IncorrectAction";
-        final String expectedErrorMsgStart = "From among matched Processes:";
+        final String expectedErrorMsgStart = "No matching Legs found among matched Processes:";
 
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses();
             result = configuration.getBusinessProcesses();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-            minTimes = 0;
             result = true;
 
             processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
             result = pushProcessPartyExtractor;
 
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pushProcessPartyExtractor;
-
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pushProcessPartyExtractor;
-
-            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
-            minTimes = 0;
-            result = pullProcessPartyExtractor;
         }};
         try {
             cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
-            fail("Should not get here");
+            fail("Expected EbMS3Exception to be thrown with Service and Action mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to start with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
             assertTrue("Expected error message to contain Service details.", StringUtils.contains(ex.getErrorDetail(), "Service:[" + service + "] does not match"));
             assertTrue("Expected error message to contain Action details.", StringUtils.contains(ex.getErrorDetail(), "Action:[" + action + "] does not match"));
-            throw ex;
         }
     }
 
