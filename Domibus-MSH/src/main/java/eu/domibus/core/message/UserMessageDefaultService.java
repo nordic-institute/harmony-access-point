@@ -242,6 +242,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
+        if (userMessageLog.getNextAttempt() != null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already put in [" + MessageStatus.SEND_ENQUEUED + "]");
+        }
+
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         userMessageLog.setNextAttempt(new Date());

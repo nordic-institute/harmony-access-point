@@ -24,7 +24,7 @@ import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
-import {DirtyOperations} from '../common/dirty-operations';
+import {PropertiesService} from "../properties/support/properties.service";
 
 @Component({
   moduleId: module.id,
@@ -64,6 +64,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   canSearchByConversationId: boolean;
   conversationIdValue: String;
+  resendReceivedMinutes: number;
+  propertiesService: PropertiesService;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
@@ -86,6 +88,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.canSearchByConversationId = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
+
+    this.resendReceivedMinutes = await this.getReceivedResendMinutes();
 
     this.filterData();
   }
@@ -288,8 +292,21 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
-      && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
+      && (row.messageStatus === 'SEND_FAILURE' || this.isSendEnqueuedEnabled(row))
       && !this.isSplitAndJoinMessage(row);
+  }
+
+  private isSendEnqueuedEnabled(row): boolean {
+    var receivedDate = new Date(row.received);
+    receivedDate.setMinutes(receivedDate.getMinutes() + this.resendReceivedMinutes);
+
+    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDate < new Date() && !row.nextAttempt)
+  }
+
+  private async getReceivedResendMinutes(): Promise<number> {
+    this.propertiesService = this.applicationService.injector.get(PropertiesService);
+    const res = await this.propertiesService.getReceivedResendMinutesProperty();
+    return +res.value;
   }
 
   private isSplitAndJoinMessage(row) {
