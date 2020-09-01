@@ -451,7 +451,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
-        if (Objects.equals(role, processRole)) {
+        if(Objects.equals(role, processRole)) {
             LOG.debug("Roles match");
             return true;
         }
@@ -746,7 +746,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if (rolesEnabled) {
+        if(rolesEnabled) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
         }
 
@@ -907,7 +907,7 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    protected List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
+    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
         if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                 && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
             return handleProcessParties(process);
