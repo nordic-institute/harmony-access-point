@@ -54,12 +54,14 @@ public class LoggingGrid extends DGrid {
 			DObject button = weToDobject(btn);
 			if(button.getText().equalsIgnoreCase(level)){
 				button.click();
-				wait.forXMillis(300);
+				wait.forXMillis(500);
 				break;
 			}
 		}
 		
 		info.put("Logger Level", weToDobject(rowElement.findElement(selectedButtonSelector)).getText());
+		
+		waitForRowsToLoad();
 		
 		log.debug("got info " + info);
 		return info;
