@@ -2,12 +2,14 @@ package eu.domibus.core.clustering;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandExecutorService;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,17 +55,24 @@ public class ControllerListenerService implements MessageListener {
             return;
         }
 
-        Domain domain;
         try {
             String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            domain = domainService.getDomain(domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
+            if (StringUtils.isEmpty(domainCode)) {
+                domainContextProvider.clearCurrentDomain();
+            } else {
+                Domain domain = domainService.getDomain(domainCode);
+                if (domain == null) {
+                    LOG.error("Invalid domain received in command: [{}]", domainCode);
+                    return;
+                }
+                domainContextProvider.setCurrentDomain(domainCode);
+            }
         } catch (JMSException e) {
             LOG.error("Could not get the domain", e);
             return;
         }
 
-        commandExecutorService.executeCommand(command, domain, getCommandProperties(message));
+        commandExecutorService.executeCommand(command, getCommandProperties(message));
     }
 
     /**

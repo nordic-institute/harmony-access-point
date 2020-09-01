@@ -276,8 +276,11 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
-        final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
+        final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        if (currentDomain != null) {
+            LOG.debug("Adding jms message property DOMAIN: [{}]", currentDomain.getCode());
+            message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
+        }
         InternalJmsMessage internalJmsMessage = jmsMessageMapper.convert(message);
         internalJmsMessage.setMessageType(messageType);
         return internalJmsMessage;

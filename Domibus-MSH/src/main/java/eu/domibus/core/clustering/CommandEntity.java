@@ -16,7 +16,6 @@ import java.util.Map;
 @Table(name = "TB_COMMAND")
 @NamedQueries({
         @NamedQuery(name = "CommandEntity.findByServerName", query = "SELECT c FROM CommandEntity c where c.serverName=:SERVER_NAME"),
-        @NamedQuery(name = "CommandEntity.findByServerAndDomainName", query = "SELECT c FROM CommandEntity c where c.serverName=:SERVER_NAME and c.domain=:DOMAIN_NAME")
 })
 public class CommandEntity extends AbstractBaseEntity {
 
@@ -27,10 +26,6 @@ public class CommandEntity extends AbstractBaseEntity {
     @Column(name = "SERVER_NAME")
     @NotNull
     protected String serverName;
-
-    @Column(name = "DOMAIN")
-    @NotNull
-    protected String domain;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "TB_COMMAND_PROPERTY", joinColumns = @JoinColumn(name = "FK_COMMAND"))
@@ -53,14 +48,6 @@ public class CommandEntity extends AbstractBaseEntity {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
     public Map<String, String> getCommandProperties() {

@@ -37,17 +37,17 @@ public class PropertyChangeCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOGGER.debug("Property change level command");
+        LOGGER.debug("Property value change command");
 
         final String propName = properties.get(CommandProperty.PROPERTY_NAME);
         final String propVal = properties.get(CommandProperty.PROPERTY_VALUE);
 
-        Domain domain = domainContextProvider.getCurrentDomain();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
         try {
             LOGGER.trace("Updating the value of [{}] property on domain [{}], no broadcast", propName, domain);
             domibusPropertyProvider.setProperty(domain, propName, propVal, false);
         } catch (Exception ex) {
-            LOGGER.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain);
+            LOGGER.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain, ex);
         }
     }
 }

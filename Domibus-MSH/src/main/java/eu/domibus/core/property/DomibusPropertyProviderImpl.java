@@ -188,9 +188,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        if (domain == null) {
-            throw new DomibusPropertyException("Property " + propertyName + " cannot be set without a domain");
-        }
         domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
