@@ -120,7 +120,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
+    @Test()
     public void setPropertyWithDomainNull() {
 
         domibusPropertyProvider.setProperty(null, propertyName, propertyValue, true);
