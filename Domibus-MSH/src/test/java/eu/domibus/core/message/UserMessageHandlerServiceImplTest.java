@@ -251,6 +251,9 @@ public class UserMessageHandlerServiceImplTest {
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
         }
+
+        new FullVerifications() {
+        };
     }
 
 
@@ -729,7 +732,6 @@ public class UserMessageHandlerServiceImplTest {
         }};
     }
 
-
     @Test
     public void testPersistReceivedMessage_CompressionError(@Injectable final LegConfiguration legConfiguration,
                                                             @Injectable final Messaging messaging,
@@ -955,9 +957,6 @@ public class UserMessageHandlerServiceImplTest {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations(userMessageHandlerService) {{
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
             messaging.getUserMessage().getMessageInfo().getMessageId();
             result = "TestMessage123";
 
@@ -974,6 +973,9 @@ public class UserMessageHandlerServiceImplTest {
 
             legConfiguration.getReliability().isNonRepudiation();
             result = false;
+
+            legConfiguration.getReliability().getReplyPattern();
+            result = ReplyPattern.RESPONSE;
 
             as4ReceiptService.generateReceipt(soapRequestMessage, messaging, ReplyPattern.RESPONSE, false, true, false);
             result = soapResponseMessage;
@@ -1237,6 +1239,13 @@ public class UserMessageHandlerServiceImplTest {
         String backendName = "mybackend";
 
         new Expectations(userMessageHandlerService) {{
+            messaging.getUserMessage().getMessageInfo().getMessageId();
+            result = "messageID";
+
+            messaging.getUserMessage().getPayloadInfo();
+            result = null;
+            times = 1;
+
             routingService.getMatchingBackendFilter(messaging.getUserMessage());
             result = backendFilter;
 
@@ -1581,6 +1590,12 @@ public class UserMessageHandlerServiceImplTest {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = null;
+
+            legConfiguration.getName();
+            result = "legName";
+
+            userMessage.getMessageInfo().getMessageId();
+            result = "messageId";
         }};
 
         try {
@@ -1589,6 +1604,9 @@ public class UserMessageHandlerServiceImplTest {
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
         }
+
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1647,8 +1665,102 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(e.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0040);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
         }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithExpired(@Injectable UserMessage userMessage,
+                                                           @Injectable MessageFragmentType messageFragmentType,
+                                                           @Injectable MessageGroupEntity messageGroupEntity,
+                                                           @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            messageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getExpired();
+            result = true;
+
+            userMessage.getMessageInfo().getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
+            fail();
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentNoMessageGroupEntity(@Injectable UserMessage userMessage,
+                                                                    @Injectable MessageFragmentType messageFragmentType,
+                                                                    @Injectable MessageGroupEntity messageGroupEntity,
+                                                                    @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            messageFragmentType.getGroupId();
+            result = "groupId";
+
+            userMessage.getMessageInfo().getMessageId();
+            result = "messageId";
+        }};
+
+
+        userMessageHandlerService.validateUserMessageFragment(userMessage, null, messageFragmentType, legConfiguration);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragment_ok(@Injectable UserMessage userMessage,
+                                                   @Injectable MessageFragmentType messageFragmentType,
+                                                   @Injectable MessageGroupEntity messageGroupEntity,
+                                                   @Injectable LegConfiguration legConfiguration)
+            throws EbMS3Exception {
+
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+            messageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getRejected();
+            result = false;
+
+            messageGroupEntity.getExpired();
+            result = false;
+
+            messageGroupEntity.getFragmentCount();
+            result = null;
+        }};
+
+        userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
+
+        new FullVerifications() {
+        };
     }
 
     @Test
