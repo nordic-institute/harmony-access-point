@@ -37,7 +37,7 @@ public class MetricsAspect {
     }
 
     protected Object createTimer(ProceedingJoinPoint pjp, String value, Class<?> clazz) throws Throwable {
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(clazz, value, "_timer")).time();
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(clazz, value, "timer")).time();
         try {
             return pjp.proceed();
         } finally {
@@ -58,7 +58,7 @@ public class MetricsAspect {
     }
 
     protected Object createCounter(ProceedingJoinPoint pjp, Class<?> clazz, String value) throws Throwable {
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(clazz,value, "_counter"));
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(clazz,value, "counter"));
         try {
             methodCounter.inc();
             return pjp.proceed();

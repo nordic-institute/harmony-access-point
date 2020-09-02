@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,12 +17,6 @@ public class MetricsAspectTest extends TestCase {
     @Tested
     private MetricsAspect metricsAspect;
 
-    @Test
-    public void testGetMetricsName() {
-        String metricsName = "MetricsName";
-        Assert.assertEquals("java.lang.String.MetricsName_counter", metricsAspect.getMetricsName(String.class, metricsName, "_counter"));
-        Assert.assertEquals("MetricsName_counter", metricsAspect.getMetricsName(Void.class, metricsName, "_counter"));
-    }
 
     @Test
     public void surroundWithATimer(@Mocked ProceedingJoinPoint pjp,@Mocked  Timer timer,@Mocked com.codahale.metrics.Timer.Context methodTimer) throws Throwable {
@@ -34,7 +27,7 @@ public class MetricsAspectTest extends TestCase {
             result= metricName;
             timer.clazz();
             result=testClass;
-            metricRegistry.timer("java.lang.String."+metricName+"_timer").time();
+            metricRegistry.timer("java.lang.String."+metricName+".timer").time();
             result=methodTimer;
         }};
         metricsAspect.surroundWithATimer(pjp,timer);
@@ -52,7 +45,7 @@ public class MetricsAspectTest extends TestCase {
             result= metricName;
             timer.clazz();
             result=testClass;
-            metricRegistry.timer("java.lang.String."+metricName+"_timer").time();
+            metricRegistry.timer("java.lang.String."+metricName+".timer").time();
             result=methodTimer;
         }};
         metricsAspect.surroundWithATimer(pjp,timer);
@@ -71,7 +64,7 @@ public class MetricsAspectTest extends TestCase {
             result= metricName;
             timer.clazz();
             result=testClass;
-            com.codahale.metrics.Counter counter = metricRegistry.counter("java.lang.String." + metricName + "_counter");
+            com.codahale.metrics.Counter counter = metricRegistry.counter("java.lang.String." + metricName + ".counter");
             result=counter;
         }};
         metricsAspect.surroundWithACounter(pjp,timer);
@@ -91,7 +84,7 @@ public class MetricsAspectTest extends TestCase {
             result= metricName;
             timer.clazz();
             result=testClass;
-            com.codahale.metrics.Counter counter = metricRegistry.counter("java.lang.String." + metricName + "_counter");
+            com.codahale.metrics.Counter counter = metricRegistry.counter("java.lang.String." + metricName + ".counter");
             result=counter;
         }};
         metricsAspect.surroundWithACounter(pjp,timer);
