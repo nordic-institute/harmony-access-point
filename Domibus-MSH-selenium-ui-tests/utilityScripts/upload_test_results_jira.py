@@ -19,7 +19,7 @@ parentCycleId = 143
 boardID = 15
 buildNoSource = "http://localhost:9008/domibus/rest/application/info"
 environment_config = "Docker_WeblogicCluster-Oracle-Multitenancy"
-cycle_description = 'Conatins results of the REST test suite '
+cycle_description = ''
 
 baseUrl = "https://ec.europa.eu/cefdigital/tracker"
 projPath = "/rest/api/2/project/"

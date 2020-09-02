@@ -141,5 +141,7 @@ public class TestRunData {
 		return DATEWIDGET_DATE_FORMAT.format(date);
 	}
 	
-	
+	public String downloadFolderPath() {
+		return System.getProperty("user.dir") + File.separator + "downloadFiles";
+	}
 }

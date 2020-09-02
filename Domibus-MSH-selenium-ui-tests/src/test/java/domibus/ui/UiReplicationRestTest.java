@@ -2,23 +2,10 @@ package domibus.ui;
 
 
 import ddsl.enums.DMessages;
-import ddsl.enums.DRoles;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import rest.DomibusRestClient;
-import utils.Generator;
-import utils.TestRunData;
-
-import java.sql.*;
-
-import static domibus.ui.SeleniumTest.messageSender;
 
 /**
  * This file is referred for ticket 4839

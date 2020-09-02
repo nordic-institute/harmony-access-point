@@ -96,7 +96,7 @@ public class PModeXMLUtils {
 	}
 	
 	public String addPartyToPmode() throws IOException {
-		String name = Generator.randomAlphaNumeric(5);
+		String name = Gen.randomAlphaNumeric(5);
 		String url = "http://" + name + ".com";
 		String partyId = name + "_gw";
 		String partyIdType =
