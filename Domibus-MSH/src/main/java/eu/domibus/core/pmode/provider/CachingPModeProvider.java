@@ -13,6 +13,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.ebms3.common.model.AgreementRef;
 import eu.domibus.ebms3.common.model.MessageExchangePattern;
 import eu.domibus.ebms3.common.model.PartyId;
@@ -180,7 +181,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Agreement:[{}] matched for Process:[{}]", agreementName, process.getName());
             return true;
         }
-        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Agreement:[" + agreementName + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(process, processMismatchErrors, process.getName(), "Agreement:[" + agreementName + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
@@ -219,7 +220,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Initiator:[{}] matched for Process:[{}]", processTypePartyExtractor.getSenderParty(), process.getName());
             return true;
         }
-        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Initiator:[" + processTypePartyExtractor.getSenderParty() + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(process, processMismatchErrors, process.getName(), "Initiator:[" + processTypePartyExtractor.getSenderParty() + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
@@ -255,7 +256,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Responder:[{}] matched for Process:[{}]", processTypePartyExtractor.getReceiverParty(), process.getName());
             return true;
         }
-        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "Responder:[" + processTypePartyExtractor.getReceiverParty() + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(process, processMismatchErrors, process.getName(), "Responder:[" + processTypePartyExtractor.getReceiverParty() + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
@@ -365,11 +366,22 @@ public class CachingPModeProvider extends PModeProvider {
         }
     }
 
-    protected void buildErrorDetailForProcessMismatch(Process process, Map<Process, String> processMismatchErrors, String newError) {
-        if (!processMismatchErrors.containsKey(process)) {
-            processMismatchErrors.put(process, "For Process:[" + process.getName() + "]");
+    /**
+     * Build a map of error details for either {@link Process} or {@link LegConfiguration}.
+     *
+     * @param objKeyForError
+     * @param mismatchErrors
+     * @param keyName
+     * @param newError
+     * @param <T>
+     */
+    protected <T extends AbstractBaseEntity> void buildErrorDetailForMismatch(T objKeyForError, Map<T, String> mismatchErrors, String keyName, String newError) {
+        Objects.requireNonNull(objKeyForError);
+        Objects.requireNonNull(mismatchErrors);
+        if (!mismatchErrors.containsKey(objKeyForError)) {
+            mismatchErrors.put(objKeyForError, "For " + objKeyForError.getClass().getSimpleName() + ":[" + keyName + "]");
         }
-        processMismatchErrors.put(process, processMismatchErrors.get(process).concat(", ").concat(newError));
+        mismatchErrors.put(objKeyForError, mismatchErrors.get(objKeyForError).concat(", ").concat(newError));
     }
 
     protected String listProcessNames(List<Process> candidateProcesses) {
@@ -415,7 +427,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Service:[{}] matched for Leg:[{}]", service, candidateLeg.getName());
             return true;
         }
-        buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Service:[" + service + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(candidateLeg, legMismatchErrors, candidateLeg.getName(), "Service:[" + service + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
@@ -433,17 +445,9 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Action:[{}] matched for Leg:[{}]", action, candidateLeg.getName());
             return true;
         }
-        buildErrorDetailForLegMismatch(candidateLeg, legMismatchErrors, "Action:[" + action + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(candidateLeg, legMismatchErrors, candidateLeg.getName(), "Action:[" + action + DOES_NOT_MATCH_END_STRING);
         return false;
     }
-
-    protected void buildErrorDetailForLegMismatch(LegConfiguration candidateLeg, Map<LegConfiguration, String> legMismatchErrors, String newError) {
-        if (!legMismatchErrors.containsKey(candidateLeg)) {
-            legMismatchErrors.put(candidateLeg, "For Leg:[" + candidateLeg.getName() + "]");
-        }
-        legMismatchErrors.put(candidateLeg, legMismatchErrors.get(candidateLeg).concat(", ").concat(newError));
-    }
-
 
     protected boolean matchRole(final Role processRole, final Role role) {
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
@@ -475,7 +479,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("InitiatorRole:[{}] matched for Process:[{}]", initiatorRole, process.getName());
             return true;
         }
-        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "InitiatorRole:[" + initiatorRole + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(process, processMismatchErrors, process.getName(), "InitiatorRole:[" + initiatorRole + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
@@ -492,7 +496,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("ResponderRole:[{}] matched for Process:[{}]", responderRole, process.getName());
             return true;
         }
-        buildErrorDetailForProcessMismatch(process, processMismatchErrors, "ResponderRole:[" + responderRole + DOES_NOT_MATCH_END_STRING);
+        buildErrorDetailForMismatch(process, processMismatchErrors, process.getName(), "ResponderRole:[" + responderRole + DOES_NOT_MATCH_END_STRING);
         return false;
     }
 
