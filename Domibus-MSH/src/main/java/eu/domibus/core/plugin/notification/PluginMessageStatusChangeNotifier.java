@@ -7,6 +7,7 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -31,16 +32,16 @@ public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, Object> properties) {
+    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, String> properties) {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         event.setMessageId(messageId);
 
-        final String fromStatus = (String) properties.get(MessageConstants.STATUS_FROM);
+        final String fromStatus = properties.get(MessageConstants.STATUS_FROM);
         if (StringUtils.isNotEmpty(fromStatus)) {
             event.setFromStatus(MessageStatus.valueOf(fromStatus));
         }
-        event.setToStatus(MessageStatus.valueOf((String) properties.get(MessageConstants.STATUS_TO)));
-        event.setChangeTimestamp(new Timestamp((Long) properties.get(MessageConstants.CHANGE_TIMESTAMP)));
+        event.setToStatus(MessageStatus.valueOf(properties.get(MessageConstants.STATUS_TO)));
+        event.setChangeTimestamp(new Timestamp( NumberUtils.toLong(properties.get(MessageConstants.CHANGE_TIMESTAMP)) ));
         event.addProperty("service", properties.get(MessageConstants.SERVICE));
         event.addProperty("serviceType", properties.get(MessageConstants.SERVICE_TYPE));
         event.addProperty("action", properties.get(MessageConstants.ACTION));

@@ -104,6 +104,16 @@ export class AlertService {
     return result;
   }
 
+  escapeHtml(unsafe: string): string {
+    if (!unsafe) return '';
+    if (!unsafe.replace) unsafe = unsafe.toString();
+    return unsafe.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
     let errMsg = this.tryExtractErrorMessageFromResponse(error);
     errMsg = this.tryParseHtmlResponse(errMsg);
@@ -121,7 +131,7 @@ export class AlertService {
         if (instanceOfMultipleItemsResponse(response.error)) {
           errMsg = this.processMultipleItemsResponse(response.error);
         } else if (response.error.message) {
-          errMsg = response.error.message;
+          errMsg = this.escapeHtml(response.error.message);
         } else {
           errMsg = this.tryParseHtmlResponse(response.error);
         }
@@ -138,7 +148,7 @@ export class AlertService {
   private processMultipleItemsResponse(response: MultipleItemsResponse) {
     let message = '';
     if (response.message) {
-      message = response.message;
+      message = this.escapeHtml(response.message);
     }
     if (Array.isArray(response.issues)) {
       message += '<br>' + this.formatArrayOfItems(response.issues);
@@ -149,7 +159,7 @@ export class AlertService {
   private formatArrayOfItems(errors: Array<ResponseItemDetail>): string {
     let message = '';
     errors.forEach(err => {
-      let m = (err.level ? err.level + ': ' : '') + (err.message ? err.message : '');
+      let m = (err.level ? err.level + ': ' : '') + (err.message ? this.escapeHtml(err.message) : '');
       message += m + '<br>';
     });
     return message;

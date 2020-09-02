@@ -53,4 +53,5 @@
         </prefer-application-resources>
         <allow-all-roles>true</allow-all-roles>
     </container-descriptor>
+    <wl-dispatch-policy>DomibusWorkManager</wl-dispatch-policy>
 </weblogic-web-app>

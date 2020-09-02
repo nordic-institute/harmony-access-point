@@ -451,14 +451,13 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         final boolean isClusterDeployment = domibusConfigurationService.isClusterDeployment();
         if (!isClusterDeployment) {
             LOG.debug("Sending JMS message to topic");
-            sendMessage(internalJmsMessage, destination);
+            sendMessage(internalJmsMessage, destination, jmsSender);
             return;
         }
         //the uniform distributed topics do not work correctly in WebLogic 12.1.3
         // the JMS message is not correctly replicated to all managed servers when the cluster is composed of more than 2 managed servers
         LOG.debug("Cluster deployment: using command signaling via database instead of uniform distributed topic");
         String command = (String) internalJmsMessage.getProperty(Command.COMMAND);
-        String domain = (String) internalJmsMessage.getProperty(MessageConstants.DOMAIN);
         String originServer = (String) internalJmsMessage.getProperty(CommandProperty.ORIGIN_SERVER);
 
         final List<String> managedServerNamesList = getManagedServerNames();
@@ -470,7 +469,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
 
         for (String managedServerName : managedServerNamesList) {
-            commandService.createClusterCommand(command, domain, managedServerName, internalJmsMessage.getCustomProperties());
+            commandService.createClusterCommand(command, managedServerName, internalJmsMessage.getCustomProperties());
         }
     }
 

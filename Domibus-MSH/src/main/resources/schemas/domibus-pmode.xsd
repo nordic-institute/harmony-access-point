@@ -79,11 +79,11 @@
                                             </xs:complexType>
                                             <xs:unique name="uniquePartyIdType">
                                                 <xs:selector xpath="partyIdType"/>
-                                                <xs:field xpath="name"/>
+                                                <xs:field xpath="@name"/>
                                             </xs:unique>
                                             <xs:unique name="uniquePartyIdTypeValue">
                                                 <xs:selector xpath="partyIdType"/>
-                                                <xs:field xpath="value"/>
+                                                <xs:field xpath="@value"/>
                                             </xs:unique>
                                         </xs:element>
                                         <xs:element maxOccurs="unbounded" name="party">
@@ -143,6 +143,22 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueMep">
+                                    <xs:selector xpath="mep"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
+                                <xs:unique name="uniqueMepValue">
+                                    <xs:selector xpath="mep"/>
+                                    <xs:field xpath="@value"/>
+                                </xs:unique>
+                                <xs:unique name="uniqueBinding">
+                                    <xs:selector xpath="binding"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
+                                <xs:unique name="uniqueBindingValue">
+                                    <xs:selector xpath="binding"/>
+                                    <xs:field xpath="@value"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="properties">
                                 <xs:complexType>
@@ -173,9 +189,25 @@
                                                 <xs:attribute name="name" type="max255-non-empty-string"
                                                               use="required"/>
                                             </xs:complexType>
+                                            <xs:unique name="uniquePropertyRef">
+                                                <xs:selector xpath="propertyRef"/>
+                                                <xs:field xpath="@property"/>
+                                            </xs:unique>
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueProperty">
+                                    <xs:selector xpath="property"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
+                                <xs:unique name="uniquePropertyKey">
+                                    <xs:selector xpath="property"/>
+                                    <xs:field xpath="@key"/>
+                                </xs:unique>
+                                <xs:unique name="uniquePropertySet">
+                                    <xs:selector xpath="propertySet"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="payloadProfiles">
                                 <xs:complexType>
@@ -218,6 +250,14 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniquePayload">
+                                    <xs:selector xpath="payload"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
+                                <xs:unique name="uniquePayloadProfile">
+                                    <xs:selector xpath="payloadProfile"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="securities">
                                 <xs:complexType>
@@ -239,6 +279,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueSecurity">
+                                    <xs:selector xpath="security"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="errorHandlings">
                                 <xs:complexType>
@@ -259,6 +303,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueErrorHandling">
+                                    <xs:selector xpath="errorHandling"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="agreements">
                                 <xs:complexType>
@@ -276,6 +324,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueAgreement">
+                                    <xs:selector xpath="agreement"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="services">
                                 <xs:complexType>
@@ -292,6 +344,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueService">
+                                    <xs:selector xpath="service"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="actions">
                                 <xs:complexType>
@@ -306,6 +362,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueAction">
+                                    <xs:selector xpath="action"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="as4">
                                 <xs:complexType>
@@ -331,6 +391,14 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueReceptionAwareness">
+                                    <xs:selector xpath="receptionAwareness"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
+                                <xs:unique name="uniqueReliability">
+                                    <xs:selector xpath="reliability"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="splittingConfigurations" minOccurs="0">
                                 <xs:complexType>
@@ -351,6 +419,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueSplitting">
+                                    <xs:selector xpath="splitting"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element name="legConfigurations">
                                 <xs:complexType>
@@ -384,6 +456,10 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                                <xs:unique name="uniqueLegConfiguration">
+                                    <xs:selector xpath="legConfiguration"/>
+                                    <xs:field xpath="@name"/>
+                                </xs:unique>
                             </xs:element>
                             <xs:element maxOccurs="unbounded" name="process">
                                 <xs:complexType>
@@ -402,6 +478,10 @@
                                                     </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
+                                            <xs:unique name="uniqueInitiatorParty">
+                                                <xs:selector xpath="initiatorParty"/>
+                                                <xs:field xpath="@name"/>
+                                            </xs:unique>
                                         </xs:element>
                                         <xs:element name="responderParties" minOccurs="0">
                                             <xs:complexType>
@@ -417,6 +497,10 @@
                                                     </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
+                                            <xs:unique name="uniqueResponderParty">
+                                                <xs:selector xpath="responderParty"/>
+                                                <xs:field xpath="@name"/>
+                                            </xs:unique>
                                         </xs:element>
                                         <xs:element name="legs">
                                             <xs:complexType>
@@ -429,6 +513,10 @@
                                                     </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
+                                            <xs:unique name="uniqueLeg">
+                                                <xs:selector xpath="leg"/>
+                                                <xs:field xpath="@name"/>
+                                            </xs:unique>
                                         </xs:element>
                                     </xs:sequence>
                                     <xs:attribute name="name" use="required" type="max255-non-empty-string"/>

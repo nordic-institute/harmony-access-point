@@ -1,6 +1,10 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -12,6 +16,8 @@ import eu.domibus.core.audit.model.PModeArchiveAudit;
 import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.util.AnnotationsUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,6 +41,8 @@ import java.util.stream.Collectors;
 @Service
 public class AuditServiceImpl implements AuditService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditServiceImpl.class);
+
     @Autowired
     private AuditDao auditDao;
 
@@ -46,6 +54,15 @@ public class AuditServiceImpl implements AuditService {
 
     @Autowired
     private AuthUtils authUtils;
+
+    @Autowired
+    private DomainService domainService;
+
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    private DomainTaskExecutor domainTaskExecutor;
 
     /**
      * {@inheritDoc}
@@ -163,8 +180,8 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public void addJmsMessageDeletedAudit(
             final String messageId,
-            final String fromQueue) {
-        saveJmsMessage(messageId, fromQueue, null, ModificationType.DEL);
+            final String fromQueue, String domainCode) {
+        handleSaveJMSMessage(messageId, fromQueue, ModificationType.DEL, domainCode);
 
     }
 
@@ -174,16 +191,27 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public void addJmsMessageMovedAudit(
             final String messageId,
-            final String fromQueue, final String toQueue) {
-        saveJmsMessage(messageId, fromQueue, toQueue, ModificationType.MOVED);
-
+            final String fromQueue, final String toQueue, String domainCode) {
+        handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
     }
 
-    private void saveJmsMessage(final String messageId, final String fromQueue, final String toQueue, final ModificationType modificationType) {
+    protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
+        Domain domain = domainService.getDomain(domainCode);
+        final String userName = authUtils.getAuthenticatedUser();
+        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && domain == null)) {
+            LOG.debug("Audit for JMS Message=[{}] {} will be saved on default domain", messageId, modificationType == ModificationType.DEL ? "deleted" : "moved");
+            saveJmsMessage(messageId, fromQueue, null, modificationType, userName);
+            return;
+        }
+        domainTaskExecutor.submit(() -> saveJmsMessage(messageId, fromQueue, null, modificationType, userName), domain);
+    }
+
+    protected void saveJmsMessage(final String messageId, final String fromQueue, final String toQueue,
+                                  final ModificationType modificationType, String userName) {
         auditDao.saveJmsMessageAudit(
                 new JmsMessageAudit(
                         messageId,
-                        authUtils.getAuthenticatedUser(),
+                        userName,
                         new Date(),
                         modificationType,
                         fromQueue,

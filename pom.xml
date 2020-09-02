@@ -119,7 +119,7 @@
         <log4j.version>1.2.17</log4j.version>
         <atomikos.version>4.0.6</atomikos.version>
         <org.reflections.version>0.9.11</org.reflections.version>
-        <messaging.saaj.version>1.4.0</messaging.saaj.version>
+        <messaging.saaj.version>1.5.1</messaging.saaj.version>
         <jaxws-api.version>2.2</jaxws-api.version>
         <javax.annotation.version>1.3.1</javax.annotation.version>
         <netty.version>4.1.46.Final</netty.version>

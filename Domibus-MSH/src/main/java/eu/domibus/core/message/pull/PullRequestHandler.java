@@ -132,6 +132,7 @@ public class PullRequestHandler {
             LOG.debug("Skipped checking the reliability for message [" + messageId + "]: message sending has been aborted");
             LOG.error("Cannot handle pullrequest for message:[{}], Receivever:[{}] certificate is not valid or it has been revoked ", messageId, pullContext.getInitiator().getName(), e);
         } catch (EbMS3Exception e) {
+            LOG.error("EbMS3 exception occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
             reliabilityChecker.handleEbms3Exception(e, messageId);
@@ -141,6 +142,7 @@ public class PullRequestHandler {
                 throw new WebServiceException(e1);
             }
         } catch (Throwable e) { // NOSONAR: This was done on purpose.
+            LOG.error("Error occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
             throw e;

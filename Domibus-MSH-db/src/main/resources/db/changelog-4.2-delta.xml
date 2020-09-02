@@ -1077,6 +1077,11 @@
         <renameTable oldTableName="TB_SPLITTING" newTableName="TB_PM_SPLITTING"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-6924" author="Ion Perpegel">
+        <dropColumn columnName="DOMAIN" tableName="TB_COMMAND"/>
+    </changeSet>
+
+
     <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
         <addColumn tableName="TB_PM_MPC">
             <column name="RETENTION_SENT" type="INT" defaultValueNumeric="-1"/>

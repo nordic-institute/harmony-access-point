@@ -17,6 +17,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
@@ -75,11 +76,13 @@ public class AlertContextConfiguration {
                                                                                PlatformTransactionManager transactionManager,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
-                                                                               Optional<JndiDestinationResolver> internalDestinationResolver) {
+                                                                               Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                                               @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
         result.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
+        result.setTaskExecutor(schedulingTaskExecutor);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_QUEUE_CONCURRENCY);
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_QUEUE_CONCURRENCY, concurrency);

@@ -4,8 +4,6 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.ext.services.CommandExtTask;
 import eu.domibus.logging.DomibusLogger;
@@ -32,46 +30,42 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
     protected ServerInfoService serverInfoService;
     protected List<CommandTask> commandTasks;
     protected List<CommandExtTask> pluginCommands;
-    protected DomainTaskExecutor domainTaskExecutor;
 
     public CommandExecutorServiceImpl(CommandService commandService,
                                       ServerInfoService serverInfoService,
                                       List<CommandTask> commandTasks,
-                                      @Autowired(required = false) List<CommandExtTask> pluginCommands,
-                                      DomainTaskExecutor domainTaskExecutor) {
+                                      @Autowired(required = false) List<CommandExtTask> pluginCommands) {
         this.commandService = commandService;
         this.serverInfoService = serverInfoService;
         this.commandTasks = commandTasks;
         this.pluginCommands = pluginCommands;
-        this.domainTaskExecutor = domainTaskExecutor;
     }
 
     @Override
-    public void executeCommands(String serverName, Domain domain) {
+    public void executeCommands(String serverName) {
         LOG.debug("Executing commands for server [{}] ...", serverName);
 
-        final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
+        final List<Command> commandsByServerName = commandService.findCommandsByServerName(serverName);
         if (CollectionUtils.isEmpty(commandsByServerName)) {
-            LOG.debug("No commands found for server [{}] and domain [{}]", serverName, domain.getCode());
+            LOG.debug("No commands found for server [{}]", serverName);
             return;
         }
         for (Command command : commandsByServerName) {
             try {
-                executeAndDeleteCommand(command, domain);
+                executeAndDeleteCommand(command);
             } catch (RuntimeException e) {
                 LOG.error("Error executing command [{}]", command.getCommandName(), e);
             }
-
         }
     }
 
     @Override
-    public void executeCommand(String command, Domain domain, Map<String, String> commandProperties) {
-        if (skipCommandSameServer(command, domain, commandProperties)) {
+    public void executeCommand(String command, Map<String, String> commandProperties) {
+        if (skipCommandSameServer(command, commandProperties)) {
             LOG.trace("Skip the execution of command [{}] as it is executing of the same server", command);
             return;
         }
-        LOG.debug("Executing command [{}] for domain [{}] having properties [{}]", command, domain, commandProperties);
+        LOG.debug("Executing command [{}] having properties [{}]", command, commandProperties);
         CommandTask commandTask = getCommandTask(command);
         if (commandTask != null) {
             LOG.debug("Found command task [{}]", command);
@@ -87,14 +81,14 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
         LOG.error("Unknown command received: [{}]", command);
     }
 
-    public void executeAndDeleteCommand(Command command, Domain domain) {
+    public void executeAndDeleteCommand(Command command) {
         if (command == null) {
             LOG.warn("Attempting to execute and delete a null command");
             return;
         }
-        LOG.debug("Execute command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
-        executeCommand(command.getCommandName(), domain, command.getCommandProperties());
-        LOG.debug("Delete command [{}] [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties(), domain);
+        LOG.debug("Execute command [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties());
+        executeCommand(command.getCommandName(), command.getCommandProperties());
+        LOG.debug("Delete command [{}] [{}] [{}] ", command.getCommandName(), command.getServerName(), command.getCommandProperties());
         commandService.deleteCommand(command.getEntityId());
     }
 
@@ -110,7 +104,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
         return pluginCommands.stream().filter(commandTask -> commandTask.canHandle(commandName)).findFirst().orElse(null);
     }
 
-    protected boolean skipCommandSameServer(final String command, final Domain domain, Map<String, String> commandProperties) {
+    protected boolean skipCommandSameServer(final String command, Map<String, String> commandProperties) {
         if (commandProperties == null) {
             LOG.trace("Skipping command [{}]: no command properties found", command);
             return false;
@@ -122,7 +116,7 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
         }
         final String serverName = serverInfoService.getServerName();
         if (serverName.equalsIgnoreCase(originServerName)) {
-            LOG.debug("Command [{}] for domain [{}] not executed as origin and actual server signature is the same [{}]", command, domain, serverName);
+            LOG.debug("Command [{}] not executed as origin and actual server signature is the same [{}]", command, serverName);
             return true;
         }
         return false;

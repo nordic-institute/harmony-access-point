@@ -30,7 +30,7 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
-                .property(MessageConstants.RETRY_COUNT, retryCount)
+                .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .build();
     }
 

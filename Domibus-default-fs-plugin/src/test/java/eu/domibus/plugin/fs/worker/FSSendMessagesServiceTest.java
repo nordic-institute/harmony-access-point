@@ -14,7 +14,10 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -23,6 +26,10 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static eu.domibus.plugin.fs.worker.FSSendMessagesService.METADATA_FILE_NAME;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
@@ -470,4 +477,23 @@ public class FSSendMessagesServiceTest {
             instance.handleSendFailedMessage(processableFile, domain, withCapture());
         }};
     }
+
+    @Test
+    public void isMetadata() {
+        Assert.assertTrue(instance.isMetadata(METADATA_FILE_NAME));
+        Assert.assertFalse(instance.isMetadata("non_metadata.xml"));
+    }
+
+    @Test
+    public void isLocked() {
+        List<String> lockedFileNames = Arrays.asList("file1.pdf", "file2.pdf");
+        Optional<String> existingFileName = Optional.of("file1.pdf");
+        Optional<String> nonExistingFileName = Optional.of("file11.pdf");
+        Optional<String> emptyFileName = Optional.empty();
+
+        Assert.assertTrue(instance.isLocked(lockedFileNames, existingFileName));
+        Assert.assertFalse(instance.isLocked(lockedFileNames, nonExistingFileName));
+        Assert.assertFalse(instance.isLocked(lockedFileNames, emptyFileName));
+    }
+
 }

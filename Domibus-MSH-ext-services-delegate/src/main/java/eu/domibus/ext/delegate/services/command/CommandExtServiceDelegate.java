@@ -38,7 +38,7 @@ public class CommandExtServiceDelegate implements CommandExtService {
 
         setDomain(properties);
 
-        Map<String, Object> commandProperties = new HashMap<>(properties);
+        Map<String, String> commandProperties = new HashMap<>(properties);
         signalService.sendMessage(commandProperties);
     }
 

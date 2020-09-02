@@ -38,11 +38,12 @@
         <property name="concurrency" value="${jmsplugin.queue.in.concurrency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>
+        <property name="taskExecutor" ref="taskExecutor"/>
     </bean>
 
     <bean id="mshToBackendTemplate"
           class="org.springframework.jms.core.JmsTemplate"
-          c:connectionFactory-ref="domibusJMSPlugin-ConnectionFactory"
+          c:connectionFactory-ref="domibusJMSPlugin-Caching-ConnectionFactory"
           p:destinationResolver-ref="jndiDestinationResolver"
           p:sessionTransacted="true"
           p:sessionAcknowledgeMode="0"/>
@@ -51,6 +52,11 @@
         <property name="lookupOnStartup" value="false"/>
         <property name="jndiName" value="${jmsplugin.connection.factory}"/>
         <property name="proxyInterface" value="javax.jms.ConnectionFactory"/>
+    </bean>
+
+    <bean id="domibusJMSPlugin-Caching-ConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="sessionCacheSize" value="${jmsplugin.jms.connectionFactory.session.cache.size}"/>
+        <property name="targetConnectionFactory" ref="domibusJMSPlugin-ConnectionFactory"/>
     </bean>
 
 </beans>

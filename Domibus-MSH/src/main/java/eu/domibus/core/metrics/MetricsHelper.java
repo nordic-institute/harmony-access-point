@@ -22,6 +22,6 @@ public class MetricsHelper {
     }
 
     public boolean showJMSCounts() {
-        return (domibusConfigurationService.isSingleTenant() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin()));
+        return (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin()));
     }
 }

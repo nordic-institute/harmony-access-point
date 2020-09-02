@@ -70,7 +70,7 @@ public class DomibusPropertyProviderImplTest {
     private String propertyValue = "domibus.property.value";
     private Domain domain = new Domain("domain1", "Domain 1");
 
-    @Test()
+    @Test
     public void getProperty() {
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
@@ -85,7 +85,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getPropertyWithDomain() {
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
@@ -100,7 +100,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void setProperty() {
 
         domibusPropertyProvider.setProperty(propertyName, propertyValue);
@@ -110,7 +110,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void setPropertyWithDomain() {
 
         domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, true);
@@ -120,7 +120,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
+    @Test
     public void setPropertyWithDomainNull() {
 
         domibusPropertyProvider.setProperty(null, propertyName, propertyValue, true);
@@ -130,7 +130,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getPropertyOnlyGlobal() {
         DomibusPropertyMetadata global = DomibusPropertyMetadata.getReadOnlyGlobalProperty(propertyName);
 
@@ -153,7 +153,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getPropertySingleTenancy() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, false);
 
@@ -179,7 +179,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getProperty_MultiTenancy_Domain() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
 
@@ -210,7 +210,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getProperty_MultiTenancy_NotDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.SUPER, true);
 
@@ -238,7 +238,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getProperty_MultiTenancy_NullDomain_GlobalProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true);
 
@@ -269,7 +269,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getProperty_MultiTenancy_NullDomain_SuperProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
 
@@ -300,7 +300,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getProperty_MultiTenancy_NullDomain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
@@ -338,7 +338,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getDomainProperty_SingleTenancy() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
@@ -386,7 +386,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getDomainProperty_MultiTenancy_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
@@ -412,7 +412,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getIntegerProperty() {
         String val = "2";
         Integer intVal = Integer.valueOf(val);
@@ -428,7 +428,7 @@ public class DomibusPropertyProviderImplTest {
         assertEquals(intVal, res);
     }
 
-    @Test()
+    @Test
     public void getLongProperty() {
         String val = "2";
         Long longVal = Long.valueOf(val);
@@ -445,7 +445,7 @@ public class DomibusPropertyProviderImplTest {
         assertEquals(longVal, res);
     }
 
-    @Test()
+    @Test
     public void getBooleanProperty() {
         String val = "true";
         boolean boolVal = Boolean.valueOf(val);
@@ -462,7 +462,7 @@ public class DomibusPropertyProviderImplTest {
         assertEquals(boolVal, res);
     }
 
-    @Test()
+    @Test
     public void getBooleanDomainProperty() {
         String val = "true";
         boolean boolVal = Boolean.valueOf(val);
@@ -479,7 +479,7 @@ public class DomibusPropertyProviderImplTest {
         assertEquals(boolVal, res);
     }
 
-    @Test()
+    @Test
     public void filterPropertiesName(@Injectable PropertySource propertySource,
                                      @Injectable Predicate<String> predicate) {
         MutablePropertySources propertySources = new MutablePropertySources();
@@ -499,7 +499,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getDomainOrDefaultValue_SpecificValue() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
@@ -519,7 +519,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getDomainOrDefaultValue_Fallback() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
@@ -541,7 +541,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getDomainOrDefaultValue_NoFallback() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, false);
 
@@ -561,7 +561,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void setValueInDomibusPropertySource(@Injectable MutablePropertySources propertySources,
                                                 @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) {
         new Expectations(domibusPropertyProvider) {{
@@ -580,7 +580,7 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test()
+    @Test
     public void getPropertyValue() {
 
         new Expectations(domibusPropertyProvider) {{
