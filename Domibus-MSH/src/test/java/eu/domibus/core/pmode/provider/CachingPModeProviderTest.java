@@ -947,6 +947,44 @@ public class CachingPModeProviderTest {
     }
 
     @Test
+    public void testfindLegNameProcessMismatchCombinationErrors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+        final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        String incorrectAgreement = "IncorrectAgreement";
+        String incorrectSender = "BadSender";
+        String incorrectReceiver = "BadReceiver";
+        Role incorrectInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
+        Role incorrectResponderRole = new Role("defaultResponderRole", "notMyResponder");
+
+
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses();
+            result = configuration.getBusinessProcesses();
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+
+            processPartyExtractorProvider.getProcessTypePartyExtractor(MessageExchangePattern.ONE_WAY_PUSH.getUri(), incorrectSender, incorrectReceiver);
+            result = new PushProcessPartyExtractor(incorrectSender, incorrectReceiver);
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+            result = true;
+        }};
+        try {
+            cachingPModeProvider.findLegName(incorrectAgreement, incorrectSender, incorrectReceiver, service, action, incorrectInitiatorRole, incorrectResponderRole);
+            fail("Expected EbMS3Exception to be thrown with all mismatch details!");
+        } catch (EbMS3Exception ex) {
+            assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
+            assertTrue("Expected error message to contain Agreement details.", StringUtils.contains(ex.getErrorDetail(), "Agreement:[" + incorrectAgreement + "] does not match"));
+            assertTrue("Expected error message to contain InitiatorRole details.", StringUtils.contains(ex.getErrorDetail(), "InitiatorRole:[" + incorrectInitiatorRole + "] does not match"));
+            //Following validations cannot be enforced due to 255 character limit in EbMS3Exception:getErrorDetail()
+            //assertTrue("Expected error message to contain ResponderRole details.", StringUtils.contains(ex.getErrorDetail(), "ResponderRole:[" + incorrectResponderRole + "] does not match"));
+            //assertTrue("Expected error message to contain Sender details.", StringUtils.contains(ex.getErrorDetail(), "Initiator:[" + incorrectSender + "] does not match"));
+            //assertTrue("Expected error message to contain Receiver details.", StringUtils.contains(ex.getErrorDetail(), "Responder:[" + incorrectReceiver + "] does not match"));
+        }
+    }
+
+    @Test
     public void testfindLegNameEmptyLegCandidate() throws EbMS3Exception, InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         String expectedErrorMsgStart = "No matching Legs found among matched Processes:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
