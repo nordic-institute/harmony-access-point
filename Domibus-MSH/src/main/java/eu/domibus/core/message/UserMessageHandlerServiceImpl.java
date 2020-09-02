@@ -549,7 +549,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final String cid = partInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);
             boolean payloadFound = false;
-            if (cidIsNullOrEmptyOrStartsWithNumberSign(cid)) {
+            if (isBodyloadCid(cid)) {
                 if (bodyloadFound) {
                     LOG.businessError(DomibusMessageCode.BUS_MULTIPLE_PART_INFO_REFERENCING_SOAP_BODY);
                     EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "More than one Partinfo referencing the soap body found", userMessage.getMessageInfo().getMessageId(), null);
@@ -595,7 +595,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return null;
     }
 
-    private boolean cidIsNullOrEmptyOrStartsWithNumberSign(String cid) {
+    private boolean isBodyloadCid(String cid) {
         return cid == null || cid.isEmpty() || cid.startsWith(HASH_SIGN);
     }
 
