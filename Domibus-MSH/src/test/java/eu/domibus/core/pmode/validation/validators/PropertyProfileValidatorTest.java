@@ -151,7 +151,7 @@ public class PropertyProfileValidatorTest {
     }
 
     private Messaging createMessaging(InputStream inputStream) throws XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-        XMLUtil xmlUtil = new XMLUtilImpl();
+        XMLUtil xmlUtil = new XMLUtilImpl(null);
         JAXBContext jaxbContext = JAXBContext.newInstance(Messaging.class);
         JAXBElement root = xmlUtil.unmarshal(true, jaxbContext, inputStream, null).getResult();
         return (Messaging) root.getValue();

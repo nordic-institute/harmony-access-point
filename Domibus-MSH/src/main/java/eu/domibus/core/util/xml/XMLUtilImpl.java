@@ -1,6 +1,6 @@
 package eu.domibus.core.util.xml;
 
-import com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.DefaultUnmarshallerResult;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -43,6 +43,8 @@ import java.io.InputStream;
 public class XMLUtilImpl implements XMLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
+
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -93,6 +95,10 @@ public class XMLUtilImpl implements XMLUtil {
         return transformerFactoryThreadLocal.get();
     }
 
+    public XMLUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
+
     @Override
     public UnmarshallerResult unmarshal(boolean ignoreWhitespaces, JAXBContext jaxbContext, InputStream xmlStream, InputStream xsdStream) throws SAXException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -141,13 +147,29 @@ public class XMLUtilImpl implements XMLUtil {
             schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
             schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
         } catch (SAXNotRecognizedException ex) {
-            LOG.warn("Unrecognized property for [{}] schema factory, attempting to use the platform default XML Schema factory",
+            LOG.warn("Unrecognized property for [{}] schema factory, attempting to use the fallback XML Schema factory instance",
                     schemaFactory.getClass().getName(), ex);
-            schemaFactory = new XMLSchemaFactory(); // attempting to use the platform default XML Schema validator
+            schemaFactory = fallbackSchemaFactoryInstance();
             schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
             schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
         }
         return schemaFactory.newSchema(new StreamSource(xsdStream));
+    }
+
+    private SchemaFactory fallbackSchemaFactoryInstance() {
+        String propertyName = SchemaFactory.class.getCanonicalName();
+        String schemaFactoryClassName = domibusPropertyProvider.getProperty(propertyName);
+        if (StringUtils.isBlank(schemaFactoryClassName)) {
+            LOG.warn("Could not find a value for property [{}]", propertyName);
+            throw new DomibusXMLException("Could not instantiate schema factory");
+        }
+        try {
+            LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
+            return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
+            throw new DomibusXMLException("Could not instantiate schema factory " + schemaFactoryClassName, e);
+        }
     }
 
 }

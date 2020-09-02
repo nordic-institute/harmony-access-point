@@ -41,7 +41,7 @@ public class SamplePModeTestIT {
 
         @Bean
         public XMLUtil xmlUtil() {
-            return new XMLUtilImpl();
+            return new XMLUtilImpl(null);
         }
 
         @Bean
