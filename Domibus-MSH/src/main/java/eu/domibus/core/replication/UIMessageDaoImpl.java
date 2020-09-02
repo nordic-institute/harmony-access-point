@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -199,6 +200,15 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
             }
         }
         return predicates;
+    }
+
+    @Override
+    public int deleteUIMessagesByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("UIMessageEntity.deleteUIMessagesByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.info("deleteUIMessagesByMessageIds result [{}]", result);
+        return result;
     }
 
     private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {

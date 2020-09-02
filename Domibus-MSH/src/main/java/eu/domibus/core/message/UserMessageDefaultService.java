@@ -19,17 +19,23 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -89,6 +95,27 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private MessagingDao messagingDao;
+
+    @Autowired
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Autowired
+    private MessageInfoDao messageInfoDao;
+
+    @Autowired
+    private SignalMessageDao signalMessageDao;
+
+    @Autowired
+    private MessageAttemptDao messageAttemptDao;
+
+    @Autowired
+    private ErrorLogDao errorLogDao;
+
+    @Autowired
+    private UIMessageDao uiMessageDao;
+
+    @Autowired
+    private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Autowired
     private UserMessageLogDefaultService userMessageLogService;
@@ -535,10 +562,35 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    // TODO IOANA - handle migration of FK cascade constraints in changelog.xml
+    // TODO IOANA - liquibase - handle migration of FK on delete cascade constraints in changelog.xml
+
+
     @Override
-    public void deleteMessages(List<String> messageIds) {
-        LOG.debug("Deleting messages [{}]", messageIds);
+    public void deleteMessages(List<String> userMessageIds) {
+        LOG.debug("Deleting messages [{}]", userMessageIds);
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+
+        int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
+        deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
+        deleteResult = signalMessageDao.deleteReceipts(receiptIds);
+        LOG.debug("Deleted [{}] receipts.", deleteResult);
+        deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
+        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
+        LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
+        messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
+        errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
+        LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
+        uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
+        messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
     }
 
     @Override

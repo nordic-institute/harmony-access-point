@@ -5,7 +5,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -33,4 +35,13 @@ public class MessageAcknowledgementDao extends BasicDao<MessageAcknowledgementEn
             return null;
         }
     }
+
+    public int deleteMessageAcknowledgementsByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result = deleteQuery.executeUpdate();
+        LOG.info("deleteMessageAcknowledgementsByMessageIds result [{}]", result);
+        return result;
+    }
+
 }

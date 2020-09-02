@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -35,6 +36,20 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         final TypedQuery<String> query = em.createNamedQuery("SignalMessage.findSignalMessageIdByRefMessageId", String.class);
         query.setParameter("ORI_MESSAGE_ID", originalMessageId);
         return query.getResultList();
+    }
+
+    public List<Long> findReceiptIdsByMessageIds(List<String> messageIds) {
+        TypedQuery<Long> query = em.createNamedQuery("SignalMessage.findReceiptIdsByMessageIds", Long.class);
+        query.setParameter("MESSAGEIDS", messageIds);
+        return query.getResultList();
+    }
+
+    public int deleteReceipts(List<Long> receiptIds) {
+        final Query deleteQuery = em.createNamedQuery("Receipt.deleteReceipts");
+        deleteQuery.setParameter("RECEIPTIDS", receiptIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.info("deleteReceipts result [{}]", result);
+        return result;
     }
 
     /**

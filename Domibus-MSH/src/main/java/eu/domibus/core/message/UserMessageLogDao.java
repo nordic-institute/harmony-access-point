@@ -208,6 +208,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
+    public int deleteMessageLogs(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.info("deleteUserMessageLogs result [{}]", result);
+        return result;
+    }
+
     @Override
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
