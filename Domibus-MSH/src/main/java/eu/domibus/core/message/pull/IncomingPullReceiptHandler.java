@@ -8,6 +8,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
@@ -18,14 +19,14 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -37,8 +38,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
-
-import static eu.domibus.core.metrics.MetricNames.INCOMING_PULL_REQUEST_RECEIPT;
 
 /**
  * Handles the incoming AS4 pull receipt
@@ -89,8 +88,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(INCOMING_PULL_REQUEST_RECEIPT)
-    @Counter(INCOMING_PULL_REQUEST_RECEIPT)
+    @Timer(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
+    @Counter(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.trace("before pull receipt.");
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);

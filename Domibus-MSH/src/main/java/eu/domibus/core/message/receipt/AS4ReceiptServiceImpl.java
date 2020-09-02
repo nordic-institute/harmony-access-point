@@ -21,6 +21,8 @@ import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
@@ -128,6 +130,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
 
     @Override
+    @Timer(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
+    @Counter(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
                                        final ReplyPattern replyPattern,

@@ -18,11 +18,11 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -33,8 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
-
-import static eu.domibus.core.metrics.MetricNames.OUTGOING_USER_MESSAGE;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -72,8 +70,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     private ErrorLogDao errorLogDao;
 
     @Override
-    @Timer(OUTGOING_USER_MESSAGE)
-    @Counter(OUTGOING_USER_MESSAGE)
+    @Timer(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
+    @Counter(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();

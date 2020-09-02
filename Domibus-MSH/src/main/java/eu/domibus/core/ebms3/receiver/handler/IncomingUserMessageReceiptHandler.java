@@ -15,13 +15,13 @@ import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
-
-import static eu.domibus.core.metrics.MetricNames.INCOMING_USER_MESSAGE_RECEIPT;
 
 /**
  * Handles the incoming AS4 receipts
@@ -78,8 +76,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
     @Transactional
     @Override
-    @Timer(INCOMING_USER_MESSAGE_RECEIPT)
-    @Counter(INCOMING_USER_MESSAGE_RECEIPT)
+    @Timer(clazz = IncomingUserMessageReceiptHandler.class,value = "incoming_user_message_receipt")
+    @Counter(clazz = IncomingUserMessageReceiptHandler.class,value = "incoming_user_message_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.debug("Processing UserMessage receipt");
         final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging);

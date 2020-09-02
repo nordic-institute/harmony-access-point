@@ -1,4 +1,4 @@
-package eu.domibus.core.metrics;
+package eu.domibus.ext.domain.metrics;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Thomas Dussart
- * @since 4.1
+ * @since 4.2
  *
  * Metric annotation to add a timer. The current implementation is using dropwizard
  * timer.
@@ -20,7 +20,7 @@ public @interface Timer {
      */
     String value();
 
-    /**a
+    /**
      * @return the timer class.
      */
     Class<?> clazz();

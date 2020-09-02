@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -21,6 +23,8 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
+    @Timer(clazz = MessageSenderListener.class,value="onMessage")
+    @Counter(clazz = MessageSenderListener.class,value="onMessage")
     public void onMessage(final Message message) {
         LOG.debug("Processing message [{}]", message);
         super.onMessage(message);
