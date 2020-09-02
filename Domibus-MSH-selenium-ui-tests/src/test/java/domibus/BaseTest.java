@@ -75,13 +75,5 @@ public class BaseTest {
 			}
 		}
 	}
-
-	public void cleanMessFilters() throws Exception {
-		List<String> domains= rest.getDomainCodes();
-		for (int i = 0; i < domains.size() ; i++) {
-			rest.messFilters().saveMessageFilters(new JSONArray(), domains.get(i));
-		}
-	}
-	
 	
 }

@@ -5,11 +5,13 @@ import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import ddsl.dobjects.Select;
+import ddsl.enums.DRoles;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.Gen;
 
 
 /**
@@ -59,6 +61,11 @@ public class PluginUserModal extends EditModal {
 		getPasswordInput().fill(password);
 		getConfirmationInput().fill(confirmation);
 
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			String corner = Gen.randomAlphaNumeric(5);
+			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+		}
+		
 		getRolesSelect().selectOptionByText(role);
 	}
 

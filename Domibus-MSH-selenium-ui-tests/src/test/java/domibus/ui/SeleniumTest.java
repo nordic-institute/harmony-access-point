@@ -57,7 +57,7 @@ public class SeleniumTest extends BaseTest {
 //		makeLoggerLog();
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
-		cleanMessFilters();
+//		cleanMessFilters();
 		generateTestData();
 	}
 	

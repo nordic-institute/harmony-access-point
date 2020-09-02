@@ -145,16 +145,16 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/*	PU-6 - Admin edits an existing user and presses Cancel	*/
 	@Test(description = "PU-6", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
+		SoftAssert soft = new SoftAssert();
 		
 		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
 		
-		SoftAssert soft = new SoftAssert();
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		DGrid grid = page.grid();
 		log.info("selecting user " + username);
@@ -165,11 +165,13 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		log.info("fill Original User input with invalid string");
 		pum.getOriginalUserInput().fill("testEdit");
+		pum.changeFocus();
 		log.info("check error message");
 		soft.assertTrue(!pum.getOkBtn().isEnabled(), "Invalid value cannot be saved in the Original User field");
 		
 		log.info("fill Original User input with valid string");
 		pum.getOriginalUserInput().fill(toAdd);
+		pum.changeFocus();
 		pum.clickOK();
 		
 		log.info("check grid for updated info");
@@ -211,12 +213,15 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		log.info("fill Original User input with invalid string");
 		pum.getOriginalUserInput().fill("testEdit");
+		pum.changeFocus();
 		log.info("check error message");
 		soft.assertTrue(!pum.getOkBtn().isEnabled(), "Invalid value cannot be saved in the Original User field");
 		
 		log.info("fill Original User input with valid string");
 		pum.getOriginalUserInput().fill(toAdd);
+		pum.changeFocus();
 		pum.clickOK();
+		
 		
 		log.info("check grid for updated info");
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");

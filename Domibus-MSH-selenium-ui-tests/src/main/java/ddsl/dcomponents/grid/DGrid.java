@@ -134,9 +134,7 @@ public class DGrid extends DComponent {
 			}
 			log.debug("waited for rows to load for ms = 500*" + waits);
 			wait.forXMillis(500);
-		} catch (Exception e) {
-		
-		}
+		} catch (Exception e) {	}
 	}
 	
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
