@@ -320,6 +320,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
+    String DOMIBUS_RESEND_BUTTON_RECEIVED_MINUTES = "domibus.resend.button.received.minutes";
 
 
 }
