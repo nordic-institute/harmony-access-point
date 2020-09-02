@@ -36,9 +36,8 @@ public class MetricsAspect {
         return createTimer(pjp, timer.value(), timer.clazz());
     }
 
-
     protected Object createTimer(ProceedingJoinPoint pjp, String value, Class<?> clazz) throws Throwable {
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(getMetricsName(clazz, value, "_timer")).time();
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(clazz, value, "_timer")).time();
         try {
             return pjp.proceed();
         } finally {
@@ -46,14 +45,6 @@ public class MetricsAspect {
                 methodTimer.stop();
             }
         }
-    }
-
-    protected String getMetricsName(Class<?> clazz, String name, String suffix) {
-        String metricsName = name + suffix;
-        if (Void.class.isAssignableFrom(clazz)) {
-            return metricsName;
-        }
-        return name(clazz, metricsName);
     }
 
     @Around("@annotation(counter)")
@@ -67,7 +58,7 @@ public class MetricsAspect {
     }
 
     protected Object createCounter(ProceedingJoinPoint pjp, Class<?> clazz, String value) throws Throwable {
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz,value, "_counter"));
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(clazz,value, "_counter"));
         try {
             methodCounter.inc();
             return pjp.proceed();

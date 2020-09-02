@@ -1,4 +1,5 @@
 Domibus 4.2
+- Naming convention of the metrics has changed from upper case metric name to class name.lower case metric name. (EG: OUTGOING_PULL_REQUEST_timer is now named eu.domibus.core.message.pull.PullMessageSender.outgoing_pull_request_timer)
 - Added DomibusWorkManager within weblogic.xml to avoid using default work manager.
 - Added duplicate entities validations in PMode upload.
 - Added a job in FS Plugin that cleans orphaned lock files

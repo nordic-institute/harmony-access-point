@@ -70,8 +70,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     private ErrorLogDao errorLogDao;
 
     @Override
-    @Timer(value = "OUTGOING_USER_MESSAGE")
-    @Counter(value = "OUTGOING_USER_MESSAGE")
+    @Timer(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
+    @Counter(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();

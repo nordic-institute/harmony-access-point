@@ -7,6 +7,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -70,8 +71,8 @@ public class PullReceiptListener implements MessageListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Timer(value = "OUTGOING_PULL_RECEIPT")
-    @Counter(value = "OUTGOING_PULL_RECEIPT")
+    @Timer(clazz = PullReceiptListener.class,value = "outgoing_pull_receipt")
+    @Counter(clazz = PullReceiptListener.class,value = "outgoing_pull_receipt")
     public void onMessage(final Message message) {
         try {
             LOG.clearCustomKeys();

@@ -8,6 +8,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
@@ -87,8 +88,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(value = "INCOMING_PULL_REQUEST_RECEIPT")
-    @Counter(value = "INCOMING_PULL_REQUEST_RECEIPT")
+    @Timer(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
+    @Counter(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         LOG.trace("before pull receipt.");
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);
