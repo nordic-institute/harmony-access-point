@@ -99,7 +99,7 @@
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 							<suiteXmlFiles>
-								<suiteXmlFile>testng_rest.xml</suiteXmlFile>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
 							</suiteXmlFiles>
 							<environmentVariables>
 								<propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>

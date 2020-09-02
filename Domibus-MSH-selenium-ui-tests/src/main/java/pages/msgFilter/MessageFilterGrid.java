@@ -2,6 +2,7 @@ package pages.msgFilter;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.Checkbox;
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -17,6 +18,11 @@ import java.util.List;
 public class MessageFilterGrid extends DGrid {
 
 	By persistedChkSelector = By.cssSelector("input[type=checkbox]");
+	
+	By rowActionUpSelector = By.cssSelector("[tooltip=\"Move Up\"]");
+	By rowActionDownSelector = By.cssSelector("[tooltip=\"Move Down\"]");
+	By rowActionEditSelector = By.cssSelector("[tooltip=\"Edit\"]");
+	By rowActionDeleteSelector = By.cssSelector("[tooltip=\"Delete\"]");
 
 	public MessageFilterGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
@@ -58,4 +64,49 @@ public class MessageFilterGrid extends DGrid {
 
 		return info;
 	}
+	
+	
+	public void rowMoveUp(int index) throws Exception {
+		pressActionButton(index,"Move Up");
+	}
+	public void rowMoveDown(int index) throws Exception {
+		pressActionButton(index,"Move Down");
+	}
+	public void rowEdit(int index) throws Exception {
+		pressActionButton(index,"Edit");
+	}
+	public void rowDelete(int index) throws Exception {
+		pressActionButton(index,"Delete");
+	}
+	
+	
+	public void pressActionButton(int index, String actionName) throws Exception {
+		log.debug("index =" + index);
+		log.debug("action =" + actionName);
+		
+		WebElement row = gridRows.get(index);
+		By selector;
+		
+		log.info("identifying proper selector for action");
+		switch (actionName){
+			case "Move Up":
+				selector = rowActionUpSelector;
+				break;
+			case "Move Down":
+				selector = rowActionDownSelector;
+				break;
+			case "Edit":
+				selector = rowActionEditSelector;
+				break;
+			case "Delete":
+				selector = rowActionDeleteSelector;
+				break;
+			default:
+				throw new Exception("Action name is invalid");
+		}
+		log.info("action selector identified and will be performed");
+		weToDButton(row.findElement(selector)).click();
+		wait.forXMillis(500);
+	}
+	
 }

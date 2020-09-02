@@ -1,6 +1,7 @@
 package rest;
 
 import com.sun.jersey.api.client.ClientResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,7 +9,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MessageClient extends BaseRestClient {
 	
@@ -94,18 +97,32 @@ public class MessageClient extends BaseRestClient {
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries");
 	}
 	
+	public List<String> getListOfMessagesIds(String domain) throws Exception {
+		JSONArray messages = getListOfMessages(domain);
+		ArrayList<String> toret = new ArrayList<>();
+		for (int i = 0; i < messages.length(); i++) {
+			JSONObject message = messages.getJSONObject(i);
+			toret.add(message.getString("messageId"));
+		}
+		
+		return toret;
+	}
+	
 	public JSONObject searchMessage(String id, String domain) throws Exception {
 		switchDomain(domain);
 		HashMap<String, String> par = new HashMap<>();
-		par.put("pageSize", "100");
+		par.put("pageSize", "10000");
+		par.put("page", "0");
 		par.put("messageId", id);
 		
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
 		if (clientResponse.getStatus() != 200) {
-			return null;
+			throw new DomibusRestException("Could not get messages", clientResponse);
 		}
 		
-		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("messageLogEntries").getJSONObject(0);
+		JSONObject responseObj = new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class)));
+		JSONArray messageEntries = responseObj.getJSONArray("messageLogEntries");
+		return messageEntries.getJSONObject(0);
 	}
 	
 	public ClientResponse getMessages(HashMap<String, String> params, String domain) throws Exception {
