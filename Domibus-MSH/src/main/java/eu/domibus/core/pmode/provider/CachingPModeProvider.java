@@ -42,23 +42,16 @@ public class CachingPModeProvider extends PModeProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProvider.class);
     private static final String DOES_NOT_MATCH_END_STRING = "] does not match";
-
-    //Don't access directly, use getter instead
-    private volatile Configuration configuration;
-
-    @Autowired
-    private ProcessPartyExtractorProvider processPartyExtractorProvider;
-
+    protected Domain domain;
     @Autowired
     PullMessageService pullMessageService;
-
+    //Don't access directly, use getter instead
+    private volatile Configuration configuration;
+    @Autowired
+    private ProcessPartyExtractorProvider processPartyExtractorProvider;
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
-
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
-
-    protected Domain domain;
-
     private Object configurationLock = new Object();
 
     public CachingPModeProvider(Domain domain) {
@@ -342,9 +335,6 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected List<Process> filterMatchingProcesses(LegFilterCriteriaDO legFilterCriteriaDO, Map<Process, String> processMismatchErrors, Map<LegConfiguration, String> legMismatchErrors) {
-        Objects.requireNonNull(processMismatchErrors);
-        Objects.requireNonNull(legMismatchErrors);
-
         List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
         candidateProcesses.forEach(process -> buildProcessAndLegMismatchDetails(legFilterCriteriaDO, processMismatchErrors, legMismatchErrors, process));
         candidateProcesses.removeAll(new ArrayList<>(processMismatchErrors.keySet()));
@@ -369,15 +359,13 @@ public class CachingPModeProvider extends PModeProvider {
     /**
      * Build a map of error details for either {@link Process} or {@link LegConfiguration}.
      *
-     * @param objKeyForError
-     * @param mismatchErrors
+     * @param objKeyForError - either {@link Process} or {@link LegConfiguration}
+     * @param mismatchErrors - Map with either {@link Process} or {@link LegConfiguration} and their error details
      * @param keyName
      * @param newError
      * @param <T>
      */
     protected <T extends AbstractBaseEntity> void buildErrorDetailForMismatch(T objKeyForError, Map<T, String> mismatchErrors, String keyName, String newError) {
-        Objects.requireNonNull(objKeyForError);
-        Objects.requireNonNull(mismatchErrors);
         if (!mismatchErrors.containsKey(objKeyForError)) {
             mismatchErrors.put(objKeyForError, "For " + objKeyForError.getClass().getSimpleName() + ":[" + keyName + "]");
         }
@@ -389,9 +377,6 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, Map<LegConfiguration, String> legMismatchErrors) {
-        Objects.requireNonNull(matchingProcessesList);
-        Objects.requireNonNull(legMismatchErrors);
-
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
         matchingProcessesList.stream().map(Process::getLegs).forEach(candidateLegs::addAll);
         candidateLegs.removeAll(legMismatchErrors.keySet());
@@ -457,7 +442,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
-        if(Objects.equals(role, processRole)) {
+        if (Objects.equals(role, processRole)) {
             LOG.debug("Roles match");
             return true;
         }
@@ -752,7 +737,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if(rolesEnabled) {
+        if (rolesEnabled) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
         }
 
