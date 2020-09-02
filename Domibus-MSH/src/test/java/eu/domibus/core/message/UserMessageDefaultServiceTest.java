@@ -788,7 +788,7 @@ public class UserMessageDefaultServiceTest {
             result = 2;
 
             userMessageLog.getReceived();
-            result = DateUtils.addMinutes(new Date(), -1);
+            result = DateUtils.addMinutes(new Date(), -3);
 
             userMessageLog.getNextAttempt();
             result = null;

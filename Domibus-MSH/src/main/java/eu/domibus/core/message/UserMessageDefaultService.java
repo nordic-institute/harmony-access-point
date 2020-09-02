@@ -251,7 +251,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_RECEIVED_MINUTES);
         Date receivedDate = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
-        if (receivedDate.before(new Date())) {
+        if (receivedDate.after(new Date())) {
             throw new UserMessageException("You have to wait " + resendButtonReceivedMinutes + " minutes before resending the message [" + messageId + "]");
         }
         if (userMessageLog.getNextAttempt() != null) {
