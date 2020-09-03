@@ -1,9 +1,9 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
@@ -22,10 +22,8 @@ import org.junit.runner.RunWith;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,7 +122,6 @@ public class PasswordEncryptionServiceImplTest {
     }
 
 
-
     @Test
     public void encryptPasswordsIfConfigured(@Injectable PasswordEncryptionContext passwordEncryptionContext,
                                              @Injectable File encryptedKeyFile,
@@ -179,7 +176,6 @@ public class PasswordEncryptionServiceImplTest {
 
         passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
     }
-
 
 
     @Test
@@ -238,11 +234,11 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void decryptProperty1(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                @Injectable File encryptedKeyFile,
-                                @Injectable PasswordEncryptionSecret secret,
-                                @Injectable SecretKey secretKey,
-                                @Injectable GCMParameterSpec secretKeySpec,
-                                @Mocked Base64 base64) {
+                                 @Injectable File encryptedKeyFile,
+                                 @Injectable PasswordEncryptionSecret secret,
+                                 @Injectable SecretKey secretKey,
+                                 @Injectable GCMParameterSpec secretKeySpec,
+                                 @Mocked Base64 base64) {
         String propertyName = "myProperty";
         String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
         byte[] encryptedValue = new byte[2];
@@ -351,9 +347,9 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void replacePropertiesInFile_NoPropertiesEncrypted(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                        @Injectable PasswordEncryptionResult passwordEncryptionResult,
-                                        @Injectable File configurationFile,
-                                        @Injectable List<String> fileLines){
+                                                              @Injectable PasswordEncryptionResult passwordEncryptionResult,
+                                                              @Injectable File configurationFile,
+                                                              @Injectable List<String> fileLines) {
         List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
         encryptedProperties.add(passwordEncryptionResult);
 
@@ -368,14 +364,13 @@ public class PasswordEncryptionServiceImplTest {
             result = false;
 
             configurationFile.toString();
-            result="DomibusPropertiesFileName";
+            result = "DomibusPropertiesFileName";
         }};
 
         passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
 
-        new FullVerifications() {{
-
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -477,74 +472,63 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void arePropertiesNewlyEncrypted_NoChange() throws IOException {
-        final List<String> replacedLines = Arrays.asList(new String[]{
-                "#-----------------",
+        final List<String> replacedLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
-                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
-        });
-        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)");
+        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, replacedLines);
 
-        assertFalse("No lines replaced, expect false.",passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
+        assertFalse("No lines replaced, expect false.", passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
     }
 
     @Test
     public void arePropertiesNewlyEncrypted_LinesChanged() throws IOException {
-        final List<String> originalLines = Arrays.asList(new String[]{
-                "#-----------------",
+        final List<String> originalLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
-                "blue_gw.domibus.security.key.private.password=test123"
-        });
-        final List<String> replacedLines = Arrays.asList(new String[]{
-                "#-----------------",
+                "blue_gw.domibus.security.key.private.password=test123");
+        final List<String> replacedLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
-                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
-        });
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)");
 
-        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, originalLines);
 
         assertTrue("Lines changed, expect true.", passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
     }
 
-    @Test(expected = DomibusEncryptionException.class)
-    public void arePropertiesNewlyEncrypted_ConfigFileCannotBeRead() throws IOException {
-        final List<String> replacedLines = Arrays.asList(new String[]{
-                "#-----------------",
+    @Test
+    public void arePropertiesNewlyEncrypted_ConfigFileCannotBeRead() {
+        final List<String> replacedLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
-                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)"
-        });
+                "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)");
 
-        try{
-            passwordEncryptionService.arePropertiesNewlyEncrypted(new File ("./src/test/resources/config/fileDoesNotExist.properties"), replacedLines);
-            assert false;
-        }
-        catch (DomibusEncryptionException e){
+        File configurationFile = new File("./src/test/resources/config/fileDoesNotExist.properties");
+        try {
+            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, replacedLines);
+            fail();
+        } catch (DomibusEncryptionException e) {
             assertTrue("Expect DomibusEncryptionException due to file not present.", e.getMessage().contains("Could not read configuration file"));
-            throw e;
         }
     }
 
     @Test
     public void arePropertiesNewlyEncrypted_ReplacedLinesEmpty() throws IOException {
-        final List<String> originalLines = Arrays.asList(new String[]{
-                "#-----------------",
+        final List<String> originalLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
-                "blue_gw.domibus.security.key.private.password=test123"
-        });
+                "blue_gw.domibus.security.key.private.password=test123");
         final List<String> replacedLines = new ArrayList<>();
 
-        File testConfigurationFile = File.createTempFile("testDomibus",".properties", new File("./src/test/resources/config/"));
+        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, originalLines);
 
-        assertFalse("Replaced lines empty, expect to consider as no change = false",passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
+        assertFalse("Replaced lines empty, expect to consider as no change = false", passwordEncryptionService.arePropertiesNewlyEncrypted(testConfigurationFile, replacedLines));
     }
 }

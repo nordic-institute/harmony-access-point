@@ -2,20 +2,19 @@ package eu.domibus.core.property.encryption.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
-import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import mockit.*;
 import org.junit.Test;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.1.2
  */
+@SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
     @Tested
@@ -78,27 +77,6 @@ public class PasswordEncryptionExtServiceImplTest {
 
         new Verifications() {{
             passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
-        }};
-    }
-
-    @Test
-    public void encryptProperty(@Injectable DomainDTO domainDTO,
-                                @Injectable String propertyName,
-                                @Injectable String encryptedFormatValue,
-                                @Injectable Domain domain,
-                                @Injectable PasswordEncryptionResult passwordEncryptionResult) {
-        new Expectations() {{
-            domainExtConverter.convert(domainDTO, Domain.class);
-            result = domain;
-
-            passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
-            result = passwordEncryptionResult;
-        }};
-
-        passwordEncryptionExtService.encryptProperty(domainDTO, propertyName, encryptedFormatValue);
-
-        new Verifications() {{
-            domainExtConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
         }};
     }
 }
