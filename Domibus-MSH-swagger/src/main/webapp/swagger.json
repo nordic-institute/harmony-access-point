@@ -427,12 +427,12 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
+        "readable" : {
+          "type" : "boolean"
+        },
         "uri" : {
           "type" : "string",
           "format" : "uri"
-        },
-        "readable" : {
-          "type" : "boolean"
         },
         "filename" : {
           "type" : "string"
