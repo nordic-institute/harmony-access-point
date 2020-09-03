@@ -13,6 +13,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
@@ -149,6 +150,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    DateUtil dateUtil;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
@@ -251,8 +255,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
         Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
-        if (receivedDateDelta.after(new Date())) {
-            throw new UserMessageException("You have to wait " + resendButtonReceivedMinutes + " minutes before resending the message [" + messageId + "]");
+        Date currentDate = new Date();
+        if (receivedDateDelta.after(currentDate)) {
+            throw new UserMessageException("You have to wait " + dateUtil.getDiffMinutesBetweenDates(receivedDateDelta, currentDate) + " minutes before resending the message [" + messageId + "]");
         }
         if (userMessageLog.getNextAttempt() != null) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
