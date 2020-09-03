@@ -143,13 +143,13 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     private Schema getSchema(InputStream xsdStream) throws SAXException {
-        SchemaFactory schemaFactory = schemaFactoryInstance();
+        SchemaFactory schemaFactory = createSchemaFactoryInstance();
         schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
         schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
         return schemaFactory.newSchema(new StreamSource(xsdStream));
     }
 
-    private SchemaFactory schemaFactoryInstance() {
+    private SchemaFactory createSchemaFactoryInstance() {
         String schemaFactoryClassName = domibusPropertyProvider.getProperty(DOMIBUS_SCHEMAFACTORY);
         try {
             LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, DOMIBUS_SCHEMAFACTORY);
