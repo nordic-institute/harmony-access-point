@@ -154,7 +154,7 @@ public class XMLUtilImpl implements XMLUtil {
         try {
             LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, DOMIBUS_SCHEMAFACTORY);
             return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NullPointerException e) {
             LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
         }
         LOG.trace("Using default XML Schema factory");
