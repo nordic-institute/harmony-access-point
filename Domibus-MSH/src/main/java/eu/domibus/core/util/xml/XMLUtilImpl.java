@@ -150,15 +150,11 @@ public class XMLUtilImpl implements XMLUtil {
     private SchemaFactory schemaFactoryInstance() {
         String propertyName = SchemaFactory.class.getCanonicalName();
         String schemaFactoryClassName = domibusPropertyProvider.getProperty(propertyName);
-        if (StringUtils.isBlank(schemaFactoryClassName)) {
-            LOG.warn("Could not find a value for property [{}], default XML Schema factory will be used", propertyName);
-        } else {
-            try {
-                LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
-                return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
-            }
+        try {
+            LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
+            return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
         }
         LOG.trace("Using default XML Schema factory");
         return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
