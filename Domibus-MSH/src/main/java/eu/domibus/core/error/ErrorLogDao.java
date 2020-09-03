@@ -102,7 +102,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteErrorLogsByMessageIdInError result [{}]", result);
+        LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);
         return result;
     }
 }

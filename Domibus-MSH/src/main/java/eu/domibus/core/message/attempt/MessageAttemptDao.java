@@ -45,7 +45,7 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
         final Query deleteQuery = em.createNamedQuery("MessageAttemptEntity.deleteAttemptsByMessageIds");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteAttemptsByMessageIds result [{}]", result);
+        LOG.trace("deleteAttemptsByMessageIds result [{}]", result);
         return result;
     }
 

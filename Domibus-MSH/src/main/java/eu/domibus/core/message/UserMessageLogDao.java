@@ -212,7 +212,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteUserMessageLogs result [{}]", result);
+        LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
     }
 

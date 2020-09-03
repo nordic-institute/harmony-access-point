@@ -207,7 +207,7 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         final Query deleteQuery = em.createNamedQuery("UIMessageEntity.deleteUIMessagesByMessageIds");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteUIMessagesByMessageIds result [{}]", result);
+        LOG.trace("deleteUIMessagesByMessageIds result [{}]", result);
         return result;
     }
 

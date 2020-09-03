@@ -43,7 +43,7 @@ public class MessageInfoDao extends BasicDao<Messaging> {
         final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findUserMessageIds", String.class);
         query.setParameter("MESSAGEIDS", userMessageIds);
         List<String> messageIds = query.getResultList();
-        LOG.info("Found ids [{}]", messageIds);
+        LOG.trace("Found ids [{}]", messageIds);
         return messageIds;
     }
 
@@ -51,7 +51,7 @@ public class MessageInfoDao extends BasicDao<Messaging> {
         final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findSignalMessageIds", String.class);
         query.setParameter("MESSAGEIDS", userMessageIds);
         List<String> messageIds = query.getResultList();
-        LOG.info("Found ids [{}]", messageIds);
+        LOG.trace("Found ids [{}]", messageIds);
         return messageIds;
     }
 
@@ -59,7 +59,7 @@ public class MessageInfoDao extends BasicDao<Messaging> {
         final Query deleteQuery = em.createNamedQuery("MessageInfo.deleteMessages");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteMessages result [{}]", result);
+        LOG.trace("deleteMessages result [{}]", result);
         return result;
     }
 }

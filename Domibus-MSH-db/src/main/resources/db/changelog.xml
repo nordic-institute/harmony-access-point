@@ -2158,6 +2158,9 @@
         <createIndex indexName="UK_BPEFLT902YBU9NSHBA2FJPV9D" tableName="TB_MESSAGE_LOG">
             <column name="MSH_ROLE"/>
         </createIndex>
+        <createIndex indexName="IDX_SEND_ATTEMPT_UNIQUE_ID" tableName="TB_SEND_ATTEMPT" unique="true">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
     </changeSet>
 
     <!-- foreign keys -->
@@ -2165,12 +2168,12 @@
         <comment>create foreign keys</comment>
         <addForeignKeyConstraint baseColumnNames="FK_RELIABILITY" baseTableName="TB_PM_LEG"
                                  constraintName="FK_13K2EPTP1EJP5OTHY1NJRG3P8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_RELIABILITY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP_BINDING"
                                  constraintName="FK_277J83LGSQ3NMWYHSW637YND8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
@@ -2180,17 +2183,17 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ROLE"
                                  constraintName="FK_2SW6KNALOR7RPR04YE0O2R9AP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_RESPONDER_ROLE" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_3EMT6XAGLH7676LPCKIY6R1VB" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RECEPTION_AWARENESS"
                                  constraintName="FK_3SGAXWFR5KOE3OLDBBD62SIWQ" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
@@ -2205,27 +2208,27 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_PM_CONFIGURATION"
                                  constraintName="FK_62DT1Y6O7OD1T0IQN7DOW8UQ5" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ACTION"
                                  constraintName="FK_6HLDNNQKMH6LUI555T4N9FJIV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_AGREEMENT"
                                  constraintName="FK_70M9KQPQAB3RGK90WSUV9VN64" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_ID_PK" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_7H5NW411791GF4LG1YH6SI1WD" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_7P1G7SQVLI1SJ6K7VPHJO9IRC" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
@@ -2235,46 +2238,46 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_PM_MPC"
                                  constraintName="FK_8Q319STWM1NOIJPB3JFL8JRI8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_CONFIGURATION"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_SECURITY" baseTableName="TB_PM_LEG"
                                  constraintName="FK_9HPMOEWLITIVCL8RW1JOCCUAU" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_SECURITY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY_ID_TYPE"
                                  constraintName="FK_ADVGUDIX024IRQPUGE4DL9IQF" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
-                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_ALERT"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD_PROFILE" baseTableName="TB_PM_LEG"
                                  constraintName="FK_AM7BWSM92SE3NVCLBEIEP5VWG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
                                  constraintName="FK_ASJDL57BUDMUWMJ3611969JPP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
                                  constraintName="FK_AUTH_ENTRY_AUD_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACKEND_FILTER_AUD"
                                  constraintName="FK_BACKEND_FILTER_AUD_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACK_RCRITERIA_AUD"
                                  constraintName="FK_BACK_RCRITERIA_AUD" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
@@ -2289,17 +2292,17 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY"
                                  constraintName="FK_CLOYY9K391VHSUP85IWR8IXIV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_AUD"
                                  constraintName="FK_CONFIGURATION_AUD_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_RAW_AUD"
                                  constraintName="FK_CONFIGURATION_RAW_AUD" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
@@ -2309,46 +2312,46 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD"
                                  constraintName="FK_D9EL0L8U1GM5OEU67NQRKHERQ" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_PARTY_IDENTIFIER"
                                  constraintName="FK_DESR6XTDP1LP41D5VENLHF4BC" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_ACTION" baseTableName="TB_PM_LEG"
                                  constraintName="FK_DGTGTG41YRFEBYYSMKYI1GCAA" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_ACTION"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PARTY_ID_TYPE" baseTableName="TB_PM_PARTY_IDENTIFIER"
                                  constraintName="FK_E7EHGHIFRNS83W6V3TPS7VPII" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY_ID_TYPE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY_SET"
                                  constraintName="FK_EIY3F9AHX0KDX4WXOI6PRYTN9" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
                                  constraintName="FK_EKK8PN89Y50G22KD3GPJA7J39" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP"
                                  constraintName="FK_EPMXKH8U7JNW5PBYJ47SIRMLH" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID"
-                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
                                  constraintName="FK_EVENT_PROPERTY_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_EVENT"/>
 
         <addForeignKeyConstraint baseColumnNames="FROM_ID" baseTableName="TB_PARTY_ID"
@@ -2358,82 +2361,82 @@
 
         <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
                                  constraintName="FK_FPXBDC63GIFACRD4QB6AFRQYW" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SECURITY"
                                  constraintName="FK_FWRQ81CCTU2NH0QEPRMPVKER9" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PROFILE" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
                                  constraintName="FK_G20EOW5F2CKE3AVSRG6QPKUXV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD"/>
 
         <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
                                  constraintName="FK_GH98Q07KCJL7WDAON9GGIFQUX" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
 
         <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
                                  constraintName="FK_HLB2Y2PRPM52SSYNN22H3SWSR" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BACKEND_FILTER" baseTableName="TB_ROUTING_CRITERIA"
                                  constraintName="FK_I7GEI6BDR2CDN61HDOPLXBU7P" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_BACKEND_FILTER"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_ERROR_HANDLING" baseTableName="TB_PM_LEG"
                                  constraintName="FK_J0Y3FCEDIQX5BUT8JBSCY59KW" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_ERROR_HANDLING"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_MEP" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_J7LAB5N5SUKLCLDQHXN8JL2JO" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_AGREEMENT" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_KJANLCDEAP7NIRDIGR7RT7P4V" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_AGREEMENT"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SERVICE"
                                  constraintName="FK_KKHXS36RW15AYGPN00NVVGYXG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_SERVICE" baseTableName="TB_PM_LEG"
                                  constraintName="FK_KV2C5K41APDLVC6I18AR57ABE" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_SERVICE"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
                                  constraintName="FK_KYN19SWM143M96IN317SR97H2" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ERROR_HANDLING"
                                  constraintName="FK_L1MMHS1TBT8PW7VX5TEUYTJVJ" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PROPERTY_SET" baseTableName="TB_PM_LEG"
                                  constraintName="FK_LE4RXNKI51EAK6XETC7FQ8SRI" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RELIABILITY"
                                  constraintName="FK_LNNPLHIAWXX7WLT43YE3PEJ00" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD_PROFILE"
                                  constraintName="FK_LYNOM7RXKC0T1XFL0NOWXPEUJ" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
@@ -2443,7 +2446,7 @@
 
         <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
                                  constraintName="FK_MK54XE43F3HOKH7FJL3W66EFK" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
@@ -2453,41 +2456,41 @@
 
         <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_NYLCXSY1F9CN3TDSKH97H8PT1" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_KEY" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_ORDDLTV2G3LQ79EU48C2MC2FY" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
                                  constraintName="FK_OT8JFKOTD6QU7JRDAPTROHBN8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
-                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_IDENTIFIER_AUD"
                                  constraintName="FK_PARTY_IDENTIFIER_AUD_REV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_ID_TYPE_AUD"
                                  constraintName="FK_PARTY_ID_TYPE_AUD_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
                                  constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_MPC" baseTableName="TB_PM_LEG"
                                  constraintName="FK_PPVXYURCVFY71FVEJW9BOSGHW" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
 
         <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
@@ -2497,42 +2500,42 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
                                  constraintName="FK_Q0L3EJ6RUQCFUTRU2SECURQ9L" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_INITIATOR_ROLE" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_Q1JFSXFOJ3NL7HII3CO7BU0FR" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_CONFIGURATION"
                                  constraintName="FK_Q3GAPFC1E7HFBGMO0NEBJ4K1N" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_LEG"
                                  constraintName="FK_R2SWPQOF7636VVEQT0DXL89DP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
                                  constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY"
                                  constraintName="FK_RJ8H1B65VNJJGYFCJNVSWKGUH" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_RECEPTION_AWARENESS" baseTableName="TB_PM_LEG"
                                  constraintName="FK_RLBJSTVO4GPDCP6YSV9MOFQXJ" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_RECEPTION_AWARENESS"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_ROUTING_CRITERIA_AUD"
                                  constraintName="FK_ROUTING_CRITERIA_AUD_REV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
@@ -2542,7 +2545,7 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_TP11D8FG7CV1FWF5XKVWQPP34" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP_BINDING"/>
 
         <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
@@ -2556,27 +2559,27 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
-                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
                                  constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER"/>
 
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
                                  constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER"/>
 
         <addForeignKeyConstraint baseColumnNames="ROLE_ID" baseTableName="TB_USER_ROLES"
                                  constraintName="FK_USER_ROLES_USER" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_ROLE"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
                                  constraintName="FK_USER_ROLE_AUD" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="TO_ID" baseTableName="TB_PARTY_ID"
@@ -2585,7 +2588,7 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_PM_LEG" constraintName="UK_LEG_SPLT"
-                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PM_SPLITTING"/>
     </changeSet>
 

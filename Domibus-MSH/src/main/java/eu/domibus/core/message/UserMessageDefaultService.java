@@ -565,10 +565,8 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    // TODO IOANA - liquibase - handle migration of FK on delete cascade constraints in changelog.xml
-
-
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<String> userMessageIds) {
         LOG.debug("Deleting messages [{}]", userMessageIds);
         List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);

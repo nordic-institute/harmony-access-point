@@ -90,7 +90,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteSignalMessageLogs result [{}]", result);
+        LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;
     }
 

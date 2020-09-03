@@ -40,7 +40,7 @@ public class MessageAcknowledgementDao extends BasicDao<MessageAcknowledgementEn
         final Query deleteQuery = em.createNamedQuery("MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result = deleteQuery.executeUpdate();
-        LOG.info("deleteMessageAcknowledgementsByMessageIds result [{}]", result);
+        LOG.trace("deleteMessageAcknowledgementsByMessageIds result [{}]", result);
         return result;
     }
 

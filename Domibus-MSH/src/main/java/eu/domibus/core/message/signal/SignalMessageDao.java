@@ -48,7 +48,7 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         final Query deleteQuery = em.createNamedQuery("Receipt.deleteReceipts");
         deleteQuery.setParameter("RECEIPTIDS", receiptIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.info("deleteReceipts result [{}]", result);
+        LOG.trace("deleteReceipts result [{}]", result);
         return result;
     }
 
