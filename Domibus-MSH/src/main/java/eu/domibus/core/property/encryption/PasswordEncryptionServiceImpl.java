@@ -89,7 +89,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
             for (Domain domain : domains) {
-                domainContextProvider.setCurrentDomain(domain.getCode());
+                domainContextProvider.setCurrentDomain(domain);
                 final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
                 encryptPasswords(passwordEncryptionContextDomain);
                 domainContextProvider.clearCurrentDomain();
@@ -113,9 +113,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final List<String> propertiesToEncrypt = passwordEncryptionContext.getPropertiesToEncrypt();
         if (CollectionUtils.isEmpty(propertiesToEncrypt)) {
-            if(LOG.isWarnEnabled()) {
-                LOG.warn(WarningUtil.warnOutput("No properties are needed to be encrypted"));
-            }
+            LOG.warn(WarningUtil.warnOutput("No properties are needed to be encrypted"));
             return;
         }
 
@@ -189,6 +187,30 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final byte[] encryptedValue = Base64.decodeBase64(base64EncryptedValue);
 
         return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
+    }
+
+    @Override
+    public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
+        LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
+
+        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+
+        final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
+        if (isNotTrue(encryptionActive)) {
+            throw new DomibusEncryptionException(String.format("Password encryption is not active for domain [%s]", domain));
+        }
+
+        final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
+        if (!encryptedKeyFile.exists()) {
+            throw new DomibusEncryptionException(String.format("Could not found encrypted key file for domain [%s]", domain));
+        }
+
+        PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
+        LOG.debug("Using encrypted key file [{}]", encryptedKeyFile);
+
+        final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+        return encryptProperty(secretKey, secretKeySpec, propertyName, propertyValue);
     }
 
     protected PasswordEncryptionResult encryptProperty(PasswordEncryptionContext passwordEncryptionContext, SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName) {
