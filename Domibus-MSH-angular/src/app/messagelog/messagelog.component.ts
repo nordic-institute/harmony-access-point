@@ -292,15 +292,15 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
-      && (row.messageStatus === 'SEND_FAILURE' || this.isSendEnqueuedEnabled(row))
+      && (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isSendEnqueuedEnabled(row): boolean {
-    var receivedDate = new Date(row.received);
-    receivedDate.setMinutes(receivedDate.getMinutes() + this.resendReceivedMinutes);
+  private isResendButtonEnabledForSendEnqueued(row): boolean {
+    var receivedDateDelta = new Date(row.received);
+    receivedDateDelta.setMinutes(receivedDateDelta.getMinutes() + this.resendReceivedMinutes);
 
-    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDate < new Date() && !row.nextAttempt)
+    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDateDelta < new Date() && !row.nextAttempt)
   }
 
   private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
