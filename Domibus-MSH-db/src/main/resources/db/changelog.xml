@@ -2158,9 +2158,23 @@
         <createIndex indexName="UK_BPEFLT902YBU9NSHBA2FJPV9D" tableName="TB_MESSAGE_LOG">
             <column name="MSH_ROLE"/>
         </createIndex>
-        <createIndex indexName="IDX_SEND_ATTEMPT_UNIQUE_ID" tableName="TB_SEND_ATTEMPT" unique="true">
+
+        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
             <column name="MESSAGE_ID"/>
         </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_MESSAGE_ID" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+
     </changeSet>
 
     <!-- foreign keys -->

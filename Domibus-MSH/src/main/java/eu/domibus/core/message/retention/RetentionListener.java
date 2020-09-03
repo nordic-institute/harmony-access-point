@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -59,7 +61,8 @@ public class RetentionListener implements MessageListener {
             }
 
             if (StringUtils.equals(DeleteType.DELETE_MESSAGE_ID_MULTI.name(), deleteType)) {
-                List<String> messageIds = (List<String>) message.getObjectProperty(MessageConstants.MESSAGE_IDS);
+                List<String> messageIds = Arrays.asList(message.getStringProperty(MessageConstants.MESSAGE_IDS).split("\\s*,\\s*"));
+                LOG.debug("There are [{}] messages to delete [{}]", messageIds.size(), messageIds);
                 userMessageDefaultService.deleteMessages(messageIds);
                 return;
             }

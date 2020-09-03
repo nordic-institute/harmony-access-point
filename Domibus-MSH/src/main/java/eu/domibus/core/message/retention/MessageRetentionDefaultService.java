@@ -104,12 +104,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (messageRetentionNotDownloaded > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
             final List<String> notDownloadedMessageIds = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
                     mpc, expiredNotDownloadedMessagesLimit);
-            if (CollectionUtils.isNotEmpty(notDownloadedMessageIds)) {
-                final int deleted = notDownloadedMessageIds.size();
-                LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
-                scheduleDeleteMessages(notDownloadedMessageIds, mpc);
-                LOG.debug("Deleted [{}] not-downloaded messages", deleted);
+            if (CollectionUtils.isEmpty(notDownloadedMessageIds)) {
+                return;
             }
+            final int deleted = notDownloadedMessageIds.size();
+            LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
+            scheduleDeleteMessages(notDownloadedMessageIds, mpc);
+            LOG.debug("Deleted [{}] not-downloaded messages", deleted);
         }
     }
 
@@ -120,12 +121,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
             final List<String> sentMessageIds = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
                     mpc, expiredSentMessagesLimit);
-            if (CollectionUtils.isNotEmpty(sentMessageIds)) {
-                final int deleted = sentMessageIds.size();
-                LOG.debug("Found [{}] sent messages to delete", deleted);
-                scheduleDeleteMessages(sentMessageIds, mpc);
-                LOG.debug("Deleted [{}] sent messages", deleted);
+            if (CollectionUtils.isEmpty(sentMessageIds)) {
+                return;
             }
+            final int deleted = sentMessageIds.size();
+            LOG.debug("Found [{}] sent messages to delete", deleted);
+            scheduleDeleteMessages(sentMessageIds, mpc);
+            LOG.debug("Deleted [{}] sent messages", deleted);
         }
     }
 
@@ -176,7 +178,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             LOG.debug("Scheduling delete [{}] messages [{}]", messageIdsBatch.size(), messageIdsBatch);
             JmsMessage message = JMSMessageBuilder.create()
                     .property(MessageConstants.DELETE_TYPE, DeleteType.DELETE_MESSAGE_ID_MULTI.name())
-                    .property(MessageConstants.MESSAGE_IDS, messageIdsBatch)
+                    .property(MessageConstants.MESSAGE_IDS, String.join(",", messageIdsBatch))
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         }
