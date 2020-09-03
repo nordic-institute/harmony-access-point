@@ -250,12 +250,12 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
-        Date receivedDate = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
-        if (receivedDate.after(new Date())) {
+        Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
+        if (receivedDateDelta.after(new Date())) {
             throw new UserMessageException("You have to wait " + resendButtonReceivedMinutes + " minutes before resending the message [" + messageId + "]");
         }
         if (userMessageLog.getNextAttempt() != null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already put in [" + MessageStatus.SEND_ENQUEUED + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
