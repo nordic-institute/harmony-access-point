@@ -5,8 +5,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.attachment.AttachmentDataSource;
 import org.apache.cxf.message.Attachment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataSource;
 import javax.xml.soap.AttachmentPart;

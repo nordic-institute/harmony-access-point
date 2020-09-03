@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PluginUsersClient extends BaseRestClient {
@@ -83,6 +84,18 @@ public class PluginUsersClient extends BaseRestClient {
 			log.error("EXCEPTION: ", e);
 		}
 		return null;
+	}
+	
+	public ArrayList<String> getPluginUsernameList(String domain) throws Exception {
+		JSONArray users = getPluginUsers(domain, "BASIC");
+		ArrayList<String> usernames = new ArrayList<>();
+		
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			usernames.add(user.getString("userName"));
+		}
+		
+		return usernames;
 	}
 	
 	public ClientResponse searchPluginUsers(String domain, String authType, String role, String username, String originalUser, String page, String pageSize) throws Exception {

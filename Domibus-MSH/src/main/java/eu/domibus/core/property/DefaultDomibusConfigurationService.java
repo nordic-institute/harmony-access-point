@@ -45,7 +45,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
-    public boolean isSingleTenant() {
+    public boolean isSingleTenantAware() {
         return !isMultiTenantAware();
     }
 

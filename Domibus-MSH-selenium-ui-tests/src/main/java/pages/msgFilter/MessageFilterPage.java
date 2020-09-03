@@ -89,12 +89,13 @@ public class MessageFilterPage extends DomibusPage {
 		);
 	}
 
-	public void saveAndConfirmChanges() throws Exception {
+	public String saveAndConfirmChanges() throws Exception {
 		wait.forElementToBeEnabled(saveBtn);
 		getSaveBtn().click();
 		log.debug("saving");
 		new Dialog(driver).confirm();
 		log.debug("confirming");
+		return getAlertArea().getAlertMessage();
 	}
 
 	public void cancelChangesAndConfirm() throws Exception {

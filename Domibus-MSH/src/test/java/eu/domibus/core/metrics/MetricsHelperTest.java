@@ -30,7 +30,7 @@ public class MetricsHelperTest {
     @Test
     public void test_showJMSCounts_ST() {
         new Expectations() {{
-            domibusConfigurationService.isSingleTenant();
+            domibusConfigurationService.isSingleTenantAware();
             result = true;
         }};
 
@@ -55,7 +55,7 @@ public class MetricsHelperTest {
         Assert.assertTrue(metricsHelper.showJMSCounts());
         Assert.assertFalse(metricsHelper.showJMSCounts());
         new FullVerifications() {{
-            domibusConfigurationService.isSingleTenant();
+            domibusConfigurationService.isSingleTenantAware();
         }};
     }
 }

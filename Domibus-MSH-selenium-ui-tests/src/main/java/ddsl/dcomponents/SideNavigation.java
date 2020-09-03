@@ -56,6 +56,8 @@ public class SideNavigation extends DComponent {
 	private WebElement auditLnk;
 	@FindBy(css = "#alerts_id")
 	private WebElement alertsLnk;
+	@FindBy(css = "#logging_id")
+	private WebElement loggingLnk;
 	@FindBy(css = "#connectionmonitoring_id")
 	private WebElement connectionMonitoring_Lnk;
 	
@@ -114,6 +116,8 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, auditLnk);
 			case ALERTS:
 				return new DLink(driver, alertsLnk);
+			case LOGGING:
+				return new DLink(driver, loggingLnk);
 			case CONNECTION_MONITORING:
 				return new DLink(driver, connectionMonitoring_Lnk);
 		}

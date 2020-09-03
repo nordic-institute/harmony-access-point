@@ -1076,4 +1076,9 @@
         <renameTable oldTableName="TB_ROLE" newTableName="TB_PM_ROLE"/>
         <renameTable oldTableName="TB_SPLITTING" newTableName="TB_PM_SPLITTING"/>
     </changeSet>
+
+    <changeSet id="EDELIVERY-6924" author="Ion Perpegel">
+        <dropColumn columnName="DOMAIN" tableName="TB_COMMAND"/>
+    </changeSet>
+
 </databaseChangeLog>

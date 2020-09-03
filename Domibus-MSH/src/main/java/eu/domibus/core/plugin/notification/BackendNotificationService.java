@@ -18,6 +18,8 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -131,6 +133,8 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
+    @Timer(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
+    @Counter(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             return;
