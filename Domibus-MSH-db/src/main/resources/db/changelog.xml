@@ -286,9 +286,6 @@
             <column name="COMMAND_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="DOMAIN" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>

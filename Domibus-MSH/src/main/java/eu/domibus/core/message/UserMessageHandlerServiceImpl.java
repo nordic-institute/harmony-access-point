@@ -32,6 +32,8 @@ import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -150,6 +152,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
@@ -218,7 +222,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
     protected void handleIncomingMessage(
             final LegConfiguration legConfiguration,
             String pmodeKey,
@@ -352,6 +357,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @param request          the message to persist
      * @param legConfiguration processing information for the message
      */
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,

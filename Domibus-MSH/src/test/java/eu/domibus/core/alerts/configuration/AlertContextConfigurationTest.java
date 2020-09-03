@@ -46,7 +46,7 @@ public class AlertContextConfigurationTest {
         }};
 
 
-        alertContextConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver);
+        alertContextConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver,null);
 
         new Verifications() {{
             MessageConverter messageConverter = null;

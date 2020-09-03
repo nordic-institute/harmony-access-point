@@ -8,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 public class UsersRestTest extends RestTest {
 	
@@ -30,7 +30,7 @@ public class UsersRestTest extends RestTest {
 	public void createUserTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String username = Generator.randomAlphaNumeric(15);
+		String username = Gen.randomAlphaNumeric(15);
 		String email = "test@email.com";
 		String role = DRoles.ADMIN;
 		

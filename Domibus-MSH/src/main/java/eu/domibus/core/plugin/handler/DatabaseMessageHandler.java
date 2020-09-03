@@ -34,6 +34,8 @@ import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -348,6 +350,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Timer(clazz = DatabaseMessageHandler.class,value = "submit")
+    @Counter(clazz = DatabaseMessageHandler.class,value = "submit")
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
