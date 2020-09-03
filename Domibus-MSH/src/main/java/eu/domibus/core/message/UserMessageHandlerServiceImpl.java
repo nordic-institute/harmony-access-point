@@ -64,6 +64,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+
 /**
  * @author Thomas Dussart
  * @author Catalin Enache
@@ -74,6 +76,7 @@ import java.util.Iterator;
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
+    public static final String HASH_SIGN = "#";
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -158,7 +161,13 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
 
-        return as4ReceiptService.generateReceipt(request, messaging, legConfiguration.getReliability().getReplyPattern(), legConfiguration.getReliability().isNonRepudiation(), messageExists, selfSendingFlag);
+        return as4ReceiptService.generateReceipt(
+                request,
+                messaging,
+                legConfiguration.getReliability().getReplyPattern(),
+                legConfiguration.getReliability().isNonRepudiation(),
+                messageExists,
+                selfSendingFlag);
     }
 
     @Override
@@ -172,7 +181,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return null;
     }
 
-    protected void handleIncomingSourceMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
+    protected void handleIncomingSourceMessage(
+            final LegConfiguration legConfiguration,
+            String pmodeKey,
+            final SOAPMessage request,
+            final Messaging messaging,
+            boolean selfSending,
+            boolean messageExists,
+            boolean testMessage) throws IOException, TransformerException, EbMS3Exception {
         soapUtil.logMessage(request);
 
         String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
@@ -188,12 +204,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         if (testMessage) {
             // ping messages are only stored and not notified to the plugins
-            persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, null);
+            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, null);
+            LOG.debug("Test source message saved: [{}]", messageInfoId);
         } else {
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(messaging.getUserMessage());
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-            persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, backendName);
+            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, messaging, null, backendName);
+            LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
                 backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
@@ -204,10 +222,17 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
-    protected void handleIncomingMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean selfSending, boolean messageExists, boolean testMessage) throws IOException, TransformerException, EbMS3Exception, SOAPException {
+    protected void handleIncomingMessage(
+            final LegConfiguration legConfiguration,
+            String pmodeKey,
+            final SOAPMessage request,
+            final Messaging messaging,
+            boolean selfSending,
+            boolean messageExists,
+            boolean testMessage)
+            throws IOException, TransformerException, EbMS3Exception, SOAPException {
         soapUtil.logMessage(request);
 
         if (selfSending) {
@@ -331,15 +356,17 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      *
      * @param request          the message to persist
      * @param legConfiguration processing information for the message
-     * @throws SOAPException
-     * @throws JAXBException
-     * @throws TransformerException
-     * @throws IOException
-     * @throws EbMS3Exception
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
-    protected String persistReceivedMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws SOAPException, TransformerException, EbMS3Exception {
+    protected String persistReceivedMessage(
+            final SOAPMessage request,
+            final LegConfiguration legConfiguration,
+            final String pmodeKey,
+            final Messaging messaging,
+            MessageFragmentType messageFragmentType,
+            final String backendName)
+            throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
         UserMessage userMessage = messaging.getUserMessage();
 
@@ -356,15 +383,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     /**
      * Persists the incoming SourceMessage
-     *
-     * @param request
-     * @param legConfiguration
-     * @param pmodeKey
-     * @param messaging
-     * @param messageFragmentType
-     * @param backendName
-     * @return
-     * @throws EbMS3Exception
      */
     protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws EbMS3Exception {
         LOG.info("Persisting received SourceMessage");
@@ -418,7 +436,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 backendName,
                 to.getEndpoint(),
                 userMessage.getCollaborationInfo().getService().getValue(),
-                userMessage.getCollaborationInfo().getAction(), userMessage.isSourceMessage(), userMessage.isUserMessageFragment());
+                userMessage.getCollaborationInfo().getAction(),
+                userMessage.isSourceMessage(),
+                userMessage.isUserMessageFragment());
 
         uiReplicationSignalService.userMessageReceived(userMessage.getMessageInfo().getMessageId());
 
@@ -433,8 +453,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         userMessage.setSplitAndJoin(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
-
-        validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
 
         if (messageGroupEntity == null) {
             LOG.debug("Creating messageGroupEntity");
@@ -454,6 +472,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             messageGroupEntity.setFragmentCount(messageFragmentType.getFragmentCount());
             messageGroupDao.create(messageGroupEntity);
         }
+
+        validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
+
         MessageFragmentEntity messageFragmentEntity = new MessageFragmentEntity();
         messageFragmentEntity.setGroupId(messageFragmentType.getGroupId());
         messageFragmentEntity.setFragmentNumber(messageFragmentType.getFragmentNum());
@@ -482,12 +503,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.warn("Could not validate UserMessage fragment [[{}] for group [{}]: messageGroupEntity is null", userMessage.getMessageInfo().getMessageId(), groupId);
             return;
         }
-        if (messageGroupEntity.getExpired()) {
+        if (isTrue(messageGroupEntity.getExpired())) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0051, "More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received", userMessage.getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
-        if (messageGroupEntity.getRejected()) {
+        if (isTrue(messageGroupEntity.getRejected())) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0040, "A fragment is received that relates to a group that was previously rejected", userMessage.getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
@@ -526,7 +547,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
     @Override
-    public void handlePayloads(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception, SOAPException, TransformerException {
+    public void handlePayloads(SOAPMessage request, UserMessage userMessage)
+            throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");
 
         boolean bodyloadFound = false;
@@ -534,7 +556,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final String cid = partInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);
             boolean payloadFound = false;
-            if (cid == null || cid.isEmpty() || cid.startsWith("#")) {
+            if (isBodyloadCid(cid)) {
                 if (bodyloadFound) {
                     LOG.businessError(DomibusMessageCode.BUS_MULTIPLE_PART_INFO_REFERENCING_SOAP_BODY);
                     EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "More than one Partinfo referencing the soap body found", userMessage.getMessageInfo().getMessageId(), null);
@@ -545,17 +567,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 bodyloadFound = true;
                 payloadFound = true;
                 partInfo.setInBody(true);
-                Node bodyContent = null;
-                if (request.getSOAPBody().hasChildNodes()) {
-                    bodyContent = ((Node) request.getSOAPBody().getChildElements().next());
-                }
+                Node bodyContent = getChildElement(request);
                 LOG.debug("Soap BodyContent when handling payloads: [{}]", bodyContent);
-                final Source source = new DOMSource(bodyContent);
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                final Result result = new StreamResult(out);
-                final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
-                transformer.transform(source, result);
-                partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml")));
+                partInfo.setPayloadDatahandler(getDataHandler(bodyContent));
             }
             @SuppressWarnings("unchecked") final Iterator<AttachmentPart> attachmentIterator = request.getAttachments();
             AttachmentPart attachmentPart;
@@ -579,6 +593,26 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
         }
         LOG.debug("Finished handling payloads");
+    }
+
+    protected Node getChildElement(SOAPMessage request) throws SOAPException {
+        if (request.getSOAPBody().hasChildNodes()) {
+            return ((Node) request.getSOAPBody().getChildElements().next());
+        }
+        return null;
+    }
+
+    private boolean isBodyloadCid(String cid) {
+        return cid == null || cid.isEmpty() || cid.startsWith(HASH_SIGN);
+    }
+
+    protected DataHandler getDataHandler(Node bodyContent) throws TransformerException {
+        final Source source = new DOMSource(bodyContent);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final Result result = new StreamResult(out);
+        final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
+        transformer.transform(source, result);
+        return new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml"));
     }
 
     protected String getFinalRecipientName(UserMessage userMessage) {
