@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -784,7 +784,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_RECEIVED_MINUTES);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
             result = 2;
 
             userMessageLog.getReceived();

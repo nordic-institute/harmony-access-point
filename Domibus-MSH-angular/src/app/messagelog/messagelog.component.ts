@@ -89,7 +89,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
 
-    this.resendReceivedMinutes = await this.getReceivedResendMinutes();
+    this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
 
     this.filterData();
   }
@@ -303,9 +303,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return (row.messageStatus === 'SEND_ENQUEUED' && receivedDate < new Date() && !row.nextAttempt)
   }
 
-  private async getReceivedResendMinutes(): Promise<number> {
+  private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
     this.propertiesService = this.applicationService.injector.get(PropertiesService);
-    const res = await this.propertiesService.getReceivedResendMinutesProperty();
+    const res = await this.propertiesService.getResendButtonEnabledReceivedMinutesProperty();
     return +res.value;
   }
 

@@ -57,8 +57,8 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
-  async getReceivedResendMinutesProperty(): Promise<PropertyModel> {
-    return this.getProperty('domibus.resend.button.received.minutes');
+  async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
+    return this.getProperty('domibus.ui.resend.button.enabled.received.minutes');
   }
 
   private async isPropertyValidationEnabled(): Promise<boolean> {
