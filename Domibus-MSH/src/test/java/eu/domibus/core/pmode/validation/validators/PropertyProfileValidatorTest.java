@@ -11,6 +11,7 @@ import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.MessageProperties;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -20,6 +21,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -56,6 +58,9 @@ public class PropertyProfileValidatorTest {
 
     @Injectable
     UserMessageServiceHelper userMessageDefaultServiceHelper = new UserMessageDefaultServiceHelper();
+
+    @Mock
+    private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     private LegConfiguration legConfiguration = new LegConfiguration();
 
@@ -151,7 +156,7 @@ public class PropertyProfileValidatorTest {
     }
 
     private Messaging createMessaging(InputStream inputStream) throws XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-        XMLUtil xmlUtil = new XMLUtilImpl(null);
+        XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
         JAXBContext jaxbContext = JAXBContext.newInstance(Messaging.class);
         JAXBElement root = xmlUtil.unmarshal(true, jaxbContext, inputStream, null).getResult();
         return (Messaging) root.getValue();

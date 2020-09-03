@@ -55,7 +55,7 @@ public class PModeValidationServiceImplIT {
     public static class ContextConfiguration {
         @Bean
         public XMLUtil xmlUtil() {
-            return new XMLUtilImpl(null);
+            return new XMLUtilImpl(domibusPropertyProvider());
         }
 
         @Bean

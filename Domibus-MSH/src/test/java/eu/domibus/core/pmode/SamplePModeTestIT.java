@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode;
 
 import com.ctc.wstx.exc.WstxParsingException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Mpc;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +42,13 @@ public class SamplePModeTestIT {
     static class ContextConfiguration {
 
         @Bean
+        public DomibusPropertyProvider domibusPropertyProvider() {
+            return Mockito.mock(DomibusPropertyProvider.class);
+        }
+
+        @Bean
         public XMLUtil xmlUtil() {
-            return new XMLUtilImpl(null);
+            return new XMLUtilImpl(domibusPropertyProvider());
         }
 
         @Bean

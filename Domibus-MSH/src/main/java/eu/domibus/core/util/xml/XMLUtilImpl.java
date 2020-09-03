@@ -10,7 +10,6 @@ import eu.domibus.plugin.validation.XmlValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -45,6 +44,10 @@ public class XMLUtilImpl implements XMLUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
 
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    public XMLUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -95,10 +98,6 @@ public class XMLUtilImpl implements XMLUtil {
         return transformerFactoryThreadLocal.get();
     }
 
-    public XMLUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
-        this.domibusPropertyProvider = domibusPropertyProvider;
-    }
-
     @Override
     public UnmarshallerResult unmarshal(boolean ignoreWhitespaces, JAXBContext jaxbContext, InputStream xmlStream, InputStream xsdStream) throws SAXException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -142,34 +141,27 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     private Schema getSchema(InputStream xsdStream) throws SAXException {
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        try {
-            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
-            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
-        } catch (SAXNotRecognizedException ex) {
-            LOG.warn("Unrecognized property for [{}] schema factory, attempting to use the fallback XML Schema factory instance",
-                    schemaFactory.getClass().getName(), ex);
-            schemaFactory = fallbackSchemaFactoryInstance();
-            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
-            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
-        }
+        SchemaFactory schemaFactory = schemaFactoryInstance();
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
         return schemaFactory.newSchema(new StreamSource(xsdStream));
     }
 
-    private SchemaFactory fallbackSchemaFactoryInstance() {
+    private SchemaFactory schemaFactoryInstance() {
         String propertyName = SchemaFactory.class.getCanonicalName();
         String schemaFactoryClassName = domibusPropertyProvider.getProperty(propertyName);
         if (StringUtils.isBlank(schemaFactoryClassName)) {
-            LOG.warn("Could not find a value for property [{}]", propertyName);
-            throw new DomibusXMLException("Could not instantiate schema factory");
+            LOG.warn("Could not find a value for property [{}], default XML Schema factory will be used", propertyName);
+        } else {
+            try {
+                LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
+                return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
+            }
         }
-        try {
-            LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
-            return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
-            throw new DomibusXMLException("Could not instantiate schema factory " + schemaFactoryClassName, e);
-        }
+        LOG.trace("Using default XML Schema factory");
+        return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     }
 
 }
