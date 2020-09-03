@@ -31,6 +31,8 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SCHEMAFACTORY;
+
 /**
  * StAX marshaller and unmarshaller utility class.
  *
@@ -148,10 +150,9 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     private SchemaFactory schemaFactoryInstance() {
-        String propertyName = SchemaFactory.class.getCanonicalName();
-        String schemaFactoryClassName = domibusPropertyProvider.getProperty(propertyName);
+        String schemaFactoryClassName = domibusPropertyProvider.getProperty(DOMIBUS_SCHEMAFACTORY);
         try {
-            LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, propertyName);
+            LOG.trace("Found [{}] class name for [{}]", schemaFactoryClassName, DOMIBUS_SCHEMAFACTORY);
             return (SchemaFactory) Class.forName(schemaFactoryClassName).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             LOG.error("Could not instantiate [{}]", schemaFactoryClassName, e);
