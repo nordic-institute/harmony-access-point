@@ -65,11 +65,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
   canSearchByConversationId: boolean;
   conversationIdValue: String;
   resendReceivedMinutes: number;
-  propertiesService: PropertiesService;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
-              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService) {
     super();
   }
 
@@ -304,7 +303,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
-    this.propertiesService = this.applicationService.injector.get(PropertiesService);
     const res = await this.propertiesService.getResendButtonEnabledReceivedMinutesProperty();
     return +res.value;
   }
