@@ -2,21 +2,19 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
-
-import static eu.domibus.core.metrics.MetricNames.INCOMING_PULL_REQUEST;
 
 /**
  * Handles the incoming AS4 pull request
@@ -39,8 +37,8 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
     private AuthorizationService authorizationService;
 
     @Override
-    @Timer(INCOMING_PULL_REQUEST)
-    @Counter(INCOMING_PULL_REQUEST)
+    @Timer(clazz = IncomingPullRequestHandler.class,value = "incoming_pull_request")
+    @Counter(clazz = IncomingPullRequestHandler.class,value = "incoming_pull_request")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) throws EbMS3Exception {
         authorizationService.authorizePullRequest(request, messaging.getSignalMessage().getPullRequest());
         LOG.trace("before pull request.");

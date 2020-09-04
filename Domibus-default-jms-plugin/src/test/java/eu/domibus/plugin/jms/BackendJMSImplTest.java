@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
@@ -75,6 +76,9 @@ public class BackendJMSImplTest {
 
     @Injectable
     protected JMSMessageTransformer jmsMessageTransformer;
+
+    @Injectable
+    protected MetricRegistry metricRegistry;
 
     @Injectable
     String name = "myjmsplugin";

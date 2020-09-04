@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -80,7 +80,7 @@ public class LoggingRestTest extends RestTest {
 		SoftAssert soft = new SoftAssert();
 		
 		JSONArray loggers = rest.logging().getLogLevels();
-		String name = loggers.getJSONObject(Generator.randomNumber(loggers.length() - 2)).getString("name");
+		String name = loggers.getJSONObject(Gen.randomNumber(loggers.length() - 2)).getString("name");
 		String currentLevel = loggers.getJSONObject(0).getString("level");
 		
 		for (int i = 0; i < logLevels.length; i++) {

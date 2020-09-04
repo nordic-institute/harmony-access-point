@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class ClusterCommandConfiguration {
     @Autowired
     protected CommandExecutorService commandExecutorService;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
         String serverName = System.getProperty("weblogic.Name");
@@ -47,7 +51,11 @@ public class ClusterCommandConfiguration {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName, domain), domain);
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName), domain);
+        }
+
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName));
         }
     }
 }

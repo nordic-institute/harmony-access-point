@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,18 +53,42 @@ public class ControllerListenerService implements MessageListener {
             LOG.error("Received null command");
             return;
         }
-
-        Domain domain;
-        try {
-            String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            domain = domainService.getDomain(domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
-        } catch (JMSException e) {
-            LOG.error("Could not get the domain", e);
+        if (!handleMessageDomain(message)) {
+            LOG.error("Could not handle the domain of the command properly");
             return;
         }
 
-        commandExecutorService.executeCommand(command, domain, getCommandProperties(message));
+        commandExecutorService.executeCommand(command, getCommandProperties(message));
+    }
+
+    /**
+     * Extract the 'domain' property from the jms message and use it to set the current domain
+     *
+     * @param message JMS Message representing the command
+     * @return true if the domain of the command was handled; false if the domain couldn't be handled
+     */
+    protected boolean handleMessageDomain(Message message) {
+        String domainCode;
+        try {
+            domainCode = message.getStringProperty(MessageConstants.DOMAIN);
+        } catch (JMSException e) {
+            LOG.error("Could not get the domain", e);
+            return false;
+        }
+
+        if (StringUtils.isEmpty(domainCode)) {
+            LOG.trace("No-domain command received");
+            domainContextProvider.clearCurrentDomain();
+            return true;
+        }
+        Domain domain = domainService.getDomain(domainCode);
+        if (domain == null) {
+            LOG.warn("Invalid domain received in command: [{}]", domainCode);
+            return false;
+        }
+
+        domainContextProvider.setCurrentDomain(domain.getCode());
+        return true;
     }
 
     /**

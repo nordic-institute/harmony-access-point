@@ -8,7 +8,7 @@ import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
-import utils.Generator;
+import utils.Gen;
 
 
 /**
@@ -23,7 +23,7 @@ public class LoginPgTest extends SeleniumTest {
 	private void checkUserLogin(String role, SoftAssert soft) throws Exception {
 		logout();
 		
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, role, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, role));
 		
@@ -67,7 +67,7 @@ public class LoginPgTest extends SeleniumTest {
 		log.info("Testing login using invalid username");
 		SoftAssert soft = new SoftAssert();
 		
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 		
@@ -100,7 +100,7 @@ public class LoginPgTest extends SeleniumTest {
 		log.info("Testing login using invalid password");
 		SoftAssert soft = new SoftAssert();
 		
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 		
@@ -131,7 +131,7 @@ public class LoginPgTest extends SeleniumTest {
 		
 		log.info("Try to login with valid username and invalid password more than 5 times");
 		SoftAssert soft = new SoftAssert();
-		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
+		String username = "testBlockAcc_" + Gen.randomAlphaNumeric(3);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 		
@@ -189,7 +189,7 @@ public class LoginPgTest extends SeleniumTest {
 		
 		log.info("Admin unlocks account and user tries to login with valid username and password");
 		SoftAssert soft = new SoftAssert();
-		String username = "testBlockAcc_" + Generator.randomAlphaNumeric(3);
+		String username = "testBlockAcc_" + Gen.randomAlphaNumeric(3);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		log.info(String.format("Created user %s with role %s", username, DRoles.USER));
 		

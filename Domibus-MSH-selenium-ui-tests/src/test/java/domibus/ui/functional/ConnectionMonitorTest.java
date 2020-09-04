@@ -48,11 +48,13 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
+		page.refreshPage();
+		
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
 
 		List<String> options = page.grid().getValuesOnColumn("Party");
 		log.info("checking available parties");
-		soft.assertTrue(options.contains("domibus-blue") && options.contains("domibus-red"), "Partiespresent");
+		soft.assertTrue(options.contains("domibus-blue") && options.contains("domibus-red"), "Parties are present");
 
 		soft.assertAll();
 	}

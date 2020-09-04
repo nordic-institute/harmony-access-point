@@ -24,7 +24,7 @@ public interface DomibusConfigurationService {
 
     boolean isMultiTenantAware();
 
-    boolean isSingleTenant();
+    boolean isSingleTenantAware();
 
     boolean isFourCornerEnabled();
 
