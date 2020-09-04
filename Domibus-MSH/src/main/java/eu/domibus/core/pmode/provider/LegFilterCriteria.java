@@ -69,7 +69,7 @@ public class LegFilterCriteria {
     }
 
     public void appendProcessMismatchErrors(Process process, String newErrorDetail){
-        if(process == null || StringUtils.isNotBlank(newErrorDetail)){
+        if(process == null || StringUtils.isBlank(newErrorDetail)){
             return;
         }
         if (!processMismatchErrors.containsKey(process)) {
@@ -91,7 +91,7 @@ public class LegFilterCriteria {
     }
 
     public void appendLegMismatchErrors(LegConfiguration legConfiguration, String newErrorDetail){
-        if(legConfiguration == null || StringUtils.isNotBlank(newErrorDetail)){
+        if(legConfiguration == null || StringUtils.isBlank(newErrorDetail)){
             return;
         }
         if (!legMismatchErrors.containsKey(legConfiguration)) {
