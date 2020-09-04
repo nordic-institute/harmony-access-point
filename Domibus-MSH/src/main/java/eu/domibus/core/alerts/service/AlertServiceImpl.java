@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import java.time.ZoneId;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
@@ -129,14 +131,14 @@ public class AlertServiceImpl implements AlertService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public MailModel getMailModelForAlert(eu.domibus.core.alerts.model.service.Alert alert) {
+    public MailModel<Map<String, String>> getMailModelForAlert(eu.domibus.core.alerts.model.service.Alert alert) {
         final Alert alertEntity = readAlert(alert);
         alertEntity.setReportingTime(new Date());
         Map<String, String> mailModel = new HashMap<>();
         final Event next = alertEntity.getEvents().iterator().next();
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
-        mailModel.put(REPORTING_TIME, alertEntity.getReportingTime().toString());
+        mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
@@ -148,7 +150,7 @@ public class AlertServiceImpl implements AlertService {
         final String serverName = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT);
         subject += "[" + serverName + "]";
         final String template = alertType.getTemplate();
-        return new DefaultMailModel(mailModel, template, subject);
+        return new DefaultMailModel<>(mailModel, template, subject);
     }
 
     /**
@@ -274,9 +276,9 @@ public class AlertServiceImpl implements AlertService {
         LOG.info("Deleting alerts: {}", alerts);
 
         alerts.stream()
-                .map(alert -> readAlert(alert))
+                .map(this::readAlert)
                 .filter(Objects::nonNull)
-                .forEach(alert -> deleteAlert(alert));
+                .forEach(this::deleteAlert);
     }
 
     private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {

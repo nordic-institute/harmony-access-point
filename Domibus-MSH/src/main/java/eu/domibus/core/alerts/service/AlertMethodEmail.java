@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -41,7 +42,7 @@ public class AlertMethodEmail implements AlertMethod {
 
     @Override
     public void sendAlert(Alert alert) {
-        final MailModel mailModelForAlert = alertService.getMailModelForAlert(alert);
+        final MailModel<Map<String, String>> mailModelForAlert = alertService.getMailModelForAlert(alert);
         LOG.debug("Sending alert by email [{}]", alert);
 
         String from = alertConfigurationManager.getConfiguration().getSendFrom();
