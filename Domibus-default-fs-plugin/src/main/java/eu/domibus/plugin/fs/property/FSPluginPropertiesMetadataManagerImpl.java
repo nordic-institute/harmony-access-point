@@ -97,7 +97,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
         return this.getKnownProperties().containsKey(name);
     }
 
-    protected void createMetadata() {
+    private void createMetadata() {
         knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 //non-writable properties:
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
