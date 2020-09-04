@@ -581,15 +581,15 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
         deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
         LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
-        messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
+        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
-        errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
+        deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
         LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
-        uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-        uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
-        messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
+        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
     }
 
