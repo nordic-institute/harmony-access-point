@@ -81,7 +81,7 @@ public class RoutingService {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
         }
 
-        if (domibusConfigurationService.isSingleTenant()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
             createBackendFilters();
         } else {

@@ -9,13 +9,13 @@ import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -52,6 +52,8 @@ public class MessageSenderService {
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
+    @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
+    @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
     public void sendUserMessage(final String messageId, int retryCount) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);

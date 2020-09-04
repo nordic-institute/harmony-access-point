@@ -22,34 +22,43 @@ import static com.codahale.metrics.MetricRegistry.name;
 @Component
 public class MetricsAspect {
 
-    static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MetricsAspect.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MetricsAspect.class);
 
     @Autowired
-    private MetricRegistry metricRegistry;
+    protected MetricRegistry metricRegistry;
 
     @Around("@annotation(timer)")
     public Object surroundWithATimer(ProceedingJoinPoint pjp, Timer timer) throws Throwable {
-        com.codahale.metrics.Timer.Context context = null;
-        final Class<?> clazz = timer.clazz();
-        final MetricNames timerName = timer.value();
-        LOG.trace("adding a timer with name:[{}] in class:[{}]", timerName, clazz.getName());
-        com.codahale.metrics.Timer methodTimer = metricRegistry.timer(getMetricsName(clazz, timerName.getTimerName()));
+        return createTimer(pjp, timer.value(), timer.clazz());
+    }
+    @Around("@annotation(timer)")
+    public Object surroundWithATimer(ProceedingJoinPoint pjp, eu.domibus.ext.domain.metrics.Timer timer) throws Throwable {
+        return createTimer(pjp, timer.value(), timer.clazz());
+    }
+
+    protected Object createTimer(ProceedingJoinPoint pjp, String value, Class<?> clazz) throws Throwable {
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(clazz, value, "timer")).time();
         try {
-            context = methodTimer.time();
             return pjp.proceed();
         } finally {
-            if (context != null) {
-                context.stop();
+            if (methodTimer != null) {
+                methodTimer.stop();
             }
         }
     }
 
     @Around("@annotation(counter)")
     public Object surroundWithACounter(ProceedingJoinPoint pjp, Counter counter) throws Throwable {
-        final Class<?> clazz = counter.clazz();
-        final MetricNames counterName = counter.value();
-        LOG.trace("adding a counter with name:[{}] in class:[{}]", counterName, clazz.getName());
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(getMetricsName(clazz, counterName.getCounterName()));
+        return createCounter(pjp, counter.clazz(), counter.value());
+    }
+
+    @Around("@annotation(counter)")
+    public Object surroundWithACounter(ProceedingJoinPoint pjp, eu.domibus.ext.domain.metrics.Counter counter) throws Throwable {
+        return createCounter(pjp, counter.clazz(), counter.value());
+    }
+
+    protected Object createCounter(ProceedingJoinPoint pjp, Class<?> clazz, String value) throws Throwable {
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(clazz,value, "counter"));
         try {
             methodCounter.inc();
             return pjp.proceed();
@@ -58,11 +67,4 @@ public class MetricsAspect {
         }
     }
 
-    protected String getMetricsName(final Class<?> clazz, final String timerName) {
-        if (Default.class.isAssignableFrom(clazz)) {
-            return timerName;
-        } else {
-            return name(clazz, timerName);
-        }
-    }
 }

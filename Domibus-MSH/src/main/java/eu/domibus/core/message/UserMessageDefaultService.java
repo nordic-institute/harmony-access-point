@@ -22,7 +22,6 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
@@ -34,6 +33,8 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -225,7 +226,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
                 Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
                 LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty), userMessage, userMessageLog);
+                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
                 LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
             }
@@ -320,6 +321,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
+    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");

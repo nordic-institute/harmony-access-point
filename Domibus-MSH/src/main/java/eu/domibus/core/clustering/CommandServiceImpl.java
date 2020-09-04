@@ -39,11 +39,10 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void createClusterCommand(String command, String domain, String server, Map<String, String> commandProperties) {
-        LOG.debug("Creating command [{}] for domain [{}] and server [{}]", command, domain, server);
+    public void createClusterCommand(String command, String server, Map<String, String> commandProperties) {
+        LOG.debug("Creating command [{}] for server [{}]", command, server);
         CommandEntity commandEntity = new CommandEntity();
         commandEntity.setCommandName(command);
-        commandEntity.setDomain(domain);
         commandEntity.setServerName(server);
         commandEntity.setCreationTime(new Date());
         commandEntity.setCommandProperties(getCommandProperties(commandProperties));
@@ -51,16 +50,10 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public List<Command> findCommandsByServerName(String serverName) {
-        final List<CommandEntity> commands = commandDao.findCommandsByServerName(serverName);
-        return domainConverter.convert(commands, Command.class);
-    }
-
-    @Override
     @Transactional(readOnly = true)
-    public List<Command> findCommandsByServerAndDomainName(String serverName, String domain) {
-        LOG.debug("Find commands by serverName [{}] for domain [{}]", serverName, domain);
-        final List<CommandEntity> commands = commandDao.findCommandsByServerAndDomainName(serverName, domain);
+    public List<Command> findCommandsByServerName(String serverName) {
+        LOG.debug("Find commands by serverName [{}]", serverName);
+        final List<CommandEntity> commands = commandDao.findCommandsByServerName(serverName);
         LOG.debug("There are [{}] commands", commands.size());
         return domainConverter.convert(commands, Command.class);
     }
@@ -90,7 +83,7 @@ public class CommandServiceImpl implements CommandService {
         }
         for (Map.Entry<String, String> entry : messageProperties.entrySet()) {
             if (!Command.COMMAND.equalsIgnoreCase(entry.getKey()) && !MessageConstants.DOMAIN.equalsIgnoreCase(entry.getKey())) {
-                properties.put(entry.getKey(), (String) messageProperties.get(entry.getKey()));
+                properties.put(entry.getKey(), entry.getValue());
             }
         }
         return properties;
