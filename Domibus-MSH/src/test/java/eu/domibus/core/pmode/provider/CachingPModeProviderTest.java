@@ -68,6 +68,17 @@ public class CachingPModeProviderTest {
     private static final String ANOTHERMPC = "anotherMpc";
     private static final String NONEXISTANTMPC = "NonExistantMpc";
 
+    // Values for findLeg tests
+    final String senderParty = "blue_gw";
+    final String receiverParty = "red_gw";
+    final String agreement = "agreement1110";
+    final String service = "noSecService";
+    final String action = "noSecAction";
+    final Role initiatorRole = new Role("defaultInitiatorRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+    final Role responderRole = new Role("defaultResponderRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+    final ProcessTypePartyExtractor pushProcessPartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
+    final ProcessTypePartyExtractor pullProcessPartyExtractor = new PullProcessPartyExtractor(senderParty, receiverParty);
+
     @Injectable
     ConfigurationDAO configurationDAO;
 
@@ -108,9 +119,6 @@ public class CachingPModeProviderTest {
     SignalService signalService;
 
     @Injectable
-    private MpcService mpcService;
-
-    @Injectable
     PullMessageService pullMessageService;
 
     @Injectable
@@ -119,6 +127,8 @@ public class CachingPModeProviderTest {
     @Tested
     CachingPModeProvider cachingPModeProvider;
 
+    @Injectable
+    private MpcService mpcService;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
@@ -178,7 +188,6 @@ public class CachingPModeProviderTest {
 
         Assert.assertEquals(0, cachingPModeProvider.getRetentionDownloadedByMpcName(NONEXISTANTMPC));
     }
-
 
     @Test
     public void testGetRetentionUnDownloadedByMpcName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
@@ -407,7 +416,6 @@ public class CachingPModeProviderTest {
         // Then
         Assert.assertEquals(expectedList, partyIdByServiceAndAction);
     }
-
 
     private Party getPartyByName(Set<Party> parties, final String partyName) {
         final Collection<Party> filter = Collections2.filter(parties, new Predicate<Party>() {
@@ -689,7 +697,6 @@ public class CachingPModeProviderTest {
         Assert.assertEquals(configuration.getParty(), cachingPModeProvider.getGatewayParty());
     }
 
-
     @Test
     public void testMatchAgreement() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]");
@@ -703,9 +710,9 @@ public class CachingPModeProviderTest {
             result = true;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:push]", "agreement[name:a1,value:v1,type:t1]", "initiatorRole[name:myInitiatorRole,value:iRole]", "responderRole[name:myResponderRole,value:rRole]");
-        Assert.assertFalse(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","notrRole")));
-        Assert.assertFalse(cachingPModeProvider.matchRole(process.getInitiatorRole(), new Role("myInitiatorRole","notiRole")));
-        Assert.assertTrue(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole","rRole")));
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole", "notrRole")));
+        Assert.assertFalse(cachingPModeProvider.matchRole(process.getInitiatorRole(), new Role("myInitiatorRole", "notiRole")));
+        Assert.assertTrue(cachingPModeProvider.matchRole(process.getResponderRole(), new Role("myResponderRole", "rRole")));
     }
 
     @Test
@@ -805,7 +812,6 @@ public class CachingPModeProviderTest {
         Assert.assertFalse(true);
     }
 
-
     private Process getTestProcess(Collection<Process> processes) {
         for (Process process : processes) {
             if (process.getName().equals("testService")) {
@@ -814,7 +820,6 @@ public class CachingPModeProviderTest {
         }
         return null;
     }
-
 
     @Test
     public void testgetMpcList(@Injectable Mpc mpc) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
@@ -827,17 +832,6 @@ public class CachingPModeProviderTest {
         cachingPModeProvider.getMpcList();
         Assert.assertNotNull(cachingPModeProvider.getMpcList());
     }
-
-    // Values for findLeg tests
-    final String senderParty = "blue_gw";
-    final String receiverParty = "red_gw";
-    final String agreement = "agreement1110";
-    final String service = "noSecService";
-    final String action = "noSecAction";
-    final Role initiatorRole = new Role("defaultInitiatorRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-    final Role responderRole = new Role("defaultResponderRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
-    final ProcessTypePartyExtractor pushProcessPartyExtractor = new PushProcessPartyExtractor(senderParty, receiverParty);
-    final ProcessTypePartyExtractor pullProcessPartyExtractor = new PullProcessPartyExtractor(senderParty, receiverParty);
 
     @Test
     public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
@@ -976,11 +970,9 @@ public class CachingPModeProviderTest {
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
             assertTrue("Expected error message to contain Agreement details.", StringUtils.contains(ex.getErrorDetail(), "Agreement:[" + incorrectAgreement + "] does not match"));
-            assertTrue("Expected error message to contain InitiatorRole details.", StringUtils.contains(ex.getErrorDetail(), "InitiatorRole:[" + incorrectInitiatorRole + "] does not match"));
-            //Following validations cannot be enforced due to 255 character limit in EbMS3Exception:getErrorDetail()
-            //assertTrue("Expected error message to contain ResponderRole details.", StringUtils.contains(ex.getErrorDetail(), "ResponderRole:[" + incorrectResponderRole + "] does not match"));
-            //assertTrue("Expected error message to contain Sender details.", StringUtils.contains(ex.getErrorDetail(), "Initiator:[" + incorrectSender + "] does not match"));
-            //assertTrue("Expected error message to contain Receiver details.", StringUtils.contains(ex.getErrorDetail(), "Responder:[" + incorrectReceiver + "] does not match"));
+            assertTrue("Expected error message to contain Initiator details.", StringUtils.contains(ex.getErrorDetail(), "Initiator:[" + incorrectSender + "] does not match"));
+            assertTrue("Expected error message to contain Responder details.", StringUtils.contains(ex.getErrorDetail(), "Responder:[" + incorrectReceiver + "] does not match"));
+            //Validations on InitiatorRoole and ResponderRole cannot be enforced due to 255 character limit in EbMS3Exception:getErrorDetail()
         }
     }
 
@@ -1350,6 +1342,141 @@ public class CachingPModeProviderTest {
             times = 1;
             cachingPModeProvider.findPartyName(toPartyId);
             times = 1;
+        }};
+    }
+
+    @Test
+    public void checkAgreementMismatch(@Injectable Process process,
+                                       @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations() {{
+            legFilterCriteria.getAgreementName();
+            result = agreement;
+        }};
+        cachingPModeProvider.checkAgreementMismatch(process, legFilterCriteria);
+
+        new FullVerifications(){{
+            cachingPModeProvider.matchAgreement(process, agreement);
+            final String errorString;
+            legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
+            assertTrue(errorString.contains(agreement));
+        }};
+    }
+
+    @Test
+    public void checkInitiatorMismatch(@Injectable Process process,
+                                       @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
+                                       @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations(cachingPModeProvider){{
+           cachingPModeProvider.matchInitiator(process, processTypePartyExtractor);
+           result = false;
+
+            processTypePartyExtractor.getSenderParty();
+            result = senderParty;
+        }};
+        cachingPModeProvider.checkInitiatorMismatch(process, processTypePartyExtractor, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
+            assertTrue(errorString.contains(senderParty));
+        }};
+    }
+
+    @Test
+    public void checkResponderMismatch(@Injectable Process process,
+                                       @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
+                                       @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations(cachingPModeProvider){{
+            cachingPModeProvider.matchResponder(process, processTypePartyExtractor);
+            result = false;
+
+            processTypePartyExtractor.getReceiverParty();
+            result = receiverParty;
+        }};
+        cachingPModeProvider.checkResponderMismatch(process, processTypePartyExtractor, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
+            assertTrue(errorString.contains(receiverParty));
+        }};
+    }
+
+    @Test
+    public void checkInitiatorRoleMismatch(@Injectable Process process,
+                                           @Injectable LegFilterCriteria legFilterCriteria,
+                                           @Injectable Role role1) {
+        new Expectations(cachingPModeProvider){{
+           process.getInitiatorRole();
+           result = role1;
+
+           legFilterCriteria.getInitiatorRole();
+           result = initiatorRole;
+
+           cachingPModeProvider.matchRole(role1, initiatorRole);
+           result = false;
+        }};
+        cachingPModeProvider.checkInitiatorRoleMismatch(process, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
+            assertTrue(errorString.contains(initiatorRole.toString()));
+        }};
+    }
+
+    @Test
+    public void checkResponderRoleMismatch(@Injectable Process process,
+                                           @Injectable LegFilterCriteria legFilterCriteria,
+                                           @Injectable Role role1) {
+        new Expectations(cachingPModeProvider){{
+           process.getResponderRole();
+           result = role1;
+
+           legFilterCriteria.getResponderRole();
+           result = responderRole;
+
+           cachingPModeProvider.matchRole(role1, responderRole);
+           result = false;
+        }};
+        cachingPModeProvider.checkResponderRoleMismatch(process, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
+            assertTrue(errorString.contains(responderRole.toString()));
+        }};
+    }
+
+    @Test
+    public void checkServiceMismatch(@Injectable LegConfiguration legConfiguration,
+                                     @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations(){{
+           legConfiguration.getService().getName();
+           result = "anotherServiceName";
+
+           legFilterCriteria.getService();
+           result = service;
+        }};
+        cachingPModeProvider.checkServiceMismatch(legConfiguration, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendLegMismatchErrors(legConfiguration, errorString = withCapture());
+            assertTrue(errorString.contains(service));
+        }};
+    }
+
+    @Test
+    public void checkActionMismatch(@Injectable LegConfiguration legConfiguration,
+                                     @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations(){{
+           legConfiguration.getAction().getName();
+           result = "anotherActionName";
+
+           legFilterCriteria.getAction();
+           result = action;
+        }};
+        cachingPModeProvider.checkActionMismatch(legConfiguration, legFilterCriteria);
+        new FullVerifications(){{
+            final String errorString;
+            legFilterCriteria.appendLegMismatchErrors(legConfiguration, errorString = withCapture());
+            assertTrue(errorString.contains(action));
         }};
     }
 }
