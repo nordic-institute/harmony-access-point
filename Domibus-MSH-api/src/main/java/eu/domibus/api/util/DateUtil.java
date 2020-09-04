@@ -18,4 +18,6 @@ public interface DateUtil {
     String getCurrentTime(DateTimeFormatter dateTimeFormatter);
 
     String getCurrentTime();
+
+    long getDiffMinutesBetweenDates(Date date1, Date date2);
 }

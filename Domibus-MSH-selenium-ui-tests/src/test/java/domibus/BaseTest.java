@@ -9,11 +9,10 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rest.DomibusRestClient;
-import utils.Generator;
+import utils.Gen;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
-import java.awt.dnd.DragGestureEvent;
 import java.util.List;
 
 public class BaseTest {
@@ -36,7 +35,7 @@ public class BaseTest {
 		
 		List<String> domains = rest.getDomainCodes();
 		for (int i = 0; i < domains.size(); i++) {
-			rest.users().createUser(Generator.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domains.get(i));
+			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domains.get(i));
 		}
 		
 		int noOfMess = rest.messages().getListOfMessages(null).length();
@@ -44,7 +43,7 @@ public class BaseTest {
 			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
 			String pluginUsername = rest.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
 			for (int i = noOfMess; i < 15; i++) {
-				messageSender.sendMessage(pluginUsername, pass, Generator.randomAlphaNumeric(20), Generator.randomAlphaNumeric(20));
+				messageSender.sendMessage(pluginUsername, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
 			}
 		}
 		
@@ -65,8 +64,8 @@ public class BaseTest {
 	private void waitForErrors() {
 		int noOfErrors = 0;
 		int retries = 0;
-		while (noOfErrors == 0 && retries < 120) {
-			System.out.println("waiting for errors to be logged");
+		while (noOfErrors == 0 && retries < 10) {
+			log.info("waiting for errors to be logged");
 			try {
 				noOfErrors = rest.errors().getErrors(null).length();
 				retries++;
@@ -76,13 +75,5 @@ public class BaseTest {
 			}
 		}
 	}
-
-	public void cleanMessFilters() throws Exception {
-		List<String> domains= rest.getDomainCodes();
-		for (int i = 0; i < domains.size() ; i++) {
-			rest.messFilters().saveMessageFilters(new JSONArray(), domains.get(i));
-		}
-	}
-	
 	
 }

@@ -42,17 +42,15 @@ public class CommandServiceImplTest {
     @Test
     public void testCreateClusterCommand() {
         String command = "command1";
-        String domain = "domain1";
         String server = "server1";
 
-        commandService.createClusterCommand(command, domain, server, null);
+        commandService.createClusterCommand(command, server, null);
 
         new Verifications() {{
             CommandEntity entity = null;
             commandDao.create(entity = withCapture());
 
             assertEquals(entity.getCommandName(), command);
-            assertEquals(entity.getDomain(), domain);
             assertEquals(entity.getServerName(), server);
         }};
     }

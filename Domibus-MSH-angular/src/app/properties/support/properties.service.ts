@@ -57,6 +57,10 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
+  async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
+    return this.getProperty('domibus.ui.resend.action.enabled.received.minutes');
+  }
+
   private async isPropertyValidationEnabled(): Promise<boolean> {
     let enabledProp = await this.getProperty('domibus.property.validation.enabled');
     return enabledProp && enabledProp.value && enabledProp.value.toLowerCase() == 'true';

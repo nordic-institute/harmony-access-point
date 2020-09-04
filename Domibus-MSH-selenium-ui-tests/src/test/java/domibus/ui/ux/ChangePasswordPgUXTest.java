@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
 import pages.errorLog.ErrorLogPage;
-import utils.Generator;
+import utils.Gen;
 
 
 /**
@@ -154,7 +154,7 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		logout();
 		
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
 		
 		

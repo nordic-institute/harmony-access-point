@@ -1,6 +1,8 @@
 package eu.domibus.core.crypto.spi.dss;
 
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
@@ -39,8 +41,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.directory.Attribute;
@@ -70,7 +70,7 @@ import java.util.*;
  */
 public class DomibusDataLoader implements DataLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomibusDataLoader.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDataLoader.class);
 
     public static final int TIMEOUT_CONNECTION = 6000;
 

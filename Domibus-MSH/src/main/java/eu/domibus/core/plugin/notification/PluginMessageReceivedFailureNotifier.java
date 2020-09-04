@@ -34,28 +34,28 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
     }
 
     @Override
-    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, Object> properties) {
+    public void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, String> properties) {
         ErrorResultImpl errorResult = getErrorResult(messageId, properties);
 
         MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
         event.setMessageId(messageId);
-        String service = (String) properties.get(MessageConstants.SERVICE);
+        String service = properties.get(MessageConstants.SERVICE);
         event.setService(service);
 
-        String serviceType = (String) properties.get(MessageConstants.SERVICE_TYPE);
+        String serviceType = properties.get(MessageConstants.SERVICE_TYPE);
         event.setServiceType(serviceType);
 
-        String action = (String) properties.get(MessageConstants.ACTION);
+        String action = properties.get(MessageConstants.ACTION);
         event.setAction(action);
 
         event.setErrorResult(errorResult);
-        event.setEndpoint((String) properties.get(MessageConstants.ENDPOINT));
+        event.setEndpoint(properties.get(MessageConstants.ENDPOINT));
         backendConnectorDelegate.messageReceiveFailed(backendConnector, event);
     }
 
-    protected ErrorResultImpl getErrorResult(String messageId, Map<String, Object> properties) {
-        final String errorCode = (String) properties.get(MessageConstants.ERROR_CODE);
-        final String errorDetail = (String) properties.get(MessageConstants.ERROR_DETAIL);
+    protected ErrorResultImpl getErrorResult(String messageId, Map<String, String> properties) {
+        final String errorCode = properties.get(MessageConstants.ERROR_CODE);
+        final String errorDetail = properties.get(MessageConstants.ERROR_DETAIL);
         ErrorResultImpl errorResult = new ErrorResultImpl();
         try {
             errorResult.setErrorCode(ErrorCode.findBy(errorCode));

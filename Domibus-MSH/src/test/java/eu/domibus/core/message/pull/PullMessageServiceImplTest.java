@@ -6,20 +6,16 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
+import eu.domibus.core.message.*;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -67,14 +63,15 @@ public class PullMessageServiceImplTest {
     @Injectable
     protected MpcService mpcService;
 
-    @Tested
-    private PullMessageServiceImpl pullMessageService;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private UserMessageLogDefaultService userMessageLogDefaultService;
+
+    @Tested
+    private PullMessageServiceImpl pullMessageService;
 
     @Test
     public void updatePullMessageAfterRequest() {
@@ -85,7 +82,12 @@ public class PullMessageServiceImplTest {
     }
 
     @Test
-    public void deletePullMessageLock() {
+    public void delete() {
+        String messageId = "messageId";
+        pullMessageService.deletePullMessageLock(messageId);
+        new Verifications() {{
+            messagingLockDao.delete(messageId);
+        }};
     }
 
     @Test
@@ -200,15 +202,12 @@ public class PullMessageServiceImplTest {
     }
 
     @Test(expected = PModeException.class)
-    public void addPullMessageLockWithPmodeException(@Mocked final PartyIdExtractor partyIdExtractor, @Mocked final UserMessage userMessage, @Mocked final MessageLog messageLog) throws EbMS3Exception {
-        final String pmodeKey = "pmodeKey";
+    public void addPullMessageLockWithPmodeException(@Mocked final UserMessage userMessage, @Mocked final MessageLog messageLog) throws EbMS3Exception {
         final String partyId = "partyId";
         final String messageId = "messageId";
         final String mpc = "mpc";
-        final Date staledDate = new Date();
-        final LegConfiguration legConfiguration = new LegConfiguration();
         new NonStrictExpectations(pullMessageService) {{
-            partyIdExtractor.getPartyId();
+            userMessage.getToFirstPartyId();
             result = partyId;
             messageLog.getMessageId();
             result = messageId;
@@ -218,11 +217,11 @@ public class PullMessageServiceImplTest {
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "", "", null);
         }};
 
-        pullMessageService.addPullMessageLock(partyIdExtractor, userMessage, messageLog);
+        pullMessageService.addPullMessageLock(userMessage, messageLog);
     }
 
     @Test
-    public void addPullMessageLock(@Mocked final PartyIdExtractor partyIdExtractor, @Mocked final UserMessage userMessage, @Mocked final MessageLog messageLog) throws EbMS3Exception {
+    public void addPullMessageLock(@Mocked final UserMessage userMessage, @Mocked final MessageLog messageLog) throws EbMS3Exception {
         final String pmodeKey = "pmodeKey";
         final String partyId = "partyId";
         final String messageId = "messageId";
@@ -230,14 +229,14 @@ public class PullMessageServiceImplTest {
         final Date staledDate = new Date();
         final LegConfiguration legConfiguration = new LegConfiguration();
         new Expectations(pullMessageService) {{
-            partyIdExtractor.getPartyId();
-            result = partyId;
             messageLog.getMessageId();
             result = messageId;
             messageLog.getMpc();
             result = mpc;
             messageLog.getNextAttempt();
-            result=null;
+            result = null;
+            userMessage.getToFirstPartyId();
+            result = partyId;
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
             pModeProvider.getLegConfiguration(pmodeKey);
@@ -245,7 +244,7 @@ public class PullMessageServiceImplTest {
             updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);
             result = staledDate;
         }};
-        pullMessageService.addPullMessageLock(partyIdExtractor, userMessage, messageLog);
+        pullMessageService.addPullMessageLock(userMessage, messageLog);
         new Verifications() {{
             MessagingLock messagingLock = null;
             messagingLockDao.save(messagingLock = withCapture());

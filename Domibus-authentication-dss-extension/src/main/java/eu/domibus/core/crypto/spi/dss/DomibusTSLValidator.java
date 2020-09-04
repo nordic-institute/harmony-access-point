@@ -1,5 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.x509.CertificateToken;
@@ -13,8 +15,6 @@ import eu.europa.esig.dss.validation.executor.ValidationLevel;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.XPathQueryHolder;
 import eu.europa.esig.dss.xades.validation.XMLDocumentValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
  */
 public class DomibusTSLValidator implements Callable<TSLValidationResult> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomibusTSLValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTSLValidator.class);
 
     private final DSSDocument trustedList;
 

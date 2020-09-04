@@ -52,11 +52,16 @@ public class DMessages {
 
 
 	public static final String MESSAGE_FILTER_DUPLICATE_FILTER = "Impossible to insert a duplicate entry";
+	public static final String MESSAGE_FILTER_SUCCESS = "The operation 'update message filters' completed successfully.";
+	
 	public static final String CHANGEPASSWORD_WRONG_CURRENT_PASSWORD = "Password could not be changed. [DOM_001]:The current password does not match the provided one.";
 	public static final String CHANGEPASSWORD_LAST_FIVE = "Password could not be changed. [DOM_001]:The password of %s user cannot be the same as the last 5";
 	
 	
 	public static final String UI_REPLICATION_NOT_ENABLED = "UIReplication is disabled. No records will be count to be synced for TB_MESSAGE_UI table";
+	
+	
+	public static final String ALERT_ID_INPUT_VALIDATION_MESSAGE = "Alert Id must be 19 digits long and must not start with a 0";
 
 	
 	

@@ -40,7 +40,7 @@ public class PluginMessageStatusChangeNotifierTest {
     @Test
     public void notifyPlugin(@Injectable BackendConnector backendConnector) {
         String messageId = "123";
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         String service = "myservice";
         String endpoint = "myendpoint";
@@ -51,7 +51,7 @@ public class PluginMessageStatusChangeNotifierTest {
         properties.put(MessageConstants.ACTION, action);
         properties.put(MessageConstants.ENDPOINT, endpoint);
         properties.put(MessageConstants.STATUS_TO, MessageStatus.ACKNOWLEDGED.toString());
-        properties.put(MessageConstants.CHANGE_TIMESTAMP, System.currentTimeMillis());
+        properties.put(MessageConstants.CHANGE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
         pluginMessageStatusChangeNotifier.notifyPlugin(backendConnector, messageId, properties);
 

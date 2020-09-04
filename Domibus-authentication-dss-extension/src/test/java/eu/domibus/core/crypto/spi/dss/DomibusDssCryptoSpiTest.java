@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
-import eu.domibus.core.crypto.spi.*;
+import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.ext.services.PkiExtService;
@@ -10,24 +9,19 @@ import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateValidator;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
-import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.cglib.core.internal.Function;
 
-import javax.security.auth.callback.CallbackHandler;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static eu.domibus.core.crypto.spi.dss.ValidationReport.BBB_XCV_CCCBB;
 import static org.junit.Assert.*;
@@ -107,7 +101,7 @@ public class DomibusDssCryptoSpiTest {
             domibusDssCryptoProvider.prepareCertificateSource((X509Certificate[])any,(X509Certificate)any);
 
             validationReport.extractInvalidConstraints((CertificateReports)any,(List<ConstraintInternal>)any);
-            result=Lists.newArrayList(BBB_XCV_CCCBB);
+            result= Collections.singletonList(BBB_XCV_CCCBB);
 
         }};
 
@@ -156,7 +150,7 @@ public class DomibusDssCryptoSpiTest {
             domibusDssCryptoProvider.prepareCertificateSource((X509Certificate[])any,(X509Certificate)any);
 
             validationReport.extractInvalidConstraints((CertificateReports)any,(List<ConstraintInternal>)any);
-            result=Lists.newArrayList("BBB_XCV_ICTIVRSC");
+            result= Collections.singletonList("BBB_XCV_ICTIVRSC");
 
         }};
         try {
@@ -203,7 +197,7 @@ public class DomibusDssCryptoSpiTest {
             domibusDssCryptoProvider.prepareCertificateSource((X509Certificate[])any,(X509Certificate)any);
 
             validationReport.extractInvalidConstraints((CertificateReports)any,(List<ConstraintInternal>)any);
-            result=Lists.newArrayList();
+            result= Collections.emptyList();
 
         }};
 

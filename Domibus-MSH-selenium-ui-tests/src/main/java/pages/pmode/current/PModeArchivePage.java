@@ -14,7 +14,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import rest.RestServicePaths;
-import utils.Generator;
+import utils.Gen;
 
 public class PModeArchivePage extends DomibusPage {
 
@@ -154,9 +154,9 @@ public class PModeArchivePage extends DomibusPage {
 		log.debug("Grid row count is: " + grid().getRowsNo());
 		if (grid().getRowsNo() > 10) {
 			log.debug("Generate random row count");
-			rIndex = Generator.randomNumber(10);
+			rIndex = Gen.randomNumber(10);
 		} else {
-			rIndex = Generator.randomNumber(grid().getRowsNo());
+			rIndex = Gen.randomNumber(grid().getRowsNo());
 		}
 		if (rIndex == 0) {
 			log.debug("Row number is zero");

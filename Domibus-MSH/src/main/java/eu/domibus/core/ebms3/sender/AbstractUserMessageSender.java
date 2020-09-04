@@ -18,11 +18,11 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -33,8 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
-
-import static eu.domibus.core.metrics.MetricNames.OUTGOING_USER_MESSAGE;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -72,8 +70,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     private ErrorLogDao errorLogDao;
 
     @Override
-    @Timer(OUTGOING_USER_MESSAGE)
-    @Counter(OUTGOING_USER_MESSAGE)
+    @Timer(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
+    @Counter(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -144,20 +142,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
         } catch (final SOAPFaultException soapFEx) {
+            getLog().error("A SOAP fault occurred when sending message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
-            } else {
-                getLog().warn("Error for message with ID [{}]", messageId, soapFEx);
             }
             attempt.setError(soapFEx.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (final EbMS3Exception e) {
+            getLog().error("EbMS3 exception occurred when sending message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
             attempt.setError(e.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
-            getLog().error("Error sending message [{}]", messageId, t);
+            getLog().error("Error occurred when sending message with ID [{}]", messageId, t);
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;

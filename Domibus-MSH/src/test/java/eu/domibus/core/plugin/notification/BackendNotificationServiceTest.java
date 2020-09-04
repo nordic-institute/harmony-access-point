@@ -150,7 +150,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void testValidateAndNotify(@Injectable final UserMessage userMessage) {
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
@@ -554,7 +554,7 @@ public class BackendNotificationServiceTest {
         String serviceType = "service type";
         String action = "my action";
 
-        List<Map<String, Object>> propertiesList = new ArrayList<>();
+        List<Map<String, String>> propertiesList = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
             errorResult.getErrorCode().getErrorCodeName();
@@ -894,7 +894,7 @@ public class BackendNotificationServiceTest {
             @Injectable UserMessage userMessage,
             @Injectable NotificationType notificationType) {
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         new Expectations() {{
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -922,7 +922,7 @@ public class BackendNotificationServiceTest {
             @Injectable BackendFilter matchingBackendFilter,
             @Injectable UserMessage userMessage,
             @Injectable NotificationType notificationType,
-            @Injectable Map<String, Object> properties) {
+            @Injectable Map<String, String> properties) {
 
         new Expectations(backendNotificationService) {{
             matchingBackendFilter.getBackendName();
@@ -945,7 +945,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyOfIncoming(@Injectable UserMessage userMessage,
                                  @Injectable NotificationType notificationType,
-                                 @Injectable Map<String, Object> properties,
+                                 @Injectable Map<String, String> properties,
                                  @Injectable BackendFilter matchingBackendFilter) {
         new Expectations(backendNotificationService) {{
             routingService.getMatchingBackendFilter(userMessage);
@@ -1055,12 +1055,12 @@ public class BackendNotificationServiceTest {
 
         }};
 
-        Map<String, Object> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
+        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
 
         assertThat(messageProperties.size(), is(6));
         assertThat(messageProperties.get(MessageConstants.STATUS_FROM), is(MessageStatus.SEND_ENQUEUED.toString()));
         assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
-        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(TIMESTAMP.getTime()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
         assertThat(messageProperties.get(MessageConstants.SERVICE), is("CollabInfoValue"));
         assertThat(messageProperties.get(MessageConstants.SERVICE_TYPE), is("CollabInfoType"));
         assertThat(messageProperties.get(MessageConstants.ACTION), is("CollabInfoAction"));
@@ -1081,11 +1081,11 @@ public class BackendNotificationServiceTest {
 
         }};
 
-        Map<String, Object> messageProperties = backendNotificationService.getMessageProperties(messageLog, null, newStatus, TIMESTAMP);
+        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, null, newStatus, TIMESTAMP);
 
         assertThat(messageProperties.size(), is(2));
         assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
-        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(TIMESTAMP.getTime()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
 
         new FullVerifications() {
         };
