@@ -434,7 +434,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
                     LOG.debug("Adding the simple property [{}] to the known property list.", propMeta.getName());
                     String name = propMeta.getName().contains(PROPERTY_PREFIX) ? propMeta.getName() : PROPERTY_PREFIX + propMeta.getName();
                     propMeta.setName(name);
-                    propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL_AND_DOMAIN);
+                    propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
                     knownProperties.put(propMeta.getName(), propMeta);
                 }
             }
