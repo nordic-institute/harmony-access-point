@@ -34,7 +34,6 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_MESSAGE_INFO")
 @NamedQueries({
-        @NamedQuery(name = "MessageInfo.findUserMessageIds", query = "select messageId from MessageInfo mi where mi.messageId in :MESSAGEIDS"),
         @NamedQuery(name = "MessageInfo.findSignalMessageIds", query = "select messageId from MessageInfo mi where mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "MessageInfo.deleteMessages", query = "delete from MessageInfo mi where mi.messageId in :MESSAGEIDS"),
 })

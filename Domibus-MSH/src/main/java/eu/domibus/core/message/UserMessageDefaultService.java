@@ -545,7 +545,6 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void deleteMessage(String messageId) {
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map

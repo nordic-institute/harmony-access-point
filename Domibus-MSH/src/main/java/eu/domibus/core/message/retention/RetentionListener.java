@@ -42,7 +42,6 @@ public class RetentionListener implements MessageListener {
     private DomainContextProvider domainContextProvider;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("retention", "retention", AuthRole.ROLE_ADMIN);
@@ -53,14 +52,14 @@ public class RetentionListener implements MessageListener {
             LOG.debug("Processing JMS message for domain [{}]", domainCode);
             domainContextProvider.setCurrentDomain(domainCode);
 
-            String deleteType = message.getStringProperty(MessageConstants.DELETE_TYPE);
-            if (StringUtils.equals(DeleteType.DELETE_MESSAGE_ID_SINGLE.name(), deleteType)) {
+            DeleteType deleteType = DeleteType.valueOf(message.getStringProperty(MessageConstants.DELETE_TYPE));
+            if (DeleteType.DELETE_MESSAGE_ID_SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
                 userMessageDefaultService.deleteMessage(messageId);
                 return;
             }
 
-            if (StringUtils.equals(DeleteType.DELETE_MESSAGE_ID_MULTI.name(), deleteType)) {
+            if (DeleteType.DELETE_MESSAGE_ID_MULTI == deleteType) {
                 List<String> messageIds = Arrays.asList(message.getStringProperty(MessageConstants.MESSAGE_IDS).split("\\s*,\\s*"));
                 LOG.debug("There are [{}] messages to delete [{}]", messageIds.size(), messageIds);
                 userMessageDefaultService.deleteMessages(messageIds);
@@ -72,5 +71,4 @@ public class RetentionListener implements MessageListener {
             LOG.error("Error processing JMS message", e);
         }
     }
-
 }
