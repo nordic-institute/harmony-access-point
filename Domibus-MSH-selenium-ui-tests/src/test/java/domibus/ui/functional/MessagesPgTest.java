@@ -1,6 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.Pagination;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -438,6 +439,40 @@ public class MessagesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	
+	 /* MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain */
+	@Test(description = "MSG-15", groups = {"multiTenancy"} )
+	public void verifyDomainSpecificMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		MessagesPage page = navigate();
+		
+		log.info("trying to go to page 2 if ti exists");
+		Pagination pag = page.grid().getPagination();
+		if(pag.hasNextPage()){
+			log.info("going to page 2");
+			pag.goToNextPage();
+		}
+		
+		log.info("gathering listed ids on page 2");
+		page.grid().waitForRowsToLoad();
+		List<String> info_dom1 = page.grid().getListedValuesOnColumn("Message Id");
+		
+		
+		log.info("changing domain");
+		page.getDomainSelector().selectAnotherDomain();
+		page.grid().waitForRowsToLoad();
+		
+		soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination is set to first page");
+		
+		log.info("gathering listed info");
+		List<String> info_dom2 = page.grid().getListedValuesOnColumn("Message Id");
+		
+		log.info("checking listed message id are different");
+		for (String id : info_dom1) {
+			soft.assertFalse(info_dom2.contains(id), "Message is found also in domain 2: " + id);
+		}
+		
+		soft.assertAll();
+	}
 }
 
