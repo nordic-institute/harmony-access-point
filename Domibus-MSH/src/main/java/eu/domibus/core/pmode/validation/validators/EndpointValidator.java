@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -29,12 +30,18 @@ public class EndpointValidator implements PModeValidator {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
             }
-            if (StringUtils.containsAny(party.getEndpoint(), '<', '>')) {
-                String message = "Forbidden characters '< >' found in the endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "].";
-                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-            }
+            issues.addAll(validateForbiddenCharacters(party));
         });
 
+        return issues;
+    }
+
+    protected List<ValidationIssue>  validateForbiddenCharacters(Party party) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (StringUtils.containsAny(party.getEndpoint(), '<', '>')) {
+            String message = "Forbidden characters '< >' found in the endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "].";
+            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+        }
         return issues;
     }
 }

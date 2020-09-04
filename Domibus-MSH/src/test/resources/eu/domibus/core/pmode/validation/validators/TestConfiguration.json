@@ -11,7 +11,7 @@
       },
       {
         "name": "party3",
-        "endpoint": "http://localhost:8180/domibus/services/msh3?domain=aqua&amp;&lt;img src=http://placekitten.com/271/300&gt;>"
+        "endpoint": "http://localhost:8180/domibus/services/msh3"
       }
     ],
     "processes": [
