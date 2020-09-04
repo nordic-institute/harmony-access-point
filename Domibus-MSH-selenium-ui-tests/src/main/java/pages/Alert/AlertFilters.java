@@ -1,14 +1,18 @@
 package pages.Alert;
 
 import ddsl.dcomponents.FilterArea;
-import ddsl.dobjects.Checkbox;
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DInput;
+import ddsl.dobjects.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class AlertFilters extends FilterArea {
 
@@ -49,9 +53,33 @@ public class AlertFilters extends FilterArea {
 	public WebElement roleInput;
 	@FindBy(id = "DESCRIPTION_id")
 	public WebElement descriptionInput;
+	
 	@FindBy(id = "searchbutton_id")
 	public WebElement searchButton;
-
+	
+	@FindBy(id = "advancedlink_id")
+	public WebElement advancedLink;
+	
+	@FindBy(css="mat-error.mat-error")
+	public WebElement alertIdValidation;
+	
+	
+	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
+	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED");
+	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
+	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW","MEDIUM","");
+	
+	public boolean isAlertIdValidationMessageVisible() throws Exception {
+		try {
+			return weToDobject(alertIdValidation).isVisible();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	public String getAlertValidationMess() throws Exception {
+		return weToDobject(alertIdValidation).getText();
+	}
+	
 	public AlertFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -125,5 +153,44 @@ public class AlertFilters extends FilterArea {
 
 	public DInput getMsgIdInput() {
 		return weToDInput(msgIdInput);
+	}
+	
+	public boolean verifyDropdownValues(String fieldLabel) throws Exception {
+		List<String> valuesOnPage = new ArrayList<>();
+		List<String> expectedValues = new ArrayList<>();
+		switch (fieldLabel){
+			case "Processed":
+				expectedValues = processedFilterData;
+				valuesOnPage = weToSelect(processedContainer).getOptionsTexts();
+				break;
+			case "Alert Type":
+				expectedValues = alertTypeFilterData;
+				valuesOnPage = weToSelect(alertTypeContainer).getOptionsTexts();
+				break;
+			case "Alert Status":
+				expectedValues = alertStatusFilterData;
+				valuesOnPage = weToSelect(alertStatusContainer).getOptionsTexts();
+				break;
+			case "Alert Level":
+				expectedValues = alertLevelFilterData;
+				valuesOnPage = weToSelect(alertLevelContainer).getOptionsTexts();
+				break;
+			default:
+				throw new Exception(fieldLabel + " is not in the expected list of dropdown labels");
+		}
+		clickVoidSpace();
+		return CollectionUtils.isEqualCollection(valuesOnPage,expectedValues);
+	}
+	
+	public DLink getAdvancedLink() {
+		return weToDLink(advancedLink);
+	}
+	
+	public DInput getAlertIdInput() {
+		return weToDInput(alertIdInput);
+	}
+	
+	public Select getProcessedSelect() {
+		return weToSelect(processedContainer);
 	}
 }

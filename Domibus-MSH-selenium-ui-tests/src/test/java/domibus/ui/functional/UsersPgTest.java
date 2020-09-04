@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
 import pages.users.UsersPage;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -181,7 +181,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-4", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserCancel() throws Exception {
 		
-		String username = Generator.randomAlphaNumeric(9);
+		String username = Gen.randomAlphaNumeric(9);
 		
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -208,7 +208,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-6", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSave() throws Exception {
 		
-		String username = Generator.randomAlphaNumeric(9);
+		String username = Gen.randomAlphaNumeric(9);
 		
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
@@ -250,7 +250,7 @@ public class UsersPgTest extends SeleniumTest {
 		UserModal modal = new UserModal(driver);
 		modal.getActiveChk().check();
 		
-		String email = Generator.randomAlphaNumeric(5) + "@test.com";
+		String email = Gen.randomAlphaNumeric(5) + "@test.com";
 		log.info("editing email to " + email);
 		modal.getEmailInput().fill(email);
 		modal.clickOK();
@@ -289,7 +289,7 @@ public class UsersPgTest extends SeleniumTest {
 		UserModal modal = new UserModal(driver);
 		modal.getActiveChk().check();
 		
-		String email = Generator.randomAlphaNumeric(5) + "@test.com";
+		String email = Gen.randomAlphaNumeric(5) + "@test.com";
 		log.info("editing email to " + email);
 		modal.getEmailInput().fill(email);
 		modal.clickOK();
@@ -313,7 +313,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-15", groups = {"multiTenancy", "singleTenancy"})
 	public void adminDeactivatesUser() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
 
 //		admin creates new disabled user
@@ -443,7 +443,7 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-17", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserRoleAndCheckPrivileges() throws Exception {
 		// we need to create a new user, because a random existing one may have a different password
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 		
 		log.info("changing role to User for Admin " + username);

@@ -5,11 +5,13 @@ import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
 import ddsl.dobjects.Select;
+import ddsl.enums.DRoles;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.Gen;
 
 
 /**
@@ -33,6 +35,11 @@ public class PluginUserModal extends EditModal {
 	private WebElement okBtn;
 	@FindBy(css = "#editbuttoncancel_id")
 	private WebElement cancelBtn;
+	
+	@FindBy(css = "editbasicpluginuser-form popup-edit-footer > div.required-fields")
+	private WebElement requiredFieldsText;
+	
+	
 	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
 	private WebElement usernameErrMess;
 	@FindBy(css = "editbasicpluginuser-form form #originalUser_id + span.help-block>div")
@@ -54,6 +61,11 @@ public class PluginUserModal extends EditModal {
 		getPasswordInput().fill(password);
 		getConfirmationInput().fill(confirmation);
 
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			String corner = Gen.randomAlphaNumeric(5);
+			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+		}
+		
 		getRolesSelect().selectOptionByText(role);
 	}
 
@@ -107,15 +119,8 @@ public class PluginUserModal extends EditModal {
 		return new DObject(driver, roleErrMess);
 	}
 
-	/**
-	 * This method will fill data for plugin user with authentication type as Certificate
-	 *
-	 * @param user Username of user to be added
-	 * @param role Role of user to be added
-	 */
-	public void fillData(String user, String role) throws Exception {
-		getUserNameInput().fill(user);
-		getRolesSelect().selectOptionByText(role);
+	public void changeFocus() throws Exception {
+		weToDobject(requiredFieldsText).click();
 	}
 
 }

@@ -1,8 +1,10 @@
 package rest;
 
+import ddsl.enums.DRoles;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import utils.Gen;
 
 import java.io.File;
 import java.util.Scanner;
@@ -36,6 +38,11 @@ public class ObjectProvider {
 		template.put("userName", username);
 		template.put("authRoles", role);
 		template.put("password", pass);
+		
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			String corner = Gen.randomAlphaNumeric(5);
+			template.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+		}
 		
 		return new JSONArray().put(template).toString();
 	}

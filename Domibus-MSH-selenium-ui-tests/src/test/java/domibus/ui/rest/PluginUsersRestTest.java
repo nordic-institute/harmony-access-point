@@ -8,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -102,13 +102,13 @@ public class PluginUsersRestTest extends RestTest {
 		
 		JSONObject obj = new JSONObject();
 		obj.put("status", "NEW");
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		obj.put("userName", username);
 		obj.put("active", true);
 		obj.put("suspended", false);
 		obj.put("authenticationType", "BASIC");
 		obj.put("authRoles", DRoles.ADMIN);
-		obj.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:u:" + Generator.randomAlphaNumeric(5));
+		obj.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:u:" + Gen.randomAlphaNumeric(5));
 		obj.put("password", data.defaultPass());
 		
 		JSONArray array = new JSONArray();
@@ -129,13 +129,13 @@ public class PluginUsersRestTest extends RestTest {
 		JSONObject obj = new JSONObject();
 		obj.put("status", "NEW");
 		obj.put("userName", "");
-		String id = Generator.randomAlphaNumeric(10);
+		String id = Gen.randomAlphaNumeric(10);
 		obj.put("certificateId", "CN=blue_gw,O=eDelivery,C=BE:" + id);
 		obj.put("active", true);
 		obj.put("suspended", false);
 		obj.put("authenticationType", "CERTIFICATE");
 		obj.put("authRoles", DRoles.ADMIN);
-		obj.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:u:" + Generator.randomAlphaNumeric(5));
+		obj.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:u:" + Gen.randomAlphaNumeric(5));
 		
 		JSONArray array = new JSONArray();
 		array.put(obj);
@@ -196,7 +196,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONObject pluginUser = rest.getPluginUser(null, DRoles.USER, true, false);
 		pluginUser.put("status", "UPDATED");
 		pluginUser.put("authRoles", DRoles.ADMIN);
-		String id = Generator.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		pluginUser.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + id);
 		pluginUser.put("password", data.getNewTestPass());
 		pluginUser.put("active", false);
@@ -224,7 +224,7 @@ public class PluginUsersRestTest extends RestTest {
 	public void editBasicPluginUsersUsernameTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String new_username = Generator.randomAlphaNumeric(12);
+		String new_username = Gen.randomAlphaNumeric(12);
 		
 		JSONObject pluginUser = rest.getPluginUser(null, DRoles.USER, true, false);
 		pluginUser.put("status", "UPDATED");
@@ -248,11 +248,11 @@ public class PluginUsersRestTest extends RestTest {
 	public void editCertIdTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String new_username = Generator.randomAlphaNumeric(12);
+		String new_username = Gen.randomAlphaNumeric(12);
 		
 		JSONObject pluginUser = rest.getPluginUser(null, "CERTIFICATE", DRoles.USER, true, false);
 		pluginUser.put("status", "UPDATED");
-		String id = "CN=blue_gw,O=eDelivery,C=BE:" + Generator.randomAlphaNumeric(10);
+		String id = "CN=blue_gw,O=eDelivery,C=BE:" + Gen.randomAlphaNumeric(10);
 		pluginUser.put("certificateId", id);
 		
 		JSONArray array = new JSONArray();
@@ -276,7 +276,7 @@ public class PluginUsersRestTest extends RestTest {
 		JSONObject pluginUser = rest.getPluginUser(null, "CERTIFICATE", DRoles.USER, true, false);
 		pluginUser.put("status", "UPDATED");
 		pluginUser.put("authRoles", DRoles.ADMIN);
-		String id = Generator.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		pluginUser.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + id);
 		pluginUser.put("active", false);
 		JSONArray array = new JSONArray();
