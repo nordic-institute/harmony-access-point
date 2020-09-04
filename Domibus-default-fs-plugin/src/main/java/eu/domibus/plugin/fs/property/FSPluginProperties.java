@@ -430,6 +430,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
                     for (String domain : getDomains()) {
                         String name = getDomainPropertyName(domain, prop.getName());
                         DomibusPropertyMetadataDTO p = new DomibusPropertyMetadataDTO(name, prop.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, prop.isWithFallback());
+                        p.setStoredGlobally(false);
                         knownProperties.put(p.getName(), p);
                     }
                 } else {
