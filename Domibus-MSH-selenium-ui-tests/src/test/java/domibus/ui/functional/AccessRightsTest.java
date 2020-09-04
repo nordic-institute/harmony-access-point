@@ -6,7 +6,7 @@ import ddsl.enums.DRoles;
 import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 
 /**
@@ -21,7 +21,7 @@ public class AccessRightsTest extends SeleniumTest {
 	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 		
@@ -38,7 +38,7 @@ public class AccessRightsTest extends SeleniumTest {
 	@Test(description = "RGT-2", groups = {"multiTenancy"})
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
 		log.info("Created user with username: " + username);
 		
@@ -59,7 +59,7 @@ public class AccessRightsTest extends SeleniumTest {
 	@Test(description = "RGT-3", groups = {"multiTenancy", "singleTenancy"})
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 		
@@ -76,7 +76,7 @@ public class AccessRightsTest extends SeleniumTest {
 	@Test(description = "RGT-4", groups = {"multiTenancy"})
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
 		log.info("Created admin with username: " + username);
 		

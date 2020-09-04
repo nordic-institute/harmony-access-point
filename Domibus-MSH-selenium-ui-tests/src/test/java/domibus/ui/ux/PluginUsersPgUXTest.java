@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
 import java.util.ArrayList;
@@ -147,8 +147,8 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	/*	PU-11 - Admin wants to edit certificate ID	*/
 	@Test(description = "PU-11", groups = {"multiTenancy", "singleTenancy"})
 	public void editCertificateID() throws Exception {
-		String certName = Generator.randomAlphaNumeric(5);
-		String id = Generator.randomAlphaNumeric(5);
+		String certName = Gen.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, id);
 		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, null);
 		log.info("testing for user " + username);
@@ -176,7 +176,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	
 	@Test(description = "PU-11", groups = {"multiTenancy", "singleTenancy"})
 	public void createPluginUserFieldValidations() throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		SoftAssert soft = new SoftAssert();
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
@@ -196,15 +196,15 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-//		pum.getPasswordInput().click();
-//		pum.getPasswordInput().pressTABKey();
-//		errMess = pum.getPassErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
-//
-//		pum.getConfirmationInput().click();
-//		pum.getConfirmationInput().pressTABKey();
-//		errMess = pum.getConfirmationErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+		pum.getPasswordInput().click();
+		pum.changeFocus();
+		errMess = pum.getPassErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+
+		pum.getConfirmationInput().click();
+		pum.changeFocus();
+		errMess = pum.getConfirmationErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill("test");
@@ -214,11 +214,14 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill(data.defaultPass());
-		pum.getPasswordInput().pressTABKey();
+		pum.changeFocus();
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 		pum.getPasswordInput().click();
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match.");
+		
+		pum.getRolesSelect().expand();
+		pum.getRolesSelect().contract();
 		
 		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty.");
 		pum.getRolesSelect().selectOptionByIndex(0);
@@ -232,7 +235,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	public void filterPluginUserList() throws Exception {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
-			String username = Generator.randomAlphaNumeric(10);
+			String username = Gen.randomAlphaNumeric(10);
 			rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 			usernames.add(username);
 		}

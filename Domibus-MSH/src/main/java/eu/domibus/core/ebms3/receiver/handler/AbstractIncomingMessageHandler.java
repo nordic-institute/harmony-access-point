@@ -5,6 +5,8 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
@@ -44,6 +46,8 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     protected PModeProvider pModeProvider;
 
     @Override
+    @Timer(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
+    @Counter(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
     public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
         SOAPMessage responseMessage = null;
         String pmodeKey = null;
@@ -54,7 +58,6 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
             assert false;
         }
-
         Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);

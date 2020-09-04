@@ -24,7 +24,6 @@ import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -713,7 +712,7 @@ public class PasswordEncryptionServiceImplTest {
                 "#domibus.deployment.clustered=false",
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
                 "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)");
-        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
+        File testConfigurationFile = File.createTempFile("testDomibusProperties", null, new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, replacedLines);
 
@@ -731,7 +730,7 @@ public class PasswordEncryptionServiceImplTest {
                 "blue_gw.domibus.security.key.private.alias=blue_gw",
                 "blue_gw.domibus.security.key.private.password=ENC(kI7r/YjnSp309xHU6OEzVMYQflPyQ5M=)");
 
-        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
+        File testConfigurationFile = File.createTempFile("testDomibusProperties", null, new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, originalLines);
 
@@ -748,7 +747,7 @@ public class PasswordEncryptionServiceImplTest {
         File configurationFile = new File("./src/test/resources/config/fileDoesNotExist.properties");
         try {
             passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, replacedLines);
-            fail();
+            fail("Expected DomibusEncryptionException due to file not present.");
         } catch (DomibusEncryptionException e) {
             assertTrue("Expect DomibusEncryptionException due to file not present.", e.getMessage().contains("Could not read configuration file"));
         }
@@ -762,7 +761,7 @@ public class PasswordEncryptionServiceImplTest {
                 "blue_gw.domibus.security.key.private.password=test123");
         final List<String> replacedLines = new ArrayList<>();
 
-        File testConfigurationFile = File.createTempFile("testDomibus", ".properties", new File("./src/test/resources/config/"));
+        File testConfigurationFile = File.createTempFile("testDomibusProperties", null, new File("./src/test/resources/config/"));
         testConfigurationFile.deleteOnExit();
         FileUtils.writeLines(testConfigurationFile, originalLines);
 

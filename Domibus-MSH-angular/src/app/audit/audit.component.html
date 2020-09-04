@@ -50,4 +50,7 @@
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value | domibusDate}}</span>
   </ng-template>
+  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value}}</span>
+  </ng-template>
 </div>

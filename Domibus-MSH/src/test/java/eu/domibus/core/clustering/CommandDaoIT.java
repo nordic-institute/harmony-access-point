@@ -37,7 +37,6 @@ public class CommandDaoIT {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());
         entity.setServerName("ms1");
-        entity.setDomain("domain1");
         entity.setCommandName("command1");
 
         commandDao.create(entity);

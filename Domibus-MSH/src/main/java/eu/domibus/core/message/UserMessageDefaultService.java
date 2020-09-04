@@ -11,7 +11,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
@@ -33,6 +35,8 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -40,6 +44,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,6 +59,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -142,6 +148,12 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private AuditService auditService;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    DateUtil dateUtil;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -242,6 +254,17 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
+
+        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+        Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
+        Date currentDate = new Date();
+        if (receivedDateDelta.after(currentDate)) {
+            throw new UserMessageException("You have to wait " + dateUtil.getDiffMinutesBetweenDates(receivedDateDelta, currentDate) + " minutes before resending the message [" + messageId + "]");
+        }
+        if (userMessageLog.getNextAttempt() != null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+        }
+
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         userMessageLog.setNextAttempt(new Date());
@@ -319,6 +342,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
+    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");

@@ -9,6 +9,8 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,8 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Timer(clazz = MSHDispatcher.class,value = "dispatch")
+    @Counter(clazz = MSHDispatcher.class,value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
