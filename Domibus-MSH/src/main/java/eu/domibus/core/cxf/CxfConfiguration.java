@@ -1,8 +1,6 @@
 package eu.domibus.core.cxf;
 
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor;
-import org.apache.cxf.Bus;
-import org.apache.cxf.bus.spring.SpringBus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,20 +13,12 @@ import static java.util.Collections.singletonList;
 @Configuration
 public class CxfConfiguration {
 
-    @Bean("busCore")
-    public Bus busCore(AttachmentCleanupInterceptor attachmentCleanupInterceptor) {
-        SpringBus springBus = new SpringBus();
-        springBus.setOutInterceptors(singletonList(attachmentCleanupInterceptor));
-        springBus.setOutFaultInterceptors(singletonList(attachmentCleanupInterceptor));
-        return springBus;
-    }
-
-    @Bean(Bus.DEFAULT_BUS_ID)
-    public Bus bus(AttachmentCleanupInterceptor attachmentCleanupInterceptor) {
-        SpringBus springBus = new SpringBus();
-        springBus.setOutInterceptors(singletonList(attachmentCleanupInterceptor));
-        springBus.setOutFaultInterceptors(singletonList(attachmentCleanupInterceptor));
-        return springBus;
+    @Bean
+    public DomibusBus busCore(AttachmentCleanupInterceptor attachmentCleanupInterceptor) {
+        DomibusBus domibusBus = new DomibusBus();
+        domibusBus.setOutInterceptors(singletonList(attachmentCleanupInterceptor));
+        domibusBus.setOutFaultInterceptors(singletonList(attachmentCleanupInterceptor));
+        return domibusBus;
     }
 
     @Bean("attachmentCleanupInterceptor")

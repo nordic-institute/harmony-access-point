@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.Bus;
@@ -16,7 +17,6 @@ import org.apache.wss4j.common.WSS4JConstants;
 import org.apache.wss4j.policy.SPConstants;
 import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 
@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.wss4j.dom.WSConstants.*;
+import static org.apache.wss4j.dom.WSConstants.MGF_SHA256;
 
 
 /**
@@ -50,19 +50,19 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     public static final String BASIC_128_GCM_SHA_256 = "Basic128GCMSha256";
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256 = "Basic128GCMSha256MgfSha256";
 
-    protected Bus busCore;
+    protected DomibusBus domibusBus;
 
-    public DomibusAlgorithmSuiteLoader(final @Qualifier("busCore") Bus bus) {
-        this.busCore = bus;
+    public DomibusAlgorithmSuiteLoader(final DomibusBus bus) {
+        this.domibusBus = bus;
     }
 
     @PostConstruct
     public void load() {
-        if (this.busCore == null) {
-            LOG.warn("cxf bus is null");
+        if (this.domibusBus == null) {
+            LOG.warn("Domibus bus is null");
             return;
         }
-        busCore.setExtension(this, AlgorithmSuiteLoader.class);
+        domibusBus.setExtension(this, AlgorithmSuiteLoader.class);
         registerBuilders();
     }
 
@@ -71,7 +71,7 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
      *
      */
     protected void registerBuilders() {
-        final AssertionBuilderRegistry reg = busCore.getExtension(AssertionBuilderRegistry.class);
+        final AssertionBuilderRegistry reg = domibusBus.getExtension(AssertionBuilderRegistry.class);
         if (reg != null) {
             final Map<QName, Assertion> assertions = new HashMap<>();
             QName qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256);

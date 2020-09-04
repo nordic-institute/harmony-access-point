@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.ws.policy;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
+import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,7 +11,6 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.neethi.Policy;
@@ -33,7 +33,7 @@ public class PolicyServiceImplTest {
     DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    Bus busCore;
+    DomibusBus busCore;
 
     @Tested
     PolicyServiceImpl policyService;

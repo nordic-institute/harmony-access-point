@@ -3,16 +3,15 @@ package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -45,8 +44,7 @@ public class PolicyServiceImpl implements PolicyService {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    @Qualifier("busCore")
-    private Bus bus;
+    private DomibusBus domibusBus;
 
 
     /**
@@ -59,7 +57,7 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     @Cacheable(value = "policyCache", sync = true)
     public Policy parsePolicy(final String location) throws ConfigurationException {
-        final PolicyBuilder pb = bus.getExtension(PolicyBuilder.class);
+        final PolicyBuilder pb = domibusBus.getExtension(PolicyBuilder.class);
         try (InputStream inputStream = new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location))){
             return pb.getPolicy(inputStream);
         } catch (IOException | ParserConfigurationException | SAXException e) {

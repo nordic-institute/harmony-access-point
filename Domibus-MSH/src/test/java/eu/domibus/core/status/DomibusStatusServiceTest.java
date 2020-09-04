@@ -1,11 +1,11 @@
 package eu.domibus.core.status;
 
+import eu.domibus.core.cxf.DomibusBus;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class DomibusStatusServiceTest {
 
     @Injectable
-    private Bus busCore;
+    private DomibusBus busCore;
 
     @Tested
     private DomibusStatusService domibusStatusService;
