@@ -25,6 +25,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {PropertiesService} from '../properties/support/properties.service';
+import * as moment from 'moment';
 
 @Component({
   moduleId: module.id,
@@ -255,7 +256,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   resendDialog() {
     this.dialogsService.openResendDialog().then(resend => {
-      if (resend) {
+      if (resend && this.selected[0]) {
         this.resend(this.selected[0].messageId);
         super.selected = [];
         this.messageResent.subscribe(() => {
@@ -276,7 +277,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
+      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
     });
   }
 
@@ -296,10 +297,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private isResendButtonEnabledForSendEnqueued(row): boolean {
-    var receivedDateDelta = new Date(row.received);
-    receivedDateDelta.setMinutes(receivedDateDelta.getMinutes() + this.resendReceivedMinutes);
+    let receivedDateDelta = moment(row.received).add(this.resendReceivedMinutes, 'minutes');
 
-    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDateDelta < new Date() && !row.nextAttempt)
+    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDateDelta.isBefore(new Date()) && !row.nextAttempt)
   }
 
   private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
