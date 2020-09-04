@@ -10,13 +10,8 @@
         "endpoint": ""
       },
       {
-        "name": "party3<img src=http://placekitten.com/222/333>",
-        "endpoint": "http://localhost:8180/domibus/services/msh3?domain=aqua&amp;&lt;img src=http://placekitten.com/271/300&gt;>",
-        "identifiers": [
-          {
-            "partyId": "domibus-blue<img src=http://placekitten.com/333/333>"
-          }
-        ]
+        "name": "party3",
+        "endpoint": "http://localhost:8180/domibus/services/msh3?domain=aqua&amp;&lt;img src=http://placekitten.com/271/300&gt;>"
       }
     ],
     "processes": [

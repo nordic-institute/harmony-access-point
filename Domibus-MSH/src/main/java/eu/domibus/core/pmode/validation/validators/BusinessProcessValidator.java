@@ -40,12 +40,18 @@ public class BusinessProcessValidator implements PModeValidator {
 
         pMode.getBusinessProcesses().getProcesses()
                 .forEach(process -> {
-                    if (StringUtils.containsAny(process.getName(), '<', '>')) {
-                        String message = "Forbidden characters '< >' found in the process name [" + process.getName() + "].";
-                        issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-                    }
+                    issues.addAll(validateForbiddenCharacters(process));
                     performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes());
                 });
+        return issues;
+    }
+
+    protected List<ValidationIssue> validateForbiddenCharacters(Process process) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (StringUtils.containsAny(process.getName(), '<', '>')) {
+            String message = "Forbidden characters '< >' found in the process name [" + process.getName() + "].";
+            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+        }
         return issues;
     }
 

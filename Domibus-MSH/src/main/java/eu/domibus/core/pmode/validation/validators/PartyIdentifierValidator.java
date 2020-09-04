@@ -40,22 +40,26 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<Party> allParties = pMode.getBusinessProcesses().getParties();
         allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
-
-            if (StringUtils.containsAny(party.getName(), '<', '>')) {
-                String message = "Forbidden characters '< >' found in the party name [" + party.getName() + "].";
-                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-            }
-            party.getIdentifiers().forEach(identifier -> {
-                if (StringUtils.containsAny(identifier.getPartyId(), '<', '>') || (identifier.getPartyIdType() != null && ((StringUtils.containsAny(identifier.getPartyIdType().getName(), '<', '>') || StringUtils.containsAny(identifier.getPartyIdType().getValue(), '<', '>'))))) {
-                    String message = "Forbidden characters '< >' found in the party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
-                    issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-                }
-            });
-
+            issues.addAll(validateForbiddenCharacters(party));
         });
 
         allParties.forEach(party -> {
             issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
+        });
+        return issues;
+    }
+
+    protected List<ValidationIssue>  validateForbiddenCharacters(Party party) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (StringUtils.containsAny(party.getName(), '<', '>')) {
+            String message = "Forbidden characters '< >' found in the party name [" + party.getName() + "].";
+            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+        }
+        party.getIdentifiers().forEach(identifier -> {
+            if (StringUtils.containsAny(identifier.getPartyId(), '<', '>') || (identifier.getPartyIdType() != null && ((StringUtils.containsAny(identifier.getPartyIdType().getName(), '<', '>') || StringUtils.containsAny(identifier.getPartyIdType().getValue(), '<', '>'))))) {
+                String message = "Forbidden characters '< >' found in the party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
+                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+            }
         });
         return issues;
     }

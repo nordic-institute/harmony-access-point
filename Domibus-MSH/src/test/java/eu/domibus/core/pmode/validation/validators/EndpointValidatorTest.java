@@ -6,7 +6,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -21,10 +22,10 @@ public class EndpointValidatorTest extends AbstractValidatorTest {
     @Test
     public void validate() throws Exception {
         Configuration configuration = newConfiguration("TestConfiguration.json");
-        final List<ValidationIssue> results = validator.validate(configuration);
-        assertTrue(results.size() == 2);
-        assertEquals("Party [party2] should not have an empty endpoint.", results.get(0).getMessage());
-        assertTrue(results.get(1).getMessage().contains("Forbidden characters '< >' found in the endpoint"));
+        final List<ValidationIssue> issues = validator.validate(configuration);
+        assertTrue(issues.size() == 2);
+        assertThat(issues.get(0).getMessage(), is("Party [party2] should not have an empty endpoint."));
+        assertTrue(issues.get(1).getMessage().contains("Forbidden characters '< >' found in the endpoint"));
     }
 
 }
