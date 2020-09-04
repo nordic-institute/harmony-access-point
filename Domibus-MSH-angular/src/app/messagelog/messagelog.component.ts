@@ -24,7 +24,7 @@ import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
-import {PropertiesService} from "../properties/support/properties.service";
+import {PropertiesService} from '../properties/support/properties.service';
 
 @Component({
   moduleId: module.id,
