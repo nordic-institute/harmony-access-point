@@ -1209,6 +1209,9 @@
                                  initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
+        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
 
         <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
             <column name="MESSAGE_IN_ERROR_ID"/>
@@ -1221,6 +1224,5 @@
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
-
     </changeSet>
 </databaseChangeLog>
