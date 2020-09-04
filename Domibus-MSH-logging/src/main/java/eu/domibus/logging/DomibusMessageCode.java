@@ -39,7 +39,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_SERVICE_NOT_FOUND("BUS-028", "Message service not found for value [{}]"),
     BUS_MESSAGE_SERVICE_INVALID_URI("BUS-029", "Message service [{}] is not a valid URI [CORE]"),
     BUS_LEG_NAME_FOUND("BUS-030", "Leg name found [{}] for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
-    BUS_LEG_NAME_NOT_FOUND("BUS-031", "Leg name not found for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}]"),
+    BUS_LEG_NAME_NOT_FOUND("BUS-031", "Matching Process or Leg not found for agreement [{}], senderParty [{}], receiverParty [{}], service [{}] and action [{}].\nProcess mismatch details:[{}].\nLeg mismatch details:[{}]."),
     BUS_MESSAGE_SEND_INITIATION("BUS-032", "Preparing to send message from [{}] to [{}]"),
     BUS_MESSAGE_SEND_SUCCESS("BUS-033", "Message sent successfully from [{}] to [{}]"),
     BUS_MESSAGE_SEND_FAILURE("BUS-034", "Message sending from [{}] to [{}] failed"),
