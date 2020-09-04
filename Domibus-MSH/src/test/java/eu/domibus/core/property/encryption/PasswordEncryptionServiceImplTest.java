@@ -15,6 +15,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -921,8 +923,9 @@ public class PasswordEncryptionServiceImplTest {
 
         List<String> replacedLines = passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
 
-       // assertThat(replacedLines, CoreMatchers.hasItems(replacedLine1, replacedLine2));
+        assertThat(replacedLines, CoreMatchers.hasItems(replacedLine1, replacedLine2));
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }
