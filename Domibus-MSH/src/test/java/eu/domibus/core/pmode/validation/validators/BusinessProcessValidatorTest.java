@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Ion Perpegel
  * @author Catalin Enache
@@ -450,5 +452,20 @@ public class BusinessProcessValidatorTest {
 
         new FullVerifications(businessProcessValidator) {{
         }};
+    }
+
+    @Test
+    public void validate(@Injectable Configuration pMode, @Injectable Process process) {
+
+        List<Process> processList = new ArrayList<>();
+        processList.add(process);
+        new Expectations() {{
+            pMode.getBusinessProcesses().getProcesses();
+            result = processList;
+            process.getName();
+            result = "tcxProcess<img src=http://placekitten.com/155/155>";
+        }};
+        final List<ValidationIssue> results = businessProcessValidator.validate(pMode);
+        assertTrue(results.get(0).getMessage().contains("Forbidden characters '< >' found in the process name"));
     }
 }

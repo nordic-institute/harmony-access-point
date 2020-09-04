@@ -14,11 +14,11 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.2
  * <p>
- * Validates that each party has a non-empty endpoint.
+ * Validates the endpoint of each party.
  */
 @Component
 @Order(2)
-public class EmptyEndpointValidator implements PModeValidator {
+public class EndpointValidator implements PModeValidator {
 
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
@@ -28,6 +28,10 @@ public class EmptyEndpointValidator implements PModeValidator {
             if (StringUtils.isEmpty(party.getEndpoint())) {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
+            }
+            if (StringUtils.containsAny(party.getEndpoint(), '<', '>')) {
+                String message = "Forbidden characters '< >' found in the endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "].";
+                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
             }
         });
 

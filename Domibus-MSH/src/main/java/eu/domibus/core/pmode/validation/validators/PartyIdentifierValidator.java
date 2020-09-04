@@ -6,6 +6,7 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Soumya Chandran
  * @since 4.2
- * Validates duplicate Identifiers in the party.
+ * Validates Identifiers in the party.
  */
 @Component
 @Order(9)
@@ -39,6 +40,18 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<Party> allParties = pMode.getBusinessProcesses().getParties();
         allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
+
+            if (StringUtils.containsAny(party.getName(), '<', '>')) {
+                String message = "Forbidden characters '< >' found in the party name [" + party.getName() + "].";
+                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+            }
+            party.getIdentifiers().forEach(identifier -> {
+                if (StringUtils.containsAny(identifier.getPartyId(), '<', '>') || (identifier.getPartyIdType() != null && ((StringUtils.containsAny(identifier.getPartyIdType().getName(), '<', '>') || StringUtils.containsAny(identifier.getPartyIdType().getValue(), '<', '>'))))) {
+                    String message = "Forbidden characters '< >' found in the party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
+                    issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+                }
+            });
+
         });
 
         allParties.forEach(party -> {
