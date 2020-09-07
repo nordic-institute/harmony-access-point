@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -27,34 +26,37 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionDaoImpl.class);
 
-    @Autowired
-    protected EncryptionUtil encryptionUtil;
+    protected final EncryptionUtil encryptionUtil;
+
+    public PasswordEncryptionDaoImpl(EncryptionUtil encryptionUtil) {
+        this.encryptionUtil = encryptionUtil;
+    }
 
     @Cacheable(value = "encryptionKey", key = "#encryptedKeyFile.getCanonicalPath()")
     @Override
     public PasswordEncryptionSecret getSecret(File encryptedKeyFile) {
         LOG.debug("Getting the secret key from file [{}]", encryptedKeyFile);
 
-        String fileContent = null;
+        String fileContent ;
         try {
             fileContent = FileUtils.readFileToString(encryptedKeyFile, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not read secret key from file [%s] ", encryptedKeyFile), e);
         }
         final byte[] decodeBase64 = Base64.decodeBase64(fileContent);
-        int IVBytesLength = EncryptionUtilImpl.INIT_VECTOR_LENGTH;
-        final byte[] IVBytes = new byte[IVBytesLength];
-        final int secretKeyLength = decodeBase64.length - IVBytesLength;
+        int ivBytesLength = EncryptionUtilImpl.INIT_VECTOR_LENGTH;
+        final byte[] ivBytes = new byte[ivBytesLength];
+        final int secretKeyLength = decodeBase64.length - ivBytesLength;
         final byte[] secretKeyBytes = new byte[secretKeyLength];
 
         LOG.debug("Copying initVector");
-        System.arraycopy(decodeBase64, 0, IVBytes, 0, IVBytes.length);
+        System.arraycopy(decodeBase64, 0, ivBytes, 0, ivBytes.length);
 
         LOG.debug("Copying secretKey");
-        System.arraycopy(decodeBase64, IVBytes.length, secretKeyBytes, 0, secretKeyLength);
+        System.arraycopy(decodeBase64, ivBytes.length, secretKeyBytes, 0, secretKeyLength);
 
         final PasswordEncryptionSecret passwordEncryptionSecret = new PasswordEncryptionSecret();
-        passwordEncryptionSecret.setInitVector(IVBytes);
+        passwordEncryptionSecret.setInitVector(ivBytes);
         passwordEncryptionSecret.setSecretKey(secretKeyBytes);
         return passwordEncryptionSecret;
     }
@@ -63,11 +65,11 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
     @Override
     public PasswordEncryptionSecret createSecret(final File encryptedKeyFile) {
         final SecretKey secretKey = encryptionUtil.generateSecretKey();
-        final byte[] IVBytes = encryptionUtil.generateIV();
+        final byte[] ivBytes = encryptionUtil.generateIV();
         final byte[] secretKeyBytes = secretKey.getEncoded();
-        final int IVBytesLength = IVBytes.length;
+        final int IVBytesLength = ivBytes.length;
         final byte[] secret = new byte[IVBytesLength + secretKeyBytes.length];
-        System.arraycopy(IVBytes, 0, secret, 0, IVBytesLength);
+        System.arraycopy(ivBytes, 0, secret, 0, IVBytesLength);
         System.arraycopy(secretKeyBytes, 0, secret, IVBytesLength, secretKeyBytes.length);
         final String encodeBase64String = Base64.encodeBase64String(secret);
 
@@ -77,7 +79,7 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
             throw new DomibusEncryptionException(String.format("Could not persist secret key into [%s]", encryptedKeyFile));
         }
         final PasswordEncryptionSecret passwordEncryptionSecret = new PasswordEncryptionSecret();
-        passwordEncryptionSecret.setInitVector(IVBytes);
+        passwordEncryptionSecret.setInitVector(ivBytes);
         passwordEncryptionSecret.setSecretKey(secretKeyBytes);
         return passwordEncryptionSecret;
     }

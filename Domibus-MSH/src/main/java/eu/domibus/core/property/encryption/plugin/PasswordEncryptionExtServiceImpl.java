@@ -12,7 +12,6 @@ import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,14 +23,20 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionExtServiceImpl.class);
 
-    @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
+    protected final PasswordEncryptionService passwordEncryptionService;
 
-    @Autowired
-    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+    protected final PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
-    @Autowired
-    protected DomainExtConverter domainExtConverter;
+    protected final DomainExtConverter domainExtConverter;
+
+    public PasswordEncryptionExtServiceImpl(
+            PasswordEncryptionService passwordEncryptionService,
+            PasswordEncryptionContextFactory passwordEncryptionContextFactory,
+            DomainExtConverter domainExtConverter) {
+        this.passwordEncryptionService = passwordEncryptionService;
+        this.passwordEncryptionContextFactory = passwordEncryptionContextFactory;
+        this.domainExtConverter = domainExtConverter;
+    }
 
     @Override
     public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {

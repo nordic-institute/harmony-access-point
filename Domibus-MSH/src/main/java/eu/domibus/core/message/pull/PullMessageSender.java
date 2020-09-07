@@ -8,6 +8,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -15,8 +16,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.status.DomibusStatusService;
@@ -25,6 +24,8 @@ import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -47,8 +48,6 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
-
-import static eu.domibus.core.metrics.MetricNames.OUTGOING_PULL_REQUEST;
 
 /**
  * @author Thomas Dussart
@@ -105,8 +104,8 @@ public class PullMessageSender {
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
-    @Timer(OUTGOING_PULL_REQUEST)
-    @Counter(OUTGOING_PULL_REQUEST)
+    @Timer(clazz = PullMessageSender.class,value = "outgoing_pull_request")
+    @Counter(clazz = PullMessageSender.class,value = "outgoing_pull_request")
     public void processPullRequest(final Message map) {
         if (domibusStatusService.isNotReady()) {
             return;

@@ -18,10 +18,10 @@ public @interface Counter {
     /**
      * @return the counter name.
      */
-    MetricNames value();
+    String value() ;
 
     /**
      * @return the counter class.
      */
-    Class<?> clazz() default Default.class;
+    Class<?> clazz() default Void.class;
 }

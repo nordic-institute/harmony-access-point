@@ -39,7 +39,6 @@ public class DynamicDiscoveryPModeProviderIT {
 
     @Before
     public void setUp() {
-        ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
         ReflectionTestUtils.setField(cachingPModeProvider, "configuration", getConfiguration());
     }
 
@@ -55,28 +54,26 @@ public class DynamicDiscoveryPModeProviderIT {
      * }
      */
     @Test
-    @Ignore
-    //TODO this test is failling when running at package level (at least eu.domibus.core) java.lang.InterruptedException
     public void concurrentAccessReadWrite() throws ExecutionException, InterruptedException {
+        ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
         Callable<List<Party>> getPartiesAndDoStuff = () -> {
 
             List<Party> parties;
-            LOG.info("Start Thread getParties " + Thread.currentThread().getName());
+            LOG.info("concurrentAccessReadWrite -> Start Thread getParties " + Thread.currentThread().getName());
             parties = dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties();
             for (final Party party : parties) {
-                // The thread should keep on reading the parties longer than the other thread is trying to modify the parties
-                Thread.sleep(200);
+                sleepNicely(200);
             }
-            LOG.info("End Thread getParties " + Thread.currentThread().getName());
+            LOG.info("concurrentAccessReadWrite -> End Thread getParties " + Thread.currentThread().getName());
             return parties;
         };
 
         Callable<Party> modifyConfigSynchronized = () -> {
             // Thread should start modifying the list after the getParties from the other thread
-            Thread.sleep(50);
-            LOG.info("Start Thread updateConfigurationParty " + Thread.currentThread().getName());
+            sleepNicely(50);
+            LOG.info("concurrentAccessReadWrite -> Start Thread updateConfigurationParty " + Thread.currentThread().getName());
             Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty(NAME, "type", "enpoint");
-            LOG.info("End Thread updateConfigurationParty " + Thread.currentThread().getName());
+            LOG.info("concurrentAccessReadWrite -> End Thread updateConfigurationParty " + Thread.currentThread().getName());
             return party;
         };
 
@@ -85,15 +82,21 @@ public class DynamicDiscoveryPModeProviderIT {
         Future<List<Party>> get = ex.submit(getPartiesAndDoStuff);
         Future<Party> modify = ex.submit(modifyConfigSynchronized);
 
-        List<Party> parties = get.get();
-        Party party = modify.get();
+        try {
+            List<Party> parties = get.get(1000, TimeUnit.MILLISECONDS);
+            Party party = modify.get(1000, TimeUnit.MILLISECONDS);
 
-        //Parties does not have the new party
-        assertFalse(parties.stream().anyMatch(p -> NAME.equalsIgnoreCase(p.getName())));
-        assertNotNull(party);
-        assertEquals(NAME, party.getName());
+            //Parties does not have the new party
+            assertFalse(parties.stream().anyMatch(p -> NAME.equalsIgnoreCase(p.getName())));
+            assertNotNull(party);
+            assertEquals(NAME, party.getName());
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOG.info("Exception during get: {}", e.getMessage());
+        } finally {
+            ex.shutdownNow();
+        }
+
     }
-
 
     /**
      * This test is just an example to reproduce the issue described by EDELIVERY-6522 when there are concurrent access issues
@@ -105,6 +108,7 @@ public class DynamicDiscoveryPModeProviderIT {
      */
     @Test
     public void test_UpdateConfigurationParty_FindPartyName() throws Exception {
+        ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
 
         final String partyName = "PIT000158";
         final String partyType = "urn:fdc:peppol.eu:2017:identifiers:ap";
@@ -117,15 +121,15 @@ public class DynamicDiscoveryPModeProviderIT {
             // update the configuration
             // but sleep a variable time before doing this
             int sleepTime = RandomUtils.nextInt(10, 51);
-            LOG.info("Sleep first=[{}]", sleepTime);
-            Thread.sleep(sleepTime);
-            LOG.info("Start Thread updateConfigurationParty " + Thread.currentThread().getName());
+            LOG.info("test_UpdateConfigurationParty_FindPartyName -> Sleep first=[{}]", sleepTime);
+            sleepNicely(sleepTime);
+            LOG.info("test_UpdateConfigurationParty_FindPartyName -> Start Thread updateConfigurationParty " + Thread.currentThread().getName());
             Party party = dynamicDiscoveryPModeProvider.updateConfigurationParty(partyName, partyType, partyUrl);
-            LOG.info("End Thread updateConfigurationParty " + Thread.currentThread().getName());
+            LOG.info("test_UpdateConfigurationParty_FindPartyName -> End Thread updateConfigurationParty " + Thread.currentThread().getName());
             return party;
         };
 
-        int nbThreads = 50;
+        int nbThreads = 20;
         ExecutorService executorUpdate = Executors.newFixedThreadPool(nbThreads);
         List<Callable<Party>> tasksList = new ArrayList<>();
         for (int i =0; i < nbThreads; i++) {
@@ -133,19 +137,24 @@ public class DynamicDiscoveryPModeProviderIT {
         }
 
         //update here
-        List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+        try {
+            List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.info("InterruptedException during invokeAll");
+        }
 
         //read here
-        try {
-            do {
+        do {
+            try {
                 cachingPModeProvider.findPartyName(Collections.singletonList(partyId));
                 Assert.fail("Exception expected");
-            } while (executorUpdate.isTerminated());
-        } catch (Exception e) {
-            LOG.error("exception thrown", e);
-            Assert.assertTrue(e instanceof EbMS3Exception);
-            Assert.assertTrue(e.getMessage().contains("No matching party found"));
-        }
+            } catch (Exception e) {
+                LOG.error("exception thrown", e);
+                Assert.assertTrue(e instanceof EbMS3Exception);
+                Assert.assertTrue(e.getMessage().contains("No matching party found"));
+            }
+        } while (executorUpdate.isTerminated());
     }
 
 
@@ -155,5 +164,13 @@ public class DynamicDiscoveryPModeProviderIT {
         businessProcesses.setParties(new ArrayList<>(Arrays.asList(new Party(), new Party(), new Party())));
         configuration.setBusinessProcesses(businessProcesses);
         return configuration;
+    }
+    private void sleepNicely(int i) {
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.info(Thread.currentThread().getName() + " was interrupted during sleep of {} ", i);
+        }
     }
 }

@@ -5,22 +5,18 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
+import eu.domibus.core.message.*;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageState;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -207,9 +203,9 @@ public class PullMessageServiceImpl implements PullMessageService {
      */
     @Override
     @Transactional
-    public void addPullMessageLock(final PartyIdExtractor partyIdExtractor, final String pModeKey,
+    public void addPullMessageLock(final String partyIdentifier, final String pModeKey,
                                    final MessageLog messageLog) {
-        MessagingLock messagingLock = prepareMessagingLock(partyIdExtractor, pModeKey, messageLog);
+        MessagingLock messagingLock = prepareMessagingLock(partyIdentifier, pModeKey, messageLog);
         messagingLockDao.save(messagingLock);
     }
 
@@ -218,7 +214,7 @@ public class PullMessageServiceImpl implements PullMessageService {
      */
     @Override
     @Transactional
-    public void addPullMessageLock(final PartyIdExtractor partyIdExtractor, final UserMessage userMessage,
+    public void addPullMessageLock(final UserMessage userMessage,
                                    final MessageLog messageLog) {
         final String pmodeKey; // FIXME: This does not work for signalmessages
         try {
@@ -226,20 +222,19 @@ public class PullMessageServiceImpl implements PullMessageService {
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageLog.getMessageId() + "]", e);
         }
-        addPullMessageLock(partyIdExtractor, pmodeKey, messageLog);
+        addPullMessageLock(userMessage.getToFirstPartyId(), pmodeKey, messageLog);
     }
 
-    private MessagingLock prepareMessagingLock(PartyIdExtractor partyIdExtractor, String pModeKey, MessageLog messageLog) {
-        String partyId = partyIdExtractor.getPartyId();
+    private MessagingLock prepareMessagingLock(String partyIdentifier, String pModeKey, MessageLog messageLog) {
         final String messageId = messageLog.getMessageId();
         final String mpc = messageLog.getMpc();
-        LOG.trace("Saving message lock with partyID:[{}], mpc:[{}]", partyId, mpc);
+        LOG.trace("Saving message lock with partyID:[{}], mpc:[{}]", partyIdentifier, mpc);
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
         final Date staledDate = updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);
 
         return new MessagingLock(
                 messageId,
-                partyId,
+                partyIdentifier,
                 mpc,
                 messageLog.getReceived(),
                 staledDate,

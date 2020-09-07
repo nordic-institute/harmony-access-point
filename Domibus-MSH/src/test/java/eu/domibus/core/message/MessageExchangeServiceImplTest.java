@@ -129,27 +129,29 @@ public class MessageExchangeServiceImplTest {
     public void testGetPartyId() throws Exception {
         String mpc = "mpcValue";
         String expectedPartyId = "BE1234567890";
+        String party1 = "party1";
+
         when(pullMessageService.allowDynamicInitiatorInPullProcess()).thenReturn(true);
         when(mpcService.extractInitiator(mpc)).thenReturn(expectedPartyId);
 
-        String partyId = messageExchangeService.getPartyId(mpc, new Party());
-        assertEquals(expectedPartyId, partyId);
+        Set<String> partyIds = messageExchangeService.getPartyIds(mpc, new Party());
+        assertTrue(partyIds.contains(expectedPartyId));
 
         Party party = Mockito.mock(Party.class);
         when(party.getIdentifiers()).thenReturn(null);
 
-        partyId = messageExchangeService.getPartyId(mpc, party);
-        assertEquals(expectedPartyId, partyId);
+        partyIds = messageExchangeService.getPartyIds(mpc, party);
+        assertTrue(partyIds.contains(expectedPartyId));
 
 
         List<Identifier> identifiers = new ArrayList<>();
         Identifier identifier = new Identifier();
-        identifier.setPartyId("party1");
+        identifier.setPartyId(party1);
         identifiers.add(identifier);
         when(party.getIdentifiers()).thenReturn(identifiers);
 
-        partyId = messageExchangeService.getPartyId(null, party);
-        assertEquals("party1", partyId);
+        partyIds = messageExchangeService.getPartyIds(null, party);
+        assertTrue(partyIds.contains(party1));
     }
 
     @Test

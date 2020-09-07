@@ -2,9 +2,12 @@ package eu.domibus.ext.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -56,7 +59,12 @@ public class JmsMessageDTO {
     }
 
     public void setProperty(String name, Object value) {
-        properties.put(name, value);
+
+        if (!isValidObjectType(value)){
+            throw new IllegalArgumentException("Unsupported value type: ["+ value.getClass()+"] for JMS property name: ["+name+"]. Only objectified primitive objects and String types are allowed!");
+        }
+        // convert objectified primitive objects to string
+        properties.put(name, String.valueOf(value));
     }
 
     public Map<String, Object> getProperties() {
@@ -64,7 +72,24 @@ public class JmsMessageDTO {
     }
 
     public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+
+        // get invalid properties
+        Map<String, Object> invalidProperties = properties.entrySet().stream()
+                .filter(e -> !isValidObjectType(e.getValue())).
+                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue ));
+
+        if (!invalidProperties.isEmpty()) {
+            StringWriter sw = new StringWriter();
+            invalidProperties.forEach((name, value) ->{
+                    sw.append("Unsupported value type: ["+ value.getClass()+"] for JMS property name: ["+name+"].\n");
+            });
+            sw.append("Only objectified primitive objects and String types are allowed!");
+            throw new IllegalArgumentException(sw.toString());
+        }
+        //Convert objects to string.
+        Map<String,Object> newProperties = properties.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
+        this.properties = newProperties;
     }
 
     public String getStringProperty(String key) {
@@ -88,5 +113,17 @@ public class JmsMessageDTO {
                 .append("timestamp", timestamp)
                 .append("properties", properties)
                 .toString();
+    }
+
+    /**
+     * To ensure backward compatibility allow all objectified primitive objects and String types.
+     *
+     * @param value: check class type for the object
+     * @return true if valid object else return false.
+     */
+    protected boolean isValidObjectType(Object value) {
+        boolean valid = value instanceof Boolean || value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long;
+        valid = valid || value instanceof Float || value instanceof Double || value instanceof Character || value instanceof String || value == null;
+        return valid;
     }
 }

@@ -7,6 +7,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
+import eu.domibus.core.ebms3.sender.MessageSenderListener;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -48,6 +51,8 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     @Transactional
+    @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
+    @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
@@ -70,7 +75,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
                 LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
                 return;
             }
-            Map<String, Object> messageProperties = getMessageProperties(message);
+            Map<String, String> messageProperties = getMessageProperties(message);
             pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
@@ -81,12 +86,12 @@ public class PluginAsyncNotificationListener implements MessageListener {
         }
     }
 
-    protected Map<String, Object> getMessageProperties(Message message) throws JMSException {
-        Map<String, Object> properties = new HashMap<>();
+    protected Map<String, String> getMessageProperties(Message message) throws JMSException {
+        Map<String, String> properties = new HashMap<>();
         Enumeration propertyNames = message.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = (String) propertyNames.nextElement();
-            properties.put(propertyName, message.getObjectProperty(propertyName));
+            properties.put(propertyName, message.getStringProperty(propertyName));
         }
         return properties;
     }

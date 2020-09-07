@@ -61,18 +61,18 @@ public class CommandExecutorServiceImplTest {
             command2.getCommandName();
             result = Command.RELOAD_TRUSTSTORE;
 
-            commandService.findCommandsByServerAndDomainName(server1, DomainService.DEFAULT_DOMAIN.getCode());
+            commandService.findCommandsByServerName(server1);
             result = commands;
 
         }};
 
-        commandExecutorService.executeCommands(server1, DomainService.DEFAULT_DOMAIN);
+        commandExecutorService.executeCommands(server1);
 
         new Verifications() {{
-            commandExecutorService.executeAndDeleteCommand(command1, DomainService.DEFAULT_DOMAIN);
+            commandExecutorService.executeAndDeleteCommand(command1);
             times = 1;
 
-            commandExecutorService.executeAndDeleteCommand(command2, DomainService.DEFAULT_DOMAIN);
+            commandExecutorService.executeAndDeleteCommand(command2);
             times = 1;
         }};
     }
@@ -84,14 +84,14 @@ public class CommandExecutorServiceImplTest {
         String command = "mycommand";
 
         new Expectations(commandExecutorService) {{
-            commandExecutorService.skipCommandSameServer(command, domain, commandProperties);
+            commandExecutorService.skipCommandSameServer(command, commandProperties);
             result = false;
 
             commandExecutorService.getCommandTask(command);
             result = commandTask;
         }};
 
-        commandExecutorService.executeCommand(command, domain, commandProperties);
+        commandExecutorService.executeCommand(command, commandProperties);
 
         new Verifications() {{
             commandTask.execute(commandProperties);
@@ -103,13 +103,12 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void executePluginCommand(@Injectable Domain domain,
-                                     @Injectable Map<String, String> commandProperties,
+    public void executePluginCommand(@Injectable Map<String, String> commandProperties,
                                      @Injectable CommandExtTask commandTask) {
         String command = "mycommand";
 
         new Expectations(commandExecutorService) {{
-            commandExecutorService.skipCommandSameServer(command, domain, commandProperties);
+            commandExecutorService.skipCommandSameServer(command, commandProperties);
             result = false;
 
             commandExecutorService.getCommandTask(command);
@@ -119,7 +118,7 @@ public class CommandExecutorServiceImplTest {
             result = commandTask;
         }};
 
-        commandExecutorService.executeCommand(command, domain, commandProperties);
+        commandExecutorService.executeCommand(command, commandProperties);
 
         new Verifications() {{
             commandTask.execute(commandProperties);
@@ -128,13 +127,12 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void executeAndDeleteCommand(@Injectable Domain domain,
-                                        @Injectable Command commandTask) {
+    public void executeAndDeleteCommand(@Injectable Command commandTask) {
         new Expectations(commandExecutorService) {{
-            commandExecutorService.executeCommand(commandTask.getCommandName(), domain, commandTask.getCommandProperties());
+            commandExecutorService.executeCommand(commandTask.getCommandName(), commandTask.getCommandProperties());
         }};
 
-        commandExecutorService.executeAndDeleteCommand(commandTask, domain);
+        commandExecutorService.executeAndDeleteCommand(commandTask);
 
         new Verifications() {{
             commandService.deleteCommand(commandTask.getEntityId());
@@ -142,8 +140,7 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void skipCommandSameServer(@Injectable Domain domain,
-                                      @Injectable Map<String, String> commandProperties,
+    public void skipCommandSameServer(@Injectable Map<String, String> commandProperties,
                                       @Injectable CommandExtTask commandTask) {
         String command = "mycommand";
         String originServerName = "server1";
@@ -156,6 +153,6 @@ public class CommandExecutorServiceImplTest {
             result = originServerName;
         }};
 
-        assertTrue(commandExecutorService.skipCommandSameServer(command, domain, commandProperties));
+        assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
     }
 }

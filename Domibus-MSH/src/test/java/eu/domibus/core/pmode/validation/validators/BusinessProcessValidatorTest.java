@@ -245,11 +245,12 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateLegConfiguration(final @Injectable ValidationIssue validationIssue,
                                               final @Injectable Process process,
-                                              final @Injectable Set<LegConfiguration> legConfigurations,
                                               final @Injectable Legs legs,
                                               final @Injectable Leg leg) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
+
+        Set<LegConfiguration> legConfigurations=new HashSet<>();
 
         new Expectations(businessProcessValidator) {{
             process.getLegs();
