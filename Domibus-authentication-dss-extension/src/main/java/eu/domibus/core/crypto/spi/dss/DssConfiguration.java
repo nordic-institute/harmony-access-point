@@ -156,9 +156,6 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
 
-    @Value("${domibus.dss.perform.crl.check}")
-    private boolean checkCrlInDss;
-
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -171,7 +168,7 @@ public class DssConfiguration {
 
     @Bean
     public DomibusTSLRepository tslRepository(TrustedListsCertificateSource trustedListSource,
-                                              ServerInfoExtService serverInfoExtService,
+                                              @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") ServerInfoExtService serverInfoExtService,
                                               IgnorePivotFilenameFilter ignorePivotFilenameFilter) {
         LOG.debug("Dss trusted list cache path:[{}]", dssCachePath);
         String nodeName = serverInfoExtService.getNodeName();
@@ -207,7 +204,12 @@ public class DssConfiguration {
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
         DomibusDataLoader dataLoader = dataLoader();
-        if (checkCrlInDss) {
+        boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
+        LOG.debug("New Certificate verifier instance with crl chek:[{}], exception on missing revocation:[{}], check revocation for untrusted chains:[{}]",
+                crlCheck,
+                enableExceptionOnMissingRevocationData,
+                checkRevocationForUntrustedChain);
+        if (crlCheck) {
             crlSource = new OnlineCRLSource(dataLoader);
         }
         CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(), crlSource, null, dataLoader);
@@ -429,8 +431,8 @@ public class DssConfiguration {
     }
 
     @Bean
-    public ValidationConstraintPropertyMapper contraints(DomibusPropertyExtService domibusPropertyExtService,
-                                                         DomainContextExtService domainContextExtService, Environment environment) {
+    public ValidationConstraintPropertyMapper contraints(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusPropertyExtService domibusPropertyExtService,
+                                                         @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomainContextExtService domainContextExtService, Environment environment) {
         return new ValidationConstraintPropertyMapper(domibusPropertyExtService, domainContextExtService, environment);
     }
 
@@ -445,7 +447,7 @@ public class DssConfiguration {
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper,
-                                                        final PkiExtService pkiExtService,
+                                                        @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") final PkiExtService pkiExtService,
                                                         final DssCache dssCache) {
         //needed to initialize WSS4J property bundles to have correct message in the WSSException.
         WSSConfig.init();
@@ -460,12 +462,17 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DssCache dssCache(CacheManager cacheManager) {
+    public DssCache dssCache(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CacheManager cacheManager) {
         org.springframework.cache.Cache cache = cacheManager.getCache(cacheName);
         if (cache == null) {
             throw new IllegalArgumentException(String.format("Cache named:[%s] not found, please configure it.", cacheName));
         }
         return new DssCache((Cache) cache.getNativeCache());
+    }
+
+    @Bean
+    public DssExtensionPropertyManager dssExtensionPropertyManager(){
+        return new DssExtensionPropertyManager();
     }
 
 }
